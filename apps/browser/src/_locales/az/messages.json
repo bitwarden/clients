@@ -1830,7 +1830,7 @@
     "message": "Güvənlik kodu"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "kart nömrəsi"
   },
   "ex": {
     "message": "məs."
@@ -3464,7 +3464,7 @@
     "message": "Tələb göndərildi"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş tələbi təsdiqləndi",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3477,13 +3477,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu siz idinizsə, cihazla yenidən giriş etməyə çalışın."
   },
   "device": {
-    "message": "Device"
+    "message": "Cihaz"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Giriş statusu"
   },
   "masterPasswordChanged": {
     "message": "Ana parol saxlanıldı"
@@ -3582,28 +3582,28 @@
     "message": "Gələcək girişləri problemsiz etmək üçün bu cihazı xatırla"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Cihazları idarə et"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Hazırkı seans"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Mobil",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Uzantı",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Masaüstü",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Veb seyf"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Veb tətbiq"
   },
   "cli": {
     "message": "CLI"
@@ -3613,22 +3613,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Tələb gözlənir"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "İlk giriş"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Güvənli"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Təsdiq lazımdır"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Cihazlar"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "$EMAIL$ ilə müraciət cəhdi",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3637,28 +3637,28 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Müraciəti təsdiqlə"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Müraciətə rədd cavabı ver"
   },
   "time": {
-    "message": "Time"
+    "message": "Vaxt"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Cihaz növü"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Giriş tələbi"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Bu tələb artıq yararsızdır."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Hesabınıza müraciət etməyə çalışırsınız?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş təsdiqləndi",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,16 +3671,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu həqiqətən siz idinizsə, cihazla yenidən giriş etməyə çalışın."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Giriş tələbinin müddəti artıq bitib."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "İndicə"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "$MINUTES$ dəqiqə əvvəl tələb göndərildi",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4598,7 +4598,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

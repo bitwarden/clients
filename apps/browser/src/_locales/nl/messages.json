@@ -3464,7 +3464,7 @@
     "message": "Verzoek verzonden"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3477,7 +3477,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
   },
   "device": {
     "message": "Apparaat"
@@ -3582,17 +3582,17 @@
     "message": "Onthoud dit apparaat om in het vervolg naadloos in te loggen"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Apparaten beheren"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Huidige sessie"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Mobiel",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Extensie",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -3600,10 +3600,10 @@
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Webkluis"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Web-app"
   },
   "cli": {
     "message": "CLI"
@@ -3613,22 +3613,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Verzoek in behandeling"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Eerst inloggen"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Vertrouwd"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Heeft goedkeuring nodig"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Apparaten"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Inlogpoging door $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3637,19 +3637,19 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Toegang bevestigen"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Toegang weigeren"
   },
   "time": {
-    "message": "Time"
+    "message": "Tijd"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Apparaattype"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Log-inverzoek"
   },
   "thisRequestIsNoLongerValid": {
     "message": "Dit verzoek is niet langer geldig."
@@ -3677,10 +3677,10 @@
     "message": "Inlogverzoek is al verlopen."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Zojuist"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "$MINUTES$ minuten geleden aangevraagd",
     "placeholders": {
       "minutes": {
         "content": "$1",

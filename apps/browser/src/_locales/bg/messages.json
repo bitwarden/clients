@@ -1830,7 +1830,7 @@
     "message": "Код за сигурност"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "номер на карта"
   },
   "ex": {
     "message": "напр."
@@ -3464,7 +3464,7 @@
     "message": "Заявката е изпратена"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Заявката за вписване за $EMAIL$ на $DEVICE$ е одобрена",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3477,13 +3477,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Вие отказахте опит за вписване от друго устройство. Ако това сте били Вие, опитайте да се впишете от устройството отново."
   },
   "device": {
-    "message": "Device"
+    "message": "Устройство"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Състояние на вписването"
   },
   "masterPasswordChanged": {
     "message": "Главната парола е запазена"
@@ -3582,28 +3582,28 @@
     "message": "Запомняне на това устройство, така че в бъдеще вписването да бъде по-лесно"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Управление на устройствата"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Текуща сесия"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Мобилно приложение",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Добавка за браузър",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Работен плот",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Трезор по уеб"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Приложение по уеб"
   },
   "cli": {
     "message": "CLI"
@@ -3613,22 +3613,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Чакаща заявка"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Първо вписване"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Доверено"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Изисква одобрение"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Устройства"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Опит за достъп от $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3637,28 +3637,28 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Разрешаване на достъпа"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Отказване на достъпа"
   },
   "time": {
-    "message": "Time"
+    "message": "Време"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Вид устройство"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Заявка за вписване"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Тази заявка вече не е активна."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Опитвате ли се да получите достъп до акаунта си?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Вписването за $EMAIL$ на $DEVICE$ е одобрено",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,16 +3671,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Вие отказахте опит за вписване от друго устройство. Ако това наистина сте били Вие, опитайте да се впишете от устройството отново."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Заявката за вписване вече е изтекла."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Току-що"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Заявено преди $MINUTES$ минути",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4598,7 +4598,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Копиране на $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

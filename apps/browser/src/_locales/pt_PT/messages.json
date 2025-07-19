@@ -450,7 +450,7 @@
     "message": "Gera automaticamente palavras-passe fortes e únicas para as suas credenciais."
   },
   "bitWebVaultApp": {
-    "message": "Aplicação Web Bitwarden"
+    "message": "Aplicação web Bitwarden"
   },
   "importItems": {
     "message": "Importar itens"
@@ -653,7 +653,7 @@
     "message": "Classificar a extensão"
   },
   "browserNotSupportClipboard": {
-    "message": "O seu navegador Web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
+    "message": "O seu navegador web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
   },
   "verifyYourIdentity": {
     "message": "Verifique a sua identidade"
@@ -929,7 +929,7 @@
     "message": "Torne a sua conta mais segura configurando a verificação de dois passos na aplicação Web Bitwarden."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continuar para a aplicação Web?"
+    "message": "Continuar para a aplicação web?"
   },
   "editedFolder": {
     "message": "Pasta guardada"
@@ -1584,7 +1584,7 @@
     "message": "URL do servidor da API"
   },
   "webVaultUrl": {
-    "message": "URL do servidor do cofre Web"
+    "message": "URL do servidor do cofre web"
   },
   "identityUrl": {
     "message": "URL do servidor de identidade"
@@ -1830,7 +1830,7 @@
     "message": "Código de segurança"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "número do cartão"
   },
   "ex": {
     "message": "ex."
@@ -3464,7 +3464,7 @@
     "message": "Pedido enviado"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Pedido de início de sessão aprovado para $EMAIL$ no $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3477,13 +3477,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
   "device": {
-    "message": "Device"
+    "message": "Dispositivo"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Estado do início de sessão"
   },
   "masterPasswordChanged": {
     "message": "Palavra-passe mestra guardada"
@@ -3582,28 +3582,28 @@
     "message": "Memorizar este dispositivo para facilitar futuros inícios de sessão"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Gerir dispositivos"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Sessão atual"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Móvel",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Extensão",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Computador",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Cofre web"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Aplicação web"
   },
   "cli": {
     "message": "CLI"
@@ -3613,22 +3613,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Pedido pendente"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Primeiro início de sessão"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Confiável"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Precisa de aprovação"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Dispositivos"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Tentativa de acesso por $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3637,28 +3637,28 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Confirmar acesso"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Recusar acesso"
   },
   "time": {
-    "message": "Time"
+    "message": "Hora"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Tipo de dispositivo"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Pedido de início de sessão"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Este pedido já não é válido."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Está a tentar aceder à sua conta?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Início de sessão confirmado para $EMAIL$ no $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,16 +3671,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "O pedido de início de sessão já expirou."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Agora mesmo"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Pedido há $MINUTES$ minutos",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4598,7 +4598,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

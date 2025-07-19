@@ -1830,7 +1830,7 @@
     "message": "Bezpečnostní kód"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "číslo karty"
   },
   "ex": {
     "message": "např."
@@ -3480,10 +3480,10 @@
     "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to Vy, zkuste se znovu přihlásit do zařízení."
   },
   "device": {
-    "message": "Device"
+    "message": "Zařízení"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Stav přihlášení"
   },
   "masterPasswordChanged": {
     "message": "Hlavní heslo bylo uloženo"
@@ -3652,13 +3652,13 @@
     "message": "Požadavek na přihlášení"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Tento požadavek již není platný."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Pokoušíte se získat přístup k Vašemu účtu?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Přihlášení bylo potvrzeno z $EMAIL$ pro $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,10 +3671,10 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to opravdu Vy, zkuste se znovu přihlásit do zařízení."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Požadavek na přihlášení již vypršel."
   },
   "justNow": {
     "message": "Právě teď"
@@ -4598,7 +4598,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

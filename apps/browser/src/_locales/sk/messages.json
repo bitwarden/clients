@@ -3480,10 +3480,10 @@
     "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli vy, skúste sa prihlásiť pomocou zariadenia znova."
   },
   "device": {
-    "message": "Device"
+    "message": "Zariadenie"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Stav prihlásenia"
   },
   "masterPasswordChanged": {
     "message": "Hlavné heslo uložené"
@@ -3652,13 +3652,13 @@
     "message": "Žiadosť o prihlásenie"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Táto žiadosť už nie je platná."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Snažíte sa získať prístup k svojmu účtu?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Potvrdené prihlásenie pre $EMAIL$ na $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,10 +3671,10 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli naozaj vy, skúste sa prihlásiť pomocou zariadenia znova."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Platnosť žiadosti o prihlásenie už vypršala."
   },
   "justNow": {
     "message": "Práve teraz"

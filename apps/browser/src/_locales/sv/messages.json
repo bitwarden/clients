@@ -1830,7 +1830,7 @@
     "message": "Säkerhetskod"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "kortnummer"
   },
   "ex": {
     "message": "t. ex."
@@ -3480,10 +3480,10 @@
     "message": "Du nekade ett inloggningsförsök från en annan enhet. Om det var du, försök att logga in med enheten igen."
   },
   "device": {
-    "message": "Device"
+    "message": "Enhet"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Inloggningsstatus"
   },
   "masterPasswordChanged": {
     "message": "Huvudlösenordet sparades"
@@ -3652,13 +3652,13 @@
     "message": "Begäran om inloggning"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Denna begäran är inte längre giltig."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Försöker du komma åt ditt konto?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Inloggning bekräftad för $EMAIL$ på $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,10 +3671,10 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Du har avvisat ett inloggningsförsök från en annan enhet. Om det verkligen var du, försök logga in med enheten igen."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Inloggningsbegäran har redan gått ut."
   },
   "justNow": {
     "message": "Just nu"
@@ -4598,7 +4598,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopiera $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

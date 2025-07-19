@@ -1830,7 +1830,7 @@
     "message": "Mã bảo mật"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "số thẻ"
   },
   "ex": {
     "message": "Ví dụ:"
@@ -3464,7 +3464,7 @@
     "message": "Đã gửi yêu cầu"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Đã phê duyệt yêu cầu đăng nhập cho $EMAIL$ trên $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3477,13 +3477,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu đó là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
   },
   "device": {
-    "message": "Device"
+    "message": "Thiết bị"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Trạng thái đăng nhập"
   },
   "masterPasswordChanged": {
     "message": "Đã lưu mật khẩu chính"
@@ -3582,53 +3582,53 @@
     "message": "Nhớ thiết bị này để đăng nhập dễ dàng trong tương lai"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Quản lý thiết bị"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Phiên hiện tại"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Di động",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Tiện ích mở rộng",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Máy tính",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Kho web"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Ứng dụng web"
   },
   "cli": {
-    "message": "CLI"
+    "message": "Giao diện dòng lệnh (CLI)"
   },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Yêu cầu đang chờ xử lý"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Đăng nhập lần đầu"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Tin tưởng"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Cần phê duyệt"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Thiết bị"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Cố gắng truy cập bởi $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3637,28 +3637,28 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Xác nhận truy cập"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Từ chối truy cập"
   },
   "time": {
-    "message": "Time"
+    "message": "Thời gian"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Loại thiết bị"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Yêu cầu đăng nhập"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Yêu cầu này không còn hiệu lực."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Bạn đang cố gắng truy cập tài khoản của mình?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Đã xác nhận đăng nhập cho $EMAIL$ trên $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,16 +3671,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu thực sự là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Yêu cầu đăng nhập đã hết hạn."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Vừa xong"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Đã yêu cầu $MINUTES$ phút trước",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4598,7 +4598,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Sao chép $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

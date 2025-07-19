@@ -1830,7 +1830,7 @@
     "message": "Biztonsági Kód"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "kártya szám"
   },
   "ex": {
     "message": "példa:"
@@ -3464,7 +3464,7 @@
     "message": "A kérés elküldésre került."
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "A bejelentkezési kérelem jóváhagyásra került: $EMAIL$ - $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3477,13 +3477,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
   "device": {
-    "message": "Device"
+    "message": "Eszköz"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Bejelentkezési állapot"
   },
   "masterPasswordChanged": {
     "message": "A mesterjelszó mentésre került."
@@ -3582,28 +3582,28 @@
     "message": "Emlékezés az eszközre, hogy zökkenőmentes legyen a jövőbeni bejelentkezés"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Eszközök kezelése"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Jelenlegi munkamenet"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Mobil",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Kiterjesztés",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Asztali",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Webes széf"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Webalkalmazás"
   },
   "cli": {
     "message": "CLI"
@@ -3613,22 +3613,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Függőben lévő kérelem"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Első bejelentkezés"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Megbízható"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Jóváhagyást igényel"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Eszközök"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3637,28 +3637,28 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Hozzáférés megerősítése"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Hozzáférés megtagadása"
   },
   "time": {
-    "message": "Time"
+    "message": "Időpont"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Eszköz típus"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Bejelentkezés kérés"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "A kérés a továbbiakban már nem érvényes."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "A fiókhoz próbálunk hozzáférni?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,16 +3671,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "A bejelentkezési kérés már lejárt."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Éppen most"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Kérve $MINUTES$ perccel ezelőtt",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4598,7 +4598,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "$FIELD$, $CIPHERNAME$ másolása",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

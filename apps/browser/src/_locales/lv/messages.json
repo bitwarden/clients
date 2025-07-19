@@ -1830,7 +1830,7 @@
     "message": "Drošības kods"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "kartes numurs"
   },
   "ex": {
     "message": "piem."
@@ -3464,7 +3464,7 @@
     "message": "Pieprasījums nosūtīts"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3477,13 +3477,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas biji Tu, mēģini pieteikties no ierīces vēlreiz!"
   },
   "device": {
-    "message": "Device"
+    "message": "Ierīce"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Pieteikšanās stāvoklis"
   },
   "masterPasswordChanged": {
     "message": "Galvenā parole saglabāta"
@@ -3582,28 +3582,28 @@
     "message": "Atcerēties šo ierīci, lai nākotnes pieteikšanos padarītu plūdenāku"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Pārvaldīt ierīces"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Pašreizējā sesija"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Tālrunis",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Paplašinājums",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Darbvirsma",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Tīmekļa glabātava"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Tīmekļa lietotne"
   },
   "cli": {
     "message": "CLI"
@@ -3613,22 +3613,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Pieprasījums gaida uz apstrādi"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Pirmā pieteikšanās"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Uzticama"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Nepieciešams apstiprinājums"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Ierīces"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "$EMAIL$ piekļuves mēģinājums",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3637,28 +3637,28 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Apstiprināt piekļuvi"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Noraidīt piekļuvi"
   },
   "time": {
-    "message": "Time"
+    "message": "Laiks"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Ierīces veids"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Pieteikšanās pieprasījums"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Šis pieprasījums vairs nav derīgs."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Vai mēģini piekļūt savam kontam?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,16 +3671,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Pieteikšanās pieprasījuma derīgums jau ir beidzies."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Tikko"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Pieprasīts pirms $MINUTES$ minūtēm",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4598,7 +4598,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Ievietot starpliktuvē $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

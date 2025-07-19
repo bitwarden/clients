@@ -3480,10 +3480,10 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "device": {
-    "message": "Device"
+    "message": "设备"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "登录状态"
   },
   "masterPasswordChanged": {
     "message": "主密码已保存"
@@ -3652,13 +3652,13 @@
     "message": "Login request"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "此请求已失效。"
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "您正在尝试访问您的账户吗？"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "已确认 $EMAIL$ 在 $DEVICE$ 上的登录",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,10 +3671,10 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "您拒绝了另一台设备的登录尝试。如果真的是您，请尝试再次使用该设备登录。"
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "登录请求已过期。"
   },
   "justNow": {
     "message": "Just now"

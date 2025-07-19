@@ -3480,10 +3480,10 @@
     "message": "Вы отклонили попытку авторизации с другого устройства. Если это были вы, попробуйте авторизоваться с этого устройства еще раз."
   },
   "device": {
-    "message": "Device"
+    "message": "Устройство"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Статус авторизации"
   },
   "masterPasswordChanged": {
     "message": "Мастер-пароль сохранен"
@@ -3652,13 +3652,13 @@
     "message": "Запрос на вход"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Этот запрос больше не действителен."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Вход подтвержден для $EMAIL$ на $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,10 +3671,10 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Вы отклонили попытку авторизации с другого устройства. Если это действительно были вы, попробуйте авторизоваться с этого устройства еще раз."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Запрос на вход истек."
   },
   "justNow": {
     "message": "Только что"

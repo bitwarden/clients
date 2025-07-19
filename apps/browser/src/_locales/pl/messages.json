@@ -1761,10 +1761,10 @@
     "message": "Pokaż ikony stron internetowych"
   },
   "faviconDesc": {
-    "message": "Pokaż rozpoznawalny obraz obok danych logowania."
+    "message": "Pokaż rozpoznawalną ikonę obok danych logowania."
   },
   "faviconDescAlt": {
-    "message": "Pokaż rozpoznawalny obraz obok danych logowania. Dotyczy wszystkich zalogowanych kont."
+    "message": "Pokaż rozpoznawalną ikonę obok danych logowania. Dotyczy wszystkich zalogowanych kont."
   },
   "enableBadgeCounter": {
     "message": "Pokaż licznik na ikonie"
@@ -3464,7 +3464,7 @@
     "message": "Prośba została wysłana"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Logowanie potwierdzone dla $EMAIL$ na $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3477,13 +3477,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
   },
   "device": {
     "message": "Urządzenie"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Status zalogowania"
   },
   "masterPasswordChanged": {
     "message": "Hasło główne zostało zapisane"
@@ -3613,7 +3613,7 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Zapytanie oczekuje"
   },
   "firstLogin": {
     "message": "Pierwsze logowanie"
@@ -3628,7 +3628,7 @@
     "message": "Urządzenia"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Próba dostępu przez $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3652,13 +3652,13 @@
     "message": "Żądanie logowania"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Prośba nie jest już ważna."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Czy próbujesz uzyskać dostęp do swojego konta?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Logowanie potwierdzone dla $EMAIL$ na $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,10 +3671,10 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Prośba logowania wygasła."
   },
   "justNow": {
     "message": "Teraz"
