@@ -109,11 +109,11 @@ export class EditCommand {
 
     const isPersonalVaultItem = cipherView.organizationId == null;
 
-    const policyApplies = await firstValueFrom(
+    const organizationOwnershipPolicyApplies = await firstValueFrom(
       this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, activeUserId),
     );
 
-    if (isPersonalVaultItem && policyApplies) {
+    if (isPersonalVaultItem && organizationOwnershipPolicyApplies) {
       // we need a fresh copy of the cipher from the server to compare
       const fetchedCipher = await this.cipherService.get(id, activeUserId);
       const fetchedCipherView = await this.cipherService.decrypt(fetchedCipher, activeUserId);
