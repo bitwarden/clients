@@ -112,7 +112,7 @@ export declare namespace ipc {
      */
     static listen(name: string, callback: (error: null | Error, message: IpcMessage) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
-    getPath(): string
+    getPaths(): Array<string>
     /** Stop the IPC server. */
     stop(): void
     /**
