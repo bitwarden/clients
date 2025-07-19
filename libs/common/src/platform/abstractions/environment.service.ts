@@ -60,6 +60,20 @@ export interface Environment {
    */
   isCloud(): boolean;
 
+  /**
+   * Identify if the region is a self-hosted environment.
+   *
+   * @returns true if the environment is self-hosted, false otherwise.
+   */
+  isSelfHosted(): boolean;
+
+  /**
+   * Identify if the environment is a production environment.
+   *
+   * @returns true if the environment is production, false otherwise.
+   */
+  isProduction(): boolean;
+
   getApiUrl(): string;
   getEventsUrl(): string;
   getIconsUrl(): string;

@@ -410,6 +410,14 @@ abstract class UrlEnvironment implements Environment {
     return this.region !== Region.SelfHosted;
   }
 
+  isSelfHosted(): boolean {
+    return this.region === Region.SelfHosted;
+  }
+
+  isProduction(): boolean {
+    return PRODUCTION_REGIONS.some((regionConfig) => regionConfig.key === this.region);
+  }
+
   /**
    * Helper for getting an URL.
    *
