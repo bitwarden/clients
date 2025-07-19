@@ -231,7 +231,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     if (!this.allowOwnershipChange) {
       this.itemDetailsForm.controls.organizationId.disable();
     }
-    await this.setFormStatus();
+    await this.setFormStatus(true);
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -247,14 +247,14 @@ export class ItemDetailsSectionComponent implements OnInit {
       .subscribe();
   }
 
-  private async setFormStatus() {
+  private async setFormStatus(init = false) {
     if (
       !this.itemDetailsForm.controls.organizationId.value &&
       (await this.organizationDataOwnershipPolicyAppliesToUser())
     ) {
       this.disableForm();
       this.itemDetailsForm.controls.organizationId.enable();
-    } else {
+    } else if (!init) {
       this.enableForm();
       this.formEnabled = true;
     }
