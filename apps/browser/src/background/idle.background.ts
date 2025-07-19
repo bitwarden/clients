@@ -9,7 +9,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/notifications";
 
 const IdleInterval = 60 * 5; // 5 minutes
 
@@ -20,7 +20,7 @@ export default class IdleBackground {
 
   constructor(
     private vaultTimeoutService: VaultTimeoutService,
-    private notificationsService: NotificationsService,
+    private notificationsService: ServerNotificationsService,
     private accountService: AccountService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
   ) {

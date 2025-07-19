@@ -15,7 +15,7 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
@@ -28,7 +28,7 @@ import { VersionService } from "../platform/version.service";
 export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
-    private notificationsService: NotificationsService,
+    private notificationsService: ServerNotificationsService,
     private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,

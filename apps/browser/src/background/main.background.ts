@@ -111,6 +111,7 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
+import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
@@ -120,7 +121,7 @@ import { Lazy } from "@bitwarden/common/platform/misc/lazy";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
   DefaultNotificationsService,
@@ -129,6 +130,11 @@ import {
   WebPushNotificationsApiService,
   WorkerWebPushConnectionService,
 } from "@bitwarden/common/platform/notifications/internal";
+import {
+  ButtonActions,
+  SystemNotificationsService,
+} from "@bitwarden/common/platform/notifications/system-notifications-service";
+import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/notifications/unsupported-system-notifications.service";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -268,6 +274,7 @@ import { InlineMenuFieldQualificationService } from "../autofill/services/inline
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
+import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -296,6 +303,7 @@ import { BackgroundMemoryStorageService } from "../platform/storage/background-m
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
 import { OffscreenStorageService } from "../platform/storage/offscreen-storage.service";
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
+import { ChromeExtensionSystemNotificationService } from "../platform/system-notifications/chrome-extension-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
@@ -341,7 +349,9 @@ export default class MainBackground {
   importService: ImportServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
-  notificationsService: NotificationsService;
+  notificationsService: ServerNotificationsService;
+  systemNotificationService: SystemNotificationsService;
+  actionsService: ActionsService;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -1123,6 +1133,40 @@ export default class MainBackground {
       this.webPushConnectionService = new UnsupportedWebPushConnectionService();
     }
 
+    this.logService.info(`The background service is registered as ${navigator.userAgent}`);
+
+    this.actionsService = new BrowserActionsService(this.logService, this.platformUtilsService);
+
+    const userAgent = navigator.userAgent;
+
+    const isChrome =
+      userAgent.includes("Chrome") || userAgent.includes("Edge") || userAgent.includes("OPR");
+    const isSafari = userAgent.includes("Safari") && !userAgent.includes("Chrome");
+    const isFirefox = userAgent.includes("Firefox");
+
+    if ((isChrome || isFirefox) && !isSafari) {
+      this.systemNotificationService = new ChromeExtensionSystemNotificationService(
+        this.logService,
+        this.platformUtilsService,
+      );
+    } else {
+      this.systemNotificationService = new UnsupportedSystemNotificationsService();
+    }
+
+    setTimeout(async () => {
+      await this.systemNotificationService.create({
+        id: Math.random() * 100000 + "",
+        type: ButtonActions.AuthRequestNotification,
+        title: "Test Notification",
+        body: "Body",
+        buttons: [
+          {
+            title: "First Button",
+          },
+        ],
+      });
+    }, 1);
+
     this.notificationsService = new DefaultNotificationsService(
       this.logService,
       this.syncService,
@@ -1134,6 +1178,8 @@ export default class MainBackground {
       new SignalRConnectionService(this.apiService, this.logService),
       this.authService,
       this.webPushConnectionService,
+      this.systemNotificationService,
+      this.actionsService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -1691,6 +1737,11 @@ export default class MainBackground {
     );
   }
 
+  /**
+   * Opens the popup.
+   *
+   * @deprecated Migrating to the browser actions service.
+   */
   async openPopup() {
     const browserAction = BrowserApi.getBrowserAction();
 
@@ -1727,6 +1778,7 @@ export default class MainBackground {
   /**
    * Opens the popup to the given page
    * @default ExtensionPageUrls.Index
+   * @deprecated Migrating to the browser actions service.
    */
   async openTheExtensionToPage(url: ExtensionPageUrls = ExtensionPageUrls.Index) {
     const isValidUrl = Object.values(ExtensionPageUrls).includes(url);

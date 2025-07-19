@@ -14,6 +14,12 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { ActionsService } from "@bitwarden/common/platform/actions";
+import {
+  ButtonActions,
+  SystemNotificationEvent,
+  SystemNotificationsService,
+} from "@bitwarden/common/platform/notifications/system-notifications-service";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
@@ -32,7 +38,7 @@ import { EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { MessagingService } from "../../abstractions/messaging.service";
 import { supportSwitch } from "../../misc/support-status";
-import { NotificationsService as NotificationsServiceAbstraction } from "../notifications.service";
+import { ServerNotificationsService as NotificationsServiceAbstraction } from "../server-notifications-service";
 
 import { ReceiveMessage, SignalRConnectionService } from "./signalr-connection.service";
 import { WebPushConnectionService } from "./webpush-connection.service";
@@ -55,7 +61,20 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
     private readonly signalRConnectionService: SignalRConnectionService,
     private readonly authService: AuthService,
     private readonly webPushConnectionService: WebPushConnectionService,
+    private readonly systemNotificationService: SystemNotificationsService,
+    private readonly actionService: ActionsService,
   ) {
+    this.systemNotificationService.notificationClicked$
+      .pipe(
+        map(async (value: SystemNotificationEvent) => {
+          switch (value.type) {
+            case ButtonActions.AuthRequestNotification:
+              await this.actionService.openPopup();
+          }
+        }),
+      )
+      .subscribe();
+
     this.notifications$ = this.accountService.activeAccount$.pipe(
       map((account) => account?.id),
       distinctUntilChanged(),
@@ -188,7 +207,6 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
       case NotificationType.SyncCiphers:
       case NotificationType.SyncSettings:
         await this.syncService.fullSync(false);
-
         break;
       case NotificationType.SyncOrganizations:
         // An organization update may not have bumped the user's account revision date, so force a sync
@@ -214,11 +232,9 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
       case NotificationType.AuthRequest:
-        {
-          this.messagingService.send("openLoginApproval", {
-            notificationId: notification.payload.id,
-          });
-        }
+        this.messagingService.send("openLoginApproval", {
+          notificationId: notification.payload.id,
+        });
         break;
       case NotificationType.SyncOrganizationStatusChanged:
         await this.syncService.fullSync(true);

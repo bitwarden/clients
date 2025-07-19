@@ -21,7 +21,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -73,7 +73,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private keyService: KeyService,
     private collectionService: CollectionService,
     private searchService: SearchService,
-    private notificationsService: NotificationsService,
+    private notificationsService: ServerNotificationsService,
     private stateService: StateService,
     private eventUploadService: EventUploadService,
     protected policyListService: PolicyListService,

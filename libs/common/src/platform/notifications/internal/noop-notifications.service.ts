@@ -4,9 +4,9 @@ import { NotificationResponse } from "@bitwarden/common/models/response/notifica
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { LogService } from "../../abstractions/log.service";
-import { NotificationsService } from "../notifications.service";
+import { ServerNotificationsService } from "../server-notifications-service";
 
-export class NoopNotificationsService implements NotificationsService {
+export class NoopNotificationsService implements ServerNotificationsService {
   notifications$: Observable<readonly [NotificationResponse, UserId]> = new Subject();
 
   constructor(private logService: LogService) {}

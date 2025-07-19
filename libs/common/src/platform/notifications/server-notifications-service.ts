@@ -9,7 +9,7 @@ import type { DefaultNotificationsService } from "./internal";
 /**
  * A service offering abilities to interact with push notifications from the server.
  */
-export abstract class NotificationsService {
+export abstract class ServerNotificationsService {
   /**
    * @deprecated This method should not be consumed, an observable to listen to server
    * notifications will be available one day but it is not ready to be consumed generally.
