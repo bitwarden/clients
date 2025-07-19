@@ -573,7 +573,7 @@
     "message": "Doğrulama kodunu kopyala (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1440,7 +1440,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "kart nömrəsi"
   },
   "premiumMembership": {
     "message": "Premium üzvlük"
@@ -4016,9 +4016,9 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Avto-yazma qısayolunu fəallaşdır"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
   }
 }

@@ -573,7 +573,7 @@
     "message": "复制验证码 (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "复制 $FIELD$、$CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1440,7 +1440,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "卡号"
   },
   "premiumMembership": {
     "message": "高级会员"
