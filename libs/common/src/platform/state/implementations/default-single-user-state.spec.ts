@@ -7,11 +7,12 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { newGuid } from "@bitwarden/guid";
+
 import { trackEmissions, awaitAsync } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
-import { Utils } from "../../misc/utils";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
 import { UserKeyDefinition } from "../user-key-definition";
@@ -39,7 +40,7 @@ const testKeyDefinition = new UserKeyDefinition<TestState>(testStateDefinition, 
   cleanupDelayMs,
   clearOn: [],
 });
-const userId = Utils.newGuid() as UserId;
+const userId = newGuid() as UserId;
 const userKey = testKeyDefinition.buildKey(userId);
 
 describe("DefaultSingleUserState", () => {
