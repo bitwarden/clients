@@ -10400,8 +10400,8 @@
   "domainStatusUnderVerification": {
     "message": "Under verification"
   },
-  "claimedDomainsDesc": {
-    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
