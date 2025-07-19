@@ -1290,11 +1290,8 @@
     "message": "Automatically clear copied values from your clipboard.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimize to tray icon"
@@ -3569,7 +3566,7 @@
   },
      "uriMatchDefaultStrategyHint": {
     "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
-    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."  
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
    "regExAdvancedOptionWarning": {
     "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
