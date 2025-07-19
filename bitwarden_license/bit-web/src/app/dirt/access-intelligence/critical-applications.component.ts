@@ -75,33 +75,38 @@ export class CriticalApplicationsComponent implements OnInit {
 
     combineLatest([
       this.dataService.applications$,
+      this.dataService.memberDetails$,
       this.criticalAppsService.getAppsListForOrg(this.organizationId),
     ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        map(([applications, criticalApps]) => {
+        map(([applications, memberDetails, criticalApps]) => {
           const criticalUrls = criticalApps.map((ca) => ca.uri);
           const data = applications?.map((app) => ({
             ...app,
             isMarkedAsCritical: criticalUrls.includes(app.applicationName),
           })) as ApplicationHealthReportDetailWithCriticalFlag[];
-          return data?.filter((app) => app.isMarkedAsCritical);
+          const appsMarkedAsCritical = data?.filter((app) => app.isMarkedAsCritical);
+          return { data: appsMarkedAsCritical, memberDetails };
         }),
-        switchMap(async (data) => {
+        switchMap(async ({ data, memberDetails }) => {
           if (data) {
             const dataWithCiphers = await this.reportService.identifyCiphers(
               data,
               this.organizationId,
             );
-            return dataWithCiphers;
+            return { applications: dataWithCiphers, memberDetails };
           }
           return null;
         }),
       )
-      .subscribe((applications) => {
+      .subscribe(({ applications, memberDetails }) => {
         if (applications) {
           this.dataSource.data = applications;
-          this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
+          this.applicationSummary = this.reportService.generateApplicationsSummary(
+            applications,
+            memberDetails,
+          );
           this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
         }
       });

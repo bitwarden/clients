@@ -167,4 +167,19 @@ export enum DrawerType {
   OrgAtRiskApps = 3,
 }
 
+export interface CipherHealthWithMemberDetails {
+  ciphers: CipherHealthReportDetail[];
+  members: MemberDetailsFlat[];
+}
+
+export interface CipherHealthReportUriDetailWithMemberDetails {
+  ciphers: CipherHealthReportUriDetail[];
+  members: MemberDetailsFlat[];
+}
+
+export interface HealthReportUriDetailWithMemberDetails {
+  healthReport: ApplicationHealthReportDetail[];
+  members: MemberDetailsFlat[];
+}
+
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;
