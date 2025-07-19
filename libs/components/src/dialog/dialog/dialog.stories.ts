@@ -64,6 +64,13 @@ export default {
         disable: true,
       },
     },
+    background: {
+      options: ["alt", "default"],
+      control: { type: "radio" },
+      table: {
+        defaultValue: "default",
+      },
+    },
   },
   parameters: {
     design: {
@@ -79,7 +86,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
         <ng-container bitDialogTitle>
           <span bitBadge variant="success">Foobar</span>
         </ng-container>
@@ -143,7 +150,7 @@ export const ScrollingContent: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-dialog title="Scrolling Example" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog title="Scrolling Example" [background]="background" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
         <span bitDialogContent>
           Dialog body text goes here.<br />
           <ng-container *ngFor="let _ of [].constructor(100)">
@@ -167,7 +174,7 @@ export const TabContent: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-dialog title="Tab Content Example" [dialogSize]="dialogSize" [disablePadding]="disablePadding">
+      <bit-dialog title="Tab Content Example" [background]="background" [dialogSize]="dialogSize" [disablePadding]="disablePadding">
         <span bitDialogContent>
           <bit-tab-group>
               <bit-tab label="First Tab">First Tab Content</bit-tab>
