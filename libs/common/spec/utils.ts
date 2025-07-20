@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 import { Observable } from "rxjs";
 
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
 import { EncryptionType } from "../src/platform/enums";
 import { Utils } from "../src/platform/misc/utils";
@@ -61,6 +63,20 @@ export function makeSymmetricCryptoKey<T extends SymmetricCryptoKey>(
  * Use to mock a return value of a static fromJSON method.
  */
 export const mockFromJson = (stub: any) => (stub + "_fromJSON") as any;
+
+/**
+ * Use to mock a return value of a static fromSdk method.
+ */
+export const mockFromSdk = (stub: any) => {
+  if (typeof stub === "object") {
+    return {
+      ...stub,
+      __fromSdk: true,
+    };
+  }
+
+  return `${stub}_fromSdk`;
+};
 
 /**
  * Tracks the emissions of the given observable.

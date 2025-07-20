@@ -1,11 +1,14 @@
 import * as crypto from "crypto";
 
-import * as argon2 from "argon2";
 import * as forge from "node-forge";
 
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DecryptParameters } from "@bitwarden/common/platform/models/domain/decrypt-parameters";
+import {
+  CbcDecryptParameters,
+  EcbDecryptParameters,
+} from "@bitwarden/common/platform/models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 
@@ -28,28 +31,6 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
         }
       });
     });
-  }
-
-  async argon2(
-    password: string | Uint8Array,
-    salt: string | Uint8Array,
-    iterations: number,
-    memory: number,
-    parallelism: number,
-  ): Promise<Uint8Array> {
-    const nodePassword = this.toNodeValue(password);
-    const nodeSalt = this.toNodeBuffer(this.toUint8Buffer(salt));
-
-    const hash = await argon2.hash(nodePassword, {
-      salt: nodeSalt,
-      raw: true,
-      hashLength: 32,
-      timeCost: iterations,
-      memoryCost: memory,
-      parallelism: parallelism,
-      type: argon2.argon2id,
-    });
-    return this.toUint8Buffer(hash);
   }
 
   // ref: https://tools.ietf.org/html/rfc5869
@@ -166,45 +147,57 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   aesDecryptFastParameters(
     data: string,
     iv: string,
-    mac: string,
+    mac: string | null,
     key: SymmetricCryptoKey,
-  ): DecryptParameters<Uint8Array> {
-    const p = new DecryptParameters<Uint8Array>();
-    p.encKey = key.encKey;
-    p.data = Utils.fromB64ToArray(data);
-    p.iv = Utils.fromB64ToArray(iv);
+  ): CbcDecryptParameters<Uint8Array> {
+    const dataBytes = Utils.fromB64ToArray(data);
+    const ivBytes = Utils.fromB64ToArray(iv);
+    const macBytes = mac != null ? Utils.fromB64ToArray(mac) : null;
 
-    const macData = new Uint8Array(p.iv.byteLength + p.data.byteLength);
-    macData.set(new Uint8Array(p.iv), 0);
-    macData.set(new Uint8Array(p.data), p.iv.byteLength);
-    p.macData = macData;
+    const innerKey = key.inner();
 
-    if (key.macKey != null) {
-      p.macKey = key.macKey;
+    if (innerKey.type === EncryptionType.AesCbc256_B64) {
+      return {
+        iv: ivBytes,
+        data: dataBytes,
+        encKey: innerKey.encryptionKey,
+      } as CbcDecryptParameters<Uint8Array>;
+    } else if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      const macData = new Uint8Array(ivBytes.byteLength + dataBytes.byteLength);
+      macData.set(new Uint8Array(ivBytes), 0);
+      macData.set(new Uint8Array(dataBytes), ivBytes.byteLength);
+      return {
+        iv: ivBytes,
+        data: dataBytes,
+        mac: macBytes,
+        macData: macData,
+        encKey: innerKey.encryptionKey,
+        macKey: innerKey.authenticationKey,
+      } as CbcDecryptParameters<Uint8Array>;
+    } else {
+      throw new Error("Unsupported encryption type");
     }
-    if (mac != null) {
-      p.mac = Utils.fromB64ToArray(mac);
-    }
-
-    return p;
   }
 
-  async aesDecryptFast(
-    parameters: DecryptParameters<Uint8Array>,
-    mode: "cbc" | "ecb",
-  ): Promise<string> {
-    const decBuf = await this.aesDecrypt(parameters.data, parameters.iv, parameters.encKey, mode);
+  async aesDecryptFast({
+    mode,
+    parameters,
+  }:
+    | { mode: "cbc"; parameters: CbcDecryptParameters<Uint8Array> }
+    | { mode: "ecb"; parameters: EcbDecryptParameters<Uint8Array> }): Promise<string> {
+    const iv = mode === "cbc" ? parameters.iv : null;
+    const decBuf = await this.aesDecrypt(parameters.data, iv, parameters.encKey, mode);
     return Utils.fromBufferToUtf8(decBuf);
   }
 
   aesDecrypt(
     data: Uint8Array,
-    iv: Uint8Array,
+    iv: Uint8Array | null,
     key: Uint8Array,
     mode: "cbc" | "ecb",
   ): Promise<Uint8Array> {
     const nodeData = this.toNodeBuffer(data);
-    const nodeIv = mode === "ecb" ? null : this.toNodeBuffer(iv);
+    const nodeIv = this.toNodeBufferOrNull(iv);
     const nodeKey = this.toNodeBuffer(key);
     const decipher = crypto.createDecipheriv(this.toNodeCryptoAesMode(mode), nodeKey, nodeIv);
     const decBuf = Buffer.concat([decipher.update(nodeData), decipher.final()]);
@@ -307,6 +300,13 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
 
   private toNodeBuffer(value: Uint8Array): Buffer {
     return Buffer.from(value);
+  }
+
+  private toNodeBufferOrNull(value: Uint8Array | null): Buffer | null {
+    if (value == null) {
+      return null;
+    }
+    return this.toNodeBuffer(value);
   }
 
   private toUint8Buffer(value: Buffer | string | Uint8Array): Uint8Array {

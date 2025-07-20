@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { engine, services, strategies } from "@bitwarden/generator-core";
 import { LocalGeneratorHistoryService } from "@bitwarden/generator-history";

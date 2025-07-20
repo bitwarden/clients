@@ -23,8 +23,14 @@
   "typeIdentity": {
     "message": "Identitet"
   },
+  "typeNote": {
+    "message": "Anteckning"
+  },
   "typeSecureNote": {
     "message": "Säker anteckning"
+  },
+  "typeSshKey": {
+    "message": "SSH-nyckel"
   },
   "folders": {
     "message": "Mappar"
@@ -98,7 +104,7 @@
     "message": "Lösenord"
   },
   "passphrase": {
-    "message": "Lösenordsfras"
+    "message": "Lösenfras"
   },
   "editItem": {
     "message": "Redigera objekt"
@@ -177,6 +183,81 @@
   "address": {
     "message": "Adress"
   },
+  "sshPrivateKey": {
+    "message": "Privat nyckel"
+  },
+  "sshPublicKey": {
+    "message": "Offentlig nyckel"
+  },
+  "sshFingerprint": {
+    "message": "Fingeravtryck"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Nyckeltyp"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "En ny SSH-nyckel har genererats"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Lösenordet du har angett är felaktigt."
+  },
+  "importSshKey": {
+    "message": "Importera"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Bekräfta lösenord"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Ange lösenordet för SSH-nyckeln."
+  },
+  "enterSshKeyPassword": {
+    "message": "Ange lösenord"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Lås upp ditt valv för att godkänna begäran om SSH-nyckel."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "Begäran om SSH-nyckel timade ut."
+  },
+  "enableSshAgent": {
+    "message": "Aktivera SSH-agent"
+  },
+  "enableSshAgentDesc": {
+    "message": "Aktivera SSH-agenten för att signera SSH-förfrågningar direkt från ditt Bitwarden-valv."
+  },
+  "enableSshAgentHelp": {
+    "message": "SSH-agenten är en tjänst riktad till utvecklare som gör att du kan signera SSH-förfrågningar direkt från ditt Bitwarden-valv."
+  },
+  "sshAgentPromptBehavior": {
+    "message": "Be om auktorisering när du använder SSH-agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Välj hur du vill hantera SSH-agentens auktoriseringsbegäran."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Kom ihåg SSH-behörigheter"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Alltid"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Aldrig"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Kom ihåg tills valvet är låst"
+  },
   "premiumRequired": {
     "message": "Premium krävs"
   },
@@ -188,6 +269,20 @@
   },
   "error": {
     "message": "Fel"
+  },
+  "decryptionError": {
+    "message": "Dekrypteringsfel"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kunde inte dekryptera valvföremålet/valvföremålen som listas nedan."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontakta kundtjänst",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "för att undvika ytterligare dataförlust.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "Januari"
@@ -259,12 +354,6 @@
   "other": {
     "message": "Annat"
   },
-  "generatePassword": {
-    "message": "Generera lösenord"
-  },
-  "generatePassphrase": {
-    "message": "Generera lösenfras"
-  },
   "type": {
     "message": "Typ"
   },
@@ -319,6 +408,70 @@
   "authenticatorKeyTotp": {
     "message": "Autentiseringsnyckel (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Autentiseringsnyckel"
+  },
+  "autofillOptions": {
+    "message": "Alternativ för automatisk ifyllning"
+  },
+  "websiteUri": {
+    "message": "Webbplats (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Webbplats (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Webbplats tillagd"
+  },
+  "addWebsite": {
+    "message": "Lägg till webbplats"
+  },
+  "deleteWebsite": {
+    "message": "Ta bort webbplats"
+  },
+  "owner": {
+    "message": "Ägare"
+  },
+  "addField": {
+    "message": "Lägg till fält"
+  },
+  "editField": {
+    "message": "Redigera fält"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Är du säker på att du vill radera den här bilagan permanent?"
+  },
+  "fieldType": {
+    "message": "Fälttyp"
+  },
+  "fieldLabel": {
+    "message": "Fältetikett"
+  },
+  "add": {
+    "message": "Lägg till"
+  },
+  "textHelpText": {
+    "message": "Använd textfält för data som säkerhetsfrågor"
+  },
+  "hiddenHelpText": {
+    "message": "Använd dolda fält för känsliga uppgifter som lösenord"
+  },
+  "checkBoxHelpText": {
+    "message": "Använd kryssrutor om du vill fylla i en kryssruta i ett formulär automatiskt, t.ex. för att komma ihåg e-post"
+  },
+  "linkedHelpText": {
+    "message": "Använd ett länkat fält när du har problem med autofyll för en viss webbplats."
+  },
+  "linkedLabelHelpText": {
+    "message": "Ange fältets html-id, namn, aria-label eller platshållare."
+  },
   "folder": {
     "message": "Mapp"
   },
@@ -343,6 +496,9 @@
   "cfTypeLinked": {
     "message": "Länkad",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Kryssruta"
   },
   "linkedValue": {
     "message": "Länkat värde",
@@ -400,6 +556,12 @@
   "copyPassword": {
     "message": "Kopiera lösenord"
   },
+  "regenerateSshKey": {
+    "message": "Återskapa SSH-nyckel"
+  },
+  "copySshPrivateKey": {
+    "message": "Kopiera privat SSH-nyckel"
+  },
   "copyPassphrase": {
     "message": "Kopiera lösenfras",
     "description": "Copy passphrase to clipboard"
@@ -409,6 +571,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Kopiera verifieringskod (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopiera $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Längd"
@@ -432,11 +608,11 @@
     "message": "Specialtecken (!@#$%^&*)"
   },
   "include": {
-    "message": "Include",
+    "message": "Inkludera",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Inkludera versaler",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -444,7 +620,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Inkludera gemener",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -452,7 +628,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Inkludera siffror",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -462,10 +638,6 @@
   "specialCharactersDescription": {
     "message": "Inkludera specialtecken",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Antal ord"
@@ -499,7 +671,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "Företagets policykrav har tillämpats på dina generatoralternativ.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
@@ -536,8 +708,8 @@
   "maxFileSize": {
     "message": "Maximal filstorlek är 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Migrering av krypteringsnyckel krävs. Logga in på webbvalvet för att uppdatera din krypteringsnyckel."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy-kryptering stöds inte längre. Vänligen kontakta support för att återställa ditt konto."
   },
   "editedFolder": {
     "message": "Mapp sparad"
@@ -564,13 +736,22 @@
     "message": "Ställ in ett starkt lösenord"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Avsluta skapandet av ditt konto genom att ange ett lösenord"
   },
   "logIn": {
     "message": "Logga in"
   },
   "logInToBitwarden": {
     "message": "Logga in på Bitwarden"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Ange koden som skickats till din e-post"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Ange koden från din autentiseringsapp"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Tryck på din YubiKey för att autentisera"
   },
   "logInWithPasskey": {
     "message": "Logga in med nyckel"
@@ -579,7 +760,7 @@
     "message": "Logga in med enhet"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Använd Single Sign-On"
   },
   "submit": {
     "message": "Skicka"
@@ -624,11 +805,20 @@
   "masterPassHintLabel": {
     "message": "Huvudlösenordsledtråd"
   },
+  "passwordStrengthScore": {
+    "message": "Lösenordsstyrka $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Gå med i organisation"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Gå med i $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -637,13 +827,13 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Avsluta anslutningen till denna organisation genom att ange ett huvudlösenord."
   },
   "settings": {
     "message": "Inställningar"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Konto E-post"
   },
   "requestHint": {
     "message": "Begär ledtråd"
@@ -652,13 +842,7 @@
     "message": "Begär lösenordsledtråd"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "passwordHint": {
-    "message": "Lösenordsledtråd"
-  },
-  "enterEmailToGetHint": {
-    "message": "Ange din e-postadress för att få din huvudlösenordsledtråd skickad till dig."
+    "message": "Ange din e-postadress för kontot så skickas en lösenordshint till dig"
   },
   "getMasterPasswordHint": {
     "message": "Hämta huvudlösenordsledtråd"
@@ -734,25 +918,16 @@
     "message": "Verifieringskod krävs."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "Autentiseringen avbröts eller tog för lång tid. Vänligen försök igen."
+  },
+  "openInNewTab": {
+    "message": "Öppna i ny flik"
   },
   "invalidVerificationCode": {
     "message": "Ogiltig verifieringskod"
   },
   "continue": {
     "message": "Fortsätt"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Ange den 6-siffriga verifieringskoden från din autentiseringsapp."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Ange den 6-siffriga verifieringskoden som har skickats till $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Verifieringsmeddelande har skickats till $EMAIL$.",
@@ -763,17 +938,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Kom ihåg mig"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Fråga inte igen på den här enheten under 30 dagar"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Skicka e-postmeddelandet med verifieringskoden igen"
+  "selectAnotherMethod": {
+    "message": "Välj en annan metod",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Använd en annan metod för tvåstegsverifiering"
-  },
-  "insertYubiKey": {
-    "message": "Anslut din YubiKey till datorns USB-port och tryck sedan på dess knapp."
+  "useYourRecoveryCode": {
+    "message": "Använd din återställningskod"
   },
   "insertU2f": {
     "message": "Anslut din säkerhetsnyckel till datorns USB-port. Om den har en knapp, tryck på den."
@@ -788,7 +961,7 @@
     "message": "Autentiseringsapp"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Ange en kod som genereras av en autentiseringsapp som Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -805,6 +978,15 @@
     "message": "Verifiera med Duo Security för din organisation genom att använda Duo Mobile-appen, SMS, telefonsamtal eller en U2F-säkerhetsnyckel.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyYourIdentity": {
+    "message": "Verifiera din identitet"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Vi känner inte igen den här enheten. Ange koden som skickats till din e-post för att verifiera din identitet."
+  },
+  "continueLoggingIn": {
+    "message": "Fortsätt logga in"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -815,7 +997,7 @@
     "message": "E-post"
   },
   "emailDescV2": {
-    "message": "Enter a code sent to your email."
+    "message": "Ange en kod som skickas per e-post."
   },
   "loginUnavailable": {
     "message": "Inloggning ej tillgänglig"
@@ -829,32 +1011,35 @@
   "twoStepOptions": {
     "message": "Alternativ för tvåstegsverifiering"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Välj tvåstegsinloggningsmetod"
+  },
   "selfHostedEnvironment": {
     "message": "Egen-hostad miljö"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Ange bas-URL:en för din \"on-premises\"-hostade Bitwarden-installation."
-  },
   "selfHostedBaseUrlHint": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
+    "message": "Ange bas-URL:en för din lokala Bitwarden-installation. Exempel: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "For advanced configuration, you can specify the base URL of each service independently."
+    "message": "För avancerad konfiguration kan du ange bas-URL:en för varje tjänst separat."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "You must add either the base Server URL or at least one custom environment."
+    "message": "Du måste lägga till antingen basserverns URL eller minst en anpassad miljö."
   },
   "customEnvironment": {
     "message": "Anpassad miljö"
   },
-  "customEnvironmentFooter": {
-    "message": "För avancerade användare. Du kan ange bas-URL:en för varje tjänst oberoende av varandra."
-  },
   "baseUrl": {
     "message": "Server-URL"
   },
+  "authenticationTimeout": {
+    "message": "Timeout för autentisering"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Autentiseringssessionen timade ut. Vänligen starta om inloggningsprocessen."
+  },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "URL för server med egen värd",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
@@ -884,6 +1069,9 @@
   "no": {
     "message": "Nej"
   },
+  "location": {
+    "message": "Plats"
+  },
   "overwritePassword": {
     "message": "Skriv över lösenord"
   },
@@ -903,16 +1091,16 @@
     "message": "Din inloggningssession har löpt ut."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Starta om registreringen"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Utgången länk"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Starta om registreringen eller försök logga in."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Har du redan skapat ett konto?"
   },
   "logOutConfirmation": {
     "message": "Är du säker på att du vill logga ut?"
@@ -925,9 +1113,6 @@
   },
   "addNewItem": {
     "message": "Nytt objekt"
-  },
-  "addNewFolder": {
-    "message": "Ny mapp"
   },
   "view": {
     "message": "Visa"
@@ -1041,7 +1226,7 @@
     "message": "Valvets tidsgräns"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "Tidsgräns"
   },
   "vaultTimeoutDesc": {
     "message": "Välj när valvets tidsgräns överskrids och den valda åtgärden utförs."
@@ -1248,11 +1433,14 @@
     "description": "Copy credit card number"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Kopiera e-postadress"
   },
   "copySecurityCode": {
     "message": "Kopiera säkerhetskod",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kortnummer"
   },
   "premiumMembership": {
     "message": "Premium-medlemskap"
@@ -1293,11 +1481,8 @@
   "premiumPurchase": {
     "message": "Köp Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Du kan köpa premium-medlemskap i Bitwardens webbvalv. Vill du besöka webbplatsen nu?"
-  },
   "premiumPurchaseAlertV2": {
-    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+    "message": "Du kan köpa Premium från dina kontoinställningar i Bitwardens webbapp."
   },
   "premiumCurrentMember": {
     "message": "Du är en premium-medlem!"
@@ -1320,12 +1505,30 @@
   "passwordHistory": {
     "message": "Lösenordshistorik"
   },
+  "generatorHistory": {
+    "message": "Generatorns historik"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Rensa generatorhistorik"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Om du fortsätter kommer alla poster att raderas permanent från generatorns historik. Är du säker på att du vill fortsätta?"
+  },
   "clear": {
     "message": "Rensa",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Det finns inga lösenord att visa."
+  },
+  "clearHistory": {
+    "message": "Töm historik"
+  },
+  "nothingToShow": {
+    "message": "Inget att visa"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Du har inte genererat något nyligen"
   },
   "undo": {
     "message": "Ångra"
@@ -1402,13 +1605,13 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Kopiering lyckades"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "Fel vid uppdatering av åtkomsttoken"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "No refresh token or API keys found. Please try logging out and logging back in."
+    "message": "Ingen uppdateringstoken eller API-nyckel hittades. Försök att logga ut och logga in igen."
   },
   "help": {
     "message": "Hjälp"
@@ -1507,65 +1710,40 @@
     "message": "Filformat"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "This file export will be password protected and require the file password to decrypt."
+    "message": "Den här filexporten kommer att vara lösenordsskyddad och kräver filens lösenord för att dekryptera."
   },
   "filePassword": {
-    "message": "File password"
+    "message": "Fillösenord"
   },
   "exportPasswordDescription": {
-    "message": "This password will be used to export and import this file"
+    "message": "Detta lösenord kommer att användas för att exportera och importera denna fil"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
+    "message": "Använd ditt kontos krypteringsnyckel, som härrör från ditt kontos användarnamn och huvudlösenord, för att kryptera exporten och begränsa importen till endast det aktuella Bitwarden-kontot."
   },
   "passwordProtected": {
-    "message": "Password protected"
+    "message": "Lösenordsskyddad"
   },
   "passwordProtectedOptionDescription": {
-    "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
+    "message": "Ange ett lösenord för filen för att kryptera exporten och importera den till valfritt Bitwarden-konto med lösenordet för dekryptering."
   },
   "exportTypeHeading": {
     "message": "Exporttyp"
   },
   "accountRestricted": {
-    "message": "Account restricted"
+    "message": "Konto med restriktioner"
+  },
+  "restrictCardTypeImport": {
+    "message": "Det går inte att importera typer av kortposter"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "En policy som har fastställts av en eller flera organisationer hindrar dig från att importera kort till dina valv."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
-  },
-  "hCaptchaUrl": {
-    "message": "hCaptcha-URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Ladda tillgänglighets-cookie"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registrera som en tillgänglighetsanvändare på",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopiera och klistra in länken som skickats till din e-post nedan"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Ange URL för att ladda tillgänglighets-cookie för hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha-URL krävs",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Ogiltig URL"
+    "message": "\"Fillösenord\" och \"Bekräfta fillösenord\" stämmer inte överens."
   },
   "done": {
     "message": "Klar"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Tillgänglighets-cookie sparad!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Ingen tillgänglighets-cookie sparad"
   },
   "warning": {
     "message": "VARNING",
@@ -1639,13 +1817,10 @@
     "message": "Ytterligare inställningar för Windows Hello"
   },
   "unlockWithPolkit": {
-    "message": "Unlock with system authentication"
+    "message": "Lås upp med systemautentisering"
   },
   "windowsHelloConsentMessage": {
     "message": "Bekräfta för Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Lås upp med Touch ID"
@@ -1660,7 +1835,7 @@
     "message": "Be om Windows Hello vid appstart"
   },
   "autoPromptPolkit": {
-    "message": "Ask for system authentication on launch"
+    "message": "Be om systemautentisering vid start"
   },
   "autoPromptTouchId": {
     "message": "Be om Touch ID vid appstart"
@@ -1668,11 +1843,14 @@
   "requirePasswordOnStart": {
     "message": "Kräv lösenord eller PIN-kod vid appstart"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Kräv lösenord vid appstart"
+  },
   "recommendedForSecurity": {
     "message": "Rekommenderas för säkerhet."
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Lock with master password on restart"
+    "message": "Lås med huvudlösenord vid omstart"
   },
   "deleteAccount": {
     "message": "Radera konto"
@@ -1684,10 +1862,10 @@
     "message": "Att radera ditt konto är permanent. Det går inte att ångra."
   },
   "cannotDeleteAccount": {
-    "message": "Cannot delete account"
+    "message": "Kan inte radera konto"
   },
   "cannotDeleteAccountDesc": {
-    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+    "message": "Den här åtgärden kan inte slutföras eftersom ditt konto ägs av en organisation. Kontakta din organisationsadministratör om du vill ha mer information."
   },
   "accountDeleted": {
     "message": "Kontot raderades"
@@ -1808,6 +1986,58 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Begär kort"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ detaljer",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Läs mer om autentiseringsverktyg"
+  },
+  "copyTOTP": {
+    "message": "Kopiera autentiseringsnyckel (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Gör 2-stegsverifiering sömlös"
+  },
+  "totpHelper": {
+    "message": "Bitwarden kan lagra och fylla i 2-stegs verifieringskoder. Kopiera och klistra in nyckeln i detta fält."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden kan lagra och fylla i 2-stegsverifieringskoder. Välj kameraikonen för att ta en skärmdump av den här webbplatsens QR-kod för autentisering, eller kopiera och klistra in nyckeln i det här fältet."
+  },
+  "premium": {
+    "message": "Premium",
+    "description": "Premium membership"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Fria organisationer kan inte använda bilagor"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 fält behöver din uppmärksamhet."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$-fälten behöver din uppmärksamhet.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "cardExpiredTitle": {
+    "message": "Utgånget kort"
+  },
+  "cardExpiredMessage": {
+    "message": "Om du har förnyat kortet ska du uppdatera kortinformationen"
+  },
   "verificationRequired": {
     "message": "Verifiering krävs",
     "description": "Default title for the user verification dialog."
@@ -1864,16 +2094,16 @@
     "message": "Ditt nya huvudlösenord uppfyller inte kraven i policyn."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Få råd, tillkännagivanden och forskningsmöjligheter från Bitwarden i din inkorg."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Avsluta prenumeration"
   },
   "atAnyTime": {
-    "message": "at any time."
+    "message": "när som helst."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "By continuing, you agree to the"
+    "message": "Genom att fortsätta samtycker du till"
   },
   "and": {
     "message": "och"
@@ -1888,7 +2118,7 @@
     "message": "Tillåt webbläsarintegration"
   },
   "enableBrowserIntegrationDesc1": {
-    "message": "Used to allow biometric unlock in browsers that are not Safari."
+    "message": "Används för att tillåta biometrisk upplåsning i webbläsare som inte är Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Tillåt integration av webbläsaren DuckDuckGo"
@@ -1957,13 +2187,16 @@
     "message": "Biometri i webbläsaren kräver att biometri på skrivbordet aktiveras i inställningarna först."
   },
   "biometricsManualSetupTitle": {
-    "message": "Automatic setup not available"
+    "message": "Automatisk inställning inte tillgänglig"
   },
   "biometricsManualSetupDesc": {
-    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
+    "message": "På grund av installationsmetoden kunde biometriskt stöd inte aktiveras automatiskt. Vill du öppna dokumentationen om hur du gör detta manuellt?"
   },
   "personalOwnershipSubmitError": {
     "message": "På grund av en av företagets policyer är du begränsad från att spara objekt till ditt personliga valv. Ändra ägarskap till en organisation och välj från tillgängliga samlingar."
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Ditt nya lösenord får inte vara samma som ditt aktuella lösenord."
   },
   "hintEqualsPassword": {
     "message": "Din lösenordsledtråd får inte vara samma som ditt lösenord."
@@ -1973,6 +2206,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "En organisationspolicy har blockerat importering av objekt till ditt personliga valv."
+  },
+  "personalDetails": {
+    "message": "Personuppgifter"
+  },
+  "identification": {
+    "message": "Identifiering"
+  },
+  "contactInfo": {
+    "message": "Kontaktinformation"
   },
   "allSends": {
     "message": "Alla Sends",
@@ -2137,6 +2379,12 @@
   "webAuthnAuthenticate": {
     "message": "Autentisera WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Läs säkerhetsnyckel"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Väntar på interaktion med säkerhetsnyckel..."
+  },
   "hideEmail": {
     "message": "Dölj min e-postadress för mottagare."
   },
@@ -2147,7 +2395,7 @@
     "message": "E-postverifiering krävs"
   },
   "emailVerifiedV2": {
-    "message": "Email verified"
+    "message": "E-post verifierad"
   },
   "emailVerificationRequiredDesc": {
     "message": "Du måste verifiera din e-post för att använda den här funktionen."
@@ -2161,6 +2409,9 @@
   "passwordConfirmationDesc": {
     "message": "Denna åtgärd är skyddad. För att fortsätta, vänligen verifiera din identitet genom att ange ditt huvudlösenord."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Masterlösenordet har ställts in"
+  },
   "updatedMasterPassword": {
     "message": "Huvudlösenord uppdaterades"
   },
@@ -2173,8 +2424,17 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ditt huvudlösenord följer inte ett eller flera av din organisations regler. För att komma åt ditt valv så måste du ändra ditt huvudlösenord nu. Om du gör det kommer du att loggas du ut ur din nuvarande session så du måste logga in på nytt. Aktiva sessioner på andra enheter kommer fortsatt vara aktiva i upp till en timme."
   },
+  "changePasswordWarning": {
+    "message": "När du har ändrat ditt lösenord måste du logga in med det nya lösenordet. Aktiva sessioner på andra enheter kommer att loggas ut inom en timme."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Ändra ditt huvudlösenord för att slutföra återställningen av kontot."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Ditt huvudlösenord uppfyller inte organisationens krav. Ändra ditt huvudlösenord för att fortsätta."
+  },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Din organisation har inaktiverat betrodd enhetskryptering. Ange ett huvudlösenord för att komma åt ditt valv."
   },
   "tryAgain": {
     "message": "Försök igen"
@@ -2219,7 +2479,7 @@
     "message": "Minuter"
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "message": "$HOURS$ timmar och $MINUTES$ minuter maximalt.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2261,7 +2521,7 @@
     "message": "Ditt valvs tid för timeout överskrider de begränsningar som fastställts av din organisation."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Inbjudan accepterad"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatiskt deltagande"
@@ -2284,14 +2544,14 @@
   "removedMasterPassword": {
     "message": "Huvudlösenord togs bort"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ använder SSO med en egen nyckelserver. Ett huvudlösenord krävs inte längre för att logga in för medlemmar i denna organisation.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Ett huvudlösenord krävs inte längre för medlemmar i följande organisation. Vänligen bekräfta domänen nedan med din organisationsadministratör."
+  },
+  "organizationName": {
+    "message": "Organisationsnamn"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector-domän"
   },
   "leaveOrganization": {
     "message": "Lämna organisation"
@@ -2353,11 +2613,20 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Endast de enskilda valvobjekten inklusive bilagor som är associerade med $EMAIL$ exporteras. Organisationens valvobjekt kommer inte att inkluderas",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
-    "message": "Exporting organization vault"
+    "message": "Exportera organisationsvalv"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
+    "message": "Endast det organisationsvalv som är associerat med $ORGANIZATION$ exporteras. Objekt i enskilda valv eller andra organisationer kommer inte att inkluderas.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2391,10 +2660,31 @@
     "message": "Generera användarnamn"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "Generera e-post"
   },
-  "generatorBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$",
+  "usernameGenerator": {
+    "message": "Generator för användarnamn"
+  },
+  "generatePassword": {
+    "message": "Generera lösenord"
+  },
+  "generatePassphrase": {
+    "message": "Generera lösenfras"
+  },
+  "passwordGenerated": {
+    "message": "Lösenord genererat"
+  },
+  "passphraseGenerated": {
+    "message": "Lösenfras genererad"
+  },
+  "usernameGenerated": {
+    "message": "Användarnamn genererat"
+  },
+  "emailGenerated": {
+    "message": "E-post genererad"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Värdet måste ligga mellan $MIN$ och $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2404,6 +2694,26 @@
       "max": {
         "content": "$2",
         "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Använd $RECOMMENDED$ tecken eller fler för att skapa ett starkt lösenord.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Använd $RECOMMENDED$ ord eller mer för att generera en stark lösenfras.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
       }
     }
   },
@@ -2422,6 +2732,18 @@
   },
   "catchallEmailDesc": {
     "message": "Använd din domäns konfigurerade catch-all inkorg."
+  },
+  "useThisEmail": {
+    "message": "Använd denna e-post"
+  },
+  "useThisPassword": {
+    "message": "Använd detta lösenord"
+  },
+  "useThisPassphrase": {
+    "message": "Använd denna lösenfras"
+  },
+  "useThisUsername": {
+    "message": "Använd detta användarnamn"
   },
   "random": {
     "message": "Slumpmässig"
@@ -2451,11 +2773,11 @@
     "message": "Skapa ett e-postalias med en extern vidarebefordranstjänst."
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "E-postdomän",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "Välj en domän som stöds av den valda tjänsten",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -2499,6 +2821,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Ogiltig $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ avvisade din begäran. Vänligen kontakta din tjänsteleverantör för hjälp.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ avvisade din begäran: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2588,14 +2934,8 @@
   "loginWithMasterPassword": {
     "message": "Logga in med huvudlösenord"
   },
-  "loggingInAs": {
-    "message": "Loggar in som"
-  },
   "rememberEmail": {
     "message": "Kom ihåg e-postadress"
-  },
-  "notYou": {
-    "message": "Är det inte du?"
   },
   "newAroundHere": {
     "message": "Är du ny här?"
@@ -2615,8 +2955,26 @@
   "loginInitiated": {
     "message": "Inloggning påbörjad"
   },
+  "logInRequestSent": {
+    "message": "Begäran skickad"
+  },
   "notificationSentDevice": {
     "message": "En avisering har skickats till din enhet."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Ett meddelande har skickats till din enhet"
+  },
+  "notificationSentDevicePart1": {
+    "message": "Lås upp Bitwarden på din enhet eller på "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webbapp"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Kontrollera att fingeravtrycksfrasen stämmer överens med den nedan innan du godkänner."
+  },
+  "needAnotherOptionV1": {
+    "message": "Behöver du ett annat alternativ?"
   },
   "fingerprintMatchInfo": {
     "message": "Se till att ditt valv är upplåst och att fingeravtrycksfrasen matchar på den andra enheten."
@@ -2624,8 +2982,14 @@
   "fingerprintPhraseHeader": {
     "message": "Fingeravtrycksfras"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Du kommer att få ett meddelande när begäran har godkänts"
+  },
   "needAnotherOption": {
     "message": "\"Logga in med enhet\" måste ställas in i inställningarna i Bitwardens app. Behöver du ett annat alternativ?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Visa alla inloggningsalternativ"
   },
   "viewAllLoginOptions": {
     "message": "Visa alla inloggningsalternativ"
@@ -2637,11 +3001,11 @@
     "message": "Växla teckenantal",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Försöker du logga in?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Försöker du komma åt ditt konto?"
   },
-  "logInAttemptBy": {
-    "message": "Inloggningsförsök av $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Åtkomstförsök via $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2658,11 +3022,11 @@
   "time": {
     "message": "Tid"
   },
-  "confirmLogIn": {
-    "message": "Bekräfta inloggning"
+  "confirmAccess": {
+    "message": "Bekräfta åtkomst"
   },
-  "denyLogIn": {
-    "message": "Neka inloggning"
+  "denyAccess": {
+    "message": "Neka åtkomst"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Inloggning bekräftad för $EMAIL$ på $DEVICE$",
@@ -2698,8 +3062,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Denna begäran är inte längre giltig."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Bekräfta inloggningsförsök för $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Bekräfta åtkomstförsök för $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2709,6 +3073,9 @@
   },
   "logInRequested": {
     "message": "Inloggning begärd"
+  },
+  "accountAccessRequested": {
+    "message": "Kontoåtkomst begärd"
   },
   "creatingAccountOn": {
     "message": "Skapa konto på"
@@ -2746,17 +3113,20 @@
   "checkForBreaches": {
     "message": "Kontrollera kända dataintrång för detta lösenord"
   },
+  "loggedInExclamation": {
+    "message": "Inloggad!"
+  },
   "important": {
     "message": "Viktigt:"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Åtkomst via"
   },
   "accessTokenUnableToBeDecrypted": {
-    "message": "You have been logged out because your access token could not be decrypted. Please log in again to resolve this issue."
+    "message": "Du har blivit utloggad eftersom din access token inte kunde dekrypteras. Vänligen logga in igen för att lösa problemet."
   },
   "refreshTokenSecureStorageRetrievalFailure": {
-    "message": "You have been logged out because your refresh token could not be retrieved. Please log in again to resolve this issue."
+    "message": "Du har blivit utloggad eftersom din uppdateringstoken inte kunde hämtas. Logga in igen för att lösa problemet."
   },
   "masterPasswordHint": {
     "message": "Ditt huvudlösenord kan inte återställas om du glömmer det!"
@@ -2776,8 +3146,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Rekommenderade inställningsuppdateringar"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Kom ihåg den här enheten för att göra framtida inloggningar smidiga"
+  },
   "deviceApprovalRequired": {
     "message": "Godkännande av enhet krävs. Välj ett godkännandealternativ nedan:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Godkännande av utrustning krävs"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Välj ett godkännandealternativ nedan"
   },
   "rememberThisDevice": {
     "message": "Kom ihåg denna enhet"
@@ -2791,8 +3170,11 @@
   "requestAdminApproval": {
     "message": "Be om godkännande från administratör"
   },
-  "approveWithMasterPassword": {
-    "message": "Godkänn med huvudlösenord"
+  "unableToCompleteLogin": {
+    "message": "Kunde inte slutföra inloggningen"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Du måste logga in på en betrodd enhet eller fråga din administratör att tilldela dig ett lösenord."
   },
   "region": {
     "message": "Region"
@@ -2819,9 +3201,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Din begäran har skickats till din administratör."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du kommer att meddelas vid godkännande."
-  },
   "troubleLoggingIn": {
     "message": "Problem med att logga in?"
   },
@@ -2831,8 +3210,35 @@
   "userEmailMissing": {
     "message": "Användarens e-postadress saknas"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "E-postadressen för aktiv användare hittades inte. Loggar ut dig."
+  },
   "deviceTrusted": {
     "message": "Enhet betrodd"
+  },
+  "trustOrganization": {
+    "message": "Lita på organisation"
+  },
+  "trust": {
+    "message": "Förtroende"
+  },
+  "doNotTrust": {
+    "message": "Lita inte på"
+  },
+  "organizationNotTrusted": {
+    "message": "Organisationen är inte betrodd"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "För att skydda ditt konto ska du bara bekräfta om du har beviljat nödåtkomst till den här användaren och om fingeravtrycket matchar det som visas på användarens konto"
+  },
+  "orgTrustWarning": {
+    "message": "För att skydda ditt konto ska du bara fortsätta om du är medlem i den här organisationen, har aktiverat kontoåterställning och om det fingeravtryck som visas nedan matchar organisationens fingeravtryck."
+  },
+  "orgTrustWarning1": {
+    "message": "Den här organisationen har en företagspolicy som gör att du kan registrera dig till kontoåterställning. Registreringen gör det möjligt för organisationens administratörer att ändra ditt lösenord. Fortsätt bara om du känner igen den här organisationen och om fingeravtrycksfrasen som visas nedan matchar organisationens fingeravtryck."
+  },
+  "trustUser": {
+    "message": "Lita på användare"
   },
   "inputRequired": {
     "message": "Inmatning är obligatoriskt."
@@ -2935,7 +3341,7 @@
     "message": "Undermeny"
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Växla sidonavigering"
   },
   "skipToContent": {
     "message": "Hoppa till innehåll"
@@ -2944,10 +3350,10 @@
     "message": "Nyckel"
   },
   "passkeyNotCopied": {
-    "message": "Nyckeln kommer inte att kopieras"
+    "message": "Inloggningsnyckeln kommer inte att kopieras"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Nyckeln kommer inte att kopieras till det klonade objektet. Vill du klona det här objektet?"
+    "message": "Inloggningsnyckeln kommer inte att kopieras till det klonade objektet. Vill du klona det här objektet?"
   },
   "aliasDomain": {
     "message": "Aliasdomän"
@@ -2993,13 +3399,19 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Starta Duo och följ stegen för att slutföra inloggningen."
+    "message": "Fel vid anslutning till Duo-tjänsten. Använd en annan tvåstegsinloggningsmetod eller kontakta Duo för hjälp."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo tvåstegsverifiering krävs för ditt konto."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Tvåstegsinloggning med Duo krävs för ditt konto. Följ stegen nedan för att slutföra inloggningen."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Följ stegen nedan för att slutföra inloggningen."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Följ stegen nedan för att slutföra inloggningen med din säkerhetsnyckel."
   },
   "launchDuo": {
     "message": "Starta Duo i webbläsaren"
@@ -3076,7 +3488,7 @@
     "message": "Bekräfta fillösenord"
   },
   "exportSuccess": {
-    "message": "Vault data exported"
+    "message": "Valvdata exporteras"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Flerfaktorsautentisering avbruten"
@@ -3118,7 +3530,7 @@
     "message": "Godkänn inloggningsbegäran i din autentiseringsapp eller ange en engångskod."
   },
   "passcode": {
-    "message": "Kod"
+    "message": "Lösenkod"
   },
   "lastPassMasterPassword": {
     "message": "LastPass Huvudlösenord"
@@ -3155,6 +3567,30 @@
     "message": "Vanliga format",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Detektering av URI-matchning är hur Bitwarden identifierar autofyllförslag.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Reguljär uttryck\" är ett avancerat alternativ med ökad risk för att röja inloggningsuppgifter.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Börjar med\" är ett avancerat alternativ med ökad risk för att röja inloggningsuppgifter.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Mer om matchdetektering",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Avancerade alternativ",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Varning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "Lyckades"
   },
@@ -3168,10 +3604,10 @@
     "message": "Inaktivera hårdvaruacceleration och starta om"
   },
   "removePasskey": {
-    "message": "Ta bort nyckel"
+    "message": "Ta bort inloggningsnyckel"
   },
   "passkeyRemoved": {
-    "message": "Nyckel borttagen"
+    "message": "Inloggningsnyckel borttagen"
   },
   "errorAssigningTargetCollection": {
     "message": "Fel vid tilldelning av målsamling."
@@ -3217,15 +3653,372 @@
     "message": "Data"
   },
   "fileSends": {
-    "message": "File Sends"
+    "message": "Skicka filer"
   },
   "textSends": {
-    "message": "Text Sends"
+    "message": "Text skickas"
   },
   "ssoError": {
-    "message": "No free ports could be found for the sso login."
+    "message": "Inga lediga portar kunde hittas för sso-inloggningen."
+  },
+  "securePasswordGenerated": {
+    "message": "Säkert lösenord genererat! Glöm inte att även uppdatera ditt lösenord på hemsidan."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Använd generatorn",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "för att skapa ett starkt unikt lösenord",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisk upplåsning är inte tillgänglig eftersom upplåsning med PIN-kod eller lösenord krävs först."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisk upplåsning är för närvarande inte tillgänglig."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisk upplåsning är inte tillgänglig på grund av felkonfigurerade systemfiler."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisk upplåsning är inte tillgänglig på grund av felkonfigurerade systemfiler."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometrisk upplåsning är inte tillgänglig eftersom den inte är aktiverad för $EMAIL$ i Bitwardens skrivbordsapp.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisk upplåsning är för närvarande inte tillgänglig av okänd anledning."
+  },
+  "itemDetails": {
+    "message": "Objektdetaljer"
+  },
+  "itemName": {
+    "message": "Objektnamn"
+  },
+  "loginCredentials": {
+    "message": "Inloggningsuppgifter"
+  },
+  "additionalOptions": {
+    "message": "Ytterligare alternativ"
+  },
+  "itemHistory": {
+    "message": "Objekthistorik"
+  },
+  "lastEdited": {
+    "message": "Senast redigerad"
+  },
+  "upload": {
+    "message": "Ladda upp"
+  },
+  "authorize": {
+    "message": "Auktorisera"
+  },
+  "deny": {
+    "message": "Neka"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Bekräfta användning av SSH-nyckel"
+  },
+  "agentForwardingWarningTitle": {
+    "message": "Varning: Agent vidarebefordran"
+  },
+  "agentForwardingWarningText": {
+    "message": "Denna begäran kommer från en fjärrenhet som du är inloggad på"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "begär tillgång till"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "för att"
+  },
+  "sshActionLogin": {
+    "message": "autentisera till en server"
+  },
+  "sshActionSign": {
+    "message": "signera ett meddelande"
+  },
+  "sshActionGitSign": {
+    "message": "signera en git commit"
+  },
+  "unknownApplication": {
+    "message": "En applikation"
+  },
+  "invalidSshKey": {
+    "message": "SSH-nyckeln är ogiltig"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH-nyckeltypen stöds inte"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importera nyckel från urklipp"
+  },
+  "sshKeyImported": {
+    "message": "SSH-nyckel importerad framgångsrikt"
   },
   "fileSavedToDevice": {
-    "message": "File saved to device. Manage from your device downloads."
+    "message": "Fil sparad till enhet. Hantera nedladdningar från din enhet."
+  },
+  "allowScreenshots": {
+    "message": "Tillåt skärmdump"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Tillåt att Bitwardens skrivbordsapplikation fångas i skärmdumpar och visas i fjärrskrivbordssessioner. Om du avaktiverar detta kommer åtkomst att förhindras på vissa externa skärmar."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Bekräftelsefönstret är fortfarande synligt"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Bekräfta att fönstret fortfarande är synligt."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Uppdatering av förlängning krävs"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Det webbläsartillägg du använder är föråldrat. Uppdatera det eller inaktivera validering av fingeravtryck i webbläsaren i inställningarna för skrivbordsappen."
+  },
+  "changeAtRiskPassword": {
+    "message": "Ändra lösenord för riskgrupper"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Du kan inte ta bort samlingar med behörigheten Visa endast: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "move": {
+    "message": "Flytta"
+  },
+  "newFolder": {
+    "message": "Ny mapp"
+  },
+  "folderName": {
+    "message": "Mappnamn"
+  },
+  "folderHintText": {
+    "message": "Nästla en mapp genom att lägga till namnet på den överordnade mappen följt av \"/\". Exempel: Sociala/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Skicka känslig information på ett säkert sätt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Dela filer och data på ett säkert sätt med vem som helst, på vilken plattform som helst. Din information kommer att förbli krypterad från början till slut samtidigt som exponeringen begränsas.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Skapa lösenord snabbt"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Skapa enkelt starka och unika lösenord genom att klicka på",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "för att hjälpa dig att hålla dina inloggningar säkra.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Skapa enkelt starka och unika lösenord genom att klicka på knappen Generera lösenord så att du kan hålla dina inloggningar säkra.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Spara tid med autofyll"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Inkludera ett",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Webbplats",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "så att den här inloggningen visas som ett autofyllningsförslag.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Sömlös utcheckning online"
+  },
+  "newCardNudgeBody": {
+    "message": "Med kort kan du enkelt autofylla betalningsformulär på ett säkert och exakt sätt."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Förenkla skapandet av konton"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Med identiteter kan du snabbt autofylla långa registrerings- eller kontaktformulär."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Håll ditt känsliga data säkert"
+  },
+  "newNoteNudgeBody": {
+    "message": "Med anteckningar kan du säkert lagra känslig information som bank- eller försäkringsuppgifter."
+  },
+  "newSshNudgeTitle": {
+    "message": "Utvecklarvänlig SSH-åtkomst"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Förvara dina nycklar och anslut till SSH-agenten för snabb, krypterad autentisering.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Läs mer om SSH-agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Tilldela till samlingar"
+  },
+  "assignToTheseCollections": {
+    "message": "Tilldela till dessa samlingar"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Endast organisationsmedlemmar med tillgång till dessa samlingar kan se objektet."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Endast organisationsmedlemmar med tillgång till dessa samlingar kan se objekten."
+  },
+  "noCollectionsAssigned": {
+    "message": "Inga samlingar har tilldelats"
+  },
+  "assign": {
+    "message": "Tilldela"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Endast organisationsmedlemmar med tillgång till dessa samlingar kan se objekten."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Du har valt $TOTAL_COUNT$ artiklar. Du kan inte uppdatera $READONLY_COUNT$ av objekten eftersom du inte har redigeringsbehörighet.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Välj samlingar som ska tilldelas"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ kommer att överföras permanent till den valda organisationen. Du kommer inte längre att äga dessa föremål.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ kommer att överföras permanent till $ORG$. Du kommer inte längre att äga dessa objekt.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 objekt kommer att permanent överföras till den valda organisationen. Du kommer inte längre att äga detta objekt."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 objekt kommer att överföras permanent till $ORG$. Du kommer inte längre att äga det här objektet.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Framgångsrikt tilldelade samlingar"
+  },
+  "nothingSelected": {
+    "message": "Du har inte valt något."
+  },
+  "itemsMovedToOrg": {
+    "message": "Objekten flyttade till $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Objekt flyttat till $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Valda objekt flyttade till $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
+  },
+  "enableAutotype": {
+    "message": "Aktivera genväg för automatisk inmatning"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
   }
 }

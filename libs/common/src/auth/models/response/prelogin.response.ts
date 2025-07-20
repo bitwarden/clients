@@ -1,5 +1,8 @@
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { KdfType } from "@bitwarden/key-management";
+
 import { BaseResponse } from "../../../models/response/base.response";
-import { KdfType } from "../../../platform/enums";
 
 export class PreloginResponse extends BaseResponse {
   kdf: KdfType;

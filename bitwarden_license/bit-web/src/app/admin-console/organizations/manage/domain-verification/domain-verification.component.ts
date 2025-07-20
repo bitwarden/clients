@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params } from "@angular/router";
 import {
@@ -6,16 +8,19 @@ import {
   map,
   Observable,
   Subject,
+  switchMap,
   take,
   takeUntil,
-  withLatestFrom,
 } from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -30,9 +35,11 @@ import {
 @Component({
   selector: "app-org-manage-domain-verification",
   templateUrl: "domain-verification.component.html",
+  standalone: false,
 })
 export class DomainVerificationComponent implements OnInit, OnDestroy {
   private componentDestroyed$ = new Subject<void>();
+  private singleOrgPolicyEnabled = false;
 
   loading = true;
 
@@ -48,9 +55,10 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private toastService: ToastService,
     private configService: ConfigService,
+    private policyService: PolicyService,
+    private accountService: AccountService,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async ngOnInit() {
     this.orgDomains$ = this.orgDomainService.orgDomains$;
 
@@ -71,6 +79,19 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
   async load() {
     await this.orgDomainApiService.getAllByOrgId(this.organizationId);
 
+    const singleOrgPolicy = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.policies$(userId)),
+        map((policies) =>
+          policies.find(
+            (p) => p.type === PolicyType.SingleOrg && p.organizationId === this.organizationId,
+          ),
+        ),
+      ),
+    );
+    this.singleOrgPolicyEnabled = singleOrgPolicy?.enabled ?? false;
+
     this.loading = false;
   }
 
@@ -81,28 +102,30 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
       existingDomainNames: this.getExistingDomainNames(),
     };
 
-    await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.AccountDeprovisioning).pipe(
-        withLatestFrom(this.orgDomains$),
-        map(async ([accountDeprovisioningEnabled, organizationDomains]) => {
-          if (
-            accountDeprovisioningEnabled &&
-            organizationDomains.every((domain) => domain.verifiedDate === null)
-          ) {
-            await this.dialogService.openSimpleDialog({
-              title: { key: "verified-domain-single-org-warning" },
-              content: { key: "single-org-revoked-user-warning" },
-              cancelButtonText: { key: "cancel" },
-              acceptButtonText: { key: "confirm" },
-              acceptAction: () => this.openAddDomainDialog(domainAddEditDialogData),
-              type: "info",
-            });
-          } else {
-            await this.openAddDomainDialog(domainAddEditDialogData);
-          }
-        }),
+    const showSingleOrgWarning = await firstValueFrom(
+      this.orgDomains$.pipe(
+        map(
+          (organizationDomains) =>
+            !this.singleOrgPolicyEnabled &&
+            organizationDomains.every((domain) => domain.verifiedDate === null),
+        ),
       ),
     );
+
+    if (showSingleOrgWarning) {
+      await this.dialogService.openSimpleDialog({
+        title: { key: "claim-domain-single-org-warning" },
+        content: { key: "single-org-revoked-user-warning" },
+        cancelButtonText: { key: "cancel" },
+        acceptButtonText: { key: "confirm" },
+        acceptAction: () => this.openAddDomainDialog(domainAddEditDialogData),
+        type: "info",
+      });
+
+      return;
+    }
+
+    await this.openAddDomainDialog(domainAddEditDialogData);
   }
 
   private async openAddDomainDialog(domainAddEditDialogData: DomainAddEditDialogData) {
@@ -154,13 +177,13 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
         this.toastService.showToast({
           variant: "success",
           title: null,
-          message: this.i18nService.t("domainVerified"),
+          message: this.i18nService.t("domainClaimed"),
         });
       } else {
         this.toastService.showToast({
           variant: "error",
           title: null,
-          message: this.i18nService.t("domainNotVerified", domainName),
+          message: this.i18nService.t("domainNotClaimed", domainName),
         });
         // Update this item so the last checked date gets updated.
         await this.updateOrgDomain(orgDomainId);

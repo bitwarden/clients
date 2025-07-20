@@ -1,0 +1,82 @@
+<div id="vault" class="vault vault-v2" attr.aria-hidden="{{ showingModal }}">
+  <app-vault-items-v2
+    id="items"
+    class="items"
+    [activeCipherId]="cipherId"
+    (onCipherClicked)="viewCipher($event)"
+    (onCipherRightClicked)="viewCipherMenu($event)"
+    (onAddCipher)="addCipher($event)"
+  >
+  </app-vault-items-v2>
+  <div class="details" *ngIf="!!action">
+    <app-vault-item-footer
+      id="footer"
+      #footer
+      [cipher]="cipher"
+      [action]="action"
+      (onEdit)="editCipher($event)"
+      (onRestore)="restoreCipher()"
+      (onClone)="cloneCipher($event)"
+      (onDelete)="deleteCipher()"
+      (onCancel)="cancelCipher($event)"
+      [isSubmitting]="isSubmitting"
+      [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
+    ></app-vault-item-footer>
+    <div class="content">
+      <div class="inner-content">
+        <div class="box">
+          <app-cipher-view *ngIf="action === 'view'" [cipher]="cipher" [collections]="collections">
+          </app-cipher-view>
+          <vault-cipher-form
+            #vaultForm
+            *ngIf="action === 'add' || action === 'edit' || action === 'clone'"
+            formId="cipherForm"
+            [config]="config"
+            (cipherSaved)="savedCipher($event)"
+            [beforeSubmit]="onSubmit"
+            [submitBtn]="footer?.submitBtn"
+          >
+            <bit-item slot="attachment-button">
+              <button bit-item-content type="button" (click)="openAttachmentsDialog()">
+                <p class="tw-m-0">
+                  {{ "attachments" | i18n }}
+                  <span
+                    *ngIf="!(canAccessAttachments$ | async)"
+                    bitBadge
+                    variant="success"
+                    class="tw-ml-2"
+                  >
+                    {{ "premium" | i18n }}
+                  </span>
+                </p>
+                <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+              </button>
+            </bit-item>
+          </vault-cipher-form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    id="logo"
+    class="logo"
+    *ngIf="action !== 'add' && action !== 'edit' && action !== 'view' && action !== 'clone'"
+  >
+    <div class="content">
+      <div class="inner-content">
+        <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
+      </div>
+    </div>
+  </div>
+  <div class="left-nav">
+    <app-vault-filter
+      class="vault-filters"
+      [activeFilter]="activeFilter"
+      (onFilterChange)="applyVaultFilter($event)"
+      (onAddFolder)="addFolder()"
+      (onEditFolder)="editFolder($event.id)"
+    ></app-vault-filter>
+    <app-nav class="nav"></app-nav>
+  </div>
+</div>
+<ng-template #folderAddEdit></ng-template>

@@ -66,13 +66,17 @@ import { ForwarderOptionsMigrator } from "./migrations/65-migrate-forwarder-sett
 import { MoveFinalDesktopSettingsMigrator } from "./migrations/66-move-final-desktop-settings";
 import { RemoveUnassignedItemsBannerDismissed } from "./migrations/67-remove-unassigned-items-banner-dismissed";
 import { MoveLastSyncDate } from "./migrations/68-move-last-sync-date";
+import { MigrateIncorrectFolderKey } from "./migrations/69-migrate-incorrect-folder-key";
 import { MoveBiometricAutoPromptToAccount } from "./migrations/7-move-biometric-auto-prompt-to-account";
+import { RemoveAcBannersDismissed } from "./migrations/70-remove-ac-banner-dismissed";
+import { RemoveNewCustomizationOptionsCalloutDismissed } from "./migrations/71-remove-new-customization-options-callout-dismissed";
+import { RemoveAccountDeprovisioningBannerDismissed } from "./migrations/72-remove-account-deprovisioning-banner-dismissed";
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 68;
+export const CURRENT_VERSION = 72;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -142,7 +146,11 @@ export function createMigrationBuilder() {
     .with(ForwarderOptionsMigrator, 64, 65)
     .with(MoveFinalDesktopSettingsMigrator, 65, 66)
     .with(RemoveUnassignedItemsBannerDismissed, 66, 67)
-    .with(MoveLastSyncDate, 67, CURRENT_VERSION);
+    .with(MoveLastSyncDate, 67, 68)
+    .with(MigrateIncorrectFolderKey, 68, 69)
+    .with(RemoveAcBannersDismissed, 69, 70)
+    .with(RemoveNewCustomizationOptionsCalloutDismissed, 70, 71)
+    .with(RemoveAccountDeprovisioningBannerDismissed, 71, CURRENT_VERSION);
 }
 
 export async function currentVersion(

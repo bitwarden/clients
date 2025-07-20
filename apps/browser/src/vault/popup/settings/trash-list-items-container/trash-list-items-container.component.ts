@@ -1,10 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -17,29 +23,38 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CanDeleteCipherDirective,
+  DecryptionFailureDialogComponent,
+  OrgIconDirective,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
+
+import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 @Component({
   selector: "app-trash-list-items-container",
   templateUrl: "trash-list-items-container.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ItemModule,
     JslibModule,
     SectionComponent,
     SectionHeaderComponent,
+    CanDeleteCipherDirective,
     MenuModule,
     IconButtonModule,
+    OrgIconDirective,
     TypographyModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrashListItemsContainerComponent {
   /**
    * The list of trashed items to display.
    */
   @Input()
-  ciphers: CipherView[] = [];
+  ciphers: PopupCipherViewLike[] = [];
 
   @Input()
   headerText: string;
@@ -51,12 +66,25 @@ export class TrashListItemsContainerComponent {
     private i18nService: I18nService,
     private dialogService: DialogService,
     private passwordRepromptService: PasswordRepromptService,
+    private accountService: AccountService,
     private router: Router,
   ) {}
 
+  /**
+   * The tooltip text for the organization icon for ciphers that belong to an organization.
+   */
+  orgIconTooltip({ collections, collectionIds }: PopupCipherViewLike) {
+    if (collectionIds.length > 1) {
+      return this.i18nService.t("nCollections", collectionIds.length);
+    }
+
+    return collections[0]?.name;
+  }
+
   async restore(cipher: CipherView) {
     try {
-      await this.cipherService.restoreWithServer(cipher.id);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.cipherService.restoreWithServer(cipher.id, activeUserId);
 
       await this.router.navigate(["/trash"]);
       this.toastService.showToast({
@@ -87,7 +115,8 @@ export class TrashListItemsContainerComponent {
     }
 
     try {
-      await this.cipherService.deleteWithServer(cipher.id);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.cipherService.deleteWithServer(cipher.id, activeUserId);
 
       await this.router.navigate(["/trash"]);
       this.toastService.showToast({
@@ -101,6 +130,13 @@ export class TrashListItemsContainerComponent {
   }
 
   async onViewCipher(cipher: CipherView) {
+    if (cipher.decryptionFailure) {
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: [cipher.id as CipherId],
+      });
+      return;
+    }
+
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
     if (!repromptPassed) {
       return;

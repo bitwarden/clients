@@ -1,8 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, takeUntil, concatMap } from "rxjs";
+import { Subject, takeUntil, concatMap, firstValueFrom } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import {
@@ -22,6 +29,7 @@ import {
 @Component({
   selector: "sm-new-menu",
   templateUrl: "./new-menu.component.html",
+  standalone: false,
 })
 export class NewMenuComponent implements OnInit, OnDestroy {
   private organizationId: string;
@@ -31,12 +39,20 @@ export class NewMenuComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
     this.route.params
       .pipe(
-        concatMap(async (params) => await this.organizationService.get(params.organizationId)),
+        concatMap(async (params) => {
+          const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+          return await firstValueFrom(
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          );
+        }),
         takeUntil(this.destroy$),
       )
       .subscribe((org) => {

@@ -13,7 +13,10 @@ import {
 } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CoreSyncService } from "@bitwarden/common/platform/sync/internal";
+import { SyncOptions } from "@bitwarden/common/platform/sync/sync.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -22,7 +25,7 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 
 import { FULL_SYNC_FINISHED } from "./sync-service.listener";
 
-export type FullSyncMessage = { forceSync: boolean; allowThrowOnError: boolean; requestId: string };
+export type FullSyncMessage = { forceSync: boolean; options: SyncOptions; requestId: string };
 
 export const DO_FULL_SYNC = new CommandDefinition<FullSyncMessage>("doFullSync");
 
@@ -60,9 +63,20 @@ export class ForegroundSyncService extends CoreSyncService {
     );
   }
 
-  async fullSync(forceSync: boolean, allowThrowOnError: boolean = false): Promise<boolean> {
+  async fullSync(
+    forceSync: boolean,
+    allowThrowOnErrorOrOptions?: boolean | SyncOptions,
+  ): Promise<boolean> {
     this.syncInProgress = true;
     try {
+      // Normalize options
+      const options =
+        typeof allowThrowOnErrorOrOptions === "boolean"
+          ? { allowThrowOnError: allowThrowOnErrorOrOptions, skipTokenRefresh: false }
+          : {
+              allowThrowOnError: allowThrowOnErrorOrOptions?.allowThrowOnError ?? false,
+              skipTokenRefresh: allowThrowOnErrorOrOptions?.skipTokenRefresh ?? false,
+            };
       const requestId = Utils.newGuid();
       const syncCompletedPromise = firstValueFrom(
         this.messageListener.messages$(FULL_SYNC_FINISHED).pipe(
@@ -79,10 +93,10 @@ export class ForegroundSyncService extends CoreSyncService {
           }),
         ),
       );
-      this.messageSender.send(DO_FULL_SYNC, { forceSync, allowThrowOnError, requestId });
+      this.messageSender.send(DO_FULL_SYNC, { forceSync, options, requestId });
       const result = await syncCompletedPromise;
 
-      if (allowThrowOnError && result.errorMessage != null) {
+      if (options.allowThrowOnError && result.errorMessage != null) {
         throw new Error(result.errorMessage);
       }
 

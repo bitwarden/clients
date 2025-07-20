@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -5,10 +7,15 @@ import { concatMap, firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingSyncConfigApi } from "@bitwarden/common/billing/models/api/billing-sync-config.api";
 import { SelfHostedOrganizationSubscriptionView } from "@bitwarden/common/billing/models/view/self-hosted-organization-subscription.view";
@@ -20,6 +27,8 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BillingSyncKeyComponent } from "./billing-sync-key.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum LicenseOptions {
   SYNC = 0,
   UPLOAD = 1,
@@ -27,6 +36,7 @@ enum LicenseOptions {
 
 @Component({
   templateUrl: "organization-subscription-selfhost.component.html",
+  standalone: false,
 })
 export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDestroy {
   subscription: SelfHostedOrganizationSubscriptionView;
@@ -78,6 +88,7 @@ export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDest
     private messagingService: MessagingService,
     private apiService: ApiService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private route: ActivatedRoute,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
@@ -113,7 +124,12 @@ export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDest
       return;
     }
     this.loading = true;
-    this.userOrg = await this.organizationService.get(this.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.userOrg = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
     this.showAutomaticSyncAndManualUpload =
       this.userOrg.productTierType == ProductTierType.Families ? false : true;
     if (this.userOrg.canViewSubscription) {

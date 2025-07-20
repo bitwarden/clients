@@ -6,12 +6,13 @@ import { any, mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, map, of, timeout } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { StorageServiceProvider } from "@bitwarden/storage-core";
+
 import { awaitAsync, trackEmissions } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { Account } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
-import { StorageServiceProvider } from "../../services/storage-service.provider";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
 import { UserKeyDefinition } from "../user-key-definition";
@@ -220,7 +221,8 @@ describe("DefaultActiveUserState", () => {
   it("should not emit a previous users value if that user is no longer active", async () => {
     const user1Data: Jsonify<TestState> = {
       date: "2020-09-21T13:14:17.648Z",
-      array: ["value"],
+      // NOTE: `as any` is here until we migrate to Nx: https://bitwarden.atlassian.net/browse/PM-6493
+      array: ["value"] as any,
     };
     const user2Data: Jsonify<TestState> = {
       date: "2020-09-21T13:14:17.648Z",

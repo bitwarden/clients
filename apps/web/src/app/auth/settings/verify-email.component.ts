@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Output } from "@angular/core";
 
@@ -15,7 +17,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "app-verify-email",
   templateUrl: "verify-email.component.html",
   imports: [AsyncActionsModule, BannerModule, ButtonModule, CommonModule, JslibModule, LinkModule],

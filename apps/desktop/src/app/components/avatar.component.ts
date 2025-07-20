@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnInit } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
@@ -6,6 +8,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 @Component({
   selector: "app-avatar",
   template: `<img *ngIf="src" [src]="src" [ngClass]="{ 'rounded-circle': circle }" />`,
+  standalone: false,
 })
 export class AvatarComponent implements OnChanges, OnInit {
   @Input() size = 45;
@@ -111,7 +114,7 @@ export class AvatarComponent implements OnChanges, OnInit {
     textTag.setAttribute("fill", Utils.pickTextColorBasedOnBgColor(color, 135, true));
     textTag.setAttribute(
       "font-family",
-      '"Open Sans","Helvetica Neue",Helvetica,Arial,' +
+      'Roboto,"Helvetica Neue",Helvetica,Arial,' +
         'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
     );
     textTag.textContent = character;

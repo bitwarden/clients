@@ -1,45 +1,50 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { filter, map, Observable, startWith, concatMap, firstValueFrom } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { ReportVariant, reports, ReportType, ReportEntry } from "../../../tools/reports";
+import { ReportVariant, reports, ReportType, ReportEntry } from "../../../dirt/reports";
 
 @Component({
   selector: "app-org-reports-home",
   templateUrl: "reports-home.component.html",
+  standalone: false,
 })
 export class ReportsHomeComponent implements OnInit {
   reports$: Observable<ReportEntry[]>;
   homepage$: Observable<boolean>;
 
-  private isMemberAccessReportEnabled: boolean;
-
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private router: Router,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
-    // TODO: Remove on "MemberAccessReport" feature flag cleanup
-    this.isMemberAccessReportEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.MemberAccessReport),
-    );
-
     this.homepage$ = this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
       map((event) => this.isReportsHomepageRouteUrl((event as NavigationEnd).urlAfterRedirects)),
       startWith(this.isReportsHomepageRouteUrl(this.router.url)),
     );
 
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this.reports$ = this.route.params.pipe(
-      concatMap((params) => this.organizationService.get$(params.organizationId)),
+      concatMap((params) =>
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(params.organizationId)),
+      ),
       map((org) => this.buildReports(org.productTierType)),
     );
   }
@@ -69,17 +74,14 @@ export class ReportsHomeComponent implements OnInit {
         ...reports[ReportType.Inactive2fa],
         variant: reportRequiresUpgrade,
       },
-    ];
-
-    if (this.isMemberAccessReportEnabled) {
-      reportsArray.push({
+      {
         ...reports[ReportType.MemberAccessReport],
         variant:
           productType == ProductTierType.Enterprise
             ? ReportVariant.Enabled
             : ReportVariant.RequiresEnterprise,
-      });
-    }
+      },
+    ];
 
     return reportsArray;
   }

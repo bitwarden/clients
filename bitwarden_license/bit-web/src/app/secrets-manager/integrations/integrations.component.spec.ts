@@ -4,25 +4,29 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { SYSTEM_THEME_OBSERVABLE } from "../../../../../../libs/angular/src/services/injection-tokens";
-import { I18nService } from "../../../../../../libs/common/src/platform/abstractions/i18n.service";
-import { ThemeType } from "../../../../../../libs/common/src/platform/enums";
-import { ThemeStateService } from "../../../../../../libs/common/src/platform/theming/theme-state.service";
-import { I18nPipe } from "../../../../../../libs/components/src/shared/i18n.pipe";
+import {} from "@bitwarden/web-vault/app/shared";
 
-import { IntegrationCardComponent } from "./integration-card/integration-card.component";
-import { IntegrationGridComponent } from "./integration-grid/integration-grid.component";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { IntegrationCardComponent } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/integrations/integration-card/integration-card.component";
+import { IntegrationGridComponent } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/integrations/integration-grid/integration-grid.component";
+
 import { IntegrationsComponent } from "./integrations.component";
 
 @Component({
   selector: "app-header",
   template: "<div></div>",
+  standalone: false,
 })
 class MockHeaderComponent {}
 
 @Component({
   selector: "sm-new-menu",
   template: "<div></div>",
+  standalone: false,
 })
 class MockNewMenuComponent {}
 
@@ -31,18 +35,12 @@ describe("IntegrationsComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        IntegrationsComponent,
-        IntegrationGridComponent,
-        IntegrationCardComponent,
-        MockHeaderComponent,
-        MockNewMenuComponent,
-        I18nPipe,
-      ],
+      declarations: [IntegrationsComponent, MockHeaderComponent, MockNewMenuComponent],
+      imports: [JslibModule, IntegrationGridComponent, IntegrationCardComponent],
       providers: [
         {
           provide: I18nService,
-          useValue: mock<I18nService>({ t: (key) => key }),
+          useValue: mock<I18nService>(),
         },
         {
           provide: ThemeStateService,

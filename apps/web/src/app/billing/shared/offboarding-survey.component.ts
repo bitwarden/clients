@@ -1,11 +1,18 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 type UserOffboardingParams = {
   type: "User";
@@ -18,6 +25,8 @@ type OrganizationOffboardingParams = {
 
 export type OffboardingSurveyDialogParams = UserOffboardingParams | OrganizationOffboardingParams;
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum OffboardingSurveyDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -40,6 +49,7 @@ export const openOffboardingSurvey = (
 @Component({
   selector: "app-cancel-subscription-form",
   templateUrl: "offboarding-survey.component.html",
+  standalone: false,
 })
 export class OffboardingSurveyComponent {
   protected ResultType = OffboardingSurveyDialogResultType;

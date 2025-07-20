@@ -2,6 +2,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { BadgeModule } from "../badge";
 import { SharedModule } from "../shared";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -13,8 +14,7 @@ export default {
   component: BadgeListComponent,
   decorators: [
     moduleMetadata({
-      imports: [SharedModule, BadgeModule],
-      declarations: [BadgeListComponent],
+      imports: [SharedModule, BadgeModule, BadgeListComponent],
       providers: [
         {
           provide: I18nService,
@@ -34,7 +34,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/f32LSg3jaegICkMu7rPARm/Tailwind-Component-Library-Update?node-id=1881%3A16956",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-26440&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
@@ -45,7 +45,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-badge-list [variant]="variant" [maxItems]="maxItems" [items]="items" [truncate]="truncate"></bit-badge-list>
+      <bit-badge-list ${formatArgsForCodeSnippet<BadgeListComponent>(args)}></bit-badge-list>
     `,
   }),
 

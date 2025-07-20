@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 
@@ -13,7 +15,6 @@ import { SendFilePopoutDialogComponent } from "./send-file-popout-dialog.compone
 @Component({
   selector: "send-file-popout-dialog-container",
   templateUrl: "./send-file-popout-dialog-container.component.html",
-  standalone: true,
   imports: [JslibModule, CommonModule],
 })
 export class SendFilePopoutDialogContainerComponent implements OnInit {

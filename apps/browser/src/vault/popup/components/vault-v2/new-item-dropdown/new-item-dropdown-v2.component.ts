@@ -1,17 +1,21 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import { Component, Input, OnInit } from "@angular/core";
+import { RouterLink } from "@angular/router";
+import { map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherMenuItem, CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
+import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
-import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 export interface NewItemInitialValues {
   folderId?: string;
@@ -22,34 +26,47 @@ export interface NewItemInitialValues {
 @Component({
   selector: "app-new-item-dropdown",
   templateUrl: "new-item-dropdown-v2.component.html",
-  standalone: true,
   imports: [NoItemsModule, JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule],
 })
-export class NewItemDropdownV2Component {
+export class NewItemDropdownV2Component implements OnInit {
   cipherType = CipherType;
-
+  private tab?: chrome.tabs.Tab;
   /**
    * Optional initial values to pass to the add cipher form
    */
   @Input()
   initialValues: NewItemInitialValues;
 
+  /**
+   * Observable of cipher menu items that are not restricted by policy
+   */
+  readonly cipherMenuItems$: Observable<CipherMenuItem[]> =
+    this.restrictedItemTypeService.restricted$.pipe(
+      map((restrictedTypes) => {
+        const restrictedTypeArr = restrictedTypes.map((item) => item.cipherType);
+
+        return CIPHER_MENU_ITEMS.filter((menuItem) => !restrictedTypeArr.includes(menuItem.type));
+      }),
+    );
+
   constructor(
-    private router: Router,
     private dialogService: DialogService,
+    private restrictedItemTypeService: RestrictedItemTypesService,
   ) {}
 
-  private async buildQueryParams(type: CipherType): Promise<AddEditQueryParams> {
-    const tab = await BrowserApi.getTabFromCurrentWindow();
+  async ngOnInit() {
+    this.tab = await BrowserApi.getTabFromCurrentWindow();
+  }
+
+  buildQueryParams(type: CipherType): AddEditQueryParams {
     const poppedOut = BrowserPopupUtils.inPopout(window);
 
-    const loginDetails: { uri?: string; name?: string } = {};
+    const loginDetails: { prefillNameAndURIFromTab?: string } = {};
 
     // When a Login Cipher is created and the extension is not popped out,
     // pass along the uri and name
-    if (!poppedOut && type === CipherType.Login && tab) {
-      loginDetails.uri = tab.url;
-      loginDetails.name = Utils.getHostname(tab.url);
+    if (!poppedOut && type === CipherType.Login && this.tab) {
+      loginDetails.prefillNameAndURIFromTab = "true";
     }
 
     return {
@@ -61,11 +78,7 @@ export class NewItemDropdownV2Component {
     };
   }
 
-  async newItemNavigate(type: CipherType) {
-    await this.router.navigate(["/add-cipher"], { queryParams: await this.buildQueryParams(type) });
-  }
-
   openFolderDialog() {
-    this.dialogService.open(AddEditFolderDialogComponent);
+    AddEditFolderDialogComponent.open(this.dialogService);
   }
 }

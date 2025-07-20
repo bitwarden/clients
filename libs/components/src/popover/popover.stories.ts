@@ -30,7 +30,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1717-15868",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40852&t=b5tDKylm5sWm2yKo-4",
     },
   },
   argTypes: {
@@ -62,7 +62,7 @@ type Story = StoryObj<PopoverTriggerForDirective>;
 const popoverContent = `
   <bit-popover [title]="'Example Title'" #myPopover>
     <div>Lorem ipsum dolor <a href="#">adipisicing elit</a>.</div>
-    <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+    <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
       <li>Dolor sit amet consectetur</li>
       <li>Esse labore veniam tempora</li>
       <li>Adipisicing elit ipsum <a href="#">iustolaborum</a></li>
@@ -75,7 +75,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32">
+      <div class="tw-mt-56">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -96,7 +96,29 @@ export const Open: Story = {
     template: `
       <bit-popover [title]="'Example Title'" #myPopover="popoverComponent">
         <div>Lorem ipsum dolor <a href="#">adipisicing elit</a>.</div>
-        <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+        <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
+          <li>Dolor sit amet consectetur</li>
+          <li>Esse labore veniam tempora</li>
+          <li>Adipisicing elit ipsum <a href="#">iustolaborum</a></li>
+        </ul>
+      </bit-popover>
+
+      <div class="tw-h-40">
+        <div class="cdk-overlay-pane bit-popover-right bit-popover-right-start">
+          <ng-container *ngTemplateOutlet="myPopover.templateRef"></ng-container>
+        </div>
+      </div>
+      `,
+  }),
+};
+
+export const OpenLongTitle: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-popover [title]="'Example Title that is really long it wraps 2 lines'" #myPopover="popoverComponent">
+        <div>Lorem ipsum dolor <a href="#">adipisicing elit</a>.</div>
+        <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
           <li>Dolor sit amet consectetur</li>
           <li>Esse labore veniam tempora</li>
           <li>Adipisicing elit ipsum <a href="#">iustolaborum</a></li>
@@ -116,7 +138,7 @@ export const InitiallyOpen: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32">
+      <div class="tw-mt-56">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -142,7 +164,7 @@ export const RightStart: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32">
+      <div class="tw-mt-56">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -165,7 +187,7 @@ export const RightCenter: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32">
+      <div class="tw-mt-56">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -188,7 +210,7 @@ export const RightEnd: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32">
+      <div class="tw-mt-56">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -211,7 +233,7 @@ export const LeftStart: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32 tw-flex tw-justify-end">
+      <div class="tw-mt-56 tw-flex tw-justify-end">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -234,7 +256,7 @@ export const LeftCenter: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32 tw-flex tw-justify-end">
+      <div class="tw-mt-56 tw-flex tw-justify-end">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -256,7 +278,7 @@ export const LeftEnd: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32 tw-flex tw-justify-end">
+      <div class="tw-mt-56 tw-flex tw-justify-end">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -279,7 +301,7 @@ export const BelowStart: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32 tw-flex tw-justify-center">
+      <div class="tw-mt-56 tw-flex tw-justify-center">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -302,7 +324,7 @@ export const BelowCenter: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32 tw-flex tw-justify-center">
+      <div class="tw-mt-56 tw-flex tw-justify-center">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -325,7 +347,7 @@ export const BelowEnd: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32 tw-flex tw-justify-center">
+      <div class="tw-mt-56 tw-flex tw-justify-center">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -348,7 +370,7 @@ export const AboveStart: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32 tw-flex tw-justify-center">
+      <div class="tw-mt-56 tw-flex tw-justify-center">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -371,7 +393,7 @@ export const AboveCenter: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32 tw-flex tw-justify-center">
+      <div class="tw-mt-56 tw-flex tw-justify-center">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"
@@ -394,7 +416,7 @@ export const AboveEnd: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-mt-32 tw-flex tw-justify-center">
+      <div class="tw-mt-56 tw-flex tw-justify-center">
         <button
           type="button"
           class="tw-border-none tw-bg-transparent tw-text-primary-600"

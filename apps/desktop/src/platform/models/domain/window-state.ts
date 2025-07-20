@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export class WindowState {
   width?: number;
   height?: number;
@@ -8,4 +10,9 @@ export class WindowState {
   x?: number;
   y?: number;
   zoomFactor?: number;
+}
+
+export class ModalModeState {
+  isModalModeActive: boolean;
+  modalPosition?: { x: number; y: number }; // Modal position is often passed from the native UI
 }

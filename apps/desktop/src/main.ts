@@ -1,10 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import "core-js/proposals/explicit-resource-management";
+
 import * as path from "path";
 
 import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
@@ -22,12 +28,17 @@ import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
-import { DefaultBiometricStateService } from "@bitwarden/key-management";
 /* eslint-enable import/no-restricted-paths */
+import { DefaultBiometricStateService } from "@bitwarden/key-management";
+import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 
+import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
+import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
-import { BiometricsRendererIPCListener } from "./key-management/biometrics/biometric.renderer-ipc.listener";
-import { BiometricsService, DesktopBiometricsService } from "./key-management/biometrics/index";
+import { DesktopAutotypeService } from "./autofill/services/desktop-autotype.service";
+import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
+import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
+import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -35,9 +46,11 @@ import { PowerMonitorMain } from "./main/power-monitor.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { SlimConfigService } from "./platform/config/slim-config.service";
+import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
-import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
+import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
@@ -56,10 +69,11 @@ export class Main {
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
-  biometricsRendererIPCListener: BiometricsRendererIPCListener;
+  mainBiometricsIpcListener: MainBiometricsIPCListener;
   desktopSettingsService: DesktopSettingsService;
-  mainCryptoFunctionService: MainCryptoFunctionService;
+  mainCryptoFunctionService: NodeCryptoFunctionService;
   migrationRunner: MigrationRunner;
+  ssoUrlService: SsoUrlService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -70,7 +84,11 @@ export class Main {
   biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
+  nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
+  versionMain: VersionMain;
+  sshAgentService: MainSshAgentService;
+  mainDesktopAutotypeService: MainDesktopAutotypeService;
 
   constructor() {
     // Set paths for portable builds
@@ -81,6 +99,11 @@ export class Main {
       appDataPath = path.join(process.env.PORTABLE_EXECUTABLE_DIR, "bitwarden-appdata");
     } else if (process.platform === "linux" && process.env.SNAP_USER_DATA != null) {
       appDataPath = path.join(process.env.SNAP_USER_DATA, "appdata");
+    }
+
+    // Workaround for bug described here: https://github.com/electron/electron/issues/46538
+    if (process.platform === "linux") {
+      app.commandLine.appendSwitch("gtk-version", "3");
     }
 
     app.on("ready", () => {
@@ -121,14 +144,7 @@ export class Main {
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
-    this.mainCryptoFunctionService = new MainCryptoFunctionService();
-    this.mainCryptoFunctionService.init();
-
-    const accountService = new AccountServiceImplementation(
-      MessageSender.EMPTY,
-      this.logService,
-      globalStateProvider,
-    );
+    this.mainCryptoFunctionService = new NodeCryptoFunctionService();
 
     const stateEventRegistrarService = new StateEventRegistrarService(
       globalStateProvider,
@@ -139,6 +155,13 @@ export class Main {
       storageServiceProvider,
       stateEventRegistrarService,
       this.logService,
+    );
+
+    const accountService = new AccountServiceImplementation(
+      MessageSender.EMPTY,
+      this.logService,
+      globalStateProvider,
+      singleUserStateProvider,
     );
 
     const activeUserStateProvider = new DefaultActiveUserStateProvider(
@@ -168,6 +191,20 @@ export class Main {
 
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
+    const encryptService = new EncryptServiceImplementation(
+      this.mainCryptoFunctionService,
+      this.logService,
+      true,
+    );
+    this.biometricsService = new MainBiometricsService(
+      this.i18nService,
+      this.windowMain,
+      this.logService,
+      process.platform,
+      biometricStateService,
+      encryptService,
+      this.mainCryptoFunctionService,
+    );
 
     this.windowMain = new WindowMain(
       biometricStateService,
@@ -179,12 +216,19 @@ export class Main {
     );
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
     this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
-    this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.desktopSettingsService);
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
     this.messagingService = MessageSender.combine(
       new SubjectMessageSender(messageSubject), // For local messages
       new ElectronMainMessagingService(this.windowMain),
+    );
+
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.messagingService,
+      this.biometricsService,
     );
 
     messageSubject.asObservable().subscribe((message) => {
@@ -197,6 +241,8 @@ export class Main {
       });
     });
 
+    this.versionMain = new VersionMain(this.windowMain);
+
     this.powerMonitorMain = new PowerMonitorMain(this.messagingService, this.logService);
     this.menuMain = new MenuMain(
       this.i18nService,
@@ -205,24 +251,22 @@ export class Main {
       this.windowMain,
       this.updaterMain,
       this.desktopSettingsService,
+      this.versionMain,
     );
 
-    this.biometricsService = new BiometricsService(
-      this.i18nService,
+    this.trayMain = new TrayMain(
       this.windowMain,
-      this.logService,
+      this.i18nService,
+      this.desktopSettingsService,
       this.messagingService,
-      process.platform,
-      biometricStateService,
+      this.biometricsService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
       "Bitwarden",
-      this.biometricsService,
       this.logService,
     );
-    this.biometricsRendererIPCListener = new BiometricsRendererIPCListener(
-      "Bitwarden",
+    this.mainBiometricsIpcListener = new MainBiometricsIPCListener(
       this.biometricsService,
       this.logService,
     );
@@ -240,17 +284,39 @@ export class Main {
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
 
+    this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+
     new EphemeralValueStorageService();
-    new SSOLocalhostCallbackService(this.environmentService, this.messagingService);
+
+    this.ssoUrlService = new SsoUrlService();
+    new SSOLocalhostCallbackService(
+      this.environmentService,
+      this.messagingService,
+      this.ssoUrlService,
+    );
+
+    this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
+    void this.nativeAutofillMain.init();
+
+    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
+      new DesktopAutotypeService(
+        new SlimConfigService(this.environmentService, globalStateProvider),
+        globalStateProvider,
+        process.platform === "win32",
+      ),
+    );
+    this.mainDesktopAutotypeService.init();
   }
 
   bootstrap() {
     this.desktopCredentialStorageListener.init();
-    this.biometricsRendererIPCListener.init();
+    this.mainBiometricsIpcListener.init();
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {
         await this.toggleHardwareAcceleration();
+        // Reset modal mode to make sure main window is displayed correctly
+        await this.desktopSettingsService.resetModalMode();
         await this.windowMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();
@@ -340,7 +406,7 @@ export class Main {
       this.desktopSettingsService.hardwareAcceleration$,
     );
 
-    if (!hardwareAcceleration) {
+    if (!hardwareAcceleration || process.env.ELECTRON_DISABLE_GPU) {
       this.logService.warning("Hardware acceleration is disabled");
       app.disableHardwareAcceleration();
     } else if (isMacAppStore()) {

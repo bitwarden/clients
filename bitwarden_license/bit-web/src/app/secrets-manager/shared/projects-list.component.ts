@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { map } from "rxjs";
@@ -11,6 +13,7 @@ import { ProjectListView } from "../models/view/project-list.view";
 @Component({
   selector: "sm-projects-list",
   templateUrl: "./projects-list.component.html",
+  standalone: false,
 })
 export class ProjectsListComponent {
   @Input()

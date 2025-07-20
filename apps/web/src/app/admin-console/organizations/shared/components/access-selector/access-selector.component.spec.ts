@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
@@ -12,9 +14,12 @@ import {
   ButtonModule,
   FormFieldModule,
   IconButtonModule,
+  SelectModule,
   TableModule,
   TabsModule,
 } from "@bitwarden/components";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
@@ -67,6 +72,7 @@ describe("AccessSelectorComponent", () => {
         PreloadedEnglishI18nModule,
         JslibModule,
         IconButtonModule,
+        SelectModule,
       ],
       declarations: [TestableAccessSelectorComponent, UserTypePipe],
       providers: [],

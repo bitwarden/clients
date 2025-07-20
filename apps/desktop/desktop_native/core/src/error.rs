@@ -29,6 +29,12 @@ pub enum CryptoError {
     KeyDecrypt,
 }
 
+#[derive(Debug, Error)]
+pub enum KdfParamError {
+    #[error("Invalid KDF parameters: {0}")]
+    InvalidParams(String),
+}
+
 // Ensure that the error messages implement Send and Sync
 #[cfg(test)]
 const _: () = {

@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { WebauthnUtils } from "../utils/webauthn-utils";
 
-import { MessageType } from "./messaging/message";
+import { MessageTypes } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
 (function (globalContext) {
@@ -98,13 +100,13 @@ import { Messenger } from "./messaging/messenger";
     try {
       const response = await messenger.request(
         {
-          type: MessageType.CredentialCreationRequest,
+          type: MessageTypes.CredentialCreationRequest,
           data: WebauthnUtils.mapCredentialCreationOptions(options, fallbackSupported),
         },
         options?.signal,
       );
 
-      if (response.type !== MessageType.CredentialCreationResponse) {
+      if (response.type !== MessageTypes.CredentialCreationResponse) {
         throw new Error("Something went wrong.");
       }
 
@@ -139,19 +141,19 @@ import { Messenger } from "./messaging/messenger";
         try {
           const abortListener = () =>
             messenger.request({
-              type: MessageType.AbortRequest,
+              type: MessageTypes.AbortRequest,
               abortedRequestId: abortSignal.toString(),
             });
           internalAbortController.signal.addEventListener("abort", abortListener);
           const response = await messenger.request(
             {
-              type: MessageType.CredentialGetRequest,
+              type: MessageTypes.CredentialGetRequest,
               data: WebauthnUtils.mapCredentialRequestOptions(options, fallbackSupported),
             },
             internalAbortController.signal,
           );
           internalAbortController.signal.removeEventListener("abort", abortListener);
-          if (response.type !== MessageType.CredentialGetResponse) {
+          if (response.type !== MessageTypes.CredentialGetResponse) {
             throw new Error("Something went wrong.");
           }
 
@@ -180,13 +182,13 @@ import { Messenger } from "./messaging/messenger";
     try {
       const response = await messenger.request(
         {
-          type: MessageType.CredentialGetRequest,
+          type: MessageTypes.CredentialGetRequest,
           data: WebauthnUtils.mapCredentialRequestOptions(options, fallbackSupported),
         },
         options?.signal,
       );
 
-      if (response.type !== MessageType.CredentialGetResponse) {
+      if (response.type !== MessageTypes.CredentialGetResponse) {
         throw new Error("Something went wrong.");
       }
 
@@ -265,6 +267,8 @@ import { Messenger } from "./messaging/messenger";
 
       clearWaitForFocus();
       void messenger.destroy();
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       /** empty */
     }
@@ -278,7 +282,7 @@ import { Messenger } from "./messaging/messenger";
     const type = message.type;
 
     // Handle cleanup for disconnect request
-    if (type === MessageType.DisconnectRequest) {
+    if (type === MessageTypes.DisconnectRequest) {
       destroy();
     }
   };

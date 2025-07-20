@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
@@ -72,6 +74,9 @@ export class RouterService {
 
         const titleId: string = child?.snapshot?.data?.titleId;
         const rawTitle: string = child?.snapshot?.data?.title;
+
+        // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+        // eslint-disable-next-line no-constant-binary-expression
         const updateUrl = !child?.snapshot?.data?.doNotSaveUrl ?? true;
 
         if (titleId != null || rawTitle != null) {

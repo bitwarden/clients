@@ -1,30 +1,33 @@
-import { CommonModule, Location } from "@angular/common";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AvatarModule, ItemModule } from "@bitwarden/components";
+import { BiometricsService } from "@bitwarden/key-management";
 
 import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
 
 @Component({
-  standalone: true,
   selector: "auth-account",
   templateUrl: "account.component.html",
   imports: [CommonModule, JslibModule, AvatarModule, ItemModule],
 })
 export class AccountComponent {
   @Input() account: AvailableAccount;
-  @Input() extensionRefreshFlag: boolean = false;
   @Output() loading = new EventEmitter<boolean>();
 
   constructor(
     private accountSwitcherService: AccountSwitcherService,
-    private location: Location,
+    private router: Router,
     private i18nService: I18nService,
     private logService: LogService,
+    private biometricsService: BiometricsService,
   ) {}
 
   get specialAccountAddId() {
@@ -42,8 +45,11 @@ export class AccountComponent {
 
     // Navigate out of account switching for unlocked accounts
     // locked or logged out account statuses are handled by background and app.component
-    if (result?.status === AuthenticationStatus.Unlocked) {
-      this.location.back();
+    if (result?.authenticationStatus === AuthenticationStatus.Unlocked) {
+      await this.router.navigate(["vault"]);
+      await this.biometricsService.setShouldAutopromptNow(false);
+    } else {
+      await this.biometricsService.setShouldAutopromptNow(true);
     }
     this.loading.emit(false);
   }

@@ -1,4 +1,6 @@
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { Account, Chunk, ParserOptions, SharedFolder } from "../models";

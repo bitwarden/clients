@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { FormBuilder, FormControl } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BasePolicy,
@@ -20,6 +22,7 @@ export class MaximumVaultTimeoutPolicy extends BasePolicy {
 @Component({
   selector: "policy-maximum-timeout",
   templateUrl: "maximum-vault-timeout.component.html",
+  standalone: false,
 })
 export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
   vaultTimeoutActionOptions: { name: string; value: string }[];
@@ -41,7 +44,7 @@ export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
     ];
   }
 
-  loadData() {
+  protected loadData() {
     const minutes = this.policyResponse.data?.minutes;
     const action = this.policyResponse.data?.action;
 
@@ -52,7 +55,7 @@ export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
     });
   }
 
-  buildRequestData() {
+  protected buildRequestData() {
     if (this.data.value.hours == null && this.data.value.minutes == null) {
       return null;
     }
@@ -63,17 +66,12 @@ export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
     };
   }
 
-  buildRequest(policiesEnabledMap: Map<PolicyType, boolean>): Promise<PolicyRequest> {
-    const singleOrgEnabled = policiesEnabledMap.get(PolicyType.SingleOrg) ?? false;
-    if (this.enabled.value && !singleOrgEnabled) {
-      throw new Error(this.i18nService.t("requireSsoPolicyReqError"));
-    }
-
-    const data = this.buildRequestData();
-    if (data?.minutes == null || data?.minutes <= 0) {
+  async buildRequest(): Promise<PolicyRequest> {
+    const request = await super.buildRequest();
+    if (request.data?.minutes == null || request.data?.minutes <= 0) {
       throw new Error(this.i18nService.t("invalidMaximumVaultTimeout"));
     }
 
-    return super.buildRequest(policiesEnabledMap);
+    return request;
   }
 }

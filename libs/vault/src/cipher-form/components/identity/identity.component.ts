@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -12,7 +14,6 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -21,7 +22,6 @@ import {
 import { CipherFormContainer } from "../../cipher-form-container";
 
 @Component({
-  standalone: true,
   selector: "vault-identity-section",
   templateUrl: "./identity.component.html",
   imports: [
@@ -29,7 +29,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
     ButtonModule,
     JslibModule,
     ReactiveFormsModule,
-    SectionComponent,
     SectionHeaderComponent,
     CardComponent,
     FormFieldModule,
@@ -71,6 +70,10 @@ export class IdentitySectionComponent implements OnInit {
     country: [""],
   });
 
+  get initialValues() {
+    return this.cipherFormContainer.config.initialValues;
+  }
+
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
@@ -111,17 +114,64 @@ export class IdentitySectionComponent implements OnInit {
       this.identityForm.disable();
     }
 
-    if (this.originalCipherView && this.originalCipherView.id) {
-      this.populateFormData();
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      this.initFromExistingCipher(prefillCipher.identity);
+      this.populateFormData(prefillCipher);
     } else {
+      this.initNewCipher();
       this.identityForm.patchValue({
         username: this.cipherFormContainer.config.initialValues?.username || "",
       });
     }
   }
 
-  populateFormData() {
-    const { identity } = this.originalCipherView;
+  private initFromExistingCipher(existingIdentity: IdentityView) {
+    this.identityForm.patchValue({
+      firstName: this.initialValues?.firstName ?? existingIdentity.firstName,
+      middleName: this.initialValues?.middleName ?? existingIdentity.middleName,
+      lastName: this.initialValues?.lastName ?? existingIdentity.lastName,
+      company: this.initialValues?.company ?? existingIdentity.company,
+      ssn: this.initialValues?.ssn ?? existingIdentity.ssn,
+      passportNumber: this.initialValues?.passportNumber ?? existingIdentity.passportNumber,
+      licenseNumber: this.initialValues?.licenseNumber ?? existingIdentity.licenseNumber,
+      email: this.initialValues?.email ?? existingIdentity.email,
+      phone: this.initialValues?.phone ?? existingIdentity.phone,
+      address1: this.initialValues?.address1 ?? existingIdentity.address1,
+      address2: this.initialValues?.address2 ?? existingIdentity.address2,
+      address3: this.initialValues?.address3 ?? existingIdentity.address3,
+      city: this.initialValues?.city ?? existingIdentity.city,
+      state: this.initialValues?.state ?? existingIdentity.state,
+      postalCode: this.initialValues?.postalCode ?? existingIdentity.postalCode,
+      country: this.initialValues?.country ?? existingIdentity.country,
+    });
+  }
+
+  private initNewCipher() {
+    this.identityForm.patchValue({
+      firstName: this.initialValues?.firstName || "",
+      middleName: this.initialValues?.middleName || "",
+      lastName: this.initialValues?.lastName || "",
+      company: this.initialValues?.company || "",
+      ssn: this.initialValues?.ssn || "",
+      passportNumber: this.initialValues?.passportNumber || "",
+      licenseNumber: this.initialValues?.licenseNumber || "",
+      email: this.initialValues?.email || "",
+      phone: this.initialValues?.phone || "",
+      address1: this.initialValues?.address1 || "",
+      address2: this.initialValues?.address2 || "",
+      address3: this.initialValues?.address3 || "",
+      city: this.initialValues?.city || "",
+      state: this.initialValues?.state || "",
+      postalCode: this.initialValues?.postalCode || "",
+      country: this.initialValues?.country || "",
+    });
+  }
+
+  populateFormData(cipherView: CipherView) {
+    const { identity } = cipherView;
+
     this.identityForm.setValue({
       title: identity.title,
       firstName: identity.firstName,

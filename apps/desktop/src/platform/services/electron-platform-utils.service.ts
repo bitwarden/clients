@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -75,14 +77,21 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return (await this.getApplicationVersion()).split(/[+|-]/)[0].trim();
   }
 
-  // Temporarily restricted to only Windows until https://github.com/electron/electron/pull/28349
-  // has been merged and an updated electron build is available.
+  // Linux and Mac are missing a ui to enter a pin, so this works for two-factor security keys, when always-uv is not active
   supportsWebAuthn(win: Window): boolean {
-    return this.getDevice() === DeviceType.WindowsDesktop;
+    return true;
   }
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
   }
 
   showToast(

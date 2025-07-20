@@ -17,6 +17,11 @@ export abstract class RegistrationFinishService {
   abstract getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null>;
 
   /**
+   * Returns the route the user is redirected to after a successful login.
+   */
+  abstract determineLoginSuccessRoute(): Promise<string>;
+
+  /**
    * Finishes the registration process by creating a new user account.
    *
    * @param email The email address of the user.
@@ -27,7 +32,7 @@ export abstract class RegistrationFinishService {
    * @param emergencyAccessId The optional emergency access id which is required to validate the emergency access invite token.
    * @param providerInviteToken The optional provider invite token.
    * @param providerUserId The optional provider user id which is required to validate the provider invite token.
-   * @returns a promise which resolves to the captcha bypass token string upon a successful account creation.
+   * @returns a promise which resolves upon a successful account creation.
    */
   abstract finishRegistration(
     email: string,
@@ -38,5 +43,5 @@ export abstract class RegistrationFinishService {
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
-  ): Promise<string>;
+  ): Promise<void>;
 }

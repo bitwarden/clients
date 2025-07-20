@@ -1,29 +1,61 @@
-export class Fido2Utils {
-  static bufferToString(bufferSource: BufferSource): string {
-    let buffer: Uint8Array;
-    if (bufferSource instanceof ArrayBuffer || bufferSource.buffer === undefined) {
-      buffer = new Uint8Array(bufferSource as ArrayBuffer);
-    } else {
-      buffer = new Uint8Array(bufferSource.buffer);
-    }
+// FIXME: Update this file to be type safe and remove this and next line
+import type {
+  AssertCredentialResult,
+  CreateCredentialResult,
+} from "../../abstractions/fido2/fido2-client.service.abstraction";
 
-    return Fido2Utils.fromBufferToB64(buffer)
+// @ts-strict-ignore
+export class Fido2Utils {
+  static createResultToJson(result: CreateCredentialResult): any {
+    return {
+      id: result.credentialId,
+      rawId: result.credentialId,
+      response: {
+        clientDataJSON: result.clientDataJSON,
+        authenticatorData: result.authData,
+        transports: result.transports,
+        publicKey: result.publicKey,
+        publicKeyAlgorithm: result.publicKeyAlgorithm,
+        attestationObject: result.attestationObject,
+      },
+      authenticatorAttachment: "platform",
+      clientExtensionResults: result.extensions,
+      type: "public-key",
+    };
+  }
+
+  static getResultToJson(result: AssertCredentialResult): any {
+    return {
+      id: result.credentialId,
+      rawId: result.credentialId,
+      response: {
+        clientDataJSON: result.clientDataJSON,
+        authenticatorData: result.authenticatorData,
+        signature: result.signature,
+        userHandle: result.userHandle,
+      },
+      authenticatorAttachment: "platform",
+      clientExtensionResults: {},
+      type: "public-key",
+    };
+  }
+
+  static bufferToString(bufferSource: BufferSource): string {
+    return Fido2Utils.fromBufferToB64(Fido2Utils.bufferSourceToUint8Array(bufferSource))
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=/g, "");
   }
 
-  static stringToBuffer(str: string): Uint8Array {
-    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str));
+  static stringToBuffer(str: string): ArrayBuffer {
+    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)).buffer;
   }
 
   static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {
-    if (bufferSource instanceof Uint8Array) {
-      return bufferSource;
-    } else if (Fido2Utils.isArrayBuffer(bufferSource)) {
+    if (Fido2Utils.isArrayBuffer(bufferSource)) {
       return new Uint8Array(bufferSource);
     } else {
-      return new Uint8Array(bufferSource.buffer);
+      return new Uint8Array(bufferSource.buffer, bufferSource.byteOffset, bufferSource.byteLength);
     }
   }
 

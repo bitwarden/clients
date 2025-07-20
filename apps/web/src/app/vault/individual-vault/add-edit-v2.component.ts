@@ -1,15 +1,28 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { switchMap } from "rxjs";
 
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { AsyncActionsModule, DialogModule, DialogService, ItemModule } from "@bitwarden/components";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  AsyncActionsModule,
+  DialogModule,
+  DialogService,
+  ItemModule,
+} from "@bitwarden/components";
+import {
+  AttachmentsV2Component,
   CipherAttachmentsComponent,
   CipherFormConfig,
   CipherFormGenerationService,
@@ -20,16 +33,16 @@ import {
 import { SharedModule } from "../../shared/shared.module";
 import { WebCipherFormGenerationService } from "../services/web-cipher-form-generation.service";
 
-import { AttachmentsV2Component } from "./attachments-v2.component";
-
 /**
  * The result of the AddEditCipherDialogV2 component.
  */
-export enum AddEditCipherDialogResult {
-  Edited = "edited",
-  Added = "added",
-  Canceled = "canceled",
-}
+export const AddEditCipherDialogResult = {
+  Edited: "edited",
+  Added: "added",
+  Canceled: "canceled",
+} as const;
+
+type AddEditCipherDialogResult = UnionOfValues<typeof AddEditCipherDialogResult>;
 
 /**
  * The close result of the AddEditCipherDialogV2 component.
@@ -52,7 +65,6 @@ export interface AddEditCipherDialogCloseResult {
 @Component({
   selector: "app-vault-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     AsyncActionsModule,
@@ -83,10 +95,16 @@ export class AddEditComponentV2 implements OnInit {
     private i18nService: I18nService,
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntilDestroyed())
-      .subscribe((canAccessPremium) => {
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe((canAccessPremium: boolean) => {
         this.canAccessAttachments = canAccessPremium;
       });
   }
@@ -130,6 +148,8 @@ export class AddEditComponentV2 implements OnInit {
         return this.i18nService.t(partOne, this.i18nService.t("typeIdentity").toLowerCase());
       case CipherType.SecureNote:
         return this.i18nService.t(partOne, this.i18nService.t("note").toLowerCase());
+      case CipherType.SshKey:
+        return this.i18nService.t(partOne, this.i18nService.t("typeSshKey").toLowerCase());
     }
   }
 
@@ -137,14 +157,15 @@ export class AddEditComponentV2 implements OnInit {
    * Opens the attachments dialog.
    */
   async openAttachmentsDialog() {
-    this.dialogService.open<AttachmentsV2Component, { cipherId: CipherId }>(
+    this.dialogService.open<
       AttachmentsV2Component,
-      {
-        data: {
-          cipherId: this.config.originalCipher?.id as CipherId,
-        },
+      { cipherId: CipherId; organizationId?: OrganizationId }
+    >(AttachmentsV2Component, {
+      data: {
+        cipherId: this.config.originalCipher?.id as CipherId,
+        organizationId: this.config.originalCipher?.organizationId as OrganizationId,
       },
-    );
+    });
   }
 
   /**

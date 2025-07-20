@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { RouterLink } from "@angular/router";
@@ -38,7 +40,6 @@ import {
   ],
   selector: "app-send-list-items-container",
   templateUrl: "send-list-items-container.component.html",
-  standalone: true,
 })
 export class SendListItemsContainerComponent {
   sendType = SendType;

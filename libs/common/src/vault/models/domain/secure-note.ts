@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
+
+import { SecureNote as SdkSecureNote } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -18,8 +22,12 @@ export class SecureNote extends Domain {
     this.type = obj.type;
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<SecureNoteView> {
-    return Promise.resolve(new SecureNoteView(this));
+  async decrypt(
+    orgId: string,
+    context = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<SecureNoteView> {
+    return new SecureNoteView(this);
   }
 
   toSecureNoteData(): SecureNoteData {
@@ -34,5 +42,16 @@ export class SecureNote extends Domain {
     }
 
     return Object.assign(new SecureNote(), obj);
+  }
+
+  /**
+   * Maps Secure note to SDK format.
+   *
+   * @returns {SdkSecureNote} The SDK secure note object.
+   */
+  toSdkSecureNote(): SdkSecureNote {
+    return {
+      type: this.type,
+    };
   }
 }

@@ -1,4 +1,5 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
@@ -9,7 +10,7 @@ import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/
 import { BillingSyncConfigApi } from "@bitwarden/common/billing/models/api/billing-sync-config.api";
 import { BillingSyncConfigRequest } from "@bitwarden/common/billing/models/request/billing-sync-config.request";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
 export interface BillingSyncKeyModalData {
   entityId: string;
@@ -20,6 +21,7 @@ export interface BillingSyncKeyModalData {
 
 @Component({
   templateUrl: "billing-sync-key.component.html",
+  standalone: false,
 })
 export class BillingSyncKeyComponent {
   protected entityId: string;

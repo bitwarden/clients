@@ -68,7 +68,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-30495&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
@@ -76,7 +76,7 @@ export default {
 type Story = StoryObj<DialogComponent & { title: string }>;
 
 export const Default: Story = {
-  render: (args: DialogComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
@@ -89,7 +89,7 @@ export const Default: Story = {
           <button bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
           <button
             [disabled]="loading"
-            class="tw-ml-auto"
+            class="tw-ms-auto"
             bitIconButton="bwi-trash"
             buttonType="danger"
             size="default"
@@ -140,7 +140,7 @@ export const Loading: Story = {
 };
 
 export const ScrollingContent: Story = {
-  render: (args: DialogComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-dialog title="Scrolling Example" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
@@ -195,7 +195,7 @@ export const TabContent: Story = {
 };
 
 export const WithCards: Story = {
-  render: (args: DialogComponent) => ({
+  render: (args) => ({
     props: {
       formObj: new FormGroup({
         name: new FormControl(""),
@@ -252,7 +252,7 @@ export const WithCards: Story = {
           <button bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
           <button
             [disabled]="loading"
-            class="tw-ml-auto"
+            class="tw-ms-auto"
             bitIconButton="bwi-trash"
             buttonType="danger"
             size="default"

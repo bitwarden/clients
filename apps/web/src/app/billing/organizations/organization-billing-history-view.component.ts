@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { concatMap, Subject, takeUntil } from "rxjs";
@@ -10,6 +12,7 @@ import {
 
 @Component({
   templateUrl: "organization-billing-history-view.component.html",
+  standalone: false,
 })
 export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
   loading = false;

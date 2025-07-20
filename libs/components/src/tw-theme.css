@@ -1,60 +1,76 @@
+@import "@angular/cdk/a11y-prebuilt.css";
+@import "@angular/cdk/text-field-prebuilt.css";
 @import "./reset.css";
-
-/**
-  Note that the value of the *-600 colors is currently equivalent to the value
-  of the *-500 variant of that color. This is a temporary change to make BW-42
-  updates easier.
-
-  TODO remove comment when the color palette portion of BW-42 is completed.
-*/
+@import "./popover/popover.component.css";
+@import "./toast/toast.tokens.css";
+@import "./toast/toastr.css";
+@import "./search/search.component.css";
 
 :root {
-  --color-transparent-hover: rgb(0 0 0 / 0.03);
+  --color-transparent-hover: rgb(0 0 0 / 0.02);
+  --color-shadow: 168 179 200;
 
   --color-background: 255 255 255;
-  --color-background-alt: 251 251 251;
+  --color-background-alt: 243 246 249;
   --color-background-alt2: 23 92 219;
-  --color-background-alt3: 18 82 163;
-  --color-background-alt4: 13 60 119;
+  --color-background-alt3: 22 55 146;
+  --color-background-alt4: 2 15 102;
 
-  /* Can only be used behind the extension refresh flag */
-  --color-primary-100: 200 217 249;
-  --color-primary-300: 103 149 232;
-  /* Can only be used behind the extension refresh flag */
-  --color-primary-500: 23 93 220;
+  --color-primary-100: 219 229 246;
+  --color-primary-300: 121 161 233;
   --color-primary-600: 23 93 220;
-  --color-primary-700: 18 82 163;
+  --color-primary-700: 26 65 172;
 
-  --color-secondary-100: 240 240 240;
-  --color-secondary-300: 206 212 220;
-  --color-secondary-600: 137 146 159;
-  --color-secondary-700: 33 37 41;
+  --color-secondary-100: 230 233 239;
+  --color-secondary-300: 168 179 200;
+  --color-secondary-500: 90 109 145;
+  --color-secondary-600: 83 99 131;
+  --color-secondary-700: 63 75 99;
 
-  --color-success-600: 1 126 69;
-  --color-success-700: 0 85 46;
+  --color-info-100: 219 229 246;
+  --color-info-600: 121 161 233;
+  --color-info-700: 13 36 123;
 
-  --color-danger-600: 200 53 34;
-  --color-danger-700: 152 41 27;
+  --color-warning-100: 255 244 212;
+  --color-warning-600: 255 191 0;
+  --color-warning-700: 142 64 0;
 
-  --color-warning-600: 139 102 9;
-  --color-warning-700: 105 77 5;
+  --color-danger-100: 255 236 239;
+  --color-danger-600: 203 38 58;
+  --color-danger-700: 149 27 42;
 
-  --color-info-600: 85 85 85;
-  --color-info-700: 59 58 58;
+  --color-success-100: 213 243 216;
+  --color-success-600: 12 128 24;
+  --color-success-700: 8 81 15;
 
+  --color-notification-100: 255 225 247;
+  --color-notification-600: 192 17 118;
+
+  /*art styles deprecated, use 'illustration' instead*/
   --color-art-primary: 2 15 102;
-  --color-art-accent: 85 85 85;
+  --color-art-accent: 44 221 223;
 
-  --color-text-main: 33 37 41;
-  --color-text-muted: 109 117 126;
+  --color-text-main: 27 32 41;
+  --color-text-muted: 96 109 145;
   --color-text-contrast: 255 255 255;
   --color-text-alt2: 255 255 255;
   --color-text-code: 192 17 118;
-  --color-text-headers: 2 15 102;
+
+  --color-hover-default: rgb(26 65 172 / 0.1);
+  --color-hover-contrast: rgb(255 255 255 / 0.15);
 
   --color-marketing-logo: 23 93 220;
 
   --tw-ring-offset-color: #ffffff;
+
+  --tw-sm-breakpoint: 640px;
+
+  --color-illustration-outline: 2 15 102;
+  --color-illustration-bg-primary: 219 229 246;
+  --color-illustration-bg-secondary: 170 195 239;
+  --color-illustration-bg-tertiary: 255 255 255;
+  --color-illustration-tertiary: 255 191 0;
+  --color-illustration-logo: 23 93 220;
 }
 
 .theme_light {
@@ -62,139 +78,69 @@
 }
 
 .theme_dark {
-  --color-transparent-hover: rgb(255 255 255 / 0.12);
+  --color-transparent-hover: rgb(255 255 255 / 0.02);
+  --color-shadow: 0 0 0;
 
-  --color-background: 31 36 46;
-  --color-background-alt: 22 28 38;
+  --color-background: 32 39 51;
+  --color-background-alt: 18 26 39;
   --color-background-alt2: 47 52 61;
-  --color-background-alt3: 47 52 61;
-  --color-background-alt4: 16 18 21;
+  --color-background-alt3: 48 57 70;
+  --color-background-alt4: 18 26 39;
 
-  --color-primary-100: 8 31 73;
-  --color-primary-300: 23 93 220;
-  --color-primary-500: 54 117 232;
-  --color-primary-600: 106 153 240;
-  --color-primary-700: 180 204 249;
+  --color-primary-100: 26 39 78;
+  --color-primary-300: 26 65 172;
+  --color-primary-600: 101 171 255;
+  --color-primary-700: 170 195 239;
 
-  --color-secondary-100: 47 52 61;
-  --color-secondary-300: 110 118 137;
-  --color-secondary-600: 186 192 206;
-  --color-secondary-700: 255 255 255;
+  --color-secondary-100: 48 57 70;
+  --color-secondary-300: 82 91 106;
+  --color-secondary-500: 121 128 142;
+  --color-secondary-600: 143 152 166;
+  --color-secondary-700: 158 167 181;
 
-  --color-success-600: 82 224 124;
-  --color-success-700: 168 239 190;
+  --color-success-100: 8 81 15;
+  --color-success-600: 107 241 120;
+  --color-success-700: 213 243 216;
 
-  --color-danger-600: 255 141 133;
-  --color-danger-700: 255 191 187;
+  --color-danger-100: 149 27 42;
+  --color-danger-600: 255 78 99;
+  --color-danger-700: 255 236 239;
 
-  --color-warning-600: 255 235 102;
-  --color-warning-700: 255 245 179;
+  --color-warning-100: 142 64 0;
+  --color-warning-600: 255 191 0;
+  --color-warning-700: 255 244 212;
 
-  --color-info-600: 164 176 198;
-  --color-info-700: 209 215 226;
+  --color-info-100: 13 36 123;
+  --color-info-600: 121 161 233;
+  --color-info-700: 219 229 246;
 
-  --color-art-primary: 226 227 228;
-  --color-art-accent: 164 176 198;
+  --color-notification-100: 117 37 83;
+  --color-notification-600: 255 143 208;
 
-  --color-text-main: 255 255 255;
-  --color-text-muted: 186 192 206;
-  --color-text-contrast: 25 30 38;
+  /*art styles deprecated, use 'illustration' instead*/
+  --color-art-primary: 243 246 249;
+  --color-art-accent: 44 221 233;
+
+  --color-text-main: 243 246 249;
+  --color-text-muted: 136 152 181;
+  --color-text-contrast: 18 26 39;
   --color-text-alt2: 255 255 255;
-  --color-text-code: 240 141 199;
-  --color-text-headers: 226 227 228;
+  --color-text-code: 255 143 208;
+
+  --color-hover-default: rgb(170 195 239 / 0.1);
+  --color-hover-contrast: rgb(0 0 0 / 0.15);
 
   --color-marketing-logo: 255 255 255;
 
   --tw-ring-offset-color: #1f242e;
+
+  --color-illustration-outline: 23 93 220;
+  --color-illustration-bg-primary: 170 195 239;
+  --color-illustration-bg-secondary: 121 161 233;
+  --color-illustration-bg-tertiary: 243 246 249;
+  --color-illustration-tertiary: 255 191 0;
+  --color-illustration-logo: 255 255 255;
 }
-
-.theme_nord {
-  --color-transparent-hover: rgb(255 255 255 / 0.12);
-
-  --color-background: 67 76 94;
-  --color-background-alt: 59 66 82;
-  --color-background-alt2: 76 86 106;
-  --color-background-alt3: 76 86 106;
-  --color-background-alt4: 67 76 94;
-
-  --color-primary-300: 108 153 166;
-  --color-primary-600: 136 192 208;
-  --color-primary-700: 160 224 242;
-
-  --color-secondary-100: 76 86 106;
-  --color-secondary-300: 94 105 125;
-  --color-secondary-600: 216 222 233;
-  --color-secondary-700: 255 255 255;
-
-  --color-success-600: 163 190 140;
-  --color-success-700: 144 170 122;
-
-  --color-danger-600: 228 129 139;
-  --color-danger-700: 191 97 106;
-
-  --color-warning-600: 235 203 139;
-  --color-warning-700: 210 181 121;
-
-  --color-info-600: 129 161 193;
-  --color-info-700: 94 129 172;
-
-  --color-text-main: 229 233 240;
-  --color-text-muted: 216 222 233;
-  --color-text-contrast: 46 52 64;
-  --color-text-alt2: 255 255 255;
-  --color-text-code: 219 177 211;
-
-  --color-marketing-logo: 255 255 255;
-
-  --tw-ring-offset-color: #434c5e;
-}
-
-.theme_solarized {
-  --color-transparent-hover: rgb(255 255 255 / 0.12);
-
-  --color-background: 0 43 54;
-  --color-background-alt: 7 54 66;
-  --color-background-alt2: 31 72 87;
-  --color-background-alt3: 31 72 87;
-  --color-background-alt4: 0 43 54;
-
-  --color-primary-300: 42 161 152;
-  --color-primary-600: 133 153 0;
-  --color-primary-700: 192 203 123;
-
-  --color-secondary-100: 31 72 87;
-  --color-secondary-300: 101 123 131;
-  --color-secondary-600: 131 148 150;
-  --color-secondary-700: 238 232 213;
-
-  --color-success-600: 133 153 0;
-  --color-success-700: 192 203 123;
-
-  --color-danger-600: 220 50 47;
-  --color-danger-700: 223 135 134;
-
-  --color-warning-600: 181 137 0;
-  --color-warning-700: 220 189 92;
-
-  --color-info-600: 133 153 0;
-  --color-info-700: 192 203 123;
-
-  --color-text-main: 253 246 227;
-  --color-text-muted: 147 161 161;
-  --color-text-contrast: 0 0 0;
-  --color-text-alt2: 255 255 255;
-  --color-text-code: 240 141 199;
-
-  --color-marketing-logo: 255 255 255;
-
-  --tw-ring-offset-color: #002b36;
-}
-
-@import "./popover/popover.component.css";
-@import "./search/search.component.css";
-
-@import "./toast/toast.tokens.css";
-@import "./toast/toastr.css";
 
 /**
  * tw-break-words does not work with table cells:

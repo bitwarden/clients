@@ -1,7 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
-  CollectionRequest,
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
+  CollectionRequest,
   CollectionResponse,
 } from "@bitwarden/admin-console/common";
 
@@ -17,13 +21,13 @@ import { ProviderUserBulkRequest } from "../admin-console/models/request/provide
 import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
-import { SelectionReadOnlyRequest } from "../admin-console/models/request/selection-read-only.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
+import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
   ProviderOrganizationOrganizationDetailsResponse,
   ProviderOrganizationResponse,
@@ -35,7 +39,6 @@ import {
   ProviderUserUserDetailsResponse,
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
-import { CreateAuthRequest } from "../auth/models/request/create-auth.request";
 import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
@@ -44,19 +47,12 @@ import { PasswordTokenRequest } from "../auth/models/request/identity-token/pass
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token/webauthn-login-token.request";
-import { KeyConnectorUserKeyRequest } from "../auth/models/request/key-connector-user-key.request";
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
-import { PasswordRequest } from "../auth/models/request/password.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
-import { SetKeyConnectorKeyRequest } from "../auth/models/request/set-key-connector-key.request";
-import { SetPasswordRequest } from "../auth/models/request/set-password.request";
 import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
 import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
-import { TwoFactorRecoveryRequest } from "../auth/models/request/two-factor-recovery.request";
 import { UpdateProfileRequest } from "../auth/models/request/update-profile.request";
-import { UpdateTdeOffboardingPasswordRequest } from "../auth/models/request/update-tde-offboarding-password.request";
-import { UpdateTempPasswordRequest } from "../auth/models/request/update-temp-password.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "../auth/models/request/update-two-factor-authenticator.request";
 import { UpdateTwoFactorDuoRequest } from "../auth/models/request/update-two-factor-duo.request";
 import { UpdateTwoFactorEmailRequest } from "../auth/models/request/update-two-factor-email.request";
@@ -66,12 +62,11 @@ import { UpdateTwoFactorYubikeyOtpRequest } from "../auth/models/request/update-
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
-import { IdentityCaptchaResponse } from "../auth/models/response/identity-captcha.response";
+import { IdentityDeviceVerificationResponse } from "../auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
 import { PreloginResponse } from "../auth/models/response/prelogin.response";
-import { RegisterResponse } from "../auth/models/response/register.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { TwoFactorAuthenticatorResponse } from "../auth/models/response/two-factor-authenticator.response";
 import { TwoFactorDuoResponse } from "../auth/models/response/two-factor-duo.response";
@@ -92,13 +87,13 @@ import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
-import { TaxRateResponse } from "../billing/models/response/tax-rate.response";
+import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
+import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { PreloginRequest } from "../models/request/prelogin.request";
-import { RegisterRequest } from "../models/request/register.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
@@ -134,12 +129,12 @@ import { OptionalCipherResponse } from "../vault/models/response/optional-cipher
  */
 export abstract class ApiService {
   send: (
-    method: "GET" | "POST" | "PUT" | "DELETE",
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     path: string,
     body: any,
     authed: boolean,
     hasResponse: boolean,
-    apiUrl?: string,
+    apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ) => Promise<any>;
 
@@ -149,7 +144,9 @@ export abstract class ApiService {
       | SsoTokenRequest
       | UserApiTokenRequest
       | WebAuthnLoginTokenRequest,
-  ) => Promise<IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse>;
+  ) => Promise<
+    IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
+  >;
   refreshIdentityToken: () => Promise<any>;
 
   getProfile: () => Promise<ProfileResponse>;
@@ -161,13 +158,10 @@ export abstract class ApiService {
   postPrelogin: (request: PreloginRequest) => Promise<PreloginResponse>;
   postEmailToken: (request: EmailTokenRequest) => Promise<any>;
   postEmail: (request: EmailRequest) => Promise<any>;
-  postPassword: (request: PasswordRequest) => Promise<any>;
-  setPassword: (request: SetPasswordRequest) => Promise<any>;
   postSetKeyConnectorKey: (request: SetKeyConnectorKeyRequest) => Promise<any>;
   postSecurityStamp: (request: SecretVerificationRequest) => Promise<any>;
   getAccountRevisionDate: () => Promise<number>;
   postPasswordHint: (request: PasswordHintRequest) => Promise<any>;
-  postRegister: (request: RegisterRequest) => Promise<RegisterResponse>;
   postPremium: (data: FormData) => Promise<PaymentResponse>;
   postReinstatePremium: () => Promise<any>;
   postAccountStorage: (request: StorageRequest) => Promise<PaymentResponse>;
@@ -181,13 +175,8 @@ export abstract class ApiService {
   postAccountKdf: (request: KdfRequest) => Promise<any>;
   postUserApiKey: (id: string, request: SecretVerificationRequest) => Promise<ApiKeyResponse>;
   postUserRotateApiKey: (id: string, request: SecretVerificationRequest) => Promise<ApiKeyResponse>;
-  putUpdateTempPassword: (request: UpdateTempPasswordRequest) => Promise<any>;
-  putUpdateTdeOffboardingPassword: (request: UpdateTdeOffboardingPasswordRequest) => Promise<any>;
   postConvertToKeyConnector: () => Promise<void>;
   //passwordless
-  postAuthRequest: (request: CreateAuthRequest) => Promise<AuthRequestResponse>;
-  postAdminAuthRequest: (request: CreateAuthRequest) => Promise<AuthRequestResponse>;
-  getAuthResponse: (id: string, accessCode: string) => Promise<AuthRequestResponse>;
   getAuthRequest: (id: string) => Promise<AuthRequestResponse>;
   putAuthRequest: (id: string, request: PasswordlessAuthRequest) => Promise<AuthRequestResponse>;
   getAuthRequests: () => Promise<ListResponse<AuthRequestResponse>>;
@@ -204,6 +193,7 @@ export abstract class ApiService {
     attachmentId: string,
     emergencyAccessId?: string,
   ) => Promise<AttachmentResponse>;
+  getAttachmentDataAdmin: (cipherId: string, attachmentId: string) => Promise<AttachmentResponse>;
   getCiphersOrganization: (organizationId: string) => Promise<ListResponse<CipherResponse>>;
   postCipher: (request: CipherRequest) => Promise<CipherResponse>;
   postCipherCreate: (request: CipherCreateRequest) => Promise<CipherResponse>;
@@ -217,7 +207,7 @@ export abstract class ApiService {
   deleteManyCiphersAdmin: (request: CipherBulkDeleteRequest) => Promise<any>;
   putMoveCiphers: (request: CipherBulkMoveRequest) => Promise<any>;
   putShareCipher: (id: string, request: CipherShareRequest) => Promise<CipherResponse>;
-  putShareCiphers: (request: CipherBulkShareRequest) => Promise<any>;
+  putShareCiphers: (request: CipherBulkShareRequest) => Promise<ListResponse<CipherResponse>>;
   putCipherCollections: (
     id: string,
     request: CipherCollectionsRequest,
@@ -237,16 +227,6 @@ export abstract class ApiService {
     request: CipherBulkRestoreRequest,
   ) => Promise<ListResponse<CipherResponse>>;
 
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  postCipherAttachmentLegacy: (id: string, data: FormData) => Promise<CipherResponse>;
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  postCipherAttachmentAdminLegacy: (id: string, data: FormData) => Promise<CipherResponse>;
   postCipherAttachment: (
     id: string,
     request: AttachmentRequest,
@@ -279,11 +259,6 @@ export abstract class ApiService {
     organizationId: string,
     request: CollectionRequest,
   ) => Promise<CollectionDetailsResponse>;
-  putCollectionUsers: (
-    organizationId: string,
-    id: string,
-    request: SelectionReadOnlyRequest[],
-  ) => Promise<any>;
   putCollection: (
     organizationId: string,
     id: string,
@@ -291,11 +266,6 @@ export abstract class ApiService {
   ) => Promise<CollectionDetailsResponse>;
   deleteCollection: (organizationId: string, id: string) => Promise<any>;
   deleteManyCollections: (organizationId: string, collectionIds: string[]) => Promise<any>;
-  deleteCollectionUser: (
-    organizationId: string,
-    id: string,
-    organizationUserId: string,
-  ) => Promise<any>;
 
   getGroupUsers: (organizationId: string, id: string) => Promise<string[]>;
   deleteGroupUser: (organizationId: string, id: string, organizationUserId: string) => Promise<any>;
@@ -348,7 +318,6 @@ export abstract class ApiService {
     organizationId: string,
     request: TwoFactorProviderRequest,
   ) => Promise<TwoFactorProviderResponse>;
-  postTwoFactorRecover: (request: TwoFactorRecoveryRequest) => Promise<any>;
   postTwoFactorEmailSetup: (request: TwoFactorEmailRequest) => Promise<any>;
   postTwoFactorEmail: (request: TwoFactorEmailRequest) => Promise<any>;
   getDeviceVerificationSettings: () => Promise<DeviceVerificationResponse>;
@@ -373,7 +342,6 @@ export abstract class ApiService {
   ): Promise<OrganizationConnectionResponse<TConfig>>;
   deleteOrganizationConnection: (id: string) => Promise<void>;
   getPlans: () => Promise<ListResponse<PlanResponse>>;
-  getTaxRates: () => Promise<ListResponse<TaxRateResponse>>;
 
   getProviderUsers: (providerId: string) => Promise<ListResponse<ProviderUserUserDetailsResponse>>;
   getProviderUser: (providerId: string, id: string) => Promise<ProviderUserResponse>;
@@ -488,14 +456,14 @@ export abstract class ApiService {
   getSponsorshipSyncStatus: (
     sponsoredOrgId: string,
   ) => Promise<OrganizationSponsorshipSyncStatusResponse>;
-  deleteRevokeSponsorship: (sponsoringOrganizationId: string) => Promise<void>;
   deleteRemoveSponsorship: (sponsoringOrgId: string) => Promise<void>;
-  postPreValidateSponsorshipToken: (sponsorshipToken: string) => Promise<boolean>;
+  postPreValidateSponsorshipToken: (
+    sponsorshipToken: string,
+  ) => Promise<PreValidateSponsorshipResponse>;
   postRedeemSponsorship: (
     sponsorshipToken: string,
     request: OrganizationSponsorshipRedeemRequest,
   ) => Promise<void>;
-  postResendSponsorshipOffer: (sponsoringOrgId: string) => Promise<void>;
 
   getMasterKeyFromKeyConnector: (keyConnectorUrl: string) => Promise<KeyConnectorUserKeyResponse>;
   postUserKeyToKeyConnector: (

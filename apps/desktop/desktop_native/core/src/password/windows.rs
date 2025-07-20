@@ -1,3 +1,4 @@
+use crate::password::PASSWORD_NOT_FOUND;
 use anyhow::{anyhow, Result};
 use widestring::{U16CString, U16String};
 use windows::{
@@ -13,7 +14,7 @@ use windows::{
 
 const CRED_FLAGS_NONE: u32 = 0;
 
-pub fn get_password<'a>(service: &str, account: &str) -> Result<String> {
+pub async fn get_password(service: &str, account: &str) -> Result<String> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
     let mut credential: *mut CREDENTIALW = std::ptr::null_mut();
@@ -23,7 +24,7 @@ pub fn get_password<'a>(service: &str, account: &str) -> Result<String> {
         CredReadW(
             PCWSTR(target_name.as_ptr()),
             CRED_TYPE_GENERIC,
-            CRED_FLAGS_NONE,
+            None,
             credential_ptr,
         )
     };
@@ -42,42 +43,10 @@ pub fn get_password<'a>(service: &str, account: &str) -> Result<String> {
         .to_string_lossy()
     };
 
-    Ok(String::from(password))
+    Ok(password)
 }
 
-// Remove this after sufficient releases
-pub fn get_password_keytar<'a>(service: &str, account: &str) -> Result<String> {
-    let target_name = U16CString::from_str(target_name(service, account))?;
-
-    let mut credential: *mut CREDENTIALW = std::ptr::null_mut();
-    let credential_ptr = &mut credential;
-
-    let result = unsafe {
-        CredReadW(
-            PCWSTR(target_name.as_ptr()),
-            CRED_TYPE_GENERIC,
-            CRED_FLAGS_NONE,
-            credential_ptr,
-        )
-    };
-
-    scopeguard::defer!({
-        unsafe { CredFree(credential as *mut _) };
-    });
-
-    result?;
-
-    let password = unsafe {
-        std::str::from_utf8_unchecked(std::slice::from_raw_parts(
-            (*credential).CredentialBlob,
-            (*credential).CredentialBlobSize as usize,
-        ))
-    };
-
-    Ok(String::from(password))
-}
-
-pub fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
+pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
     let mut target_name = U16CString::from_str(target_name(service, account))?;
     let mut user_name = U16CString::from_str(account)?;
     let last_written = FILETIME {
@@ -108,21 +77,17 @@ pub fn set_password(service: &str, account: &str, password: &str) -> Result<()> 
     Ok(())
 }
 
-pub fn delete_password(service: &str, account: &str) -> Result<()> {
+pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
-    unsafe {
-        CredDeleteW(
-            PCWSTR(target_name.as_ptr()),
-            CRED_TYPE_GENERIC,
-            CRED_FLAGS_NONE,
-        )?
-    };
+    let result = unsafe { CredDeleteW(PCWSTR(target_name.as_ptr()), CRED_TYPE_GENERIC, None) };
+
+    result.map_err(|e| anyhow!(convert_error(e)))?;
 
     Ok(())
 }
 
-pub fn is_available() -> Result<bool> {
+pub async fn is_available() -> Result<bool> {
     Ok(true)
 }
 
@@ -133,7 +98,7 @@ fn target_name(service: &str, account: &str) -> String {
 // Convert the internal WIN32 errors to descriptive messages
 fn convert_error(e: windows::core::Error) -> String {
     if e == ERROR_NOT_FOUND.into() {
-        return "Password not found.".to_string();
+        return PASSWORD_NOT_FOUND.to_string();
     }
     e.to_string()
 }
@@ -142,38 +107,33 @@ fn convert_error(e: windows::core::Error) -> String {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test() {
-        scopeguard::defer!(delete_password("BitwardenTest", "BitwardenTest").unwrap_or({}););
-        set_password("BitwardenTest", "BitwardenTest", "Random").unwrap();
+    #[tokio::test]
+    async fn test() {
+        set_password("BitwardenTest", "BitwardenTest", "Random")
+            .await
+            .unwrap();
         assert_eq!(
             "Random",
-            get_password("BitwardenTest", "BitwardenTest").unwrap()
+            get_password("BitwardenTest", "BitwardenTest")
+                .await
+                .unwrap()
         );
-        delete_password("BitwardenTest", "BitwardenTest").unwrap();
+        delete_password("BitwardenTest", "BitwardenTest")
+            .await
+            .unwrap();
 
         // Ensure password is deleted
-        match get_password("BitwardenTest", "BitwardenTest") {
+        match get_password("BitwardenTest", "BitwardenTest").await {
             Ok(_) => panic!("Got a result"),
-            Err(e) => assert_eq!("Password not found.", e.to_string()),
+            Err(e) => assert_eq!(PASSWORD_NOT_FOUND, e.to_string()),
         }
     }
 
-    #[test]
-    fn test_get_password_keytar() {
-        scopeguard::defer!(delete_password("BitwardenTest", "BitwardenTest").unwrap_or({}););
-        keytar::set_password("BitwardenTest", "BitwardenTest", "HelloFromKeytar").unwrap();
-        assert_eq!(
-            "HelloFromKeytar",
-            get_password_keytar("BitwardenTest", "BitwardenTest").unwrap()
-        );
-    }
-
-    #[test]
-    fn test_error_no_password() {
-        match get_password("BitwardenTest", "BitwardenTest") {
+    #[tokio::test]
+    async fn test_error_no_password() {
+        match get_password("BitwardenTest", "BitwardenTest").await {
             Ok(_) => panic!("Got a result"),
-            Err(e) => assert_eq!("Password not found.", e.to_string()),
+            Err(e) => assert_eq!(PASSWORD_NOT_FOUND, e.to_string()),
         }
     }
 }

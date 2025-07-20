@@ -1,8 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, lastValueFrom, Observable, startWith, switchMap } from "rxjs";
+import {
+  combineLatest,
+  firstValueFrom,
+  lastValueFrom,
+  Observable,
+  startWith,
+  switchMap,
+} from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import { ProjectListView } from "../../models/view/project-list.view";
@@ -26,6 +40,7 @@ import { ProjectService } from "../project.service";
 @Component({
   selector: "sm-projects",
   templateUrl: "./projects.component.html",
+  standalone: false,
 })
 export class ProjectsComponent implements OnInit {
   protected projects$: Observable<ProjectListView[]>;
@@ -39,6 +54,7 @@ export class ProjectsComponent implements OnInit {
     private projectService: ProjectService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
@@ -48,8 +64,13 @@ export class ProjectsComponent implements OnInit {
     ]).pipe(
       switchMap(async ([params]) => {
         this.organizationId = params.organizationId;
+        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         this.organizationEnabled = (
-          await this.organizationService.get(params.organizationId)
+          await firstValueFrom(
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          )
         )?.enabled;
 
         return await this.getProjects();

@@ -1,3 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+
+import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
   Component,
   ContentChildren,
@@ -7,9 +11,22 @@ import {
   QueryList,
   Self,
   ViewChild,
+  Output,
+  EventEmitter,
+  input,
+  Signal,
+  computed,
+  model,
+  signal,
 } from "@angular/core";
-import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
-import { NgSelectComponent } from "@ng-select/ng-select";
+import {
+  ControlValueAccessor,
+  NgControl,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from "@angular/forms";
+import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -24,16 +41,24 @@ let nextId = 0;
   selector: "bit-select",
   templateUrl: "select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
+  host: {
+    "[id]": "id()",
+  },
 })
 export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
   /** Optional: Options can be provided using an array input or using `bit-option` */
-  @Input() items: Option<T>[] = [];
-  @Input() placeholder = this.i18nService.t("selectPlaceholder");
+  readonly items = model<Option<T>[] | undefined>();
 
-  protected selectedValue: T;
-  protected selectedOption: Option<T>;
+  readonly placeholder = input(this.i18nService.t("selectPlaceholder"));
+  @Output() closed = new EventEmitter();
+
+  protected selectedValue = signal<T>(undefined);
+  selectedOption: Signal<Option<T>> = computed(() =>
+    this.findSelectedOption(this.items(), this.selectedValue()),
+  );
   protected searchInputId = `bit-select-search-input-${nextId++}`;
 
   private notifyOnChange?: (value: T) => void;
@@ -53,17 +78,25 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     if (value == null || value.length == 0) {
       return;
     }
-    this.items = value.toArray();
-    this.selectedOption = this.findSelectedOption(this.items, this.selectedValue);
+    this.items.set(
+      value.toArray().map((option) => ({
+        icon: option.icon(),
+        value: option.value(),
+        label: option.label(),
+        disabled: option.disabled(),
+      })),
+    );
   }
 
-  @HostBinding("class") protected classes = ["tw-block", "tw-w-full"];
+  @HostBinding("class") protected classes = ["tw-block", "tw-w-full", "tw-h-full"];
 
   // Usings a separate getter for the HostBinding to get around an unexplained angular error
   @HostBinding("attr.disabled")
   get disabledAttr() {
     return this.disabled || null;
   }
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get disabled() {
     return this._disabled ?? this.ngControl?.disabled ?? false;
@@ -75,8 +108,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   writeValue(obj: T): void {
-    this.selectedValue = obj;
-    this.selectedOption = this.findSelectedOption(this.items, this.selectedValue);
+    this.selectedValue.set(obj);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
@@ -96,6 +128,8 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   protected onChange(option: Option<T> | null) {
+    this.selectedValue.set(option?.value);
+
     if (!this.notifyOnChange) {
       return;
     }
@@ -129,9 +163,11 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
 
   /**Implemented as part of BitFormFieldControl */
-  @HostBinding() @Input() id = `bit-multi-select-${nextId++}`;
+  readonly id = input(`bit-multi-select-${nextId++}`);
 
   /**Implemented as part of BitFormFieldControl */
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("attr.required")
   @Input()
   get required() {
@@ -153,7 +189,28 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     return [key, this.ngControl?.errors[key]];
   }
 
-  private findSelectedOption(items: Option<T>[], value: T): Option<T> | undefined {
-    return items.find((item) => item.value === value);
+  private findSelectedOption(items: Option<T>[] | undefined, value: T): Option<T> | undefined {
+    return items?.find((item) => item.value === value);
   }
+
+  /**Emits the closed event. */
+  protected onClose() {
+    this.closed.emit();
+  }
+
+  /**
+   * Prevent Escape key press from propagating to parent components
+   * (for example, parent dialog should not close when Escape is pressed in the select)
+   *
+   * @returns true to keep default key behavior; false to prevent default key behavior
+   *
+   * Needs to be arrow function to retain `this` scope.
+   */
+  protected onKeyDown = (event: KeyboardEvent) => {
+    if (this.select.isOpen && event.key === "Escape" && !hasModifierKey(event)) {
+      event.stopPropagation();
+    }
+
+    return true;
+  };
 }

@@ -2,32 +2,32 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { PBKDF2KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { PreloginResponse } from "@bitwarden/common/auth/models/response/prelogin.response";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KdfType } from "@bitwarden/common/platform/enums";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import {
   FakeAccountService,
@@ -37,7 +37,7 @@ import {
 } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import {
   AuthRequestServiceAbstraction,
@@ -76,6 +76,7 @@ describe("LoginStrategyService", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
+  let configService: MockProxy<ConfigService>;
 
   let stateProvider: FakeGlobalStateProvider;
   let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
@@ -108,6 +109,7 @@ describe("LoginStrategyService", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     taskSchedulerService = mock<TaskSchedulerService>();
+    configService = mock<ConfigService>();
 
     sut = new LoginStrategyService(
       accountService,
@@ -135,6 +137,7 @@ describe("LoginStrategyService", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       taskSchedulerService,
+      configService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
@@ -249,7 +252,7 @@ describe("LoginStrategyService", () => {
       premium: false,
     });
 
-    const result = await sut.logInTwoFactor(twoFactorToken, "CAPTCHA");
+    const result = await sut.logInTwoFactor(twoFactorToken);
 
     expect(result).toBeInstanceOf(AuthResult);
   });
@@ -286,7 +289,7 @@ describe("LoginStrategyService", () => {
       true,
     );
 
-    await expect(sut.logInTwoFactor(twoFactorToken, "CAPTCHA")).rejects.toThrow();
+    await expect(sut.logInTwoFactor(twoFactorToken)).rejects.toThrow();
   });
 
   it("throw error on too low kdf config", async () => {
@@ -322,6 +325,69 @@ describe("LoginStrategyService", () => {
 
     await expect(sut.logIn(credentials)).rejects.toThrow(
       `PBKDF2 iterations must be at least ${PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN}, but was ${PBKDF2KdfConfig.PRELOGIN_ITERATIONS_MIN - 1}; possible pre-login downgrade attack detected.`,
+    );
+  });
+
+  it("returns an AuthResult on successful new device verification", async () => {
+    const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
+    const deviceVerificationOtp = "123456";
+
+    // Setup initial login and device verification response
+    apiService.postPrelogin.mockResolvedValue(
+      new PreloginResponse({
+        Kdf: KdfType.Argon2id,
+        KdfIterations: 2,
+        KdfMemory: 16,
+        KdfParallelism: 1,
+      }),
+    );
+
+    apiService.postIdentityToken.mockResolvedValueOnce(
+      new IdentityTwoFactorResponse({
+        TwoFactorProviders: ["0"],
+        TwoFactorProviders2: { 0: null },
+        error: "invalid_grant",
+        error_description: "Two factor required.",
+        email: undefined,
+        ssoEmail2faSessionToken: undefined,
+      }),
+    );
+
+    await sut.logIn(credentials);
+
+    // Successful device verification login
+    apiService.postIdentityToken.mockResolvedValueOnce(
+      new IdentityTokenResponse({
+        ForcePasswordReset: false,
+        Kdf: KdfType.Argon2id,
+        KdfIterations: 2,
+        KdfMemory: 16,
+        KdfParallelism: 1,
+        Key: "KEY",
+        PrivateKey: "PRIVATE_KEY",
+        ResetMasterPassword: false,
+        access_token: "ACCESS_TOKEN",
+        expires_in: 3600,
+        refresh_token: "REFRESH_TOKEN",
+        scope: "api offline_access",
+        token_type: "Bearer",
+      }),
+    );
+
+    tokenService.decodeAccessToken.calledWith("ACCESS_TOKEN").mockResolvedValue({
+      sub: "USER_ID",
+      name: "NAME",
+      email: "EMAIL",
+      premium: false,
+    });
+
+    const result = await sut.logInNewDeviceVerification(deviceVerificationOtp);
+
+    expect(result).toBeInstanceOf(AuthResult);
+    expect(apiService.postIdentityToken).toHaveBeenCalledWith(
+      expect.objectContaining({
+        newDeviceOtp: deviceVerificationOtp,
+      }),
     );
   });
 });

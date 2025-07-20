@@ -66,9 +66,9 @@ a {
   }
 }
 
-input,
+input:not(bit-form-field input, input[bitcheckbox]),
 select,
-textarea {
+textarea:not(bit-form-field textarea) {
   @include themify($themes) {
     color: themed("textColor");
     background-color: themed("inputBackgroundColor");
@@ -146,4 +146,9 @@ div:not(.modal)::-webkit-scrollbar-thumb,
 .ml-auto,
 .mx-auto {
   margin-left: auto !important;
+}
+
+.vault-v2 button:not([bitbutton]):not([biticonbutton]) i.bwi,
+a i.bwi {
+  margin-right: 0.25rem;
 }

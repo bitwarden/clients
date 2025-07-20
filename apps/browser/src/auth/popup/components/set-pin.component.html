@@ -5,7 +5,7 @@
     </div>
     <div bitDialogContent>
       <p>
-        {{ "setYourPinCode1" | i18n }}
+        {{ "setPinCode" | i18n }}
       </p>
       <bit-form-field>
         <bit-label>{{ "pin" | i18n }}</bit-label>
@@ -25,13 +25,13 @@
         <span>{{ "lockWithMasterPassOnRestart1" | i18n }}</span>
       </label>
     </div>
-    <div bitDialogFooter>
+    <ng-container bitDialogFooter>
       <button type="submit" bitButton bitFormButton buttonType="primary">
         <span>{{ "setYourPinButton" | i18n }}</span>
       </button>
       <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
         {{ "cancel" | i18n }}
       </button>
-    </div>
+    </ng-container>
   </bit-dialog>
 </form>

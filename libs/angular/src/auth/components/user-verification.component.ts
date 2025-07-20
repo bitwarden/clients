@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { ControlValueAccessor, FormControl, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
@@ -20,8 +22,8 @@ import { KeyService } from "@bitwarden/key-management";
  */
 @Directive({
   selector: "app-user-verification",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class UserVerificationComponent implements ControlValueAccessor, OnInit, OnDestroy {
   private _invalidSecret = false;
   @Input()

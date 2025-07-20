@@ -1,13 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
 import { UserKey } from "../../types/key";
@@ -49,7 +55,7 @@ export class PasswordResetEnrollmentServiceImplementation
       userId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
     userKey = userKey ?? (await this.keyService.getUserKey(userId));
     // RSA Encrypt user's userKey.key with organization public key
-    const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, orgPublicKey);
+    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, orgPublicKey);
 
     const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
     resetRequest.resetPasswordKey = encryptedKey.encryptedString;

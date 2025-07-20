@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, concatMap, filter } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -7,6 +9,7 @@ import {
   MessageSender,
   isExternalMessage,
 } from "@bitwarden/common/platform/messaging";
+import { SyncOptions } from "@bitwarden/common/platform/sync/sync.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { DO_FULL_SYNC } from "./foreground-sync.service";
@@ -32,15 +35,15 @@ export class SyncServiceListener {
   listener$(): Observable<void> {
     return this.messageListener.messages$(DO_FULL_SYNC).pipe(
       filter((message) => isExternalMessage(message)),
-      concatMap(async ({ forceSync, allowThrowOnError, requestId }) => {
-        await this.doFullSync(forceSync, allowThrowOnError, requestId);
+      concatMap(async ({ forceSync, options, requestId }) => {
+        await this.doFullSync(forceSync, options, requestId);
       }),
     );
   }
 
-  private async doFullSync(forceSync: boolean, allowThrowOnError: boolean, requestId: string) {
+  private async doFullSync(forceSync: boolean, options: SyncOptions, requestId: string) {
     try {
-      const result = await this.syncService.fullSync(forceSync, allowThrowOnError);
+      const result = await this.syncService.fullSync(forceSync, options);
       this.messageSender.send(FULL_SYNC_FINISHED, {
         successfully: result,
         errorMessage: null,

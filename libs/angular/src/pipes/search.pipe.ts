@@ -1,9 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Pipe, PipeTransform } from "@angular/core";
 
 type PropertyValueFunction<T> = (item: T) => { toString: () => string };
 
 @Pipe({
   name: "search",
+  standalone: false,
 })
 export class SearchPipe implements PipeTransform {
   transform<T>(

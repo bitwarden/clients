@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
-import { CredentialAlgorithm } from "@bitwarden/generator-core";
+import { CredentialType } from "@bitwarden/generator-core";
 
 import { GeneratedCredential } from "./generated-credential";
 
@@ -27,7 +29,7 @@ export abstract class GeneratorHistoryService {
   track: (
     userId: UserId,
     credential: string,
-    category: CredentialAlgorithm,
+    category: CredentialType,
     date?: Date,
   ) => Promise<GeneratedCredential | null>;
 

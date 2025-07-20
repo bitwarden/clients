@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 import * as path from "path";
 
@@ -159,7 +161,6 @@ export class CliUtils {
 
       process.stdin.setEncoding("utf8");
       process.stdin.on("readable", () => {
-        // eslint-disable-next-line
         while (true) {
           const chunk = process.stdin.read();
           if (chunk == null) {

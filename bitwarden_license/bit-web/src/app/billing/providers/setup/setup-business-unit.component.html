@@ -1,0 +1,29 @@
+<div class="tw-mt-12 tw-flex tw-justify-center" *ngIf="loading">
+  <div>
+    <bit-icon
+      class="tw-w-72 tw-block tw-mb-4"
+      [icon]="bitwardenLogo"
+      [ariaLabel]="'appLogoLabel' | i18n"
+    ></bit-icon>
+    <p class="tw-text-center">
+      <i
+        class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </p>
+  </div>
+</div>
+<div class="tw-flex tw-flex-row tw-justify-center tw-mt-12" *ngIf="!loading && !authed">
+  <div class="tw-w-[400px] tw-mt-5">
+    <h2 class="tw-flex tw-justify-center tw-mb-4">{{ "setupProvider" | i18n }}</h2>
+    <bit-card>
+      <p>{{ "setupProviderLoginDesc" | i18n }}</p>
+      <hr />
+      <button bitButton type="button" [block]="true" (click)="login()" buttonType="primary">
+        {{ "logIn" | i18n }}
+      </button>
+    </bit-card>
+  </div>
+</div>

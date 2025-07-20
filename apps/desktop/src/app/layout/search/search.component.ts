@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { UntypedFormControl } from "@angular/forms";
 import { Subscription } from "rxjs";
@@ -9,6 +11,7 @@ import { SearchBarService, SearchBarState } from "./search-bar.service";
 @Component({
   selector: "app-search",
   templateUrl: "search.component.html",
+  standalone: false,
 })
 export class SearchComponent implements OnInit, OnDestroy {
   state: SearchBarState;

@@ -9,13 +9,9 @@ use crate::error::{CryptoError, Result};
 
 use super::CipherString;
 
-pub fn decrypt_aes256(
-    iv: &[u8; 16],
-    data: &Vec<u8>,
-    key: GenericArray<u8, U32>,
-) -> Result<Vec<u8>> {
+pub fn decrypt_aes256(iv: &[u8; 16], data: &[u8], key: GenericArray<u8, U32>) -> Result<Vec<u8>> {
     let iv = GenericArray::from_slice(iv);
-    let mut data = data.clone();
+    let mut data = data.to_vec();
     let decrypted_key_slice = cbc::Decryptor::<aes::Aes256>::new(&key, iv)
         .decrypt_padded_mut::<Pkcs7>(&mut data)
         .map_err(|_| CryptoError::KeyDecrypt)?;

@@ -1,0 +1,18 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-container">
+  <div *ngIf="loggingIn">
+    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+    {{ "loading" | i18n }}
+  </div>
+  <div *ngIf="!loggingIn">
+    <bit-form-field>
+      <bit-label>{{ "ssoIdentifier" | i18n }}</bit-label>
+      <input bitInput type="text" formControlName="identifier" appAutofocus />
+    </bit-form-field>
+    <hr />
+    <div class="tw-flex tw-gap-2">
+      <button type="submit" bitButton bitFormButton buttonType="primary" [block]="true">
+        {{ "continue" | i18n }}
+      </button>
+    </div>
+  </div>
+</form>

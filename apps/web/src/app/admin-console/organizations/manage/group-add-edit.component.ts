@@ -1,4 +1,5 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
@@ -11,6 +12,7 @@ import {
   of,
   shareReplay,
   Subject,
+  switchMap,
   takeUntil,
 } from "rxjs";
 
@@ -20,17 +22,27 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
-import { InternalGroupService as GroupService, GroupView } from "../core";
+import { InternalGroupApiService as GroupService } from "../core";
 import {
   AccessItemType,
   AccessItemValue,
@@ -40,9 +52,13 @@ import {
   PermissionMode,
 } from "../shared/components/access-selector";
 
+import { AddEditGroupDetail } from "./../core/views/add-edit-group-detail";
+
 /**
  * Indices for the available tabs in the dialog
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum GroupAddEditTabType {
   Info = 0,
   Members = 1,
@@ -67,6 +83,8 @@ export interface GroupAddEditDialogParams {
   initialTab?: GroupAddEditTabType;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum GroupAddEditDialogResultType {
   Saved = "saved",
   Canceled = "canceled",
@@ -91,11 +109,17 @@ export const openGroupAddEditDialog = (
 @Component({
   selector: "app-group-add-edit",
   templateUrl: "group-add-edit.component.html",
+  standalone: false,
 })
 export class GroupAddEditComponent implements OnInit, OnDestroy {
-  private organization$ = this.organizationService
-    .get$(this.organizationId)
-    .pipe(shareReplay({ refCount: true }));
+  private organization$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.organizationService
+        .organizations$(account?.id)
+        .pipe(getOrganizationById(this.organizationId))
+        .pipe(shareReplay({ refCount: true })),
+    ),
+  );
 
   protected PermissionMode = PermissionMode;
   protected ResultType = GroupAddEditDialogResultType;
@@ -105,7 +129,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
   title: string;
   collections: AccessItemView[] = [];
   members: Array<AccessItemView & { userId: UserId }> = [];
-  group: GroupView;
+  group: AddEditGroupDetail;
 
   groupForm = this.formBuilder.group({
     name: ["", [Validators.required, Validators.maxLength(100)]],
@@ -120,6 +144,10 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
 
   get organizationId(): string {
     return this.params.organizationId;
+  }
+
+  protected get isExternalIdVisible(): boolean {
+    return !!this.groupForm.get("externalId")?.value;
   }
 
   protected get editMode(): boolean {
@@ -149,7 +177,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     );
   }
 
-  private groupDetails$: Observable<GroupView | undefined> = of(this.editMode).pipe(
+  private groupDetails$: Observable<AddEditGroupDetail | undefined> = of(this.editMode).pipe(
     concatMap((editMode) => {
       if (!editMode) {
         return of(undefined);
@@ -159,9 +187,11 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
         this.groupService.get(this.organizationId, this.groupId),
         this.apiService.getGroupUsers(this.organizationId, this.groupId),
       ]).pipe(
-        map(([groupView, users]) => {
-          groupView.members = users;
-          return groupView;
+        map(([groupView, users]): AddEditGroupDetail => {
+          return {
+            ...groupView,
+            members: users,
+          };
         }),
         catchError((e: unknown) => {
           if (e instanceof ErrorResponse) {
@@ -216,6 +246,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private collectionAdminService: CollectionAdminService,
     private toastService: ToastService,
+    private configService: ConfigService,
   ) {
     this.tabIndex = params.initialTab ?? GroupAddEditTabType.Info;
   }
@@ -295,14 +326,16 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const groupView = new GroupView();
-    groupView.id = this.groupId;
-    groupView.organizationId = this.organizationId;
-
     const formValue = this.groupForm.value;
-    groupView.name = formValue.name;
-    groupView.members = formValue.members?.map((m) => m.id) ?? [];
-    groupView.collections = formValue.collections.map((c) => convertToSelectionView(c));
+
+    const groupView: AddEditGroupDetail = {
+      id: this.groupId,
+      organizationId: this.organizationId,
+      name: formValue.name,
+      members: formValue.members?.map((m) => m.id) ?? [],
+      collections: formValue.collections.map((c) => convertToSelectionView(c)),
+      externalId: formValue.externalId,
+    };
 
     await this.groupService.save(groupView);
 
@@ -346,7 +379,10 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
 /**
  * Maps the group's current collection access to AccessItemValues to populate the access-selector's FormControl
  */
-function mapToAccessSelections(group: GroupView, items: AccessItemView[]): AccessItemValue[] {
+function mapToAccessSelections(
+  group: AddEditGroupDetail,
+  items: AccessItemView[],
+): AccessItemValue[] {
   return (
     group.collections
       // The FormControl value only represents editable collection access - exclude readonly access selections
@@ -365,7 +401,7 @@ function mapToAccessSelections(group: GroupView, items: AccessItemView[]): Acces
 function mapToAccessItemViews(
   collections: CollectionAdminView[],
   organization: Organization,
-  group?: GroupView,
+  group?: AddEditGroupDetail,
 ): AccessItemView[] {
   return (
     collections

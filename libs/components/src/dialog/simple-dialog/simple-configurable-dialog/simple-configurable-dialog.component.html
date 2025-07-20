@@ -11,16 +11,17 @@
         {{ acceptButtonText }}
       </button>
 
-      <button
-        *ngIf="showCancelButton"
-        type="button"
-        bitButton
-        bitFormButton
-        buttonType="secondary"
-        (click)="dialogRef.close(false)"
-      >
-        {{ cancelButtonText }}
-      </button>
+      @if (showCancelButton) {
+        <button
+          type="button"
+          bitButton
+          bitFormButton
+          buttonType="secondary"
+          (click)="dialogRef.close(false)"
+        >
+          {{ cancelButtonText }}
+        </button>
+      }
     </ng-container>
   </bit-simple-dialog>
 </form>

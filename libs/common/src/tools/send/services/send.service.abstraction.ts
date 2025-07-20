@@ -1,5 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
@@ -50,7 +54,7 @@ export abstract class SendService implements UserKeyRotationDataProvider<SendWit
   /**
    * @deprecated Only use in CLI
    */
-  getAllDecryptedFromState: () => Promise<SendView[]>;
+  getAllDecryptedFromState: (userId: UserId) => Promise<SendView[]>;
 }
 
 export abstract class InternalSendService extends SendService {

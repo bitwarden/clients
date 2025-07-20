@@ -1,34 +1,26 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { switchMap, Observable, Subject, combineLatest, map } from "rxjs";
+import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { ProviderStatusType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { hasConsolidatedBilling } from "@bitwarden/common/billing/abstractions/provider-billing.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { BannerModule, IconModule, LinkModule } from "@bitwarden/components";
+import { Icon, IconModule } from "@bitwarden/components";
+import { BusinessUnitPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/business-unit-portal-logo.icon";
 import { ProviderPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/provider-portal-logo";
 import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
-
-import { ProviderClientVaultPrivacyBannerService } from "./services/provider-client-vault-privacy-banner.service";
 
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    JslibModule,
-    WebLayoutModule,
-    IconModule,
-    LinkModule,
-    BannerModule,
-  ],
+  imports: [CommonModule, RouterModule, JslibModule, WebLayoutModule, IconModule],
 })
 export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected readonly logo = ProviderPortalLogo;
@@ -36,18 +28,18 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected provider$: Observable<Provider>;
 
-  protected hasConsolidatedBilling$: Observable<boolean>;
+  protected logo$: Observable<Icon>;
+
+  protected isBillable: Observable<boolean>;
   protected canAccessBilling$: Observable<boolean>;
 
-  protected showProviderClientVaultPrivacyWarningBanner$ = this.configService.getFeatureFlag$(
-    FeatureFlag.ProviderClientVaultPrivacyBanner,
-  );
+  protected clientsTranslationKey$: Observable<string>;
+  protected managePaymentDetailsOutsideCheckout$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,
     private configService: ConfigService,
-    protected providerClientVaultPrivacyBannerService: ProviderClientVaultPrivacyBannerService,
   ) {}
 
   ngOnInit() {
@@ -58,16 +50,32 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
     );
 
-    this.hasConsolidatedBilling$ = this.provider$.pipe(
-      hasConsolidatedBilling(this.configService),
-      takeUntil(this.destroy$),
+    this.logo$ = this.provider$.pipe(
+      map((provider) =>
+        provider.providerType === ProviderType.BusinessUnit
+          ? BusinessUnitPortalLogo
+          : ProviderPortalLogo,
+      ),
     );
 
-    this.canAccessBilling$ = combineLatest([this.hasConsolidatedBilling$, this.provider$]).pipe(
+    this.isBillable = this.provider$.pipe(
+      map((provider) => provider?.providerStatus === ProviderStatusType.Billable),
+    );
+
+    this.canAccessBilling$ = combineLatest([this.isBillable, this.provider$]).pipe(
       map(
         ([hasConsolidatedBilling, provider]) => hasConsolidatedBilling && provider.isProviderAdmin,
       ),
-      takeUntil(this.destroy$),
+    );
+
+    this.clientsTranslationKey$ = this.provider$.pipe(
+      map((provider) =>
+        provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
+      ),
+    );
+
+    this.managePaymentDetailsOutsideCheckout$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
   }
 

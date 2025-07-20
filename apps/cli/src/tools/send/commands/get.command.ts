@@ -1,12 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { OptionValues } from "commander";
 import { firstValueFrom } from "rxjs";
 
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
@@ -18,8 +23,10 @@ export class SendGetCommand extends DownloadCommand {
     private environmentService: EnvironmentService,
     private searchService: SearchService,
     encryptService: EncryptService,
+    apiService: ApiService,
+    private accountService: AccountService,
   ) {
-    super(encryptService);
+    super(encryptService, apiService);
   }
 
   async run(id: string, options: OptionValues) {
@@ -73,7 +80,8 @@ export class SendGetCommand extends DownloadCommand {
         return await send.decrypt();
       }
     } else if (id.trim() !== "") {
-      let sends = await this.sendService.getAllDecryptedFromState();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      let sends = await this.sendService.getAllDecryptedFromState(activeUserId);
       sends = this.searchService.searchSends(sends, id);
       if (sends.length > 1) {
         return sends;

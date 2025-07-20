@@ -3,6 +3,8 @@ import {
   GENERATOR_MEMORY,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { VendorId } from "@bitwarden/common/tools/extension";
+import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import { ApiSettings, IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
@@ -62,9 +64,11 @@ const forwarder = Object.freeze({
       // e.g. key: "forwarder.ForwardEmail.local.settings",
       key: "forwardEmailForwarder",
       target: "object",
-      format: "classified",
+      format: "secret-state",
+      frame: 512,
       classifier: new PrivateClassifier<ForwardEmailSettings>(),
       state: GENERATOR_DISK,
+      initial: defaultSettings,
       options: {
         deserializer: (value) => value,
         clearOn: ["logout"],
@@ -99,7 +103,7 @@ const forwarder = Object.freeze({
 
 export const ForwardEmail = Object.freeze({
   // integration metadata
-  id: "forwardemail" as IntegrationId,
+  id: Vendor.forwardemail as IntegrationId & VendorId,
   name: "Forward Email",
   extends: ["forwarder"],
 

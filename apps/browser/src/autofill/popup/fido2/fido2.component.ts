@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -16,12 +18,13 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -71,7 +74,6 @@ interface ViewData {
 @Component({
   selector: "app-fido2",
   templateUrl: "fido2.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,
@@ -184,7 +186,10 @@ export class Fido2Component implements OnInit, OnDestroy {
               this.domainSettingsService.getUrlEquivalentDomains(this.url),
             );
 
-            this.ciphers = (await this.cipherService.getAllDecrypted()).filter(
+            const activeUserId = await firstValueFrom(
+              this.accountService.activeAccount$.pipe(getUserId),
+            );
+            this.ciphers = (await this.cipherService.getAllDecrypted(activeUserId)).filter(
               (cipher) => cipher.type === CipherType.Login && !cipher.isDeleted,
             );
 
@@ -209,10 +214,8 @@ export class Fido2Component implements OnInit, OnDestroy {
 
             this.ciphers = await Promise.all(
               message.cipherIds.map(async (cipherId) => {
-                const cipher = await this.cipherService.get(cipherId);
-                return cipher.decrypt(
-                  await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-                );
+                const cipher = await this.cipherService.get(cipherId, activeUserId);
+                return this.cipherService.decrypt(cipher, activeUserId);
               }),
             );
 
@@ -230,10 +233,8 @@ export class Fido2Component implements OnInit, OnDestroy {
 
             this.ciphers = await Promise.all(
               message.existingCipherIds.map(async (cipherId) => {
-                const cipher = await this.cipherService.get(cipherId);
-                return cipher.decrypt(
-                  await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-                );
+                const cipher = await this.cipherService.get(cipherId, activeUserId);
+                return this.cipherService.decrypt(cipher, activeUserId);
               }),
             );
 
@@ -383,11 +384,14 @@ export class Fido2Component implements OnInit, OnDestroy {
   }
 
   protected async search() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this.hasSearched = true;
-    const isSearchable = await this.searchService.isSearchable(this.searchText);
+    const isSearchable = await this.searchService.isSearchable(userId, this.searchText);
 
     if (isSearchable) {
       this.displayedCiphers = await this.searchService.searchCiphers(
+        userId,
         this.searchText,
         null,
         this.ciphers,
@@ -437,10 +441,10 @@ export class Fido2Component implements OnInit, OnDestroy {
     );
 
     this.buildCipher(name, username);
-    const cipher = await this.cipherService.encrypt(this.cipher, activeUserId);
+    const encrypted = await this.cipherService.encrypt(this.cipher, activeUserId);
     try {
-      await this.cipherService.createWithServer(cipher);
-      this.cipher.id = cipher.id;
+      await this.cipherService.createWithServer(encrypted);
+      this.cipher.id = encrypted.cipher.id;
     } catch (e) {
       this.logService.error(e);
     }

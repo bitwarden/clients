@@ -1,3 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { UserId } from "../../../types/guid";
+import { EncryptionContext } from "../../abstractions/cipher.service";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CardApi } from "../api/card.api";
@@ -7,12 +11,13 @@ import { IdentityApi } from "../api/identity.api";
 import { LoginUriApi } from "../api/login-uri.api";
 import { LoginApi } from "../api/login.api";
 import { SecureNoteApi } from "../api/secure-note.api";
-import { Cipher } from "../domain/cipher";
+import { SshKeyApi } from "../api/ssh-key.api";
 
 import { AttachmentRequest } from "./attachment.request";
 import { PasswordHistoryRequest } from "./password-history.request";
 
 export class CipherRequest {
+  encryptedFor: UserId;
   type: CipherType;
   folderId: string;
   organizationId: string;
@@ -23,6 +28,7 @@ export class CipherRequest {
   secureNote: SecureNoteApi;
   card: CardApi;
   identity: IdentityApi;
+  sshKey: SshKeyApi;
   fields: FieldApi[];
   passwordHistory: PasswordHistoryRequest[];
   // Deprecated, remove at some point and rename attachments2 to attachments
@@ -32,8 +38,9 @@ export class CipherRequest {
   reprompt: CipherRepromptType;
   key: string;
 
-  constructor(cipher: Cipher) {
+  constructor({ cipher, encryptedFor }: EncryptionContext) {
     this.type = cipher.type;
+    this.encryptedFor = encryptedFor;
     this.folderId = cipher.folderId;
     this.organizationId = cipher.organizationId;
     this.name = cipher.name ? cipher.name.encryptedString : null;
@@ -92,6 +99,17 @@ export class CipherRequest {
       case CipherType.SecureNote:
         this.secureNote = new SecureNoteApi();
         this.secureNote.type = cipher.secureNote.type;
+        break;
+      case CipherType.SshKey:
+        this.sshKey = new SshKeyApi();
+        this.sshKey.privateKey =
+          cipher.sshKey.privateKey != null ? cipher.sshKey.privateKey.encryptedString : null;
+        this.sshKey.publicKey =
+          cipher.sshKey.publicKey != null ? cipher.sshKey.publicKey.encryptedString : null;
+        this.sshKey.keyFingerprint =
+          cipher.sshKey.keyFingerprint != null
+            ? cipher.sshKey.keyFingerprint.encryptedString
+            : null;
         break;
       case CipherType.Card:
         this.card = new CardApi();

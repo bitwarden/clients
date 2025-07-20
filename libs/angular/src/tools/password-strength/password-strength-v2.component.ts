@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnChanges, Output } from "@angular/core";
 
@@ -18,7 +20,6 @@ type BackgroundTypes = "danger" | "primary" | "success" | "warning";
 @Component({
   selector: "tools-password-strength",
   templateUrl: "password-strength-v2.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, ProgressModule],
 })
 export class PasswordStrengthV2Component implements OnChanges {

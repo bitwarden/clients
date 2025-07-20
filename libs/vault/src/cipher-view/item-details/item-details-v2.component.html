@@ -1,19 +1,18 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
   </bit-section-header>
   <bit-card>
     <bit-form-field
-      [disableMargin]="!cipher.collectionIds?.length && !cipher.organizationId && !cipher.folderId"
-      [disableReadOnlyBorder]="
-        !cipher.collectionIds?.length && !cipher.organizationId && !cipher.folderId
-      "
+      [disableMargin]="!cipher.collectionIds?.length && !showOwnership && !cipher.folderId"
+      [disableReadOnlyBorder]="!cipher.collectionIds?.length && !showOwnership && !cipher.folderId"
     >
-      <bit-label>
+      <bit-label [appTextDrag]="cipher.name">
         {{ "itemName" | i18n }}
       </bit-label>
       <input
         readonly
+        id="itemName"
         bitInput
         type="text"
         [value]="cipher.name"
@@ -24,11 +23,11 @@
 
     <ul
       [attr.aria-label]="'itemLocation' | i18n"
-      *ngIf="cipher.collectionIds?.length || cipher.organizationId || cipher.folderId"
+      *ngIf="cipher.collectionIds?.length || showOwnership || cipher.folderId"
       class="tw-mb-0 tw-pl-0"
     >
       <li
-        *ngIf="cipher.organizationId && organization"
+        *ngIf="showOwnership && organization"
         class="tw-flex tw-items-center tw-list-none"
         [ngClass]="{ 'tw-mb-3': cipher.collectionIds }"
         bitTypography="body2"
@@ -59,7 +58,7 @@
             [attr.aria-label]="collection.name"
           >
             <i
-              class="bwi bwi-collection bwi-lg"
+              class="bwi bwi-collection-shared bwi-lg"
               aria-hidden="true"
               [title]="'collection' | i18n"
             ></i>
@@ -81,4 +80,4 @@
       </li>
     </ul>
   </bit-card>
-</bit-section>
+</section>

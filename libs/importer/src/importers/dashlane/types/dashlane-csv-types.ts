@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 // tslint:disable
 export class CredentialsRecord {
   username: string;
@@ -8,7 +10,8 @@ export class CredentialsRecord {
   note: string;
   url: string;
   category: string;
-  otpSecret: string;
+  otpSecret?: string;
+  otpUrl?: string; // Likely introduced by Dashlane as a replacement for `otpSecret`
 }
 
 export class PaymentsRecord {

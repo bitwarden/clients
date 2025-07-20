@@ -1,4 +1,6 @@
 // Increment by 100 for each new set of events
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EventType {
   User_LoggedIn = 1000,
   User_ChangedPassword = 1001,
@@ -56,6 +58,8 @@ export enum EventType {
   OrganizationUser_Restored = 1512,
   OrganizationUser_ApprovedAuthRequest = 1513,
   OrganizationUser_RejectedAuthRequest = 1514,
+  OrganizationUser_Deleted = 1515,
+  OrganizationUser_Left = 1516,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,
@@ -86,4 +90,7 @@ export enum EventType {
   OrganizationDomain_NotVerified = 2003,
 
   Secret_Retrieved = 2100,
+  Secret_Created = 2101,
+  Secret_Edited = 2102,
+  Secret_Deleted = 2103,
 }

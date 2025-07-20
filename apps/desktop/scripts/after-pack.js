@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 require("dotenv").config();
 const child_process = require("child_process");
 const path = require("path");
@@ -25,7 +25,7 @@ async function run(context) {
     fse.moveSync(oldBin, newBin);
     console.log("Moved binary to bitwarden-app");
 
-    const wrapperScript = path.join(__dirname, "../resources/memory-dump-wrapper.sh");
+    const wrapperScript = path.join(__dirname, "../resources/linux-wrapper.sh");
     const wrapperBin = path.join(appOutDir, context.packager.executableName);
     fse.copyFileSync(wrapperScript, wrapperBin);
     fse.chmodSync(wrapperBin, "755");
@@ -42,7 +42,7 @@ async function run(context) {
     if (process.env.GITHUB_ACTIONS === "true") {
       if (is_mas) {
         id = is_mas_dev
-          ? "E7C9978F6FBCE0553429185C405E61F5380BE8EB"
+          ? "588E3F1724AE018EBA762E42279DAE85B313E3ED"
           : "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
         id = "Developer ID Application: 8bit Solutions LLC";
@@ -58,30 +58,46 @@ async function run(context) {
       id = identities[0].id;
     }
 
-    console.log(`Signing proxy binary before the main bundle, using identity '${id}'`);
+    console.log(
+      `Signing proxy binary before the main bundle, using identity '${id}', for build ${context.electronPlatformName}`,
+    );
 
     const appName = context.packager.appInfo.productFilename;
     const appPath = `${context.appOutDir}/${appName}.app`;
     const proxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy");
+    const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
 
     const packageId = "com.bitwarden.desktop";
-    const entitlementsName = "entitlements.desktop_proxy.plist";
-    const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
-    child_process.execSync(
-      `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
-    );
 
-    const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
-    const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
-    const inheritEntitlementsPath = path.join(
-      __dirname,
-      "..",
-      "resources",
-      inheritEntitlementsName,
-    );
-    child_process.execSync(
-      `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${inheritEntitlementsPath} ${inheritProxyPath}`,
-    );
+    if (is_mas) {
+      const entitlementsName = "entitlements.desktop_proxy.plist";
+      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+      );
+
+      const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
+      const inheritEntitlementsPath = path.join(
+        __dirname,
+        "..",
+        "resources",
+        inheritEntitlementsName,
+      );
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${inheritEntitlementsPath} ${inheritProxyPath}`,
+      );
+    } else {
+      // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
+      // but we sign and include it anyway for consistency. It should be removed once DDG supports the proxy directly.
+      const entitlementsName = "entitlements.mac.inherit.plist";
+      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+      );
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${inheritProxyPath}`,
+      );
+    }
   }
 }
 
@@ -156,10 +172,8 @@ async function addElectronFuses(context) {
 
     // Currently, asar integrity is only implemented for macOS and Windows
     // https://www.electronjs.org/docs/latest/tutorial/asar-integrity
-    // On macOS, it works by default, but on Windows it requires the
-    // asarIntegrity feature of electron-builder v25, currently in alpha
-    // https://github.com/electron-userland/electron-builder/releases/tag/v25.0.0-alpha.10
-    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: platform === "darwin",
+    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]:
+      platform == "darwin" || platform == "win32",
 
     [FuseV1Options.OnlyLoadAppFromAsar]: true,
 

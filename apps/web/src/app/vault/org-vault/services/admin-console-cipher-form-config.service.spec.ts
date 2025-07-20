@@ -1,11 +1,15 @@
 import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
-import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { CollectionAdminService, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
@@ -16,36 +20,77 @@ describe("AdminConsoleCipherFormConfigService", () => {
   let adminConsoleConfigService: AdminConsoleCipherFormConfigService;
 
   const cipherId = "333-444-555" as CipherId;
-  const testOrg = { id: "333-44-55", name: "Test Org", canEditAllCiphers: false };
-  const organization$ = new BehaviorSubject<Organization>(testOrg as Organization);
+  const testOrg = {
+    id: "333-44-55",
+    name: "Test Org",
+    canEditAllCiphers: false,
+    isMember: true,
+    enabled: true,
+    status: OrganizationUserStatusType.Confirmed,
+    userId: "UserId",
+  };
+  const testOrg2 = {
+    id: "333-999-888",
+    name: "Test Org 2",
+    canEditAllCiphers: false,
+    isMember: true,
+    enabled: true,
+    status: OrganizationUserStatusType.Confirmed,
+    userId: "UserId",
+  };
+  const policyAppliesToUser$ = new BehaviorSubject<boolean>(true);
+  const collection = {
+    id: "12345-5555",
+    organizationId: "234534-34334",
+    name: "Test Collection 1",
+    assigned: false,
+    readOnly: true,
+  } as CollectionAdminView;
+  const collection2 = {
+    id: "12345-6666",
+    organizationId: "22222-2222",
+    name: "Test Collection 2",
+    assigned: true,
+    readOnly: false,
+  } as CollectionAdminView;
+
+  const orgs$ = new BehaviorSubject<Organization[]>([testOrg, testOrg2] as Organization[]);
   const getCipherAdmin = jest.fn().mockResolvedValue(null);
   const getCipher = jest.fn().mockResolvedValue(null);
 
   beforeEach(async () => {
     getCipherAdmin.mockClear();
-    getCipher.mockClear();
-    getCipher.mockResolvedValue({ id: cipherId, name: "Test Cipher - (non-admin)" });
     getCipherAdmin.mockResolvedValue({ id: cipherId, name: "Test Cipher - (admin)" });
 
-    await TestBed.configureTestingModule({
+    getCipher.mockClear();
+    getCipher.mockResolvedValue({ id: cipherId, name: "Test Cipher" });
+
+    TestBed.configureTestingModule({
       providers: [
         AdminConsoleCipherFormConfigService,
-        { provide: OrganizationService, useValue: { get$: () => organization$ } },
-        { provide: CipherService, useValue: { get: getCipher } },
-        { provide: CollectionAdminService, useValue: { getAll: () => Promise.resolve([]) } },
+        { provide: OrganizationService, useValue: { organizations$: () => orgs$ } },
+        {
+          provide: CollectionAdminService,
+          useValue: { getAll: () => Promise.resolve([collection, collection2]) },
+        },
+        {
+          provide: PolicyService,
+          useValue: { policyAppliesToUser$: () => policyAppliesToUser$ },
+        },
         {
           provide: RoutedVaultFilterService,
           useValue: { filter$: new BehaviorSubject({ organizationId: testOrg.id }) },
         },
         { provide: ApiService, useValue: { getCipherAdmin } },
+        { provide: CipherService, useValue: { get: getCipher } },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
       ],
     });
+    adminConsoleConfigService = TestBed.inject(AdminConsoleCipherFormConfigService);
   });
 
   describe("buildConfig", () => {
     it("sets individual attributes", async () => {
-      adminConsoleConfigService = TestBed.inject(AdminConsoleCipherFormConfigService);
-
       const { folders, hideIndividualVaultFields } = await adminConsoleConfigService.buildConfig(
         "add",
         cipherId,
@@ -56,11 +101,15 @@ describe("AdminConsoleCipherFormConfigService", () => {
     });
 
     it("sets mode based on passed mode", async () => {
-      adminConsoleConfigService = TestBed.inject(AdminConsoleCipherFormConfigService);
-
       const { mode } = await adminConsoleConfigService.buildConfig("edit", cipherId);
 
       expect(mode).toBe("edit");
+    });
+
+    it("returns all collections", async () => {
+      const { collections } = await adminConsoleConfigService.buildConfig("edit", cipherId);
+
+      expect(collections).toEqual([collection, collection2]);
     });
 
     it("sets admin flag based on `canEditAllCiphers`", async () => {
@@ -79,41 +128,79 @@ describe("AdminConsoleCipherFormConfigService", () => {
       expect(result.admin).toBe(true);
     });
 
-    it("sets `allowPersonalOwnership` to false", async () => {
-      adminConsoleConfigService = TestBed.inject(AdminConsoleCipherFormConfigService);
+    it("sets `organizationDataOwnershipDisabled`", async () => {
+      policyAppliesToUser$.next(true);
 
-      const result = await adminConsoleConfigService.buildConfig("clone", cipherId);
+      let result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(false);
+      expect(result.organizationDataOwnershipDisabled).toBe(false);
+
+      policyAppliesToUser$.next(false);
+
+      result = await adminConsoleConfigService.buildConfig("clone", cipherId);
+
+      expect(result.organizationDataOwnershipDisabled).toBe(true);
     });
 
-    describe("getCipher", () => {
-      it("retrieves the cipher from the cipher service", async () => {
-        testOrg.canEditAllCiphers = false;
+    it("disables personal ownership when not cloning", async () => {
+      policyAppliesToUser$.next(false);
 
-        adminConsoleConfigService = TestBed.inject(AdminConsoleCipherFormConfigService);
+      let result = await adminConsoleConfigService.buildConfig("add", cipherId);
 
-        const result = await adminConsoleConfigService.buildConfig("clone", cipherId);
+      expect(result.organizationDataOwnershipDisabled).toBe(false);
 
-        expect(getCipher).toHaveBeenCalledWith(cipherId);
-        expect(result.originalCipher.name).toBe("Test Cipher - (non-admin)");
+      result = await adminConsoleConfigService.buildConfig("edit", cipherId);
 
-        // Admin service not needed when cipher service can return the cipher
-        expect(getCipherAdmin).not.toHaveBeenCalled();
-      });
+      expect(result.organizationDataOwnershipDisabled).toBe(false);
 
-      it("retrieves the cipher from the admin service", async () => {
-        getCipher.mockResolvedValueOnce(null);
-        getCipherAdmin.mockResolvedValue({ id: cipherId, name: "Test Cipher - (admin)" });
+      result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
-        adminConsoleConfigService = TestBed.inject(AdminConsoleCipherFormConfigService);
+      expect(result.organizationDataOwnershipDisabled).toBe(true);
+    });
 
-        await adminConsoleConfigService.buildConfig("add", cipherId);
+    it("returns all ciphers when cloning a cipher", async () => {
+      // Add cipher
+      let result = await adminConsoleConfigService.buildConfig("add", cipherId);
 
-        expect(getCipherAdmin).toHaveBeenCalledWith(cipherId);
+      expect(result.organizations).toEqual([testOrg]);
 
-        expect(getCipher).toHaveBeenCalledWith(cipherId);
-      });
+      // Edit cipher
+      result = await adminConsoleConfigService.buildConfig("edit", cipherId);
+
+      expect(result.organizations).toEqual([testOrg]);
+
+      // Clone cipher
+      result = await adminConsoleConfigService.buildConfig("clone", cipherId);
+
+      expect(result.organizations).toEqual([testOrg, testOrg2]);
+    });
+
+    it("retrieves the cipher from the admin service when canEditAllCiphers is true", async () => {
+      getCipherAdmin.mockResolvedValue({ id: cipherId, name: "Test Cipher - (admin)" });
+      testOrg.canEditAllCiphers = true;
+
+      await adminConsoleConfigService.buildConfig("edit", cipherId);
+
+      expect(getCipherAdmin).toHaveBeenCalledWith(cipherId);
+    });
+
+    it("retrieves the cipher from the admin service when not found in local state", async () => {
+      getCipherAdmin.mockResolvedValue({ id: cipherId, name: "Test Cipher - (admin)" });
+      testOrg.canEditAllCiphers = false;
+      getCipher.mockResolvedValue(null);
+
+      await adminConsoleConfigService.buildConfig("edit", cipherId);
+
+      expect(getCipherAdmin).toHaveBeenCalledWith(cipherId);
+    });
+
+    it("retrieves the cipher from local state when admin is not required", async () => {
+      testOrg.canEditAllCiphers = false;
+
+      await adminConsoleConfigService.buildConfig("edit", cipherId);
+
+      expect(getCipherAdmin).not.toHaveBeenCalled();
+      expect(getCipher).toHaveBeenCalledWith(cipherId, "UserId");
     });
   });
 });

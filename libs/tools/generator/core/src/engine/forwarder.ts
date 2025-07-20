@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ApiSettings,
@@ -6,6 +8,7 @@ import {
 } from "@bitwarden/common/tools/integration/rpc";
 import { GenerationRequest } from "@bitwarden/common/tools/types";
 
+import { Type } from "../metadata";
 import { CredentialGenerator, GeneratedCredential } from "../types";
 
 import { AccountRequest, ForwarderConfiguration } from "./forwarder-configuration";
@@ -38,9 +41,8 @@ export class Forwarder implements CredentialGenerator<ApiSettings> {
 
     const create = this.createForwardingAddress(this.configuration, settings);
     const result = await this.client.fetchJson(create, requestOptions);
-    const id = { forwarder: this.configuration.id };
 
-    return new GeneratedCredential(result, id, Date.now());
+    return new GeneratedCredential(result, Type.email, Date.now());
   }
 
   private createContext<Settings>(

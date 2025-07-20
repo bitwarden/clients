@@ -4,7 +4,9 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -24,8 +26,9 @@ import {
   AutofillService,
   PageDetail,
 } from "../../../autofill/services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 
@@ -40,12 +43,15 @@ describe("VaultPopupAutofillService", () => {
 
   // Create mocks for VaultPopupAutofillService
   const mockAutofillService = mock<AutofillService>();
+  const mockDomainSettingsService = mock<DomainSettingsService>();
   const mockI18nService = mock<I18nService>();
   const mockToastService = mock<ToastService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
   const mockPasswordRepromptService = mock<PasswordRepromptService>();
   const mockCipherService = mock<CipherService>();
   const mockMessagingService = mock<MessagingService>();
+  const mockInlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
+  const mockLogService = mock<LogService>();
 
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
@@ -53,12 +59,20 @@ describe("VaultPopupAutofillService", () => {
   beforeEach(() => {
     jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
     jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(mockCurrentTab);
+    jest
+      .spyOn(mockInlineMenuFieldQualificationService, "isFieldForCreditCardForm")
+      .mockReturnValue(true);
+    jest
+      .spyOn(mockInlineMenuFieldQualificationService, "isFieldForIdentityForm")
+      .mockReturnValue(true);
 
     mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(new BehaviorSubject([]));
+    mockDomainSettingsService.blockedInteractionsUris$ = new BehaviorSubject({});
 
     testBed = TestBed.configureTestingModule({
       providers: [
         { provide: AutofillService, useValue: mockAutofillService },
+        { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ToastService, useValue: mockToastService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
@@ -69,6 +83,14 @@ describe("VaultPopupAutofillService", () => {
         {
           provide: AccountService,
           useValue: accountService,
+        },
+        {
+          provide: InlineMenuFieldQualificationService,
+          useValue: mockInlineMenuFieldQualificationService,
+        },
+        {
+          provide: LogService,
+          useValue: mockLogService,
         },
       ],
     });
@@ -331,7 +353,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should add a URI to the cipher and save with the server", async () => {
-        const mockEncryptedCipher = {} as Cipher;
+        const mockEncryptedCipher = { cipher: {} as Cipher, encryptedFor: mockUserId };
         mockCipherService.encrypt.mockResolvedValue(mockEncryptedCipher);
         const result = await service.doAutofillAndSave(mockCipher);
         expect(result).toBe(true);

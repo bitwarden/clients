@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -13,6 +15,8 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { DialogService, FormFieldModule, SelectModule, ToastService } from "@bitwarden/components";
 
 import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
@@ -22,7 +26,6 @@ import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config
  * Outputs the selected region to the parent component so it can respond as necessary.
  */
 @Component({
-  standalone: true,
   selector: "auth-registration-env-selector",
   templateUrl: "registration-env-selector.component.html",
   imports: [CommonModule, JslibModule, ReactiveFormsModule, FormFieldModule, SelectModule],
@@ -109,6 +112,9 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
+  /**
+   * Listens for changes to the selected region and updates the form value and emits the selected region.
+   */
   private listenForSelectedRegionChanges() {
     this.selectedRegion.valueChanges
       .pipe(
@@ -124,16 +130,12 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
               return of(null);
             }
 
-            if (selectedRegion === Region.SelfHosted) {
-              return from(SelfHostedEnvConfigDialogComponent.open(this.dialogService)).pipe(
-                tap((result: boolean | undefined) =>
-                  this.handleSelfHostedEnvConfigDialogResult(result, prevSelectedRegion),
-                ),
-              );
+            if (selectedRegion !== Region.SelfHosted) {
+              this.selectedRegionChange.emit(selectedRegion);
+              return from(this.environmentService.setEnvironment(selectedRegion.key));
             }
 
-            this.selectedRegionChange.emit(selectedRegion);
-            return from(this.environmentService.setEnvironment(selectedRegion.key));
+            return of(null);
           },
         ),
         takeUntil(this.destroy$),
@@ -167,6 +169,17 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
     } else {
       this.selectedRegionChange.emit(this.selectedRegionFromEnv);
       this.selectedRegion.setValue(this.selectedRegionFromEnv, { emitEvent: false });
+    }
+  }
+
+  /**
+   * Handles the event when the select is closed.
+   * If the selected region is self-hosted, opens the self-hosted environment settings dialog.
+   */
+  protected async onSelectClosed() {
+    if (this.selectedRegion.value === Region.SelfHosted) {
+      const result = await SelfHostedEnvConfigDialogComponent.open(this.dialogService);
+      return this.handleSelfHostedEnvConfigDialogResult(result, this.selectedRegion.value);
     }
   }
 

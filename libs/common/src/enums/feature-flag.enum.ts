@@ -1,41 +1,66 @@
+import { ServerConfig } from "../platform/abstractions/config/server-config";
+
 /**
  * Feature flags.
  *
  * Flags MUST be short lived and SHALL be removed once enabled.
+ *
+ * Flags should be grouped by team to have visibility of ownership and cleanup.
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
-  BrowserFilelessImport = "browser-fileless-import",
-  ItemShare = "item-share",
-  GeneratorToolsModernization = "generator-tools-modernization",
-  EnableConsolidatedBilling = "enable-consolidated-billing",
-  AC1795_UpdatedSubscriptionStatusSection = "AC-1795_updated-subscription-status-section",
-  ExtensionRefresh = "extension-refresh",
-  PersistPopupView = "persist-popup-view",
-  PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
-  UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
-  EmailVerification = "email-verification",
-  InlineMenuFieldQualification = "inline-menu-field-qualification",
-  MemberAccessReport = "ac-2059-member-access-report",
-  TwoFactorComponentRefactor = "two-factor-component-refactor",
-  EnableTimeThreshold = "PM-5864-dollar-threshold",
-  InlineMenuPositioningImprovements = "inline-menu-positioning-improvements",
-  ProviderClientVaultPrivacyBanner = "ac-2833-provider-client-vault-privacy-banner",
-  VaultBulkManagementAction = "vault-bulk-management-action",
-  IdpAutoSubmitLogin = "idp-auto-submit-login",
-  UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
-  EnableUpgradePasswordManagerSub = "AC-2708-upgrade-password-manager-sub",
-  GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
+  /* Admin Console Team */
+  CreateDefaultLocation = "pm-19467-create-default-location",
+
+  /* Auth */
+  PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
+  PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
+  PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
+
+  /* Autofill */
+  BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
-  DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
-  AccountDeprovisioning = "pm-10308-account-deprovisioning",
-  NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
-  AC2476_DeprecateStripeSourcesAPI = "AC-2476-deprecate-stripe-sources-api",
+  NotificationRefresh = "notification-refresh",
+  UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
+  MacOsNativeCredentialSync = "macos-native-credential-sync",
+  WindowsDesktopAutotype = "windows-desktop-autotype",
+
+  /* Billing */
+  TrialPaymentOptional = "PM-8163-trial-payment",
+  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
+  PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
+  PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
+  UseOrganizationWarningsService = "use-organization-warnings-service",
+  AllowTrialLengthZero = "pm-20322-allow-trial-length-0",
+  PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
+
+  /* Data Insights and Reporting */
+  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
+
+  /* Key Management */
+  PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
+  PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
+  UseSDKForDecryption = "use-sdk-for-decryption",
+  PM17987_BlockType0 = "pm-17987-block-type-0",
+  EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
+  ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
+
+  /* Tools */
+  DesktopSendUIRefresh = "desktop-send-ui-refresh",
+
+  /* Vault */
+  PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
+  PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
+  PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
+  PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   CipherKeyEncryption = "cipher-key-encryption",
-  VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
-  PM11901_RefactorSelfHostingLicenseUploader = "PM-11901-refactor-self-hosting-license-uploader",
-  AccessIntelligence = "pm-13227-access-intelligence",
-  Pm13322AddPolicyDefinitions = "pm-13322-add-policy-definitions",
-  LimitCollectionCreationDeletionSplit = "pm-10863-limit-collection-creation-deletion-split",
+  EndUserNotifications = "pm-10609-end-user-notifications",
+  RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
+  PM19315EndUserActivationMvp = "pm-19315-end-user-activation-mvp",
+
+  /* Platform */
+  IpcChannelFramework = "ipc-channel-framework",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -48,42 +73,74 @@ const FALSE = false as boolean;
  *
  * DO NOT enable previously disabled flags, REMOVE them instead.
  * We support true as a value as we prefer flags to "enable" not "disable".
+ *
+ * Flags should be grouped by team to have visibility of ownership and cleanup.
  */
 export const DefaultFeatureFlagValue = {
-  [FeatureFlag.BrowserFilelessImport]: FALSE,
-  [FeatureFlag.ItemShare]: FALSE,
-  [FeatureFlag.GeneratorToolsModernization]: FALSE,
-  [FeatureFlag.EnableConsolidatedBilling]: FALSE,
-  [FeatureFlag.AC1795_UpdatedSubscriptionStatusSection]: FALSE,
-  [FeatureFlag.ExtensionRefresh]: FALSE,
-  [FeatureFlag.PersistPopupView]: FALSE,
-  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
-  [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
-  [FeatureFlag.EmailVerification]: FALSE,
-  [FeatureFlag.InlineMenuFieldQualification]: FALSE,
-  [FeatureFlag.MemberAccessReport]: FALSE,
-  [FeatureFlag.TwoFactorComponentRefactor]: FALSE,
-  [FeatureFlag.EnableTimeThreshold]: FALSE,
-  [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
-  [FeatureFlag.ProviderClientVaultPrivacyBanner]: FALSE,
-  [FeatureFlag.VaultBulkManagementAction]: FALSE,
-  [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
-  [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
-  [FeatureFlag.EnableUpgradePasswordManagerSub]: FALSE,
-  [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
+  /* Admin Console Team */
+  [FeatureFlag.CreateDefaultLocation]: FALSE,
+
+  /* Autofill */
+  [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
-  [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
-  [FeatureFlag.AccountDeprovisioning]: FALSE,
-  [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
-  [FeatureFlag.AC2476_DeprecateStripeSourcesAPI]: FALSE,
+  [FeatureFlag.NotificationRefresh]: FALSE,
+  [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
+  [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
+
+  /* Data Insights and Reporting */
+  [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
+
+  /* Tools */
+  [FeatureFlag.DesktopSendUIRefresh]: FALSE,
+
+  /* Vault */
+  [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
+  [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
-  [FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader]: FALSE,
-  [FeatureFlag.AccessIntelligence]: FALSE,
-  [FeatureFlag.Pm13322AddPolicyDefinitions]: FALSE,
-  [FeatureFlag.LimitCollectionCreationDeletionSplit]: FALSE,
+  [FeatureFlag.EndUserNotifications]: FALSE,
+  [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
+  [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
+  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
+  [FeatureFlag.PM19315EndUserActivationMvp]: FALSE,
+
+  /* Auth */
+  [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
+  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
+  [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
+
+  /* Billing */
+  [FeatureFlag.TrialPaymentOptional]: FALSE,
+  [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
+  [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
+  [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,
+  [FeatureFlag.UseOrganizationWarningsService]: FALSE,
+  [FeatureFlag.AllowTrialLengthZero]: FALSE,
+  [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
+
+  /* Key Management */
+  [FeatureFlag.PrivateKeyRegeneration]: FALSE,
+  [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
+  [FeatureFlag.UseSDKForDecryption]: FALSE,
+  [FeatureFlag.PM17987_BlockType0]: FALSE,
+  [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
+  [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
+
+  /* Platform */
+  [FeatureFlag.IpcChannelFramework]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
 
 export type FeatureFlagValueType<Flag extends FeatureFlag> = DefaultFeatureFlagValueType[Flag];
+
+export function getFeatureFlagValue<Flag extends FeatureFlag>(
+  serverConfig: ServerConfig | null,
+  flag: Flag,
+) {
+  if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
+    return DefaultFeatureFlagValue[flag];
+  }
+
+  return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;
+}

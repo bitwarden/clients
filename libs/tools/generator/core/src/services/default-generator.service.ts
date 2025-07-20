@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, Observable } from "rxjs";
 
 // FIXME: use index.ts imports once policy abstractions and models
@@ -49,7 +51,7 @@ export class DefaultGeneratorService<Options, Policy> implements GeneratorServic
   }
 
   private createEvaluator(userId: UserId) {
-    const evaluator$ = this.policy.getAll$(this.strategy.policy, userId).pipe(
+    const evaluator$ = this.policy.policiesByType$(this.strategy.policy, userId).pipe(
       // create the evaluator from the policies
       this.strategy.toEvaluator(),
     );

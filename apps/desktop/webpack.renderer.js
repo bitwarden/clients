@@ -41,11 +41,6 @@ const common = {
         },
         type: "asset/resource",
       },
-      {
-        test: /argon2(-simd)?\.wasm$/,
-        loader: "base64-loader",
-        type: "javascript/auto",
-      },
     ],
   },
   plugins: [],
@@ -110,7 +105,7 @@ const renderer = {
         test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
         exclude: /loading.svg/,
         generator: {
-          filename: "fonts/[name][ext]",
+          filename: "fonts/[name].[contenthash][ext]",
         },
         type: "asset/resource",
       },
@@ -121,7 +116,13 @@ const renderer = {
             loader: MiniCssExtractPlugin.loader,
           },
           "css-loader",
-          "postcss-loader",
+          "resolve-url-loader",
+          {
+            loader: "postcss-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
         ],
       },
       {
@@ -134,7 +135,13 @@ const renderer = {
             },
           },
           "css-loader",
-          "sass-loader",
+          "resolve-url-loader",
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
         ],
       },
       // Hide System.import warnings. ref: https://github.com/angular/angular/issues/21560
@@ -142,13 +149,7 @@ const renderer = {
         test: /[\/\\]@angular[\/\\].+\.js$/,
         parser: { system: true },
       },
-      {
-        test: /argon2(-simd)?\.wasm$/,
-        loader: "base64-loader",
-        type: "javascript/auto",
-      },
     ],
-    noParse: /argon2(-simd)?\.wasm$/,
   },
   experiments: {
     asyncWebAssembly: true,

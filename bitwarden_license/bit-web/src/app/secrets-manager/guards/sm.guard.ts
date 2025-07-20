@@ -5,8 +5,11 @@ import {
   createUrlTreeFromSnapshot,
   RouterStateSnapshot,
 } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 /**
@@ -18,13 +21,15 @@ export const canActivateSM: CanActivateFn = async (
 ) => {
   const syncService = inject(SyncService);
   const orgService = inject(OrganizationService);
+  const accountService = inject(AccountService);
 
   /** Workaround to avoid service initialization race condition. */
   if ((await syncService.getLastSync()) == null) {
     await syncService.fullSync(false);
   }
 
-  const orgs = await orgService.getAll();
+  const userId = await firstValueFrom(getUserId(accountService.activeAccount$));
+  const orgs = await firstValueFrom(orgService.organizations$(userId));
   const smOrg = orgs.find((o) => o.canAccessSecretsManager);
   if (smOrg) {
     return createUrlTreeFromSnapshot(route, ["/sm", smOrg.id]);

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
@@ -32,6 +34,13 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
       this.browserCache = DeviceType.EdgeBrowser;
     } else if (navigator.userAgent.indexOf(" Vivaldi/") !== -1) {
       this.browserCache = DeviceType.VivaldiBrowser;
+    } else if (
+      // We are only detecting DuckDuckGo browser on macOS currently, as
+      // it is not presenting the Ddg suffix on Windows. DuckDuckGo users
+      // on Windows will be detected as Edge.
+      navigator.userAgent.indexOf("Ddg") !== -1
+    ) {
+      this.browserCache = DeviceType.DuckDuckGoBrowser;
     } else if (
       navigator.userAgent.indexOf(" Safari/") !== -1 &&
       navigator.userAgent.indexOf("Chrome") === -1
@@ -81,6 +90,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return this.getDevice() === DeviceType.SafariBrowser;
   }
 
+  isWebKit(): boolean {
+    return true;
+  }
+
   isMacAppStore(): boolean {
     return false;
   }
@@ -116,6 +129,15 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  // Safari support for blob downloads is inconsistent and requires workarounds
+  supportsFileDownloads(): boolean {
+    return !(this.getDevice() === DeviceType.SafariBrowser);
   }
 
   showToast(

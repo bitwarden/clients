@@ -1,8 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { CollectionAdminView, Unassigned, CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -16,8 +19,9 @@ import { RowHeightClass } from "./vault-items.component";
 @Component({
   selector: "tr[appVaultCollectionRow]",
   templateUrl: "vault-collection-row.component.html",
+  standalone: false,
 })
-export class VaultCollectionRowComponent {
+export class VaultCollectionRowComponent<C extends CipherViewLike> {
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
 
@@ -33,7 +37,7 @@ export class VaultCollectionRowComponent {
   @Input() groups: GroupView[];
   @Input() showPermissionsColumn: boolean;
 
-  @Output() onEvent = new EventEmitter<VaultItemEvent>();
+  @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
   @Input() checked: boolean;
   @Output() checkedToggled = new EventEmitter<void>();
@@ -72,7 +76,7 @@ export class VaultCollectionRowComponent {
 
   get permissionText() {
     if (this.collection.id == Unassigned && this.organization?.canEditUnassignedCiphers) {
-      return this.i18nService.t("canEdit");
+      return this.i18nService.t("editItems");
     }
     if ((this.collection as CollectionAdminView).assigned) {
       const permissionList = getPermissionList();
@@ -100,13 +104,5 @@ export class VaultCollectionRowComponent {
 
   protected deleteCollection() {
     this.onEvent.next({ type: "delete", items: [{ collection: this.collection }] });
-  }
-
-  protected get showCheckbox() {
-    if (this.collection?.id === Unassigned) {
-      return false; // Never show checkbox for Unassigned
-    }
-
-    return this.canEditCollection || this.canDeleteCollection;
   }
 }

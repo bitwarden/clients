@@ -1,28 +1,28 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
   FakeUserDecryptionOptions as UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { DEFAULT_KDF_CONFIG } from "@bitwarden/common/auth/models/domain/kdf-config";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../input-password/password-input-result";
 
@@ -32,7 +32,7 @@ import { SetPasswordCredentials } from "./set-password-jit.service.abstraction";
 describe("DefaultSetPasswordJitService", () => {
   let sut: DefaultSetPasswordJitService;
 
-  let apiService: MockProxy<ApiService>;
+  let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
@@ -43,7 +43,7 @@ describe("DefaultSetPasswordJitService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
 
   beforeEach(() => {
-    apiService = mock<ApiService>();
+    masterPasswordApiService = mock<MasterPasswordApiService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
@@ -54,11 +54,11 @@ describe("DefaultSetPasswordJitService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
 
     sut = new DefaultSetPasswordJitService(
-      apiService,
-      keyService,
       encryptService,
       i18nService,
       kdfConfigService,
+      keyService,
+      masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
       organizationUserApiService,
@@ -109,16 +109,20 @@ describe("DefaultSetPasswordJitService", () => {
       userId = "userId" as UserId;
 
       passwordInputResult = {
-        masterKey: masterKey,
-        masterKeyHash: "masterKeyHash",
-        localMasterKeyHash: "localMasterKeyHash",
-        hint: "hint",
+        newMasterKey: masterKey,
+        newServerMasterKeyHash: "newServerMasterKeyHash",
+        newLocalMasterKeyHash: "newLocalMasterKeyHash",
+        newPasswordHint: "newPasswordHint",
         kdfConfig: DEFAULT_KDF_CONFIG,
-        password: "password",
+        newPassword: "newPassword",
       };
 
       credentials = {
-        ...passwordInputResult,
+        newMasterKey: passwordInputResult.newMasterKey,
+        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        kdfConfig: passwordInputResult.kdfConfig,
         orgSsoIdentifier,
         orgId,
         resetPasswordAutoEnroll,
@@ -129,9 +133,9 @@ describe("DefaultSetPasswordJitService", () => {
       userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
 
       setPasswordRequest = new SetPasswordRequest(
-        passwordInputResult.masterKeyHash,
+        passwordInputResult.newServerMasterKeyHash,
         protectedUserKey[1].encryptedString,
-        passwordInputResult.hint,
+        passwordInputResult.newPasswordHint,
         orgSsoIdentifier,
         keysRequest,
         passwordInputResult.kdfConfig.kdfType,
@@ -150,7 +154,7 @@ describe("DefaultSetPasswordJitService", () => {
 
       keyService.makeKeyPair.mockResolvedValue(keyPair);
 
-      apiService.setPassword.mockResolvedValue(undefined);
+      masterPasswordApiService.setPassword.mockResolvedValue(undefined);
       masterPasswordService.setForceSetPasswordReason.mockResolvedValue(undefined);
 
       userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: true }));
@@ -172,7 +176,7 @@ describe("DefaultSetPasswordJitService", () => {
       }
 
       keyService.userKey$.mockReturnValue(of(userKey));
-      encryptService.rsaEncrypt.mockResolvedValue(userKeyEncString);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(userKeyEncString);
 
       organizationUserApiService.putOrganizationUserResetPasswordEnrollment.mockResolvedValue(
         undefined,
@@ -187,7 +191,7 @@ describe("DefaultSetPasswordJitService", () => {
       await sut.setPassword(credentials);
 
       // Assert
-      expect(apiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+      expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
     });
 
     it("should set password successfully (given no user key)", async () => {
@@ -198,7 +202,7 @@ describe("DefaultSetPasswordJitService", () => {
       await sut.setPassword(credentials);
 
       // Assert
-      expect(apiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+      expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
     });
 
     it("should handle reset password auto enroll", async () => {
@@ -212,9 +216,9 @@ describe("DefaultSetPasswordJitService", () => {
       await sut.setPassword(credentials);
 
       // Assert
-      expect(apiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+      expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
       expect(organizationApiService.getKeys).toHaveBeenCalledWith(orgId);
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(userKey.key, orgPublicKey);
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(userKey, orgPublicKey);
       expect(
         organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
       ).toHaveBeenCalled();

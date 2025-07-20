@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
 
 import { KeyService } from "@bitwarden/key-management";
@@ -7,7 +9,6 @@ import { SharedModule } from "../../shared.module";
 @Component({
   selector: "app-account-fingerprint",
   templateUrl: "account-fingerprint.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class AccountFingerprintComponent implements OnInit {

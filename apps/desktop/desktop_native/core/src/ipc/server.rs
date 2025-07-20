@@ -1,17 +1,20 @@
-use std::{error::Error, path::Path, vec};
+use std::{
+    error::Error,
+    path::{Path, PathBuf},
+};
 
-use futures::TryFutureExt;
+use futures::{SinkExt, StreamExt, TryFutureExt};
 
 use anyhow::Result;
 use interprocess::local_socket::{tokio::prelude::*, GenericFilePath, ListenerOptions};
 use log::{error, info};
 use tokio::{
-    io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt},
+    io::{AsyncRead, AsyncWrite},
     sync::{broadcast, mpsc},
 };
 use tokio_util::sync::CancellationToken;
 
-use super::{MESSAGE_CHANNEL_BUFFER, NATIVE_MESSAGING_BUFFER_SIZE};
+use super::MESSAGE_CHANNEL_BUFFER;
 
 #[derive(Debug)]
 pub struct Message {
@@ -29,6 +32,7 @@ pub enum MessageType {
 }
 
 pub struct Server {
+    pub path: PathBuf,
     cancel_token: CancellationToken,
     server_to_clients_send: broadcast::Sender<String>,
 }
@@ -66,6 +70,7 @@ impl Server {
         // Create the server and start listening for incoming connections
         // in a separate task to avoid blocking the current task
         let server = Server {
+            path: path.to_owned(),
             cancel_token: cancel_token.clone(),
             server_to_clients_send,
         };
@@ -152,7 +157,7 @@ async fn listen_incoming(
 }
 
 async fn handle_connection(
-    mut client_stream: impl AsyncRead + AsyncWrite + Unpin,
+    client_stream: impl AsyncRead + AsyncWrite + Unpin,
     client_to_server_send: mpsc::Sender<Message>,
     mut server_to_clients_recv: broadcast::Receiver<String>,
     cancel_token: CancellationToken,
@@ -166,7 +171,7 @@ async fn handle_connection(
         })
         .await?;
 
-    let mut buf = vec![0u8; NATIVE_MESSAGING_BUFFER_SIZE];
+    let mut client_stream = crate::ipc::internal_ipc_codec(client_stream);
 
     loop {
         tokio::select! {
@@ -179,7 +184,7 @@ async fn handle_connection(
             msg = server_to_clients_recv.recv() => {
                 match msg {
                     Ok(msg) => {
-                        client_stream.write_all(msg.as_bytes()).await?;
+                        client_stream.send(msg.into()).await?;
                     },
                     Err(e) => {
                         info!("Error reading message: {}", e);
@@ -191,9 +196,9 @@ async fn handle_connection(
             // Forwards messages from the IPC clients to the server
             // Note that we also send connect and disconnect events so that
             // the server can keep track of multiple clients
-            result = client_stream.read(&mut buf) => {
+            result = client_stream.next() => {
                 match result {
-                    Err(e)  => {
+                    Some(Err(e))  => {
                         info!("Error reading from client {client_id}: {e}");
 
                         client_to_server_send.send(Message {
@@ -203,7 +208,7 @@ async fn handle_connection(
                         }).await?;
                         break;
                     },
-                    Ok(0) => {
+                    None => {
                         info!("Client {client_id} disconnected.");
 
                         client_to_server_send.send(Message {
@@ -213,8 +218,8 @@ async fn handle_connection(
                         }).await?;
                         break;
                     },
-                    Ok(size) => {
-                        let msg = std::str::from_utf8(&buf[..size])?;
+                    Some(Ok(bytes)) => {
+                        let msg = std::str::from_utf8(&bytes)?;
 
                         client_to_server_send.send(Message {
                             client_id,

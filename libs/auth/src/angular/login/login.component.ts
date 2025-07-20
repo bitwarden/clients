@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Input, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
@@ -8,30 +8,34 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
+  LoginSuccessHandlerService,
   PasswordLoginCredentials,
-  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
-import { CaptchaIFrame } from "@bitwarden/common/auth/captcha-iframe";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -41,20 +45,20 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import { VaultIcon, WaveIcon } from "../icons";
 
-import { LoginComponentService } from "./login-component.service";
+import { LoginComponentService, PasswordPolicies } from "./login-component.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LoginUiState {
   EMAIL_ENTRY = "EmailEntry",
   MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",
 }
 
 @Component({
-  standalone: true,
   templateUrl: "./login.component.html",
   imports: [
     AsyncActionsModule,
@@ -70,19 +74,14 @@ export enum LoginUiState {
   ],
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef;
-  @Input() captchaSiteKey: string = null;
+  @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef | undefined;
 
   private destroy$ = new Subject<void>();
-  private enforcedMasterPasswordOptions: MasterPasswordPolicyOptions = undefined;
   readonly Icons = { WaveIcon, VaultIcon };
 
-  captcha: CaptchaIFrame;
-  captchaToken: string = null;
   clientType: ClientType;
   ClientType = ClientType;
   LoginUiState = LoginUiState;
-  registerRoute$ = this.registerRouteService.registerRoute$(); // TODO: remove when email verification flag is removed
   isKnownDevice = false;
   loginUiState: LoginUiState = LoginUiState.EMAIL_ENTRY;
 
@@ -98,20 +97,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     { updateOn: "submit" },
   );
 
-  get emailFormControl(): FormControl<string> {
+  get emailFormControl(): FormControl<string | null> {
     return this.formGroup.controls.email;
   }
-
-  /**
-   * LoginViaAuthRequestSupported is a boolean that determines if we show the Login with device button.
-   * An AuthRequest is the mechanism that allows users to login to the client via a device that is already logged in.
-   */
-  loginViaAuthRequestSupported = false;
-
-  // Web properties
-  enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
-  policies: Policy[];
-  showResetPasswordAutoEnrollWarning = false;
 
   // Desktop properties
   deferFocus: boolean | null = null;
@@ -122,7 +110,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private appIdService: AppIdService,
     private broadcasterService: BroadcasterService,
     private devicesApiService: DevicesApiServiceAbstraction,
-    private environmentService: EnvironmentService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private loginEmailService: LoginEmailServiceAbstraction,
@@ -133,18 +120,21 @@ export class LoginComponent implements OnInit, OnDestroy {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
     private policyService: InternalPolicyService,
-    private registerRouteService: RegisterRouteService,
     private router: Router,
-    private syncService: SyncService,
     private toastService: ToastService,
     private logService: LogService,
     private validationService: ValidationService,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
+    private configService: ConfigService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
-    this.loginViaAuthRequestSupported = this.loginComponentService.isLoginViaAuthRequestSupported();
   }
 
   async ngOnInit(): Promise<void> {
+    // Add popstate listener to listen for browser back button clicks
+    window.addEventListener("popstate", this.handlePopState);
+
     await this.defaultOnInit();
 
     if (this.clientType === ClientType.Desktop) {
@@ -153,6 +143,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Remove popstate listener
+    window.removeEventListener("popstate", this.handlePopState);
+
     if (this.clientType === ClientType.Desktop) {
       // TODO: refactor to not use deprecated broadcaster service.
       this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
@@ -162,376 +155,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  submit = async (): Promise<void> => {
-    if (this.clientType === ClientType.Desktop) {
-      if (this.loginUiState !== LoginUiState.MASTER_PASSWORD_ENTRY) {
-        return;
-      }
-    }
-
-    const { email, masterPassword } = this.formGroup.value;
-
-    await this.setupCaptcha();
-
-    this.formGroup.markAllAsTouched();
-    if (this.formGroup.invalid) {
-      return;
-    }
-
-    const credentials = new PasswordLoginCredentials(
-      email,
-      masterPassword,
-      this.captchaToken,
-      null,
-    );
-
-    try {
-      const authResult = await this.loginStrategyService.logIn(credentials);
-
-      await this.saveEmailSettings();
-      await this.handleAuthResult(authResult);
-
-      if (this.clientType === ClientType.Desktop) {
-        if (this.captchaSiteKey) {
-          const content = document.getElementById("content") as HTMLDivElement;
-          content.setAttribute("style", "width:335px");
-        }
-      }
-    } catch (error) {
-      this.logService.error(error);
-      this.handleSubmitError(error);
-    }
-  };
-
-  /**
-   * Handles the error from the submit function.
-   *
-   * @param error The error object.
-   */
-  private handleSubmitError(error: unknown) {
-    // Handle error responses
-    if (error instanceof ErrorResponse) {
-      switch (error.statusCode) {
-        case HttpStatusCode.BadRequest: {
-          if (error.message.toLowerCase().includes("username or password is incorrect")) {
-            this.formGroup.controls.masterPassword.setErrors({
-              error: {
-                message: this.i18nService.t("invalidMasterPassword"),
-              },
-            });
-          }
-          break;
-        }
-        default: {
-          // Allow all other errors to be handled by toast
-          this.validationService.showError(error);
-        }
-      }
-    } else {
-      // Allow all other errors to be handled by toast
-      this.validationService.showError(error);
-    }
-  }
-
-  /**
-   * Handles the result of the authentication process.
-   *
-   * @param authResult
-   * @returns A simple `return` statement for each conditional check.
-   *          If you update this method, do not forget to add a `return`
-   *          to each if-condition block where necessary to stop code execution.
-   */
-  private async handleAuthResult(authResult: AuthResult): Promise<void> {
-    if (this.handleCaptchaRequired(authResult)) {
-      this.captchaSiteKey = authResult.captchaSiteKey;
-      this.captcha.init(authResult.captchaSiteKey);
-      return;
-    }
-
-    if (authResult.requiresEncryptionKeyMigration) {
-      /* Legacy accounts used the master key to encrypt data.
-         Migration is required but only performed on Web. */
-      if (this.clientType === ClientType.Web) {
-        await this.router.navigate(["migrate-legacy-encryption"]);
-      } else {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccured"),
-          message: this.i18nService.t("encryptionKeyMigrationRequired"),
-        });
-      }
-      return;
-    }
-
-    if (authResult.requiresTwoFactor) {
-      await this.router.navigate(["2fa"]);
-      return;
-    }
-
-    await this.syncService.fullSync(true);
-
-    if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
-      this.loginEmailService.clearValues();
-      await this.router.navigate(["update-temp-password"]);
-      return;
-    }
-
-    // If none of the above cases are true, proceed with login...
-    await this.evaluatePassword();
-
-    this.loginEmailService.clearValues();
-
-    if (this.clientType === ClientType.Browser) {
-      await this.router.navigate(["/tabs/vault"]);
-    } else {
-      await this.router.navigate(["vault"]);
-    }
-  }
-
-  protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
-    await this.loginComponentService.launchSsoBrowserWindow(this.emailFormControl.value, clientId);
-  }
-
-  protected async evaluatePassword(): Promise<void> {
-    try {
-      // If we do not have any saved policies, attempt to load them from the service
-      if (this.enforcedMasterPasswordOptions == undefined) {
-        this.enforcedMasterPasswordOptions = await firstValueFrom(
-          this.policyService.masterPasswordPolicyOptions$(),
-        );
-      }
-
-      if (this.requirePasswordChange()) {
-        await this.router.navigate(["update-password"]);
-        return;
-      }
-    } catch (e) {
-      // Do not prevent unlock if there is an error evaluating policies
-      this.logService.error(e);
-    }
-  }
-
-  /**
-   * Checks if the master password meets the enforced policy requirements
-   * If not, returns false
-   */
-  private requirePasswordChange(): boolean {
-    if (
-      this.enforcedMasterPasswordOptions == undefined ||
-      !this.enforcedMasterPasswordOptions.enforceOnLogin
-    ) {
-      return false;
-    }
-
-    const masterPassword = this.formGroup.controls.masterPassword.value;
-
-    const passwordStrength = this.passwordStrengthService.getPasswordStrength(
-      masterPassword,
-      this.formGroup.value.email,
-    )?.score;
-
-    return !this.policyService.evaluateMasterPassword(
-      passwordStrength,
-      masterPassword,
-      this.enforcedMasterPasswordOptions,
-    );
-  }
-
-  protected showCaptcha(): boolean {
-    return !Utils.isNullOrWhitespace(this.captchaSiteKey);
-  }
-
-  protected async startAuthRequestLogin(): Promise<void> {
-    this.formGroup.get("masterPassword")?.clearValidators();
-    this.formGroup.get("masterPassword")?.updateValueAndValidity();
-
-    if (!this.formGroup.valid) {
-      return;
-    }
-
-    await this.saveEmailSettings();
-    await this.router.navigate(["/login-with-device"]);
-  }
-
-  protected async validateEmail(): Promise<boolean> {
-    this.formGroup.controls.email.markAsTouched();
-    return this.formGroup.controls.email.valid;
-  }
-
-  protected async toggleLoginUiState(value: LoginUiState): Promise<void> {
-    this.loginUiState = value;
-
-    if (this.loginUiState === LoginUiState.EMAIL_ENTRY) {
-      this.loginComponentService.showBackButton(false);
-
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "logInToBitwarden" },
-        pageIcon: this.Icons.VaultIcon,
-        pageSubtitle: null, // remove subtitle when going back to email entry
-      });
-
-      // Reset master password only when going from validated to not validated so that autofill can work properly
-      this.formGroup.controls.masterPassword.reset();
-
-      if (this.loginViaAuthRequestSupported) {
-        // Reset known device state when going back to email entry if it is supported
-        this.isKnownDevice = false;
-      }
-    } else if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
-      this.loginComponentService.showBackButton(true);
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "welcomeBack" },
-        pageSubtitle: this.emailFormControl.value,
-        pageIcon: this.Icons.WaveIcon,
-      });
-
-      // Mark MP as untouched so that, when users enter email and hit enter, the MP field doesn't load with validation errors
-      this.formGroup.controls.masterPassword.markAsUntouched();
-
-      // When email is validated, focus on master password after waiting for input to be rendered
-      if (this.ngZone.isStable) {
-        this.masterPasswordInputRef?.nativeElement?.focus();
-      } else {
-        this.ngZone.onStable.pipe(take(1), takeUntil(this.destroy$)).subscribe(() => {
-          this.masterPasswordInputRef?.nativeElement?.focus();
-        });
-      }
-
-      if (this.loginViaAuthRequestSupported) {
-        await this.getKnownDevice(this.emailFormControl.value);
-      }
-    }
-  }
-
-  /**
-   * Set the email value from the input field.
-   * @param event The event object from the input field.
-   */
-  onEmailBlur(event: Event) {
-    const emailInput = event.target as HTMLInputElement;
-    this.formGroup.controls.email.setValue(emailInput.value);
-    // Call setLoginEmail so that the email is pre-populated when navigating to the "enter password" screen.
-    this.loginEmailService.setLoginEmail(this.formGroup.value.email);
-  }
-
-  isLoginWithPasskeySupported() {
-    return this.loginComponentService.isLoginWithPasskeySupported();
-  }
-
-  protected async goToHint(): Promise<void> {
-    await this.saveEmailSettings();
-    await this.router.navigateByUrl("/hint");
-  }
-
-  protected async goToRegister(): Promise<void> {
-    // TODO: remove when email verification flag is removed
-    const registerRoute = await firstValueFrom(this.registerRoute$);
-
-    if (this.emailFormControl.valid) {
-      await this.router.navigate([registerRoute], {
-        queryParams: { email: this.emailFormControl.value },
-      });
-      return;
-    }
-
-    await this.router.navigate([registerRoute]);
-  }
-
-  protected async saveEmailSettings(): Promise<void> {
-    await this.loginEmailService.setLoginEmail(this.formGroup.value.email);
-    this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
-    await this.loginEmailService.saveEmailSettings();
-  }
-
-  protected async continue(): Promise<void> {
-    if (await this.validateEmail()) {
-      await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
-    }
-  }
-
-  /**
-   * Call to check if the device is known.
-   * Known means that the user has logged in with this device before.
-   * @param email - The user's email
-   */
-  private async getKnownDevice(email: string): Promise<void> {
-    try {
-      const deviceIdentifier = await this.appIdService.getAppId();
-      this.isKnownDevice = await this.devicesApiService.getKnownDevice(email, deviceIdentifier);
-    } catch (e) {
-      this.isKnownDevice = false;
-    }
-  }
-
-  private async setupCaptcha(): Promise<void> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const webVaultUrl = env.getWebVaultUrl();
-
-    this.captcha = new CaptchaIFrame(
-      window,
-      webVaultUrl,
-      this.i18nService,
-      (token: string) => {
-        this.captchaToken = token;
-      },
-      (error: string) => {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: error,
-        });
-      },
-      (info: string) => {
-        this.toastService.showToast({
-          variant: "info",
-          title: this.i18nService.t("info"),
-          message: info,
-        });
-      },
-    );
-  }
-
-  private handleCaptchaRequired(authResult: AuthResult): boolean {
-    return !Utils.isNullOrWhitespace(authResult.captchaSiteKey);
-  }
-
-  private async loadEmailSettings(): Promise<void> {
-    // Try to load the email from memory first
-    const email = await firstValueFrom(this.loginEmailService.loginEmail$);
-    const rememberEmail = this.loginEmailService.getRememberEmail();
-
-    if (email) {
-      this.formGroup.controls.email.setValue(email);
-      this.formGroup.controls.rememberEmail.setValue(rememberEmail);
-    } else {
-      // If there is no email in memory, check for a storedEmail on disk
-      const storedEmail = await firstValueFrom(this.loginEmailService.storedEmail$);
-
-      if (storedEmail) {
-        this.formGroup.controls.email.setValue(storedEmail);
-        // If there is a storedEmail, rememberEmail defaults to true
-        this.formGroup.controls.rememberEmail.setValue(true);
-      }
-    }
-  }
-
-  private focusInput() {
-    document
-      .getElementById(
-        this.emailFormControl.value == null || this.emailFormControl.value === ""
-          ? "email"
-          : "masterPassword",
-      )
-      ?.focus();
-  }
-
   private async defaultOnInit(): Promise<void> {
-    // If there's an existing org invite, use it to get the password policies
-    const orgPolicies = await this.loginComponentService.getOrgPolicies();
-
-    this.policies = orgPolicies?.policies;
-    this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled;
-
     let paramEmailIsSet = false;
 
     const params = await firstValueFrom(this.activatedRoute.queryParams);
@@ -548,17 +172,18 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // If there are no params or no email in the query params, loadEmailSettings from state
     if (!paramEmailIsSet) {
-      await this.loadEmailSettings();
+      await this.loadRememberedEmail();
     }
 
-    if (this.loginViaAuthRequestSupported) {
+    // Check to see if the device is known so that we can show the Login with Device option
+    if (this.emailFormControl.value) {
       await this.getKnownDevice(this.emailFormControl.value);
     }
 
     // Backup check to handle unknown case where activatedRoute is not available
     // This shouldn't happen under normal circumstances
     if (!this.activatedRoute) {
-      await this.loadEmailSettings();
+      await this.loadRememberedEmail();
     }
   }
 
@@ -586,6 +211,384 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.messagingService.send("getWindowIsFocused");
   }
 
+  submit = async (): Promise<void> => {
+    if (this.clientType === ClientType.Desktop) {
+      if (this.loginUiState !== LoginUiState.MASTER_PASSWORD_ENTRY) {
+        return;
+      }
+    }
+
+    const { email, masterPassword } = this.formGroup.value;
+
+    this.formGroup.markAllAsTouched();
+    if (this.formGroup.invalid) {
+      return;
+    }
+
+    if (!email || !masterPassword) {
+      this.logService.error("Email and master password are required");
+      return;
+    }
+
+    let credentials: PasswordLoginCredentials;
+
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+    ) {
+      // Try to retrieve any org policies from an org invite now so we can send it to the
+      // login strategies. Since it is optional and we only want to be doing this on the
+      // web we will only send in content in the right context.
+      const orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
+        ? await this.loginComponentService.getOrgPoliciesFromOrgInvite()
+        : null;
+
+      const orgMasterPasswordPolicyOptions = orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
+
+      credentials = new PasswordLoginCredentials(
+        email,
+        masterPassword,
+        undefined,
+        orgMasterPasswordPolicyOptions,
+      );
+    } else {
+      credentials = new PasswordLoginCredentials(email, masterPassword);
+    }
+
+    try {
+      const authResult = await this.loginStrategyService.logIn(credentials);
+
+      await this.handleAuthResult(authResult);
+    } catch (error) {
+      this.logService.error(error);
+      this.handleSubmitError(error);
+    }
+  };
+
+  /**
+   * Handles the error from the submit function.
+   *
+   * @param error The error object.
+   */
+  private handleSubmitError(error: unknown) {
+    // Handle error responses
+    if (error instanceof ErrorResponse) {
+      switch (error.statusCode) {
+        case HttpStatusCode.BadRequest: {
+          if (error.message.toLowerCase().includes("username or password is incorrect")) {
+            this.formGroup.controls.masterPassword.setErrors({
+              error: {
+                message: this.i18nService.t("invalidMasterPassword"),
+              },
+            });
+          } else {
+            // Allow other 400 responses to be handled by toast
+            this.validationService.showError(error);
+          }
+          break;
+        }
+        default: {
+          // Allow all other error codes to be handled by toast
+          this.validationService.showError(error);
+        }
+      }
+    } else {
+      // Allow all other errors to be handled by toast
+      this.validationService.showError(error);
+    }
+  }
+
+  /**
+   * Handles the result of the authentication process.
+   *
+   * @param authResult
+   * @returns A simple `return` statement for each conditional check.
+   *          If you update this method, do not forget to add a `return`
+   *          to each if-condition block where necessary to stop code execution.
+   */
+  private async handleAuthResult(authResult: AuthResult): Promise<void> {
+    if (authResult.requiresEncryptionKeyMigration) {
+      /* Legacy accounts used the master key to encrypt data.
+         This is now unsupported and requires a downgraded client */
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("legacyEncryptionUnsupported"),
+      });
+      return;
+    }
+
+    if (authResult.requiresTwoFactor) {
+      await this.router.navigate(["2fa"]);
+      return;
+    }
+
+    // Redirect to device verification if this is an unknown device
+    if (authResult.requiresDeviceVerification) {
+      await this.router.navigate(["device-verification"]);
+      return;
+    }
+
+    // User logged in successfully so execute side effects
+    await this.loginSuccessHandlerService.run(authResult.userId);
+
+    // Determine where to send the user next
+    // The AuthGuard will handle routing to update-temp-password based on state
+
+    // TODO: PM-18269 - evaluate if we can combine this with the
+    // password evaluation done in the password login strategy.
+    // If there's an existing org invite, use it to get the org's password policies
+    // so we can evaluate the MP against the org policies
+    if (this.loginComponentService.getOrgPoliciesFromOrgInvite) {
+      const orgPolicies: PasswordPolicies | null =
+        await this.loginComponentService.getOrgPoliciesFromOrgInvite();
+
+      if (orgPolicies) {
+        // Since we have retrieved the policies, we can go ahead and set them into state for future use
+        // e.g., the update-password page currently only references state for policy data and
+        // doesn't fallback to pulling them from the server like it should if they are null.
+        await this.setPoliciesIntoState(authResult.userId, orgPolicies.policies);
+
+        const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
+          orgPolicies.enforcedPasswordPolicyOptions,
+        );
+        if (isPasswordChangeRequired) {
+          const changePasswordFeatureFlagOn = await this.configService.getFeatureFlag(
+            FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+          );
+
+          await this.router.navigate(
+            changePasswordFeatureFlagOn ? ["change-password"] : ["update-password"],
+          );
+          return;
+        }
+      }
+    }
+
+    if (this.clientType === ClientType.Browser) {
+      await this.router.navigate(["/tabs/vault"]);
+    } else {
+      await this.router.navigate(["vault"]);
+    }
+  }
+
+  /**
+   * Checks if the master password meets the enforced policy requirements
+   * and if the user is required to change their password.
+   *
+   * TODO: This is duplicate checking that we want to only do in the password login strategy.
+   *       Once we no longer need the policies state being set to reference later in change password
+   *       via using the Admin Console's new policy endpoint changes we can remove this. Consult
+   *       PM-23001 for details.
+   */
+  private async isPasswordChangeRequiredByOrgPolicy(
+    enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions,
+  ): Promise<boolean> {
+    try {
+      if (enforcedPasswordPolicyOptions == undefined) {
+        return false;
+      }
+
+      // Note: we deliberately do not check enforcedPasswordPolicyOptions.enforceOnLogin
+      // as existing users who are logging in after getting an org invite should
+      // always be forced to set a password that meets the org's policy.
+      // Org Invite -> Registration also works this way for new BW users as well.
+
+      const masterPassword = this.formGroup.controls.masterPassword.value;
+
+      // Return false if masterPassword is null/undefined since this is only evaluated after successful login
+      if (!masterPassword) {
+        return false;
+      }
+
+      const passwordStrength = this.passwordStrengthService.getPasswordStrength(
+        masterPassword,
+        this.formGroup.value.email ?? undefined,
+      )?.score;
+
+      return !this.policyService.evaluateMasterPassword(
+        passwordStrength,
+        masterPassword,
+        enforcedPasswordPolicyOptions,
+      );
+    } catch (e) {
+      // Do not prevent unlock if there is an error evaluating policies
+      this.logService.error(e);
+      return false;
+    }
+  }
+
+  private async setPoliciesIntoState(userId: UserId, policies: Policy[]): Promise<void> {
+    const policiesData: { [id: string]: PolicyData } = {};
+    policies.map((p) => (policiesData[p.id] = PolicyData.fromPolicy(p)));
+    await this.policyService.replace(policiesData, userId);
+  }
+
+  protected async startAuthRequestLogin(): Promise<void> {
+    this.formGroup.get("masterPassword")?.clearValidators();
+    this.formGroup.get("masterPassword")?.updateValueAndValidity();
+
+    if (!this.formGroup.valid) {
+      return;
+    }
+
+    await this.router.navigate(["/login-with-device"]);
+  }
+
+  protected async toggleLoginUiState(value: LoginUiState): Promise<void> {
+    this.loginUiState = value;
+
+    if (this.loginUiState === LoginUiState.EMAIL_ENTRY) {
+      this.loginComponentService.showBackButton(false);
+
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "logInToBitwarden" },
+        pageIcon: this.Icons.VaultIcon,
+        pageSubtitle: null, // remove subtitle when going back to email entry
+      });
+
+      // Reset master password only when going from validated to not validated so that autofill can work properly
+      this.formGroup.controls.masterPassword.reset();
+
+      // Reset known device state when going back to email entry if it is supported
+      this.isKnownDevice = false;
+    } else if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
+      this.loginComponentService.showBackButton(true);
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "welcomeBack" },
+        pageSubtitle: this.emailFormControl.value,
+        pageIcon: this.Icons.WaveIcon,
+      });
+
+      // Mark MP as untouched so that, when users enter email and hit enter, the MP field doesn't load with validation errors
+      this.formGroup.controls.masterPassword.markAsUntouched();
+
+      // When email is validated, focus on master password after waiting for input to be rendered
+      if (this.ngZone.isStable) {
+        this.masterPasswordInputRef?.nativeElement?.focus();
+      } else {
+        this.ngZone.onStable.pipe(take(1), takeUntil(this.destroy$)).subscribe(() => {
+          this.masterPasswordInputRef?.nativeElement?.focus();
+        });
+      }
+
+      // Check to see if the device is known so we can show the Login with Device option
+      const email = this.emailFormControl.value;
+      if (email) {
+        await this.getKnownDevice(email);
+      }
+    }
+  }
+
+  isLoginWithPasskeySupported() {
+    return this.loginComponentService.isLoginWithPasskeySupported();
+  }
+
+  protected async goToHint(): Promise<void> {
+    await this.router.navigateByUrl("/hint");
+  }
+
+  /**
+   * Continue button clicked (or enter key pressed).
+   * Adds the login url to the browser's history so that the back button can be used to go back to the email entry state.
+   * Needs to be separate from the continue() function because that can be triggered by the browser's forward button.
+   */
+  protected async continuePressed() {
+    // Add a new entry to the browser's history so that there is a history entry to go back to
+    history.pushState({}, "", window.location.href);
+    await this.continue();
+  }
+
+  /**
+   * Continue to the master password entry state (only if email is validated)
+   */
+  protected async continue(): Promise<void> {
+    const isEmailValid = this.validateEmail();
+
+    if (isEmailValid) {
+      await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
+    }
+  }
+
+  /**
+   * Handle the Login with Passkey button click.
+   * We need a handler here in order to persist the remember email selection to state before routing.
+   * @param event - The event object.
+   */
+  async handleLoginWithPasskeyClick() {
+    await this.router.navigate(["/login-with-passkey"]);
+  }
+
+  /**
+   * Handle the SSO button click.
+   * @param event - The event object.
+   */
+  async handleSsoClick() {
+    // Make sure the email is valid
+    const isEmailValid = this.validateEmail();
+    if (!isEmailValid) {
+      return;
+    }
+
+    // Make sure the email is not empty, for type safety
+    const email = this.formGroup.value.email;
+    if (!email) {
+      this.logService.error("Email is required for SSO");
+      return;
+    }
+
+    // Send the user to SSO, either through routing or through redirecting to the web app
+    await this.loginComponentService.redirectToSsoLogin(email);
+  }
+
+  /**
+   * Call to check if the device is known.
+   * Known means that the user has logged in with this device before.
+   * @param email - The user's email
+   */
+  private async getKnownDevice(email: string): Promise<void> {
+    if (!email) {
+      this.isKnownDevice = false;
+      return;
+    }
+
+    try {
+      const deviceIdentifier = await this.appIdService.getAppId();
+      this.isKnownDevice = await this.devicesApiService.getKnownDevice(email, deviceIdentifier);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      this.isKnownDevice = false;
+    }
+  }
+
+  /**
+   * Check to see if the user has remembered an email on the current device.
+   * If so, set the email in the form field and set rememberEmail to true. If not, set rememberEmail to false.
+   */
+  private async loadRememberedEmail(): Promise<void> {
+    const storedEmail = await firstValueFrom(this.loginEmailService.rememberedEmail$);
+    if (storedEmail) {
+      this.formGroup.controls.email.setValue(storedEmail);
+      this.formGroup.controls.rememberEmail.setValue(true);
+      // If we load an email into the form, we need to initialize it for the login process as well
+      // so that other login components can use it.
+      // We do this here as it's possible that a user doesn't edit the email field before submitting.
+      await this.loginEmailService.setLoginEmail(storedEmail);
+    } else {
+      this.formGroup.controls.rememberEmail.setValue(false);
+    }
+  }
+
+  private focusInput() {
+    document
+      .getElementById(
+        this.emailFormControl.value == null || this.emailFormControl.value === ""
+          ? "email"
+          : "masterPassword",
+      )
+      ?.focus();
+  }
+
   /**
    * Helper function to determine if the back button should be shown.
    * @returns true if the back button should be shown.
@@ -595,5 +598,85 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY &&
       this.clientType !== ClientType.Browser
     );
+  }
+
+  /**
+   * Handle the back button click to transition back to the email entry state.
+   */
+  protected async backButtonClicked() {
+    history.back();
+  }
+
+  /**
+   * Handle the popstate event to transition back to the email entry state when the back button is clicked.
+   * Also handles the case where the user clicks the forward button.
+   * @param event - The popstate event.
+   */
+  private handlePopState = async (event: PopStateEvent) => {
+    if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
+      // Prevent default navigation when the browser's back button is clicked
+      event.preventDefault();
+      // Transition back to email entry state
+      void this.toggleLoginUiState(LoginUiState.EMAIL_ENTRY);
+    } else if (this.loginUiState === LoginUiState.EMAIL_ENTRY) {
+      // Prevent default navigation when the browser's forward button is clicked
+      event.preventDefault();
+      // Continue to the master password entry state
+      await this.continue();
+    }
+  };
+
+  /**
+   * Validates the email and displays any validation errors.
+   * @returns true if the email is valid, false otherwise.
+   */
+  protected validateEmail(): boolean {
+    this.formGroup.controls.email.markAsTouched();
+    this.formGroup.controls.email.updateValueAndValidity({ onlySelf: true, emitEvent: true });
+    return this.formGroup.controls.email.valid;
+  }
+
+  /**
+   * Persist the entered email address and the user's choice to remember it to state.
+   */
+  private async persistEmailIfValid(): Promise<void> {
+    if (this.formGroup.controls.email.valid) {
+      const email = this.formGroup.value.email;
+      const rememberEmail = this.formGroup.value.rememberEmail ?? false;
+      if (!email) {
+        return;
+      }
+      await this.loginEmailService.setLoginEmail(email);
+      await this.loginEmailService.setRememberedEmailChoice(email, rememberEmail);
+    } else {
+      await this.loginEmailService.clearLoginEmail();
+      await this.loginEmailService.clearRememberedEmail();
+    }
+  }
+
+  /**
+   * Set the email value from the input field and persists to state if valid.
+   * We only update the form controls onSubmit instead of onBlur because we don't want to show validation errors until
+   * the user submits. This is because currently our validation errors are shown below the input fields, and
+   * displaying them causes the screen to "jump".
+   * @param event The event object from the input field.
+   */
+  async onEmailInput(event: Event) {
+    const emailInput = event.target as HTMLInputElement;
+    this.formGroup.controls.email.setValue(emailInput.value);
+    await this.persistEmailIfValid();
+  }
+
+  /**
+   * Set the Remember Email value from the input field and persists to state if valid.
+   * We only update the form controls onSubmit instead of onBlur because we don't want to show validation errors until
+   * the user submits. This is because currently our validation errors are shown below the input fields, and
+   * displaying them causes the screen to "jump".
+   * @param event The event object from the input field.
+   */
+  async onRememberEmailInput(event: Event) {
+    const rememberEmailInput = event.target as HTMLInputElement;
+    this.formGroup.controls.rememberEmail.setValue(rememberEmailInput.checked);
+    await this.persistEmailIfValid();
   }
 }

@@ -8,14 +8,14 @@ import {
   mockAccountServiceWith,
   awaitAsync,
 } from "../../../spec";
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { GENERATOR_DISK } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 
 import { SecretClassifier } from "./secret-classifier";
 import { SecretKeyDefinition } from "./secret-key-definition";
 import { SecretState } from "./secret-state";
-import { UserEncryptor } from "./user-encryptor.abstraction";
 
 type FooBar = { foo: boolean; bar: boolean; date?: Date };
 const classifier = SecretClassifier.allSecret<FooBar>();

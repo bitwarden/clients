@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -12,7 +14,6 @@ import { SharedModule } from "../../../shared/shared.module";
 
 @Component({
   templateUrl: "verify-recover-delete-org.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class VerifyRecoverDeleteOrgComponent implements OnInit {

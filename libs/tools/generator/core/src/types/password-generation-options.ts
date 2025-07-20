@@ -2,58 +2,58 @@
  */
 export type PasswordGeneratorSettings = {
   /** The length of the password selected by the user */
-  length: number;
+  length?: number;
 
   /** `true` when ambiguous characters may be included in the output.
    *  `false` when ambiguous characters should not be included in the output.
    */
-  ambiguous: boolean;
+  ambiguous?: boolean;
 
   /** `true` when uppercase ASCII characters should be included in the output
    * This value defaults to `false.
    */
-  uppercase: boolean;
+  uppercase?: boolean;
 
   /** The minimum number of uppercase characters to include in the output.
    *  The value is ignored when `uppercase` is `false`.
    *  The value defaults to 1 when `uppercase` is `true`.
    */
-  minUppercase: number;
+  minUppercase?: number;
 
   /** `true` when lowercase ASCII characters should be included in the output.
    * This value defaults to `false`.
    */
-  lowercase: boolean;
+  lowercase?: boolean;
 
   /** The minimum number of lowercase characters to include in the output.
    * The value defaults to 1 when `lowercase` is `true`.
    * The value defaults to 0 when `lowercase` is `false`.
    */
-  minLowercase: number;
+  minLowercase?: number;
 
   /** Whether or not to include ASCII digits in the output
    * This value defaults to `true` when `minNumber` is at least 1.
    * This value defaults to `false` when `minNumber` is less than 1.
    */
-  number: boolean;
+  number?: boolean;
 
   /** The minimum number of digits to include in the output.
    * The value defaults to 1 when `number` is `true`.
    * The value defaults to 0 when `number` is `false`.
    */
-  minNumber: number;
+  minNumber?: number;
 
   /** Whether or not to include special characters in the output.
    * This value defaults to `true` when `minSpecial` is at least 1.
    * This value defaults to `false` when `minSpecial` is less than 1.
    */
-  special: boolean;
+  special?: boolean;
 
   /** The minimum number of special characters to include in the output.
    * This value defaults to 1 when `special` is `true`.
    * This value defaults to 0 when `special` is `false`.
    */
-  minSpecial: number;
+  minSpecial?: number;
 };
 
 /** Request format for password credential generation.

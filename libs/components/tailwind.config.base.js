@@ -11,6 +11,7 @@ module.exports = {
   content: [
     "./src/**/*.{html,ts}",
     "../../libs/components/src/**/*.{html,ts}",
+    "../../libs/key-management-ui/src/**/*.{html,ts}",
     "../../libs/auth/src/**/*.{html,ts}",
   ],
   safelist: [],
@@ -23,11 +24,10 @@ module.exports = {
       },
       current: colors.current,
       black: colors.black,
+      shadow: rgba("--color-shadow"),
       primary: {
-        // Can only be used behind the extension refresh flag
         100: rgba("--color-primary-100"),
         300: rgba("--color-primary-300"),
-        // Can only be used behind the extension refresh flag
         500: rgba("--color-primary-500"),
         600: rgba("--color-primary-600"),
         700: rgba("--color-primary-700"),
@@ -35,25 +35,35 @@ module.exports = {
       secondary: {
         100: rgba("--color-secondary-100"),
         300: rgba("--color-secondary-300"),
+        500: rgba("--color-secondary-500"),
         600: rgba("--color-secondary-600"),
         700: rgba("--color-secondary-700"),
       },
       success: {
+        100: rgba("--color-success-100"),
         600: rgba("--color-success-600"),
         700: rgba("--color-success-700"),
       },
       danger: {
+        100: rgba("--color-danger-100"),
         600: rgba("--color-danger-600"),
         700: rgba("--color-danger-700"),
       },
       warning: {
+        100: rgba("--color-warning-100"),
         600: rgba("--color-warning-600"),
         700: rgba("--color-warning-700"),
       },
       info: {
+        100: rgba("--color-info-100"),
         600: rgba("--color-info-600"),
         700: rgba("--color-info-700"),
       },
+      notification: {
+        100: rgba("--color-notification-100"),
+        600: rgba("--color-notification-600"),
+      },
+      // art styles deprecated, use 'illustration' instead
       art: {
         primary: rgba("--color-art-primary"),
         accent: rgba("--color-art-accent"),
@@ -73,7 +83,19 @@ module.exports = {
         alt3: rgba("--color-background-alt3"),
         alt4: rgba("--color-background-alt4"),
       },
+      hover: {
+        default: "var(--color-hover-default)",
+        contrast: "var(--color-hover-contrast)",
+      },
       "marketing-logo": rgba("--color-marketing-logo"),
+      illustration: {
+        outline: rgba("--color-illustration-outline"),
+        "bg-primary": rgba("--color-illustration-bg-primary"),
+        "bg-secondary": rgba("--color-illustration-bg-secondary"),
+        "bg-tertiary": rgba("--color-illustration-bg-tertiary"),
+        tertiary: rgba("--color-illustration-tertiary"),
+        logo: rgba("--color-illustration-logo"),
+      },
     },
     textColor: {
       main: rgba("--color-text-main"),
@@ -82,14 +104,38 @@ module.exports = {
       headers: rgba("--color-text-headers"),
       alt2: rgba("--color-text-alt2"),
       code: rgba("--color-text-code"),
-      success: rgba("--color-success-600"),
-      danger: rgba("--color-danger-600"),
-      warning: rgba("--color-warning-600"),
-      info: rgba("--color-info-600"),
+      black: colors.black,
+      success: {
+        DEFAULT: rgba("--color-success-600"),
+        600: rgba("--color-success-600"),
+        700: rgba("--color-success-700"),
+      },
+      danger: {
+        DEFAULT: rgba("--color-danger-600"),
+        600: rgba("--color-danger-600"),
+        700: rgba("--color-danger-700"),
+      },
+      warning: {
+        DEFAULT: rgba("--color-warning-600"),
+        600: rgba("--color-warning-600"),
+        700: rgba("--color-warning-700"),
+      },
+      info: {
+        DEFAULT: rgba("--color-info-600"),
+        600: rgba("--color-info-600"),
+        700: rgba("--color-info-700"),
+      },
       primary: {
         300: rgba("--color-primary-300"),
         600: rgba("--color-primary-600"),
         700: rgba("--color-primary-700"),
+      },
+      secondary: {
+        300: rgba("--color-secondary-300"),
+        700: rgba("--color-secondary-700"),
+      },
+      notification: {
+        600: rgba("--color-notification-600"),
       },
     },
     ringOffsetColor: ({ theme }) => ({
@@ -108,6 +154,9 @@ module.exports = {
         ...theme("width"),
         "90vw": "90vw",
       }),
+      fontSize: {
+        "3xl": ["1.75rem", "2rem"],
+      },
     },
   },
   plugins: [
@@ -129,6 +178,23 @@ module.exports = {
         },
         {},
       );
+    }),
+    plugin(function ({ addVariant }) {
+      for (const state of [
+        "active",
+        "hover",
+        "focus",
+        "focus-within",
+        "focus-visible",
+        "target",
+        "visited",
+      ]) {
+        addVariant(state, [`&:${state}`, `&.test-${state}`]);
+      }
+    }),
+    /** Plugin for compact mode */
+    plugin(function ({ addVariant }) {
+      addVariant("bit-compact", ".bit-compact &");
     }),
   ],
 };

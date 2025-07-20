@@ -1,12 +1,15 @@
-import { firstValueFrom } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
@@ -37,27 +40,27 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     private autofillService: AutofillService,
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
-    private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     this.isSafariBrowser = this.platformUtilsService.isSafari();
   }
 
   /**
-   * Initializes the auto-submit login policy. Will return early if
-   * the feature flag is not set. If the policy is not enabled, it
+   * Initializes the auto-submit login policy. If the policy is not enabled, it
    * will trigger a removal of any established listeners.
    */
   async init() {
-    const featureFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.IdpAutoSubmitLogin,
-    );
-    if (featureFlagEnabled) {
-      this.policyService
-        .get$(PolicyType.AutomaticAppLogIn)
-        .subscribe(this.handleAutoSubmitLoginPolicySubscription.bind(this));
-    }
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policiesByType$(PolicyType.AutomaticAppLogIn, userId),
+        ),
+        getFirstPolicy,
+      )
+      .subscribe(this.handleAutoSubmitLoginPolicySubscription.bind(this));
   }
 
   /**
@@ -84,7 +87,12 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
    */
   private applyPolicyToActiveUser = async (policy: Policy) => {
     const policyAppliesToUser = await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.AutomaticAppLogIn),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.AutomaticAppLogIn, userId),
+        ),
+      ),
     );
 
     if (!policyAppliesToUser) {

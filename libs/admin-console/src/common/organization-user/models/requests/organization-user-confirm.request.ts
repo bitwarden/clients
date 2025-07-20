@@ -1,3 +1,6 @@
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+
 export class OrganizationUserConfirmRequest {
-  key: string;
+  key: EncryptedString | undefined;
+  defaultUserCollectionName: EncryptedString | undefined;
 }

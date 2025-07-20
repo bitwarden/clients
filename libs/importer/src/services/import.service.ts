@@ -1,5 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   CollectionService,
   CollectionWithIdRequest,
@@ -7,16 +11,17 @@ import {
 } from "@bitwarden/admin-console/common";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
 import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/request/import-organization-ciphers.request";
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
 import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -54,6 +59,7 @@ import {
   MSecureCsvImporter,
   MeldiumCsvImporter,
   MykiCsvImporter,
+  NetwrixPasswordSecureCsvImporter,
   NordPassCsvImporter,
   OnePassword1PifImporter,
   OnePassword1PuxImporter,
@@ -83,6 +89,8 @@ import {
   UpmCsvImporter,
   YotiCsvImporter,
   ZohoVaultCsvImporter,
+  PasswordXPCsvImporter,
+  PasswordDepot17XmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -110,6 +118,7 @@ export class ImportService implements ImportServiceAbstraction {
     private encryptService: EncryptService,
     private pinService: PinServiceAbstraction,
     private accountService: AccountService,
+    private sdkService: SdkService,
   ) {}
 
   getImportOptions(): ImportOption[] {
@@ -233,6 +242,7 @@ export class ImportService implements ImportServiceAbstraction {
         return new PadlockCsvImporter();
       case "keepass2xml":
         return new KeePass2XmlImporter();
+      case "edgecsv":
       case "chromecsv":
       case "operacsv":
       case "vivaldicsv":
@@ -335,6 +345,12 @@ export class ImportService implements ImportServiceAbstraction {
         return new PasskyJsonImporter();
       case "protonpass":
         return new ProtonPassJsonImporter(this.i18nService);
+      case "passwordxpcsv":
+        return new PasswordXPCsvImporter();
+      case "netwrixpasswordsecure":
+        return new NetwrixPasswordSecureCsvImporter();
+      case "passworddepot17xml":
+        return new PasswordDepot17XmlImporter();
       default:
         return null;
     }
@@ -349,7 +365,7 @@ export class ImportService implements ImportServiceAbstraction {
       const c = await this.cipherService.encrypt(importResult.ciphers[i], activeUserId);
       request.ciphers.push(new CipherRequest(c));
     }
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
+    const userKey = await this.keyService.getUserKey(activeUserId);
     if (importResult.folders != null) {
       for (let i = 0; i < importResult.folders.length; i++) {
         const f = await this.folderService.encrypt(importResult.folders[i], userKey);
@@ -413,7 +429,7 @@ export class ImportService implements ImportServiceAbstraction {
       switch (key.match(/^\w+/)[0]) {
         case "Ciphers":
           item = importResult.ciphers[i];
-          itemType = CipherType[item.type];
+          itemType = toCipherTypeName(item.type);
           break;
         case "Folders":
           item = importResult.folders[i];

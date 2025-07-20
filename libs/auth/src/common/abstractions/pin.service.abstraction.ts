@@ -1,7 +1,7 @@
-import { KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
-import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PinKey, UserKey } from "@bitwarden/common/types/key";
+import { KdfConfig } from "@bitwarden/key-management";
 
 import { PinLockType } from "../services";
 
@@ -30,7 +30,7 @@ export abstract class PinServiceAbstraction {
   /**
    * Gets the persistent (stored on disk) version of the UserKey, encrypted by the PinKey.
    */
-  abstract getPinKeyEncryptedUserKeyPersistent: (userId: UserId) => Promise<EncString>;
+  abstract getPinKeyEncryptedUserKeyPersistent: (userId: UserId) => Promise<EncString | null>;
 
   /**
    * Clears the persistent (stored on disk) version of the UserKey, encrypted by the PinKey.
@@ -40,7 +40,7 @@ export abstract class PinServiceAbstraction {
   /**
    * Gets the ephemeral (stored in memory) version of the UserKey, encrypted by the PinKey.
    */
-  abstract getPinKeyEncryptedUserKeyEphemeral: (userId: UserId) => Promise<EncString>;
+  abstract getPinKeyEncryptedUserKeyEphemeral: (userId: UserId) => Promise<EncString | null>;
 
   /**
    * Clears the ephemeral (stored in memory) version of the UserKey, encrypted by the PinKey.
@@ -70,7 +70,7 @@ export abstract class PinServiceAbstraction {
   /**
    * Gets the user's PIN, encrypted by the UserKey.
    */
-  abstract getUserKeyEncryptedPin: (userId: UserId) => Promise<EncString>;
+  abstract getUserKeyEncryptedPin: (userId: UserId) => Promise<EncString | null>;
 
   /**
    * Sets the user's PIN, encrypted by the UserKey.
@@ -89,17 +89,6 @@ export abstract class PinServiceAbstraction {
    * Clears the user's PIN, encrypted by the UserKey.
    */
   abstract clearUserKeyEncryptedPin(userId: UserId): Promise<void>;
-
-  /**
-   * Gets the old MasterKey, encrypted by the PinKey (formerly called `pinProtected`).
-   * Deprecated and used for migration purposes only.
-   */
-  abstract getOldPinKeyEncryptedMasterKey: (userId: UserId) => Promise<EncryptedString>;
-
-  /**
-   * Clears the old MasterKey, encrypted by the PinKey.
-   */
-  abstract clearOldPinKeyEncryptedMasterKey: (userId: UserId) => Promise<void>;
 
   /**
    * Makes a PinKey from the provided PIN.

@@ -1,13 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
+  Constraints,
   DynamicStateConstraints,
   PolicyConstraints,
   StateConstraints,
 } from "@bitwarden/common/tools/types";
 
-import { DefaultPasswordBoundaries } from "../data";
 import { PasswordGeneratorPolicy, PasswordGeneratorSettings } from "../types";
 
-import { atLeast, atLeastSum, maybe, readonlyTrueWhen, AtLeastOne } from "./constraints";
+import { atLeast, atLeastSum, maybe, readonlyTrueWhen, AtLeastOne, Zero } from "./constraints";
 import { PasswordPolicyConstraints } from "./password-policy-constraints";
 
 /** Creates state constraints by blending policy and password settings. */
@@ -18,26 +20,29 @@ export class DynamicPasswordPolicyConstraints
    *  @param policy the password policy to enforce. This cannot be
    *  `null` or `undefined`.
    */
-  constructor(policy: PasswordGeneratorPolicy) {
+  constructor(
+    policy: PasswordGeneratorPolicy,
+    readonly defaults: Constraints<PasswordGeneratorSettings>,
+  ) {
     const minLowercase = maybe(policy.useLowercase, AtLeastOne);
     const minUppercase = maybe(policy.useUppercase, AtLeastOne);
 
     const minNumber = atLeast(
       policy.numberCount || (policy.useNumbers && AtLeastOne.min),
-      DefaultPasswordBoundaries.minDigits,
+      defaults.minNumber,
     );
 
     const minSpecial = atLeast(
       policy.specialCount || (policy.useSpecial && AtLeastOne.min),
-      DefaultPasswordBoundaries.minSpecialCharacters,
+      defaults.minSpecial,
     );
 
-    const baseLength = atLeast(policy.minLength, DefaultPasswordBoundaries.length);
+    const baseLength = atLeast(policy.minLength, defaults.length);
     const subLengths = [minLowercase, minUppercase, minNumber, minSpecial];
     const length = atLeastSum(baseLength, subLengths);
 
     this.constraints = Object.freeze({
-      policyInEffect: policyInEffect(policy),
+      policyInEffect: policyInEffect(policy, defaults),
       lowercase: readonlyTrueWhen(policy.useLowercase),
       uppercase: readonlyTrueWhen(policy.useUppercase),
       number: readonlyTrueWhen(policy.useNumbers),
@@ -68,8 +73,8 @@ export class DynamicPasswordPolicyConstraints
       ...this.constraints,
       minLowercase: maybe<number>(lowercase, this.constraints.minLowercase ?? AtLeastOne),
       minUppercase: maybe<number>(uppercase, this.constraints.minUppercase ?? AtLeastOne),
-      minNumber: maybe<number>(number, this.constraints.minNumber),
-      minSpecial: maybe<number>(special, this.constraints.minSpecial),
+      minNumber: maybe<number>(number, this.constraints.minNumber) ?? Zero,
+      minSpecial: maybe<number>(special, this.constraints.minSpecial) ?? Zero,
     };
 
     // lower bound of length must always at least fit its sub-lengths
@@ -85,15 +90,18 @@ export class DynamicPasswordPolicyConstraints
   }
 }
 
-function policyInEffect(policy: PasswordGeneratorPolicy): boolean {
+function policyInEffect(
+  policy: PasswordGeneratorPolicy,
+  defaults: Constraints<PasswordGeneratorSettings>,
+): boolean {
   const policies = [
     policy.useUppercase,
     policy.useLowercase,
     policy.useNumbers,
     policy.useSpecial,
-    policy.minLength > DefaultPasswordBoundaries.length.min,
-    policy.numberCount > DefaultPasswordBoundaries.minDigits.min,
-    policy.specialCount > DefaultPasswordBoundaries.minSpecialCharacters.min,
+    policy.minLength > defaults.length.min,
+    policy.numberCount > defaults.minNumber.min,
+    policy.specialCount > defaults.minSpecial.min,
   ];
 
   return policies.includes(true);

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { ImportResult } from "../models/import-result";
@@ -13,7 +15,6 @@ export class ZohoVaultCsvImporter extends BaseImporter implements Importer {
       result.success = false;
       return Promise.resolve(result);
     }
-
     results.forEach((value) => {
       if (
         this.isNullOrWhitespace(value["Password Name"]) &&
@@ -21,7 +22,7 @@ export class ZohoVaultCsvImporter extends BaseImporter implements Importer {
       ) {
         return;
       }
-      this.processFolder(result, this.getValueOrDefault(value.ChamberName));
+      this.processFolder(result, this.getValueOrDefault(value["Folder Name"]));
       const cipher = this.initLoginCipher();
       cipher.favorite = this.getValueOrDefault(value.Favorite, "0") === "1";
       cipher.notes = this.getValueOrDefault(value.Notes);
@@ -32,6 +33,7 @@ export class ZohoVaultCsvImporter extends BaseImporter implements Importer {
       cipher.login.uris = this.makeUriArray(
         this.getValueOrDefault(value["Password URL"], this.getValueOrDefault(value["Secret URL"])),
       );
+      cipher.login.totp = this.getValueOrDefault(value["login_totp"]);
       this.parseData(cipher, value.SecretData);
       this.parseData(cipher, value.CustomData);
       this.convertToNoteIfNeeded(cipher);

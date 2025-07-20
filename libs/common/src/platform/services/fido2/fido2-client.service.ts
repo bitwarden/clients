@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, Subscription } from "rxjs";
 import { parse } from "tldts";
 
@@ -45,7 +47,9 @@ import { guidToRawFormat } from "./guid-utils";
  *
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
-export class Fido2ClientService implements Fido2ClientServiceAbstraction {
+export class Fido2ClientService<ParentWindowReference>
+  implements Fido2ClientServiceAbstraction<ParentWindowReference>
+{
   private timeoutAbortController: AbortController;
   private readonly TIMEOUTS = {
     NO_VERIFICATION: {
@@ -61,7 +65,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
   };
 
   constructor(
-    private authenticator: Fido2AuthenticatorService,
+    private authenticator: Fido2AuthenticatorService<ParentWindowReference>,
     private configService: ConfigService,
     private authService: AuthService,
     private vaultSettingsService: VaultSettingsService,
@@ -100,7 +104,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
 
   async createCredential(
     params: CreateCredentialParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController = new AbortController(),
   ): Promise<CreateCredentialResult> {
     const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
@@ -123,9 +127,9 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     }
 
     const userId = Fido2Utils.stringToBuffer(params.user.id);
-    if (userId.length < 1 || userId.length > 64) {
+    if (userId.byteLength < 1 || userId.byteLength > 64) {
       this.logService?.warning(
-        `[Fido2Client] Invalid 'user.id' length: ${params.user.id} (${userId.length})`,
+        `[Fido2Client] Invalid 'user.id' length: ${params.user.id} (${userId.byteLength})`,
       );
       throw new TypeError("Invalid 'user.id' length");
     }
@@ -199,7 +203,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     try {
       makeCredentialResult = await this.authenticator.makeCredential(
         makeCredentialParams,
-        tab,
+        window,
         abortController,
       );
     } catch (error) {
@@ -247,14 +251,15 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
       publicKey: Fido2Utils.bufferToString(makeCredentialResult.publicKey),
       publicKeyAlgorithm: makeCredentialResult.publicKeyAlgorithm,
-      transports: params.rp.id === "google.com" ? ["internal", "usb"] : ["internal"],
+      transports:
+        params.rp.id === "google.com" ? ["internal", "usb", "hybrid"] : ["internal", "hybrid"],
       extensions: { credProps },
     };
   }
 
   async assertCredential(
     params: AssertCredentialParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController = new AbortController(),
   ): Promise<AssertCredentialResult> {
     const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
@@ -298,7 +303,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     if (params.mediation === "conditional") {
       return this.handleMediatedConditionalRequest(
         params,
-        tab,
+        window,
         abortController,
         clientDataJSONBytes,
       );
@@ -322,7 +327,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     try {
       getAssertionResult = await this.authenticator.getAssertion(
         getAssertionParams,
-        tab,
+        window,
         abortController,
       );
     } catch (error) {
@@ -361,7 +366,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
 
   private async handleMediatedConditionalRequest(
     params: AssertCredentialParams,
-    tab: chrome.tabs.Tab,
+    tab: ParentWindowReference,
     abortController: AbortController,
     clientDataJSONBytes: Uint8Array,
   ): Promise<AssertCredentialResult> {
@@ -377,7 +382,10 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         `[Fido2Client] started mediated request, available credentials: ${availableCredentials.length}`,
       );
       const requestResult = await this.requestManager.newActiveRequest(
-        tab.id,
+        // TODO: This isn't correct, but this.requestManager.newActiveRequest expects a number,
+        // while this class is currently generic over ParentWindowReference.
+        // Consider moving requestManager into browser and adding support for ParentWindowReference => tab.id
+        (tab as any).id,
         availableCredentials,
         abortController,
       );
@@ -475,11 +483,15 @@ function mapToMakeCredentialParams({
       type: credential.type,
     })) ?? [];
 
+  /**
+   * Quirk: Accounts for the fact that some RP's mistakenly submits 'requireResidentKey' as a string
+   */
   const requireResidentKey =
     params.authenticatorSelection?.residentKey === "required" ||
     params.authenticatorSelection?.residentKey === "preferred" ||
     (params.authenticatorSelection?.residentKey === undefined &&
-      params.authenticatorSelection?.requireResidentKey === true);
+      (params.authenticatorSelection?.requireResidentKey === true ||
+        (params.authenticatorSelection?.requireResidentKey as unknown as string) === "true"));
 
   const requireUserVerification =
     params.authenticatorSelection?.userVerification === "required" ||

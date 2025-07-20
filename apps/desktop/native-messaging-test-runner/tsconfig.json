@@ -1,17 +1,22 @@
 {
+  "extends": "../tsconfig",
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "dist",
     "target": "es6",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "sourceMap": false,
     "declaration": false,
     "paths": {
-      "@src/*": ["src/*"],
-      "@bitwarden/node/*": ["../../../libs/node/src/*"],
-      "@bitwarden/common/*": ["../../../libs/common/src/*"]
-    }
+      "@src/*": ["src/*"]
+    },
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ]
   },
   "exclude": ["node_modules"]
 }

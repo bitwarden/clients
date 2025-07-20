@@ -1,6 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
+import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -23,6 +26,7 @@ type ComponentData = {
 @Component({
   selector: "app-provider-subscription-status",
   templateUrl: "provider-subscription-status.component.html",
+  standalone: false,
 })
 export class ProviderSubscriptionStatusComponent {
   @Input({ required: true }) subscription: ProviderSubscriptionResponse;
@@ -31,6 +35,15 @@ export class ProviderSubscriptionStatusComponent {
     private datePipe: DatePipe,
     private i18nService: I18nService,
   ) {}
+
+  get plan(): string {
+    switch (this.subscription.providerType) {
+      case ProviderType.Msp:
+        return "managedServiceProvider";
+      case ProviderType.BusinessUnit:
+        return "businessUnit";
+    }
+  }
 
   get status(): string {
     if (this.subscription.cancelAt && this.subscription.status === "active") {
@@ -53,6 +66,18 @@ export class ProviderSubscriptionStatusComponent {
           status: {
             label: defaultStatusLabel,
             value: this.i18nService.t("active"),
+          },
+          date: {
+            label: nextChargeDateLabel,
+            value: this.subscription.currentPeriodEndDate,
+          },
+        };
+      }
+      case "trialing": {
+        return {
+          status: {
+            label: defaultStatusLabel,
+            value: this.i18nService.t("trial"),
           },
           date: {
             label: nextChargeDateLabel,

@@ -1,5 +1,4 @@
-import { GenerationRequest } from "@bitwarden/common/tools/types";
-
+import { GenerateRequest } from "./generate-request";
 import { GeneratedCredential } from "./generated-credential";
 
 /** An algorithm that generates credentials. */
@@ -8,5 +7,5 @@ export type CredentialGenerator<Settings> = {
    *  @param request runtime parameters
    *  @param settings stored parameters
    */
-  generate: (request: GenerationRequest, settings: Settings) => Promise<GeneratedCredential>;
+  generate: (request: GenerateRequest, settings: Settings) => Promise<GeneratedCredential>;
 };

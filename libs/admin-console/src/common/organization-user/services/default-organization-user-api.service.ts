@@ -48,17 +48,6 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     return new OrganizationUserDetailsResponse(r);
   }
 
-  async getOrganizationUserGroups(organizationId: string, id: string): Promise<string[]> {
-    const r = await this.apiService.send(
-      "GET",
-      "/organizations/" + organizationId + "/users/" + id + "/groups",
-      null,
-      true,
-      true,
-    );
-    return r;
-  }
-
   async getAllUsers(
     organizationId: string,
     options?: {
@@ -353,6 +342,30 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     const r = await this.apiService.send(
       "PUT",
       "/organizations/" + organizationId + "/users/restore",
+      new OrganizationUserBulkRequest(ids),
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserBulkResponse);
+  }
+
+  deleteOrganizationUser(organizationId: string, id: string): Promise<void> {
+    return this.apiService.send(
+      "DELETE",
+      "/organizations/" + organizationId + "/users/" + id + "/delete-account",
+      null,
+      true,
+      false,
+    );
+  }
+
+  async deleteManyOrganizationUsers(
+    organizationId: string,
+    ids: string[],
+  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
+    const r = await this.apiService.send(
+      "DELETE",
+      "/organizations/" + organizationId + "/users/delete-account",
       new OrganizationUserBulkRequest(ids),
       true,
       true,

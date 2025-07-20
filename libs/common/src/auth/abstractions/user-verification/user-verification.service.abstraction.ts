@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { UserId } from "../../../types/guid";
 import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
 import { UserVerificationOptions } from "../../types/user-verification-options";

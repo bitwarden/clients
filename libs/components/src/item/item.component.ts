@@ -1,31 +1,25 @@
-import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, HostListener, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostBinding,
+  HostListener,
+  signal,
+} from "@angular/core";
 
 import { A11yRowDirective } from "../a11y/a11y-row.directive";
 
 import { ItemActionComponent } from "./item-action.component";
 
-/**
- * The class used to set the height of a bit item's inner content.
- */
-export const BitItemHeightClass = `tw-h-[52px]`;
-
-/**
- * The height of a bit item in pixels. Includes any margin, padding, or border. Used by the virtual scroll
- * to estimate how many items can be displayed at once and how large the virtual container should be.
- * Needs to be updated if the item height or spacing changes.
- *
- * 52px + 5.25px bottom margin + 1px border = 58.25px
- */
-export const BitItemHeight = 58.25; //
-
 @Component({
   selector: "bit-item",
-  standalone: true,
-  imports: [CommonModule, ItemActionComponent],
+  imports: [ItemActionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "item.component.html",
   providers: [{ provide: A11yRowDirective, useExisting: ItemComponent }],
+  host: {
+    class:
+      "tw-block tw-box-border tw-overflow-hidden tw-flex tw-bg-background [&:has([data-item-main-content]_button:hover,[data-item-main-content]_a:hover)]:tw-cursor-pointer [&:has([data-item-main-content]_button:hover,[data-item-main-content]_a:hover)]:tw-bg-hover-default tw-text-main tw-border-solid tw-border-b tw-border-0 [&:not(bit-layout_*)]:tw-rounded-lg bit-compact:[&:not(bit-layout_*)]:tw-rounded-none bit-compact:[&:not(bit-layout_*)]:last-of-type:tw-rounded-b-lg bit-compact:[&:not(bit-layout_*)]:first-of-type:tw-rounded-t-lg tw-min-h-9 tw-mb-1.5 bit-compact:tw-mb-0",
+  },
 })
 export class ItemComponent extends A11yRowDirective {
   /**
@@ -34,10 +28,20 @@ export class ItemComponent extends A11yRowDirective {
   protected focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin.set(target.matches(".fvw-target:focus-visible"));
+    this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
   }
   @HostListener("focusout")
   onFocusOut() {
     this.focusVisibleWithin.set(false);
+  }
+
+  @HostBinding("class") get classList(): string[] {
+    return [
+      this.focusVisibleWithin()
+        ? "tw-z-10 tw-rounded tw-outline-none tw-ring-2 bit-compact:tw-ring-inset tw-ring-primary-600 tw-border-transparent".split(
+            " ",
+          )
+        : "tw-border-b-shadow",
+    ].flat();
   }
 }

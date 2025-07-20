@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, map } from "rxjs";
 
 import {
@@ -6,6 +8,8 @@ import {
   USER_DECRYPTION_OPTIONS_DISK,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { UserId } from "@bitwarden/common/src/types/guid";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";

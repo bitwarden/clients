@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   BehaviorSubject,
   EmptyError,
@@ -26,6 +28,8 @@ import {
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { closeFido2Popout, openFido2Popout } from "../../../vault/popup/utils/vault-popout-window";
 
 const BrowserFido2MessageName = "BrowserFido2UserInterfaceServiceMessage";
@@ -109,11 +113,15 @@ export type BrowserFido2Message = { sessionId: string } & (
     }
 );
 
+export type BrowserFido2ParentWindowReference = chrome.tabs.Tab;
+
 /**
  * Browser implementation of the {@link Fido2UserInterfaceService}.
  * The user interface is implemented as a popout and the service uses the browser's messaging API to communicate with it.
  */
-export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction {
+export class BrowserFido2UserInterfaceService
+  implements Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>
+{
   constructor(private authService: AuthService) {}
 
   async newSession(

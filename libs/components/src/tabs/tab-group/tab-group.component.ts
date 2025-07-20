@@ -1,5 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import { coerceNumberProperty } from "@angular/cdk/coercion";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   AfterContentChecked,
   AfterContentInit,
@@ -12,11 +15,15 @@ import {
   Output,
   QueryList,
   ViewChildren,
+  input,
 } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 
+import { TabHeaderComponent } from "../shared/tab-header.component";
+import { TabListContainerDirective } from "../shared/tab-list-container.directive";
 import { TabListItemDirective } from "../shared/tab-list-item.directive";
 
+import { TabBodyComponent } from "./tab-body.component";
 import { TabComponent } from "./tab.component";
 
 /** Used to generate unique ID's for each tab component */
@@ -25,6 +32,13 @@ let nextId = 0;
 @Component({
   selector: "bit-tab-group",
   templateUrl: "./tab-group.component.html",
+  imports: [
+    NgTemplateOutlet,
+    TabHeaderComponent,
+    TabListContainerDirective,
+    TabListItemDirective,
+    TabBodyComponent,
+  ],
 })
 export class TabGroupComponent
   implements AfterContentChecked, AfterContentInit, AfterViewInit, OnDestroy
@@ -36,19 +50,21 @@ export class TabGroupComponent
   /**
    * Aria label for the tab list menu
    */
-  @Input() label = "";
+  readonly label = input("");
 
   /**
    * Keep the content of off-screen tabs in the DOM.
    * Useful for keeping <audio> or <video> elements from re-initializing
    * after navigating between tabs.
    */
-  @Input() preserveContent = false;
+  readonly preserveContent = input(false);
 
   @ContentChildren(TabComponent) tabs: QueryList<TabComponent>;
   @ViewChildren(TabListItemDirective) tabLabels: QueryList<TabListItemDirective>;
 
   /** The index of the active tab. */
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get selectedIndex(): number | null {
     return this._selectedIndex;

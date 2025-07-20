@@ -38,13 +38,6 @@ export abstract class OrganizationUserApiService {
   ): Promise<OrganizationUserDetailsResponse>;
 
   /**
-   * Retrieve a list of groups Ids the specified organization user belongs to
-   * @param organizationId - Identifier for the user's organization
-   * @param id - Organization user identifier
-   */
-  abstract getOrganizationUserGroups(organizationId: string, id: string): Promise<string[]>;
-
-  /**
    * Retrieve full details of all users that belong to the specified organization.
    * This is only accessible to privileged users, if you need a simple listing of basic details, use
    * {@link getAllMiniUserDetails}.
@@ -272,6 +265,24 @@ export abstract class OrganizationUserApiService {
    * @return List of user ids, including both those that were successfully restored and those that had an error
    */
   abstract restoreManyOrganizationUsers(
+    organizationId: string,
+    ids: string[],
+  ): Promise<ListResponse<OrganizationUserBulkResponse>>;
+
+  /**
+   * Remove an organization user's access to the organization and delete their account data
+   * @param organizationId - Identifier for the organization the user belongs to
+   * @param id - Organization user identifier
+   */
+  abstract deleteOrganizationUser(organizationId: string, id: string): Promise<void>;
+
+  /**
+   * Delete many organization users
+   * @param organizationId - Identifier for the organization the users belongs to
+   * @param ids - List of organization user identifiers to delete
+   * @return List of user ids, including both those that were successfully deleted and those that had an error
+   */
+  abstract deleteManyOrganizationUsers(
     organizationId: string,
     ids: string[],
   ): Promise<ListResponse<OrganizationUserBulkResponse>>;

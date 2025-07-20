@@ -1,0 +1,7 @@
+{
+  "name": "@bitwarden/lit-components",
+  "version": "2025.1.1",
+  "scripts": {
+    "storybook:lit": "storybook dev -p 6006 -c ./.lit-storybook"
+  }
+}

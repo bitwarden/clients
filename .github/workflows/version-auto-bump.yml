@@ -8,27 +8,55 @@ on:
 jobs:
   bump-version:
     name: Bump Desktop Version
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - name: Login to Azure - CI Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
+        id: app-token
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          app-id: ${{ secrets.BW_GHAPP_ID }}
+          private-key: ${{ secrets.BW_GHAPP_KEY }}
 
-      - name: Retrieve bot secrets
-        id: retrieve-bot-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+      - name: Check out target ref
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          keyvault: bitwarden-ci
-          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+          ref: main
+          token: ${{ steps.app-token.outputs.token }}
 
-      - name: Trigger Version Bump workflow
-        env:
-          GH_TOKEN: ${{ steps.retrieve-bot-secrets.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+      - name: Configure Git
         run: |
-          echo '{"cut_rc_branch": "false",
-                 "bump_browser": "false",
-                 "bump_cli": "false",
-                 "bump_desktop": "true",
-                 "bump_web": "false"}' | \
-          gh workflow run version-bump.yml --json --repo bitwarden/clients
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
+
+      - name: Get current Desktop version
+        id: current-desktop-version
+        run: |
+          CURRENT_VERSION=$(cat package.json | jq -r '.version')
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        working-directory: apps/desktop
+
+      - name: Calculate next Desktop release version
+        id: calculate-next-desktop-version
+        uses: bitwarden/gh-actions/version-next@main
+        with:
+          version: ${{ steps.current-desktop-version.outputs.version }}
+
+      - name: Bump Desktop Version - Root - Automatic Calculation
+        id: bump-desktop-version-automatic
+        env:
+          VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
+        run: npm version --workspace=@bitwarden/desktop $VERSION
+
+      - name: Bump Desktop Version - App - Automatic Calculation
+        env:
+          VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
+        run: npm version $VERSION
+        working-directory: "apps/desktop/src"
+
+      - name: Commit files
+        env:
+          VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
+        run: git commit -m "Bumped Desktop client to $VERSION" -a
+
+      - name: Push changes
+        run: git push

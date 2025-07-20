@@ -1,0 +1,29 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./disclosure.stories";
+
+<Meta of={stories} />
+
+```ts
+import { DisclosureComponent, DisclosureTriggerForDirective } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Canvas of={stories.DisclosureWithIconButton} />
+
+## Supported Trigger Components
+
+This is the list of currently supported trigger components:
+
+- Icon button `muted` variant
+
+## Accessibility
+
+The disclosure and trigger directive functionality follow the
+[Disclosure (Show/Hide)](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) pattern for
+accessibility, automatically handling the `aria-controls` and `aria-expanded` properties. A `button`
+element must be used as the trigger for the disclosure. The `button` element must also have an
+accessible label/title -- please follow the accessibility guidelines for whatever trigger component
+you choose.

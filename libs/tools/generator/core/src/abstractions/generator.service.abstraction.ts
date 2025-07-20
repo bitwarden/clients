@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
@@ -7,6 +9,7 @@ import { PolicyEvaluator } from "./policy-evaluator.abstraction";
 /** Generates credentials used for user authentication
  *  @typeParam Options the credential generation configuration
  *  @typeParam Policy the policy enforced by the generator
+ * @deprecated Use {@link CredentialGeneratorService} instead.
  */
 export abstract class GeneratorService<Options, Policy> {
   /** An observable monitoring the options saved to disk.

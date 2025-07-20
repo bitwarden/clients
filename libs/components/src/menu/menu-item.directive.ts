@@ -1,30 +1,32 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { NgClass } from "@angular/common";
 import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
+  imports: [NgClass],
 })
 export class MenuItemDirective implements FocusableOption {
   @HostBinding("class") classList = [
     "tw-block",
     "tw-w-full",
-    "tw-py-1",
-    "tw-px-4",
+    "tw-py-1.5",
+    "tw-px-3",
     "!tw-text-main",
     "!tw-no-underline",
     "tw-cursor-pointer",
     "tw-border-none",
     "tw-bg-background",
     "tw-text-left",
-    "hover:tw-bg-secondary-100",
-    "focus-visible:tw-bg-secondary-100",
+    "hover:tw-bg-hover-default",
     "focus-visible:tw-z-50",
     "focus-visible:tw-outline-none",
-    "focus-visible:tw-ring",
-    "focus-visible:tw-ring-offset-2",
-    "focus-visible:tw-ring-primary-700",
+    "focus-visible:tw-ring-2",
+    "focus-visible:tw-rounded-lg",
+    "focus-visible:tw-ring-inset",
+    "focus-visible:tw-ring-primary-600",
     "active:!tw-ring-0",
     "active:!tw-ring-offset-0",
     "disabled:!tw-text-muted",
@@ -37,9 +39,12 @@ export class MenuItemDirective implements FocusableOption {
     return this.disabled || null; // native disabled attr must be null when false
   }
 
+  // TODO: Skipped for signal migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(public elementRef: ElementRef<HTMLButtonElement>) {}
 
   focus() {
     this.elementRef.nativeElement.focus();

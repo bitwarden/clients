@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,7 +26,6 @@ import { PopupRouterCacheService } from "../../../../../platform/popup/view-cach
 import { AttachmentsV2Component } from "./attachments-v2.component";
 
 @Component({
-  standalone: true,
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
 })
@@ -34,7 +35,6 @@ class MockPopupHeaderComponent {
 }
 
 @Component({
-  standalone: true,
   selector: "popup-footer",
   template: `<ng-content></ng-content>`,
 })
@@ -77,6 +77,8 @@ describe("AttachmentsV2Component", () => {
           provide: AccountService,
           useValue: accountService,
         },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
       ],
     })
       .overrideComponent(AttachmentsV2Component, {

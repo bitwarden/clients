@@ -1,6 +1,6 @@
 import { mockEnc } from "../../../../spec";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { EncryptionType } from "../../../platform/enums";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 
 import { Fido2Credential } from "./fido2-credential";
@@ -165,6 +165,45 @@ describe("Fido2Credential", () => {
 
     it("returns null if input is null", () => {
       expect(Fido2Credential.fromJSON(null)).toBeNull();
+    });
+  });
+
+  describe("SDK Fido2Credential Mapping", () => {
+    it("should map to SDK Fido2Credential", () => {
+      const data: Fido2CredentialData = {
+        credentialId: "credentialId",
+        keyType: "public-key",
+        keyAlgorithm: "ECDSA",
+        keyCurve: "P-256",
+        keyValue: "keyValue",
+        rpId: "rpId",
+        userHandle: "userHandle",
+        userName: "userName",
+        counter: "2",
+        rpName: "rpName",
+        userDisplayName: "userDisplayName",
+        discoverable: "discoverable",
+        creationDate: mockDate.toISOString(),
+      };
+
+      const credential = new Fido2Credential(data);
+      const sdkCredential = credential.toSdkFido2Credential();
+
+      expect(sdkCredential).toEqual({
+        credentialId: "credentialId",
+        keyType: "public-key",
+        keyAlgorithm: "ECDSA",
+        keyCurve: "P-256",
+        keyValue: "keyValue",
+        rpId: "rpId",
+        userHandle: "userHandle",
+        userName: "userName",
+        counter: "2",
+        rpName: "rpName",
+        userDisplayName: "userDisplayName",
+        discoverable: "discoverable",
+        creationDate: mockDate.toISOString(),
+      });
     });
   });
 });

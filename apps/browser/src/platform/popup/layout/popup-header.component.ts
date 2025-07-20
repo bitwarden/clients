@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BooleanInput, coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CommonModule } from "@angular/common";
 import { Component, Input, Signal, inject } from "@angular/core";
@@ -17,7 +19,6 @@ import { PopupPageComponent } from "./popup-page.component";
 @Component({
   selector: "popup-header",
   templateUrl: "popup-header.component.html",
-  standalone: true,
   imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule, AsyncActionsModule],
 })
 export class PopupHeaderComponent {

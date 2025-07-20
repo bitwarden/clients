@@ -1,11 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { map, Observable } from "rxjs";
 
 import { User } from "@bitwarden/angular/pipes/user-name.pipe";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -13,6 +17,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 @Component({
   selector: "app-header",
   templateUrl: "./web-header.component.html",
+  standalone: false,
 })
 export class WebHeaderComponent {
   /**

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -219,7 +221,7 @@ function createCipher(options: Partial<CipherView> = {}) {
 
   cipher.favorite = options.favorite ?? false;
   cipher.deletedDate = options.deletedDate;
-  cipher.type = options.type;
+  cipher.type = options.type ?? CipherType.Login;
   cipher.folderId = options.folderId;
   cipher.collectionIds = options.collectionIds;
   cipher.organizationId = options.organizationId;

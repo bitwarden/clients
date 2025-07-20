@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
 
 import {
@@ -9,6 +11,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 @Component({
   selector: "app-invoices",
   templateUrl: "./invoices.component.html",
+  standalone: false,
 })
 export class InvoicesComponent implements OnInit {
   @Input() startWith?: InvoicesResponse;

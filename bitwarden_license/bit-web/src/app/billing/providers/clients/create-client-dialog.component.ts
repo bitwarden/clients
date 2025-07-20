@@ -1,13 +1,18 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { PlanType } from "@bitwarden/common/billing/enums";
+import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ProviderPlanResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { WebProviderService } from "../../../admin-console/providers/services/web-provider.service";
 
@@ -16,6 +21,8 @@ type CreateClientDialogParams = {
   plans: PlanResponse[];
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CreateClientDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -23,51 +30,44 @@ export enum CreateClientDialogResultType {
 
 export const openCreateClientDialog = (
   dialogService: DialogService,
-  dialogConfig: DialogConfig<CreateClientDialogParams>,
+  dialogConfig: DialogConfig<
+    CreateClientDialogParams,
+    DialogRef<CreateClientDialogResultType, unknown>
+  >,
 ) =>
   dialogService.open<CreateClientDialogResultType, CreateClientDialogParams>(
     CreateClientDialogComponent,
     dialogConfig,
   );
 
-type PlanCard = {
-  name: string;
-  cost: number;
-  type: PlanType;
-  plan: PlanResponse;
+export class PlanCard {
+  readonly name: string;
+  private readonly cost: number;
+  readonly type: PlanType;
+  readonly plan: PlanResponse;
   selected: boolean;
-};
 
-@Component({
-  templateUrl: "./create-client-dialog.component.html",
-})
-export class CreateClientDialogComponent implements OnInit {
-  protected discountPercentage: number;
-  protected formGroup = new FormGroup({
-    clientOwnerEmail: new FormControl<string>("", [Validators.required, Validators.email]),
-    organizationName: new FormControl<string>("", [Validators.required]),
-    seats: new FormControl<number>(null, [Validators.required, Validators.min(1)]),
-  });
-  protected loading = true;
-  protected planCards: PlanCard[];
-  protected ResultType = CreateClientDialogResultType;
+  constructor(name: string, cost: number, type: PlanType, plan: PlanResponse, selected: boolean) {
+    this.name = name;
+    this.cost = cost;
+    this.type = type;
+    this.plan = plan;
+    this.selected = selected;
+  }
 
-  private providerPlans: ProviderPlanResponse[];
+  getMonthlyCost(): number {
+    return this.plan.isAnnual ? this.cost / 12 : this.cost;
+  }
 
-  constructor(
-    private billingApiService: BillingApiServiceAbstraction,
-    @Inject(DIALOG_DATA) private dialogParams: CreateClientDialogParams,
-    private dialogRef: DialogRef<CreateClientDialogResultType>,
-    private i18nService: I18nService,
-    private toastService: ToastService,
-    private webProviderService: WebProviderService,
-  ) {}
+  getTimePerMemberLabel(): string {
+    return this.plan.isAnnual ? "monthPerMemberBilledAnnually" : "monthPerMember";
+  }
 
-  protected getPlanCardContainerClasses(selected: boolean) {
-    switch (selected) {
+  getContainerClasses() {
+    switch (this.selected) {
       case true: {
         return [
-          "tw-group",
+          "tw-group/plan-card-container",
           "tw-cursor-pointer",
           "tw-block",
           "tw-rounded",
@@ -95,6 +95,42 @@ export class CreateClientDialogComponent implements OnInit {
       }
     }
   }
+}
+
+@Component({
+  templateUrl: "./create-client-dialog.component.html",
+  standalone: false,
+})
+export class CreateClientDialogComponent implements OnInit {
+  protected discountPercentage: number | null | undefined;
+  protected formGroup = new FormGroup({
+    clientOwnerEmail: new FormControl<string>("", {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    organizationName: new FormControl<string>("", {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(50)],
+    }),
+    seats: new FormControl<number>(1, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(1)],
+    }),
+  });
+  protected loading = true;
+  protected planCards: PlanCard[] = [];
+  protected ResultType = CreateClientDialogResultType;
+
+  private providerPlans: ProviderPlanResponse[] = [];
+
+  constructor(
+    private billingApiService: BillingApiServiceAbstraction,
+    @Inject(DIALOG_DATA) private dialogParams: CreateClientDialogParams,
+    private dialogRef: DialogRef<CreateClientDialogResultType>,
+    private i18nService: I18nService,
+    private toastService: ToastService,
+    private webProviderService: WebProviderService,
+  ) {}
 
   async ngOnInit(): Promise<void> {
     const response = await this.billingApiService.getProviderSubscription(
@@ -103,37 +139,51 @@ export class CreateClientDialogComponent implements OnInit {
 
     this.providerPlans = response?.plans ?? [];
 
-    const teamsPlan = this.dialogParams.plans.find((plan) => plan.type === PlanType.TeamsMonthly);
-    const enterprisePlan = this.dialogParams.plans.find(
-      (plan) => plan.type === PlanType.EnterpriseMonthly,
-    );
-
     this.discountPercentage = response.discountPercentage;
     const discountFactor = this.discountPercentage ? (100 - this.discountPercentage) / 100 : 1;
 
-    this.planCards = [
-      {
-        name: this.i18nService.t("planNameTeams"),
-        cost: teamsPlan.PasswordManager.providerPortalSeatPrice * discountFactor,
-        type: teamsPlan.type,
-        plan: teamsPlan,
-        selected: true,
-      },
-      {
-        name: this.i18nService.t("planNameEnterprise"),
-        cost: enterprisePlan.PasswordManager.providerPortalSeatPrice * discountFactor,
-        type: enterprisePlan.type,
-        plan: enterprisePlan,
-        selected: false,
-      },
-    ];
+    this.planCards = [];
+
+    for (let i = 0; i < this.providerPlans.length; i++) {
+      const providerPlan = this.providerPlans[i];
+      const plan = this.dialogParams.plans.find((plan) => plan.type === providerPlan.type);
+
+      if (!plan) {
+        continue;
+      }
+
+      let planName: string;
+      switch (plan.productTier) {
+        case ProductTierType.Teams: {
+          planName = this.i18nService.t("planNameTeams");
+          break;
+        }
+        case ProductTierType.Enterprise: {
+          planName = this.i18nService.t("planNameEnterprise");
+          break;
+        }
+        default:
+          continue;
+      }
+
+      this.planCards.push(
+        new PlanCard(
+          planName,
+          plan.PasswordManager.providerPortalSeatPrice * discountFactor,
+          plan.type,
+          plan,
+          i === 0,
+        ),
+      );
+    }
 
     this.loading = false;
   }
 
   protected selectPlan(name: string) {
-    this.planCards.find((planCard) => planCard.name === name).selected = true;
-    this.planCards.find((planCard) => planCard.name !== name).selected = false;
+    this.planCards.forEach((planCard) => {
+      planCard.selected = planCard.name === name;
+    });
   }
 
   submit = async () => {
@@ -145,17 +195,21 @@ export class CreateClientDialogComponent implements OnInit {
 
     const selectedPlanCard = this.planCards.find((planCard) => planCard.selected);
 
+    if (!selectedPlanCard) {
+      return;
+    }
+
     await this.webProviderService.createClientOrganization(
       this.dialogParams.providerId,
-      this.formGroup.value.organizationName,
-      this.formGroup.value.clientOwnerEmail,
+      this.formGroup.controls.organizationName.value,
+      this.formGroup.controls.clientOwnerEmail.value,
       selectedPlanCard.type,
-      this.formGroup.value.seats,
+      this.formGroup.controls.seats.value,
     );
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: "",
       message: this.i18nService.t("createdNewClient"),
     });
 
@@ -171,7 +225,7 @@ export class CreateClientDialogComponent implements OnInit {
 
     const openSeats = selectedProviderPlan.seatMinimum - selectedProviderPlan.assignedSeats;
 
-    const unassignedSeats = openSeats - this.formGroup.value.seats;
+    const unassignedSeats = openSeats - this.formGroup.controls.seats.value;
 
     return unassignedSeats > 0 ? unassignedSeats : 0;
   }
@@ -184,22 +238,22 @@ export class CreateClientDialogComponent implements OnInit {
     }
 
     if (selectedProviderPlan.purchasedSeats > 0) {
-      return this.formGroup.value.seats;
+      return this.formGroup.controls.seats.value;
     }
 
     const additionalSeatsPurchased =
-      this.formGroup.value.seats +
+      this.formGroup.controls.seats.value +
       selectedProviderPlan.assignedSeats -
       selectedProviderPlan.seatMinimum;
 
     return additionalSeatsPurchased > 0 ? additionalSeatsPurchased : 0;
   }
 
-  private getSelectedProviderPlan(): ProviderPlanResponse {
+  private getSelectedProviderPlan(): ProviderPlanResponse | null {
     if (this.loading || !this.planCards) {
       return null;
     }
-    const selectedPlan = this.planCards.find((planCard) => planCard.selected).plan;
-    return this.providerPlans.find((providerPlan) => providerPlan.planName === selectedPlan.name);
+    const selectedPlan = this.planCards.find((planCard) => planCard.selected)!.plan;
+    return this.providerPlans.find((providerPlan) => providerPlan.planName === selectedPlan.name)!;
   }
 }

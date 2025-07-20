@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SUBADDRESS_PARSER } from "./data";
 
 /** Generation algorithms that produce deterministic email addresses */

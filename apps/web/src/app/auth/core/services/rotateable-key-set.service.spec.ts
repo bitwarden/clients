@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
@@ -35,8 +35,8 @@ describe("RotateableKeySetService", () => {
       const encryptedPrivateKey = Symbol();
       keyService.makeKeyPair.mockResolvedValue(["publicKey", encryptedPrivateKey as any]);
       keyService.getUserKey.mockResolvedValue({ key: userKey.key } as any);
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedUserKey as any);
-      encryptService.encrypt.mockResolvedValue(encryptedPublicKey as any);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedUserKey as any);
+      encryptService.wrapEncapsulationKey.mockResolvedValue(encryptedPublicKey as any);
 
       const result = await service.createKeySet(externalKey as any);
 

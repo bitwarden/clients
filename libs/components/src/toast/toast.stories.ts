@@ -6,6 +6,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { ButtonModule } from "../button";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -22,7 +23,7 @@ const toastServiceExampleTemplate = `
 })
 export class ToastServiceExampleComponent {
   @Input()
-  toastOptions: ToastOptions;
+  toastOptions?: ToastOptions;
 
   constructor(protected toastService: ToastService) {}
 }
@@ -33,12 +34,17 @@ export default {
 
   decorators: [
     moduleMetadata({
-      imports: [CommonModule, BrowserAnimationsModule, ButtonModule],
-      declarations: [ToastServiceExampleComponent],
+      imports: [
+        CommonModule,
+        BrowserAnimationsModule,
+        ButtonModule,
+        ToastModule,
+        ToastServiceExampleComponent,
+      ],
     }),
     applicationConfig({
       providers: [
-        ToastModule.forRoot().providers,
+        ToastModule.forRoot().providers!,
         {
           provide: I18nService,
           useFactory: () => {
@@ -47,6 +53,7 @@ export default {
               success: "Success",
               error: "Error",
               warning: "Warning",
+              info: "Info",
             });
           },
         },
@@ -63,7 +70,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-41506&t=b5tDKylm5sWm2yKo-11",
     },
   },
 } as Meta;
@@ -74,11 +81,22 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width]">
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="success"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="info"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="warning"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="error"></bit-toast>
+      <div class="tw-min-w tw-max-w-[--bit-toast-width]">
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)}></bit-toast>
+      </div>
+    `,
+  }),
+};
+
+export const Variants: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width] tw-gap-2">
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="success"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="info"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="warning"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="error"></bit-toast>
       </div>
     `,
   }),
@@ -92,8 +110,8 @@ export const LongContent: Story = {
   args: {
     title: "Foo",
     message: [
-      "Lorem ipsum dolor sit amet, consectetur adipisci",
-      "Lorem ipsum dolor sit amet, consectetur adipisci",
+      "Maecenas commodo posuere quam, vel malesuada nulla accumsan ac.",
+      "Pellentesque interdum ligula ante, eget bibendum ante lacinia congue.",
     ],
   },
 };
@@ -103,7 +121,9 @@ export const Service: Story = {
     props: {
       toastOptions: args,
     },
-    template: `
+    template: /*html*/ `
+      <!-- Toast container is used here to more closely align with how toasts are used in the clients, which allows for more accurate SR testing in storybook -->
+      <bit-toast-container></bit-toast-container>
       <toast-service-example [toastOptions]="toastOptions"></toast-service-example>
     `,
   }),

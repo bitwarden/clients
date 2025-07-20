@@ -1,5 +1,8 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
+
+import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
 
 export interface BulkStatusDetails {
   title: string;
@@ -17,6 +20,7 @@ export class BulkOperationStatus {
 
 @Component({
   templateUrl: "./bulk-status-dialog.component.html",
+  standalone: false,
 })
 export class BulkStatusDialogComponent implements OnInit {
   constructor(

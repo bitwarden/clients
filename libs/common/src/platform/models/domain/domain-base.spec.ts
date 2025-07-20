@@ -1,11 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { makeEncString, makeSymmetricCryptoKey } from "../../../../spec";
-import { EncryptService } from "../../abstractions/encrypt.service";
-import { Utils } from "../../misc/utils";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 
 import Domain from "./domain-base";
-import { EncString } from "./enc-string";
 
 class TestDomain extends Domain {
   plainText: string;
@@ -22,23 +21,12 @@ describe("DomainBase", () => {
   });
 
   function setUpCryptography() {
-    encryptService.encrypt.mockImplementation((value) => {
-      let data: string;
-      if (typeof value === "string") {
-        data = value;
-      } else {
-        data = Utils.fromBufferToUtf8(value);
-      }
+    encryptService.encryptString.mockImplementation((value) =>
+      Promise.resolve(makeEncString(value)),
+    );
 
-      return Promise.resolve(makeEncString(data));
-    });
-
-    encryptService.decryptToUtf8.mockImplementation((value) => {
+    encryptService.decryptString.mockImplementation((value) => {
       return Promise.resolve(value.data);
-    });
-
-    encryptService.decryptToBytes.mockImplementation((value) => {
-      return Promise.resolve(value.dataBytes);
     });
   }
 
@@ -67,9 +55,13 @@ describe("DomainBase", () => {
       );
 
       // @ts-expect-error -- encString2 was not decrypted
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       decrypted as { encToString: string; encString2: string; plainText: string };
 
       // encString2 was not decrypted, so it's still an EncString
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       decrypted as { encToString: string; encString2: EncString; plainText: string };
     });
 
@@ -78,7 +70,7 @@ describe("DomainBase", () => {
 
       const domain = new TestDomain();
 
-      domain.encToString = await encryptService.encrypt("string", key);
+      domain.encToString = await encryptService.encryptString("string", key);
 
       const decrypted = await domain["decryptObjWithKey"](["encToString"], key, encryptService);
 
@@ -92,8 +84,8 @@ describe("DomainBase", () => {
 
       const domain = new TestDomain();
 
-      domain.encToString = await encryptService.encrypt("string", key);
-      domain.encString2 = await encryptService.encrypt("string2", key);
+      domain.encToString = await encryptService.encryptString("string", key);
+      domain.encString2 = await encryptService.encryptString("string2", key);
 
       const decrypted = await domain["decryptObjWithKey"](
         ["encToString", "encString2"],

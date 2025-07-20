@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { FormBuilder, FormControl } from "@angular/forms";
 
@@ -17,6 +19,7 @@ export class AutomaticAppLoginPolicy extends BasePolicy {
 @Component({
   selector: "policy-automatic-app-login",
   templateUrl: "automatic-app-login.component.html",
+  standalone: false,
 })
 export class AutomaticAppLoginPolicyComponent extends BasePolicyComponent {
   data = this.formBuilder.group({

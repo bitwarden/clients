@@ -1,16 +1,24 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
+import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
+import { filter } from "rxjs/operators";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   DialogService,
   IconButtonModule,
@@ -24,16 +32,30 @@ import { VaultPopupAutofillService } from "../../../services/vault-popup-autofil
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
 @Component({
-  standalone: true,
   selector: "app-item-more-options",
   templateUrl: "./item-more-options.component.html",
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
 })
-export class ItemMoreOptionsComponent implements OnInit {
+export class ItemMoreOptionsComponent {
+  private _cipher$ = new BehaviorSubject<CipherViewLike>(undefined);
+
   @Input({
     required: true,
   })
-  cipher: CipherView;
+  set cipher(c: CipherViewLike) {
+    this._cipher$.next(c);
+  }
+
+  get cipher() {
+    return this._cipher$.value;
+  }
+
+  /**
+   * Flag to show view item menu option. Used when something else is
+   * assigned as the primary action for the item, such as autofill.
+   */
+  @Input({ transform: booleanAttribute })
+  showViewOption: boolean;
 
   /**
    * Flag to hide the autofill menu options. Used for items that are
@@ -43,10 +65,31 @@ export class ItemMoreOptionsComponent implements OnInit {
   hideAutofillOptions: boolean;
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
-  protected canClone$: Observable<boolean>;
 
-  /** Boolean dependent on the current user having access to an organization */
-  protected hasOrganizations = false;
+  /**
+   * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
+   * @protected
+   */
+  protected canClone$ = this._cipher$.pipe(
+    filter((c) => c != null),
+    switchMap((c) => this.cipherAuthorizationService.canCloneCipher$(c)),
+  );
+
+  /** Observable Boolean dependent on the current user having access to an organization and editable collections */
+  protected canAssignCollections$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => {
+      return combineLatest([
+        this.organizationService.hasOrganizations(userId),
+        this.collectionService.decryptedCollections$,
+      ]).pipe(
+        map(([hasOrgs, collections]) => {
+          const canEditCollections = collections.some((c) => !c.readOnly);
+          return hasOrgs && canEditCollections;
+        }),
+      );
+    }),
+  );
 
   constructor(
     private cipherService: CipherService,
@@ -59,26 +102,32 @@ export class ItemMoreOptionsComponent implements OnInit {
     private accountService: AccountService,
     private organizationService: OrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private collectionService: CollectionService,
   ) {}
-
-  async ngOnInit(): Promise<void> {
-    this.hasOrganizations = await this.organizationService.hasOrganizations();
-    this.canClone$ = this.cipherAuthorizationService.canCloneCipher$(this.cipher);
-  }
 
   get canEdit() {
     return this.cipher.edit;
+  }
+
+  get canViewPassword() {
+    return this.cipher.viewPassword;
+  }
+
+  get decryptionFailure() {
+    return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
   /**
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
-    return [CipherType.Login, CipherType.Card, CipherType.Identity].includes(this.cipher.type);
+    return ([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).includes(
+      CipherViewLikeUtils.getType(this.cipher),
+    );
   }
 
   get isLogin() {
-    return this.cipher.type === CipherType.Login;
+    return CipherViewLikeUtils.getType(this.cipher) === CipherType.Login;
   }
 
   get favoriteText() {
@@ -86,22 +135,37 @@ export class ItemMoreOptionsComponent implements OnInit {
   }
 
   async doAutofill() {
-    await this.vaultPopupAutofillService.doAutofill(this.cipher);
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
+    await this.vaultPopupAutofillService.doAutofill(cipher);
   }
 
   async doAutofillAndSave() {
-    await this.vaultPopupAutofillService.doAutofillAndSave(this.cipher, false);
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
+    await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false);
+  }
+
+  async onView() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    await this.router.navigate(["/view-cipher"], {
+      queryParams: { cipherId: this.cipher.id, type: CipherViewLikeUtils.getType(this.cipher) },
+    });
   }
 
   /**
    * Toggles the favorite status of the cipher and updates it on the server.
    */
   async toggleFavorite() {
-    this.cipher.favorite = !this.cipher.favorite;
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
+
+    cipher.favorite = !cipher.favorite;
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
-    const encryptedCipher = await this.cipherService.encrypt(this.cipher, activeUserId);
+
+    const encryptedCipher = await this.cipherService.encrypt(cipher, activeUserId);
     await this.cipherService.updateWithServer(encryptedCipher);
     this.toastService.showToast({
       variant: "success",
@@ -125,7 +189,7 @@ export class ItemMoreOptionsComponent implements OnInit {
       return;
     }
 
-    if (this.cipher.login?.hasFido2Credentials) {
+    if (CipherViewLikeUtils.hasFido2Credentials(this.cipher)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
@@ -141,7 +205,7 @@ export class ItemMoreOptionsComponent implements OnInit {
       queryParams: {
         clone: true.toString(),
         cipherId: this.cipher.id,
-        type: this.cipher.type.toString(),
+        type: CipherViewLikeUtils.getType(this.cipher).toString(),
       } as AddEditQueryParams,
     });
   }

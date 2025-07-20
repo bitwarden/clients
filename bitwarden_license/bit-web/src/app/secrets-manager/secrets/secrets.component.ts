@@ -1,8 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatestWith, Observable, startWith, switchMap } from "rxjs";
+import { combineLatestWith, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -29,6 +36,7 @@ import { SecretService } from "./secret.service";
 @Component({
   selector: "sm-secrets",
   templateUrl: "./secrets.component.html",
+  standalone: false,
 })
 export class SecretsComponent implements OnInit {
   protected secrets$: Observable<SecretListView[]>;
@@ -44,6 +52,7 @@ export class SecretsComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private logService: LogService,
   ) {}
 
@@ -53,8 +62,13 @@ export class SecretsComponent implements OnInit {
       combineLatestWith(this.route.params),
       switchMap(async ([_, params]) => {
         this.organizationId = params.organizationId;
+        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         this.organizationEnabled = (
-          await this.organizationService.get(params.organizationId)
+          await firstValueFrom(
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          )
         )?.enabled;
 
         return await this.getSecrets();

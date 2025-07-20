@@ -1,10 +1,16 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ButtonModule, DialogModule, TableDataSource, TableModule } from "@bitwarden/components";
+import {
+  DialogRef,
+  DIALOG_DATA,
+  ButtonModule,
+  DialogModule,
+  TableDataSource,
+  TableModule,
+} from "@bitwarden/components";
 
 import { ImportResult } from "../../models";
 
@@ -16,7 +22,6 @@ export interface ResultList {
 
 @Component({
   templateUrl: "./import-success-dialog.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, DialogModule, TableModule, ButtonModule],
 })
 export class ImportSuccessDialogComponent implements OnInit {
@@ -38,6 +43,7 @@ export class ImportSuccessDialogComponent implements OnInit {
     let cards = 0;
     let identities = 0;
     let secureNotes = 0;
+    let sshKeys = 0;
     this.data.ciphers.map((c) => {
       switch (c.type) {
         case CipherType.Login:
@@ -51,6 +57,9 @@ export class ImportSuccessDialogComponent implements OnInit {
           break;
         case CipherType.Identity:
           identities++;
+          break;
+        case CipherType.SshKey:
+          sshKeys++;
           break;
         default:
           break;
@@ -69,6 +78,9 @@ export class ImportSuccessDialogComponent implements OnInit {
     }
     if (secureNotes > 0) {
       list.push({ icon: "sticky-note", type: "typeSecureNote", count: secureNotes });
+    }
+    if (sshKeys > 0) {
+      list.push({ icon: "key", type: "typeSshKey", count: sshKeys });
     }
     if (this.data.folders.length > 0) {
       list.push({ icon: "folder", type: "folders", count: this.data.folders.length });

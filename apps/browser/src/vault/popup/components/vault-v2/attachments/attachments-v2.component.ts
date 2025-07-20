@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -16,7 +18,6 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
 @Component({
-  standalone: true,
   selector: "app-attachments-v2",
   templateUrl: "./attachments-v2.component.html",
   imports: [

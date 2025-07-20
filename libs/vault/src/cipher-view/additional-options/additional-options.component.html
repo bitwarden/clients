@@ -1,11 +1,11 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
   </bit-section-header>
   <bit-card class="[&_bit-form-field:last-of-type]:tw-mb-0">
     <bit-form-field disableReadOnlyBorder>
-      <bit-label>{{ "note" | i18n }}</bit-label>
-      <textarea readonly bitInput aria-readonly="true">{{ notes }}</textarea>
+      <bit-label [appTextDrag]="notes">{{ "note" | i18n }}</bit-label>
+      <textarea readonly id="notes" bitInput rows="5" aria-readonly="true">{{ notes }}</textarea>
       <button
         bitSuffix
         bitIconButton="bwi-clone"
@@ -18,4 +18,4 @@
       ></button>
     </bit-form-field>
   </bit-card>
-</bit-section>
+</section>

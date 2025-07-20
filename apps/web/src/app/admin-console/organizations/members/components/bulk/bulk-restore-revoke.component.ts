@@ -1,10 +1,11 @@
-import { DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogService } from "@bitwarden/components";
 
 import { BulkUserDetails } from "./bulk-status.component";
 
@@ -17,6 +18,7 @@ type BulkRestoreDialogParams = {
 @Component({
   selector: "app-bulk-restore-revoke",
   templateUrl: "bulk-restore-revoke.component.html",
+  standalone: false,
 })
 export class BulkRestoreRevokeComponent {
   isRevoking: boolean;
@@ -29,6 +31,7 @@ export class BulkRestoreRevokeComponent {
   done = false;
   error: string;
   showNoMasterPasswordWarning = false;
+  nonCompliantMembers: boolean = false;
 
   constructor(
     protected i18nService: I18nService,
@@ -44,7 +47,7 @@ export class BulkRestoreRevokeComponent {
   }
 
   get bulkTitle() {
-    const titleKey = this.isRevoking ? "revokeUsers" : "restoreUsers";
+    const titleKey = this.isRevoking ? "revokeMembers" : "restoreMembers";
     return this.i18nService.t(titleKey);
   }
 
@@ -53,9 +56,16 @@ export class BulkRestoreRevokeComponent {
       const response = await this.performBulkUserAction();
 
       const bulkMessage = this.isRevoking ? "bulkRevokedMessage" : "bulkRestoredMessage";
-      response.data.forEach((entry) => {
-        const error = entry.error !== "" ? entry.error : this.i18nService.t(bulkMessage);
+
+      response.data.forEach(async (entry) => {
+        const error =
+          entry.error !== ""
+            ? this.i18nService.t("cannotRestoreAccessError")
+            : this.i18nService.t(bulkMessage);
         this.statuses.set(entry.id, error);
+        if (entry.error !== "") {
+          this.nonCompliantMembers = true;
+        }
       });
       this.done = true;
     } catch (e) {

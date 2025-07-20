@@ -1,18 +1,27 @@
-import { Component, HostListener, Input, Optional } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Component, HostListener, Optional, input } from "@angular/core";
+import { RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
+import { IconButtonModule } from "../icon-button";
+
 import { NavBaseComponent } from "./nav-base.component";
-import { NavGroupComponent } from "./nav-group.component";
 import { SideNavService } from "./side-nav.service";
+
+// Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
+export abstract class NavGroupAbstraction {
+  abstract setOpen(open: boolean): void;
+}
 
 @Component({
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
+  imports: [CommonModule, IconButtonModule, RouterModule],
 })
 export class NavItemComponent extends NavBaseComponent {
   /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
-  @Input() forceActiveStyles? = false;
+  readonly forceActiveStyles = input<boolean>(false);
 
   /**
    * Is `true` if `to` matches the current route
@@ -25,15 +34,19 @@ export class NavItemComponent extends NavBaseComponent {
     }
   }
   protected get showActiveStyles() {
-    return this.forceActiveStyles || (this._isActive && !this.hideActiveStyles);
+    return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
   }
 
   /**
-   * The design spec calls for the an outline to wrap the entire element when the template's anchor/button has :focus-visible.
-   * Usually, we would use :focus-within for this. However, that matches when a child element has :focus instead of :focus-visible.
+   * The design spec calls for the an outline to wrap the entire element when the template's
+   * anchor/button has :focus-visible. Usually, we would use :focus-within for this. However, that
+   * matches when a child element has :focus instead of :focus-visible.
    *
-   * Currently, the browser does not have a pseudo selector that combines these two, e.g. :focus-visible-within (WICG/focus-visible#151)
-   * To make our own :focus-visible-within functionality, we use event delegation on the host and manually check if the focus target (denoted with the .fvw class) matches :focus-visible. We then map that state to some styles, so the entire component can have an outline.
+   * Currently, the browser does not have a pseudo selector that combines these two, e.g.
+   * :focus-visible-within (WICG/focus-visible#151). To make our own :focus-visible-within
+   * functionality, we use event delegation on the host and manually check if the focus target
+   * (denoted with the data-fvw attribute) matches :focus-visible. We then map that state to some
+   * styles, so the entire component can have an outline.
    */
   protected focusVisibleWithin$ = new BehaviorSubject(false);
   protected fvwStyles$ = this.focusVisibleWithin$.pipe(
@@ -43,7 +56,7 @@ export class NavItemComponent extends NavBaseComponent {
   );
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin$.next(target.matches(".fvw:focus-visible"));
+    this.focusVisibleWithin$.next(target.matches("[data-fvw]:focus-visible"));
   }
   @HostListener("focusout")
   onFocusOut() {
@@ -52,7 +65,7 @@ export class NavItemComponent extends NavBaseComponent {
 
   constructor(
     protected sideNavService: SideNavService,
-    @Optional() private parentNavGroup: NavGroupComponent,
+    @Optional() private parentNavGroup: NavGroupAbstraction,
   ) {
     super();
   }

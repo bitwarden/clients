@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
@@ -9,6 +11,12 @@ import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 export abstract class AuthRequestServiceAbstraction {
   /** Emits an auth request id when an auth request has been approved. */
   authRequestPushNotification$: Observable<string>;
+
+  /**
+   * Emits when a login has been approved by an admin. This emission is specifically for the
+   * purpose of notifying the consuming component to display a toast informing the user.
+   */
+  adminLoginApproved$: Observable<void>;
 
   /**
    * Returns an admin auth request for the given user if it exists.
@@ -33,6 +41,18 @@ export abstract class AuthRequestServiceAbstraction {
    * @throws If `userId` is not provided.
    */
   abstract clearAdminAuthRequest: (userId: UserId) => Promise<void>;
+  /**
+   * Gets a list of standard pending auth requests for the user.
+   * @returns An observable of an array of auth request.
+   * The array will be empty if there are no pending auth requests.
+   */
+  abstract getPendingAuthRequests$(): Observable<Array<AuthRequestResponse>>;
+  /**
+   * Get the most recent AuthRequest for the logged in user
+   * @returns An observable of an auth request. If there are no auth requests
+   * the result will be null.
+   */
+  abstract getLatestPendingAuthRequest$(): Observable<AuthRequestResponse> | null;
   /**
    * Approve or deny an auth request.
    * @param approve True to approve, false to deny.
@@ -104,4 +124,13 @@ export abstract class AuthRequestServiceAbstraction {
    * @returns The dash-delimited fingerprint phrase.
    */
   abstract getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string>;
+
+  /**
+   * Passes a value to the adminLoginApprovedSubject via next(), which causes the
+   * adminLoginApproved$ observable to emit.
+   *
+   * The purpose is to notify consuming components (of adminLoginApproved$) to display
+   * a toast informing the user that a login has been approved by an admin.
+   */
+  abstract emitAdminLoginApproved(): void;
 }

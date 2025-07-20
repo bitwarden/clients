@@ -3,7 +3,6 @@ import { BehaviorSubject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   AssertCredentialParams,
@@ -25,6 +24,7 @@ import { BrowserScriptInjectorService } from "../../../platform/services/browser
 import { AbortManager } from "../../../vault/background/abort-manager";
 import { Fido2ContentScript, Fido2ContentScriptId } from "../enums/fido2-content-script.enum";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
+import { BrowserFido2ParentWindowReference } from "../services/browser-fido2-user-interface.service";
 
 import { Fido2ExtensionMessage } from "./abstractions/fido2.background";
 import { Fido2Background } from "./fido2.background";
@@ -56,10 +56,9 @@ describe("Fido2Background", () => {
   let senderMock!: MockProxy<chrome.runtime.MessageSender>;
   let logService!: MockProxy<LogService>;
   let fido2ActiveRequestManager: MockProxy<Fido2ActiveRequestManager>;
-  let fido2ClientService!: MockProxy<Fido2ClientService>;
+  let fido2ClientService!: MockProxy<Fido2ClientService<BrowserFido2ParentWindowReference>>;
   let vaultSettingsService!: MockProxy<VaultSettingsService>;
   let scriptInjectorServiceMock!: MockProxy<BrowserScriptInjectorService>;
-  let configServiceMock!: MockProxy<ConfigService>;
   let enablePasskeysMock$!: BehaviorSubject<boolean>;
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authServiceMock!: MockProxy<AuthService>;
@@ -73,13 +72,12 @@ describe("Fido2Background", () => {
     });
     senderMock = mock<chrome.runtime.MessageSender>({ id: "1", tab: tabMock });
     logService = mock<LogService>();
-    fido2ClientService = mock<Fido2ClientService>();
+    fido2ClientService = mock<Fido2ClientService<BrowserFido2ParentWindowReference>>();
     vaultSettingsService = mock<VaultSettingsService>();
     abortManagerMock = mock<AbortManager>();
     abortController = mock<AbortController>();
     registeredContentScripsMock = mock<browser.contentScripts.RegisteredContentScript>();
     scriptInjectorServiceMock = mock<BrowserScriptInjectorService>();
-    configServiceMock = mock<ConfigService>();
 
     enablePasskeysMock$ = new BehaviorSubject(true);
     vaultSettingsService.enablePasskeys$ = enablePasskeysMock$;
@@ -94,7 +92,6 @@ describe("Fido2Background", () => {
       fido2ClientService,
       vaultSettingsService,
       scriptInjectorServiceMock,
-      configServiceMock,
       authServiceMock,
     );
     fido2Background["abortManager"] = abortManagerMock;
@@ -185,7 +182,7 @@ describe("Fido2Background", () => {
       expect(scriptInjectorServiceMock.inject).toHaveBeenCalledWith({
         tabId: tabMock.id,
         injectDetails: sharedScriptInjectionDetails,
-        mv2Details: { file: Fido2ContentScript.PageScriptAppend },
+        mv2Details: { file: Fido2ContentScript.PageScriptDelayAppend },
         mv3Details: { file: Fido2ContentScript.PageScript, world: "MAIN" },
       });
       expect(scriptInjectorServiceMock.inject).toHaveBeenCalledWith({
@@ -196,22 +193,6 @@ describe("Fido2Background", () => {
 
     describe("given manifest v2", () => {
       it("registers the page-script-append-mv2.js and content-script.js content scripts when the enablePasskeys setting is set to `true`", async () => {
-        isManifestVersionSpy.mockImplementation((manifestVersion) => manifestVersion === 2);
-
-        enablePasskeysMock$.next(true);
-        await flushPromises();
-
-        expect(BrowserApi.registerContentScriptsMv2).toHaveBeenCalledWith({
-          js: [
-            { file: Fido2ContentScript.PageScriptAppend },
-            { file: Fido2ContentScript.ContentScript },
-          ],
-          ...sharedRegistrationOptions,
-        });
-      });
-
-      it("registers the page-script-delay-append-mv2.js content script when the DelayFido2PageScriptInitWithinMv2 feature flag is enabled", async () => {
-        configServiceMock.getFeatureFlag.mockResolvedValue(true);
         isManifestVersionSpy.mockImplementation((manifestVersion) => manifestVersion === 2);
 
         enablePasskeysMock$.next(true);

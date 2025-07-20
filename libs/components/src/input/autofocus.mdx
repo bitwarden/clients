@@ -1,0 +1,21 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./autofocus.stories";
+
+<Meta of={stories} />
+
+```ts
+import { AutofocusDirective } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Accessibility
+
+The autofocus directive has accessibility implications, because it will steal focus from wherever it
+would naturally be placed on page load. Please consider whether or not the user truly needs the
+element truly needs to be manually focused on their behalf.

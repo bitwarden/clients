@@ -5,17 +5,20 @@ use futures::{FutureExt, SinkExt, StreamExt};
 use log::*;
 use tokio_util::codec::LengthDelimitedCodec;
 
+#[cfg(target_os = "windows")]
+mod windows;
+
 #[cfg(target_os = "macos")]
 embed_plist::embed_info_plist!("../../../resources/info.desktop_proxy.plist");
 
-fn init_logging(log_path: &Path, level: log::LevelFilter) {
+fn init_logging(log_path: &Path, console_level: LevelFilter, file_level: LevelFilter) {
     use simplelog::{ColorChoice, CombinedLogger, Config, SharedLogger, TermLogger, TerminalMode};
 
     let config = Config::default();
 
     let mut loggers: Vec<Box<dyn SharedLogger>> = Vec::new();
     loggers.push(TermLogger::new(
-        level,
+        console_level,
         config.clone(),
         TerminalMode::Stderr,
         ColorChoice::Auto,
@@ -23,15 +26,15 @@ fn init_logging(log_path: &Path, level: log::LevelFilter) {
 
     match std::fs::File::create(log_path) {
         Ok(file) => {
-            loggers.push(simplelog::WriteLogger::new(level, config, file));
+            loggers.push(simplelog::WriteLogger::new(file_level, config, file));
         }
         Err(e) => {
-            eprintln!("Can't create file: {}", e);
+            eprintln!("Can't create file: {e}");
         }
     }
 
     if let Err(e) = CombinedLogger::init(loggers) {
-        eprintln!("Failed to initialize logger: {}", e);
+        eprintln!("Failed to initialize logger: {e}");
     }
 }
 
@@ -49,6 +52,9 @@ fn init_logging(log_path: &Path, level: log::LevelFilter) {
 ///
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+    #[cfg(target_os = "windows")]
+    let should_foreground = windows::allow_foreground();
+
     let sock_path = desktop_core::ipc::path("bitwarden");
 
     let log_path = {
@@ -57,7 +63,12 @@ async fn main() {
         path
     };
 
-    init_logging(&log_path, LevelFilter::Info);
+    let level = std::env::var("PROXY_LOG_LEVEL")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(LevelFilter::Info);
+
+    init_logging(&log_path, level, LevelFilter::Info);
 
     info!("Starting Bitwarden IPC Proxy.");
 
@@ -137,6 +148,9 @@ async fn main() {
 
             // Listen to stdin and send messages to ipc processor.
             msg = stdin.next() => {
+                #[cfg(target_os = "windows")]
+                should_foreground.store(true, std::sync::atomic::Ordering::Relaxed);
+
                 match msg {
                     Some(Ok(msg)) => {
                         let m = String::from_utf8(msg.to_vec()).unwrap();

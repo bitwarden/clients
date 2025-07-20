@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
@@ -85,5 +87,9 @@ export abstract class AutofillService {
     cipherType?: CipherType,
   ) => Promise<string | null>;
   setAutoFillOnPageLoadOrgPolicy: () => Promise<void>;
-  isPasswordRepromptRequired: (cipher: CipherView, tab: chrome.tabs.Tab) => Promise<boolean>;
+  isPasswordRepromptRequired: (
+    cipher: CipherView,
+    tab: chrome.tabs.Tab,
+    action?: string,
+  ) => Promise<boolean>;
 }

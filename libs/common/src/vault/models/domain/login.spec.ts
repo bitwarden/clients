@@ -1,8 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
@@ -151,6 +151,7 @@ describe("Login DTO", () => {
         password: "myPassword" as EncryptedString,
         passwordRevisionDate: passwordRevisionDate.toISOString(),
         totp: "myTotp" as EncryptedString,
+        // NOTE: `as any` is here until we migrate to Nx: https://bitwarden.atlassian.net/browse/PM-6493
         fido2Credentials: [
           {
             credentialId: "keyId" as EncryptedString,
@@ -167,7 +168,7 @@ describe("Login DTO", () => {
             discoverable: "discoverable" as EncryptedString,
             creationDate: fido2CreationDate.toISOString(),
           },
-        ],
+        ] as any,
       });
 
       expect(actual).toEqual({
@@ -199,6 +200,54 @@ describe("Login DTO", () => {
 
     it("returns null if object is null", () => {
       expect(Login.fromJSON(null)).toBeNull();
+    });
+  });
+
+  describe("toSdkLogin", () => {
+    it("should map to SDK login", () => {
+      const data: LoginData = {
+        uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
+        username: "username",
+        password: "password",
+        passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+        totp: "123",
+        autofillOnPageLoad: false,
+        fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
+      };
+      const login = new Login(data);
+      const sdkLogin = login.toSdkLogin();
+
+      expect(sdkLogin).toEqual({
+        username: "username",
+        password: "password",
+        passwordRevisionDate: "2022-01-31T12:00:00.000Z",
+        uris: [
+          {
+            match: 0,
+            uri: "uri",
+            uriChecksum: "checksum",
+          },
+        ],
+        totp: "123",
+        autofillOnPageLoad: false,
+        fido2Credentials: [
+          {
+            credentialId: "credentialId",
+            keyType: "public-key",
+            keyAlgorithm: "ECDSA",
+            keyCurve: "P-256",
+            keyValue: "keyValue",
+            rpId: "rpId",
+            userHandle: "userHandle",
+            userName: "userName",
+            counter: "counter",
+            rpName: "rpName",
+            userDisplayName: "userDisplayName",
+            discoverable: "discoverable",
+            creationDate: "2023-01-01T12:00:00.000Z",
+          },
+        ],
+      });
     });
   });
 });

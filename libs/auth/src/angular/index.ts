@@ -2,12 +2,6 @@
  * This barrel file should only contain Angular exports
  */
 
-// anon layout
-export * from "./anon-layout/anon-layout.component";
-export * from "./anon-layout/anon-layout-wrapper.component";
-export * from "./anon-layout/anon-layout-wrapper-data.service";
-export * from "./anon-layout/default-anon-layout-wrapper-data.service";
-
 // fingerprint dialog
 export * from "./fingerprint-dialog/fingerprint-dialog.component";
 
@@ -23,6 +17,14 @@ export * from "./login/login.component";
 export * from "./login/login-secondary-content.component";
 export * from "./login/login-component.service";
 export * from "./login/default-login-component.service";
+
+// login decryption options
+export * from "./login-decryption-options/login-decryption-options.component";
+export * from "./login-decryption-options/login-decryption-options.service";
+export * from "./login-decryption-options/default-login-decryption-options.service";
+
+// login via auth request
+export * from "./login-via-auth-request/login-via-auth-request.component";
 
 // password callout
 export * from "./password-callout/password-callout.component";
@@ -49,12 +51,26 @@ export * from "./user-verification/user-verification-dialog.component";
 export * from "./user-verification/user-verification-dialog.types";
 export * from "./user-verification/user-verification-form-input.component";
 
-// lock
-export * from "./lock/lock.component";
-export * from "./lock/lock-component.service";
-
 // vault timeout
 export * from "./vault-timeout-input/vault-timeout-input.component";
 
+// sso
+export * from "./sso/sso.component";
+export * from "./sso/sso-component.service";
+export * from "./sso/default-sso-component.service";
+
 // self hosted environment configuration dialog
 export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
+
+// login approval
+export * from "./login-approval/login-approval.component";
+export * from "./login-approval/default-login-approval-component.service";
+
+// two factor auth
+export * from "./two-factor-auth";
+
+// device verification
+export * from "./new-device-verification/new-device-verification.component";
+
+// validators
+export * from "./validators/compare-inputs.validator";

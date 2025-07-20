@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { animate, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
@@ -17,6 +19,8 @@ import { UserVerificationOptions } from "@bitwarden/common/auth/types/user-verif
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -52,7 +56,6 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
       transition(":enter", [style({ opacity: 0 }), animate("100ms", style({ opacity: 1 }))]),
     ]),
   ],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -66,7 +69,6 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
     CalloutModule,
   ],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class UserVerificationFormInputComponent implements ControlValueAccessor, OnInit, OnDestroy {
   @Input() verificationType: "server" | "client" = "server"; // server represents original behavior
   private _invalidSecret = false;

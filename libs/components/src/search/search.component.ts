@@ -1,8 +1,17 @@
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, ElementRef, ViewChild, input, model } from "@angular/core";
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+  FormsModule,
+} from "@angular/forms";
 
 import { isBrowserSafariApi } from "@bitwarden/platform";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { InputModule } from "../input/input.module";
 import { FocusableElement } from "../shared/focusable-element";
 
 let nextId = 0;
@@ -21,6 +30,7 @@ let nextId = 0;
       useExisting: SearchComponent,
     },
   ],
+  imports: [InputModule, ReactiveFormsModule, FormsModule, I18nPipe],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
   private notifyOnChange: (v: string) => void;
@@ -33,11 +43,12 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 
-  @Input() disabled: boolean;
-  @Input() placeholder: string;
+  readonly disabled = model<boolean>();
+  readonly placeholder = input<string>();
+  readonly autocomplete = input<string>();
 
   getFocusTarget() {
-    return this.input.nativeElement;
+    return this.input?.nativeElement;
   }
 
   onChange(searchText: string) {
@@ -65,6 +76,6 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   }
 
   setDisabledState(isDisabled: boolean) {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 }

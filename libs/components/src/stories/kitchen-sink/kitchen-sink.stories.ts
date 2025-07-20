@@ -1,13 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
-import {
-  Meta,
-  StoryObj,
-  applicationConfig,
-  componentWrapperDecorator,
-  moduleMetadata,
-} from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import {
   userEvent,
   getAllByRole,
@@ -20,9 +14,10 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { DialogService } from "../../dialog";
+import { PasswordManagerLogo } from "../../icon";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
+import { positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
 import { KitchenSinkForm } from "./components/kitchen-sink-form.component";
@@ -35,25 +30,7 @@ export default {
   title: "Documentation / Kitchen Sink",
   component: LayoutComponent,
   decorators: [
-    componentWrapperDecorator(
-      /**
-       * Applying a CSS transform makes a `position: fixed` element act like it is `position: relative`
-       * https://github.com/storybookjs/storybook/issues/8011#issue-490251969
-       */
-      (story) => {
-        return /* HTML */ `<div class="tw-scale-100 tw-border-2 tw-border-solid tw-border-[red]">
-          ${story}
-        </div>`;
-      },
-      ({ globals }) => {
-        /**
-         * avoid a bug with the way that we render the same component twice in the same iframe and how
-         * that interacts with the router-outlet
-         */
-        const themeOverride = globals["theme"] === "both" ? "light" : globals["theme"];
-        return { theme: themeOverride };
-      },
-    ),
+    positionFixedWrapperDecorator(),
     moduleMetadata({
       imports: [
         KitchenSinkSharedModule,
@@ -62,8 +39,20 @@ export default {
         KitchenSinkTable,
         KitchenSinkToggleList,
       ],
+    }),
+    applicationConfig({
       providers: [
-        DialogService,
+        provideNoopAnimations(),
+        importProvidersFrom(
+          RouterModule.forRoot(
+            [
+              { path: "", redirectTo: "bitwarden", pathMatch: "full" },
+              { path: "bitwarden", component: KitchenSinkMainComponent },
+              { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
+            ],
+            { useHash: true },
+          ),
+        ),
         {
           provide: I18nService,
           useFactory: () => {
@@ -81,21 +70,6 @@ export default {
         },
       ],
     }),
-    applicationConfig({
-      providers: [
-        provideNoopAnimations(),
-        importProvidersFrom(
-          RouterModule.forRoot(
-            [
-              { path: "", redirectTo: "bitwarden", pathMatch: "full" },
-              { path: "bitwarden", component: KitchenSinkMainComponent },
-              { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
-            ],
-            { useHash: true },
-          ),
-        ),
-      ],
-    }),
   ],
 } as Meta;
 
@@ -104,25 +78,41 @@ type Story = StoryObj<LayoutComponent>;
 export const Default: Story = {
   render: (args) => {
     return {
-      props: args,
+      props: {
+        ...args,
+        logo: PasswordManagerLogo,
+      },
       template: /* HTML */ `<bit-layout>
         <bit-side-nav>
-          <bit-nav-group text="Password Managers" icon="bwi-collection" [open]="true">
-            <bit-nav-group text="Favorites" icon="bwi-collection" variant="tree" [open]="true">
-              <bit-nav-item text="Bitwarden" route="bitwarden"></bit-nav-item>
-              <bit-nav-divider></bit-nav-divider>
-            </bit-nav-group>
-            <bit-nav-item text="Virtual Scroll" route="virtual-scroll"></bit-nav-item>
+          <bit-nav-logo [openIcon]="logo" route="." [label]="Logo"></bit-nav-logo>
+          <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
+            <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child B" route="b"></bit-nav-item>
+            <bit-nav-item
+              text="Virtual Scroll"
+              route="virtual-scroll"
+              icon="bwi-filter"
+            ></bit-nav-item>
+          </bit-nav-group>
+          <bit-nav-group text="Favorites" icon="bwi-filter">
+            <bit-nav-item text="Favorites Child A" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Favorites Child B"></bit-nav-item>
+            <bit-nav-item text="Favorites Child C" icon="bwi-filter"></bit-nav-item>
           </bit-nav-group>
         </bit-side-nav>
         <router-outlet></router-outlet>
       </bit-layout>`,
     };
   },
+  parameters: {
+    chromatic: {
+      viewports: [640, 1280],
+    },
+  },
 };
 
 export const MenuOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const table = getByRole(canvas, "table");
@@ -130,10 +120,13 @@ export const MenuOpen: Story = {
     const menuButton = getAllByRole(table, "button")[0];
     await userEvent.click(menuButton);
   },
+  parameters: {
+    chromatic: { ignoreSelectors: [".bit-menu-panel-backdrop"] },
+  },
 };
 
-export const DefaultDialogOpen: Story = {
-  ...Default,
+export const DialogOpen: Story = {
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const dialogButton = getByRole(canvas, "button", {
@@ -145,8 +138,21 @@ export const DefaultDialogOpen: Story = {
   },
 };
 
+export const DrawerOpen: Story = {
+  render: Default.render,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const drawerButton = getByRole(canvas, "button", {
+      name: "Open Drawer",
+    });
+
+    // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
+    await fireEvent.click(drawerButton);
+  },
+};
+
 export const PopoverOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const passwordLabelIcon = getByLabelText(canvas, "A random password (required)", {
@@ -158,7 +164,7 @@ export const PopoverOpen: Story = {
 };
 
 export const SimpleDialogOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const submitButton = getByRole(canvas, "button", {
@@ -171,7 +177,7 @@ export const SimpleDialogOpen: Story = {
 };
 
 export const EmptyTab: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const emptyTab = getByRole(canvas, "tab", { name: "Empty tab" });
@@ -180,7 +186,7 @@ export const EmptyTab: Story = {
 };
 
 export const VirtualScrollBlockingDialog: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const navItem = getByText(canvas, "Virtual Scroll");

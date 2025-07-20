@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -226,6 +228,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, "name"),
+        htmlClass: this.getPropertyOrAttribute(formElement, "class"),
         htmlID: this.getPropertyOrAttribute(formElement, "id"),
         htmlMethod: this.getPropertyOrAttribute(formElement, "method"),
       });
@@ -980,7 +983,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const queueLength = this.mutationsQueue.length;
 
     if (!this.domQueryService.pageContainsShadowDomElements()) {
-      this.domQueryService.checkPageContainsShadowDom();
+      this.checkPageContainsShadowDom();
     }
 
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
@@ -998,6 +1001,29 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     this.mutationsQueue = [];
   };
+
+  /**
+   * Handles checking if the current page contains a ShadowDOM element and
+   * flags that a re-collection of page details is required if it does.
+   */
+  private checkPageContainsShadowDom() {
+    this.domQueryService.checkPageContainsShadowDom();
+    if (this.domQueryService.pageContainsShadowDomElements()) {
+      this.flagPageDetailsUpdateIsRequired();
+    }
+  }
+
+  /**
+   * Triggers several flags that indicate that a collection of page details should
+   * occur again on a subsequent call after a mutation has been observed in the DOM.
+   */
+  private flagPageDetailsUpdateIsRequired() {
+    this.domRecentlyMutated = true;
+    if (this.autofillOverlayContentService) {
+      this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
+    }
+    this.noFieldsFound = false;
+  }
 
   /**
    * Processes all mutation records encountered by the mutation observer.
@@ -1023,11 +1049,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       (this.isAutofillElementNodeMutated(mutation.removedNodes, true) ||
         this.isAutofillElementNodeMutated(mutation.addedNodes))
     ) {
-      this.domRecentlyMutated = true;
-      if (this.autofillOverlayContentService) {
-        this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
-      }
-      this.noFieldsFound = false;
+      this.flagPageDetailsUpdateIsRequired();
       return;
     }
 

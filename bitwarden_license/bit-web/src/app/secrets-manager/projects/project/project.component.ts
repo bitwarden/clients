@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
@@ -12,7 +14,12 @@ import {
   concatMap,
 } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import { ProjectCounts } from "../../models/view/counts.view";
@@ -30,6 +37,7 @@ import { ProjectService } from "../project.service";
 @Component({
   selector: "sm-project",
   templateUrl: "./project.component.html",
+  standalone: false,
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   protected project$: Observable<ProjectView>;
@@ -47,6 +55,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private accessPolicyService: AccessPolicyService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private countService: CountService,
   ) {}
 
@@ -63,7 +72,15 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     const projectId$ = this.route.params.pipe(map((p) => p.projectId));
     const organization$ = this.route.params.pipe(
-      concatMap((params) => this.organizationService.get$(params.organizationId)),
+      concatMap((params) =>
+        getUserId(this.accountService.activeAccount$).pipe(
+          switchMap((userId) =>
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          ),
+        ),
+      ),
     );
     const projectCounts$ = combineLatest([
       this.route.params,

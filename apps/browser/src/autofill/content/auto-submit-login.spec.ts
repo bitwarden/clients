@@ -46,6 +46,8 @@ describe("AutoSubmitLogin content script", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     setupEnvironmentDefaults();
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./auto-submit-login");
   });
 

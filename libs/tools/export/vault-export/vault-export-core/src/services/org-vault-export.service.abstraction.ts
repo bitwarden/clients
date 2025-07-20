@@ -1,14 +1,16 @@
+import { ExportedVaultAsString } from "../types";
+
 import { ExportFormat } from "./vault-export.service.abstraction";
 
 export abstract class OrganizationVaultExportServiceAbstraction {
-  getPasswordProtectedExport: (
+  abstract getPasswordProtectedExport: (
     organizationId: string,
     password: string,
     onlyManagedCollections: boolean,
-  ) => Promise<string>;
-  getOrganizationExport: (
+  ) => Promise<ExportedVaultAsString>;
+  abstract getOrganizationExport: (
     organizationId: string,
     format: ExportFormat,
     onlyManagedCollections: boolean,
-  ) => Promise<string>;
+  ) => Promise<ExportedVaultAsString>;
 }

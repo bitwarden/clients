@@ -1,72 +1,90 @@
 [package]
-edition = "2021"
-license = "GPL-3.0"
 name = "desktop_core"
-version = "0.0.0"
-publish = false
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
 
 [features]
-default = ["sys"]
-manual_test = []
-
-sys = [
+default = [
   "dep:widestring",
   "dep:windows",
   "dep:core-foundation",
   "dep:security-framework",
   "dep:security-framework-sys",
-  "dep:gio",
-  "dep:libsecret",
   "dep:zbus",
   "dep:zbus_polkit",
 ]
+manual_test = []
 
 [dependencies]
-aes = "=0.8.4"
-anyhow = "=1.0.86"
-arboard = { version = "=3.4.1", default-features = false, features = [
-  "wayland-data-control",
+aes = { workspace = true }
+anyhow = { workspace = true }
+arboard = { workspace = true, features = [
+    "wayland-data-control",
 ] }
-base64 = "=0.22.1"
-cbc = { version = "=0.1.2", features = ["alloc"] }
-dirs = "=5.0.1"
-futures = "=0.3.31"
-interprocess = { version = "=2.2.1", features = ["tokio"] }
-libc = "=0.2.159"
-log = "=0.4.22"
-rand = "=0.8.5"
-retry = "=2.0.0"
-scopeguard = "=1.2.0"
-sha2 = "=0.10.8"
-thiserror = "=1.0.61"
-tokio = { version = "=1.38.0", features = ["io-util", "sync", "macros"] }
-tokio-util = "=0.7.12"
-typenum = "=1.17.0"
+base64 = { workspace = true }
+byteorder = { workspace = true }
+cbc = { workspace = true, features = ["alloc"] }
+homedir = { workspace = true }
+pin-project = { workspace = true }
+dirs = { workspace = true }
+futures = { workspace = true }
+interprocess = { workspace = true, features = ["tokio"] }
+log = { workspace = true }
+rand = { workspace = true }
+russh-cryptovec = { workspace = true }
+scopeguard = { workspace = true }
+sha2 = { workspace = true }
+ssh-encoding = { workspace = true }
+ssh-key = { workspace = true, features = [
+    "encryption",
+    "ed25519",
+    "rsa",
+    "getrandom",
+] }
+bitwarden-russh = { workspace = true }
+tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
+tokio-stream = { workspace = true, features = ["net"] }
+tokio-util = { workspace = true, features = ["codec"] }
+thiserror = { workspace = true }
+typenum = { workspace = true }
+pkcs8 = { workspace = true, features = ["alloc", "encryption", "pem"] }
+rsa = { workspace = true }
+ed25519 = { workspace = true, features = ["pkcs8"] }
+bytes = { workspace = true }
+sysinfo = { workspace = true, features = ["windows"] }
+zeroizing-alloc = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
-widestring = { version = "=1.1.0", optional = true }
-windows = { version = "=0.57.0", features = [
-  "Foundation",
-  "Security_Credentials_UI",
-  "Security_Cryptography",
-  "Storage_Streams",
-  "Win32_Foundation",
-  "Win32_Security_Credentials",
-  "Win32_System_WinRT",
-  "Win32_UI_Input_KeyboardAndMouse",
-  "Win32_UI_WindowsAndMessaging",
+widestring = { workspace = true, optional = true }
+windows = { workspace = true, features = [
+    "Foundation",
+    "Security_Credentials_UI",
+    "Security_Cryptography",
+    "Storage_Streams",
+    "Win32_Foundation",
+    "Win32_Security_Credentials",
+    "Win32_System_WinRT",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_Pipes",
 ], optional = true }
+windows-future = { workspace = true }
 
 [target.'cfg(windows)'.dev-dependencies]
-keytar = "=0.1.6"
+keytar = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-core-foundation = { version = "=0.9.4", optional = true }
-security-framework = { version = "=2.11.0", optional = true }
-security-framework-sys = { version = "=2.11.0", optional = true }
+core-foundation = { workspace = true, optional = true }
+security-framework = { workspace = true, optional = true }
+security-framework-sys = { workspace = true, optional = true }
+desktop_objc = { path = "../objc" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-gio = { version = "=0.19.5", optional = true }
-libsecret = { version = "=0.5.0", optional = true }
-zbus = { version = "=4.3.1", optional = true }
-zbus_polkit = { version = "=4.0.0", optional = true }
+oo7 = { workspace = true }
+libc = { workspace = true }
+ashpd = { workspace = true }
+
+zbus = { workspace = true, optional = true }
+zbus_polkit = { workspace = true, optional = true }

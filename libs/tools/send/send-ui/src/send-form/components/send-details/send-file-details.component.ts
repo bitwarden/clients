@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -20,7 +22,6 @@ import { SendFormContainer } from "../../send-form-container";
 @Component({
   selector: "tools-send-file-details",
   templateUrl: "./send-file-details.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,

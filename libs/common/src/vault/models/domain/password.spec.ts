@@ -1,5 +1,5 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { PasswordHistoryData } from "../../models/data/password-history.data";
 import { Password } from "../../models/domain/password";
 
@@ -68,6 +68,19 @@ describe("Password", () => {
 
     it("returns null if object is null", () => {
       expect(Password.fromJSON(null)).toBeNull();
+    });
+  });
+
+  describe("toSdkPasswordHistory", () => {
+    it("returns the correct SDK PasswordHistory object", () => {
+      const password = new Password(data);
+
+      const sdkPasswordHistory = password.toSdkPasswordHistory();
+
+      expect(sdkPasswordHistory).toEqual({
+        password: "encPassword",
+        lastUsedDate: new Date("2022-01-31T12:00:00.000Z").toISOString(),
+      });
     });
   });
 });

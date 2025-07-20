@@ -1,6 +1,12 @@
-import { Component } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, inject } from "@angular/core";
 import { Params } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { OrganizationSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/organization-sponsorship.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { Icons, ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../../common/base.accept.component";
 
@@ -12,50 +18,40 @@ import { BaseAcceptComponent } from "../../../common/base.accept.component";
 @Component({
   selector: "app-accept-family-sponsorship",
   templateUrl: "accept-family-sponsorship.component.html",
+  standalone: false,
 })
 export class AcceptFamilySponsorshipComponent extends BaseAcceptComponent {
+  protected logo = Icons.BitwardenLogo;
   failedShortMessage = "inviteAcceptFailedShort";
   failedMessage = "inviteAcceptFailed";
 
   requiredParameters = ["email", "token"];
 
+  policyResponse!: OrganizationSponsorshipResponse;
+  policyApiService = inject(PolicyApiServiceAbstraction);
+  configService = inject(ConfigService);
+  toastService = inject(ToastService);
+
   async authedHandler(qParams: Params) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/setup/families-for-enterprise"], { queryParams: qParams });
+    await this.router.navigate(["/setup/families-for-enterprise"], { queryParams: qParams });
   }
 
   async unauthedHandler(qParams: Params) {
     if (!qParams.register) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/login"], { queryParams: { email: qParams.email } });
+      await this.router.navigate(["/login"], { queryParams: { email: qParams.email } });
     } else {
-      // TODO: update logic when email verification flag is removed
-      let queryParams: Params;
-      let registerRoute = await firstValueFrom(this.registerRoute$);
-      if (registerRoute === "/register") {
-        queryParams = {
-          email: qParams.email,
-        };
-      } else if (registerRoute === "/signup") {
-        // We have to override the base component route as we don't need users to
-        // complete email verification if they are coming directly an emailed invite.
+      // We don't need users to complete email verification if they are coming directly from an emailed invite.
+      // Therefore, we skip /signup and navigate directly to /finish-signup.
 
-        // TODO: in the future, to allow users to enter a name, consider sending all invite users to
-        // start registration page with prefilled email and a named token to be passed directly
-        // along to the finish-signup page without requiring email verification as
-        // we can treat the existence of the token as a form of email verification.
-
-        registerRoute = "/finish-signup";
-        queryParams = {
+      // TODO: in the future, to allow users to enter a name, consider sending all invite users to
+      // start registration page with prefilled email and a named token to be passed directly
+      // along to the finish-signup page without requiring email verification as
+      // we can treat the existence of the token as a form of email verification.
+      await this.router.navigate(["/finish-signup"], {
+        queryParams: {
           email: qParams.email,
           orgSponsoredFreeFamilyPlanToken: qParams.token,
-        };
-      }
-
-      await this.router.navigate([registerRoute], {
-        queryParams: queryParams,
+        },
       });
     }
   }

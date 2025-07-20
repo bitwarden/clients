@@ -1,14 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -20,7 +23,6 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 import { LoginStrategyData, LoginStrategy } from "./login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {
-  captchaBypassToken: string;
   tokenRequest: SsoTokenRequest;
   /**
    * User's entered email obtained pre-login. Present in most SSO flows, but not CLI + SSO Flow.
@@ -106,14 +108,6 @@ export class SsoLoginStrategy extends LoginStrategy {
     const email = ssoAuthResult.email;
     const ssoEmail2FaSessionToken = ssoAuthResult.ssoEmail2FaSessionToken;
 
-    // Auth guard currently handles redirects for this.
-    if (ssoAuthResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
-      await this.masterPasswordService.setForceSetPasswordReason(
-        ssoAuthResult.forcePasswordReset,
-        ssoAuthResult.userId,
-      );
-    }
-
     this.cache.next({
       ...this.cache.value,
       email,
@@ -192,7 +186,10 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     if (masterKeyEncryptedUserKey) {
       // set the master key encrypted user key if it exists
-      await this.keyService.setMasterKeyEncryptedUserKey(masterKeyEncryptedUserKey, userId);
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(
+        masterKeyEncryptedUserKey,
+        userId,
+      );
     }
 
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
@@ -267,7 +264,7 @@ export class SsoLoginStrategy extends LoginStrategy {
         );
       }
 
-      if (await this.keyService.hasUserKey()) {
+      if (await this.keyService.hasUserKey(userId)) {
         // Now that we have a decrypted user key in memory, we can check if we
         // need to establish trust on the current device
         await this.deviceTrustService.trustDeviceIfRequired(userId);
@@ -276,7 +273,8 @@ export class SsoLoginStrategy extends LoginStrategy {
         // TODO: eventually we post and clean up DB as well once consumed on client
         await this.authRequestService.clearAdminAuthRequest(userId);
 
-        this.platformUtilsService.showToast("success", null, this.i18nService.t("loginApproved"));
+        // This notification will be picked up by the SsoComponent to handle displaying a toast to the user
+        this.authRequestService.emitAdminLoginApproved();
       }
     }
   }
@@ -338,7 +336,7 @@ export class SsoLoginStrategy extends LoginStrategy {
       return;
     }
 
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
+    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
     await this.keyService.setUserKey(userKey, userId);
   }
 
@@ -346,13 +344,38 @@ export class SsoLoginStrategy extends LoginStrategy {
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    const newSsoUser = tokenResponse.key == null;
+    const isSetInitialPasswordFlagOn = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_SetInitialPasswordRefactor,
+    );
 
-    if (!newSsoUser) {
-      await this.keyService.setPrivateKey(
-        tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
-        userId,
-      );
+    if (isSetInitialPasswordFlagOn) {
+      if (tokenResponse.hasMasterKeyEncryptedUserKey()) {
+        // User has masterKeyEncryptedUserKey, so set the userKeyEncryptedPrivateKey
+        // Note: new JIT provisioned SSO users will not yet have a user asymmetric key pair
+        // and so we don't want them falling into the createKeyPairForOldAccount flow
+        await this.keyService.setPrivateKey(
+          tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+          userId,
+        );
+      } else if (tokenResponse.privateKey) {
+        // User doesn't have masterKeyEncryptedUserKey but they do have a userKeyEncryptedPrivateKey
+        // This is just existing TDE users or a TDE offboarder on an untrusted device
+        await this.keyService.setPrivateKey(tokenResponse.privateKey, userId);
+      }
+      // else {
+      //    User could be new JIT provisioned SSO user in either a MP encryption org OR a TDE org.
+      //    In either case, the user doesn't yet have a user asymmetric key pair, a user key, or a master key + master key encrypted user key.
+      // }
+    } else {
+      // A user that does not yet have a masterKeyEncryptedUserKey set is a new SSO user
+      const newSsoUser = tokenResponse.key == null;
+
+      if (!newSsoUser) {
+        await this.keyService.setPrivateKey(
+          tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+          userId,
+        );
+      }
     }
   }
 
@@ -360,5 +383,109 @@ export class SsoLoginStrategy extends LoginStrategy {
     return {
       sso: this.cache.value,
     };
+  }
+
+  /**
+   * Override to handle SSO-specific ForceSetPasswordReason flags,including TdeOffboarding,
+   * TdeUserWithoutPasswordHasPasswordResetPermission, and SsoNewJitProvisionedUser cases.
+   * @param authResult - The authentication result
+   * @param userId - The user ID
+   */
+  override async processForceSetPasswordReason(
+    adminForcePasswordReset: boolean,
+    userId: UserId,
+  ): Promise<boolean> {
+    // handle any existing reasons
+    const adminForcePasswordResetFlagSet = await super.processForceSetPasswordReason(
+      adminForcePasswordReset,
+      userId,
+    );
+
+    // If we are already processing an admin force password reset, don't process other reasons
+    if (adminForcePasswordResetFlagSet) {
+      return false;
+    }
+
+    // Check for TDE-related conditions
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptions$,
+    );
+
+    if (!userDecryptionOptions) {
+      return false;
+    }
+
+    // Check for TDE offboarding - user is being offboarded from TDE and needs to set a password on a trusted device
+    if (userDecryptionOptions.trustedDeviceOption?.isTdeOffboarding) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeOffboarding,
+        userId,
+      );
+      return true;
+    }
+
+    // If a TDE org user in an offboarding state logs in on an untrusted device, then they will receive their existing userKeyEncryptedPrivateKey from the server, but
+    // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavilable here for TDE org users on untrusted devices.
+    // - UserDecryptionOptions.trustedDeviceOption is undefined -- device isn't trusted.
+    // - UserDecryptionOptions.hasMasterPassword is false -- user doesn't have a master password.
+    // - UserDecryptionOptions.UsesKeyConnector is undefined. -- they aren't using key connector
+    // - UserKey is not set after successful login -- because automatic decryption is not available
+    // - userKeyEncryptedPrivateKey is set after successful login -- this is the key differentiator between a TDE org user logging into an untrusted device and MP encryption JIT provisioned user logging in for the first time.
+    const isSetInitialPasswordFlagOn = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_SetInitialPasswordRefactor,
+    );
+
+    if (isSetInitialPasswordFlagOn) {
+      const hasUserKeyEncryptedPrivateKey = await firstValueFrom(
+        this.keyService.userEncryptedPrivateKey$(userId),
+      );
+      const hasUserKey = await this.keyService.hasUserKey(userId);
+
+      // TODO: PM-23491 we should explore consolidating this logic into a flag on the server. It could be set when an org is switched from TDE to MP encryption for each org user.
+      if (
+        !userDecryptionOptions.trustedDeviceOption &&
+        !userDecryptionOptions.hasMasterPassword &&
+        !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
+        hasUserKeyEncryptedPrivateKey &&
+        !hasUserKey
+      ) {
+        await this.masterPasswordService.setForceSetPasswordReason(
+          ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
+          userId,
+        );
+        return true;
+      }
+    }
+
+    // Check if user has permission to set password but hasn't yet
+    if (
+      !userDecryptionOptions.hasMasterPassword &&
+      userDecryptionOptions.trustedDeviceOption?.hasManageResetPasswordPermission
+    ) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+        userId,
+      );
+
+      return true;
+    }
+
+    // Check for new SSO JIT provisioned user
+    // If a user logs in via SSO but has no master password and no alternative encryption methods
+    // Then they must be a newly provisioned user who needs to set up their encryption
+    if (
+      !userDecryptionOptions.hasMasterPassword &&
+      !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
+      !userDecryptionOptions.trustedDeviceOption
+    ) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.SsoNewJitProvisionedUser,
+        userId,
+      );
+      return true;
+    }
+
+    // If none of the conditions are met, return false
+    return false;
   }
 }

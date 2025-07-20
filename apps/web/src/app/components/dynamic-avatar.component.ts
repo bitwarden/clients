@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnDestroy } from "@angular/core";
 import { Subject } from "rxjs";
 
@@ -8,7 +10,6 @@ import { SharedModule } from "../shared";
 type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
 @Component({
   selector: "dynamic-avatar",
-  standalone: true,
   imports: [SharedModule],
   template: `<span [title]="title">
     <bit-avatar

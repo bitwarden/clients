@@ -1,50 +1,46 @@
-import { DOCUMENT } from "@angular/common";
-import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NavigationEnd, Router } from "@angular/router";
-import * as jq from "jquery";
-import { Subject, filter, firstValueFrom, map, takeUntil, timeout, catchError, of } from "rxjs";
+import { Router } from "@angular/router";
+import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { LogoutReason } from "@bitwarden/auth/common";
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
-
-import { flagEnabled } from "../utils/flags";
 
 import { PolicyListService } from "./admin-console/core/policy-list.service";
 import {
   DisableSendPolicy,
   MasterPasswordPolicy,
   PasswordGeneratorPolicy,
-  PersonalOwnershipPolicy,
+  OrganizationDataOwnershipPolicy,
   RequireSsoPolicy,
   ResetPasswordPolicy,
   SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
+  RemoveUnlockWithPinPolicy,
 } from "./admin-console/organizations/policies";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -53,6 +49,7 @@ const IdleTimeout = 60000 * 10; // 10 minutes
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
+  standalone: false,
 })
 export class AppComponent implements OnDestroy, OnInit {
   private lastActivity: Date = null;
@@ -60,12 +57,11 @@ export class AppComponent implements OnDestroy, OnInit {
   private isIdle = false;
   private destroy$ = new Subject<void>();
 
+  loading = false;
+
   constructor(
-    @Inject(DOCUMENT) private document: Document,
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
-    private syncService: SyncService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private cipherService: CipherService,
     private authService: AuthService,
     private router: Router,
@@ -80,43 +76,25 @@ export class AppComponent implements OnDestroy, OnInit {
     private notificationsService: NotificationsService,
     private stateService: StateService,
     private eventUploadService: EventUploadService,
-    private policyService: InternalPolicyService,
     protected policyListService: PolicyListService,
-    private keyConnectorService: KeyConnectorService,
     protected configService: ConfigService,
     private dialogService: DialogService,
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
     private organizationService: InternalOrganizationServiceAbstraction,
     private accountService: AccountService,
-    private logService: LogService,
-    private sdkService: SdkService,
+    private processReloadService: ProcessReloadServiceAbstraction,
+    private deviceTrustToastService: DeviceTrustToastService,
+    private readonly destoryRef: DestroyRef,
+    private readonly documentLangSetter: DocumentLangSetter,
   ) {
-    if (flagEnabled("sdk")) {
-      // Warn if the SDK for some reason can't be initialized
-      this.sdkService.supported$
-        .pipe(
-          takeUntilDestroyed(),
-          catchError(() => {
-            return of(false);
-          }),
-        )
-        .subscribe((supported) => {
-          if (!supported) {
-            this.logService.debug("SDK is not supported");
-            this.sdkService.failedToInitialize("web").catch((e) => this.logService.error(e));
-          } else {
-            this.logService.debug("SDK is supported");
-          }
-        });
-    }
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+
+    const langSubscription = this.documentLangSetter.start();
+    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   ngOnInit() {
-    this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {
-      this.document.documentElement.lang = locale;
-    });
-
     this.ngZone.runOutsideAngular(() => {
       window.onmousemove = () => this.recordActivity();
       window.onmousedown = () => this.recordActivity();
@@ -137,42 +115,20 @@ export class AppComponent implements OnDestroy, OnInit {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
-          case "loggedIn":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection(false);
-            break;
-          case "loggedOut":
-            if (
-              message.userId == null ||
-              message.userId === (await firstValueFrom(this.accountService.activeAccount$))
-            ) {
-              await this.notificationsService.updateConnection(false);
-            }
-            break;
-          case "unlocked":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection(false);
-            break;
           case "authBlocked":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["/"]);
             break;
           case "logout":
-            await this.logOut(message.logoutReason, message.redirect);
+            // note: the message.logoutReason isn't consumed anymore because of the process reload clearing any toasts.
+            await this.logOut(message.redirect);
             break;
           case "lockVault":
             await this.vaultTimeoutService.lock();
             break;
           case "locked":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection(false);
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["lock"]);
+            await this.processReloadService.startProcessReload(this.authService);
             break;
           case "lockedUrl":
             break;
@@ -210,8 +166,6 @@ export class AppComponent implements OnDestroy, OnInit {
               type: "success",
             });
             if (premiumConfirmed) {
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               await this.router.navigate(["settings/subscription/premium"]);
             }
             break;
@@ -238,29 +192,58 @@ export class AppComponent implements OnDestroy, OnInit {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["/remove-password"]);
             break;
+          case "syncOrganizationStatusChanged": {
+            const { organizationId, enabled } = message;
+            const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+            const organizations = await firstValueFrom(
+              this.organizationService.organizations$(userId),
+            );
+            const organization = organizations.find((org) => org.id === organizationId);
+
+            if (organization) {
+              const updatedOrganization = {
+                ...organization,
+                enabled: enabled,
+              };
+              await this.organizationService.upsert(updatedOrganization, userId);
+            }
+            break;
+          }
+          case "syncOrganizationCollectionSettingChanged": {
+            const { organizationId, limitCollectionCreation, limitCollectionDeletion } = message;
+            const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+            const organizations = await firstValueFrom(
+              this.organizationService.organizations$(userId),
+            );
+            const organization = organizations.find((org) => org.id === organizationId);
+
+            if (organization) {
+              await this.organizationService.upsert(
+                {
+                  ...organization,
+                  limitCollectionCreation: limitCollectionCreation,
+                  limitCollectionDeletion: limitCollectionDeletion,
+                },
+                userId,
+              );
+            }
+            break;
+          }
           default:
             break;
         }
       });
     });
 
-    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        const modals = Array.from(document.querySelectorAll(".modal"));
-        for (const modal of modals) {
-          (jq(modal) as any).modal("hide");
-        }
-      }
-    });
-
     this.policyListService.addPolicies([
       new TwoFactorAuthenticationPolicy(),
       new MasterPasswordPolicy(),
+      new RemoveUnlockWithPinPolicy(),
       new ResetPasswordPolicy(),
       new PasswordGeneratorPolicy(),
       new SingleOrgPolicy(),
       new RequireSsoPolicy(),
-      new PersonalOwnershipPolicy(),
+      new OrganizationDataOwnershipPolicy(),
       new DisableSendPolicy(),
       new SendOptionsPolicy(),
     ]);
@@ -272,36 +255,19 @@ export class AppComponent implements OnDestroy, OnInit {
     this.destroy$.complete();
   }
 
-  private async displayLogoutReason(logoutReason: LogoutReason) {
-    let toastOptions: ToastOptions;
-    switch (logoutReason) {
-      case "invalidSecurityStamp":
-      case "sessionExpired": {
-        toastOptions = {
-          variant: "warning",
-          title: this.i18nService.t("loggedOut"),
-          message: this.i18nService.t("loginExpired"),
-        };
-        break;
-      }
-      default: {
-        toastOptions = {
-          variant: "info",
-          title: this.i18nService.t("loggedOut"),
-          message: this.i18nService.t("loggedOutDesc"),
-        };
-        break;
-      }
-    }
+  private async logOut(redirect = true) {
+    // Ensure the loading state is applied before proceeding to avoid a flash
+    // of the login screen before the process reload fires.
+    this.ngZone.run(() => {
+      this.loading = true;
+      document.body.classList.add("layout_frontend");
+    });
 
-    this.toastService.showToast(toastOptions);
-  }
-
-  private async logOut(logoutReason: LogoutReason, redirect = true) {
-    await this.displayLogoutReason(logoutReason);
+    // Note: we don't display a toast logout reason anymore as the process reload
+    // will prevent any toasts from being displayed long enough to be read
 
     await this.eventUploadService.uploadEvents();
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     const logoutPromise = firstValueFrom(
       this.authService.authStatusFor$(userId).pipe(
@@ -316,7 +282,7 @@ export class AppComponent implements OnDestroy, OnInit {
     );
 
     await Promise.all([
-      this.keyService.clearKeys(),
+      this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId),
@@ -325,7 +291,7 @@ export class AppComponent implements OnDestroy, OnInit {
 
     await this.stateEventRunnerService.handleEvent("logout", userId);
 
-    await this.searchService.clearIndex();
+    await this.searchService.clearIndex(userId);
     this.authService.logOut(async () => {
       await this.stateService.clean({ userId: userId });
       await this.accountService.clean(userId);
@@ -334,10 +300,14 @@ export class AppComponent implements OnDestroy, OnInit {
       await logoutPromise;
 
       if (redirect) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate(["/"]);
+        await this.router.navigate(["/"]);
       }
+
+      await this.processReloadService.startProcessReload(this.authService);
+
+      // Normally we would need to reset the loading state to false or remove the layout_frontend
+      // class from the body here, but the process reload completely reloads the app so
+      // it handles it.
     }, userId);
   }
 
@@ -371,12 +341,8 @@ export class AppComponent implements OnDestroy, OnInit {
 
   private idleStateChanged() {
     if (this.isIdle) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.notificationsService.disconnectFromInactivity();
     } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.notificationsService.reconnectFromActivity();
     }
   }

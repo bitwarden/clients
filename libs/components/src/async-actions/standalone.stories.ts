@@ -9,22 +9,46 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 
+import { AsyncActionsModule } from "./async-actions.module";
 import { BitActionDirective } from "./bit-action.directive";
 
-const template = `
-  <button bitButton buttonType="primary" [bitAction]="action" class="tw-mr-2">
-    Perform action
+const template = /*html*/ `
+  <button bitButton buttonType="primary" [bitAction]="action" class="tw-me-2">
+    Perform action {{ statusEmoji }}
   </button>
   <button bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
 
 @Component({
   template,
   selector: "app-promise-example",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class PromiseExampleComponent {
+  statusEmoji = "🟡";
   action = async () => {
     await new Promise<void>((resolve, reject) => {
-      setTimeout(resolve, 2000);
+      setTimeout(() => {
+        resolve();
+        this.statusEmoji = "🟢";
+      }, 5000);
+    });
+  };
+}
+
+@Component({
+  template,
+  selector: "app-action-resolves-quickly",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
+})
+class ActionResolvesQuicklyComponent {
+  statusEmoji = "🟡";
+
+  action = async () => {
+    await new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+        this.statusEmoji = "🟢";
+      }, 50);
     });
   };
 }
@@ -32,6 +56,7 @@ class PromiseExampleComponent {
 @Component({
   template,
   selector: "app-observable-example",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ObservableExampleComponent {
   action = () => {
@@ -42,6 +67,7 @@ class ObservableExampleComponent {
 @Component({
   template,
   selector: "app-rejected-promise-example",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class RejectedPromiseExampleComponent {
   action = async () => {
@@ -55,13 +81,15 @@ export default {
   title: "Component Library/Async Actions/Standalone",
   decorators: [
     moduleMetadata({
-      declarations: [
+      imports: [
+        ButtonModule,
+        IconButtonModule,
         BitActionDirective,
         PromiseExampleComponent,
         ObservableExampleComponent,
         RejectedPromiseExampleComponent,
+        ActionResolvesQuicklyComponent,
       ],
-      imports: [ButtonModule, IconButtonModule],
       providers: [
         {
           provide: ValidationService,
@@ -99,5 +127,12 @@ export const UsingObservable: ObservableStory = {
 export const RejectedPromise: ObservableStory = {
   render: (args) => ({
     template: `<app-rejected-promise-example></app-rejected-promise-example>`,
+  }),
+};
+
+export const ActionResolvesQuickly: PromiseStory = {
+  render: (args) => ({
+    props: args,
+    template: `<app-action-resolves-quickly></app-action-resolves-quickly>`,
   }),
 };

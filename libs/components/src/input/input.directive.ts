@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   Directive,
   ElementRef,
@@ -7,48 +9,58 @@ import {
   NgZone,
   Optional,
   Self,
+  input,
+  model,
 } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormFieldControl, InputTypes } from "../form-field/form-field-control";
+import { BitFormFieldComponent } from "../form-field/form-field.component";
 
 // Increments for each instance of this component
 let nextId = 0;
 
+export function inputBorderClasses(error: boolean) {
+  return [
+    "tw-border",
+    "!tw-border-solid",
+    error ? "tw-border-danger-600" : "tw-border-secondary-500",
+    "focus:tw-outline-none",
+  ];
+}
+
 @Directive({
   selector: "input[bitInput], select[bitInput], textarea[bitInput]",
   providers: [{ provide: BitFormFieldControl, useExisting: BitInputDirective }],
+  host: {
+    "[class]": "classList()",
+    "[id]": "id()",
+    "[attr.type]": "type()",
+    "[attr.spellcheck]": "spellcheck()",
+  },
 })
 export class BitInputDirective implements BitFormFieldControl {
-  @HostBinding("class") @Input() get classList() {
-    return [
+  classList() {
+    const classes = [
       "tw-block",
       "tw-w-full",
-      "tw-px-3",
-      "tw-py-1.5",
-      "tw-bg-background-alt",
-      "tw-border",
-      "tw-border-solid",
-      this.hasError ? "tw-border-danger-600" : "tw-border-secondary-600",
+      "tw-h-full",
       "tw-text-main",
       "tw-placeholder-text-muted",
-      // Rounded
-      "tw-rounded-none",
-      "first:tw-rounded-l",
-      "last:tw-rounded-r",
-      // Focus
+      "tw-bg-background",
+      "tw-border-none",
       "focus:tw-outline-none",
-      "focus:tw-border-primary-700",
-      "focus:tw-ring-1",
-      "focus:tw-ring-inset",
-      "focus:tw-ring-primary-700",
-      "focus:tw-z-10",
-      "disabled:tw-bg-secondary-100",
-      "[&:is(input,textarea):read-only]:tw-bg-secondary-100",
-    ].filter((s) => s != "");
+      "[&:is(input,textarea):disabled]:tw-bg-secondary-100",
+    ];
+
+    if (this.parentFormField === null) {
+      classes.push(...inputBorderClasses(this.hasError), ...this.standaloneInputClasses);
+    }
+
+    return classes.filter((s) => s != "");
   }
 
-  @HostBinding() @Input() id = `bit-input-${nextId++}`;
+  readonly id = input(`bit-input-${nextId++}`);
 
   @HostBinding("attr.aria-describedby") ariaDescribedBy: string;
 
@@ -56,10 +68,12 @@ export class BitInputDirective implements BitFormFieldControl {
     return this.hasError ? true : undefined;
   }
 
-  @HostBinding("attr.type") @Input() type?: InputTypes;
+  readonly type = model<InputTypes>();
 
-  @HostBinding("attr.spellcheck") @Input() spellcheck?: boolean;
+  readonly spellcheck = model<boolean>();
 
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding()
   @Input()
   get required() {
@@ -70,13 +84,13 @@ export class BitInputDirective implements BitFormFieldControl {
   }
   private _required: boolean;
 
-  @Input() hasPrefix = false;
-  @Input() hasSuffix = false;
+  readonly hasPrefix = input(false);
+  readonly hasSuffix = input(false);
 
-  @Input() showErrorsWhenDisabled? = false;
+  readonly showErrorsWhenDisabled = input<boolean>(false);
 
   get labelForId(): string {
-    return this.id;
+    return this.id();
   }
 
   @HostListener("input")
@@ -85,7 +99,7 @@ export class BitInputDirective implements BitFormFieldControl {
   }
 
   get hasError() {
-    if (this.showErrorsWhenDisabled) {
+    if (this.showErrorsWhenDisabled()) {
       return (
         (this.ngControl?.status === "INVALID" || this.ngControl?.status === "DISABLED") &&
         this.ngControl?.touched &&
@@ -105,6 +119,7 @@ export class BitInputDirective implements BitFormFieldControl {
     @Optional() @Self() private ngControl: NgControl,
     private ngZone: NgZone,
     private elementRef: ElementRef<HTMLInputElement>,
+    @Optional() private parentFormField: BitFormFieldComponent,
   ) {}
 
   focus() {
@@ -113,5 +128,28 @@ export class BitInputDirective implements BitFormFieldControl {
       this.elementRef.nativeElement.setSelectionRange(end, end);
       this.elementRef.nativeElement.focus();
     });
+  }
+
+  get readOnly(): boolean {
+    return this.elementRef.nativeElement.readOnly;
+  }
+
+  get standaloneInputClasses() {
+    return [
+      "tw-px-3",
+      "tw-py-2",
+      "tw-rounded-lg",
+      // Hover
+      this.hasError ? "hover:tw-border-danger-700" : "hover:tw-border-primary-600",
+      // Focus
+      "focus:hover:tw-border-primary-600",
+      "disabled:tw-bg-secondary-100",
+      "disabled:hover:tw-border-secondary-500",
+      "focus:tw-border-primary-600",
+      "focus:tw-ring-1",
+      "focus:tw-ring-inset",
+      "focus:tw-ring-primary-600",
+      "focus:tw-z-10",
+    ];
   }
 }

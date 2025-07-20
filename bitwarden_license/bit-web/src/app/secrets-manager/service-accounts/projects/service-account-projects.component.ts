@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -23,6 +25,7 @@ import { AccessPolicyService } from "../../shared/access-policies/access-policy.
 @Component({
   selector: "sm-service-account-projects",
   templateUrl: "./service-account-projects.component.html",
+  standalone: false,
 })
 export class ServiceAccountProjectsComponent implements OnInit, OnDestroy {
   private currentAccessPolicies: ApItemViewType[];

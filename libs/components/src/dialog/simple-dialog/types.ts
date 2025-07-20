@@ -46,7 +46,7 @@ export type SimpleDialogOptions = {
    * If null is provided, the cancel button will be removed.
    *
    * If not localized, pass in a `Translation` */
-  cancelButtonText?: string | Translation;
+  cancelButtonText?: string | Translation | null;
 
   /** Whether or not the user can use escape or clicking the backdrop to close the dialog */
   disableClose?: boolean;

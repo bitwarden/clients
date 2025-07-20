@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { I18nService as BaseI18nService } from "@bitwarden/common/platform/services/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 

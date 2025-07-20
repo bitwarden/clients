@@ -1,16 +1,22 @@
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { ClientType } from "@bitwarden/common/enums";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { flagEnabled } from "../../../platform/flags";
 import { BrowserPlatformUtilsService } from "../../../platform/services/platform-utils/browser-platform-utils.service";
-import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
+import { ExtensionAnonLayoutWrapperDataService } from "../../../popup/components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { ExtensionLoginComponentService } from "./extension-login-component.service";
 
@@ -19,6 +25,7 @@ jest.mock("../../../platform/flags", () => ({
 }));
 
 describe("ExtensionLoginComponentService", () => {
+  const baseUrl = "https://webvault.bitwarden.com";
   let service: ExtensionLoginComponentService;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let environmentService: MockProxy<EnvironmentService>;
@@ -26,13 +33,20 @@ describe("ExtensionLoginComponentService", () => {
   let platformUtilsService: MockProxy<BrowserPlatformUtilsService>;
   let ssoLoginService: MockProxy<SsoLoginServiceAbstraction>;
   let extensionAnonLayoutWrapperDataService: MockProxy<ExtensionAnonLayoutWrapperDataService>;
+  let ssoUrlService: MockProxy<SsoUrlService>;
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
     environmentService = mock<EnvironmentService>();
     passwordGenerationService = mock<PasswordGenerationServiceAbstraction>();
     platformUtilsService = mock<BrowserPlatformUtilsService>();
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
+    ssoUrlService = mock<SsoUrlService>();
     extensionAnonLayoutWrapperDataService = mock<ExtensionAnonLayoutWrapperDataService>();
+    environmentService.environment$ = new BehaviorSubject<Environment>({
+      getWebVaultUrl: () => baseUrl,
+    } as Environment);
+    platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+
     TestBed.configureTestingModule({
       providers: [
         {
@@ -45,6 +59,7 @@ describe("ExtensionLoginComponentService", () => {
               platformUtilsService,
               ssoLoginService,
               extensionAnonLayoutWrapperDataService,
+              ssoUrlService,
             ),
         },
         { provide: DefaultLoginComponentService, useExisting: ExtensionLoginComponentService },
@@ -53,6 +68,11 @@ describe("ExtensionLoginComponentService", () => {
         { provide: PasswordGenerationServiceAbstraction, useValue: passwordGenerationService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: SsoLoginServiceAbstraction, useValue: ssoLoginService },
+        {
+          provide: ExtensionAnonLayoutWrapperDataService,
+          useValue: extensionAnonLayoutWrapperDataService,
+        },
+        { provide: SsoUrlService, useValue: ssoUrlService },
       ],
     });
     service = TestBed.inject(ExtensionLoginComponentService);
@@ -62,15 +82,23 @@ describe("ExtensionLoginComponentService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("isLoginViaAuthRequestSupported", () => {
-    it("returns true if showPasswordless flag is enabled", () => {
-      (flagEnabled as jest.Mock).mockReturnValue(true);
-      expect(service.isLoginViaAuthRequestSupported()).toBe(true);
-    });
+  describe("redirectToSso", () => {
+    it("launches SSO browser window", async () => {
+      const email = "test@bitwarden.com";
+      const state = "testState";
+      const expectedState = "testState:clientId=browser";
+      const codeVerifier = "testCodeVerifier";
+      const codeChallenge = "testCodeChallenge";
 
-    it("returns false if showPasswordless flag is disabled", () => {
-      (flagEnabled as jest.Mock).mockReturnValue(false);
-      expect(service.isLoginViaAuthRequestSupported()).toBeFalsy();
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
+      jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+
+      await service.redirectToSsoLogin(email);
+
+      expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(expectedState);
+      expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+      expect(platformUtilsService.launchUri).toHaveBeenCalled();
     });
   });
 

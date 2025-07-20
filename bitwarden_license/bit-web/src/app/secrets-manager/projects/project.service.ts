@@ -1,10 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -91,7 +93,7 @@ export class ProjectService {
   ): Promise<ProjectRequest> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = new ProjectRequest();
-    request.name = await this.encryptService.encrypt(projectView.name, orgKey);
+    request.name = await this.encryptService.encryptString(projectView.name, orgKey);
 
     return request;
   }
@@ -106,7 +108,7 @@ export class ProjectService {
     projectView.revisionDate = projectResponse.revisionDate;
     projectView.read = projectResponse.read;
     projectView.write = projectResponse.write;
-    projectView.name = await this.encryptService.decryptToUtf8(
+    projectView.name = await this.encryptService.decryptString(
       new EncString(projectResponse.name),
       orgKey,
     );
@@ -125,7 +127,7 @@ export class ProjectService {
         projectListView.organizationId = s.organizationId;
         projectListView.read = s.read;
         projectListView.write = s.write;
-        projectListView.name = await this.encryptService.decryptToUtf8(
+        projectListView.name = await this.encryptService.decryptString(
           new EncString(s.name),
           orgKey,
         );

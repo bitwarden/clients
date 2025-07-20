@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export type RendererMenuItem = {
   label?: string;
   type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
@@ -68,6 +70,16 @@ export function isFlatpak() {
 
 export function isWindowsPortable() {
   return isWindows() && process.env.PORTABLE_EXECUTABLE_DIR != null;
+}
+
+/**
+ * We block the browser integration on some unsupported platforms, which also
+ * blocks partially supported platforms (mac .dmg in dev builds) / prevents
+ * experimenting with the feature for QA. So this env var allows overriding
+ * the block.
+ */
+export function allowBrowserintegrationOverride() {
+  return process.env.ALLOW_BROWSER_INTEGRATION_OVERRIDE === "true";
 }
 
 /**

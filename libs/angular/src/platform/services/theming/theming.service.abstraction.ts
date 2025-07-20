@@ -1,6 +1,6 @@
 import { Observable, Subscription } from "rxjs";
 
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { Theme } from "@bitwarden/common/platform/enums";
 
 /**
  * A service for managing and observing the current application theme.
@@ -9,9 +9,9 @@ import { ThemeType } from "@bitwarden/common/platform/enums";
 export abstract class AbstractThemingService {
   /**
    * The effective theme based on the user configured choice and the current system theme if
-   * the configured choice is {@link ThemeType.System}.
+   * the configured choice is {@link ThemeTypes.System}.
    */
-  abstract theme$: Observable<ThemeType>;
+  abstract theme$: Observable<Theme>;
   /**
    * Listens for effective theme changes and applies changes to the provided document.
    * @param document The document that should have theme classes applied to it.

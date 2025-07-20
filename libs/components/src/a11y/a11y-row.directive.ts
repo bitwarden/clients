@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   AfterViewInit,
   ContentChildren,
@@ -11,7 +13,6 @@ import { A11yCellDirective } from "./a11y-cell.directive";
 
 @Directive({
   selector: "bitA11yRow",
-  standalone: true,
 })
 export class A11yRowDirective implements AfterViewInit {
   @HostBinding("attr.role")

@@ -1,44 +1,60 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, HostBinding, Input, OnInit } from "@angular/core";
+import { NgClass } from "@angular/common";
+import { Component, HostBinding, OnInit, input } from "@angular/core";
 
-import type { SortFn } from "./table-data-source";
+import type { SortDirection, SortFn } from "./table-data-source";
 import { TableComponent } from "./table.component";
 
 @Component({
   selector: "th[bitSortable]",
   template: `
-    <button [ngClass]="classList" [attr.aria-pressed]="isActive" (click)="setActive()">
+    <button
+      type="button"
+      [ngClass]="classList"
+      [attr.aria-pressed]="isActive"
+      (click)="setActive()"
+    >
       <ng-content></ng-content>
-      <i class="bwi tw-ml-2" [ngClass]="icon"></i>
+      <i class="bwi tw-ms-2" [ngClass]="icon"></i>
     </button>
   `,
+  imports: [NgClass],
 })
 export class SortableComponent implements OnInit {
   /**
    * Mark the column as sortable and specify the key to sort by
    */
-  @Input() bitSortable: string;
+  readonly bitSortable = input<string>();
 
-  private _default: boolean;
-  /**
-   * Mark the column as the default sort column
-   */
-  @Input() set default(value: boolean | "") {
-    this._default = coerceBooleanProperty(value);
-  }
+  readonly default = input(false, {
+    transform: (value: SortDirection | boolean | "") => {
+      if (value === "desc" || value === "asc") {
+        return value as SortDirection;
+      } else {
+        return coerceBooleanProperty(value) ? ("asc" as SortDirection) : false;
+      }
+    },
+  });
 
   /**
    * Custom sorting function
    *
    * @example
    * fn = (a, b) => a.name.localeCompare(b.name)
+   *
+   * fn = (a, b, direction) => {
+   *  const result = a.name.localeCompare(b.name)
+   *  return direction === 'asc' ? result : -result;
+   * }
    */
-  @Input() fn: SortFn;
+  readonly fn = input<SortFn>();
 
   constructor(private table: TableComponent) {}
 
   ngOnInit(): void {
-    if (this._default && !this.isActive) {
+    if (this.default() && !this.isActive) {
       this.setActive();
     }
   }
@@ -51,18 +67,29 @@ export class SortableComponent implements OnInit {
   }
 
   protected setActive() {
-    if (this.table.dataSource) {
-      const direction = this.isActive && this.direction === "asc" ? "desc" : "asc";
-      this.table.dataSource.sort = { column: this.bitSortable, direction: direction, fn: this.fn };
+    const dataSource = this.table.dataSource();
+    if (dataSource) {
+      const defaultDirection = this.default() === "desc" ? "desc" : "asc";
+      const direction = this.isActive
+        ? this.direction === "asc"
+          ? "desc"
+          : "asc"
+        : defaultDirection;
+
+      dataSource.sort = {
+        column: this.bitSortable(),
+        direction: direction,
+        fn: this.fn(),
+      };
     }
   }
 
   private get sort() {
-    return this.table.dataSource?.sort;
+    return this.table.dataSource()?.sort;
   }
 
   get isActive() {
-    return this.sort?.column === this.bitSortable;
+    return this.sort?.column === this.bitSortable();
   }
 
   get direction() {
@@ -78,7 +105,6 @@ export class SortableComponent implements OnInit {
 
   get classList() {
     return [
-      "tw-group",
       "tw-min-w-max",
 
       // Offset to border and padding

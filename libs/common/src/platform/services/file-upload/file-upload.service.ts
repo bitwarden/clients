@@ -1,3 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ApiService } from "../../../abstractions/api.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import {
   FileUploadApiMethods,
   FileUploadService as FileUploadServiceAbstraction,
@@ -5,7 +9,6 @@ import {
 import { LogService } from "../../abstractions/log.service";
 import { FileUploadType } from "../../enums";
 import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
-import { EncString } from "../../models/domain/enc-string";
 
 import { AzureFileUploadService } from "./azure-file-upload.service";
 import { BitwardenFileUploadService } from "./bitwarden-file-upload.service";
@@ -14,8 +17,11 @@ export class FileUploadService implements FileUploadServiceAbstraction {
   private azureFileUploadService: AzureFileUploadService;
   private bitwardenFileUploadService: BitwardenFileUploadService;
 
-  constructor(protected logService: LogService) {
-    this.azureFileUploadService = new AzureFileUploadService(logService);
+  constructor(
+    protected logService: LogService,
+    apiService: ApiService,
+  ) {
+    this.azureFileUploadService = new AzureFileUploadService(logService, apiService);
     this.bitwardenFileUploadService = new BitwardenFileUploadService();
   }
 

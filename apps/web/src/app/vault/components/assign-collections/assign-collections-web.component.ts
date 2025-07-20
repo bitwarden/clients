@@ -1,8 +1,9 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 
 import { PluralizePipe } from "@bitwarden/angular/pipes/pluralize.pipe";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import {
   AssignCollectionsComponent,
   CollectionAssignmentParams,
@@ -14,7 +15,6 @@ import { SharedModule } from "../../../shared";
 @Component({
   imports: [SharedModule, AssignCollectionsComponent, PluralizePipe],
   templateUrl: "./assign-collections-web.component.html",
-  standalone: true,
 })
 export class AssignCollectionsWebComponent {
   protected editableItemCount: number;

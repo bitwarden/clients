@@ -2,6 +2,11 @@ import { Simplify } from "type-fest";
 
 import { IntegrationId } from "./integration";
 
+/** When this is a string, it contains the i18n key. When it is an object, the `literal` member
+ *  contains text that should not be translated.
+ */
+export type I18nKeyOrLiteral = string | { literal: string };
+
 /** Constraints that are shared by all primitive field types */
 type PrimitiveConstraint = {
   /** `true` indicates the field is required; otherwise the field is optional */
@@ -27,6 +32,11 @@ type NumberConstraints = {
 
   /** maximum number value. When absent, min value is unbounded. */
   max?: number;
+
+  /** recommended value. This is the value bitwarden recommends
+   *  to the user as an appropriate value.
+   */
+  recommendation?: number;
 
   /** requires the number be a multiple of the step value;
    *  this field must be a positive number. +0 and Infinity are

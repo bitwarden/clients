@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
@@ -5,7 +7,7 @@ import { BehaviorSubject, map } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DefaultPassphraseBoundaries, DefaultPasswordBoundaries } from "@bitwarden/generator-core";
+import { BuiltIn, Profile } from "@bitwarden/generator-core";
 
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
@@ -19,41 +21,40 @@ export class PasswordGeneratorPolicy extends BasePolicy {
 @Component({
   selector: "policy-password-generator",
   templateUrl: "password-generator.component.html",
+  standalone: false,
 })
 export class PasswordGeneratorPolicyComponent extends BasePolicyComponent {
+  // these properties forward the application default settings to the UI
+  // for HTML attribute bindings
+  protected readonly minLengthMin =
+    BuiltIn.password.profiles[Profile.account].constraints.default.length.min;
+  protected readonly minLengthMax =
+    BuiltIn.password.profiles[Profile.account].constraints.default.length.max;
+  protected readonly minNumbersMin =
+    BuiltIn.password.profiles[Profile.account].constraints.default.minNumber.min;
+  protected readonly minNumbersMax =
+    BuiltIn.password.profiles[Profile.account].constraints.default.minNumber.max;
+  protected readonly minSpecialMin =
+    BuiltIn.password.profiles[Profile.account].constraints.default.minSpecial.min;
+  protected readonly minSpecialMax =
+    BuiltIn.password.profiles[Profile.account].constraints.default.minSpecial.max;
+  protected readonly minNumberWordsMin =
+    BuiltIn.passphrase.profiles[Profile.account].constraints.default.numWords.min;
+  protected readonly minNumberWordsMax =
+    BuiltIn.passphrase.profiles[Profile.account].constraints.default.numWords.max;
+
   data = this.formBuilder.group({
     overridePasswordType: [null],
-    minLength: [
-      null,
-      [
-        Validators.min(DefaultPasswordBoundaries.length.min),
-        Validators.max(DefaultPasswordBoundaries.length.max),
-      ],
-    ],
+    minLength: [null, [Validators.min(this.minLengthMin), Validators.max(this.minLengthMax)]],
     useUpper: [null],
     useLower: [null],
     useNumbers: [null],
     useSpecial: [null],
-    minNumbers: [
-      null,
-      [
-        Validators.min(DefaultPasswordBoundaries.minDigits.min),
-        Validators.max(DefaultPasswordBoundaries.minDigits.max),
-      ],
-    ],
-    minSpecial: [
-      null,
-      [
-        Validators.min(DefaultPasswordBoundaries.minSpecialCharacters.min),
-        Validators.max(DefaultPasswordBoundaries.minSpecialCharacters.max),
-      ],
-    ],
+    minNumbers: [null, [Validators.min(this.minNumbersMin), Validators.max(this.minNumbersMax)]],
+    minSpecial: [null, [Validators.min(this.minSpecialMin), Validators.max(this.minSpecialMax)]],
     minNumberWords: [
       null,
-      [
-        Validators.min(DefaultPassphraseBoundaries.numWords.min),
-        Validators.max(DefaultPassphraseBoundaries.numWords.max),
-      ],
+      [Validators.min(this.minNumberWordsMin), Validators.max(this.minNumberWordsMax)],
     ],
     capitalize: [null],
     includeNumber: [null],

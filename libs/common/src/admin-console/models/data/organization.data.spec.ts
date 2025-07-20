@@ -1,6 +1,6 @@
 import { ProductTierType } from "../../../billing/enums/product-tier-type.enum";
 import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
-import { ORGANIZATIONS } from "../../services/organization/organization.service";
+import { ORGANIZATIONS } from "../../services/organization/organization.state";
 
 import { OrganizationData } from "./organization.data";
 
@@ -53,11 +53,14 @@ describe("ORGANIZATIONS state", () => {
         accessSecretsManager: false,
         limitCollectionCreation: false,
         limitCollectionDeletion: false,
-        // Deprecated: https://bitwarden.atlassian.net/browse/PM-10863
-        limitCollectionCreationDeletion: false,
+        limitItemDeletion: false,
         allowAdminAccessToAllCollectionItems: false,
         familySponsorshipLastSyncDate: new Date(),
         userIsManagedByOrganization: false,
+        useRiskInsights: false,
+        useOrganizationDomains: false,
+        useAdminSponsoredFamilies: false,
+        isAdminInitiated: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

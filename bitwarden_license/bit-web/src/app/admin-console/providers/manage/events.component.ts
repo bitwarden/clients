@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -17,8 +19,8 @@ import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export"
 @Component({
   selector: "provider-events",
   templateUrl: "events.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EventsComponent extends BaseEventsComponent implements OnInit {
   exportFileName = "provider-events";
   providerId: string;

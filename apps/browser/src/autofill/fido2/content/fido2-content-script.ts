@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   AssertCredentialParams,
   CreateCredentialParams,
@@ -10,7 +12,7 @@ import {
   InsecureAssertCredentialParams,
   InsecureCreateCredentialParams,
   Message,
-  MessageType,
+  MessageTypes,
 } from "./messaging/message";
 import { MessageWithMetadata, Messenger } from "./messaging/messenger";
 
@@ -47,21 +49,21 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     abortController.signal.addEventListener("abort", abortHandler);
 
     try {
-      if (message.type === MessageType.CredentialCreationRequest) {
+      if (message.type === MessageTypes.CredentialCreationRequest) {
         return handleCredentialCreationRequestMessage(
           requestId,
           message.data as InsecureCreateCredentialParams,
         );
       }
 
-      if (message.type === MessageType.CredentialGetRequest) {
+      if (message.type === MessageTypes.CredentialGetRequest) {
         return handleCredentialGetRequestMessage(
           requestId,
           message.data as InsecureAssertCredentialParams,
         );
       }
 
-      if (message.type === MessageType.AbortRequest) {
+      if (message.type === MessageTypes.AbortRequest) {
         return sendExtensionMessage("fido2AbortRequest", { abortedRequestId: requestId });
       }
     } finally {
@@ -81,7 +83,7 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
   ): Promise<Message | undefined> {
     return respondToCredentialRequest(
       "fido2RegisterCredentialRequest",
-      MessageType.CredentialCreationResponse,
+      MessageTypes.CredentialCreationResponse,
       requestId,
       data,
     );
@@ -99,7 +101,7 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
   ): Promise<Message | undefined> {
     return respondToCredentialRequest(
       "fido2GetCredentialRequest",
-      MessageType.CredentialGetResponse,
+      MessageTypes.CredentialGetResponse,
       requestId,
       data,
     );
@@ -116,7 +118,9 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
    */
   async function respondToCredentialRequest(
     command: string,
-    type: MessageType.CredentialCreationResponse | MessageType.CredentialGetResponse,
+    type:
+      | typeof MessageTypes.CredentialCreationResponse
+      | typeof MessageTypes.CredentialGetResponse,
     requestId: string,
     messageData: InsecureCreateCredentialParams | InsecureAssertCredentialParams,
   ): Promise<Message | undefined> {

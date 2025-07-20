@@ -1,4 +1,4 @@
-import { Meta, Story, Source } from "@storybook/addon-docs";
+import { Meta, Canvas, Source } from "@storybook/addon-docs";
 
 import * as formStories from "./form.stories";
 import * as fieldStories from "../form-field/form-field.stories";
@@ -17,7 +17,7 @@ Component Library forms should always be built using [Angular Reactive Forms][re
 [ADR-0001][adr-0001] for a background to this decision. In practice this means that forms should
 always use the native `form` element and bind a `formGroup`.
 
-<Story of={formStories.FullExample} />
+<Canvas of={formStories.FullExample} />
 
 <br />
 
@@ -55,27 +55,39 @@ Be sure to use an appropriate type attribute on fields when defining new field c
 `email` for email address or `number` for numerical information) to take advantage of newer input
 controls like email verification, number selection, and more.
 
+Labels accept an optional `end` slot for any content that should not be truncated if the label text
+is too long, such as info link buttons or badges.
+
+```
+<bit-label>
+  Label text goes here
+  <a href="#" slot="end" bitLink>
+    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+  </a>
+</bit-label>
+```
+
 #### Default with required attribute
 
-<Story of={fieldStories.Default} />
+<Canvas of={fieldStories.Default} />
 
 #### Password Toggle
 
-<Story of={passwordToggleStories.Default} />
+<Canvas of={passwordToggleStories.Default} />
 
 ### Search
 
-<Story of={searchStories.Default} />
+<Canvas of={searchStories.Default} />
 
 ### Selects
 
 #### Searchable single select (default)
 
-<Story of={selectStories.Default} />
+<Canvas of={selectStories.Default} />
 
 #### Multi-select
 
-<Story of={multiSelectStories.Members} />
+<Canvas of={multiSelectStories.Members} />
 
 ### Radio group
 
@@ -85,6 +97,9 @@ Radio groups are form fields that consists of a main label and multiple radio bu
 button consists of a label and a radio input.
 
 The full form control + label should be selectable to allow the user a larger click target.
+
+Labels accept an optional `end` slot for any content that is not part of the main label text, such
+as info link buttons or badges.
 
 Radio groups should always have a default selected value.
 
@@ -98,11 +113,11 @@ using a radio group for more than 5 options even if the options require addition
 
 #### Block
 
-<Story of={radioStories.Block} />
+<Canvas of={radioStories.Block} />
 
 #### Inline
 
-<Story of={radioStories.Inline} />
+<Canvas of={radioStories.Inline} />
 
 ### Checkbox
 
@@ -111,6 +126,9 @@ The checkbox input is used to toggle an action on/off.
 Checkboxes can be displayed on their own or in a group (select multiple form question). When
 displayed in a group, include an input Label and any associated required/validation logic for the
 field.
+
+Labels accept an optional `end` slot for any content that is not part of the main label text, such
+as info link buttons or badges.
 
 Unlike radio groups, checkbox groups are not required to have a default selected value.
 
@@ -122,9 +140,21 @@ If a checkbox group has more than 4 options a
 
 #### Single checkbox
 
-<Story of={checkboxStories.Default} />
+<Canvas of={checkboxStories.Default} />
+
+## Validation messages
+
+These are examples of our default validation error messages:
+
+<Canvas of={formStories.Validations} />
 
 ## Accessibility
+
+### Icon Buttons in Form Fields
+
+When adding prefix or suffix icon buttons to a form field, be sure to use the `appA11yTitle`
+directive to provide a label for screenreaders. Typically, the label should follow this pattern:
+`{Action} {field label}`, i.e. "Copy username".
 
 ### Required Fields
 

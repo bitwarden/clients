@@ -1,33 +1,32 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import {
-  BadgeModule,
-  CardComponent,
-  ItemModule,
-  ToastService,
-  TypographyModule,
-} from "@bitwarden/components";
+import { BadgeModule, ItemModule, ToastService, TypographyModule } from "@bitwarden/components";
 
-import BrowserPopupUtils from "../../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
 
 @Component({
-  standalone: true,
   selector: "app-open-attachments",
   templateUrl: "./open-attachments.component.html",
-  imports: [BadgeModule, CommonModule, ItemModule, JslibModule, TypographyModule, CardComponent],
+  imports: [BadgeModule, CommonModule, ItemModule, JslibModule, TypographyModule],
 })
 export class OpenAttachmentsComponent implements OnInit {
   /** Cipher `id` */
@@ -52,8 +51,13 @@ export class OpenAttachmentsComponent implements OnInit {
     private filePopoutUtilsService: FilePopoutUtilsService,
     private accountService: AccountService,
   ) {
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntilDestroyed())
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntilDestroyed(),
+      )
       .subscribe((canAccessPremium) => {
         this.canAccessAttachments = canAccessPremium;
       });
@@ -66,20 +70,23 @@ export class OpenAttachmentsComponent implements OnInit {
       return;
     }
 
-    const cipherDomain = await this.cipherService.get(this.cipherId);
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
-    const cipher = await cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain, activeUserId),
-    );
+    const cipherDomain = await this.cipherService.get(this.cipherId, activeUserId);
+    const cipher = await this.cipherService.decrypt(cipherDomain, activeUserId);
 
     if (!cipher.organizationId) {
       this.cipherIsAPartOfFreeOrg = false;
       return;
     }
 
-    const org = await this.organizationService.get(cipher.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const org = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(cipher.organizationId)),
+    );
 
     this.cipherIsAPartOfFreeOrg = org.productTierType === ProductTierType.Free;
   }

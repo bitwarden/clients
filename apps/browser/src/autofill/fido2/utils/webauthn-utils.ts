@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   CreateCredentialResult,
   AssertCredentialResult,
@@ -86,6 +88,7 @@ export class WebauthnUtils {
       getClientExtensionResults: () => ({
         credProps: result.extensions.credProps,
       }),
+      toJSON: () => Fido2Utils.createResultToJson(result),
     } as PublicKeyCredential;
 
     // Modify prototype chains to fix `instanceof` calls.
@@ -132,6 +135,7 @@ export class WebauthnUtils {
       } as AuthenticatorAssertionResponse,
       getClientExtensionResults: () => ({}),
       authenticatorAttachment: "platform",
+      toJSON: () => Fido2Utils.getResultToJson(result),
     } as PublicKeyCredential;
 
     // Modify prototype chains to fix `instanceof` calls.

@@ -1,8 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -101,6 +103,7 @@ export function createChromeTabMock(customFields = {}): chrome.tabs.Tab {
     selected: true,
     discarded: false,
     autoDiscardable: false,
+    frozen: false,
     groupId: 2,
     url: "https://jest-testing-website.com",
     ...customFields,
@@ -210,7 +213,7 @@ export function createInitAutofillInlineMenuListMessageMock(
     command: "initAutofillInlineMenuList",
     translations: overlayPagesTranslations,
     styleSheetUrl: "https://jest-testing-website.com",
-    theme: ThemeType.Light,
+    theme: ThemeTypes.Light,
     authStatus: AuthenticationStatus.Unlocked,
     portKey: "portKey",
     inlineMenuFillType: CipherType.Login,

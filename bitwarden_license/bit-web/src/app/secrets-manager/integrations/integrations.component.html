@@ -4,7 +4,11 @@
 
 <section class="tw-mb-9">
   <p bitTypography="body1">{{ "integrationsDesc" | i18n }}</p>
-  <sm-integration-grid [integrations]="integrations"></sm-integration-grid>
+  <app-integration-grid
+    [integrations]="integrations"
+    [tooltipI18nKey]="'smIntegrationTooltip'"
+    [ariaI18nKey]="'smIntegrationCardAriaLabel'"
+  ></app-integration-grid>
 </section>
 
 <section class="tw-mb-9">
@@ -12,5 +16,9 @@
     {{ "sdks" | i18n }}
   </h2>
   <p bitTypography="body1">{{ "sdksDesc" | i18n }}</p>
-  <sm-integration-grid [integrations]="sdks"></sm-integration-grid>
+  <app-integration-grid
+    [integrations]="sdks"
+    [tooltipI18nKey]="'smSdkTooltip'"
+    [ariaI18nKey]="'smSdkAriaLabel'"
+  ></app-integration-grid>
 </section>

@@ -103,16 +103,6 @@ p.lead {
   margin: 0 !important;
 }
 
-.no-vmargin {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-}
-
-.no-vpad {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
 .display-block {
   display: block !important;
 }
@@ -211,22 +201,14 @@ p.lead {
 }
 
 #web-authn-frame {
-  background: url("../images/loading.svg") 0 0 no-repeat;
   width: 100%;
-  height: 310px;
-  margin-bottom: -10px;
+  height: 40px;
 
   iframe {
-    width: 100%;
-    height: 100%;
     border: none;
+    height: 100%;
+    width: 100%;
   }
-}
-
-#hcaptcha_iframe {
-  width: 100%;
-  border: none;
-  transition: height 0.25s linear;
 }
 
 body.linux-webauthn {
@@ -306,7 +288,7 @@ input[type="password"]::-ms-reveal {
 // contrast against the background, so its inversion is also still readable)
 // and suppress user selection for most elements (to make it more app-like)
 
-::selection {
+:not(bit-form-field input)::selection {
   @include themify($themes) {
     color: themed("backgroundColor");
     background-color: themed("primaryAccentColor");
@@ -334,11 +316,6 @@ img,
   }
 }
 
-app-about .modal-body > *,
-app-vault-view .box-footer {
-  user-select: auto;
-}
-
 /* tweak for inconsistent line heights in cipher view */
 .box-footer button,
 .box-footer a {
@@ -357,10 +334,6 @@ app-vault-view .box-footer {
 }
 html.force_redraw {
   animation: redraw 1s linear infinite;
-}
-
-.rounded-circle {
-  border-radius: 50% !important;
 }
 
 /* override for vault icon in browser (pre extension refresh) */

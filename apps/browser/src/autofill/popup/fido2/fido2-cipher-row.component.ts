@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from "@angular/core";
 
@@ -8,8 +10,6 @@ import {
   ButtonModule,
   IconButtonModule,
   ItemModule,
-  SectionComponent,
-  SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -17,7 +17,6 @@ import {
   selector: "app-fido2-cipher-row",
   templateUrl: "fido2-cipher-row.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [
     BadgeModule,
     ButtonModule,
@@ -25,8 +24,6 @@ import {
     IconButtonModule,
     ItemModule,
     JslibModule,
-    SectionComponent,
-    SectionHeaderComponent,
     TypographyModule,
   ],
 })

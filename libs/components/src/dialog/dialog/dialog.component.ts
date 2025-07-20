@@ -1,65 +1,98 @@
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, HostBinding, Input } from "@angular/core";
+import { CdkTrapFocus } from "@angular/cdk/a11y";
+import { CdkScrollable } from "@angular/cdk/scrolling";
+import { CommonModule } from "@angular/common";
+import { Component, HostBinding, inject, viewChild, input, booleanAttribute } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
+import { TypographyDirective } from "../../typography/typography.directive";
+import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { fadeIn } from "../animations";
+import { DialogRef } from "../dialog.service";
+import { DialogCloseDirective } from "../directives/dialog-close.directive";
+import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 
 @Component({
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
   animations: [fadeIn],
+  host: {
+    "(keydown.esc)": "handleEsc($event)",
+  },
+  imports: [
+    CommonModule,
+    DialogTitleContainerDirective,
+    TypographyDirective,
+    BitIconButtonComponent,
+    DialogCloseDirective,
+    I18nPipe,
+    CdkTrapFocus,
+    CdkScrollable,
+  ],
 })
 export class DialogComponent {
+  protected dialogRef = inject(DialogRef, { optional: true });
+  private scrollableBody = viewChild.required(CdkScrollable);
+  protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
+
   /** Background color */
-  @Input()
-  background: "default" | "alt" = "default";
+  readonly background = input<"default" | "alt">("default");
 
   /**
    * Dialog size, more complex dialogs should use large, otherwise default is fine.
    */
-  @Input() dialogSize: "small" | "default" | "large" = "default";
+  readonly dialogSize = input<"small" | "default" | "large">("default");
 
   /**
    * Title to show in the dialog's header
    */
-  @Input() title: string;
+  readonly title = input<string>();
 
   /**
    * Subtitle to show in the dialog's header
    */
-  @Input() subtitle: string;
+  readonly subtitle = input<string>();
 
-  private _disablePadding = false;
   /**
    * Disable the built-in padding on the dialog, for use with tabbed dialogs.
    */
-  @Input() set disablePadding(value: boolean | "") {
-    this._disablePadding = coerceBooleanProperty(value);
-  }
-  get disablePadding() {
-    return this._disablePadding;
-  }
+  readonly disablePadding = input(false, { transform: booleanAttribute });
 
   /**
    * Mark the dialog as loading which replaces the content with a spinner.
    */
-  @Input() loading = false;
+  readonly loading = input(false);
 
   @HostBinding("class") get classes() {
-    return ["tw-flex", "tw-flex-col", "tw-max-h-screen", "tw-w-screen", "tw-p-4"].concat(
-      this.width,
-    );
+    // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
+    return ["tw-flex", "tw-flex-col", "tw-w-screen"]
+      .concat(
+        this.width,
+        this.dialogRef?.isDrawer
+          ? ["tw-min-h-screen", "md:tw-w-[23rem]"]
+          : ["tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"],
+      )
+      .flat();
+  }
+
+  handleEsc(event: Event) {
+    if (!this.dialogRef?.disableClose) {
+      this.dialogRef?.close();
+      event.stopPropagation();
+    }
   }
 
   get width() {
-    switch (this.dialogSize) {
+    switch (this.dialogSize()) {
       case "small": {
-        return "tw-max-w-sm";
+        return "md:tw-max-w-sm";
       }
       case "large": {
-        return "tw-max-w-3xl";
+        return "md:tw-max-w-3xl";
       }
       default: {
-        return "tw-max-w-xl";
+        return "md:tw-max-w-xl";
       }
     }
   }

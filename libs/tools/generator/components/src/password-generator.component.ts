@@ -1,85 +1,150 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import {
   BehaviorSubject,
   catchError,
   distinctUntilChanged,
   filter,
+  firstValueFrom,
   map,
   ReplaySubject,
   Subject,
-  switchMap,
   takeUntil,
   withLatestFrom,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  SemanticLogger,
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+} from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
-import { Option } from "@bitwarden/components/src/select/option";
+import { ToastService, Option } from "@bitwarden/components";
 import {
   CredentialGeneratorService,
-  Generators,
-  PasswordAlgorithm,
   GeneratedCredential,
+  AlgorithmInfo,
+  GenerateRequest,
+  isSameAlgorithm,
   CredentialAlgorithm,
   isPasswordAlgorithm,
-  AlgorithmInfo,
+  Algorithm,
+  AlgorithmMetadata,
+  Type,
+  GeneratorProfile,
+  Profile,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
+
+import { toAlgorithmInfo, translate } from "./util";
 
 /** Options group for passwords */
 @Component({
   selector: "tools-password-generator",
   templateUrl: "password-generator.component.html",
+  standalone: false,
 })
-export class PasswordGeneratorComponent implements OnInit, OnDestroy {
+export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private generatorService: CredentialGeneratorService,
     private generatorHistoryService: GeneratorHistoryService,
     private toastService: ToastService,
-    private logService: LogService,
     private i18nService: I18nService,
+    private logService: LogService,
     private accountService: AccountService,
     private zone: NgZone,
+    private ariaLive: LiveAnnouncer,
   ) {}
 
-  /** Binds the component to a specific user's settings.
-   *  When this input is not provided, the form binds to the active
-   *  user
+  /** exports algorithm symbols to the template */
+  protected readonly Algorithm = Algorithm;
+
+  /** Binds the component to a specific user's settings. When this input is not provided,
+   * the form binds to the active user
    */
   @Input()
-  userId: UserId | null;
+  account: Account | null = null;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  /** Send structured debug logs from the credential generator component
+   *  to the debugger console.
+   *
+   *  @warning this may reveal sensitive information in plaintext.
+   */
+  @Input()
+  debug: boolean = false;
+
+  // this `log` initializer is overridden in `ngOnInit`
+  private log: SemanticLogger = disabledSemanticLoggerProvider({});
+
+  async ngOnChanges(changes: SimpleChanges) {
+    const account = changes?.account;
+    if (
+      account &&
+      account.currentValue.id &&
+      account.previousValue.id !== account.currentValue.id
+    ) {
+      this.log.debug(
+        {
+          previousUserId: account?.previousValue?.id as UserId,
+          currentUserId: account?.currentValue?.id as UserId,
+        },
+        "account input change detected",
+      );
+      this.account$.next(account.currentValue.id);
+    }
+  }
+
+  @Input()
+  profile: GeneratorProfile = Profile.account;
 
   /** Removes bottom margin, passed to downstream components */
-  @Input({ transform: coerceBooleanProperty }) disableMargin = false;
+  @Input({ transform: coerceBooleanProperty })
+  disableMargin = false;
 
   /** tracks the currently selected credential type */
-  protected credentialType$ = new BehaviorSubject<PasswordAlgorithm>(null);
+  protected credentialType$ = new BehaviorSubject<CredentialAlgorithm | null>(null);
 
   /** Emits the last generated value. */
   protected readonly value$ = new BehaviorSubject<string>("");
 
-  /** Emits when the userId changes */
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
-
   /** Emits when a new credential is requested */
-  private readonly generate$ = new Subject<string>();
+  private readonly generate$ = new Subject<GenerateRequest>();
+
+  /** Identifies generator requests that were requested by the user */
+  protected readonly USER_REQUEST = "user request";
 
   /** Request a new value from the generator
    * @param requestor a label used to trace generation request
    *  origin in the debugger.
    */
-  protected generate(requestor: string) {
-    this.generate$.next(requestor);
+  protected async generate(source: string) {
+    const algorithm = await firstValueFrom(this.algorithm$);
+    const request: GenerateRequest = { source, algorithm: algorithm.id, profile: this.profile };
+
+    this.log.debug(request, "generation requested");
+    this.generate$.next(request);
   }
 
   /** Tracks changes to the selected credential type
    * @param type the new credential type
    */
-  protected onCredentialTypeChanged(type: PasswordAlgorithm) {
+  protected onCredentialTypeChanged(type: CredentialAlgorithm) {
     // break subscription cycle
     if (this.credentialType$.value !== type) {
       this.zone.run(() => {
@@ -92,21 +157,27 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
 
+  /** emits algorithm info when the selected algorithm changes */
+  @Output()
+  readonly onAlgorithm = new EventEmitter<AlgorithmInfo>();
+
   async ngOnInit() {
-    if (this.userId) {
-      this.userId$.next(this.userId);
-    } else {
-      this.accountService.activeAccount$
-        .pipe(
-          map((acct) => acct.id),
-          distinctUntilChanged(),
-          takeUntil(this.destroyed),
-        )
-        .subscribe(this.userId$);
+    this.log = ifEnabledSemanticLoggerProvider(this.debug, this.logService, {
+      type: "PasswordGeneratorComponent",
+    });
+
+    if (!this.account) {
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      if (!account) {
+        this.log.panic("active account cannot be `null`.");
+      }
+
+      this.log.info({ userId: account.id }, "account not specified; using active account settings");
+      this.account$.next(account);
     }
 
     this.generatorService
-      .algorithms$("password", { userId$: this.userId$ })
+      .algorithms$("password", { account$: this.account$ })
       .pipe(
         map((algorithms) => this.toOptions(algorithms)),
         takeUntil(this.destroyed),
@@ -114,10 +185,9 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
       .subscribe(this.passwordOptions$);
 
     // wire up the generator
-    this.algorithm$
+    this.generatorService
+      .generate$({ on$: this.generate$, account$: this.account$ })
       .pipe(
-        filter((algorithm) => !!algorithm),
-        switchMap((algorithm) => this.typeToGenerator$(algorithm.id)),
         catchError((error: unknown, generator) => {
           if (typeof error === "string") {
             this.toastService.showToast({
@@ -132,12 +202,14 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$),
+        withLatestFrom(this.account$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId]) => {
+      .subscribe(([generated, account, algorithm]) => {
+        this.log.debug({ source: generated.source ?? null }, "credential generated");
+
         this.generatorHistoryService
-          .track(userId, generated.credential, generated.category, generated.generationDate)
+          .track(account.id, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
             this.logService.error(e);
           });
@@ -145,13 +217,17 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
+          if (generated.source === this.USER_REQUEST) {
+            this.announce(translate(algorithm.i18nKeys.credentialGenerated, this.i18nService));
+          }
+
           this.onGenerated.next(generated);
           this.value$.next(generated.credential);
         });
       });
 
     // assume the last-visible generator algorithm is the user's preferred one
-    const preferences = await this.generatorService.preferences({ singleUserId$: this.userId$ });
+    const preferences = await this.generatorService.preferences({ account$: this.account$ });
     this.credentialType$
       .pipe(
         filter((type) => !!type),
@@ -160,6 +236,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
       )
       .subscribe(([algorithm, preference]) => {
         if (isPasswordAlgorithm(algorithm)) {
+          this.log.info({ algorithm, type: Type.password }, "algorithm preferences updated");
           preference.password.algorithm = algorithm;
           preference.password.updated = new Date();
         } else {
@@ -169,82 +246,94 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
         preferences.next(preference);
       });
 
-    // populate the form with the user's preferences to kick off interactivity
-    preferences.pipe(takeUntil(this.destroyed)).subscribe(({ password }) => {
-      // update navigation
-      this.onCredentialTypeChanged(password.algorithm);
+    // update active algorithm
+    preferences
+      .pipe(
+        map(({ password }) => this.generatorService.algorithm(password.algorithm)),
+        distinctUntilChanged((prev, next) => {
+          if (prev === null || next === null) {
+            return false;
+          } else {
+            return isSameAlgorithm(prev.id, next.id);
+          }
+        }),
+        takeUntil(this.destroyed),
+      )
+      .subscribe((algorithm) => {
+        this.log.debug({ algorithm: algorithm.id }, "algorithm selected");
 
-      // load algorithm metadata
-      const algorithm = this.generatorService.algorithm(password.algorithm);
+        // update navigation
+        this.onCredentialTypeChanged(algorithm.id);
 
-      // update subjects within the angular zone so that the
-      // template bindings refresh immediately
+        // update subjects within the angular zone so that the
+        // template bindings refresh immediately
+        this.zone.run(() => {
+          this.maybeAlgorithm$.next(algorithm);
+          this.onAlgorithm.next(toAlgorithmInfo(algorithm, this.i18nService));
+        });
+      });
+
+    // generate on load unless the generator prohibits it
+    this.maybeAlgorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
       this.zone.run(() => {
-        this.algorithm$.next(algorithm);
+        if (a?.capabilities?.autogenerate) {
+          this.log.debug("autogeneration enabled");
+          this.generate("autogenerate").catch((e: unknown) => {
+            this.log.error(e as object, "a failure occurred during autogeneration");
+          });
+        } else {
+          this.log.debug("autogeneration disabled; clearing generated credential");
+          this.value$.next("-");
+        }
       });
     });
 
-    // generate on load unless the generator prohibits it
-    this.algorithm$
-      .pipe(
-        distinctUntilChanged((prev, next) => prev.id === next.id),
-        filter((a) => !a.onlyOnRequest),
-        takeUntil(this.destroyed),
-      )
-      .subscribe(() => this.generate("autogenerate"));
+    this.log.debug("component initialized");
   }
 
-  private typeToGenerator$(type: CredentialAlgorithm) {
-    const dependencies = {
-      on$: this.generate$,
-      userId$: this.userId$,
-    };
-
-    switch (type) {
-      case "password":
-        return this.generatorService.generate$(Generators.password, dependencies);
-
-      case "passphrase":
-        return this.generatorService.generate$(Generators.passphrase, dependencies);
-      default:
-        throw new Error(`Invalid generator type: "${type}"`);
-    }
+  private announce(message: string) {
+    this.ariaLive.announce(message).catch((e) => this.logService.error(e));
   }
 
   /** Lists the credential types supported by the component. */
   protected passwordOptions$ = new BehaviorSubject<Option<CredentialAlgorithm>[]>([]);
 
+  /** Determines when the password/passphrase selector is visible. */
+  protected showCredentialTypes$ = this.passwordOptions$.pipe(map((options) => options.length > 1));
+
   /** tracks the currently selected credential type */
-  protected algorithm$ = new ReplaySubject<AlgorithmInfo>(1);
+  protected maybeAlgorithm$ = new ReplaySubject<AlgorithmMetadata>(1);
+
+  /** tracks the last valid algorithm selection */
+  protected algorithm$ = this.maybeAlgorithm$.pipe(
+    filter((algorithm): algorithm is AlgorithmMetadata => !!algorithm),
+  );
 
   /**
    * Emits the copy button aria-label respective of the selected credential type
    */
   protected credentialTypeCopyLabel$ = this.algorithm$.pipe(
-    filter((algorithm) => !!algorithm),
-    map(({ copy }) => copy),
+    map(({ i18nKeys: { copyCredential } }) => translate(copyCredential, this.i18nService)),
   );
 
   /**
    * Emits the generate button aria-label respective of the selected credential type
    */
   protected credentialTypeGenerateLabel$ = this.algorithm$.pipe(
-    filter((algorithm) => !!algorithm),
-    map(({ generate }) => generate),
+    map(({ i18nKeys: { generateCredential } }) => translate(generateCredential, this.i18nService)),
   );
 
   /**
    * Emits the copy credential toast respective of the selected credential type
    */
   protected credentialTypeLabel$ = this.algorithm$.pipe(
-    filter((algorithm) => !!algorithm),
-    map(({ generatedValue }) => generatedValue),
+    map(({ i18nKeys: { credentialType } }) => translate(credentialType, this.i18nService)),
   );
 
-  private toOptions(algorithms: AlgorithmInfo[]) {
+  private toOptions(algorithms: AlgorithmMetadata[]) {
     const options: Option<CredentialAlgorithm>[] = algorithms.map((algorithm) => ({
       value: algorithm.id,
-      label: this.i18nService.t(algorithm.name),
+      label: translate(algorithm.i18nKeys.name, this.i18nService),
     }));
 
     return options;

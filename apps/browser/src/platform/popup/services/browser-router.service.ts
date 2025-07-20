@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
 import { filter } from "rxjs";
@@ -19,6 +21,8 @@ export class BrowserRouterService {
           child = child.firstChild;
         }
 
+        // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+        // eslint-disable-next-line no-constant-binary-expression
         const updateUrl = !child?.data?.doNotSaveUrl ?? true;
 
         if (updateUrl) {

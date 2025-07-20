@@ -1,11 +1,18 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { UpdateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/update-client-organization.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 type ManageClientNameDialogParams = {
   providerId: string;
@@ -16,6 +23,8 @@ type ManageClientNameDialogParams = {
   };
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ManageClientNameDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -32,6 +41,7 @@ export const openManageClientNameDialog = (
 
 @Component({
   templateUrl: "manage-client-name-dialog.component.html",
+  standalone: false,
 })
 export class ManageClientNameDialogComponent {
   protected ResultType = ManageClientNameDialogResultType;

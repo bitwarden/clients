@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { KeyValue } from "@angular/common";
 import { Component, Input, OnInit, OnDestroy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
@@ -8,6 +10,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 @Component({
   selector: "app-nested-checkbox",
   templateUrl: "nested-checkbox.component.html",
+  standalone: false,
 })
 export class NestedCheckboxComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

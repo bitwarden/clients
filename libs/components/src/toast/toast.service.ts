@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 
@@ -9,7 +11,10 @@ export type ToastOptions = {
    * The duration the toast will persist in milliseconds
    **/
   timeout?: number;
-} & Pick<ToastComponent, "message" | "variant" | "title">;
+  message: ReturnType<ToastComponent["message"]>;
+  variant?: ReturnType<ToastComponent["variant"]>;
+  title?: ReturnType<ToastComponent["title"]>;
+};
 
 /**
  * Presents toast notifications

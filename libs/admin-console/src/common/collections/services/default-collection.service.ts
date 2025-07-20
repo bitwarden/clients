@@ -1,15 +1,17 @@
-import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   ActiveUserState,
-  StateProvider,
   COLLECTION_DATA,
   DeriveDefinition,
   DerivedState,
+  StateProvider,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -82,6 +84,7 @@ export class DefaultCollectionService implements CollectionService {
       switchMap(([userId, collectionData]) =>
         combineLatest([of(collectionData), this.keyService.orgKeys$(userId)]),
       ),
+      shareReplay({ refCount: false, bufferSize: 1 }),
     );
 
     this.decryptedCollectionDataState = this.stateProvider.getDerived(
@@ -110,7 +113,7 @@ export class DefaultCollectionService implements CollectionService {
     collection.organizationId = model.organizationId;
     collection.readOnly = model.readOnly;
     collection.externalId = model.externalId;
-    collection.name = await this.encryptService.encrypt(model.name, key);
+    collection.name = await this.encryptService.encryptString(model.name, key);
     return collection;
   }
 

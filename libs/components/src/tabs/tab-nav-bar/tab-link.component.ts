@@ -1,6 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FocusableOption } from "@angular/cdk/a11y";
-import { AfterViewInit, Component, HostListener, Input, OnDestroy, ViewChild } from "@angular/core";
-import { IsActiveMatchOptions, RouterLinkActive } from "@angular/router";
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  Input,
+  OnDestroy,
+  ViewChild,
+  input,
+} from "@angular/core";
+import { IsActiveMatchOptions, RouterLinkActive, RouterModule } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { TabListItemDirective } from "../shared/tab-list-item.directive";
@@ -10,6 +20,7 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
 @Component({
   selector: "bit-tab-link",
   templateUrl: "tab-link.component.html",
+  imports: [TabListItemDirective, RouterModule],
 })
 export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -24,7 +35,10 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestr
     fragment: "ignored",
   };
 
-  @Input() route: string | any[];
+  readonly route = input<string | any[]>();
+  // TODO: Skipped for signal migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
   @Input() disabled = false;
 
   @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {

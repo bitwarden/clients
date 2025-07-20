@@ -1,6 +1,9 @@
-import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
-import { Component, Inject, OnInit } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -10,9 +13,14 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { EventView } from "@bitwarden/common/models/view/event.view";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService, TableDataSource, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogService,
+  TableDataSource,
+  ToastService,
+} from "@bitwarden/components";
 
 import { EventService } from "../../../core";
 import { SharedModule } from "../../../shared";
@@ -30,9 +38,8 @@ export interface EntityEventsDialogParams {
 @Component({
   imports: [SharedModule],
   templateUrl: "entity-events.component.html",
-  standalone: true,
 })
-export class EntityEventsComponent implements OnInit {
+export class EntityEventsComponent implements OnInit, OnDestroy {
   loading = true;
   continuationToken: string;
   protected dataSource = new TableDataSource<EventView>();
@@ -57,13 +64,14 @@ export class EntityEventsComponent implements OnInit {
     private apiService: ApiService,
     private i18nService: I18nService,
     private eventService: EventService,
-    private platformUtilsService: PlatformUtilsService,
     private userNamePipe: UserNamePipe,
     private logService: LogService,
     private organizationUserApiService: OrganizationUserApiService,
     private formBuilder: FormBuilder,
     private validationService: ValidationService,
     private toastService: ToastService,
+    private router: Router,
+    private activeRoute: ActivatedRoute,
   ) {}
 
   async ngOnInit() {
@@ -73,6 +81,21 @@ export class EntityEventsComponent implements OnInit {
       end: defaultDates[1],
     });
     await this.load();
+  }
+
+  async ngOnDestroy() {
+    await firstValueFrom(
+      this.activeRoute.queryParams.pipe(
+        switchMap(async (params) => {
+          await this.router.navigate([], {
+            queryParams: {
+              ...params,
+              viewEvents: null,
+            },
+          });
+        }),
+      ),
+    );
   }
 
   async load() {
@@ -111,6 +134,8 @@ export class EntityEventsComponent implements OnInit {
         this.filterFormGroup.value.start,
         this.filterFormGroup.value.end,
       );
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
@@ -14,11 +14,12 @@ import { CustomFieldsComponent } from "../custom-fields/custom-fields.component"
 import { AdditionalOptionsSectionComponent } from "./additional-options-section.component";
 
 @Component({
-  standalone: true,
   selector: "vault-custom-fields",
   template: "",
 })
-class MockCustomFieldsComponent {}
+class MockCustomFieldsComponent {
+  @Input() disableSectionMargin: boolean;
+}
 
 describe("AdditionalOptionsSectionComponent", () => {
   let component: AdditionalOptionsSectionComponent;
@@ -27,9 +28,12 @@ describe("AdditionalOptionsSectionComponent", () => {
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let passwordRepromptEnabled$: BehaviorSubject<boolean>;
 
-  beforeEach(async () => {
-    cipherFormProvider = mock<CipherFormContainer>();
+  const getInitialCipherView = jest.fn(() => null);
 
+  beforeEach(async () => {
+    getInitialCipherView.mockClear();
+
+    cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView });
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
@@ -94,11 +98,11 @@ describe("AdditionalOptionsSectionComponent", () => {
     expect(component.additionalOptionsForm.disabled).toBe(true);
   });
 
-  it("initializes 'additionalOptionsForm' with original cipher view values", () => {
-    (cipherFormProvider.originalCipherView as any) = {
+  it("initializes 'additionalOptionsForm' from `getInitialCipherValue`", () => {
+    getInitialCipherView.mockReturnValueOnce({
       notes: "original notes",
       reprompt: 1,
-    } as CipherView;
+    } as CipherView);
 
     component.ngOnInit();
 

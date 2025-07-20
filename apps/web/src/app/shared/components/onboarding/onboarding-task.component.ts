@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
 @Component({
@@ -6,6 +8,7 @@ import { Component, Input } from "@angular/core";
   host: {
     class: "tw-max-w-max",
   },
+  standalone: false,
 })
 export class OnboardingTaskComponent {
   @Input()

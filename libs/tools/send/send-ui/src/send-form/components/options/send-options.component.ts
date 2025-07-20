@@ -1,13 +1,18 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { firstValueFrom, map } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { pin } from "@bitwarden/common/tools/rx";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import {
@@ -23,7 +28,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { CredentialGeneratorService, Generators } from "@bitwarden/generator-core";
+import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
@@ -31,7 +36,6 @@ import { SendFormContainer } from "../../send-form-container";
 @Component({
   selector: "tools-send-options",
   templateUrl: "./send-options.component.html",
-  standalone: true,
   imports: [
     AsyncActionsModule,
     ButtonModule,
@@ -87,11 +91,14 @@ export class SendOptionsComponent implements OnInit {
     private i18nService: I18nService,
     private toastService: ToastService,
     private generatorService: CredentialGeneratorService,
+    private accountService: AccountService,
   ) {
     this.sendFormContainer.registerChildForm("sendOptionsForm", this.sendOptionsForm);
-    this.policyService
-      .getAll$(PolicyType.SendOptions)
+
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntilDestroyed(),
       )
@@ -114,8 +121,12 @@ export class SendOptionsComponent implements OnInit {
   }
 
   generatePassword = async () => {
+    const on$ = new BehaviorSubject<GenerateRequest>({ source: "send", type: Type.password });
+    const account$ = this.accountService.activeAccount$.pipe(
+      pin({ name: () => "send-options.component", distinct: (p, c) => p.id === c.id }),
+    );
     const generatedCredential = await firstValueFrom(
-      this.generatorService.generate$(Generators.password),
+      this.generatorService.generate$({ on$, account$ }),
     );
 
     this.sendOptionsForm.patchValue({

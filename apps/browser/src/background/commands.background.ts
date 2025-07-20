@@ -1,9 +1,13 @@
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { BrowserApi } from "../platform/browser/browser-api";

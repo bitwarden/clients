@@ -1,4 +1,5 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -9,15 +10,24 @@ import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
+
+import { UserVerificationModule } from "../../auth/shared/components/user-verification";
+import { SharedModule } from "../../shared";
 
 export interface PurgeVaultDialogData {
   organizationId: string;
 }
 
 @Component({
-  selector: "app-purge-vault",
   templateUrl: "purge-vault.component.html",
+  imports: [SharedModule, UserVerificationModule],
 })
 export class PurgeVaultComponent {
   organizationId: string = null;
@@ -35,6 +45,7 @@ export class PurgeVaultComponent {
     private userVerificationService: UserVerificationService,
     private router: Router,
     private syncService: SyncService,
+    private toastService: ToastService,
   ) {
     this.organizationId = data && data.organizationId ? data.organizationId : null;
   }
@@ -44,7 +55,11 @@ export class PurgeVaultComponent {
       .buildRequest(this.formGroup.value.masterPassword)
       .then((request) => this.apiService.postPurgeCiphers(request, this.organizationId));
     await response;
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("vaultPurged"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("vaultPurged"),
+    });
     await this.syncService.fullSync(true);
     if (this.organizationId != null) {
       await this.router.navigate(["organizations", this.organizationId, "vault"]);

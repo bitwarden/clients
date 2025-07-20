@@ -1,8 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
-import { EncString } from "../../../../platform/models/domain/enc-string";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
@@ -77,21 +79,16 @@ export class Send extends Domain {
 
     try {
       const sendKeyEncryptionKey = await keyService.getUserKey();
-      model.key = await encryptService.decryptToBytes(this.key, sendKeyEncryptionKey);
+      // model.key is a seed used to derive a key, not a SymmetricCryptoKey
+      model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
       model.cryptoKey = await keyService.makeSendKey(model.key);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // TODO: error?
     }
 
-    await this.decryptObj(
-      model,
-      {
-        name: null,
-        notes: null,
-      },
-      null,
-      model.cryptoKey,
-    );
+    await this.decryptObj<Send, SendView>(this, model, ["name", "notes"], null, model.cryptoKey);
 
     switch (this.type) {
       case SendType.File:

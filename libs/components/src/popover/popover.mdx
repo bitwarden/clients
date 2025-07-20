@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./popover.stories";
 
@@ -66,7 +66,7 @@ not work because there is not enough space to open the Popover to the right. The
 
 The first position that "fits" is `left-start`, and therefore that is where the Popover will open.
 
-<Story of={stories.LeftStart} />
+<Canvas of={stories.LeftStart} />
 
 ### Manually Setting a Position
 
@@ -77,7 +77,7 @@ Popover's trigger element, such as:
 <button [bitPopoverTriggerFor]="myPopover" [position]="'above-end'">Open Popover</button>
 ```
 
-<Story of={stories.AboveEnd} />
+<Canvas of={stories.AboveEnd} />
 
 Note that if the user resizes the page and the Popover no longer fits in the viewport, the Popover
 component will fall back to the list of default positions to find the best position.

@@ -45,14 +45,14 @@
       #refreshBtn
       type="button"
       (click)="refresh()"
-      [disabled]="$any(refreshBtn).loading"
+      [disabled]="$any(refreshBtn).loading()"
       [appApiAction]="refreshPromise"
       bitButton
     >
-      <span [hidden]="$any(refreshBtn).loading">{{ "premiumRefresh" | i18n }}</span>
+      <span [hidden]="$any(refreshBtn).loading()">{{ "premiumRefresh" | i18n }}</span>
       <i
         class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
-        [hidden]="!$any(refreshBtn).loading"
+        [hidden]="!$any(refreshBtn).loading()"
         aria-hidden="true"
       ></i>
     </button>

@@ -1,6 +1,8 @@
+import { Theme } from "@bitwarden/common/platform/enums";
+
 export type NotificationTypeData = {
   isVaultLocked?: boolean;
-  theme?: string;
+  theme?: Theme;
   removeIndividualVault?: boolean;
   importType?: string;
   launchTimestamp?: number;
@@ -13,7 +15,9 @@ export type NotificationsExtensionMessage = {
     typeData?: NotificationTypeData;
     height?: number;
     error?: string;
+    closedByUser?: boolean;
     fadeOutNotification?: boolean;
+    params: object;
   };
 };
 

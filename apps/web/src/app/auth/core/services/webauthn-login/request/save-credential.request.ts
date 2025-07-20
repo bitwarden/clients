@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { WebauthnLoginAttestationResponseRequest } from "./webauthn-login-attestation-response.request";
 
 /**

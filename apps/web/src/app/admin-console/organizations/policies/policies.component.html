@@ -1,4 +1,17 @@
-<app-header></app-header>
+<app-header>
+  @let organization = organization$ | async;
+  <button
+    bitBadge
+    class="!tw-align-middle"
+    (click)="changePlan(organization)"
+    *ngIf="isBreadcrumbingEnabled$ | async"
+    slot="title-suffix"
+    type="button"
+    variant="primary"
+  >
+    {{ "upgrade" | i18n }}
+  </button>
+</app-header>
 
 <bit-container>
   <ng-container *ngIf="loading">
@@ -12,7 +25,7 @@
   <bit-table *ngIf="!loading">
     <ng-template body>
       <tr bitRow *ngFor="let p of policies">
-        <td bitCell *ngIf="p.display(organization)">
+        <td bitCell *ngIf="p.display(organization)" ngPreserveWhitespaces>
           <button type="button" bitLink (click)="edit(p)">{{ p.name | i18n }}</button>
           <span bitBadge variant="success" *ngIf="policiesEnabledMap.get(p.type)">{{
             "on" | i18n
@@ -22,5 +35,4 @@
       </tr>
     </ng-template>
   </bit-table>
-  <ng-template #editTemplate></ng-template>
 </bit-container>

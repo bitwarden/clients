@@ -8,6 +8,26 @@ import {
 import { UserId } from "../../types/guid";
 
 /**
+ * A set of options for configuring how a {@link SyncService.fullSync} call should behave.
+ */
+export type SyncOptions = {
+  /**
+   * A boolean dictating whether or not caught errors should be rethrown.
+   * `true` if they can be rethrown, `false` if they should not be rethrown.
+   * @default false
+   */
+  allowThrowOnError?: boolean;
+  /**
+   * A boolean dictating whether or not to do a token refresh before doing the sync.
+   * `true` if the refresh can be skipped, likely because one was done soon before the call to
+   * `fullSync`. `false` if the token refresh should be done before getting data.
+   *
+   * @default false
+   */
+  skipTokenRefresh?: boolean;
+};
+
+/**
  * A class encapsulating sync operations and data.
  */
 export abstract class SyncService {
@@ -47,22 +67,27 @@ export abstract class SyncService {
    * as long as the current user is authenticated. If `false` it will only sync if either a sync
    * has not happened before or the last sync date for the active user is before their account
    * revision date. Try to always use `false` if possible.
-   *
-   * @param allowThrowOnError A boolean dictating whether or not caught errors should be rethrown.
-   * `true` if they can be rethrown, `false` if they should not be rethrown.
+   * @param syncOptions Options for customizing how the sync call should behave.
+   */
+  abstract fullSync(forceSync: boolean, syncOptions?: SyncOptions): Promise<boolean>;
+
+  /**
+   * @deprecated Use the overload taking {@link SyncOptions} instead.
    */
   abstract fullSync(forceSync: boolean, allowThrowOnError?: boolean): Promise<boolean>;
 
   abstract syncUpsertFolder(
     notification: SyncFolderNotification,
     isEdit: boolean,
+    userId: UserId,
   ): Promise<boolean>;
-  abstract syncDeleteFolder(notification: SyncFolderNotification): Promise<boolean>;
+  abstract syncDeleteFolder(notification: SyncFolderNotification, userId: UserId): Promise<boolean>;
   abstract syncUpsertCipher(
     notification: SyncCipherNotification,
     isEdit: boolean,
+    userId: UserId,
   ): Promise<boolean>;
-  abstract syncDeleteCipher(notification: SyncFolderNotification): Promise<boolean>;
+  abstract syncDeleteCipher(notification: SyncFolderNotification, userId: UserId): Promise<boolean>;
   abstract syncUpsertSend(notification: SyncSendNotification, isEdit: boolean): Promise<boolean>;
   abstract syncDeleteSend(notification: SyncSendNotification): Promise<boolean>;
 }

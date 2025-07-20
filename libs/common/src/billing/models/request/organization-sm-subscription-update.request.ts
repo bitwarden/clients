@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export class OrganizationSmSubscriptionUpdateRequest {
   /**
    * The number of seats to add or remove from the subscription.
