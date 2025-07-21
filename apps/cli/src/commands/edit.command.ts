@@ -114,22 +114,9 @@ export class EditCommand {
     );
 
     if (isPersonalVaultItem && organizationOwnershipPolicyApplies) {
-      // we need a fresh copy of the original cipher to compare
-      const fetchedCipher = await this.cipherService.get(id, activeUserId);
-      const fetchedCipherView = await this.cipherService.decrypt(fetchedCipher, activeUserId);
-      const updatedCipherView = CipherExport.toView(req, cipherView);
-      const modifiedFields = Object.entries(updatedCipherView)
-        .filter(([key, value]) => {
-          const originalValue = (fetchedCipherView as any)[key];
-          return JSON.stringify(originalValue) !== JSON.stringify(value);
-        })
-        .map(([key]) => key);
-
-      if (modifiedFields.length > 0) {
-        return Response.error(
-          "An organization policy restricts editing this cipher. Please use the share command first before modifying it.",
-        );
-      }
+      return Response.error(
+        "An organization policy restricts editing this cipher. Please use the share command first before modifying it.",
+      );
     }
 
     const encCipher = await this.cipherService.encrypt(cipherView, activeUserId);

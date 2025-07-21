@@ -3,7 +3,13 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { concatMap, firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -35,7 +41,7 @@ import {
   CipherFormConfig,
   OptionalInitialValues,
 } from "../../abstractions/cipher-form-config.service";
-import { CipherFormContainer } from "../../cipher-form-container";
+import { CipherForm, CipherFormContainer } from "../../cipher-form-container";
 
 @Component({
   selector: "vault-item-details-section",
@@ -88,6 +94,9 @@ export class ItemDetailsSectionComponent implements OnInit {
   @Input()
   originalCipherView: CipherView;
 
+  @Input()
+  cipherForm: FormGroup<CipherForm>;
+
   get readOnlyCollectionsNames(): string[] {
     return this.readOnlyCollections.map((c) => c.name);
   }
@@ -112,15 +121,19 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   /**
    * Show the organization data ownership option in the Owner dropdown when:
+   * - the user hasn't selected an organization
+   * AND
    * - organization data ownership is disabled
-   * - The `organizationId` control is disabled. This avoids the scenario
-   * where a the dropdown is empty because the user personally owns the cipher
-   * but cannot edit the ownership.
+   * - The `organizationId` control is disabled
+   *
+   * This avoids the scenario where the dropdown is empty because the user personally
+   * owns the cipher but cannot edit the ownership.
    */
   get showOrganizationDataOwnershipOption() {
     return (
-      this.organizationDataOwnershipDisabled ||
-      !this.itemDetailsForm.controls.organizationId.enabled
+      this.itemDetailsForm.controls.organizationId.value === null &&
+      (this.organizationDataOwnershipDisabled ||
+        this.itemDetailsForm.controls.organizationId.disabled)
     );
   }
 
@@ -220,15 +233,35 @@ export class ItemDetailsSectionComponent implements OnInit {
       });
       await this.updateCollectionOptions(this.initialValues?.collectionIds);
     }
+    this.setFormStatus();
     if (!this.allowOwnershipChange) {
       this.itemDetailsForm.controls.organizationId.disable();
     }
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        concatMap(async () => await this.updateCollectionOptions()),
+        concatMap(async (orgId) => {
+          await this.updateCollectionOptions();
+          this.setFormStatus(orgId);
+        }),
       )
       .subscribe();
+  }
+
+  /**
+   * When the cipher does not belong to an organization but the user's organization
+   * requires all ciphers to be owned by an organization, disable the entire form
+   * until the user selects an organization.
+   */
+  private setFormStatus(orgId?: OrganizationId) {
+    if (this.organizationDataOwnershipDisabled) {
+      if (orgId) {
+        this.cipherForm.enable({ emitEvent: false });
+      } else {
+        this.cipherForm.disable({ emitEvent: false });
+        this.itemDetailsForm.controls.organizationId.enable();
+      }
+    }
   }
 
   /**
@@ -240,7 +273,7 @@ export class ItemDetailsSectionComponent implements OnInit {
    * - the selected org doesn't have the "no private data policy" enabled
    */
   private async getDefaultCollectionId(orgId?: OrganizationId) {
-    if (!orgId || !this.config.organizationDataOwnershipDisabled) {
+    if (!orgId || !this.organizationDataOwnershipDisabled) {
       return;
     }
 
