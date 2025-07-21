@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Doğrulama kodunu kopyala (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Uzunluq"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Güvənlik kodunu kopyala",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kart nömrəsi"
   },
   "premiumMembership": {
     "message": "Premium üzvlük"
@@ -3567,11 +3584,11 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Qabaqcıl seçimlər",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Xəbərdarlıq",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -3997,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Avto-yazma qısayolunu fəallaşdır"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
   }
 }
