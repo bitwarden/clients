@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Kopírovať overovací kód (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Kopírovať $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Dĺžka"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Kopírovať bezpečnostný kód",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "číslo karty"
   },
   "premiumMembership": {
     "message": "Prémiové členstvo"
@@ -3566,6 +3583,14 @@
     "message": "Viac informácií o zisťovaní zhody",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
+  "uriAdvancedOption": {
+    "message": "Rozšírené možnosti",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Upozornenie",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "Úspech"
   },
@@ -3989,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Povoliť skratku automatického písania"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden neoveruje miesto stupu, pred použitím skratky sa uistite, že ste v správnom okne a poli."
   }
 }

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator"]
+members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator", "autotype"]
 
 [workspace.package]
 version = "0.0.0"
@@ -12,7 +12,6 @@ publish = false
 aes = "=0.8.4"
 anyhow = "=1.0.94"
 arboard = { version = "=3.6.0", default-features = false }
-argon2 = "=0.5.3"
 ashpd = "=0.11.0"
 base64 = "=0.22.1"
 bindgen = "=0.72.0"
@@ -61,7 +60,7 @@ widestring = "=1.2.0"
 windows = "=0.61.1"
 windows-core = "=0.61.0"
 windows-future = "=0.2.0"
-windows-registry = "=0.5.1"
+windows-registry = "=0.5.3"
 zbus = "=5.5.0"
 zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"

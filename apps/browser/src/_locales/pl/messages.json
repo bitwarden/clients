@@ -659,7 +659,7 @@
     "message": "Zweryfikuj tożsamość"
   },
   "weDontRecognizeThisDevice": {
-    "message": "Nie rozpoznajemy tego urządzenia. Wpisz kod wysłany na Twój e-mail, aby zweryfikować tożsamość."
+    "message": "Nie rozpoznajemy tego urządzenia. Wpisz kod wysłany na adres e-mail, aby zweryfikować swoją tożsamość."
   },
   "continueLoggingIn": {
     "message": "Kontynuuj logowanie"
@@ -833,7 +833,7 @@
     "message": "Nie można zastosować autouzupełnienia na tej stronie. Skopiuj i wklej informacje ręcznie."
   },
   "totpCaptureError": {
-    "message": "Nie można zeskanować kodu QR z bieżącej strony"
+    "message": "Nie można zeskanować kodu QR z obecnej strony"
   },
   "totpCaptureSuccess": {
     "message": "Klucz uwierzytelniający został dodany"
@@ -851,7 +851,7 @@
     "message": "Bitwarden może przechowywać i uzupełniać kody weryfikacyjne. Wybierz ikonę aparatu, aby zrobić zrzut ekranu z kodem QR lub skopiuj i wklej klucz do tego pola."
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Dowiedz się więcej o uwierzytelniaczach"
+    "message": "Dowiedz się więcej o uwierzytelnianiu"
   },
   "copyTOTP": {
     "message": "Kopiuj klucz uwierzytelniający (TOTP)"
@@ -1019,10 +1019,10 @@
     "message": "Opcje zapisywania w sejfie"
   },
   "addLoginNotificationDesc": {
-    "message": "\"Dodaj powiadomienia logowania\" automatycznie wyświetla monit o zapisanie nowych danych logowania do sejfu przy każdym pierwszym logowaniu."
+    "message": "Proponuj dodanie elementu, jeśli nie ma go w sejfie."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Poproś o dodanie elementu, jeśli nie zostanie znaleziony w Twoim sejfie. Dotyczy wszystkich zalogowanych kont."
+    "message": "Proponuj dodanie elementu, jeśli nie ma go w sejfie. Dotyczy wszystkich zalogowanych kont."
   },
   "showCardsInVaultViewV2": {
     "message": "Pokazuj zawsze karty w sugestiach autouzupełniania"
@@ -1141,7 +1141,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Świetna robota! Podjęto kroki mające na celu zwiększenie bezpieczeństwa Twojego oraz $ORGANIZATION$.",
+    "message": "Dobra robota! Twoje konto i organizacja $ORGANIZATION$ jest bezpieczniejsza.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1174,7 +1174,7 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Po zmianie hasła musisz się zalogować przy użyciu nowego hasła. Aktywne sesje na innych urządzeniach zostaną wylogowane w ciągu jednej godziny."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
     "message": "Zmień hasło główne, aby zakończyć odzyskiwanie konta."
@@ -1183,10 +1183,10 @@
     "message": "Proponuj aktualizuję obecnych danych logowania"
   },
   "changedPasswordNotificationDesc": {
-    "message": "Poproś o aktualizację hasła danych logowania po wykryciu zmiany w witrynie."
+    "message": "Proponuj aktualizację hasła po wykryciu zmiany na stronie internetowej."
   },
   "changedPasswordNotificationDescAlt": {
-    "message": "Poproś o aktualizację hasła, gdy zmiana zostanie wykryta na stronie. Dotyczy wszystkich zalogowanych kont."
+    "message": "Proponuj aktualizację hasła po wykryciu zmiany na stronie internetowej. Dotyczy wszystkich zalogowanych kont."
   },
   "enableUsePasskeys": {
     "message": "Proponuj zapisywanie i używanie kluczy dostępu"
@@ -1213,17 +1213,17 @@
     "message": "Pokaż opcje w menu kontekstowym"
   },
   "contextMenuItemDesc": {
-    "message": "Użyj drugiego kliknięcia, aby uzyskać dostęp do generowania haseł i pasujących danych logowania do witryny."
+    "message": "Użyj drugiego kliknięcia, aby uzyskać dostęp do generatora hasła i pasujących danych logowania."
   },
   "contextMenuItemDescAlt": {
-    "message": "Użyj drugiego kliknięcia, aby uzyskać dostęp do generowania haseł i pasujących danych logowania do witryny. Dotyczy wszystkich zalogowanych kont."
+    "message": "Użyj drugiego kliknięcia, aby uzyskać dostęp do generatora hasła i pasujących danych logowania. Dotyczy wszystkich zalogowanych kont."
   },
   "defaultUriMatchDetection": {
     "message": "Domyślne wykrywanie dopasowania",
     "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Wybierz domyślny sposób wykrywania dopasowania adresów dla czynności takich jak autouzupełnianie."
+    "message": "Wybierz domyślne wykrywanie dopasowania dla autouzupełniania."
   },
   "theme": {
     "message": "Motyw"
@@ -1252,7 +1252,7 @@
     "message": "Format pliku"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "Plik będzie chroniony hasłem, które będzie wymagane do odszyfrowania pliku."
+    "message": "Plik zostanie zaszyfrowany hasłem."
   },
   "filePassword": {
     "message": "Hasło pliku"
@@ -1296,7 +1296,7 @@
     "message": "Klucze szyfrowania konta są unikalne dla każdego użytkownika Bitwarden, więc nie możesz zaimportować zaszyfrowanego pliku eksportu na inne konto."
   },
   "exportMasterPassword": {
-    "message": "Wpisz hasło główne, aby wyeksportować dane z sejfu."
+    "message": "Wpisz hasło główne, aby wyeksportować dane sejfu."
   },
   "shared": {
     "message": "Udostępnione"
@@ -1372,7 +1372,7 @@
     "message": "Funkcja jest niedostępna"
   },
   "legacyEncryptionUnsupported": {
-    "message": "Starsze szyfrowanie nie jest już obsługiwane. Skontaktuj się z pomocą techniczną, aby odzyskać swoje konto."
+    "message": "Starsze szyfrowanie nie jest już obsługiwane. Skontaktuj się z pomocą techniczną, aby odzyskać konto."
   },
   "premiumMembership": {
     "message": "Konto premium"
@@ -1490,7 +1490,7 @@
     "message": "Użyj kodu odzyskiwania"
   },
   "insertU2f": {
-    "message": "Włóż klucz bezpieczeństwa do portu USB komputera. Jeśli klucz posiada przycisk, dotknij go."
+    "message": "Włóż klucz bezpieczeństwa do portu USB urządzenia. Jeśli klucz ma przycisk, dotknij go."
   },
   "openInNewTab": {
     "message": "Otwórz w nowej karcie"
@@ -1502,7 +1502,7 @@
     "message": "Odczytaj klucz bezpieczeństwa"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Oczekiwanie na interakcję z kluczem bezpieczeństwa..."
+    "message": "Oczekiwanie na klucz bezpieczeństwa..."
   },
   "loginUnavailable": {
     "message": "Logowanie jest niedostępne"
@@ -1550,7 +1550,7 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Użyj dowolnego klucza bezpieczeństwa WebAuthn, aby uzyskać dostęp do swojego konta."
+    "message": "Użyj dowolnego klucza bezpieczeństwa WebAuthn, aby uzyskać dostęp do konta."
   },
   "emailTitle": {
     "message": "Adres e-mail"
@@ -1606,7 +1606,7 @@
     "message": "Sugestie autouzupełniania"
   },
   "autofillSpotlightTitle": {
-    "message": "Łatwe znajdowanie sugestii autouzupełniania"
+    "message": "Łatwe wyszukiwanie sugestii autouzupełniania"
   },
   "autofillSpotlightDesc": {
     "message": "Wyłącz ustawienia autouzupełniania swojej przeglądarki, aby nie kolidowały z Bitwarden."
@@ -1639,7 +1639,7 @@
     "message": "Dotyczy wszystkich zalogowanych kont."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Wyłącz wbudowany w przeglądarkę menedżer haseł, aby uniknąć konfliktów."
+    "message": "Wyłącz menedżer haseł przeglądarki, aby uniknąć konfliktów."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "Edytuj ustawienia przeglądarki."
@@ -1761,10 +1761,10 @@
     "message": "Pokaż ikony stron internetowych"
   },
   "faviconDesc": {
-    "message": "Pokaż rozpoznawalny obraz obok danych logowania."
+    "message": "Pokaż rozpoznawalną ikonę obok danych logowania."
   },
   "faviconDescAlt": {
-    "message": "Pokaż rozpoznawalny obraz obok danych logowania. Dotyczy wszystkich zalogowanych kont."
+    "message": "Pokaż rozpoznawalną ikonę obok danych logowania. Dotyczy wszystkich zalogowanych kont."
   },
   "enableBadgeCounter": {
     "message": "Pokaż licznik na ikonie"
@@ -1828,6 +1828,9 @@
   },
   "securityCode": {
     "message": "Kod zabezpieczający"
+  },
+  "cardNumber": {
+    "message": "numer karty"
   },
   "ex": {
     "message": "np."
@@ -1977,7 +1980,7 @@
     "message": "Kolekcje"
   },
   "nCollections": {
-    "message": "Kolekcje: $COUNT$",
+    "message": "Kolekcje ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2126,7 +2129,7 @@
     "message": "Właściciel"
   },
   "whoOwnsThisItem": {
-    "message": "Kto jest właścicielem tego elementu?"
+    "message": "Kto jest właścicielem elementu?"
   },
   "strong": {
     "message": "Silne",
@@ -2646,13 +2649,13 @@
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAltPeriod": {
-    "message": "Ilustracja powiadomienia Bitwardena, skłaniająca użytkownika do zaktualizowania danych logowania."
+    "message": "Ilustracja powiadomienia Bitwarden, zachęcająca użytkownika do zaktualizowania danych logowania."
   },
   "turnOnAutofill": {
     "message": "Włącz autouzupełnianie"
   },
   "turnedOnAutofill": {
-    "message": "Włączono autouzupełnianie"
+    "message": "Autouzupełnianie zostało włączone"
   },
   "dismiss": {
     "message": "Odrzuć"
@@ -2902,7 +2905,7 @@
     "message": "Data i czas usunięcia są wymagane."
   },
   "dateParsingError": {
-    "message": "Wystąpił błąd podczas zapisywania daty usunięcia i wygaśnięcia."
+    "message": "Wystąpił błąd podczas zapisywania dat usunięcia i wygaśnięcia."
   },
   "hideYourEmail": {
     "message": "Ukryj mój adres e-mail przed odbiorcami."
@@ -2984,10 +2987,10 @@
     "message": "Minuty"
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Wymagania polityki przedsiębiorstwa zostały zastosowane do twoich opcji przekrocznia limitu czasu"
+    "message": "Zasady organizacji zostały zastosowane do opcji blokowania sejfu"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Zasady organizacji mają wpływ czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
+    "message": "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3013,7 +3016,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Limit czasu przekracza ograniczenie ustawione przez Twoją organizację: $HOURS$ godzin(y) i $MINUTES$ minut(y) maksymalnie",
+    "message": "Czas blokowania sejfu przekracza zasady organizacji. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3043,7 +3046,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "Zasady organizacji ustawiły czas blokowania sejfu na $ACTION$.",
+    "message": "Zasady organizacji wymuszają sposób blokowania sejfu na $ACTION$.",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -3052,7 +3055,7 @@
     }
   },
   "vaultTimeoutTooLarge": {
-    "message": "Czas blokowania sejfu przekracza limit określony przez organizację."
+    "message": "Czas blokowania aplikacji przekracza limit określony przez organizację."
   },
   "vaultExportDisabled": {
     "message": "Eksportowanie sejfu jest niedostępne"
@@ -3136,7 +3139,7 @@
     "message": "Błąd odszyfrowywania"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden nie mógł odszyfrować elementów sejfu wymienionych poniżej."
+    "message": "Bitwarden nie mógł odszyfrować poniższych elementów sejfu."
   },
   "contactCSToAvoidDataLossPart1": {
     "message": "Skontaktuj się z działem obsługi klienta,",
@@ -3302,7 +3305,7 @@
     }
   },
   "forwarderNoAccountId": {
-    "message": "Nie można uzyskać ID maskowanego konta e-mail dla $SERVICENAME$.",
+    "message": "Nie można uzyskać identyfikatora konta e-mail $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
     "placeholders": {
       "servicename": {
@@ -3449,7 +3452,7 @@
     "message": "Powiadomienie zostało wysłane na urządzenie"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "Zostaniesz powiadomiony po zatwierdzeniu prośby"
+    "message": "Zostaniesz powiadomiony po potwierdzeniu"
   },
   "needAnotherOptionV1": {
     "message": "Potrzebujesz innej opcji?"
@@ -3458,7 +3461,29 @@
     "message": "Logowanie rozpoczęte"
   },
   "logInRequestSent": {
-    "message": "Żądanie wysłane"
+    "message": "Prośba została wysłana"
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Logowanie potwierdzone dla $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
+  },
+  "device": {
+    "message": "Urządzenie"
+  },
+  "loginStatus": {
+    "message": "Status zalogowania"
   },
   "masterPasswordChanged": {
     "message": "Hasło główne zostało zapisane"
@@ -3556,6 +3581,113 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Zapamiętaj to urządzenie, aby przyszłe logowania były bezproblemowe"
   },
+  "manageDevices": {
+    "message": "Zarządzaj urządzeniami"
+  },
+  "currentSession": {
+    "message": "Obecna sesja"
+  },
+  "mobile": {
+    "message": "Telefon",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Rozszerzenie",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Komputer",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Sejf internetowy"
+  },
+  "webApp": {
+    "message": "Aplikacja internetowa"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Zapytanie oczekuje"
+  },
+  "firstLogin": {
+    "message": "Pierwsze logowanie"
+  },
+  "trusted": {
+    "message": "Zaufane"
+  },
+  "needsApproval": {
+    "message": "Wymagane potwierdzenie"
+  },
+  "devices": {
+    "message": "Urządzenia"
+  },
+  "accessAttemptBy": {
+    "message": "Próba dostępu przez $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Potwierdź dostęp"
+  },
+  "denyAccess": {
+    "message": "Odmów dostępu"
+  },
+  "time": {
+    "message": "Czas"
+  },
+  "deviceType": {
+    "message": "Rodzaj urządzenia"
+  },
+  "loginRequest": {
+    "message": "Żądanie logowania"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Prośba nie jest już ważna."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Czy próbujesz uzyskać dostęp do swojego konta?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Logowanie potwierdzone dla $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Prośba logowania wygasła."
+  },
+  "justNow": {
+    "message": "Teraz"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Poproszono $MINUTES$ min temu",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Wymagane zatwierdzenie urządzenia. Wybierz opcję zatwierdzenia poniżej:"
   },
@@ -3563,19 +3695,19 @@
     "message": "Wymagane zatwierdzenie urządzenia"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Wybierz opcję zatwierdzenia poniżej"
+    "message": "Wybierz opcję potwierdzenia"
   },
   "rememberThisDevice": {
     "message": "Zapamiętaj urządzenie"
   },
   "uncheckIfPublicDevice": {
-    "message": "Odznacz, jeśli używasz publicznego urządzenia"
+    "message": "Wyłącz na obcych urządzeniach"
   },
   "approveFromYourOtherDevice": {
-    "message": "Zatwierdź z innego twojego urządzenia"
+    "message": "Potwierdź za pomocą innego urządzenia"
   },
   "requestAdminApproval": {
-    "message": "Poproś administratora o zatwierdzenie"
+    "message": "Poproś administratora o potwierdzenie"
   },
   "unableToCompleteLogin": {
     "message": "Nie można ukończyć logowania"
@@ -3624,10 +3756,10 @@
     "message": "Konto zostało utworzone!"
   },
   "adminApprovalRequested": {
-    "message": "Poproszono administratora o zatwierdzenie"
+    "message": "Poproszono administratora o potwierdzenie"
   },
   "adminApprovalRequestSentToAdmins": {
-    "message": "Twoja prośba została wysłana do Twojego administratora."
+    "message": "Prośba została wysłana do administratora."
   },
   "troubleLoggingIn": {
     "message": "Problem z logowaniem?"
@@ -4307,7 +4439,7 @@
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
-    "message": "Czy ustawić Bitwarden jako domyślny menadżer haseł?",
+    "message": "Ustawić Bitwarden jako domyślny menadżer haseł?",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
@@ -4465,17 +4597,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Kopiuj $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Kopiuj $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5104,7 +5236,7 @@
     "message": "Odblokuj sejf w kilka sekund"
   },
   "unlockVaultDesc": {
-    "message": "Możesz dostosować ustawienia odblokowania i limitu czasu, aby szybciej uzyskać dostęp do sejfu."
+    "message": "Możesz dostosować sposób i czas blokowania sejfu, aby uzyskać szybszy dostęp do sejfu."
   },
   "unlockPinSet": {
     "message": "Kod PIN został ustawiony"
@@ -5455,7 +5587,7 @@
     "message": "Nie masz uprawnień do przeglądania tej strony. Spróbuj zalogować się na inne konto."
   },
   "wasmNotSupported": {
-    "message": "Zestaw WebAssembly nie jest obsługiwany w przeglądarce lub nie jest włączony. Do korzystania z aplikacji Bitwarden wymagany jest zestaw WebAssembre.",
+    "message": "WebAssembly nie jest obsługiwany w przeglądarce lub jest wyłączony. WebAssembly jest wymagany do korzystania z aplikacji Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

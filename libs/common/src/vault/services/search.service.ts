@@ -19,6 +19,7 @@ import { SearchService as SearchServiceAbstraction } from "../abstractions/searc
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 export type SerializedLunrIndex = {
   version: string;
@@ -129,12 +130,15 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   async isSearchable(userId: UserId, query: string): Promise<boolean> {
+    const time = performance.now();
     query = SearchService.normalizeSearchQuery(query);
     const index = await this.getIndexForSearch(userId);
     const notSearchable =
       query == null ||
       (index == null && query.length < this.searchableMinLength) ||
       (index != null && query.length < this.searchableMinLength && query.indexOf(">") !== 0);
+
+    this.logService.measure(time, "Vault", "SearchService", "isSearchable");
     return !notSearchable;
   }
 
@@ -147,7 +151,7 @@ export class SearchService implements SearchServiceAbstraction {
       return;
     }
 
-    const indexingStartTime = new Date().getTime();
+    const indexingStartTime = performance.now();
     await this.setIsIndexing(userId, true);
     await this.setIndexedEntityIdForSearch(userId, indexedEntityId as IndexedEntityId);
     const builder = new lunr.Builder();
@@ -188,20 +192,19 @@ export class SearchService implements SearchServiceAbstraction {
     await this.setIndexForSearch(userId, index.toJSON() as SerializedLunrIndex);
 
     await this.setIsIndexing(userId, false);
-    this.logService.info(
-      `[SearchService] Building search index of ${ciphers.length} ciphers took ${
-        new Date().getTime() - indexingStartTime
-      }ms`,
-    );
+
+    this.logService.measure(indexingStartTime, "Vault", "SearchService", "index complete", [
+      ["Items", ciphers.length],
+    ]);
   }
 
-  async searchCiphers(
+  async searchCiphers<C extends CipherViewLike>(
     userId: UserId,
     query: string,
-    filter: ((cipher: CipherView) => boolean) | ((cipher: CipherView) => boolean)[] = null,
-    ciphers: CipherView[],
-  ): Promise<CipherView[]> {
-    const results: CipherView[] = [];
+    filter: ((cipher: C) => boolean) | ((cipher: C) => boolean)[] = null,
+    ciphers: C[],
+  ): Promise<C[]> {
+    const results: C[] = [];
     if (query != null) {
       query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
     }
@@ -216,7 +219,7 @@ export class SearchService implements SearchServiceAbstraction {
     if (filter != null && Array.isArray(filter) && filter.length > 0) {
       ciphers = ciphers.filter((c) => filter.every((f) => f == null || f(c)));
     } else if (filter != null) {
-      ciphers = ciphers.filter(filter as (cipher: CipherView) => boolean);
+      ciphers = ciphers.filter(filter as (cipher: C) => boolean);
     }
 
     if (!(await this.isSearchable(userId, query))) {
@@ -236,7 +239,7 @@ export class SearchService implements SearchServiceAbstraction {
       return this.searchCiphersBasic(ciphers, query);
     }
 
-    const ciphersMap = new Map<string, CipherView>();
+    const ciphersMap = new Map<string, C>();
     ciphers.forEach((c) => ciphersMap.set(c.id, c));
 
     let searchResults: lunr.Index.Result[] = null;
@@ -270,10 +273,10 @@ export class SearchService implements SearchServiceAbstraction {
     return results;
   }
 
-  searchCiphersBasic(ciphers: CipherView[], query: string, deleted = false) {
+  searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string, deleted = false) {
     query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
     return ciphers.filter((c) => {
-      if (deleted !== c.isDeleted) {
+      if (deleted !== CipherViewLikeUtils.isDeleted(c)) {
         return false;
       }
       if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {
@@ -282,13 +285,17 @@ export class SearchService implements SearchServiceAbstraction {
       if (query.length >= 8 && c.id.startsWith(query)) {
         return true;
       }
-      if (c.subTitle != null && c.subTitle.toLowerCase().indexOf(query) > -1) {
+      const subtitle = CipherViewLikeUtils.subtitle(c);
+      if (subtitle != null && subtitle.toLowerCase().indexOf(query) > -1) {
         return true;
       }
+
+      const login = CipherViewLikeUtils.getLogin(c);
+
       if (
-        c.login &&
-        c.login.hasUris &&
-        c.login.uris.some((loginUri) => loginUri?.uri?.toLowerCase().indexOf(query) > -1)
+        login &&
+        login.uris.length &&
+        login.uris.some((loginUri) => loginUri?.uri?.toLowerCase().indexOf(query) > -1)
       ) {
         return true;
       }

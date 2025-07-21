@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Nota segura"
   },
+  "typeNote": {
+    "message": "Nota"
+  },
   "typeSshKey": {
     "message": "Chave SSH"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Copiar nome"
+  },
+  "cardNumber": {
+    "message": "número do cartão"
+  },
+  "copyFieldCipherName": {
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Eu"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Cofre web"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Pedido de início de sessão aprovado para $EMAIL$ no $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "O pedido de início de sessão já expirou."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Rever pedido de início de sessão"
+  },
+  "loginRequest": {
+    "message": "Pedido de início de sessão"
   },
   "freeTrialEndPromptCount": {
     "message": "O seu período experimental gratuito termina dentro de $COUNT$ dias.",
@@ -6660,7 +6702,7 @@
     "message": "URL do servidor da API"
   },
   "webVaultUrl": {
-    "message": "URL do servidor do cofre Web"
+    "message": "URL do servidor do cofre web"
   },
   "identityUrl": {
     "message": "URL do servidor de identidade"
@@ -8877,7 +8919,7 @@
     "message": "Instalar a extensão do navegador"
   },
   "installBrowserExtensionDetails": {
-    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação Web."
+    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação web."
   },
   "projectAccessUpdated": {
     "message": "Acesso ao projeto atualizado"
@@ -8937,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Mais informações sobre a deteção de correspondências",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Opções avançadas",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Aviso",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Para manter a sua subscrição para a $ORG$, ",
@@ -9000,7 +9050,7 @@
     "message": "Gratuito durante 1 ano"
   },
   "newWebApp": {
-    "message": "Bem-vindo à nova e melhorada aplicação Web. Saiba mais sobre o que mudou."
+    "message": "Bem-vindo à nova e melhorada aplicação web. Saiba mais sobre o que mudou."
   },
   "releaseBlog": {
     "message": "Ler o blogue de lançamento"
@@ -10747,7 +10797,7 @@
     "message": "Tem a certeza de que não pretende adicionar a extensão agora?"
   },
   "skipToWebApp": {
-    "message": "Saltar para a Web app"
+    "message": "Saltar para a aplicação web"
   },
   "bitwardenExtensionInstalled": {
     "message": "Extensão Bitwarden instalada!"

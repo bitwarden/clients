@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Veilige notitie"
   },
+  "typeNote": {
+    "message": "Notitie"
+  },
   "typeSshKey": {
     "message": "SSH-sleutel"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Naam kopiëren"
+  },
+  "cardNumber": {
+    "message": "kaartnummer"
+  },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopiëren",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Ik"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Webkluis"
   },
+  "webApp": {
+    "message": "Web-app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Inlogverzoek is al verlopen."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Inlogverzoek afhandelen"
+  },
+  "loginRequest": {
+    "message": "Log-inverzoek"
   },
   "freeTrialEndPromptCount": {
     "message": "Je gratis proefperiode eindigt over $COUNT$ dagen.",
@@ -8937,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Lees meer over overeenkomstdetectie",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Geavanceerde opties",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Waarschuwing",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Om je abonnement voor $ORG$ te behouden, ",

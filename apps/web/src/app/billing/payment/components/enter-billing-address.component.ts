@@ -38,7 +38,7 @@ type Scenario =
         <div class="tw-col-span-6">
           <bit-form-field [disableMargin]="true">
             <bit-label>{{ "country" | i18n }}</bit-label>
-            <bit-select [formControl]="group.controls.country">
+            <bit-select [formControl]="group.controls.country" data-testid="country">
               @for (selectableCountry of selectableCountries; track selectableCountry.value) {
                 <bit-option
                   [value]="selectableCountry.value"
@@ -57,6 +57,7 @@ type Scenario =
               type="text"
               [formControl]="group.controls.postalCode"
               autocomplete="postal-code"
+              data-testid="postal-code"
             />
           </bit-form-field>
         </div>
@@ -68,6 +69,7 @@ type Scenario =
               type="text"
               [formControl]="group.controls.line1"
               autocomplete="address-line1"
+              data-testid="address-line1"
             />
           </bit-form-field>
         </div>
@@ -79,6 +81,7 @@ type Scenario =
               type="text"
               [formControl]="group.controls.line2"
               autocomplete="address-line2"
+              data-testid="address-line2"
             />
           </bit-form-field>
         </div>
@@ -90,6 +93,7 @@ type Scenario =
               type="text"
               [formControl]="group.controls.city"
               autocomplete="address-level2"
+              data-testid="city"
             />
           </bit-form-field>
         </div>
@@ -101,6 +105,7 @@ type Scenario =
               type="text"
               [formControl]="group.controls.state"
               autocomplete="address-level1"
+              data-testid="state"
             />
           </bit-form-field>
         </div>
@@ -108,7 +113,12 @@ type Scenario =
           <div class="tw-col-span-6">
             <bit-form-field [disableMargin]="true">
               <bit-label>{{ "taxIdNumber" | i18n }}</bit-label>
-              <input bitInput type="text" [formControl]="group.controls.taxId" />
+              <input
+                bitInput
+                type="text"
+                [formControl]="group.controls.taxId"
+                data-testid="tax-id"
+              />
             </bit-form-field>
           </div>
         }

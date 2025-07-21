@@ -577,6 +577,9 @@ export class LockComponent implements OnInit, OnDestroy {
       throw new Error("No active user.");
     }
 
+    // Add a mark to indicate that the user has unlocked their vault. A good starting point for measuring unlock performance.
+    this.logService.mark("Vault unlocked");
+
     await this.keyService.setUserKey(key, this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we

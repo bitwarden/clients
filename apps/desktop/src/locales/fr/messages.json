@@ -232,7 +232,7 @@
     "message": "La demande de clé SSH a expiré."
   },
   "enableSshAgent": {
-    "message": "Activez l'agent SSH"
+    "message": "Activer l'agent SSH"
   },
   "enableSshAgentDesc": {
     "message": "Activez l'agent SSH pour signer les demandes SSH directement depuis votre coffre Bitwarden."
@@ -241,22 +241,22 @@
     "message": "L'agent SSH est un service - destiné aux développeurs - qui vous permet de signer des demandes SSH directement depuis votre coffre Bitwarden."
   },
   "sshAgentPromptBehavior": {
-    "message": "Ask for authorization when using SSH agent"
+    "message": "Demander une autorisation lors de l’utilisation de l’agent SSH"
   },
   "sshAgentPromptBehaviorDesc": {
-    "message": "Choose how to handle SSH-agent authorization requests."
+    "message": "Choisir comment gérer les demandes d'autorisation de l'agent SSH."
   },
   "sshAgentPromptBehaviorHelp": {
-    "message": "Remember SSH authorizations"
+    "message": "Se souvenir des autorisations SSH"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "Always"
+    "message": "Toujours"
   },
   "sshAgentPromptBehaviorNever": {
-    "message": "Never"
+    "message": "Jamais"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
-    "message": "Remember until vault is locked"
+    "message": "Se souvenir jusqu’au verrouillage du coffre"
   },
   "premiumRequired": {
     "message": "Premium requis"
@@ -443,10 +443,10 @@
     "message": "Ajouter un champ"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Modifier le champ"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Êtes-vous sûr de vouloir supprimer définitivement cette pièce jointe ?"
   },
   "fieldType": {
     "message": "Type de champ"
@@ -458,19 +458,19 @@
     "message": "Ajouter"
   },
   "textHelpText": {
-    "message": "Utiliser des champs de texte pour les données comme les questions de sécurité"
+    "message": "Utilisez des champs de texte pour les données comme les questions de sécurité"
   },
   "hiddenHelpText": {
-    "message": "Utiliser des champs cachés pour des données sensibles comme un mot de passe"
+    "message": "Utilisez des champs cachés pour des données sensibles comme un mot de passe"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Utilisez les cases à cocher si vous souhaitez remplir automatiquement la case à cocher d'un formulaire, comme la case se souvenir du courriel"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Utilisez un champ lié lorsque vous rencontrez des problèmes de saisie automatique pour un site Web spécifique."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Entrer l'identifiant html, le nom, l'étiquette aria ou l'espace réservé du champ."
   },
   "folder": {
     "message": "Dossier"
@@ -571,6 +571,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Copier le code de vérification (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Longueur"
@@ -695,7 +709,7 @@
     "message": "La taille maximale du fichier est de 500 Mo."
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "L'ancien chiffrement n'est plus pris en charge. Veuillez contacter le support pour récupérer votre compte."
   },
   "editedFolder": {
     "message": "Dossier enregistré"
@@ -1425,6 +1439,9 @@
     "message": "Copier le code de sécurité",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "Adhésion Premium"
   },
@@ -1717,10 +1734,10 @@
     "message": "Compte restreint"
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "Impossible d'importer les types de l'élément de la carte"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "Une politique de sécurité définie par une organisation ou plus vous empêche d'importer des cartes dans vos coffres."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Le \"Mot de passe du fichier\" et la \"Confirmation du mot de passe du fichier\" ne correspondent pas."
@@ -1970,10 +1987,10 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Détails de la carte de paiement"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "Détails de la carte $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1982,32 +1999,32 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "En savoir plus sur les authentificateurs"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Copier la clé Authenticator (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Rendre la vérification en deux étapes transparente"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden peut stocker et remplir des codes de vérification en 2 étapes. Copiez et collez la clé dans ce champ."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden peut stocker et remplir des codes de vérification en 2 étapes. Sélectionnez l'icône caméra pour prendre une capture d'écran du code QR de l'authentificateur de ce site Web, ou copiez et collez la clé dans ce champ."
   },
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "Free organizations cannot use attachments"
+    "message": "Les organisations gratuites ne peuvent pas utiliser de pièces jointes"
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 champ nécessite votre attention."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ champs nécessitent votre attention.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2016,10 +2033,10 @@
     }
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Carte de paiement expirée"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Si vous l'avez renouvelée, mettez à jour les informations de la carte de paiement"
   },
   "verificationRequired": {
     "message": "Vérification requise",
@@ -2179,7 +2196,7 @@
     "message": "En raison d'une politique d'entreprise, il vous est interdit d'enregistrer des éléments dans votre coffre personnel. Sélectionnez une organisation dans l'option Propriété et choisissez parmi les collections disponibles."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "Votre nouveau mot de passe ne peut être le même que votre mot de passe actuel."
   },
   "hintEqualsPassword": {
     "message": "Votre indice de mot de passe ne peut pas être identique à votre nom d'utilisateur."
@@ -2191,13 +2208,13 @@
     "message": "Une politique d'organisation a bloqué l'import d'éléments dans votre coffre personel."
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Détails personnels"
   },
   "identification": {
     "message": "Identification"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "Informations de contact"
   },
   "allSends": {
     "message": "Tous les Sends",
@@ -2393,7 +2410,7 @@
     "message": "Cette action est protégée. Pour continuer, veuillez saisir à nouveau votre mot de passe principal pour vérifier votre identité."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Mot de passe principal défini avec succès"
   },
   "updatedMasterPassword": {
     "message": "Mot de passe principal mis à jour"
@@ -2408,13 +2425,13 @@
     "message": "Votre mot de passe principal ne répond pas aux exigences de politique de sécurité de cette organisation. Pour pouvoir accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Après avoir changé votre mot de passe, vous devrez vous connecter avec votre nouveau mot de passe. Les sessions actives sur d'autres appareils seront déconnectées dans un délai d'une heure."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Changez votre mot de passe principal pour terminer la récupération du compte."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "Votre mot de passe principal ne répond pas aux exigences de cette organisation. Changez votre mot de passe principal pour continuer."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Votre organisation a désactivé le chiffrement des appareils de confiance. Veuillez définir un mot de passe principal pour accéder à votre coffre."
@@ -2528,13 +2545,13 @@
     "message": "Mot de passe principal supprimé"
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "Un mot de passe maître n'est plus requis pour les membres de l'organisation suivante. Veuillez confirmer le domaine ci-dessous avec l'administrateur de votre organisation."
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Nom de l'organisation"
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "Domaine Key Connector"
   },
   "leaveOrganization": {
     "message": "Quitter l'organisation"
@@ -2597,7 +2614,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Seuls les éléments individuels du coffre et les pièces jointes associées à $EMAIL$ seront exportés. Les éléments du coffre de l'organisation ne seront pas inclus",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2646,7 +2663,7 @@
     "message": "Générer un courriel"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Générateur de nom d'utilisateur"
   },
   "generatePassword": {
     "message": "Générer un mot de passe"
@@ -2655,16 +2672,16 @@
     "message": "Générer une phrase de passe"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Mot de passe généré"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Phrase de passe générée"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Nom d'utilisateur généré"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Courriel généré"
   },
   "spinboxBoundariesHint": {
     "message": "La valeur doit être comprise entre $MIN$ et $MAX$.",
@@ -2723,7 +2740,7 @@
     "message": "Utiliser ce mot de passe"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Utiliser cette phrase de passe"
   },
   "useThisUsername": {
     "message": "Utiliser ce nom d'utilisateur"
@@ -3154,10 +3171,10 @@
     "message": "Demander l'approbation de l'administrateur"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Impossible de compléter la connexion"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "Vous devez vous connecter sur un appareil de confiance ou demander à votre administrateur de vous assigner un mot de passe."
   },
   "region": {
     "message": "Région"
@@ -3200,28 +3217,28 @@
     "message": "Appareil de confiance"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Faire confiance à l'organisation"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Faire confiance"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Ne pas faire confiance"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "L'organisation n'est pas fiable"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "Pour la sécurité de votre compte, confirmez seulement si vous avez accordé l'accès d'urgence à cet utilisateur et que sa phrase d'empreinte correspond à ce qui est affiché dans son compte"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "Pour la sécurité de votre compte, continuez seulement si vous êtes un membre de cette organisation, avez la récupération de compte activée et que la phrase d'empreinte correspond à celle de l'organisation."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "Cette organisation a une politique de sécurité Entreprise qui vous inscrira dans la récupération de votre compte. L'inscription permettra aux administrateurs de l'organisation de changer votre mot de passe. Continuez seulement si vous reconnaissez cette organisation et que la phrase d'empreinte affichée ci-dessous correspond à l'empreinte de l'organisation."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "Faire confiance à l'utilisateur"
   },
   "inputRequired": {
     "message": "Saisie requise."
@@ -3394,7 +3411,7 @@
     "message": "Suivez les étapes ci-dessous afin de réussir à vous connecter."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Suivez les étapes ci-dessous pour terminer la connexion avec votre clé de sécurité."
   },
   "launchDuo": {
     "message": "Lancer Duo dans le navigateur"
@@ -3551,20 +3568,28 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "La détection de correspondance d'URI est la façon dont Bitwarden identifie les suggestions de remplissage automatique.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "« Expression régulière » est une option avancée avec un risque accru d'exposer les identifiants.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "« Commence par » est une option avancée avec un risque accru d'exposer les identifiants.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "En savoir plus sur la détection de correspondance",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Succès"
@@ -3637,14 +3662,14 @@
     "message": "Aucun port libre n’a pu être trouvé pour la connexion SSO."
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "Mot de passe sécurisé généré ! N'oubliez pas aussi de mettre à jour votre mot de passe sur le site Web."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Utiliser le générateur",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "pour créer un mot de passe fort unique",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
@@ -3672,25 +3697,25 @@
     "message": "Le déverrouillage par biométrie n'est pas disponible actuellement pour une raison inconnue."
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Détails de l’élément"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Nom de l’élément"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Identifiants de connexion"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Options supplémentaires"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Historique de l’élément"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Dernière modification"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Téléverser"
   },
   "authorize": {
     "message": "Autoriser"
@@ -3762,7 +3787,7 @@
     "message": "Changer le mot de passe à risque"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "Vous ne pouvez pas supprimer des collections avec les autorisations d'affichage uniquement : $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3771,114 +3796,114 @@
     }
   },
   "move": {
-    "message": "Move"
+    "message": "Déplacer"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Nouveau dossier"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Nom de dossier"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Imbriquer un dossier en ajoutant le nom du dossier parent suivi d'un « / ». Exemple : Sociaux/Forums"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Envoyez des informations sensibles, en toute sécurité",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Partagez des fichiers et des données en toute sécurité avec n'importe qui, sur n'importe quelle plateforme. Vos informations resteront chiffrées de bout en bout tout en limitant l'exposition.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Créer rapidement des mots de passe"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Créez facilement des mots de passe forts et uniques en cliquant sur",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "pour vous aider à garder vos identifiants sécuritaires.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Créez facilement des mots de passe forts et uniques en cliquant sur le bouton Générer un mot de passe pour vous aider à garder vos identifiants sécuritaires.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Gagnez du temps avec le remplissage automatique"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "Inclure un",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "site web",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "pour que cet identifiant apparaisse comme une suggestion de remplissage automatique.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Paiement en ligne transparent"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "Avec les cartes, remplissez facilement les formulaires de paiement en toute sécurité et avec précision."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Simplifier la création de comptes"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "Avec les identités, remplissez rapidement de longs formulaires d'inscription ou de contact."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Gardez vos données sensibles en sécurité"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "Avec les notes, conservez en toute sécurité des données sensibles comme les informations bancaires ou d'assurances."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Accès SSH convivial pour les développeurs"
   },
   "newSshNudgeBodyOne": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "message": "Enregistrez vos clés et connectez-vous avec l’agent SSH pour une authentification rapide et chiffrée.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "newSshNudgeBodyTwo": {
-    "message": "Learn more about SSH agent",
+    "message": "En savoir plus sur l’agent SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Assigner aux collections"
   },
   "assignToTheseCollections": {
-    "message": "Assign to these collections"
+    "message": "Assigner à ces collections"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Seuls les membres de l'organisation ayant accès à ces collections pourront voir l'élément."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Seuls les membres de l'organisation ayant accès à ces collections pourront voir les éléments."
   },
   "noCollectionsAssigned": {
-    "message": "No collections have been assigned"
+    "message": "Aucune collection n'a été assignée"
   },
   "assign": {
-    "message": "Assign"
+    "message": "Assigner"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Seuls les membres de l'organisation ayant accès à ces collections pourront voir les éléments."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Vous avez sélectionné $TOTAL_COUNT$ éléments. Vous ne pouvez pas mettre à jour $READONLY_COUNT$ de ces éléments parce que vous n'avez pas les autorisations pour les éditer.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -3890,10 +3915,10 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Sélectionnez les collections à assigner"
   },
   "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ seront transférés à l'organisation sélectionnée de façon permanente. Vous ne serez plus propriétaire de ces éléments.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3902,7 +3927,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ seront transférés à $ORG$ de façon permanente. Vous ne serez plus propriétaire de ces éléments.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3915,10 +3940,10 @@
     }
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "Un élément sera transféré définitivement à l'organisation sélectionnée. Vous ne serez plus le propriétaire de cet élément."
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "Un élément sera transféré définitivement à $ORG$. Vous ne serez plus le propriétaire de cet élément.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -3927,13 +3952,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Collections assignées avec succès"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "Vous n'avez rien sélectionné."
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Éléments déplacés vers $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3942,7 +3967,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Élément déplacé vers $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3951,7 +3976,7 @@
     }
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "Les éléments sélectionnés ont été déplacés vers $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3989,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

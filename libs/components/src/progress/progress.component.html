@@ -4,8 +4,8 @@
     role="progressbar"
     aria-valuemin="0"
     aria-valuemax="100"
-    attr.aria-valuenow="{{ barWidth }}"
-    [ngStyle]="{ width: barWidth + '%' }"
+    attr.aria-valuenow="{{ barWidth() }}"
+    [ngStyle]="{ width: barWidth() + '%' }"
   >
     @if (displayText) {
       <div class="tw-flex tw-h-full tw-flex-wrap tw-items-center tw-overflow-hidden">

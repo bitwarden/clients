@@ -536,7 +536,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         const filterFunction = createFilterFunction(filter);
 
         if (await this.searchService.isSearchable(this.userId, searchText)) {
-          return await this.searchService.searchCiphers(
+          return await this.searchService.searchCiphers<CipherView>(
             this.userId,
             searchText,
             [filterFunction],
@@ -772,7 +772,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async onVaultItemsEvent(event: VaultItemEvent) {
+  async onVaultItemsEvent(event: VaultItemEvent<CipherView>) {
     this.processingEvent = true;
 
     try {
@@ -1068,6 +1068,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     if (unassignedCiphers.length > 0 || editAccessCiphers.length > 0) {
       await this.cipherService.restoreManyWithServer(
         [...unassignedCiphers, ...editAccessCiphers],
+        this.userId,
         this.organization.id,
       );
     }
