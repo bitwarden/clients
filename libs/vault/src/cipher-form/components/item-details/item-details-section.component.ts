@@ -121,19 +121,20 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   /**
    * Show the organization data ownership option in the Owner dropdown when:
-   * - the user hasn't selected an organization
-   * AND
-   * - organization data ownership is disabled
-   * - The `organizationId` control is disabled
-   *
+   * 1. organization data ownership disabled policy IS NOT enabled
+   * 2. `organizationId` control is disabled
+   * 3. organization data ownership disabled policy IS enabled
+   * AND they're editing a cipher that is not currently owned by an organization
    * This avoids the scenario where the dropdown is empty because the user personally
    * owns the cipher but cannot edit the ownership.
    */
   get showOrganizationDataOwnershipOption() {
     return (
-      this.itemDetailsForm.controls.organizationId.value === null &&
-      (this.organizationDataOwnershipDisabled ||
-        this.itemDetailsForm.controls.organizationId.disabled)
+      this.organizationDataOwnershipDisabled ||
+      this.itemDetailsForm.controls.organizationId.disabled ||
+      (!this.organizationDataOwnershipDisabled &&
+        this.config.originalCipher &&
+        this.itemDetailsForm.controls.organizationId.value === null)
     );
   }
 
@@ -242,7 +243,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         concatMap(async (orgId) => {
           await this.updateCollectionOptions();
-          this.setFormStatus(orgId);
+          this.setFormStatus();
         }),
       )
       .subscribe();
@@ -253,13 +254,13 @@ export class ItemDetailsSectionComponent implements OnInit {
    * requires all ciphers to be owned by an organization, disable the entire form
    * until the user selects an organization.
    */
-  private setFormStatus(orgId?: OrganizationId) {
-    if (this.organizationDataOwnershipDisabled) {
-      if (orgId) {
-        this.cipherForm.enable({ emitEvent: false });
-      } else {
+  private setFormStatus() {
+    if (this.config.originalCipher && !this.organizationDataOwnershipDisabled) {
+      if (this.itemDetailsForm.controls.organizationId.value === null) {
         this.cipherForm.disable({ emitEvent: false });
         this.itemDetailsForm.controls.organizationId.enable();
+      } else {
+        this.cipherForm.enable({ emitEvent: false });
       }
     }
   }
