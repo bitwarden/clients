@@ -274,7 +274,7 @@ export class ItemDetailsSectionComponent implements OnInit {
    * - the selected org doesn't have the "no private data policy" enabled
    */
   private async getDefaultCollectionId(orgId?: OrganizationId) {
-    if (!orgId || !this.organizationDataOwnershipDisabled) {
+    if (!orgId || this.organizationDataOwnershipDisabled) {
       return;
     }
 

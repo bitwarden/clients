@@ -572,7 +572,7 @@ describe("ItemDetailsSectionComponent", () => {
     it("returns matching default when flag & policy match", async () => {
       const def = createMockCollection("def1", "Def", "orgA");
       component.config.collections = [def] as CollectionView[];
-      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizationDataOwnershipDisabled = false;
       component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));
