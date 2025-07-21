@@ -208,3 +208,6 @@ export declare namespace logging {
   }
   export function initNapiLog(jsLogFn: (err: Error | null, arg0: LogLevel, arg1: string) => any): void
 }
+export declare namespace autotype {
+  export function getForegroundWindowTitle(): string
+}

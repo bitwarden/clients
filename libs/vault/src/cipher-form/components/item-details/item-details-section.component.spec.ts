@@ -31,7 +31,7 @@ const createMockCollection = (
   organizationId: string,
   readOnly = false,
   canEdit = true,
-) => {
+): CollectionView => {
   return {
     id,
     name,
@@ -42,6 +42,7 @@ const createMockCollection = (
     manage: true,
     assigned: true,
     type: CollectionTypes.DefaultUserCollection,
+    isDefaultCollection: true,
     canEditItems: jest.fn().mockReturnValue(canEdit),
     canEdit: jest.fn(),
     canDelete: jest.fn(),
