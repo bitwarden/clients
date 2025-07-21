@@ -1,14 +1,15 @@
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
-  <input
-    type="checkbox"
-    bitCheckbox
-    appStopProp
-    *ngIf="showCheckbox"
-    [disabled]="disabled"
-    [checked]="checked"
-    (change)="$event ? this.checkedToggled.next() : null"
-    [attr.aria-label]="'collectionItemSelect' | i18n"
-  />
+  @if (this.canEditCollection || this.canDeleteCollection) {
+    <input
+      type="checkbox"
+      bitCheckbox
+      appStopProp
+      [disabled]="disabled"
+      [checked]="checked"
+      (change)="$event ? this.checkedToggled.next() : null"
+      [attr.aria-label]="'collectionItemSelect' | i18n"
+    />
+  }
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
   <div aria-hidden="true">
@@ -57,16 +58,17 @@
   </p>
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
-  <button
-    *ngIf="canEditCollection || canDeleteCollection || canViewCollectionInfo"
-    [disabled]="disabled"
-    [bitMenuTriggerFor]="collectionOptions"
-    size="small"
-    bitIconButton="bwi-ellipsis-v"
-    type="button"
-    appA11yTitle="{{ 'options' | i18n }}"
-    appStopProp
-  ></button>
+  @if (canEditCollection || canDeleteCollection || canViewCollectionInfo) {
+    <button
+      [disabled]="disabled"
+      [bitMenuTriggerFor]="collectionOptions"
+      size="small"
+      bitIconButton="bwi-ellipsis-v"
+      type="button"
+      appA11yTitle="{{ 'options' | i18n }}"
+      appStopProp
+    ></button>
+  }
   <bit-menu #collectionOptions>
     <ng-container *ngIf="canEditCollection">
       <button type="button" bitMenuItem (click)="edit(false)">

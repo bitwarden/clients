@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Güvənli qeyd"
   },
+  "typeNote": {
+    "message": "Not"
+  },
   "typeSshKey": {
     "message": "SSH açarı"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Adı kopyala"
+  },
+  "cardNumber": {
+    "message": "kart nömrəsi"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Mən"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Veb seyf"
   },
+  "webApp": {
+    "message": "Veb tətbiq"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu həqiqətən siz idinizsə, cihazla yenidən giriş etməyə çalışın."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş tələbi təsdiqləndi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu siz idinizsə, cihazla yenidən giriş etməyə çalışın."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Giriş tələbinin müddəti artıq bitib."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Giriş tələbini incələ"
+  },
+  "loginRequest": {
+    "message": "Giriş tələbi"
   },
   "freeTrialEndPromptCount": {
     "message": "Ödənişsiz sınaq müddətiniz $COUNT$ günə bitir.",
@@ -8939,11 +8981,11 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Qabaqcıl seçimlər",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Xəbərdarlıq",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
