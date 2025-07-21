@@ -1829,6 +1829,9 @@
   "securityCode": {
     "message": "Drošības kods"
   },
+  "cardNumber": {
+    "message": "kartes numurs"
+  },
   "ex": {
     "message": "piem."
   },
@@ -3460,6 +3463,28 @@
   "logInRequestSent": {
     "message": "Pieprasījums nosūtīts"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas biji Tu, mēģini pieteikties no ierīces vēlreiz!"
+  },
+  "device": {
+    "message": "Ierīce"
+  },
+  "loginStatus": {
+    "message": "Pieteikšanās stāvoklis"
+  },
   "masterPasswordChanged": {
     "message": "Galvenā parole saglabāta"
   },
@@ -3555,6 +3580,113 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Atcerēties šo ierīci, lai nākotnes pieteikšanos padarītu plūdenāku"
+  },
+  "manageDevices": {
+    "message": "Pārvaldīt ierīces"
+  },
+  "currentSession": {
+    "message": "Pašreizējā sesija"
+  },
+  "mobile": {
+    "message": "Tālrunis",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Paplašinājums",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Darbvirsma",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Tīmekļa glabātava"
+  },
+  "webApp": {
+    "message": "Tīmekļa lietotne"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Pieprasījums gaida uz apstrādi"
+  },
+  "firstLogin": {
+    "message": "Pirmā pieteikšanās"
+  },
+  "trusted": {
+    "message": "Uzticama"
+  },
+  "needsApproval": {
+    "message": "Nepieciešams apstiprinājums"
+  },
+  "devices": {
+    "message": "Ierīces"
+  },
+  "accessAttemptBy": {
+    "message": "$EMAIL$ piekļuves mēģinājums",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Apstiprināt piekļuvi"
+  },
+  "denyAccess": {
+    "message": "Noraidīt piekļuvi"
+  },
+  "time": {
+    "message": "Laiks"
+  },
+  "deviceType": {
+    "message": "Ierīces veids"
+  },
+  "loginRequest": {
+    "message": "Pieteikšanās pieprasījums"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Šis pieprasījums vairs nav derīgs."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Vai mēģini piekļūt savam kontam?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Pieteikšanās pieprasījuma derīgums jau ir beidzies."
+  },
+  "justNow": {
+    "message": "Tikko"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Pieprasīts pirms $MINUTES$ minūtēm",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Nepieciešams ierīces apstiprinājums. Zemāk jāatlasa apstiprinājuma iespēja:"
@@ -4465,17 +4597,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Ievietot starpliktuvē $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Ievietot starpliktuvē $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
