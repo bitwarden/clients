@@ -25,62 +25,67 @@
   </bit-breadcrumbs>
 
   <ng-container slot="title-suffix">
-    <ng-container
-      *ngIf="
-        collection != null && (canEditCollection || canDeleteCollection || canViewCollectionInfo)
-      "
-    >
-      <button
-        bitIconButton="bwi-angle-down"
-        [bitMenuTriggerFor]="editCollectionMenu"
-        size="small"
-        type="button"
-      ></button>
-      <bit-menu #editCollectionMenu>
-        <ng-container *ngIf="canEditCollection">
+    @if (
+      collection != null && (canEditCollection || canDeleteCollection || canViewCollectionInfo)
+    ) {
+      <ng-container>
+        <button
+          bitIconButton="bwi-angle-down"
+          [bitMenuTriggerFor]="editCollectionMenu"
+          size="small"
+          type="button"
+        ></button>
+        <bit-menu #editCollectionMenu>
+          <ng-container *ngIf="canEditCollection">
+            <button
+              type="button"
+              bitMenuItem
+              (click)="editCollection(CollectionDialogTabType.Info, false)"
+            >
+              <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+              {{ "editInfo" | i18n }}
+            </button>
+            <button
+              type="button"
+              bitMenuItem
+              (click)="editCollection(CollectionDialogTabType.Access, false)"
+            >
+              <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+              {{ "access" | i18n }}
+            </button>
+          </ng-container>
+          <ng-container *ngIf="!canEditCollection && canViewCollectionInfo">
+            <button
+              type="button"
+              bitMenuItem
+              (click)="editCollection(CollectionDialogTabType.Info, true)"
+            >
+              <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+              {{ "viewInfo" | i18n }}
+            </button>
+            <button
+              type="button"
+              bitMenuItem
+              (click)="editCollection(CollectionDialogTabType.Access, true)"
+            >
+              <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+              {{ "viewAccess" | i18n }}
+            </button>
+          </ng-container>
           <button
             type="button"
+            *ngIf="canDeleteCollection"
             bitMenuItem
-            (click)="editCollection(CollectionDialogTabType.Info, false)"
+            (click)="deleteCollection()"
           >
-            <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-            {{ "editInfo" | i18n }}
+            <span class="tw-text-danger">
+              <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+              {{ "delete" | i18n }}
+            </span>
           </button>
-          <button
-            type="button"
-            bitMenuItem
-            (click)="editCollection(CollectionDialogTabType.Access, false)"
-          >
-            <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-            {{ "access" | i18n }}
-          </button>
-        </ng-container>
-        <ng-container *ngIf="!canEditCollection && canViewCollectionInfo">
-          <button
-            type="button"
-            bitMenuItem
-            (click)="editCollection(CollectionDialogTabType.Info, true)"
-          >
-            <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-            {{ "viewInfo" | i18n }}
-          </button>
-          <button
-            type="button"
-            bitMenuItem
-            (click)="editCollection(CollectionDialogTabType.Access, true)"
-          >
-            <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-            {{ "viewAccess" | i18n }}
-          </button>
-        </ng-container>
-        <button type="button" *ngIf="canDeleteCollection" bitMenuItem (click)="deleteCollection()">
-          <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-            {{ "delete" | i18n }}
-          </span>
-        </button>
-      </bit-menu>
-    </ng-container>
+        </bit-menu>
+      </ng-container>
+    }
     <small *ngIf="loading">
       <i
         class="bwi bwi-spinner bwi-spin tw-text-muted"
