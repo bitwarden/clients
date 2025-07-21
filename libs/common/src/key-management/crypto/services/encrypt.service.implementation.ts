@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   EncryptionType,
@@ -11,7 +12,6 @@ import { Encrypted } from "@bitwarden/common/platform/interfaces/encrypted";
 import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { EncryptedObject } from "@bitwarden/common/platform/models/domain/encrypted-object";
 import {
   Aes256CbcHmacKey,

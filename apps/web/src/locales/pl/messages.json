@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Bezpieczna notatka"
   },
+  "typeNote": {
+    "message": "Notatka"
+  },
   "typeSshKey": {
     "message": "Klucz SSH"
   },
@@ -861,8 +864,28 @@
   "copyName": {
     "message": "Skopiuj nazwę"
   },
+  "cardNumber": {
+    "message": "numer karty"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopiuj $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Ja"
+  },
+  "myItems": {
+    "message": "Moje elementy"
   },
   "myVault": {
     "message": "Mój sejf"
@@ -1780,6 +1803,9 @@
   },
   "loggedOutWarning": {
     "message": "Ta czynność spowoduje wylogowanie z bieżącej sesji, przez co konieczne będzie ponowne zalogowanie się. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie godzinę."
+  },
+  "changePasswordWarning": {
+    "message": "Po zmianie hasła musisz się zalogować przy użyciu nowego hasła. Aktywne sesje na innych urządzeniach zostaną wylogowane w ciągu jednej godziny."
   },
   "emailChanged": {
     "message": "Adres e-mail został zapisany"
@@ -3275,9 +3301,6 @@
   "defaultCollection": {
     "message": "Domyślna kolekcja"
   },
-  "myItems": {
-    "message": "Moje elementy"
-  },
   "getHelp": {
     "message": "Uzyskaj pomoc"
   },
@@ -3478,6 +3501,9 @@
   },
   "webVault": {
     "message": "Sejf internetowy"
+  },
+  "webApp": {
+    "message": "Aplikacja internetowa"
   },
   "cli": {
     "message": "CLI"
@@ -3961,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Logowanie potwierdzone dla $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Prośba logowania wygasła."
   },
@@ -4104,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Przejrzyj żądanie logowania"
+  },
+  "loginRequest": {
+    "message": "Żądanie logowania"
   },
   "freeTrialEndPromptCount": {
     "message": "Twój okres próbny kończy się za $COUNT$ dni.",
@@ -6072,6 +6117,12 @@
   },
   "updateMasterPassword": {
     "message": "Zaktualizuj hasło główne"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Zmień hasło główne, aby zakończyć odzyskiwanie konta."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Twoje hasło główne nie spełnia wymagań tej organizacji. Zmień hasło główne, aby kontynuować."
   },
   "updateMasterPasswordWarning": {
     "message": "Hasło główne zostało zmienione przez administratora Twojej organizacji. Musisz je zaktualizować, aby uzyskać dostęp do sejfu. Ta czynność spowoduje wylogowanie z bieżącej sesji, przez co konieczne będzie ponowne zalogowanie się. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie godzinę."
@@ -8237,7 +8288,7 @@
     "message": "Wystąpił błąd podczas próby odczytu pliku importu"
   },
   "accessedSecretWithId": {
-    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "message": "Uzyskano dostęp do sekretu o identyfikatorze: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8255,7 +8306,7 @@
     }
   },
   "editedSecretWithId": {
-    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "message": "Edytowano sekret z identyfikatorem: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8264,7 +8315,7 @@
     }
   },
   "deletedSecretWithId": {
-    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "message": "Usunięto sekret z identyfikatorem: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8273,7 +8324,7 @@
     }
   },
   "createdSecretWithId": {
-    "message": "Created a new secret with identifier: $SECRET_ID$",
+    "message": "Utworzono nowy sekret z identyfikatorem: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8452,6 +8503,12 @@
   },
   "requestAdminApproval": {
     "message": "Poproś administratora o zatwierdzenie"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nie można ukończyć logowania"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Musisz zalogować się na zaufanym urządzeniu lub poprosić administratora o przypisanie hasła."
   },
   "trustedDeviceEncryption": {
     "message": "Szyfrowanie zaufanego urządzenia"
@@ -8908,20 +8965,28 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Wykrywanie URI polega na tym, jak Bitwarden identyfikuje sugestie autouzupełniania.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "„Wyrażenie regularne” jest zaawansowaną opcją zwiększającą ryzyko ujawnienia danych uwierzytelniających.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "„Rozpoczyna się od” jest zaawansowaną opcją powodującą zwiększone ryzyko wystawienia danych uwierzytelniających.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Dowiedz się więcej o wykrywaniu dopasowania",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Ustawienia zaawansowane",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Ostrzeżenie",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Aby utrzymać subskrypcję dla $ORG$ ",
@@ -10714,49 +10779,49 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "setupExtensionPageTitle": {
-    "message": "Autofill your passwords securely with one click"
+    "message": "Bezpieczne autouzupełnianie haseł jednym kliknięciem"
   },
   "setupExtensionPageDescription": {
-    "message": "Get the Bitwarden browser extension and start autofilling today"
+    "message": "Pobierz rozszerzenie przeglądarki Bitwarden i rozpocznij autouzupełnianie już dziś"
   },
   "getTheExtension": {
-    "message": "Get the extension"
+    "message": "Pobierz rozszerzenie"
   },
   "addItLater": {
-    "message": "Add it later"
+    "message": "Dodaj później"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "You can't autofill passwords without the browser extension"
+    "message": "Nie można autouzupełniać haseł bez rozszerzenia przeglądarki"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
-    "message": "Are you sure you don't want to add the extension now?"
+    "message": "Czy na pewno nie chcesz teraz dodać rozszerzenia?"
   },
   "skipToWebApp": {
-    "message": "Skip to web app"
+    "message": "Pomiń do aplikacji internetowej"
   },
   "bitwardenExtensionInstalled": {
-    "message": "Bitwarden extension installed!"
+    "message": "Rozszerzenie Bitwarden zainstalowane!"
   },
   "openExtensionToAutofill": {
-    "message": "Open the extension to log in and start autofilling."
+    "message": "Otwórz rozszerzenie, aby zalogować się i rozpocząć autouzupełnianie."
   },
   "openBitwardenExtension": {
-    "message": "Open Bitwarden extension"
+    "message": "Otwórz rozszerzenie Bitwarden"
   },
   "gettingStartedWithBitwardenPart1": {
-    "message": "For tips on getting started with Bitwarden visit the",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "message": "Aby uzyskać wskazówki na temat rozpoczęcia z Bitwarden, odwiedź",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
-    "message": "Learning Center",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "message": "Centrum Szkoleniowe",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
-    "message": "Help Center",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "message": "Centrum Pomocy",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
-    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+    "message": "Dzięki rozszerzeniu przeglądarki Bitwarden możesz łatwo tworzyć nowe dane logowania, uzyskać dostęp do zapisanych danych logowania bezpośrednio z paska narzędzi przeglądarki oraz szybkie logowanie za pomocą autouzupełniania Bitwarden."
   },
   "restart": {
     "message": "Zrestartuj"
@@ -10783,5 +10848,53 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Aby dodać środki, wymagany jest adres rozliczeniowy.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Adres rozliczeniowy"
+  },
+  "addBillingAddress": {
+    "message": "Dodaj adres rozliczeniowy"
+  },
+  "editBillingAddress": {
+    "message": "Edytuj adres rozliczeniowy"
+  },
+  "noBillingAddress": {
+    "message": "Brak adresu w pliku."
+  },
+  "billingAddressUpdated": {
+    "message": "Twój adres rozliczeniowy został zaktualizowany."
+  },
+  "paymentDetails": {
+    "message": "Szczegóły płatności"
+  },
+  "paymentMethodUpdated": {
+    "message": "Twoja metoda płatności została zaktualizowana."
+  },
+  "bankAccountVerified": {
+    "message": "Twoje konto bankowe zostało zweryfikowane."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Wszelkie dostępne środki zostaną automatycznie zastosowane do faktur wygenerowanych dla tego konta."
+  },
+  "mustBePositiveNumber": {
+    "message": "Musi być liczbą dodatnią"
+  },
+  "cardSecurityCode": {
+    "message": "Kod bezpieczeństwa karty"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Kod bezpieczeństwa karty, znany również jako CVV lub CVC, jest to zazwyczaj trzycyfrowy numer wydrukowany na odwrocie karty kredytowej lub czterocyfrowy numer wydrukowany na przodzie nad numerem karty."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Płatność za pomocą konta bankowego jest dostępna tylko dla klientów w Stanach Zjednoczonych. Będziesz musiał/musiała zweryfikować swoje konto bankowe. W ciągu najbliższych 1-2 dni roboczych dokonamy mikrowpłaty. Wprowadź kod deskryptora z tej wpłaty na stronie dostawcy subskrypcji, aby zweryfikować konto bankowe. Niezweryfikowanie konta bankowego spowoduje brak płatności i zawieszenie Twojej subskrypcji."
+  },
+  "taxId": {
+    "message": "ID Podatku: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
   }
 }

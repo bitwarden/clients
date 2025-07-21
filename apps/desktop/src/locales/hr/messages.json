@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Kopiraj kôd za provjeru (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Duljina"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Kopiraj kontrolni broj",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "Premium članstvo"
@@ -2407,6 +2424,15 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
   },
+  "changePasswordWarning": {
+    "message": "Nakon promjene lozinke, moraš se prijaviti s novom lozinkom. Aktivne sesije na drugim uređajima bit će odjavljene u roku od jednog sata."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Promijeni svoju glavnu lozinku za dovršetak oporavka računa."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Tvoja glavna lozinka ne ispunjava zahtjeve ove organizacije. Promijeni glavnu lozinku za nastavak."
+  },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Tvoja je organizacija onemogućila šifriranje pouzdanog uređaja. Postavi glavnu lozinku za pristup svom trezoru."
   },
@@ -3144,6 +3170,12 @@
   "requestAdminApproval": {
     "message": "Zatraži odobrenje administratora"
   },
+  "unableToCompleteLogin": {
+    "message": "Nije moguće dovršiti prijavu"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Moraš se prijaviti na pouzdanom uređaju ili zamoliti administratora da ti dodijeli lozinku."
+  },
   "region": {
     "message": "Regija"
   },
@@ -3536,20 +3568,28 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Otkrivanje podudaranja URI-ja je način na koji Bitwarden identificira prijedloge za auto-ispunu.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "„Regularni izraz” je napredna mogućnost s povećanim rizikom od otkrivanja vjerodajnica.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "„Počinje s” je napredna mogućnost s povećnim rizikom od otkrivanja vjerodajnica.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Više o otkrivanju podudaranja",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Napredne mogućnosti",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Upozorenje",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Uspješno"
@@ -3974,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }
