@@ -1,6 +1,6 @@
 <div class="tw-ps-2 tw-pe-2">
   @let open = sideNavService.open$ | async;
-  @if (open || icon) {
+  @if (open || icon()) {
     <div
       class="tw-relative tw-rounded-md tw-h-10"
       [ngClass]="[
@@ -16,17 +16,17 @@
         <!-- Main content of `NavItem` -->
         <ng-template #anchorAndButtonContent>
           <div
-            [title]="text"
+            [title]="text()"
             class="tw-gap-2 tw-items-center tw-font-bold tw-h-full tw-content-center"
             [ngClass]="{ 'tw-text-center': !open, 'tw-flex': open }"
           >
             <i
-              class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-alt2 {{ icon }}"
+              class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-alt2 {{ icon() }}"
               [attr.aria-hidden]="open"
-              [attr.aria-label]="text"
+              [attr.aria-label]="text()"
             ></i>
             @if (open) {
-              <span class="tw-truncate">{{ text }}</span>
+              <span class="tw-truncate">{{ text() }}</span>
             }
           </div>
         </ng-template>
@@ -38,11 +38,11 @@
           <a
             class="tw-size-full tw-px-3 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
             data-fvw
-            [routerLink]="route"
-            [relativeTo]="relativeTo"
-            [attr.aria-label]="ariaLabel || text"
+            [routerLink]="route()"
+            [relativeTo]="relativeTo()"
+            [attr.aria-label]="ariaLabel() || text()"
             routerLinkActive
-            [routerLinkActiveOptions]="routerLinkActiveOptions"
+            [routerLinkActiveOptions]="routerLinkActiveOptions()"
             [ariaCurrentWhenActive]="'page'"
             (isActiveChange)="setIsActive($event)"
             (click)="mainContentClicked.emit()"

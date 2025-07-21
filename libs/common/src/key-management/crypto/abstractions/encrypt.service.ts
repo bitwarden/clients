@@ -3,24 +3,10 @@ import { Decryptable } from "../../../platform/interfaces/decryptable.interface"
 import { Encrypted } from "../../../platform/interfaces/encrypted";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { EncString } from "../models/enc-string";
 
 export abstract class EncryptService {
-  /**
-   * @deprecated
-   * Encrypts a string or Uint8Array to an EncString
-   * @param plainValue - The value to encrypt
-   * @param key - The key to encrypt the value with
-   */
-  abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
-  /**
-   * @deprecated
-   * Encrypts a value to a Uint8Array
-   * @param plainValue - The value to encrypt
-   * @param key - The key to encrypt the value with
-   */
-  abstract encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer>;
   /**
    * @deprecated
    * Decrypts an EncString to a string

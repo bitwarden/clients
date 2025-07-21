@@ -1,4 +1,4 @@
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Guid } from "@bitwarden/common/types/guid";
 
 import { MemberAccessResponse } from "../response/member-access-report.response";

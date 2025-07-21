@@ -3,10 +3,13 @@ import {
   NEVER,
   Observable,
   combineLatest,
+  distinctUntilChanged,
+  filter,
   firstValueFrom,
   forkJoin,
   map,
   of,
+  shareReplay,
   switchMap,
 } from "rxjs";
 
@@ -21,6 +24,10 @@ import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  EncString,
+  EncryptedString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
@@ -32,7 +39,6 @@ import { KeySuffixOptions, HashPurpose, EncryptionType } from "@bitwarden/common
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
-import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
@@ -80,6 +86,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   ) {
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
+      filter((orgKeys) => orgKeys != null),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: false }),
     ) as Observable<Record<OrganizationId, OrgKey>>;
   }
 
@@ -399,12 +408,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   async getOrgKey(orgId: OrganizationId): Promise<OrgKey | null> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-    if (activeUserId == null) {
-      throw new Error("A user must be active to retrieve an org key");
-    }
-    const orgKeys = await firstValueFrom(this.orgKeys$(activeUserId));
-    return orgKeys?.[orgId] ?? null;
+    return await firstValueFrom(
+      this.activeUserOrgKeys$.pipe(map((orgKeys) => orgKeys[orgId] ?? null)),
+    );
   }
 
   async makeDataEncKey<T extends OrgKey | UserKey>(

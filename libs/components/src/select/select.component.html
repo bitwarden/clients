@@ -1,9 +1,9 @@
 <ng-select
-  [(ngModel)]="selectedOption"
+  [ngModel]="selectedOption()"
   (ngModelChange)="onChange($event)"
   [disabled]="disabled"
-  [placeholder]="placeholder"
-  [items]="items"
+  [placeholder]="placeholder()"
+  [items]="items()"
   (blur)="onBlur()"
   [labelForId]="labelForId"
   [clearable]="false"
