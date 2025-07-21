@@ -60,4 +60,24 @@ describe("RiskInsightsApiService", () => {
       });
     });
   });
+
+  describe("updateRiskInsightsSummary", () => {
+    it("should call apiService.send with correct parameters and return an Observable", (done) => {
+      const data: EncryptedDataModel = { encryptedData: "xyz" } as EncryptedDataModel;
+
+      mockApiService.send.mockResolvedValueOnce(undefined);
+
+      service.updateRiskInsightsSummary(data).subscribe((result) => {
+        expect(mockApiService.send).toHaveBeenCalledWith(
+          "PUT",
+          "organization-report-summary",
+          data,
+          true,
+          true,
+        );
+        expect(result).toBeUndefined();
+        done();
+      });
+    });
+  });
 });

@@ -36,4 +36,10 @@ export class RiskInsightsApiService {
 
     return from(dbResponse as Promise<void>);
   }
+
+  updateRiskInsightsSummary(data: EncryptedDataModel): Observable<void> {
+    const dbResponse = this.apiService.send("PUT", "organization-report-summary", data, true, true);
+
+    return from(dbResponse as Promise<void>);
+  }
 }
