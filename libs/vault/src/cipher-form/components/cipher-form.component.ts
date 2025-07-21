@@ -201,14 +201,6 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     }
   }
 
-  disableForm = () => {
-    this.cipherForm.disable();
-  };
-
-  enableForm = () => {
-    this.cipherForm.enable();
-  };
-
   async ngOnInit() {
     await this.init();
     this._firstInitialized = true;
