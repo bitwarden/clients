@@ -125,6 +125,7 @@ export class ItemDetailsSectionComponent implements OnInit {
    * 2. `organizationId` control is disabled
    * 3. organization data ownership disabled policy IS enabled
    * AND they're editing a cipher that is not currently owned by an organization
+   *
    * This avoids the scenario where the dropdown is empty because the user personally
    * owns the cipher but cannot edit the ownership.
    */
