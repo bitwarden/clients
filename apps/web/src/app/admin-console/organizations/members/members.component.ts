@@ -244,15 +244,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       )
       .subscribe();
 
-    // Setup feature flag-dependent observables
-    const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.SeparateCustomRolePermissions,
-    );
-    this.showUserManagementControls$ = separateCustomRolePermissionsEnabled$.pipe(
-      map(
-        (separateCustomRolePermissionsEnabled) =>
-          !separateCustomRolePermissionsEnabled || this.organization.canManageUsers,
-      ),
+    this.showUserManagementControls$ = organization$.pipe(
+      map((organization) => organization.canManageUsers),
     );
   }
 

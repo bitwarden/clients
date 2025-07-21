@@ -1,11 +1,11 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { Directive, HostBinding, HostListener, Input, Optional } from "@angular/core";
+import { Directive, HostBinding, HostListener, Optional, input } from "@angular/core";
 
 @Directive({
   selector: "[bitDialogClose]",
 })
 export class DialogCloseDirective {
-  @Input("bitDialogClose") dialogResult: any;
+  readonly dialogResult = input<any>(undefined, { alias: "bitDialogClose" });
 
   constructor(@Optional() public dialogRef: DialogRef) {}
 
@@ -20,6 +20,6 @@ export class DialogCloseDirective {
       return;
     }
 
-    this.dialogRef.close(this.dialogResult);
+    this.dialogRef.close(this.dialogResult());
   }
 }

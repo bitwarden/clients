@@ -195,9 +195,6 @@ export declare namespace autofill {
     completeError(clientId: number, sequenceNumber: number, error: string): number
   }
 }
-export declare namespace crypto {
-  export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>
-}
 export declare namespace passkey_authenticator {
   export function register(): void
 }
@@ -210,4 +207,7 @@ export declare namespace logging {
     Error = 4
   }
   export function initNapiLog(jsLogFn: (err: Error | null, arg0: LogLevel, arg1: string) => any): void
+}
+export declare namespace autotype {
+  export function getForegroundWindowTitle(): string
 }

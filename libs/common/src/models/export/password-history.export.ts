@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Password } from "../../vault/models/domain/password";
 import { PasswordHistoryView } from "../../vault/models/view/password-history.view";
 
@@ -22,7 +22,7 @@ export class PasswordHistoryExport {
 
   static toDomain(req: PasswordHistoryExport, domain = new Password()) {
     domain.password = req.password != null ? new EncString(req.password) : null;
-    domain.lastUsedDate = req.lastUsedDate;
+    domain.lastUsedDate = req.lastUsedDate ? new Date(req.lastUsedDate) : null;
     return domain;
   }
 

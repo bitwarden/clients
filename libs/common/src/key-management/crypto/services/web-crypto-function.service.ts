@@ -1,4 +1,3 @@
-import * as argon2 from "argon2-browser";
 import * as forge from "node-forge";
 
 import { EncryptionType } from "../../../platform/enums";
@@ -14,7 +13,6 @@ import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 export class WebCryptoFunctionService implements CryptoFunctionService {
   private crypto: Crypto;
   private subtle: SubtleCrypto;
-  private wasmSupported: boolean;
 
   constructor(globalContext: { crypto: Crypto }) {
     if (globalContext?.crypto?.subtle == null) {
@@ -24,7 +22,6 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     }
     this.crypto = globalContext.crypto;
     this.subtle = this.crypto.subtle;
-    this.wasmSupported = this.checkIfWasmSupported();
   }
 
   async pbkdf2(
@@ -53,33 +50,6 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     );
     const buffer = await this.subtle.deriveBits(pbkdf2Params as any, impKey, wcLen);
     return new Uint8Array(buffer);
-  }
-
-  async argon2(
-    password: string | Uint8Array,
-    salt: string | Uint8Array,
-    iterations: number,
-    memory: number,
-    parallelism: number,
-  ): Promise<Uint8Array> {
-    if (!this.wasmSupported) {
-      throw "Webassembly support is required for the Argon2 KDF feature.";
-    }
-
-    const passwordArr = new Uint8Array(this.toBuf(password));
-    const saltArr = new Uint8Array(this.toBuf(salt));
-
-    const result = await argon2.hash({
-      pass: passwordArr,
-      salt: saltArr,
-      time: iterations,
-      mem: memory,
-      parallelism: parallelism,
-      hashLen: 32,
-      type: argon2.ArgonType.Argon2id,
-    });
-    argon2.unloadRuntime();
-    return result.hash;
   }
 
   async hkdf(
@@ -232,14 +202,6 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
 
     const equals = mac1 === mac2;
     return equals;
-  }
-
-  async aesEncrypt(data: Uint8Array, iv: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
-    const impKey = await this.subtle.importKey("raw", key, { name: "AES-CBC" } as any, false, [
-      "encrypt",
-    ]);
-    const buffer = await this.subtle.encrypt({ name: "AES-CBC", iv: iv }, impKey, data);
-    return new Uint8Array(buffer);
   }
 
   aesDecryptFastParameters(
@@ -441,22 +403,5 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
 
   private toWebCryptoAesMode(mode: "cbc" | "ecb"): string {
     return mode === "cbc" ? "AES-CBC" : "AES-ECB";
-  }
-
-  // ref: https://stackoverflow.com/a/47880734/1090359
-  private checkIfWasmSupported(): boolean {
-    try {
-      if (typeof WebAssembly === "object" && typeof WebAssembly.instantiate === "function") {
-        const module = new WebAssembly.Module(
-          Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00),
-        );
-        if (module instanceof WebAssembly.Module) {
-          return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
-        }
-      }
-    } catch {
-      return false;
-    }
-    return false;
   }
 }

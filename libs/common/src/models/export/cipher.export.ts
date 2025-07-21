@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
 import { Cipher as CipherDomain } from "../../vault/models/domain/cipher";
@@ -124,9 +124,9 @@ export class CipherExport {
       domain.passwordHistory = req.passwordHistory.map((ph) => PasswordHistoryExport.toDomain(ph));
     }
 
-    domain.creationDate = req.creationDate;
-    domain.revisionDate = req.revisionDate;
-    domain.deletedDate = req.deletedDate;
+    domain.creationDate = req.creationDate ? new Date(req.creationDate) : null;
+    domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : null;
+    domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : null;
     return domain;
   }
 

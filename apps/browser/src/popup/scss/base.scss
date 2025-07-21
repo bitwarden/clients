@@ -100,7 +100,7 @@ a:not(popup-page a, popup-tab-navigation a) {
   }
 }
 
-input:not(bit-form-field input, bit-search input),
+input:not(bit-form-field input, bit-search input, input[bitcheckbox]),
 select:not(bit-form-field select),
 textarea:not(bit-form-field textarea) {
   @include themify($themes) {
@@ -109,7 +109,7 @@ textarea:not(bit-form-field textarea) {
   }
 }
 
-input,
+input:not(input[bitcheckbox]),
 select,
 textarea,
 button:not(bit-chip-select button) {
@@ -378,14 +378,6 @@ app-root {
   z-index: 980;
   @include themify($themes) {
     background-color: themed("backgroundColor");
-  }
-}
-
-// Adds padding on each side of the content if opened in a tab
-@media only screen and (min-width: 601px) {
-  header,
-  main {
-    padding: 0 calc((100% - 500px) / 2);
   }
 }
 

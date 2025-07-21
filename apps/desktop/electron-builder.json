@@ -262,7 +262,8 @@
       },
       "u2f-devices"
     ],
-    "stagePackages": ["default"]
+    "stagePackages": ["default"],
+    "allowNativeWayland": true
   },
   "protocols": [
     {

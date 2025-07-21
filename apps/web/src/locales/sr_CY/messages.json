@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Сигурносна белешка"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
     "message": "SSH кључ"
   },
@@ -861,8 +864,28 @@
   "copyName": {
     "message": "Копирати име"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Ја"
+  },
+  "myItems": {
+    "message": "Моји предмети"
   },
   "myVault": {
     "message": "Мој Сеф"
@@ -1780,6 +1803,9 @@
   },
   "loggedOutWarning": {
     "message": "Ако наставите, одјавићете се са тренутне сесије, што захтева поновно пријављивање. Активне сесије на другим уређајима могу да остану активне до једног сата."
+  },
+  "changePasswordWarning": {
+    "message": "Након промене лозинке, мораћете да се пријавите са новом лозинком. Активне сесије на другим уређајима биће одјављене у року од једног сата."
   },
   "emailChanged": {
     "message": "Имејл промењен"
@@ -3275,9 +3301,6 @@
   "defaultCollection": {
     "message": "Стандардна колекција"
   },
-  "myItems": {
-    "message": "Моји предмети"
-  },
   "getHelp": {
     "message": "Потражи помоћ"
   },
@@ -3478,6 +3501,9 @@
   },
   "webVault": {
     "message": "Интернет Сеф"
+  },
+  "webApp": {
+    "message": "Web app"
   },
   "cli": {
     "message": "CLI"
@@ -3961,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Одбили сте покушај пријаве са другог уређаја. Ако сте то заиста били ви, покушајте поново да се пријавите помоћу уређаја."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Захтев за пријаву је већ истекао."
   },
@@ -4104,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Прегледајте захтев за пријаву"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Ваша проба се завршава за $COUNT$ дана.",
@@ -6064,11 +6109,20 @@
   "add": {
     "message": "Додај"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Главна лозинка успешно постављена"
+  },
   "updatedMasterPassword": {
     "message": "Главна лозинка ажурирана"
   },
   "updateMasterPassword": {
     "message": "Ажурирај главну лозинку"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Промените главну лозинку да бисте завршили опоравак налога."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Ваша главна лозинка не испуњава захтеве ове организације. Промените главну лозинку да бисте наставили."
   },
   "updateMasterPasswordWarning": {
     "message": "Ваша главна лозинка је недавно промењена од стране администратора организације. Како бисте приступили сефу, морате да ажурирате вашу главну лозинку. Ако наставите бићете одјављени из ваше тренутне сесије, што ће захтевати да се поново пријавите. Активне сесије на другим уређајима ће можда наставити да раде до сат времена."
@@ -8233,8 +8287,44 @@
   "errorReadingImportFile": {
     "message": "Дошло је до грешке у покушају читања датотеке за увоз"
   },
+  "accessedSecretWithId": {
+    "message": "Тајна приступљена са идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Приступ тајни $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Тајна уређена са идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Тајна избрисана са идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Креирати нову тајну са идентификатором: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8413,6 +8503,12 @@
   },
   "requestAdminApproval": {
     "message": "Затражити одобрење администратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Није могуће завршити пријаву"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Потребно је да се пријавите на поузданом уређају или да замолите администратора да вам додели лозинку."
   },
   "trustedDeviceEncryption": {
     "message": "Шифровање поузданог уређаја"
@@ -8867,6 +8963,30 @@
   "commonImportFormats": {
     "message": "Уобичајени формати",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Детекција подударања URI-ја је начин на који Bitwarden идентификује предлоге за ауто-попуњавање.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "„Регуларни израз“ је напредна опција са повећаним ризиком од откривања акредитива.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "„Почиње са“ је напредна опција са повећаним ризиком од откривања акредитива.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Више о откривању подударања",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Напредне опције",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Упозорење",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Да бисте одржали своју претплату за $ORG$, ",
@@ -10658,6 +10778,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Ауто-попунити лозинке са једним кликом"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Преузети Bitwarden додатак за претраживач и почнети са ауто-попуњавањем"
+  },
+  "getTheExtension": {
+    "message": "Добити додатак"
+  },
+  "addItLater": {
+    "message": "Додати касније"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "Не можете ауто-попуњавати лозинке без екстензије за прегледач"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Да ли сте сигурни да не желите да сада додате екстензију?"
+  },
+  "skipToWebApp": {
+    "message": "Прескочи на веб апликацију"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden екстензија инсталираана!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Отворите екстензију да бисте се пријавили и започели ауто-попуњавање."
+  },
+  "openBitwardenExtension": {
+    "message": "Отворити Bitwarden екстензију"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "За савете о почетку рада са Bitwarden-ом посетите",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Центар за учење",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Центар за помоћ",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "Помоћу Bitwarden екстензије за прегледач можете лако да креирате нове пријаве, приступите сачуваним пријавама директно из траке са алаткама прегледача и брзо се пријавите на налоге користећи Bitwarden ауто-попуњавање."
+  },
   "restart": {
     "message": "Поново покрени"
   },
@@ -10683,5 +10848,53 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Адреса за наплату је потребна за додавање кредита.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Адреса рачуна"
+  },
+  "addBillingAddress": {
+    "message": "Додајте адресу за обрачун"
+  },
+  "editBillingAddress": {
+    "message": "Уредити адресу за обрачун"
+  },
+  "noBillingAddress": {
+    "message": "Нема адресе."
+  },
+  "billingAddressUpdated": {
+    "message": "Ваша адреса је промењена."
+  },
+  "paymentDetails": {
+    "message": "Детаљи плаћања"
+  },
+  "paymentMethodUpdated": {
+    "message": "Ваш начин плаћања је ажуриран."
+  },
+  "bankAccountVerified": {
+    "message": "Банковни рачун је верификован."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Сваки расположиви кредит ће бити аутоматски примењен на фактуре генерисане за овај налог."
+  },
+  "mustBePositiveNumber": {
+    "message": "Мора бити позитиван број"
+  },
+  "cardSecurityCode": {
+    "message": "Сигурносни кôд картица"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Безбедносни кôд картице, такође познат као CVV или CVC, је обично троцифрени број одштампан на полеђини ваше кредитне картице или четвороцифрени број одштампан на предњој страни изнад броја ваше картице."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Плаћање путем банковног рачуна је доступно само купцима у Сједињеним Америчким Државама. Биће потребно да верификујете свој банковни рачун. Извршићемо микро-депозит у наредних 1-2 радна дана. Унесите кôд дескриптора извода са овог депозита на страници са детаљима плаћања да бисте верификовали банковни рачун. Уколико не верификујете банковни рачун, доћи ће до пропуштеног плаћања и суспендовања ваше претплате."
+  },
+  "taxId": {
+    "message": "Порески број: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
   }
 }

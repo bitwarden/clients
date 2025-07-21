@@ -66,8 +66,9 @@ jobs:
       environment_url: ${{ steps.config.outputs.environment_url }}
       environment_name: ${{ steps.config.outputs.environment_name }}
       environment_artifact: ${{ steps.config.outputs.environment_artifact }}
-      azure_login_creds: ${{ steps.config.outputs.azure_login_creds }}
-      retrive_secrets_keyvault: ${{ steps.config.outputs.retrive_secrets_keyvault }}
+      azure_login_client_key_name: ${{ steps.config.outputs.azure_login_client_key_name }}
+      azure_login_subscription_id_key_name: ${{ steps.config.outputs.azure_login_subscription_id_key_name }}
+      retrieve_secrets_keyvault: ${{ steps.config.outputs.retrieve_secrets_keyvault }}
       sync_utility: ${{ steps.config.outputs.sync_utility }}
       sync_delete_destination_files: ${{ steps.config.outputs.sync_delete_destination_files }}
       slack_channel_name: ${{ steps.config.outputs.slack_channel_name }}
@@ -81,40 +82,45 @@ jobs:
 
           case ${{ inputs.environment }} in
             "USQA")
-              echo "azure_login_creds=AZURE_KV_US_QA_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
-              echo "retrive_secrets_keyvault=bw-webvault-rlktusqa-kv" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USQA" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USQA" >> $GITHUB_OUTPUT
+              echo "retrieve_secrets_keyvault=bw-webvault-rlktusqa-kv" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-QA.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US QA Cloud" >> $GITHUB_OUTPUT
               echo "environment_url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> $GITHUB_OUTPUT
               echo "slack_channel_name=alerts-deploy-qa"  >> $GITHUB_OUTPUT
               ;;
             "EUQA")
-              echo "azure_login_creds=AZURE_KV_EU_QA_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
-              echo "retrive_secrets_keyvault=webvaulteu-westeurope-qa" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUQA" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_EUQA" >> $GITHUB_OUTPUT
+              echo "retrieve_secrets_keyvault=webvaulteu-westeurope-qa" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-euqa.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - EU QA Cloud" >> $GITHUB_OUTPUT
               echo "environment_url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> $GITHUB_OUTPUT
               echo "slack_channel_name=alerts-deploy-qa"  >> $GITHUB_OUTPUT
               ;;
             "USPROD")
-              echo "azure_login_creds=AZURE_KV_US_PROD_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
-              echo "retrive_secrets_keyvault=bw-webvault-klrt-kv" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USPROD" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USPROD" >> $GITHUB_OUTPUT
+              echo "retrieve_secrets_keyvault=bw-webvault-klrt-kv" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-COMMERCIAL.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US Production Cloud" >> $GITHUB_OUTPUT
               echo "environment_url=http://vault.bitwarden.com" >> $GITHUB_OUTPUT
               echo "slack_channel_name=alerts-deploy-prd"  >> $GITHUB_OUTPUT
               ;;
             "EUPROD")
-              echo "azure_login_creds=AZURE_KV_EU_PRD_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
-              echo "retrive_secrets_keyvault=webvault-westeurope-prod" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUPROD" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_EUPROD" >> $GITHUB_OUTPUT
+              echo "retrieve_secrets_keyvault=webvault-westeurope-prod" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-euprd.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - EU Production Cloud" >> $GITHUB_OUTPUT
               echo "environment_url=http://vault.bitwarden.eu" >> $GITHUB_OUTPUT
               echo "slack_channel_name=alerts-deploy-prd"  >> $GITHUB_OUTPUT
               ;;
             "USDEV")
-              echo "azure_login_creds=AZURE_KV_US_DEV_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
-              echo "retrive_secrets_keyvault=webvault-eastus-dev" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USDEV" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USDEV" >> $GITHUB_OUTPUT
+              echo "retrieve_secrets_keyvault=webvault-eastus-dev" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-usdev.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US Development Cloud" >> $GITHUB_OUTPUT
               echo "environment_url=http://vault.$ENV_NAME_LOWER.bitwarden.pw" >> $GITHUB_OUTPUT
@@ -180,6 +186,9 @@ jobs:
     name: Check if Web artifact is present
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     env:
       _ENVIRONMENT_ARTIFACT: ${{ needs.setup.outputs.environment_artifact }}
     outputs:
@@ -209,11 +218,13 @@ jobs:
           branch: ${{ inputs.branch-or-tag }}
           artifacts: ${{ env._ENVIRONMENT_ARTIFACT }}
 
-      - name: Login to Azure
+      - name: Log in to Azure
         if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets for Build trigger
         if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
@@ -222,6 +233,10 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+
+      - name: Log out from Azure
+        if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: 'Trigger build web for missing branch/tag ${{ inputs.branch-or-tag }}'
         if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
@@ -262,6 +277,8 @@ jobs:
       - artifact-check
     runs-on: ubuntu-22.04
     if: ${{ always() && ( contains( inputs.environment , 'QA' ) || contains( inputs.environment , 'DEV' ) ) }}
+    permissions:
+      id-token: write
     outputs:
       channel_id: ${{ steps.slack-message.outputs.channel_id }}
       ts: ${{ steps.slack-message.outputs.ts }}
@@ -277,7 +294,9 @@ jobs:
           event: 'start'
           commit-sha: ${{ needs.artifact-check.outputs.artifact_build_commit }}
           url: https://github.com/bitwarden/clients/actions/runs/${{ github.run_id }}
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
 
   update-summary:
     name: Display commit
@@ -302,6 +321,9 @@ jobs:
       _ENVIRONMENT_URL: ${{ needs.setup.outputs.environment_url }}
       _ENVIRONMENT_NAME: ${{ needs.setup.outputs.environment_name }}
       _ENVIRONMENT_ARTIFACT: ${{ needs.setup.outputs.environment_artifact }}
+    permissions:
+      id-token: write
+      deployments: write
     steps:
       - name: Create GitHub deployment
         uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
@@ -309,23 +331,25 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           initial-status: 'in_progress'
-          environment_url: ${{ env._ENVIRONMENT_URL }}
+          environment-url: ${{ env._ENVIRONMENT_URL }}
           environment: ${{ env._ENVIRONMENT_NAME }}
           task: 'deploy'
           description: 'Deployment from branch/tag: ${{ inputs.branch-or-tag }}'
           ref: ${{ needs.artifact-check.outputs.artifact_build_commit }}
 
       - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets[needs.setup.outputs.azure_login_creds] }}
+          subscription_id: ${{ secrets[needs.setup.outputs.azure_login_subscription_id_key_name] }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets[needs.setup.outputs.azure_login_client_key_name] }}
 
       - name: Retrieve Storage Account connection string for az sync
         if: ${{ needs.setup.outputs.sync_utility == 'az-sync' }}
         id: retrieve-secrets-az-sync
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
-          keyvault: ${{ needs.setup.outputs.retrive_secrets_keyvault }}
+          keyvault: ${{ needs.setup.outputs.retrieve_secrets_keyvault }}
           secrets: "sa-bitwarden-web-vault-dev-key-temp"
 
       - name: Retrieve Storage Account name and SPN credentials for azcopy
@@ -333,8 +357,11 @@ jobs:
         id: retrieve-secrets-azcopy
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
-          keyvault: ${{ needs.setup.outputs.retrive_secrets_keyvault }}
+          keyvault: ${{ needs.setup.outputs.retrieve_secrets_keyvault }}
           secrets: "sa-bitwarden-web-vault-name,sp-bitwarden-web-vault-password,sp-bitwarden-web-vault-appid,sp-bitwarden-web-vault-tenant"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: 'Download latest cloud asset using GitHub Run ID: ${{ inputs.build-web-run-id }}'
         if: ${{ inputs.build-web-run-id }}
@@ -397,7 +424,7 @@ jobs:
         uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
-          environment_url: ${{ env._ENVIRONMENT_URL }}
+          environment-url: ${{ env._ENVIRONMENT_URL }}
           state: 'success'
           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
@@ -406,7 +433,7 @@ jobs:
         uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
-          environment_url: ${{ env._ENVIRONMENT_URL }}
+          environment-url: ${{ env._ENVIRONMENT_URL }}
           state: 'failure'
           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
@@ -419,6 +446,8 @@ jobs:
       - notify-start
       - azure-deploy
       - artifact-check
+    permissions:
+      id-token: write
     steps:
       - name: Notify Slack with result
         uses: bitwarden/gh-actions/report-deployment-status-to-slack@main
@@ -431,4 +460,6 @@ jobs:
           url: https://github.com/bitwarden/clients/actions/runs/${{ github.run_id }}
           commit-sha: ${{ needs.artifact-check.outputs.artifact_build_commit }}
           update-ts: ${{ needs.notify-start.outputs.ts }}
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
