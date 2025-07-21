@@ -242,7 +242,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        concatMap(async (orgId) => {
+        concatMap(async () => {
           await this.updateCollectionOptions();
           this.setFormStatus();
         }),
