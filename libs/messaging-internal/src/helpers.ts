@@ -1,6 +1,6 @@
 import { map } from "rxjs";
 
-import { CommandDefinition } from "./types";
+import { CommandDefinition, EXTERNAL_SOURCE_TAG } from "@bitwarden/messaging";
 
 export const getCommand = (
   commandDefinition: CommandDefinition<Record<string, unknown>> | string,
@@ -10,12 +10,6 @@ export const getCommand = (
   } else {
     return commandDefinition.command;
   }
-};
-
-export const EXTERNAL_SOURCE_TAG = Symbol("externalSource");
-
-export const isExternalMessage = (message: Record<PropertyKey, unknown>) => {
-  return message?.[EXTERNAL_SOURCE_TAG] === true;
 };
 
 export const tagAsExternal = <T extends Record<PropertyKey, unknown>>() => {

@@ -94,6 +94,8 @@ libs/platform @bitwarden/team-platform-dev
 libs/storage-core @bitwarden/team-platform-dev
 libs/logging @bitwarden/team-platform-dev
 libs/storage-test-utils @bitwarden/team-platform-dev
+libs/messaging @bitwarden/team-platform-dev
+libs/messaging-internal @bitwarden/team-platform-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files

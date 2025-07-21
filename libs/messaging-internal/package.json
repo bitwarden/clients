@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/messaging-internal",
+  "version": "0.0.1",
+  "description": "Internal details to accompany @bitwarden/messaging this library should not be consumed in non-platform code.",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}

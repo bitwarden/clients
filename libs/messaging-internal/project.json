@@ -1,0 +1,33 @@
+{
+  "name": "messaging-internal",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/messaging-internal/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/messaging-internal",
+        "main": "libs/messaging-internal/src/index.ts",
+        "tsConfig": "libs/messaging-internal/tsconfig.lib.json",
+        "assets": ["libs/messaging-internal/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/messaging-internal/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/messaging-internal/jest.config.js"
+      }
+    }
+  }
+}
