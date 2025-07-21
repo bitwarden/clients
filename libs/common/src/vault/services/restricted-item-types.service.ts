@@ -9,16 +9,14 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { Cipher } from "../models/domain/cipher";
+import { CipherLike } from "../types/cipher-like";
+import { CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 export type RestrictedCipherType = {
   cipherType: CipherType;
   allowViewOrgIds: string[];
 };
-
-type CipherLike = Cipher | CipherView;
 
 export class RestrictedItemTypesService {
   /**
@@ -91,11 +89,12 @@ export class RestrictedItemTypesService {
    * Restriction logic:
    * - If cipher type is not restricted by any org → allowed
    * - If cipher belongs to an org that allows this type → allowed
-   * - If cipher is personal vault and any org allows this type → allowed
    * - Otherwise → restricted
    */
   isCipherRestricted(cipher: CipherLike, restrictedTypes: RestrictedCipherType[]): boolean {
-    const restriction = restrictedTypes.find((r) => r.cipherType === cipher.type);
+    const restriction = restrictedTypes.find(
+      (r) => r.cipherType === CipherViewLikeUtils.getType(cipher),
+    );
 
     // If cipher type is not restricted by any organization, allow it
     if (!restriction) {
@@ -108,8 +107,8 @@ export class RestrictedItemTypesService {
       return !restriction.allowViewOrgIds.includes(cipher.organizationId);
     }
 
-    // For personal vault ciphers: restricted only if NO organizations allow this type
-    return restriction.allowViewOrgIds.length === 0;
+    // Cipher is restricted by at least one organization, restrict it
+    return true;
   }
 
   /**

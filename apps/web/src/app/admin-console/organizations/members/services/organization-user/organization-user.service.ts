@@ -43,7 +43,7 @@ export class OrganizationUserService {
   ): Observable<void> {
     const encryptedCollectionName$ = this.orgKey$(organization).pipe(
       switchMap((orgKey) =>
-        this.encryptService.encryptString(this.i18nService.t("My Itmes"), orgKey),
+        this.encryptService.encryptString(this.i18nService.t("myItems"), orgKey),
       ),
     );
 

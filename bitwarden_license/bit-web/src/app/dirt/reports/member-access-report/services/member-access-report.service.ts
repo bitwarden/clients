@@ -3,8 +3,8 @@
 import { Injectable } from "@angular/core";
 
 import { CollectionAccessSelectionView } from "@bitwarden/admin-console/common";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   getPermissionList,

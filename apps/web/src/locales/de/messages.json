@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Sichere Notiz"
   },
+  "typeNote": {
+    "message": "Notiz"
+  },
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
@@ -861,8 +864,28 @@
   "copyName": {
     "message": "Name kopieren"
   },
+  "cardNumber": {
+    "message": "Kartennummer"
+  },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopieren",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Ich"
+  },
+  "myItems": {
+    "message": "Meine Einträge"
   },
   "myVault": {
     "message": "Mein Tresor"
@@ -1781,6 +1804,9 @@
   "loggedOutWarning": {
     "message": "Wenn du fortfährst, wirst du aus deiner aktuellen Sitzung ausgeloggt. Aktive Sitzungen auf anderen Geräten können bis zu einer Stunde weiterhin aktiv bleiben."
   },
+  "changePasswordWarning": {
+    "message": "Nachdem du dein Passwort geändert hast, musst du dich mit deinem neuen Passwort anmelden. Aktive Sitzungen auf anderen Geräten werden innerhalb einer Stunde abgemeldet."
+  },
   "emailChanged": {
     "message": "E-Mail-Adresse gespeichert"
   },
@@ -2153,11 +2179,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Durch die Aktivierung der Zwei-Faktor-Authentifizierung kannst du dich dauerhaft aus deinem Bitwarden-Konto aussperren. Ein Wiederherstellungscode ermöglicht es dir, auf dein Konto zuzugreifen, falls du deinen normalen Zwei-Faktor-Anbieter nicht mehr verwenden kannst (z.B. wenn du dein Gerät verlierst). Der Bitwarden-Support kann dir nicht helfen, wenn du den Zugang zu deinem Konto verlierst. Wir empfehlen dir, den Wiederherstellungscode aufzuschreiben oder auszudrucken und an einem sicheren Ort aufzubewahren."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Karten-Eintragstyp entfernen"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Mitgliedern das Erstellen von Karten-Eintragstypen nicht erlauben."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Mitgliedern nicht erlauben, Karten-Eintragstypen zu erstellen. Vorhandene Karten werden automatisch entfernt."
+  },
+  "restrictCardTypeImport": {
+    "message": "Karten-Eintragstypen können nicht importiert werden"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Eine von einer oder mehreren Organisationen festgelegte Richtlinie verhindert, dass du Karten in deinen Tresor importieren kannst."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Dein einmal benutzbarer Wiederherstellungscode kann benutzt werden, um die Zwei-Faktor-Authentifizierung auszuschalten, wenn du Zugang zu deinen Zwei-Faktor-Anbietern verlierst. Bitwarden empfiehlt dir, den Wiederherstellungscode aufzuschreiben und an einem sicheren Ort aufzubewahren."
@@ -2217,6 +2249,9 @@
   },
   "disable": {
     "message": "Deaktivieren"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Mitgliederdetails nicht gefunden."
   },
   "revokeAccess": {
     "message": "Zugriff widerrufen"
@@ -3467,6 +3502,9 @@
   "webVault": {
     "message": "Web-Tresor"
   },
+  "webApp": {
+    "message": "Web-App"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3949,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Anmeldeanfrage für $EMAIL$ auf $DEVICE$ genehmigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Anmeldeanfrage ist bereits abgelaufen."
   },
@@ -4092,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Anmeldeanfrage überprüfen"
+  },
+  "loginRequest": {
+    "message": "Anmeldungsanfrage"
   },
   "freeTrialEndPromptCount": {
     "message": "Deine kostenlose Testversion endet in $COUNT$ Tagen.",
@@ -5363,6 +5420,9 @@
   "emergencyRejected": {
     "message": "Notfallzugriff abgelehnt"
   },
+  "grantorDetailsNotFound": {
+    "message": "Angaben zur gewährenden Person nicht gefunden"
+  },
   "passwordResetFor": {
     "message": "Passwort für $USER$ zurückgesetzt. Du kannst dich jetzt mit dem neuen Passwort anmelden.",
     "placeholders": {
@@ -5371,6 +5431,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Eigentumsrechte an Unternehmensdaten erzwingen"
   },
   "personalOwnership": {
     "message": "Persönlichen Tresor entfernen"
@@ -5763,10 +5826,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Wenn du fortfährst, wird $NAME$ aus seiner aktuellen Sitzung abgemeldet und muss sich erneut anmelden. Aktive Sitzungen auf anderen Geräten können bis zu einer Stunde weiterhin aktiv bleiben.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "dieser Benutzer"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Eine oder mehrere Organisationsrichtlinien erfordern, dass dein Master-Passwort die folgenden Anforderungen erfüllt:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Eine oder mehrere Organisationsrichtlinien erfordern, dass dein Master-Passwort die folgenden Anforderungen erfüllt:"
   },
   "resetPasswordSuccess": {
@@ -6034,11 +6109,20 @@
   "add": {
     "message": "Hinzufügen"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master-Passwort erfolgreich festgelegt"
+  },
   "updatedMasterPassword": {
     "message": "Master-Passwort gespeichert"
   },
   "updateMasterPassword": {
     "message": "Master-Passwort aktualisieren"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Ändere dein Master-Passwort, um die Kontowiederherstellung abzuschließen."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Dein Master-Passwort entspricht nicht den Anforderungen dieser Organisation. Ändere dein Master-Passwort, um fortzufahren."
   },
   "updateMasterPasswordWarning": {
     "message": "Dein Master-Passwort wurde kürzlich von einem Administrator deiner Organisation geändert. Um auf den Tresor zuzugreifen, musst du dein Master-Passwort jetzt aktualisieren. Wenn Du fortfährst, wirst du aus der aktuellen Sitzung abgemeldet und eine erneute Anmeldung ist erforderlich. Aktive Sitzungen auf anderen Geräten können bis zu einer Stunde weiterhin aktiv bleiben."
@@ -7615,7 +7699,7 @@
     "description": "Notifies that a service account has been updated"
   },
   "typeOrSelectProjects": {
-    "message": "Type or select projects",
+    "message": "Projektnamen eingeben oder auswählen",
     "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
@@ -7702,7 +7786,7 @@
     "description": "Title for the section displaying access tokens."
   },
   "createAccessToken": {
-    "message": "Create access token",
+    "message": "Zugriffstoken erstellen",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8203,8 +8287,44 @@
   "errorReadingImportFile": {
     "message": "Beim Lesen der Importdatei ist ein Fehler aufgetreten"
   },
+  "accessedSecretWithId": {
+    "message": "Zugriff auf Geheimnis mit der Kennung: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Auf Geheimnis $SECRET_ID$ zugegriffen.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Ein Geheimnis bearbeitet mit der Kennung: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Ein Geheimnis gelöscht mit der Kennung: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Ein neues Geheimnis erstellt mit Kennung: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8383,6 +8503,12 @@
   },
   "requestAdminApproval": {
     "message": "Admin-Genehmigung anfragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Anmeldung kann nicht abgeschlossen werden"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Du musst dich auf einem vertrauenswürdigen Gerät anmelden oder deinem Administrator bitten, dir ein Passwort zuzuweisen."
   },
   "trustedDeviceEncryption": {
     "message": "Vertrauenswürdige Geräteverschlüsselung"
@@ -8837,6 +8963,30 @@
   "commonImportFormats": {
     "message": "Gängigste Formate",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Auto-Ausfüllen-Vorschläge erkennt.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulärer Ausdruck\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Beginnt mit\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Mehr über die Übereinstimmungs-Erkennung",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Erweiterte Optionen",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warnung",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Um dein Abonnement für $ORG$ zu erhalten, ",
@@ -10628,6 +10778,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Fülle deine Passwörter sicher mit einem Klick automatisch aus"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Lade dir die Bitwarden Browser-Erweiterung herunter und nutze Auto-Ausfüllen noch heute"
+  },
+  "getTheExtension": {
+    "message": "Erweiterung herunterladen"
+  },
+  "addItLater": {
+    "message": "Später hinzufügen"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "Du kannst Passwörter nicht ohne die Browser-Erweiterung automatisch ausfüllen"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Bist du sicher, dass du die Erweiterung jetzt nicht hinzufügen möchtest?"
+  },
+  "skipToWebApp": {
+    "message": "Zur Web-App springen"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden-Erweiterung installiert!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Öffne die Erweiterung, um dich anzumelden und Auto-Ausfüllen zu nutzen."
+  },
+  "openBitwardenExtension": {
+    "message": "Bitwarden-Erweiterung öffnen"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "Tipps für die ersten Schritte mit Bitwarden findest du unter",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Lernzentrum",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Hilfezentrum",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "Mit der Bitwarden Browser-Erweiterung kannst du ganz einfach neue Zugangsdaten erstellen, auf deine gespeicherten Zugangsdaten direkt von deiner Browser-Symbolleiste aus zugreifen und dich schnell mit Bitwarden Auto-Ausfüllen bei Konten anmelden."
+  },
   "restart": {
     "message": "Neustarten"
   },
@@ -10647,6 +10842,58 @@
       "date": {
         "content": "$2",
         "example": "12/31/2024"
+      }
+    }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Rechnungsadresse erforderlich, um Guthaben hinzuzufügen.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Rechnungsadresse"
+  },
+  "addBillingAddress": {
+    "message": "Rechnungsadresse hinzufügen"
+  },
+  "editBillingAddress": {
+    "message": "Rechnungsadresse bearbeiten"
+  },
+  "noBillingAddress": {
+    "message": "Keine Adresse angegeben."
+  },
+  "billingAddressUpdated": {
+    "message": "Deine Rechnungsadresse wurde aktualisiert."
+  },
+  "paymentDetails": {
+    "message": "Zahlungsdaten"
+  },
+  "paymentMethodUpdated": {
+    "message": "Deine Zahlungsart wurde aktualisiert."
+  },
+  "bankAccountVerified": {
+    "message": "Dein Bankkonto wurde verifiziert."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Jedes verfügbare Guthaben wird automatisch auf die für dieses Konto erstellten Rechnungen angerechnet."
+  },
+  "mustBePositiveNumber": {
+    "message": "Muss eine positive Zahl sein"
+  },
+  "cardSecurityCode": {
+    "message": "Karten-Sicherheitscode"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Der Karten-Sicherheitscode, auch CVV oder CVC genannt, ist typischerweise eine dreistellige Zahl, die auf der Rückseite oder als vierstellige Zahl auf der Vorderseite über deiner Kartennummer gedruckt ist."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Die Zahlung mit einem Bankkonto ist nur für Kunden in den Vereinigten Staaten möglich. Du musst dein Bankkonto verifizieren. Wir werden innerhalb der nächsten 1-2 Werktage eine Mikro-Einzahlung vornehmen. Gib den Code aus der Auszugsbeschreibung dieser Einzahlung ein, um das Bankkonto zu verifizieren. Schlägt die Verifizierung des Bankkontos fehl, wird dies als versäumte Zahlung gewertet und dein Abonnement gesperrt."
+  },
+  "taxId": {
+    "message": "Steuernummer: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
       }
     }
   }

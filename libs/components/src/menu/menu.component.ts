@@ -10,7 +10,7 @@ import {
   ContentChildren,
   QueryList,
   AfterContentInit,
-  Input,
+  input,
 } from "@angular/core";
 
 import { MenuItemDirective } from "./menu-item.directive";
@@ -28,12 +28,12 @@ export class MenuComponent implements AfterContentInit {
   menuItems: QueryList<MenuItemDirective>;
   keyManager?: FocusKeyManager<MenuItemDirective>;
 
-  @Input() ariaRole: "menu" | "dialog" = "menu";
+  readonly ariaRole = input<"menu" | "dialog">("menu");
 
-  @Input() ariaLabel: string;
+  readonly ariaLabel = input<string>();
 
   ngAfterContentInit() {
-    if (this.ariaRole === "menu") {
+    if (this.ariaRole() === "menu") {
       this.keyManager = new FocusKeyManager(this.menuItems)
         .withWrap()
         .skipPredicate((item) => item.disabled);
