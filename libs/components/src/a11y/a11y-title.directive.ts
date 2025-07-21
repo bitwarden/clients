@@ -8,7 +8,7 @@ import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
 export class A11yTitleDirective implements OnInit {
   // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
-  @Input() set appA11yTitle(title: string) {
+  @Input({ required: true }) set appA11yTitle(title: string) {
     this.title = title;
     this.setAttributes();
   }
