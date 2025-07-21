@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherPermissionsApi } from "@bitwarden/common/vault/models/api/cipher-permissions.api";
 import {
   CipherView as SdkCipherView,
