@@ -277,6 +277,8 @@ jobs:
       - artifact-check
     runs-on: ubuntu-22.04
     if: ${{ always() && ( contains( inputs.environment , 'QA' ) || contains( inputs.environment , 'DEV' ) ) }}
+    permissions:
+      id-token: write
     outputs:
       channel_id: ${{ steps.slack-message.outputs.channel_id }}
       ts: ${{ steps.slack-message.outputs.ts }}
