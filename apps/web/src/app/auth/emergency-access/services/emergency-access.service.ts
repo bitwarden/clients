@@ -77,14 +77,22 @@ export class EmergencyAccessService
    * Gets all emergency access that the user has been granted.
    */
   async getEmergencyAccessTrusted(): Promise<GranteeEmergencyAccess[]> {
-    return (await this.emergencyAccessApiService.getEmergencyAccessTrusted()).data;
+    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessTrusted();
+    if (!listResponse || listResponse.data.length === 0) {
+      return [];
+    }
+    return listResponse.data.map((response) => GranteeEmergencyAccess.fromResponse(response));
   }
 
   /**
    * Gets all emergency access that the user has granted.
    */
   async getEmergencyAccessGranted(): Promise<GrantorEmergencyAccess[]> {
-    return (await this.emergencyAccessApiService.getEmergencyAccessGranted()).data;
+    const listResponse = await this.emergencyAccessApiService.getEmergencyAccessGranted();
+    if (!listResponse || listResponse.data.length === 0) {
+      return [];
+    }
+    return listResponse.data.map((response) => GrantorEmergencyAccess.fromResponse(response));
   }
 
   /**

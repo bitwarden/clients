@@ -71,6 +71,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 import {
   ADD_EDIT_CIPHER_INFO_KEY,
@@ -122,6 +123,43 @@ export class CipherService implements CipherServiceAbstraction {
   ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>> {
     return this.encryptedCiphersState(userId).state$.pipe(map((ciphers) => ciphers ?? {}));
   }
+
+  /**
+   * Observable that emits an array of decrypted ciphers for given userId.
+   * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
+   *
+   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViews$` observable will be emitted.
+   * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
+   */
+  cipherListViews$ = perUserCache$((userId: UserId) => {
+    return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
+      switchMap((useSdk) => {
+        if (!useSdk) {
+          return this.cipherViews$(userId);
+        }
+
+        return combineLatest([
+          this.encryptedCiphersState(userId).state$,
+          this.localData$(userId),
+          this.keyService.cipherDecryptionKeys$(userId, true),
+        ]).pipe(
+          filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
+          map(([cipherDataState, localData]) =>
+            Object.values(cipherDataState).map(
+              (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
+            ),
+          ),
+          switchMap(async (ciphers) => {
+            // TODO: remove this once failed decrypted ciphers are handled in the SDK
+            await this.setFailedDecryptedCiphers([], userId);
+            return this.cipherEncryptionService
+              .decryptMany(ciphers, userId)
+              .then((ciphers) => ciphers.sort(this.getLocaleSortingFunction()));
+          }),
+        );
+      }),
+    );
+  });
 
   /**
    * Observable that emits an array of decrypted ciphers for the active user.
@@ -543,18 +581,23 @@ export class CipherService implements CipherServiceAbstraction {
         filter((c) => c != null),
         switchMap(
           async (ciphers) =>
-            await this.filterCiphersForUrl(ciphers, url, includeOtherTypes, defaultMatch),
+            await this.filterCiphersForUrl<CipherView>(
+              ciphers,
+              url,
+              includeOtherTypes,
+              defaultMatch,
+            ),
         ),
       ),
     );
   }
 
-  async filterCiphersForUrl(
-    ciphers: CipherView[],
+  async filterCiphersForUrl<C extends CipherViewLike>(
+    ciphers: C[],
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch: UriMatchStrategySetting = null,
-  ): Promise<CipherView[]> {
+  ): Promise<C[]> {
     if (url == null && includeOtherTypes == null) {
       return [];
     }
@@ -565,22 +608,20 @@ export class CipherService implements CipherServiceAbstraction {
     defaultMatch ??= await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
 
     return ciphers.filter((cipher) => {
-      const cipherIsLogin = cipher.type === CipherType.Login && cipher.login !== null;
+      const type = CipherViewLikeUtils.getType(cipher);
+      const login = CipherViewLikeUtils.getLogin(cipher);
+      const cipherIsLogin = login !== null;
 
-      if (cipher.deletedDate !== null) {
+      if (CipherViewLikeUtils.isDeleted(cipher)) {
         return false;
       }
 
-      if (
-        Array.isArray(includeOtherTypes) &&
-        includeOtherTypes.includes(cipher.type) &&
-        !cipherIsLogin
-      ) {
+      if (Array.isArray(includeOtherTypes) && includeOtherTypes.includes(type) && !cipherIsLogin) {
         return true;
       }
 
       if (cipherIsLogin) {
-        return cipher.login.matchesUri(url, equivalentDomains, defaultMatch);
+        return CipherViewLikeUtils.matchesUri(cipher, url, equivalentDomains, defaultMatch);
       }
 
       return false;
@@ -1173,7 +1214,7 @@ export class CipherService implements CipherServiceAbstraction {
     return await this.deleteAttachment(id, cipherData.revisionDate, attachmentId, userId);
   }
 
-  sortCiphersByLastUsed(a: CipherView, b: CipherView): number {
+  sortCiphersByLastUsed(a: CipherViewLike, b: CipherViewLike): number {
     const aLastUsed =
       a.localData && a.localData.lastUsedDate ? (a.localData.lastUsedDate as number) : null;
     const bLastUsed =
@@ -1197,7 +1238,7 @@ export class CipherService implements CipherServiceAbstraction {
     return 0;
   }
 
-  sortCiphersByLastUsedThenName(a: CipherView, b: CipherView): number {
+  sortCiphersByLastUsedThenName(a: CipherViewLike, b: CipherViewLike): number {
     const result = this.sortCiphersByLastUsed(a, b);
     if (result !== 0) {
       return result;
@@ -1206,7 +1247,7 @@ export class CipherService implements CipherServiceAbstraction {
     return this.getLocaleSortingFunction()(a, b);
   }
 
-  getLocaleSortingFunction(): (a: CipherView, b: CipherView) => number {
+  getLocaleSortingFunction(): (a: CipherViewLike, b: CipherViewLike) => number {
     return (a, b) => {
       let aName = a.name;
       let bName = b.name;
@@ -1225,16 +1266,22 @@ export class CipherService implements CipherServiceAbstraction {
         ? this.i18nService.collator.compare(aName, bName)
         : aName.localeCompare(bName);
 
-      if (result !== 0 || a.type !== CipherType.Login || b.type !== CipherType.Login) {
+      const aType = CipherViewLikeUtils.getType(a);
+      const bType = CipherViewLikeUtils.getType(b);
+
+      if (result !== 0 || aType !== CipherType.Login || bType !== CipherType.Login) {
         return result;
       }
 
-      if (a.login.username != null) {
-        aName += a.login.username;
+      const aLogin = CipherViewLikeUtils.getLogin(a);
+      const bLogin = CipherViewLikeUtils.getLogin(b);
+
+      if (aLogin.username != null) {
+        aName += aLogin.username;
       }
 
-      if (b.login.username != null) {
-        bName += b.login.username;
+      if (bLogin.username != null) {
+        bName += bLogin.username;
       }
 
       return this.i18nService.collator
@@ -1901,5 +1948,18 @@ export class CipherService implements CipherServiceAbstraction {
     const decryptedViews = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
 
     return decryptedViews.sort(this.getLocaleSortingFunction());
+  }
+
+  /** Fetches the full `CipherView` when a `CipherListView` is passed. */
+  async getFullCipherView(c: CipherViewLike): Promise<CipherView> {
+    if (CipherViewLikeUtils.isCipherListView(c)) {
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const cipher = await this.get(c.id!, activeUserId);
+      return this.decrypt(cipher, activeUserId);
+    }
+
+    return Promise.resolve(c);
   }
 }
