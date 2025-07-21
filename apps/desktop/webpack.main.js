@@ -65,6 +65,9 @@ const main = {
       },
     ],
   },
+  experiments: {
+    asyncWebAssembly: true,
+  },
   plugins: [
     new CopyWebpackPlugin({
       patterns: [

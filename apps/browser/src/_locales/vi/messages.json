@@ -1829,6 +1829,9 @@
   "securityCode": {
     "message": "Mã bảo mật"
   },
+  "cardNumber": {
+    "message": "số thẻ"
+  },
   "ex": {
     "message": "Ví dụ:"
   },
@@ -3460,6 +3463,28 @@
   "logInRequestSent": {
     "message": "Đã gửi yêu cầu"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Đã phê duyệt yêu cầu đăng nhập cho $EMAIL$ trên $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu đó là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
+  },
+  "device": {
+    "message": "Thiết bị"
+  },
+  "loginStatus": {
+    "message": "Trạng thái đăng nhập"
+  },
   "masterPasswordChanged": {
     "message": "Đã lưu mật khẩu chính"
   },
@@ -3555,6 +3580,113 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Nhớ thiết bị này để đăng nhập dễ dàng trong tương lai"
+  },
+  "manageDevices": {
+    "message": "Quản lý thiết bị"
+  },
+  "currentSession": {
+    "message": "Phiên hiện tại"
+  },
+  "mobile": {
+    "message": "Di động",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Tiện ích mở rộng",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Máy tính",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Kho web"
+  },
+  "webApp": {
+    "message": "Ứng dụng web"
+  },
+  "cli": {
+    "message": "Giao diện dòng lệnh (CLI)"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Yêu cầu đang chờ xử lý"
+  },
+  "firstLogin": {
+    "message": "Đăng nhập lần đầu"
+  },
+  "trusted": {
+    "message": "Tin tưởng"
+  },
+  "needsApproval": {
+    "message": "Cần phê duyệt"
+  },
+  "devices": {
+    "message": "Thiết bị"
+  },
+  "accessAttemptBy": {
+    "message": "Cố gắng truy cập bởi $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Xác nhận truy cập"
+  },
+  "denyAccess": {
+    "message": "Từ chối truy cập"
+  },
+  "time": {
+    "message": "Thời gian"
+  },
+  "deviceType": {
+    "message": "Loại thiết bị"
+  },
+  "loginRequest": {
+    "message": "Yêu cầu đăng nhập"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Yêu cầu này không còn hiệu lực."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Bạn đang cố gắng truy cập tài khoản của mình?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Đã xác nhận đăng nhập cho $EMAIL$ trên $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu thực sự là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Yêu cầu đăng nhập đã hết hạn."
+  },
+  "justNow": {
+    "message": "Vừa xong"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Đã yêu cầu $MINUTES$ phút trước",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Yêu cầu phê duyệt thiết bị. Chọn một tuỳ chọn phê duyệt bên dưới:"
@@ -4465,17 +4597,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Sao chép $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Sao chép $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },

@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Droša piezīme"
   },
+  "typeNote": {
+    "message": "Piezīme"
+  },
   "typeSshKey": {
     "message": "SSH atslēga"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Ievietot nosaukumu starpliktuvē"
+  },
+  "cardNumber": {
+    "message": "kartes numurs"
+  },
+  "copyFieldCipherName": {
+    "message": "Ievietot starpliktuvē $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Es"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Tīmekļa glabātava"
   },
+  "webApp": {
+    "message": "Tīmekļa lietotne"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas biji Tu, mēģini pieteikties no ierīces vēlreiz!"
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Pieteikšanās pieprasījuma derīgums jau ir beidzies."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Izskatīt pieteikšanās pieprasījumu"
+  },
+  "loginRequest": {
+    "message": "Pieteikšanās pieprasījums"
   },
   "freeTrialEndPromptCount": {
     "message": "Bezmaksas izmēģinājums beigsies pēc $COUNT$ dienām.",

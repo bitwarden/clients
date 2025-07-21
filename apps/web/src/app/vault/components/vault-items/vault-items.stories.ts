@@ -139,6 +139,7 @@ export default {
           provide: RestrictedItemTypesService,
           useValue: {
             restricted$: of([]), // No restricted item types for this story
+            isCipherRestricted: () => false, // No restrictions for this story
           },
         },
       ],
