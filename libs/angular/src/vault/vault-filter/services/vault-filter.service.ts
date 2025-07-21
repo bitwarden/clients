@@ -191,6 +191,9 @@ export function sortDefaultCollections(
     .sort((a, b) => {
       const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
       const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
+      if (!aName || !bName) {
+        throw new Error("Collection does not have an organizationId.");
+      }
       return collator.compare(aName, bName);
     });
   return [

@@ -268,7 +268,7 @@ const routes: Routes = [
   {
     path: "device-management",
     component: ExtensionDeviceManagementComponent,
-    canActivate: [authGuard],
+    canActivate: [canAccessFeature(FeatureFlag.PM14938_BrowserExtensionLoginApproval), authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

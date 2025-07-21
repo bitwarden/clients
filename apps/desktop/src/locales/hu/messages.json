@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Ellenőrző kód másolása (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ másolása",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Hossz"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Biztonsági kód másolása",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kártya szám"
   },
   "premiumMembership": {
     "message": "Prémium tagság"
@@ -3997,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Automatikus típusú parancsikon engedélyezése"
+  },
+  "enableAutotypeDescription": {
+    "message": "A Bitwarden nem érvényesíti a beviteli helyeket, győződjünk meg róla, hogy a megfelelő ablakban és mezőben vagyunk, mielőtt a parancsikont használnánk."
   }
 }
