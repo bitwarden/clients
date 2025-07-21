@@ -12,7 +12,7 @@ export const NestingDelimiter = "/";
 export class CollectionView implements View, ITreeNodeObject {
   id: string | undefined;
   organizationId: string | undefined;
-  name: string | undefined;
+  name: string = "";
   externalId: string | undefined;
   // readOnly applies to the items within a collection
   readOnly: boolean = false;

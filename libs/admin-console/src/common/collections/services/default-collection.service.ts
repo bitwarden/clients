@@ -117,8 +117,12 @@ export class DefaultCollectionService implements CollectionService {
 
     const decryptedCollections = await firstValueFrom(
       this.keyService.orgKeys$(userId).pipe(
-        filter((orgKeys) => !!orgKeys),
-        switchMap((orgKeys) => this.decryptMany$([new Collection(toUpdate)], orgKeys)),
+        switchMap((orgKeys) => {
+          if (!orgKeys) {
+            throw new Error("No key for this collection's organization.");
+          }
+          return this.decryptMany$([new Collection(toUpdate)], orgKeys);
+        }),
       ),
     );
 
