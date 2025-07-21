@@ -1173,6 +1173,12 @@
     "message": "Ak nē! Mēs nevarējā šo saglabāt. Jāmēģina pašrocīgi ievadīt informāciju.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Pēc savas paroles nomainīšanas būs nepieciešams pieteikties ar jauno paroli. Spēkā esošajās sesijās citās ierīcēs stundas laikā notiks atteikšanās."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Jānomaina sava galvenā'parole, lai pabeigtu konta atkopi."
+  },
   "enableChangedPasswordNotification": {
     "message": "Vaicāt atjaunināt esošu pieteikšanās vienumu"
   },
@@ -1822,6 +1828,9 @@
   },
   "securityCode": {
     "message": "Drošības kods"
+  },
+  "cardNumber": {
+    "message": "kartes numurs"
   },
   "ex": {
     "message": "piem."
@@ -2487,6 +2496,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Apvienības nosacījums neļauj ievietot ārējos vienumus savā personīgajā glabātavā."
   },
+  "restrictCardTypeImport": {
+    "message": "Nevar ievietot karšu vienumu veidus"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Pamatnostādne, ko ir iestatījusi viena vai vairākas apvienības, liedz karšu ievietošanu savās glabātavās."
+  },
   "domainsTitle": {
     "message": "Domēna vārdi",
     "description": "A category title describing the concept of web domains"
@@ -2912,6 +2927,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Ir nepieciešams apliecināt savu e-pasta adresi, lai būtu iespējams izmantot šo iespēju. To var izdarīt tīmekļa glabātavā."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Galvenā parole sekmīgi iestatīta"
   },
   "updatedMasterPassword": {
     "message": "Galvenā parole atjaunināta"
@@ -3445,6 +3463,31 @@
   "logInRequestSent": {
     "message": "Pieprasījums nosūtīts"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas biji Tu, mēģini pieteikties no ierīces vēlreiz!"
+  },
+  "device": {
+    "message": "Ierīce"
+  },
+  "loginStatus": {
+    "message": "Pieteikšanās stāvoklis"
+  },
+  "masterPasswordChanged": {
+    "message": "Galvenā parole saglabāta"
+  },
   "exposedMasterPassword": {
     "message": "Noplūdusi galvenā parole"
   },
@@ -3538,6 +3581,113 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Atcerēties šo ierīci, lai nākotnes pieteikšanos padarītu plūdenāku"
   },
+  "manageDevices": {
+    "message": "Pārvaldīt ierīces"
+  },
+  "currentSession": {
+    "message": "Pašreizējā sesija"
+  },
+  "mobile": {
+    "message": "Tālrunis",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Paplašinājums",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Darbvirsma",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Tīmekļa glabātava"
+  },
+  "webApp": {
+    "message": "Tīmekļa lietotne"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Pieprasījums gaida uz apstrādi"
+  },
+  "firstLogin": {
+    "message": "Pirmā pieteikšanās"
+  },
+  "trusted": {
+    "message": "Uzticama"
+  },
+  "needsApproval": {
+    "message": "Nepieciešams apstiprinājums"
+  },
+  "devices": {
+    "message": "Ierīces"
+  },
+  "accessAttemptBy": {
+    "message": "$EMAIL$ piekļuves mēģinājums",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Apstiprināt piekļuvi"
+  },
+  "denyAccess": {
+    "message": "Noraidīt piekļuvi"
+  },
+  "time": {
+    "message": "Laiks"
+  },
+  "deviceType": {
+    "message": "Ierīces veids"
+  },
+  "loginRequest": {
+    "message": "Pieteikšanās pieprasījums"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Šis pieprasījums vairs nav derīgs."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Vai mēģini piekļūt savam kontam?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Pieteikšanās pieprasījuma derīgums jau ir beidzies."
+  },
+  "justNow": {
+    "message": "Tikko"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Pieprasīts pirms $MINUTES$ minūtēm",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Nepieciešams ierīces apstiprinājums. Zemāk jāatlasa apstiprinājuma iespēja:"
   },
@@ -3558,6 +3708,12 @@
   },
   "requestAdminApproval": {
     "message": "Pieprasīt pārvaldītāja apstiprinājumu"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nevar pabeigt pieteikšanos"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Nepieciešams pieteikties uzticamā ierīcē vai vaicāt pārvaldītājam, lai piešķir paroli."
   },
   "ssoIdentifierRequired": {
     "message": "Ir nepieciešams apvienības SSO identifikators."
@@ -4238,6 +4394,26 @@
     "message": "Izplatīti veidoli",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI atbilstības noteikšana ir veids, kā Bitwarden atpazīst automātiskās aizpildes ieteikumus.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulārā izteiksme\" ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Sākas ar' ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Vairāk par atbilstības noteikšanu",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Papildu iespējas",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Pāriet uz pārlūka iestatījumiem?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4421,17 +4597,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Ievietot starpliktuvē $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Ievietot starpliktuvē $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5065,8 +5241,8 @@
   "unlockPinSet": {
     "message": "Atslēgšanas PIN iestatīts"
   },
-  "unlockBiometricSet": {
-    "message": "Atslēgt biometrijas kopu"
+  "unlockWithBiometricSet": {
+    "message": "Atslēgt ar biometriju"
   },
   "authenticating": {
     "message": "Autentificē"

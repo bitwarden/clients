@@ -23,6 +23,7 @@ import {
   HasItemsNudgeService,
   EmptyVaultNudgeService,
   NewAccountNudgeService,
+  AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
@@ -37,7 +38,11 @@ describe("Vault Nudges Service", () => {
     getFeatureFlag: jest.fn().mockReturnValue(true),
   };
 
-  const nudgeServices = [EmptyVaultNudgeService, NewAccountNudgeService];
+  const nudgeServices = [
+    EmptyVaultNudgeService,
+    NewAccountNudgeService,
+    AccountSecurityNudgeService,
+  ];
 
   beforeEach(async () => {
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
@@ -67,6 +72,10 @@ describe("Vault Nudges Service", () => {
         {
           provide: EmptyVaultNudgeService,
           useValue: mock<EmptyVaultNudgeService>(),
+        },
+        {
+          provide: AccountSecurityNudgeService,
+          useValue: mock<AccountSecurityNudgeService>(),
         },
         {
           provide: VaultSettingsImportNudgeService,

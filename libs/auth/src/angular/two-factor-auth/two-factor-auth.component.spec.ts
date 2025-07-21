@@ -27,6 +27,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -75,6 +76,7 @@ describe("TwoFactorAuthComponent", () => {
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
   let mockTwoFactorAuthCompCacheService: MockProxy<TwoFactorAuthComponentCacheService>;
   let mockAuthService: MockProxy<AuthService>;
+  let mockConfigService: MockProxy<ConfigService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -110,6 +112,7 @@ describe("TwoFactorAuthComponent", () => {
     mockToastService = mock<ToastService>();
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
     mockAuthService = mock<AuthService>();
+    mockConfigService = mock<ConfigService>();
 
     mockEnvService = mock<EnvironmentService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
@@ -118,7 +121,6 @@ describe("TwoFactorAuthComponent", () => {
 
     mockTwoFactorAuthCompCacheService = mock<TwoFactorAuthComponentCacheService>();
     mockTwoFactorAuthCompCacheService.getCachedData.mockReturnValue(null);
-    mockTwoFactorAuthCompCacheService.init.mockResolvedValue();
 
     mockUserDecryptionOpts = {
       noMasterPassword: new UserDecryptionOptions({
@@ -209,6 +211,7 @@ describe("TwoFactorAuthComponent", () => {
           useValue: mockTwoFactorAuthCompCacheService,
         },
         { provide: AuthService, useValue: mockAuthService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     });
 
@@ -224,22 +227,6 @@ describe("TwoFactorAuthComponent", () => {
   it("should create", () => {
     expect(component).toBeTruthy();
   });
-
-  // Shared tests
-  const testChangePasswordOnSuccessfulLogin = () => {
-    it("navigates to the component's defined change password route when user doesn't have a MP and key connector isn't enabled", async () => {
-      // Act
-      await component.submit("testToken");
-
-      // Assert
-      expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["set-password"], {
-        queryParams: {
-          identifier: component.orgSsoIdentifier,
-        },
-      });
-    });
-  };
 
   describe("Standard 2FA scenarios", () => {
     describe("submit", () => {
@@ -280,20 +267,76 @@ describe("TwoFactorAuthComponent", () => {
             selectedUserDecryptionOptions.next(mockUserDecryptionOpts.noMasterPassword);
           });
 
-          testChangePasswordOnSuccessfulLogin();
+          describe("Given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
+            it("navigates to the /set-initial-password route when user doesn't have a MP and key connector isn't enabled", async () => {
+              // Arrange
+              mockConfigService.getFeatureFlag.mockResolvedValue(true);
+
+              // Act
+              await component.submit("testToken");
+
+              // Assert
+              expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+              expect(mockRouter.navigate).toHaveBeenCalledWith(["set-initial-password"], {
+                queryParams: {
+                  identifier: component.orgSsoIdentifier,
+                },
+              });
+            });
+          });
+
+          describe("Given the PM16117_SetInitialPasswordRefactor feature flag is OFF", () => {
+            it("navigates to the /set-password route when user doesn't have a MP and key connector isn't enabled", async () => {
+              // Arrange
+              mockConfigService.getFeatureFlag.mockResolvedValue(false);
+
+              // Act
+              await component.submit("testToken");
+
+              // Assert
+              expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+              expect(mockRouter.navigate).toHaveBeenCalledWith(["set-password"], {
+                queryParams: {
+                  identifier: component.orgSsoIdentifier,
+                },
+              });
+            });
+          });
         });
 
-        it("does not navigate to the change password route when the user has key connector even if user has no master password", async () => {
-          selectedUserDecryptionOptions.next(
-            mockUserDecryptionOpts.noMasterPasswordWithKeyConnector,
-          );
+        describe("Given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
+          it("does not navigate to the /set-initial-password route when the user has key connector even if user has no master password", async () => {
+            mockConfigService.getFeatureFlag.mockResolvedValue(true);
 
-          await component.submit(token, remember);
+            selectedUserDecryptionOptions.next(
+              mockUserDecryptionOpts.noMasterPasswordWithKeyConnector,
+            );
 
-          expect(mockRouter.navigate).not.toHaveBeenCalledWith(["set-password"], {
-            queryParams: {
-              identifier: component.orgSsoIdentifier,
-            },
+            await component.submit(token, remember);
+
+            expect(mockRouter.navigate).not.toHaveBeenCalledWith(["set-initial-password"], {
+              queryParams: {
+                identifier: component.orgSsoIdentifier,
+              },
+            });
+          });
+        });
+
+        describe("Given the PM16117_SetInitialPasswordRefactor feature flag is OFF", () => {
+          it("does not navigate to the /set-password route when the user has key connector even if user has no master password", async () => {
+            mockConfigService.getFeatureFlag.mockResolvedValue(false);
+
+            selectedUserDecryptionOptions.next(
+              mockUserDecryptionOpts.noMasterPasswordWithKeyConnector,
+            );
+
+            await component.submit(token, remember);
+
+            expect(mockRouter.navigate).not.toHaveBeenCalledWith(["set-password"], {
+              queryParams: {
+                identifier: component.orgSsoIdentifier,
+              },
+            });
           });
         });
       });

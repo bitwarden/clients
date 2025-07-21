@@ -60,6 +60,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected maxWidth: "md" | "3xl";
   protected hasLoggedInAccount: boolean = false;
   protected hideFooter: boolean;
+  protected hideCardWrapper: boolean = false;
 
   protected theme: string;
   protected logo = Icons.ExtensionBitwardenLogo;
@@ -137,6 +138,10 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (firstChildRouteData["hideIcon"] !== undefined) {
       this.hideIcon = Boolean(firstChildRouteData["hideIcon"]);
     }
+
+    if (firstChildRouteData["hideCardWrapper"] !== undefined) {
+      this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
+    }
   }
 
   private listenForServiceDataChanges() {
@@ -177,6 +182,10 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.showReadonlyHostname = data.showReadonlyHostname;
     }
 
+    if (data.hideCardWrapper !== undefined) {
+      this.hideCardWrapper = data.hideCardWrapper;
+    }
+
     if (data.showAcctSwitcher !== undefined) {
       this.showAcctSwitcher = data.showAcctSwitcher;
     }
@@ -214,6 +223,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.showLogo = null;
     this.maxWidth = null;
     this.hideFooter = null;
+    this.hideIcon = null;
+    this.hideCardWrapper = null;
   }
 
   ngOnDestroy() {

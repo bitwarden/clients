@@ -1,18 +1,23 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom, from, map, mergeMap, Observable, switchMap, take } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -28,10 +33,9 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements DeprecatedVaultFilterServiceAbstraction {
-  private collapsedGroupingsState: ActiveUserState<string[]> =
-    this.stateProvider.getActive(COLLAPSED_GROUPINGS);
-  private readonly collapsedGroupings$: Observable<Set<string>> =
-    this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
+  private collapsedGroupingsState(userId: UserId): SingleUserState<string[]> {
+    return this.stateProvider.getUser(userId, COLLAPSED_GROUPINGS);
+  }
 
   constructor(
     protected organizationService: OrganizationService,
@@ -41,14 +45,21 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     protected policyService: PolicyService,
     protected stateProvider: StateProvider,
     protected accountService: AccountService,
+    protected configService: ConfigService,
+    protected i18nService: I18nService,
   ) {}
 
-  async storeCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
-    await this.collapsedGroupingsState.update(() => Array.from(collapsedFilterNodes));
+  async storeCollapsedFilterNodes(
+    collapsedFilterNodes: Set<string>,
+    userId: UserId,
+  ): Promise<void> {
+    await this.collapsedGroupingsState(userId).update(() => Array.from(collapsedFilterNodes));
   }
 
-  async buildCollapsedFilterNodes(): Promise<Set<string>> {
-    return await firstValueFrom(this.collapsedGroupings$);
+  async buildCollapsedFilterNodes(userId: UserId): Promise<Set<string>> {
+    return await firstValueFrom(
+      this.collapsedGroupingsState(userId).state$.pipe(map((c) => new Set(c))),
+    );
   }
 
   async buildOrganizations(): Promise<Organization[]> {
@@ -99,12 +110,20 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
 
   async buildCollections(organizationId?: string): Promise<DynamicTreeNode<CollectionView>> {
     const storedCollections = await this.collectionService.getAllDecrypted();
-    let collections: CollectionView[];
-    if (organizationId != null) {
-      collections = storedCollections.filter((c) => c.organizationId === organizationId);
-    } else {
-      collections = storedCollections;
+    const orgs = await this.buildOrganizations();
+    const defaulCollectionsFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.CreateDefaultLocation,
+    );
+
+    let collections =
+      organizationId == null
+        ? storedCollections
+        : storedCollections.filter((c) => c.organizationId === organizationId);
+
+    if (defaulCollectionsFlagEnabled) {
+      collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
     }
+
     const nestedCollections = await this.collectionService.getAllNested(collections);
     return new DynamicTreeNode<CollectionView>({
       fullList: collections,
@@ -123,12 +142,12 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     );
   }
 
-  async checkForPersonalOwnershipPolicy(): Promise<boolean> {
+  async checkForOrganizationDataOwnershipPolicy(): Promise<boolean> {
     return await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
       ),
     );
@@ -141,7 +160,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
       folderCopy.id = f.id;
       folderCopy.revisionDate = f.revisionDate;
       const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, null, NestingDelimiter);
+      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, undefined, NestingDelimiter);
     });
     return nodes;
   }
@@ -153,4 +172,32 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     );
     return ServiceUtils.getTreeNodeObjectFromList(folders, id) as TreeNode<FolderView>;
   }
+}
+
+/**
+ * Sorts collections with default user collections at the top, sorted by organization name.
+ * Remaining collections are sorted by name.
+ * @param collections - The list of collections to sort.
+ * @param orgs - The list of organizations to use for sorting default user collections.
+ * @returns Sorted list of collections.
+ */
+export function sortDefaultCollections(
+  collections: CollectionView[],
+  orgs: Organization[] = [],
+  collator: Intl.Collator,
+): CollectionView[] {
+  const sortedDefaultCollectionTypes = collections
+    .filter((c) => c.type === CollectionTypes.DefaultUserCollection)
+    .sort((a, b) => {
+      const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
+      const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
+      if (!aName || !bName) {
+        throw new Error("Collection does not have an organizationId.");
+      }
+      return collator.compare(aName, bName);
+    });
+  return [
+    ...sortedDefaultCollectionTypes,
+    ...collections.filter((c) => c.type !== CollectionTypes.DefaultUserCollection),
+  ];
 }

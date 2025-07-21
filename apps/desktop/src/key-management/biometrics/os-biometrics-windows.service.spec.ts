@@ -25,6 +25,7 @@ jest.mock("@bitwarden/desktop-napi", () => {
       available: jest.fn().mockResolvedValue(true),
       getBiometricSecret: jest.fn().mockResolvedValue(""),
       setBiometricSecret: jest.fn().mockResolvedValue(""),
+      deleteBiometricSecret: jest.fn(),
       deriveKeyMaterial: jest.fn().mockResolvedValue({
         keyB64: "",
         ivB64: "",
@@ -34,6 +35,8 @@ jest.mock("@bitwarden/desktop-napi", () => {
     passwords: {
       getPassword: jest.fn().mockResolvedValue(null),
       deletePassword: jest.fn().mockImplementation(() => {}),
+      isAvailable: jest.fn(),
+      PASSWORD_NOT_FOUND: "Password not found",
     },
   };
 });
@@ -45,6 +48,7 @@ describe("OsBiometricsServiceWindows", function () {
   const encryptionService: EncryptService = mock<EncryptService>();
   const cryptoFunctionService: CryptoFunctionService = mock<CryptoFunctionService>();
   const biometricStateService: BiometricStateService = mock<BiometricStateService>();
+  const logService = mock<LogService>();
 
   let service: OsBiometricsServiceWindows;
 
@@ -56,7 +60,6 @@ describe("OsBiometricsServiceWindows", function () {
   beforeEach(() => {
     windowMain.win = browserWindow;
 
-    const logService = mock<LogService>();
     service = new OsBiometricsServiceWindows(
       i18nService,
       windowMain,
@@ -239,10 +242,41 @@ describe("OsBiometricsServiceWindows", function () {
   });
 
   describe("deleteBiometricKey", () => {
-    it("should delete the biometric key", async () => {
+    const serviceName = "Bitwarden_biometric";
+    const keyName = "test-user-id_user_biometric";
+
+    it("should delete biometric key successfully", async () => {
       await service.deleteBiometricKey(userId);
 
-      expect(passwords.deletePassword).toHaveBeenCalledWith(serviceKey, storageKey);
+      expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
+    });
+
+    it.each([[false], [true]])("should not throw error if key found: %s", async (keyFound) => {
+      if (!keyFound) {
+        passwords.deletePassword = jest
+          .fn()
+          .mockRejectedValue(new Error(passwords.PASSWORD_NOT_FOUND));
+      }
+
+      await service.deleteBiometricKey(userId);
+
+      expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
+      if (!keyFound) {
+        expect(logService.debug).toHaveBeenCalledWith(
+          "[OsBiometricService] Biometric key %s not found for service %s.",
+          keyName,
+          serviceName,
+        );
+      }
+    });
+
+    it("should throw error when deletePassword for key throws unexpected errors", async () => {
+      const error = new Error("Unexpected error");
+      passwords.deletePassword = jest.fn().mockRejectedValue(error);
+
+      await expect(service.deleteBiometricKey(userId)).rejects.toThrow(error);
+
+      expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
     });
   });
 

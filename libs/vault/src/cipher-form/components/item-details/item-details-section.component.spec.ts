@@ -3,18 +3,24 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
 
-import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
+import {
+  CipherFormConfig,
+  OptionalInitialValues,
+} from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 import { ItemDetailsSectionComponent } from "./item-details-section.component";
@@ -25,7 +31,7 @@ const createMockCollection = (
   organizationId: string,
   readOnly = false,
   canEdit = true,
-) => {
+): CollectionView => {
   return {
     id,
     name,
@@ -36,6 +42,7 @@ const createMockCollection = (
     manage: true,
     assigned: true,
     type: CollectionTypes.DefaultUserCollection,
+    isDefaultCollection: true,
     canEditItems: jest.fn().mockReturnValue(canEdit),
     canEdit: jest.fn(),
     canDelete: jest.fn(),
@@ -48,6 +55,8 @@ describe("ItemDetailsSectionComponent", () => {
   let fixture: ComponentFixture<ItemDetailsSectionComponent>;
   let cipherFormProvider: MockProxy<CipherFormContainer>;
   let i18nService: MockProxy<I18nService>;
+  let mockConfigService: MockProxy<ConfigService>;
+  let mockPolicyService: MockProxy<PolicyService>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
   const getInitialCipherView = jest.fn(() => null);
@@ -66,12 +75,19 @@ describe("ItemDetailsSectionComponent", () => {
       compare: (a: string, b: string) => a.localeCompare(b),
     } as Intl.Collator;
 
+    mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+    mockPolicyService = mock<PolicyService>();
+    mockPolicyService.policiesByType$.mockReturnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
       providers: [
         { provide: CipherFormContainer, useValue: cipherFormProvider },
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: { activeAccount$ } },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: PolicyService, useValue: mockPolicyService },
       ],
     }).compileComponents();
 
@@ -93,8 +109,8 @@ describe("ItemDetailsSectionComponent", () => {
   });
 
   describe("ngOnInit", () => {
-    it("should throw an error if no organizations are available for ownership and personal ownership is not allowed", async () => {
-      component.config.allowPersonalOwnership = false;
+    it("should throw an error if no organizations are available for ownership and organization data ownership is enabled", async () => {
+      component.config.organizationDataOwnershipDisabled = false;
       component.config.organizations = [];
       await expect(component.ngOnInit()).rejects.toThrow(
         "No organizations available for ownership.",
@@ -102,7 +118,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should initialize form with default values if no originalCipher is provided", fakeAsync(async () => {
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       await component.ngOnInit();
       tick();
@@ -120,7 +136,7 @@ describe("ItemDetailsSectionComponent", () => {
     }));
 
     it("should initialize form with values from originalCipher if provided", fakeAsync(async () => {
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
         createMockCollection("col1", "Collection 1", "org1") as CollectionView,
@@ -150,7 +166,7 @@ describe("ItemDetailsSectionComponent", () => {
     }));
 
     it("should disable organizationId control if ownership change is not allowed", async () => {
-      component.config.allowPersonalOwnership = false;
+      component.config.organizationDataOwnershipDisabled = false;
       component.config.organizations = [{ id: "org1" } as Organization];
       jest.spyOn(component, "allowOwnershipChange", "get").mockReturnValue(false);
 
@@ -188,15 +204,15 @@ describe("ItemDetailsSectionComponent", () => {
       expect(component.allowOwnershipChange).toBe(false);
     });
 
-    it("should allow ownership change if personal ownership is allowed and there is at least one organization", () => {
-      component.config.allowPersonalOwnership = true;
+    it("should allow ownership change if organization data ownership is disabled and there is at least one organization", () => {
+      component.config.organizationDataOwnershipDisabled = true;
       component.config.organizations = [{ id: "org1", name: "org1" } as Organization];
       fixture.detectChanges();
       expect(component.allowOwnershipChange).toBe(true);
     });
 
-    it("should allow ownership change if personal ownership is not allowed but there is more than one organization", () => {
-      component.config.allowPersonalOwnership = false;
+    it("should allow ownership change if organization data ownership is enabled but there is more than one organization", () => {
+      component.config.organizationDataOwnershipDisabled = false;
       component.config.organizations = [
         { id: "org1", name: "org1" } as Organization,
         { id: "org2", name: "org2" } as Organization,
@@ -207,37 +223,37 @@ describe("ItemDetailsSectionComponent", () => {
   });
 
   describe("defaultOwner", () => {
-    it("should return null if personal ownership is allowed", () => {
-      component.config.allowPersonalOwnership = true;
+    it("should return null if organization data ownership is disabled", () => {
+      component.config.organizationDataOwnershipDisabled = true;
       expect(component.defaultOwner).toBeNull();
     });
 
-    it("should return the first organization id if personal ownership is not allowed", () => {
-      component.config.allowPersonalOwnership = false;
+    it("should return the first organization id if organization data ownership is enabled", () => {
+      component.config.organizationDataOwnershipDisabled = false;
       component.config.organizations = [{ id: "org1", name: "Organization 1" } as Organization];
       fixture.detectChanges();
       expect(component.defaultOwner).toBe("org1");
     });
   });
 
-  describe("showPersonalOwnerOption", () => {
-    it("should show personal ownership when the configuration allows", () => {
+  describe("showOrganizationDataOwnershipOption", () => {
+    it("should show organization data ownership when the configuration allows", () => {
       component.config.mode = "edit";
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       component.originalCipherView = {} as CipherView;
       component.config.organizations = [{ id: "134-433-22" } as Organization];
       fixture.detectChanges();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
-      const { value, label } = select.componentInstance.items[0];
+      const { value, label } = select.componentInstance.items()[0];
 
       expect(value).toBeNull();
       expect(label).toBe("test@example.com");
     });
 
-    it("should show personal ownership when the control is disabled", async () => {
+    it("should show organization data ownership when the control is disabled", async () => {
       component.config.mode = "edit";
-      component.config.allowPersonalOwnership = false;
+      component.config.organizationDataOwnershipDisabled = false;
       component.originalCipherView = {} as CipherView;
       component.config.organizations = [{ id: "134-433-22" } as Organization];
       await component.ngOnInit();
@@ -245,7 +261,7 @@ describe("ItemDetailsSectionComponent", () => {
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
 
-      const { value, label } = select.componentInstance.items[0];
+      const { value, label } = select.componentInstance.items()[0];
       expect(value).toBeNull();
       expect(label).toBe("test@example.com");
     });
@@ -253,7 +269,7 @@ describe("ItemDetailsSectionComponent", () => {
 
   describe("showOwnership", () => {
     it("should return true if ownership change is allowed or in edit mode with at least one organization", () => {
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       jest.spyOn(component, "allowOwnershipChange", "get").mockReturnValue(true);
       expect(component.showOwnership).toBe(true);
 
@@ -265,7 +281,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should hide the ownership control if showOwnership is false", async () => {
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       jest.spyOn(component, "showOwnership", "get").mockReturnValue(false);
       fixture.detectChanges();
       await fixture.whenStable();
@@ -276,7 +292,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should show the ownership control if showOwnership is true", async () => {
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       jest.spyOn(component, "allowOwnershipChange", "get").mockReturnValue(true);
       fixture.detectChanges();
       await fixture.whenStable();
@@ -293,7 +309,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should append '- Clone' to the title if in clone mode", async () => {
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       const cipher = {
         name: "cipher1",
         organizationId: null,
@@ -312,7 +328,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("does not append clone when the cipher was populated from the cache", async () => {
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       const cipher = {
         name: "from cache cipher",
         organizationId: null,
@@ -332,8 +348,8 @@ describe("ItemDetailsSectionComponent", () => {
       expect(component.itemDetailsForm.controls.name.value).toBe("from cache cipher");
     });
 
-    it("should select the first organization if personal ownership is not allowed", async () => {
-      component.config.allowPersonalOwnership = false;
+    it("should select the first organization if organization data ownership is enabled", async () => {
+      component.config.organizationDataOwnershipDisabled = false;
       component.config.organizations = [
         { id: "org1", name: "org1" } as Organization,
         { id: "org2", name: "org2" } as Organization,
@@ -354,7 +370,7 @@ describe("ItemDetailsSectionComponent", () => {
 
   describe("collectionOptions", () => {
     it("should reset and disable/hide collections control when no organization is selected", async () => {
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       component.itemDetailsForm.controls.organizationId.setValue(null);
 
       fixture.detectChanges();
@@ -369,8 +385,8 @@ describe("ItemDetailsSectionComponent", () => {
       expect(collectionSelect).toBeNull();
     });
 
-    it("should enable/show collection control when an organization is selected", async () => {
-      component.config.allowPersonalOwnership = true;
+    it("should enable/show collection control when an organization is selected", fakeAsync(() => {
+      component.config.organizationDataOwnershipDisabled = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
         createMockCollection("col1", "Collection 1", "org1") as CollectionView,
@@ -378,12 +394,12 @@ describe("ItemDetailsSectionComponent", () => {
       ];
 
       fixture.detectChanges();
-      await fixture.whenStable();
+      tick();
 
       component.itemDetailsForm.controls.organizationId.setValue("org1");
 
+      tick();
       fixture.detectChanges();
-      await fixture.whenStable();
 
       const collectionSelect = fixture.nativeElement.querySelector(
         "bit-multi-select[formcontrolname='collectionIds']",
@@ -391,7 +407,7 @@ describe("ItemDetailsSectionComponent", () => {
 
       expect(component.itemDetailsForm.controls.collectionIds.enabled).toBe(true);
       expect(collectionSelect).not.toBeNull();
-    });
+    }));
 
     it("should set collectionIds to originalCipher collections on first load", async () => {
       component.config.mode = "clone";
@@ -421,7 +437,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should automatically select the first collection if only one is available", async () => {
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
         createMockCollection("col1", "Collection 1", "org1") as CollectionView,
@@ -475,7 +491,7 @@ describe("ItemDetailsSectionComponent", () => {
 
     it("should allow all collections to be altered when `config.admin` is true", async () => {
       component.config.admin = true;
-      component.config.allowPersonalOwnership = true;
+      component.config.organizationDataOwnershipDisabled = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
         createMockCollection("col1", "Collection 1", "org1", true, false) as CollectionView,
@@ -488,10 +504,12 @@ describe("ItemDetailsSectionComponent", () => {
 
       component.itemDetailsForm.controls.organizationId.setValue("org1");
 
+      fixture.detectChanges();
+      await fixture.whenStable();
+
       expect(component["collectionOptions"].map((c) => c.id)).toEqual(["col1", "col2", "col3"]);
     });
   });
-
   describe("readonlyCollections", () => {
     beforeEach(() => {
       component.config.mode = "edit";
@@ -544,9 +562,32 @@ describe("ItemDetailsSectionComponent", () => {
       fixture.detectChanges();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
-      const { label } = select.componentInstance.items[0];
+      const { label } = select.componentInstance.items()[0];
 
       expect(label).toBe("org1");
+    });
+  });
+
+  describe("getDefaultCollectionId", () => {
+    it("returns matching default when flag & policy match", async () => {
+      const def = createMockCollection("def1", "Def", "orgA");
+      component.config.collections = [def] as CollectionView[];
+      component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));
+
+      const id = await (component as any).getDefaultCollectionId("orgA");
+      expect(id).toEqual("def1");
+    });
+
+    it("returns undefined when no default found", async () => {
+      component.config.collections = [createMockCollection("c1", "C1", "orgB")] as CollectionView[];
+      component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));
+
+      const result = await (component as any).getDefaultCollectionId("orgA");
+      expect(result).toBeUndefined();
     });
   });
 });

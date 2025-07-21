@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Kopiér bekræftelseskode (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Længde"
   },
@@ -1425,6 +1439,9 @@
     "message": "Kopiér bekræftelseskode",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "Premium-medlemskab"
   },
@@ -1715,6 +1732,12 @@
   },
   "accountRestricted": {
     "message": "Konto begrænset"
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“Filadgangskode” og “Bekræft filadgangskode“ matcher ikke."
@@ -2386,6 +2409,9 @@
   "passwordConfirmationDesc": {
     "message": "Denne handling er beskyttet. For at fortsætte, så bekræft din identitet ved at angive din hovedadgangskode igen."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "Hovedadgangskode opdateret"
   },
@@ -2397,6 +2423,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Din hovedadgangskode overholder ikke en eller flere organisationspolitikker. For at få adgang til boksen skal hovedadgangskode opdateres nu. Fortsættes, logges du ud af den nuværende session og vil skulle logger ind igen. Aktive sessioner på andre enheder kan forblive aktive i op til én time."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Organisationen har deaktiveret betroet enhedskryptering. Opsæt en hovedadgangskode for at tilgå boksen."
@@ -3135,6 +3170,12 @@
   "requestAdminApproval": {
     "message": "Anmod om admin-godkendelse"
   },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+  },
   "region": {
     "message": "Region"
   },
@@ -3525,6 +3566,30 @@
   "commonImportFormats": {
     "message": "Almindelige formater",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Gennemført"
@@ -3949,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

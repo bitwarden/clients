@@ -9,18 +9,15 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
-
-import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
-import { OrganizationInvite } from "../../../organization-invite/organization-invite";
 
 import { WebRegistrationFinishService } from "./web-registration-finish.service";
 
@@ -29,30 +26,29 @@ describe("WebRegistrationFinishService", () => {
 
   let keyService: MockProxy<KeyService>;
   let accountApiService: MockProxy<AccountApiService>;
-  let acceptOrgInviteService: MockProxy<AcceptOrganizationInviteService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let logService: MockProxy<LogService>;
   let policyService: MockProxy<PolicyService>;
-  const mockUserId = Utils.newGuid() as UserId;
-  let accountService: FakeAccountService;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
     accountApiService = mock<AccountApiService>();
-    acceptOrgInviteService = mock<AcceptOrganizationInviteService>();
+    organizationInviteService = mock<OrganizationInviteService>();
     policyApiService = mock<PolicyApiServiceAbstraction>();
     logService = mock<LogService>();
     policyService = mock<PolicyService>();
-    accountService = mockAccountServiceWith(mockUserId);
+    configService = mock<ConfigService>();
 
     service = new WebRegistrationFinishService(
       keyService,
       accountApiService,
-      acceptOrgInviteService,
+      organizationInviteService,
       policyApiService,
       logService,
       policyService,
-      accountService,
+      configService,
     );
   });
 
@@ -72,21 +68,21 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("returns null when the org invite is null", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
       const result = await service.getOrgNameFromOrgInvite();
 
       expect(result).toBeNull();
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
 
     it("returns the organization name from the organization invite when it exists", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
       const result = await service.getOrgNameFromOrgInvite();
 
       expect(result).toEqual(orgInvite.organizationName);
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
   });
 
@@ -102,22 +98,22 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("returns null when the org invite is null", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
 
     it("returns null when the policies are null", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
       policyApiService.getPoliciesByToken.mockResolvedValue(null);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
         orgInvite.organizationId,
         orgInvite.token,
@@ -127,13 +123,13 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("logs an error and returns null when policies cannot be fetched", async () => {
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
       policyApiService.getPoliciesByToken.mockRejectedValue(new Error("error"));
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
         orgInvite.organizationId,
         orgInvite.token,
@@ -147,14 +143,14 @@ describe("WebRegistrationFinishService", () => {
       const masterPasswordPolicies = [new Policy()];
       const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
 
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
       policyApiService.getPoliciesByToken.mockResolvedValue(masterPasswordPolicies);
       policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toEqual(masterPasswordPolicyOptions);
-      expect(acceptOrgInviteService.getOrganizationInvite).toHaveBeenCalled();
+      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
         orgInvite.organizationId,
         orgInvite.token,
@@ -221,7 +217,7 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
@@ -257,7 +253,7 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
       await service.finishRegistration(email, passwordInputResult);
 
@@ -293,7 +289,7 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
       await service.finishRegistration(
         email,
@@ -334,7 +330,7 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
       await service.finishRegistration(
         email,
@@ -377,7 +373,7 @@ describe("WebRegistrationFinishService", () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
-      acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
       await service.finishRegistration(
         email,
@@ -416,6 +412,24 @@ describe("WebRegistrationFinishService", () => {
           providerUserId: providerUserId,
         }),
       );
+    });
+  });
+
+  describe("determineLoginSuccessRoute", () => {
+    it("returns /setup-extension when the end user activation feature flag is enabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      const result = await service.determineLoginSuccessRoute();
+
+      expect(result).toBe("/setup-extension");
+    });
+
+    it("returns /vault when the end user activation feature flag is disabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      const result = await service.determineLoginSuccessRoute();
+
+      expect(result).toBe("/vault");
     });
   });
 });

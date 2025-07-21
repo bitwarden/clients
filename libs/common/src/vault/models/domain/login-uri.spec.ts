@@ -5,8 +5,8 @@ import { UriMatchType } from "@bitwarden/sdk-internal";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { LoginUriData } from "../data/login-uri.data";
 
 import { LoginUri } from "./login-uri";

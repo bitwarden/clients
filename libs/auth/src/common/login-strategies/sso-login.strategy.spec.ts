@@ -5,11 +5,14 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
@@ -19,6 +22,7 @@ import {
 } from "@bitwarden/common/key-management/vault-timeout";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -66,6 +70,7 @@ describe("SsoLoginStrategy", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
+  let configService: MockProxy<ConfigService>;
 
   let ssoLoginStrategy: SsoLoginStrategy;
   let credentials: SsoLoginCredentials;
@@ -102,6 +107,7 @@ describe("SsoLoginStrategy", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
+    configService = mock<ConfigService>();
 
     tokenService.getTwoFactorToken.mockResolvedValue(null);
     appIdService.getAppId.mockResolvedValue(deviceId);
@@ -150,6 +156,7 @@ describe("SsoLoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
+      configService,
     );
     credentials = new SsoLoginCredentials(ssoCode, ssoCodeVerifier, ssoRedirectUrl, ssoOrgId);
   });
@@ -201,6 +208,45 @@ describe("SsoLoginStrategy", () => {
       tokenResponse.key,
       userId,
     );
+  });
+
+  describe("given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
+    beforeEach(() => {
+      configService.getFeatureFlag.mockImplementation(async (flag) => {
+        if (flag === FeatureFlag.PM16117_SetInitialPasswordRefactor) {
+          return true;
+        }
+        return false;
+      });
+    });
+
+    describe("given the user does not have the `trustedDeviceOption`, does not have a master password, is not using key connector, does not have a user key, but they DO have a `userKeyEncryptedPrivateKey`", () => {
+      it("should set the forceSetPasswordReason to TdeOffboardingUntrustedDevice", async () => {
+        // Arrange
+        const mockUserDecryptionOptions: IUserDecryptionOptionsServerResponse = {
+          HasMasterPassword: false,
+          TrustedDeviceOption: null,
+          KeyConnectorOption: null,
+        };
+        const tokenResponse = identityTokenResponseFactory(null, mockUserDecryptionOptions);
+        apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+        keyService.userEncryptedPrivateKey$.mockReturnValue(
+          of("userKeyEncryptedPrivateKey" as EncryptedString),
+        );
+        keyService.hasUserKey.mockResolvedValue(false);
+
+        // Act
+        await ssoLoginStrategy.logIn(credentials);
+
+        // Assert
+        expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledTimes(1);
+        expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
+          ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
+          userId,
+        );
+      });
+    });
   });
 
   describe("Trusted Device Decryption", () => {

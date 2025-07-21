@@ -1,9 +1,9 @@
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
@@ -101,7 +101,19 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   }
 
   async deleteBiometricKey(userId: UserId): Promise<void> {
-    await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId));
+    try {
+      await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId));
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(
+          "[OsBiometricService] Biometric key %s not found for service %s.",
+          getLookupKeyForUser(userId),
+          SERVICE,
+        );
+      } else {
+        throw e;
+      }
+    }
   }
 
   /**
