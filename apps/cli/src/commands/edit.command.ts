@@ -114,7 +114,7 @@ export class EditCommand {
     );
 
     if (isPersonalVaultItem && organizationOwnershipPolicyApplies) {
-      // we need a fresh copy of the cipher from the server to compare
+      // we need a fresh copy of the original cipher to compare
       const fetchedCipher = await this.cipherService.get(id, activeUserId);
       const fetchedCipherView = await this.cipherService.decrypt(fetchedCipher, activeUserId);
       const updatedCipherView = CipherExport.toView(req, cipherView);
@@ -125,11 +125,9 @@ export class EditCommand {
         })
         .map(([key]) => key);
 
-      const hasIllegalEdit = modifiedFields.some((field) => field !== "organizationId");
-
-      if (hasIllegalEdit) {
+      if (modifiedFields.length > 0) {
         return Response.error(
-          "Due to organizational policy, you may only change the owner (organization) of this item.",
+          "An organization policy restricts editing this cipher. Please use the share command first before modifying it.",
         );
       }
     }

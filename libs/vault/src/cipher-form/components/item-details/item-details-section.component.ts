@@ -88,14 +88,6 @@ export class ItemDetailsSectionComponent implements OnInit {
   @Input()
   originalCipherView: CipherView;
 
-  @Input()
-  disableForm: () => void;
-
-  @Input()
-  enableForm: () => void;
-
-  formEnabled: boolean = false;
-
   get readOnlyCollectionsNames(): string[] {
     return this.readOnlyCollections.map((c) => c.name);
   }
@@ -231,60 +223,32 @@ export class ItemDetailsSectionComponent implements OnInit {
     if (!this.allowOwnershipChange) {
       this.itemDetailsForm.controls.organizationId.disable();
     }
-    await this.setFormStatus(true);
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        concatMap(async () => {
-          await this.updateCollectionOptions();
-          // Prevent infinite loop if the form is already enabled as enabling the form causes valueChanges to emit
-          if (this.formEnabled) {
-            return;
-          }
-          await this.setFormStatus();
-        }),
+        concatMap(async () => await this.updateCollectionOptions()),
       )
       .subscribe();
-  }
-
-  private async setFormStatus(init = false) {
-    if (
-      !this.itemDetailsForm.controls.organizationId.value &&
-      (await this.organizationDataOwnershipPolicyAppliesToUser())
-    ) {
-      this.disableForm();
-      this.itemDetailsForm.controls.organizationId.enable();
-    } else if (!init) {
-      this.enableForm();
-      this.formEnabled = true;
-    }
-  }
-
-  private async organizationDataOwnershipPolicyAppliesToUser() {
-    const isFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CreateDefaultLocation,
-    );
-    if (!isFeatureEnabled) {
-      return;
-    }
-    return await firstValueFrom(
-      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, this.userId),
-    );
   }
 
   /**
    * Gets the default collection IDs for the selected organization.
    * Returns null if any of the following apply:
    * - the feature flag is disabled
+   * - the "no private data policy" doesn't apply to the user
    * - no org is currently selected
    * - the selected org doesn't have the "no private data policy" enabled
    */
   private async getDefaultCollectionId(orgId?: OrganizationId) {
-    if (!orgId) {
+    if (!orgId || !this.config.organizationDataOwnershipDisabled) {
       return;
     }
 
-    if (!(await this.organizationDataOwnershipPolicyAppliesToUser())) {
+    const isFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.CreateDefaultLocation,
+    );
+
+    if (!isFeatureEnabled) {
       return;
     }
 
