@@ -28,7 +28,11 @@ type DialogResult =
           {{ "changePaymentMethod" | i18n }}
         </span>
         <div bitDialogContent>
-          <app-enter-payment-method [group]="formGroup" [includeBillingAddress]="true">
+          <app-enter-payment-method
+            [group]="formGroup"
+            [showBankAccount]="dialogParams.owner.type !== 'account'"
+            [includeBillingAddress]="true"
+          >
           </app-enter-payment-method>
         </div>
         <ng-container bitDialogFooter>
