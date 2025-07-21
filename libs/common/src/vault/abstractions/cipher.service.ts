@@ -120,11 +120,21 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     orgAdmin?: boolean,
     isNotClone?: boolean,
   ): Promise<Cipher>;
+
+  /**
+   * Move a cipher to an organization by re-encrypting its keys with the organization's key.
+   * @param cipher The cipher to move
+   * @param organizationId The Id of the organization to move the cipher to
+   * @param collectionIds The collection Ids to assign the cipher to in the organization
+   * @param userId The Id of the user performing the operation
+   * @param originalCipher Optional original cipher that will be used to compare/update password history
+   */
   abstract shareWithServer(
     cipher: CipherView,
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
+    originalCipher?: Cipher,
   ): Promise<Cipher>;
   abstract shareManyWithServer(
     ciphers: CipherView[],
