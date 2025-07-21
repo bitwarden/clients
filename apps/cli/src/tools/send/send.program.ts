@@ -11,7 +11,6 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 
 import { BaseProgram } from "../../base-program";
 import { Response } from "../../models/response";
-import { TemplateResponse } from "../../models/response/template.response";
 import { CliUtils } from "../../utils";
 
 import {
@@ -22,6 +21,7 @@ import {
   SendListCommand,
   SendReceiveCommand,
   SendRemovePasswordCommand,
+  SendTemplateCommand,
 } from "./commands";
 import { SendFileResponse } from "./models/send-file.response";
 import { SendTextResponse } from "./models/send-text.response";
@@ -53,7 +53,7 @@ export class SendProgram extends BaseProgram {
         new Option(
           "--password <password>",
           "optional password to access this Send. Can also be specified in JSON.",
-        ).conflicts("emails"),
+        ).conflicts("email"),
       )
       .option(
         "--email <email>",
@@ -151,31 +151,7 @@ export class SendProgram extends BaseProgram {
     return new Command("template")
       .argument("<object>", "Valid objects are: send.text, send.file")
       .description("Get json templates for send objects")
-      .action((object) => {
-        let template: SendResponse | undefined;
-        let response: Response;
-
-        switch (object) {
-          case "send.text":
-          case "text":
-            template = SendResponse.template(SendType.Text);
-            break;
-          case "send.file":
-          case "file":
-            template = SendResponse.template(SendType.File);
-            break;
-          default:
-            response = Response.badRequest("Unknown template object.");
-        }
-
-        if (template) {
-          response = Response.success(new TemplateResponse(template));
-        }
-
-        response ??= Response.badRequest("An error occurred while retrieving the template.");
-
-        this.processResponse(response);
-      });
+      .action((object) => this.processResponse(new SendTemplateCommand().run()));
   }
 
   private getCommand(): Command {
