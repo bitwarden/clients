@@ -1,10 +1,10 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { Guid } from "@bitwarden/common/types/guid";
+import { OrganizationIntegrationId } from "@bitwarden/common/types/guid";
 
 import { OrganizationIntegrationType } from "./organization-integration-type";
 
 export class OrganizationIntegrationResponse extends BaseResponse {
-  id: Guid;
+  id: OrganizationIntegrationId;
   organizationIntegrationType: OrganizationIntegrationType;
 
   constructor(response: any) {

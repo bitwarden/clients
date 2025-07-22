@@ -5,11 +5,12 @@ import { OrganizationId, OrganizationIntegrationId } from "@bitwarden/common/typ
 
 import { OrganizationIntegrationRequest } from "../models/organization-integration-request";
 import { OrganizationIntegrationType } from "../models/organization-integration-type";
-import { OrganizationIntegrationApiService } from "../organization-integration-api.service";
+
+import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
 
 export const mockIntegrationResponse: any = {
-  id: "1",
-  organizationIntegratipnType: 5,
+  id: "1" as OrganizationIntegrationId,
+  organizationIntegrationType: OrganizationIntegrationType.Hec,
 };
 
 describe("OrganizationIntegrationApiService", () => {

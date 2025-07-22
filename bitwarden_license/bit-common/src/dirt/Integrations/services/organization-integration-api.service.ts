@@ -3,8 +3,8 @@ import { Injectable } from "@angular/core";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId, OrganizationIntegrationId } from "@bitwarden/common/types/guid";
 
-import { OrganizationIntegrationRequest } from "./models/organization-integration-request";
-import { OrganizationIntegrationResponse } from "./models/organization-integration-response";
+import { OrganizationIntegrationRequest } from "../models/organization-integration-request";
+import { OrganizationIntegrationResponse } from "../models/organization-integration-response";
 
 @Injectable()
 export class OrganizationIntegrationApiService {
