@@ -233,48 +233,6 @@ describe("WebCrypto Function Service", () => {
     });
   });
 
-  describe("aesEncrypt CBC mode", () => {
-    it("should successfully encrypt data", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const iv = makeStaticByteArray(16);
-      const key = makeStaticByteArray(32);
-      const data = Utils.fromUtf8ToArray("EncryptMe!");
-      const encValue = await cryptoFunctionService.aesEncrypt(data, iv, key);
-      expect(Utils.fromBufferToB64(encValue)).toBe("ByUF8vhyX4ddU9gcooznwA==");
-    });
-
-    it("should successfully encrypt and then decrypt data fast", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const iv = makeStaticByteArray(16);
-      const key = makeStaticByteArray(32);
-      const value = "EncryptMe!";
-      const data = Utils.fromUtf8ToArray(value);
-      const encValue = await cryptoFunctionService.aesEncrypt(data, iv, key);
-      const encData = Utils.fromBufferToB64(encValue);
-      const b64Iv = Utils.fromBufferToB64(iv);
-      const symKey = new SymmetricCryptoKey(key);
-      const parameters = cryptoFunctionService.aesDecryptFastParameters(
-        encData,
-        b64Iv,
-        null,
-        symKey,
-      );
-      const decValue = await cryptoFunctionService.aesDecryptFast({ mode: "cbc", parameters });
-      expect(decValue).toBe(value);
-    });
-
-    it("should successfully encrypt and then decrypt data", async () => {
-      const cryptoFunctionService = getWebCryptoFunctionService();
-      const iv = makeStaticByteArray(16);
-      const key = makeStaticByteArray(32);
-      const value = "EncryptMe!";
-      const data = Utils.fromUtf8ToArray(value);
-      const encValue = new Uint8Array(await cryptoFunctionService.aesEncrypt(data, iv, key));
-      const decValue = await cryptoFunctionService.aesDecrypt(encValue, iv, key, "cbc");
-      expect(Utils.fromBufferToUtf8(decValue)).toBe(value);
-    });
-  });
-
   describe("aesDecryptFast CBC mode", () => {
     it("should successfully decrypt data", async () => {
       const cryptoFunctionService = getWebCryptoFunctionService();

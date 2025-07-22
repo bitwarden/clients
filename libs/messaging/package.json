@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/messaging",
+  "version": "0.0.1",
+  "description": "Services for sending and recieving messages from different contexts of the same application.",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}

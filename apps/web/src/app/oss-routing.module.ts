@@ -610,7 +610,7 @@ const routes: Routes = [
         data: {
           hideCardWrapper: true,
           hideIcon: true,
-          maxWidth: "3xl",
+          maxWidth: "4xl",
         } satisfies AnonLayoutWrapperData,
         children: [
           {

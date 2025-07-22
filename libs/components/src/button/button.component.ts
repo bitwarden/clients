@@ -1,20 +1,9 @@
 import { NgClass } from "@angular/common";
-import {
-  HostBinding,
-  Component,
-  model,
-  computed,
-  input,
-  ElementRef,
-  inject,
-  Signal,
-  booleanAttribute,
-} from "@angular/core";
+import { input, HostBinding, Component, model, computed, booleanAttribute } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
-import { ariaDisableElement } from "../utils";
 
 const focusRing = [
   "focus-visible:tw-ring-2",
@@ -62,7 +51,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
   imports: [NgClass],
   host: {
-    "[attr.aria-disabled]": "disabledAttr()",
+    "[attr.disabled]": "disabledAttr()",
   },
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
@@ -79,28 +68,27 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       "focus:tw-outline-none",
     ]
       .concat(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
+      .concat(buttonStyles[this.buttonType() ?? "secondary"])
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
-              "aria-disabled:!tw-bg-secondary-300",
-              "hover:tw-bg-secondary-300",
-              "aria-disabled:tw-border-secondary-300",
-              "hover:tw-border-secondary-300",
-              "aria-disabled:!tw-text-muted",
-              "hover:!tw-text-muted",
-              "aria-disabled:tw-cursor-not-allowed",
-              "hover:tw-no-underline",
-              "aria-disabled:tw-pointer-events-none",
+              "disabled:tw-bg-secondary-300",
+              "disabled:hover:tw-bg-secondary-300",
+              "disabled:tw-border-secondary-300",
+              "disabled:hover:tw-border-secondary-300",
+              "disabled:!tw-text-muted",
+              "disabled:hover:!tw-text-muted",
+              "disabled:tw-cursor-not-allowed",
+              "disabled:hover:tw-no-underline",
             ]
           : [],
       )
-      .concat(buttonStyles[this.buttonType() ?? "secondary"])
       .concat(buttonSizeStyles[this.size() || "default"]);
   }
 
   protected disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
-    return disabled || this.loading() ? true : undefined;
+    return disabled || this.loading() ? true : null;
   });
 
   /**
@@ -139,10 +127,5 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
 
-  readonly disabled = model<boolean>(false);
-  private el = inject(ElementRef<HTMLButtonElement>);
-
-  constructor() {
-    ariaDisableElement(this.el.nativeElement, this.disabledAttr as Signal<boolean | undefined>);
-  }
+  disabled = model<boolean>(false);
 }
