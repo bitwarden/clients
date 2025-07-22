@@ -231,13 +231,14 @@ export class CipherService implements CipherServiceAbstraction {
     this.clearCipherViewsForUser$.next(userId);
   }
 
-  async encrypt(
-    model: CipherView,
-    userId: UserId,
-    keyForCipherEncryption?: SymmetricCryptoKey,
-    keyForCipherKeyDecryption?: SymmetricCryptoKey,
-    originalCipher: Cipher = null,
-  ): Promise<EncryptionContext> {
+  /**
+   * Adjusts the cipher history for the given model by updating its history properties based on the original cipher.
+   * @param model The cipher model to adjust.
+   * @param userId The acting userId
+   * @param originalCipher The original cipher to compare against. If not provided, it will be fetched from the store.
+   * @private
+   */
+  private async adjustCipherHistory(model: CipherView, userId: UserId, originalCipher?: Cipher) {
     if (model.id != null) {
       if (originalCipher == null) {
         originalCipher = await this.get(model.id, userId);
@@ -246,6 +247,25 @@ export class CipherService implements CipherServiceAbstraction {
         await this.updateModelfromExistingCipher(model, originalCipher, userId);
       }
       this.adjustPasswordHistoryLength(model);
+    }
+  }
+
+  async encrypt(
+    model: CipherView,
+    userId: UserId,
+    keyForCipherEncryption?: SymmetricCryptoKey,
+    keyForCipherKeyDecryption?: SymmetricCryptoKey,
+    originalCipher: Cipher = null,
+  ): Promise<EncryptionContext> {
+    await this.adjustCipherHistory(model, userId, originalCipher);
+
+    const sdkEncryptionEnabled =
+      (await this.configService.getFeatureFlag(FeatureFlag.PM22136_SdkCipherEncryption)) &&
+      keyForCipherEncryption == null && // PM-23085 - SDK encryption does not currently support custom keys (e.g. key rotation)
+      keyForCipherKeyDecryption == null; // PM-23348 - Or has explicit methods for re-encrypting ciphers with different keys (e.g. move to org)
+
+    if (sdkEncryptionEnabled) {
+      return await this.cipherEncryptionService.encrypt(model, userId);
     }
 
     const cipher = new Cipher();
@@ -854,22 +874,48 @@ export class CipherService implements CipherServiceAbstraction {
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
+    originalCipher?: Cipher,
   ): Promise<Cipher> {
-    const attachmentPromises: Promise<any>[] = [];
-    if (cipher.attachments != null) {
-      cipher.attachments.forEach((attachment) => {
-        if (attachment.key == null) {
-          attachmentPromises.push(
-            this.shareAttachmentWithServer(attachment, cipher.id, organizationId),
-          );
-        }
-      });
-    }
-    await Promise.all(attachmentPromises);
+    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM22136_SdkCipherEncryption,
+    );
 
-    cipher.organizationId = organizationId;
-    cipher.collectionIds = collectionIds;
-    const encCipher = await this.encryptSharedCipher(cipher, userId);
+    await this.adjustCipherHistory(cipher, userId, originalCipher);
+
+    let encCipher: EncryptionContext;
+    if (sdkCipherEncryptionEnabled) {
+      // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
+      // cipher encryption key being used during the move to organization operation.
+      if (cipher.organizationId != null) {
+        throw new Error("Cipher is already associated with an organization.");
+      }
+
+      encCipher = await this.cipherEncryptionService.moveToOrganization(
+        cipher,
+        organizationId as OrganizationId,
+        userId,
+      );
+      encCipher.cipher.collectionIds = collectionIds;
+    } else {
+      // This old attachment logic is safe to remove after it is replaced in PM-22750; which will require fixing
+      // the attachment before sharing.
+      const attachmentPromises: Promise<any>[] = [];
+      if (cipher.attachments != null) {
+        cipher.attachments.forEach((attachment) => {
+          if (attachment.key == null) {
+            attachmentPromises.push(
+              this.shareAttachmentWithServer(attachment, cipher.id, organizationId),
+            );
+          }
+        });
+      }
+      await Promise.all(attachmentPromises);
+
+      cipher.organizationId = organizationId;
+      cipher.collectionIds = collectionIds;
+      encCipher = await this.encryptSharedCipher(cipher, userId);
+    }
+
     const request = new CipherShareRequest(encCipher);
     const response = await this.apiService.putShareCipher(cipher.id, request);
     const data = new CipherData(response, collectionIds);
@@ -883,16 +929,36 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: string[],
     userId: UserId,
   ) {
+    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM22136_SdkCipherEncryption,
+    );
     const promises: Promise<any>[] = [];
     const encCiphers: Cipher[] = [];
     for (const cipher of ciphers) {
-      cipher.organizationId = organizationId;
-      cipher.collectionIds = collectionIds;
-      promises.push(
-        this.encryptSharedCipher(cipher, userId).then((c) => {
-          encCiphers.push(c.cipher);
-        }),
-      );
+      if (sdkCipherEncryptionEnabled) {
+        // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
+        // cipher encryption key being used during the move to organization operation.
+        if (cipher.organizationId != null) {
+          throw new Error("Cipher is already associated with an organization.");
+        }
+
+        promises.push(
+          this.cipherEncryptionService
+            .moveToOrganization(cipher, organizationId as OrganizationId, userId)
+            .then((encCipher) => {
+              encCipher.cipher.collectionIds = collectionIds;
+              encCiphers.push(encCipher.cipher);
+            }),
+        );
+      } else {
+        cipher.organizationId = organizationId;
+        cipher.collectionIds = collectionIds;
+        promises.push(
+          this.encryptSharedCipher(cipher, userId).then((c) => {
+            encCiphers.push(c.cipher);
+          }),
+        );
+      }
     }
     await Promise.all(promises);
     const request = new CipherBulkShareRequest(encCiphers, collectionIds, userId);

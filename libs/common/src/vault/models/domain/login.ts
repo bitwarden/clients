@@ -163,4 +163,31 @@ export class Login extends Domain {
       fido2Credentials: this.fido2Credentials?.map((f) => f.toSdkFido2Credential()),
     };
   }
+
+  /**
+   * Maps an SDK Login object to a Login
+   * @param obj - The SDK Login object
+   */
+  static fromSdkLogin(obj: SdkLogin): Login | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const login = new Login();
+
+    login.uris =
+      obj.uris?.filter((u) => u.uri != null).map((uri) => LoginUri.fromSdkLoginUri(uri)) ?? [];
+    login.username = EncString.fromJSON(obj.username);
+    login.password = EncString.fromJSON(obj.password);
+    login.passwordRevisionDate = obj.passwordRevisionDate
+      ? new Date(obj.passwordRevisionDate)
+      : undefined;
+    login.totp = EncString.fromJSON(obj.totp);
+    login.autofillOnPageLoad = obj.autofillOnPageLoad ?? false;
+    login.fido2Credentials = obj.fido2Credentials?.map((f) =>
+      Fido2Credential.fromSdkFido2Credential(f),
+    );
+
+    return login;
+  }
 }
