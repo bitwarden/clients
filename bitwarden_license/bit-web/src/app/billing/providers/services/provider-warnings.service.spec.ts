@@ -174,6 +174,7 @@ describe("ProviderWarningsService", () => {
           acceptButtonText: "contactSupportShort",
           cancelButtonText: null,
           acceptAction: expect.any(Function),
+          disableCloseOnAccept: true,
         });
         done();
       });
