@@ -821,6 +821,7 @@ export class ServiceContainer {
       this.pinService,
       this.accountService,
       this.sdkService,
+      this.restrictedItemTypesService,
     );
 
     this.individualExportService = new IndividualVaultExportService(
