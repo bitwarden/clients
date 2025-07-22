@@ -74,12 +74,12 @@ export class ItemMoreOptionsComponent {
     this._cipher$,
     this.restrictedItemTypesService.restricted$,
   ).pipe(
-    switchMap(([c, restrictedCard]) => {
-      // If user belongs to any org with Restricted Card Policy enabled do not allow cloning of cards
-      const restrictedCardCheck = restrictedCard.some(
-        (restrictType) => restrictType.cipherType === CipherType.Card && c.type === CipherType.Card,
+    switchMap(([c, restrictedTypes]) => {
+      // This will check for restrictions from org policies before allowing cloning.
+      const isItemRestricted = restrictedTypes.some(
+        (restrictType) => restrictType.cipherType === c.type,
       );
-      if (c != null && !restrictedCardCheck) {
+      if (c != null && !isItemRestricted) {
         return this.cipherAuthorizationService.canCloneCipher$(c);
       }
       return new BehaviorSubject(false);

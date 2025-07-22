@@ -7,7 +7,6 @@ import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -284,11 +283,11 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   // TODO: PM-13944 Refactor to use cipherAuthorizationService.canClone$ instead
   protected canClone(vaultItem: VaultItem<C>) {
-    // If the user belongs to any orgs that have the restricted card policy enabled, don't allow cloning for card items
-    const isCardRestricted = this.checkRestrictedPolicies().some(
-      (rt) => rt.cipherType === CipherType.Card,
+    // This will check for restrictions from org policies before allowing cloning.
+    const isItemRestricted = this.checkRestrictedPolicies().some(
+      (rt) => rt.cipherType === vaultItem.cipher.type,
     );
-    if (isCardRestricted && vaultItem.cipher.type === CipherType.Card) {
+    if (isItemRestricted) {
       return false;
     }
 
