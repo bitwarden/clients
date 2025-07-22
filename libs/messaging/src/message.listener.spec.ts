@@ -1,6 +1,4 @@
-import { Subject } from "rxjs";
-
-import { subscribeTo } from "../../../spec/observable-tracker";
+import { bufferCount, firstValueFrom, Subject } from "rxjs";
 
 import { MessageListener } from "./message.listener";
 import { Message, CommandDefinition } from "./types";
@@ -13,35 +11,33 @@ describe("MessageListener", () => {
 
   describe("allMessages$", () => {
     it("runs on all nexts", async () => {
-      const tracker = subscribeTo(sut.allMessages$);
-
-      const pausePromise = tracker.pauseUntilReceived(2);
+      const emissionsPromise = firstValueFrom(sut.allMessages$.pipe(bufferCount(2)));
 
       subject.next({ command: "command1", test: 1 });
       subject.next({ command: "command2", test: 2 });
 
-      await pausePromise;
+      const emissions = await emissionsPromise;
 
-      expect(tracker.emissions[0]).toEqual({ command: "command1", test: 1 });
-      expect(tracker.emissions[1]).toEqual({ command: "command2", test: 2 });
+      expect(emissions[0]).toEqual({ command: "command1", test: 1 });
+      expect(emissions[1]).toEqual({ command: "command2", test: 2 });
     });
   });
 
   describe("messages$", () => {
     it("runs on only my commands", async () => {
-      const tracker = subscribeTo(sut.messages$(testCommandDefinition));
-
-      const pausePromise = tracker.pauseUntilReceived(2);
+      const emissionsPromise = firstValueFrom(
+        sut.messages$(testCommandDefinition).pipe(bufferCount(2)),
+      );
 
       subject.next({ command: "notMyCommand", test: 1 });
       subject.next({ command: "myCommand", test: 2 });
       subject.next({ command: "myCommand", test: 3 });
       subject.next({ command: "notMyCommand", test: 4 });
 
-      await pausePromise;
+      const emissions = await emissionsPromise;
 
-      expect(tracker.emissions[0]).toEqual({ command: "myCommand", test: 2 });
-      expect(tracker.emissions[1]).toEqual({ command: "myCommand", test: 3 });
+      expect(emissions[0]).toEqual({ command: "myCommand", test: 2 });
+      expect(emissions[1]).toEqual({ command: "myCommand", test: 3 });
     });
   });
 });

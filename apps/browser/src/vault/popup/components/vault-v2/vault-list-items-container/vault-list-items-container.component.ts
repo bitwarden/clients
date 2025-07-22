@@ -146,14 +146,16 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
       ciphers: PopupCipherViewLike[];
     }[]
   >(() => {
+    const ciphers = this.ciphers();
+
     // Not grouping by type, return a single group with all ciphers
-    if (!this.groupByType()) {
-      return [{ ciphers: this.ciphers() }];
+    if (!this.groupByType() && ciphers.length > 0) {
+      return [{ ciphers }];
     }
 
     const groups: Record<string, PopupCipherViewLike[]> = {};
 
-    this.ciphers().forEach((cipher) => {
+    ciphers.forEach((cipher) => {
       let groupKey = "all";
       switch (CipherViewLikeUtils.getType(cipher)) {
         case CipherType.Card:
