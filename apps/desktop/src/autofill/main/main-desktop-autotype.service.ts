@@ -1,3 +1,5 @@
+import { autotype } from "@bitwarden/desktop-napi";
+
 import { DesktopAutotypeService } from "../services/desktop-autotype.service";
 
 export class MainDesktopAutotypeService {
@@ -17,6 +19,10 @@ export class MainDesktopAutotypeService {
   private enableAutotype() {
     // eslint-disable-next-line no-console
     console.log("Enabling Autotype...");
+
+    const result = autotype.getForegroundWindowTitle();
+    // eslint-disable-next-line no-console
+    console.log("Window Title: " + result);
   }
 
   // TODO: this will call into desktop native code

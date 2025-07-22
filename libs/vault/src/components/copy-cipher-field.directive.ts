@@ -1,6 +1,14 @@
 import { Directive, HostBinding, HostListener, Input, OnChanges, Optional } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuItemDirective, BitIconButtonComponent } from "@bitwarden/components";
 import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
 
@@ -27,10 +35,12 @@ export class CopyCipherFieldDirective implements OnChanges {
   })
   action!: Exclude<CopyAction, "hiddenField">;
 
-  @Input({ required: true }) cipher!: CipherView;
+  @Input({ required: true }) cipher!: CipherViewLike;
 
   constructor(
     private copyCipherFieldService: CopyCipherFieldService,
+    private accountService: AccountService,
+    private cipherService: CipherService,
     @Optional() private menuItemDirective?: MenuItemDirective,
     @Optional() private iconButtonComponent?: BitIconButtonComponent,
   ) {}
@@ -49,7 +59,7 @@ export class CopyCipherFieldDirective implements OnChanges {
 
   @HostListener("click")
   async copy() {
-    const value = this.getValueToCopy();
+    const value = await this.getValueToCopy();
     await this.copyCipherFieldService.copy(value ?? "", this.action, this.cipher);
   }
 
@@ -60,7 +70,7 @@ export class CopyCipherFieldDirective implements OnChanges {
   private async updateDisabledState() {
     this.disabled =
       !this.cipher ||
-      !this.getValueToCopy() ||
+      !this.hasValueToCopy() ||
       (this.action === "totp" && !(await this.copyCipherFieldService.totpAllowed(this.cipher)))
         ? true
         : null;
@@ -76,32 +86,51 @@ export class CopyCipherFieldDirective implements OnChanges {
     }
   }
 
-  private getValueToCopy() {
+  /** Returns `true` when the cipher has the associated value as populated. */
+  private hasValueToCopy() {
+    return CipherViewLikeUtils.hasCopyableValue(this.cipher, this.action);
+  }
+
+  /** Returns the value of the cipher to be copied. */
+  private async getValueToCopy() {
+    let _cipher: CipherView;
+
+    if (CipherViewLikeUtils.isCipherListView(this.cipher)) {
+      // When the cipher is of type `CipherListView`, the full cipher needs to be decrypted
+      const activeAccountId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(getUserId),
+      );
+      const encryptedCipher = await this.cipherService.get(this.cipher.id!, activeAccountId);
+      _cipher = await this.cipherService.decrypt(encryptedCipher, activeAccountId);
+    } else {
+      _cipher = this.cipher;
+    }
+
     switch (this.action) {
       case "username":
-        return this.cipher.login?.username || this.cipher.identity?.username;
+        return _cipher.login?.username || _cipher.identity?.username;
       case "password":
-        return this.cipher.login?.password;
+        return _cipher.login?.password;
       case "totp":
-        return this.cipher.login?.totp;
+        return _cipher.login?.totp;
       case "cardNumber":
-        return this.cipher.card?.number;
+        return _cipher.card?.number;
       case "securityCode":
-        return this.cipher.card?.code;
+        return _cipher.card?.code;
       case "email":
-        return this.cipher.identity?.email;
+        return _cipher.identity?.email;
       case "phone":
-        return this.cipher.identity?.phone;
+        return _cipher.identity?.phone;
       case "address":
-        return this.cipher.identity?.fullAddressForCopy;
+        return _cipher.identity?.fullAddressForCopy;
       case "secureNote":
-        return this.cipher.notes;
+        return _cipher.notes;
       case "privateKey":
-        return this.cipher.sshKey?.privateKey;
+        return _cipher.sshKey?.privateKey;
       case "publicKey":
-        return this.cipher.sshKey?.publicKey;
+        return _cipher.sshKey?.publicKey;
       case "keyFingerprint":
-        return this.cipher.sshKey?.keyFingerprint;
+        return _cipher.sshKey?.keyFingerprint;
       default:
         return null;
     }

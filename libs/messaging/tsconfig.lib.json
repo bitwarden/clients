@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "declaration": true,
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "../messaging-internal/src/subject-message.sender.spec.ts",
+    "../messaging-internal/src/subject-message.sender.ts",
+    "../messaging-internal/src/helpers.spec.ts",
+    "../messaging-internal/src/helpers.ts"
+  ],
+  "exclude": ["jest.config.js", "src/**/*.spec.ts"]
+}

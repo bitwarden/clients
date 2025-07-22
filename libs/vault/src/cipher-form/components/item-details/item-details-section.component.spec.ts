@@ -31,7 +31,7 @@ const createMockCollection = (
   organizationId: string,
   readOnly = false,
   canEdit = true,
-) => {
+): CollectionView => {
   return {
     id,
     name,
@@ -42,6 +42,7 @@ const createMockCollection = (
     manage: true,
     assigned: true,
     type: CollectionTypes.DefaultUserCollection,
+    isDefaultCollection: true,
     canEditItems: jest.fn().mockReturnValue(canEdit),
     canEdit: jest.fn(),
     canDelete: jest.fn(),
@@ -244,7 +245,7 @@ describe("ItemDetailsSectionComponent", () => {
       fixture.detectChanges();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
-      const { value, label } = select.componentInstance.items[0];
+      const { value, label } = select.componentInstance.items()[0];
 
       expect(value).toBeNull();
       expect(label).toBe("test@example.com");
@@ -260,7 +261,7 @@ describe("ItemDetailsSectionComponent", () => {
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
 
-      const { value, label } = select.componentInstance.items[0];
+      const { value, label } = select.componentInstance.items()[0];
       expect(value).toBeNull();
       expect(label).toBe("test@example.com");
     });
@@ -561,7 +562,7 @@ describe("ItemDetailsSectionComponent", () => {
       fixture.detectChanges();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
-      const { label } = select.componentInstance.items[0];
+      const { label } = select.componentInstance.items()[0];
 
       expect(label).toBe("org1");
     });

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable, Subject } from "rxjs";
 
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
@@ -25,13 +23,13 @@ export interface ActiveRequest {
 export type RequestCollection = Readonly<{ [tabId: number]: ActiveRequest }>;
 
 export abstract class Fido2ActiveRequestManager {
-  getActiveRequest$: (tabId: number) => Observable<ActiveRequest | undefined>;
-  getActiveRequest: (tabId: number) => ActiveRequest | undefined;
-  newActiveRequest: (
+  abstract getActiveRequest$(tabId: number): Observable<ActiveRequest | undefined>;
+  abstract getActiveRequest(tabId: number): ActiveRequest | undefined;
+  abstract newActiveRequest(
     tabId: number,
     credentials: Fido2CredentialView[],
     abortController: AbortController,
-  ) => Promise<RequestResult>;
-  removeActiveRequest: (tabId: number) => void;
-  removeAllActiveRequests: () => void;
+  ): Promise<RequestResult>;
+  abstract removeActiveRequest(tabId: number): void;
+  abstract removeAllActiveRequests(): void;
 }
