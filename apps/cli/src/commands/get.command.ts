@@ -25,7 +25,6 @@ import { LoginExport } from "@bitwarden/common/models/export/login.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -44,7 +43,6 @@ import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
 import { Response } from "../models/response";
 import { StringResponse } from "../models/response/string.response";
 import { TemplateResponse } from "../models/response/template.response";
-import { SendResponse } from "../tools/send/models/send.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
@@ -577,11 +575,11 @@ export class GetCommand extends DownloadCommand {
       case "org-collection":
         template = OrganizationCollectionRequest.template();
         break;
-      case "send.text":
-        template = SendResponse.template(SendType.Text);
-        break;
       case "send.file":
-        template = SendResponse.template(SendType.File);
+      case "send.text":
+        template = Response.badRequest(
+          `Invalid template object. Use \`bw send template ${id}\` instead.`,
+        );
         break;
       default:
         return Response.badRequest("Unknown template object.");
