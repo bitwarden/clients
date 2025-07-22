@@ -1,5 +1,6 @@
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import Domain, { EncryptableKeys } from "@bitwarden/common/platform/models/domain/domain-base";
+import Domain from "@bitwarden/common/platform/models/domain/domain-base";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 
 import { CollectionData } from "./collection.data";
@@ -13,19 +14,19 @@ export const CollectionTypes = {
 export type CollectionType = (typeof CollectionTypes)[keyof typeof CollectionTypes];
 
 export class Collection extends Domain {
-  id: string | undefined;
-  organizationId: string | undefined;
-  name: EncString | undefined;
+  id!: CollectionId;
+  organizationId!: string;
+  name!: EncString;
   externalId: string | undefined;
   readOnly: boolean = false;
   hidePasswords: boolean = false;
   manage: boolean = false;
   type: CollectionType = CollectionTypes.SharedCollection;
 
-  constructor(obj?: CollectionData | null) {
+  constructor(obj: Partial<CollectionData> = {}) {
     super();
-    if (obj == null) {
-      return;
+    if (obj == null || obj.name == null || obj.organizationId == null || obj.id == null) {
+      throw new Error("Partial must contain name and organizationId.");
     }
 
     this.buildDomainModel(
@@ -49,7 +50,7 @@ export class Collection extends Domain {
     return this.decryptObj<Collection, CollectionView>(
       this,
       new CollectionView(this),
-      ["name"] as EncryptableKeys<Collection, CollectionView>[],
+      ["name"],
       this.organizationId ?? null,
       orgKey,
     );

@@ -2,6 +2,7 @@ import { Jsonify } from "type-fest";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { View } from "@bitwarden/common/models/view/view";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { Collection, CollectionType, CollectionTypes } from "./collection";
@@ -10,7 +11,7 @@ import { CollectionAccessDetailsResponse } from "./collection.response";
 export const NestingDelimiter = "/";
 
 export class CollectionView implements View, ITreeNodeObject {
-  id: string | undefined;
+  id: CollectionId = "" as CollectionId;
   organizationId: string | undefined;
   name: string = "";
   externalId: string | undefined;
@@ -94,7 +95,16 @@ export class CollectionView implements View, ITreeNodeObject {
   }
 
   static fromJSON(obj: Jsonify<CollectionView>) {
-    return Object.assign(new CollectionView(new Collection()), obj);
+    return Object.assign(
+      new CollectionView(
+        new Collection({
+          name: obj.name,
+          organizationId: obj.organizationId as OrganizationId,
+          id: obj.id,
+        }),
+      ),
+      obj,
+    );
   }
 
   get isDefaultCollection() {
