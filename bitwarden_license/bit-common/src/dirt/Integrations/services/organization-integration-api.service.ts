@@ -10,6 +10,19 @@ import { OrganizationIntegrationResponse } from "../models/organization-integrat
 export class OrganizationIntegrationApiService {
   constructor(private apiService: ApiService) {}
 
+  async getOrganizationIntegrations(
+    orgId: OrganizationId,
+  ): Promise<OrganizationIntegrationResponse[]> {
+    const response = await this.apiService.send(
+      "GET",
+      `organizations/${orgId}/integrations`,
+      null,
+      true,
+      true,
+    );
+    return response;
+  }
+
   async createOrganizationIntegration(
     orgId: OrganizationId,
     request: OrganizationIntegrationRequest,

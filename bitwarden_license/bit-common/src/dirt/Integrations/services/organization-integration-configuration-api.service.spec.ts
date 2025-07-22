@@ -1,7 +1,6 @@
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventType } from "@bitwarden/common/enums";
 import {
   OrganizationId,
   OrganizationIntegrationId,
@@ -12,12 +11,21 @@ import { OrganizationIntegrationConfigurationRequest } from "../models/organizat
 
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
 
-
 export const mockConfigurationResponse: any = {
   id: "1" as OrganizationIntegrationConfigurationId,
-  eventType: EventType.Cipher_ClientViewed,
   template: "{ 'event': '#EventMessage#', 'source': 'Bitwarden', 'index': 'testIndex' }",
 };
+
+export const mockConfigurationResponses: any[] = [
+  {
+    id: "1" as OrganizationIntegrationConfigurationId,
+    template: "{ 'event': '#EventMessage#', 'source': 'Bitwarden', 'index': 'testIndex' }",
+  },
+  {
+    id: "2" as OrganizationIntegrationConfigurationId,
+    template: "{ 'event': '#EventMessage#', 'source': 'Bitwarden', 'index': 'otherIndex' }",
+  },
+];
 
 describe("OrganizationIntegrationConfigurationApiService", () => {
   let service: OrganizationIntegrationConfigurationApiService;
@@ -29,6 +37,23 @@ describe("OrganizationIntegrationConfigurationApiService", () => {
 
   it("should be created", () => {
     expect(service).toBeTruthy();
+  });
+
+  it("should call apiService.send with correct parameters for getOrganizationIntegrationConfigurations", async () => {
+    const orgId = "org1" as OrganizationId;
+    const integrationId = "integration1" as OrganizationIntegrationId;
+
+    apiService.send.mockReturnValue(Promise.resolve(mockConfigurationResponses));
+
+    const result = await service.getOrganizationIntegrationConfigurations(orgId, integrationId);
+    expect(result).toEqual(mockConfigurationResponses);
+    expect(apiService.send).toHaveBeenCalledWith(
+      "GET",
+      `organizations/${orgId}/integrations/${integrationId}/configurations`,
+      null,
+      true,
+      true,
+    );
   });
 
   it("should call apiService.send with correct parameters for createOrganizationIntegrationConfiguration", async () => {

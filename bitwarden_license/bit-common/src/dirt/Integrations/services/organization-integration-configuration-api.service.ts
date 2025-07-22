@@ -14,6 +14,20 @@ import { OrganizationIntegrationConfigurationResponse } from "../models/organiza
 export class OrganizationIntegrationConfigurationApiService {
   constructor(private apiService: ApiService) {}
 
+  async getOrganizationIntegrationConfigurations(
+    orgId: OrganizationId,
+    integrationId: OrganizationIntegrationId,
+  ): Promise<OrganizationIntegrationConfigurationResponse[]> {
+    const responses = await this.apiService.send(
+      "GET",
+      `organizations/${orgId}/integrations/${integrationId}/configurations`,
+      null,
+      true,
+      true,
+    );
+    return responses;
+  }
+
   async createOrganizationIntegrationConfiguration(
     orgId: OrganizationId,
     integrationId: OrganizationIntegrationId,
