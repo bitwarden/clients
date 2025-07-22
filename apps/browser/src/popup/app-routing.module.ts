@@ -12,6 +12,7 @@ import {
   authGuard,
   lockGuard,
   redirectGuard,
+  redirectToVaultIfUnlockedGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
@@ -49,6 +50,7 @@ import { AccountSwitcherComponent } from "../auth/popup/account-switching/accoun
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
+import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
@@ -264,6 +266,12 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
+    path: "device-management",
+    component: ExtensionDeviceManagementComponent,
+    canActivate: [canAccessFeature(FeatureFlag.PM14938_BrowserExtensionLoginApproval), authGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
     path: "notifications",
     component: NotificationsSettingsComponent,
     canActivate: [authGuard],
@@ -447,6 +455,7 @@ const routes: Routes = [
       },
       {
         path: "login-with-device",
+        canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -495,6 +504,7 @@ const routes: Routes = [
       },
       {
         path: "admin-approval-requested",
+        canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
