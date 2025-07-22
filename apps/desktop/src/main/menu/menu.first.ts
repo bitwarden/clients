@@ -2,6 +2,7 @@ import { BrowserWindow, dialog, MenuItem, MenuItemConstructorOptions } from "ele
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { CipherType } from "@bitwarden/sdk-internal";
 
 import { isMacAppStore, isSnapStore, isWindowsStore } from "../../utils";
 import { UpdaterMain } from "../updater.main";
@@ -17,6 +18,7 @@ export class FirstMenu {
     protected readonly _accounts: { [userId: string]: MenuAccount },
     protected readonly _isLocked: boolean,
     protected readonly _isLockable: boolean,
+    protected readonly _restrictedCipherTypes: CipherType[],
   ) {}
 
   protected get hasAccounts(): boolean {
