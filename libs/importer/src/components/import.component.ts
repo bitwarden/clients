@@ -100,6 +100,7 @@ const safeProviders: SafeProvider[] = [
       PinServiceAbstraction,
       AccountService,
       SdkService,
+      RestrictedItemTypesService,
     ],
   }),
 ];

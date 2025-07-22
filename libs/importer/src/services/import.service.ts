@@ -26,6 +26,7 @@ import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.req
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
@@ -119,6 +120,7 @@ export class ImportService implements ImportServiceAbstraction {
     private pinService: PinServiceAbstraction,
     private accountService: AccountService,
     private sdkService: SdkService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   getImportOptions(): ImportOption[] {
@@ -165,6 +167,19 @@ export class ImportService implements ImportServiceAbstraction {
         throw new Error(this.i18nService.t("importFormatError"));
       }
     }
+
+    const restrictedItemTypes = await firstValueFrom(
+      this.restrictedItemTypesService.restricted$.pipe(
+        map((restrictedItemTypes) => restrictedItemTypes.map((r) => r.cipherType)),
+      ),
+    );
+
+    importResult.ciphers = importResult.ciphers.filter((cipher) => {
+      if (restrictedItemTypes.includes(cipher.type)) {
+        return false;
+      }
+      return true;
+    });
 
     if (organizationId && !selectedImportTarget && !canAccessImportExport) {
       const hasUnassignedCollections =
