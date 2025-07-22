@@ -69,10 +69,10 @@
           bitMenuItem
           (click)="viewOption(parent, $event)"
           class="tw-text-[length:inherit]"
-          [title]="'backTo' | i18n: parent.label ?? placeholderText"
+          [title]="'backTo' | i18n: parent.label ?? placeholderText()"
         >
           <i slot="start" class="bwi bwi-angle-left" aria-hidden="true"></i>
-          {{ "backTo" | i18n: parent.label ?? placeholderText }}
+          {{ "backTo" | i18n: parent.label ?? placeholderText() }}
         </button>
         <button
           type="button"

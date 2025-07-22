@@ -8,17 +8,16 @@ import {
   FakeUserDecryptionOptions as UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -33,7 +32,6 @@ import { SetPasswordCredentials } from "./set-password-jit.service.abstraction";
 describe("DefaultSetPasswordJitService", () => {
   let sut: DefaultSetPasswordJitService;
 
-  let apiService: MockProxy<ApiService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
@@ -45,7 +43,6 @@ describe("DefaultSetPasswordJitService", () => {
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
 
   beforeEach(() => {
-    apiService = mock<ApiService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
@@ -57,12 +54,11 @@ describe("DefaultSetPasswordJitService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
 
     sut = new DefaultSetPasswordJitService(
-      apiService,
-      masterPasswordApiService,
-      keyService,
       encryptService,
       i18nService,
       kdfConfigService,
+      keyService,
+      masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
       organizationUserApiService,
@@ -122,7 +118,11 @@ describe("DefaultSetPasswordJitService", () => {
       };
 
       credentials = {
-        ...passwordInputResult,
+        newMasterKey: passwordInputResult.newMasterKey,
+        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        kdfConfig: passwordInputResult.kdfConfig,
         orgSsoIdentifier,
         orgId,
         resetPasswordAutoEnroll,

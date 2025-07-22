@@ -5,12 +5,14 @@ import { BehaviorSubject, skipWhile } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
+import * as vaultFilterSvc from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -25,11 +27,21 @@ import {
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import { PopupCipherViewLike } from "../views/popup-cipher.view";
+
 import {
   CachedFilterState,
   MY_VAULT_ID,
   VaultPopupListFiltersService,
 } from "./vault-popup-list-filters.service";
+
+const configService = {
+  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(true)),
+} as unknown as ConfigService;
+
+jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
+  sortDefaultCollections: jest.fn(),
+}));
 
 describe("VaultPopupListFiltersService", () => {
   let service: VaultPopupListFiltersService;
@@ -37,7 +49,7 @@ describe("VaultPopupListFiltersService", () => {
   const memberOrganizations$ = (userId: UserId) => _memberOrganizations$;
   const organizations$ = new BehaviorSubject<Organization[]>([]);
   let folderViews$ = new BehaviorSubject([]);
-  const cipherViews$ = new BehaviorSubject({});
+  const cipherListViews$ = new BehaviorSubject({});
   let decryptedCollections$ = new BehaviorSubject<CollectionView[]>([]);
   const policyAppliesToUser$ = new BehaviorSubject<boolean>(false);
   let viewCacheService: {
@@ -55,7 +67,7 @@ describe("VaultPopupListFiltersService", () => {
   } as unknown as FolderService;
 
   const cipherService = {
-    cipherViews$: () => cipherViews$,
+    cipherListViews$: () => cipherListViews$,
   } as unknown as CipherService;
 
   const organizationService = {
@@ -76,6 +88,7 @@ describe("VaultPopupListFiltersService", () => {
 
   const restrictedItemTypesService = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+    isCipherRestricted: jest.fn().mockReturnValue(false),
   };
 
   beforeEach(() => {
@@ -136,6 +149,10 @@ describe("VaultPopupListFiltersService", () => {
         {
           provide: RestrictedItemTypesService,
           useValue: restrictedItemTypesService,
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
       ],
     });
@@ -227,10 +244,10 @@ describe("VaultPopupListFiltersService", () => {
       });
     });
 
-    describe("PersonalOwnership policy", () => {
-      it('calls policyAppliesToUser$ with "PersonalOwnership"', () => {
+    describe("OrganizationDataOwnership policy", () => {
+      it('calls policyAppliesToUser$ with "OrganizationDataOwnership"', () => {
         expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
-          PolicyType.PersonalOwnership,
+          PolicyType.OrganizationDataOwnership,
           "userId",
         );
       });
@@ -398,6 +415,29 @@ describe("VaultPopupListFiltersService", () => {
         done();
       });
     });
+
+    it("calls vaultFilterService.sortDefaultCollections", (done) => {
+      const collections = [
+        { id: "1234", name: "Default Collection", organizationId: "org1" },
+        { id: "5678", name: "Shared Collection", organizationId: "org2" },
+      ] as CollectionView[];
+
+      const orgs = [
+        { id: "org1", name: "Organization 1" },
+        { id: "org2", name: "Organization 2" },
+      ] as Organization[];
+
+      createSeededVaultPopupListFiltersService(orgs, collections, [], {});
+
+      service.collections$.subscribe(() => {
+        expect(vaultFilterSvc.sortDefaultCollections).toHaveBeenCalledWith(
+          collections,
+          orgs,
+          i18nService.collator,
+        );
+        done();
+      });
+    });
   });
 
   describe("folders$", () => {
@@ -470,7 +510,7 @@ describe("VaultPopupListFiltersService", () => {
         { id: "2345", name: "Folder 2" },
       ]);
 
-      cipherViews$.next({
+      cipherListViews$.next({
         "1": { folderId: "1234", organizationId: "1234" },
         "2": { folderId: "2345", organizationId: "56789" },
       });
@@ -484,10 +524,6 @@ describe("VaultPopupListFiltersService", () => {
       { type: CipherType.Identity, collectionIds: [], folderId: "5432", organizationId: null },
       { type: CipherType.SecureNote, collectionIds: [], organizationId: null },
     ] as CipherView[];
-
-    beforeEach(() => {
-      restrictedItemTypesService.restricted$.next([]);
-    });
 
     it("filters by cipherType", (done) => {
       service.filterFunction$.subscribe((filterFunction) => {
@@ -526,6 +562,28 @@ describe("VaultPopupListFiltersService", () => {
 
         service.filterFunction$.subscribe((filterFunction) => {
           expect(filterFunction(ciphers)).toEqual([ciphers[0], ciphers[2], ciphers[3]]);
+          done();
+        });
+
+        service.filterForm.patchValue({ organization });
+      });
+
+      it("keeps ciphers with null and undefined for organizationId when MyVault is selected", (done) => {
+        const organization = { id: MY_VAULT_ID } as Organization;
+
+        const undefinedOrgIdCipher = {
+          type: CipherType.SecureNote,
+          collectionIds: [],
+          organizationId: undefined,
+        } as unknown as PopupCipherViewLike;
+
+        service.filterFunction$.subscribe((filterFunction) => {
+          expect(filterFunction([...ciphers, undefinedOrgIdCipher])).toEqual([
+            ciphers[0],
+            ciphers[2],
+            ciphers[3],
+            undefinedOrgIdCipher,
+          ]);
           done();
         });
 
@@ -576,6 +634,8 @@ describe("VaultPopupListFiltersService", () => {
 
       const seededOrganizations: Organization[] = [
         { id: MY_VAULT_ID, name: "Test Org" } as Organization,
+        { id: "org1", name: "Default User Collection Org 1" } as Organization,
+        { id: "org2", name: "Default User Collection Org 2" } as Organization,
       ];
       const seededCollections: CollectionView[] = [
         {
@@ -681,7 +741,10 @@ function createSeededVaultPopupListFiltersService(
   collections: CollectionView[],
   folderViews: FolderView[],
   cachedState: CachedFilterState = {},
-): { service: VaultPopupListFiltersService; cachedSignal: WritableSignal<CachedFilterState> } {
+): {
+  service: VaultPopupListFiltersService;
+  cachedSignal: WritableSignal<CachedFilterState>;
+} {
   const seededMemberOrganizations$ = new BehaviorSubject<Organization[]>(organizations);
   const seededCollections$ = new BehaviorSubject<CollectionView[]>(collections);
   const seededFolderViews$ = new BehaviorSubject<FolderView[]>(folderViews);
@@ -708,7 +771,7 @@ function createSeededVaultPopupListFiltersService(
   } as any;
 
   const cipherServiceMock = {
-    cipherViews$: () => new BehaviorSubject({}),
+    cipherListViews$: () => new BehaviorSubject({}),
   } as any;
 
   const i18nServiceMock = {
@@ -729,6 +792,7 @@ function createSeededVaultPopupListFiltersService(
   const accountServiceMock = mockAccountServiceWith("userId" as UserId);
   const restrictedItemTypesServiceMock = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+    isCipherRestricted: jest.fn().mockReturnValue(false),
   } as any;
   const formBuilderInstance = new FormBuilder();
 
@@ -754,6 +818,7 @@ function createSeededVaultPopupListFiltersService(
       accountServiceMock,
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
+      configService,
     );
   });
 

@@ -3,7 +3,7 @@
     "message": "Όλες οι εφαρμογές"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Λογότυπο του Bitwarden"
   },
   "criticalApplications": {
     "message": "Κρίσιμες εφαρμογές"
@@ -33,13 +33,13 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Ειδοποιημένα μέλη"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "Ανάκληση μελών"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "Επαναφορά μελών"
   },
   "cannotRestoreAccessError": {
     "message": "Cannot restore organization access"
@@ -57,7 +57,7 @@
     "message": "Create new login item"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "Κρίσιμες εφαρμογές ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -66,7 +66,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "Ειδοποιημένα μέλη ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -93,7 +93,7 @@
     "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
   },
   "markCriticalApps": {
-    "message": "Mark critical apps"
+    "message": "Επισήμανση κρίσιμων εφαρμογών"
   },
   "markAppAsCritical": {
     "message": "Mark app as critical"
@@ -105,16 +105,16 @@
     "message": "Εφαρμογή"
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Κωδικοί πρόσβασης σε κίνδυνο"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "Αίτημα αλλαγής κωδικού πρόσβασης"
   },
   "totalPasswords": {
     "message": "Σύνολο κωδικών πρόσβασης"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "Αναζήτηση εφαρμογών"
   },
   "atRiskMembers": {
     "message": "At-risk members"
@@ -171,7 +171,7 @@
     "message": "Σύνολο μελών"
   },
   "atRiskApplications": {
-    "message": "At-risk applications"
+    "message": "Εφαρμογές σε κίνδυνο"
   },
   "totalApplications": {
     "message": "Σύνολο εφαρμογών"
@@ -220,7 +220,7 @@
     "message": "Σημειώσεις"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Ιδιωτική σημείωση"
   },
   "note": {
     "message": "Σημείωση"
@@ -496,10 +496,10 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Νέος φάκελος"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Όνομα φακέλου"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -647,8 +647,11 @@
   "typeSecureNote": {
     "message": "Ασφαλής σημείωση"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Κλειδί SSH"
   },
   "typeLoginPlural": {
     "message": "Συνδέσεις"
@@ -804,7 +807,7 @@
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "Ο κωδικός πρόσβασης αντιγράφηκε"
   },
   "copyUsername": {
     "message": "Αντιγραφή ονόματος χρήστη",
@@ -861,8 +864,28 @@
   "copyName": {
     "message": "Αντιγραφή ονόματος"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Εγώ"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "myVault": {
     "message": "Το Vault μου"
@@ -1040,7 +1063,7 @@
     "message": "Όχι"
   },
   "location": {
-    "message": "Location"
+    "message": "Τοποθεσία"
   },
   "loginOrCreateNewAccount": {
     "message": "Συνδεθείτε ή δημιουργήστε νέο λογαριασμό για να αποκτήσετε πρόσβαση στο vault σας."
@@ -1052,7 +1075,7 @@
     "message": "Η σύνδεση με τη χρήση συσκευής πρέπει να οριστεί στις ρυθμίσεις της εφαρμογής Bitwarden. Χρειάζεστε κάποια άλλη επιλογή;"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Χρειάζεστε κάποια άλλη επιλογή;"
   },
   "loginWithMasterPassword": {
     "message": "Συνδεθείτε με τον κύριο κωδικό πρόσβασης"
@@ -1067,13 +1090,13 @@
     "message": "Χρήση διαφορετικής μεθόδου σύνδεσης"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Σύνδεση με κλειδί πρόσβασης"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Χρήση καθολικής σύνδεσης"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Καλώς ορίσατε και πάλι"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Μη έγκυρο κλειδί πρόσβασης. Παρακαλώ προσπαθήστε ξανά."
@@ -1157,7 +1180,7 @@
     "message": "Δημιουργία Λογαριασμού"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Νέος χρήστης του Bitwarden;"
   },
   "setAStrongPassword": {
     "message": "Ορίστε έναν ισχυρό κωδικό πρόσβασης"
@@ -1175,7 +1198,7 @@
     "message": "Είσοδος"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Σύνδεση στο Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Enter the code sent to your email"
@@ -1193,7 +1216,7 @@
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Επαληθεύστε την ταυτότητά σας"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -1202,7 +1225,7 @@
     "message": "Continue logging in"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Τι είναι μια συσκευή;"
   },
   "aDeviceIs": {
     "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
@@ -1412,10 +1435,10 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Επιβεβαίωση πρόσβασης"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Άρνηση πρόσβασης"
   },
   "notificationSentDeviceAnchor": {
     "message": "web app"
@@ -1518,7 +1541,7 @@
     "message": "(Μετεγκατάσταση από το FIDO)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Άνοιγμα σε νέα καρτέλα"
   },
   "emailTitle": {
     "message": "Email"
@@ -1730,7 +1753,7 @@
     "message": "Ιστορικό Κωδικού"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Ιστορικό γεννήτριας"
   },
   "clearGeneratorHistoryTitle": {
     "message": "Clear generator history"
@@ -1742,7 +1765,7 @@
     "message": "Δεν υπάρχουν κωδικοί στη λίστα."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Διαγραφή ιστορικού"
   },
   "nothingToShow": {
     "message": "Nothing to show"
@@ -1781,6 +1804,9 @@
   "loggedOutWarning": {
     "message": "Η διαδικασία θα σας αποσυνδέσει από την τρέχουσα συνεδρία και θα σας ζητήσει να συνδεθείτε ξανά. Οι ενεργές συνεδρίες σε άλλες συσκευές ενδέχεται να παραμείνουν ενεργοποιημένες για έως και μία ώρα."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
   "emailChanged": {
     "message": "Το email άλλαξε"
   },
@@ -1788,7 +1814,7 @@
     "message": "Παρακαλούμε συνδεθείτε ξανά."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Τρέχουσα συνεδρία"
   },
   "requestPending": {
     "message": "Request pending"
@@ -1870,7 +1896,7 @@
     "message": "Η διαδικασία θα σας αποσυνδέσει από την τρέχουσα συνεδρία και θα σας ζητήσει να συνδεθείτε ξανά. Οι ενεργές συνεδρίες σε άλλες συσκευές ενδέχεται να παραμείνουν ενεργοποιημένες για έως και μία ώρα."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "Νέα σύνδεση συσκευής"
   },
   "turnOffNewDeviceLoginProtection": {
     "message": "Turn off new device login protection"
@@ -2153,11 +2179,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Η ενεργοποίηση σύνδεσης δύο βημάτων μπορεί να κλειδώσει οριστικά το λογαριασμό σας από το Bitwarden. Ένας κωδικός ανάκτησης σάς επιτρέπει να έχετε πρόσβαση στον λογαριασμό σας σε περίπτωση που δεν μπορείτε πλέον να χρησιμοποιήσετε τη σύνδεση δύο βημάτων (π. χ. χάνετε τη συσκευή σας). Η υποστήριξη πελατών του Bitwarden δεν θα είναι σε θέση να σας βοηθήσει αν χάσετε την πρόσβαση στο λογαριασμό σας. Συνιστούμε να γράψετε ή να εκτυπώσετε τον κωδικό ανάκτησης και να τον φυλάξετε σε ασφαλές μέρος."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Remove card item type"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Do not allow members to create card item types."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
@@ -2201,16 +2233,16 @@
     "message": "Διαχείριση"
   },
   "manageCollection": {
-    "message": "Manage collection"
+    "message": "Διαχείριση συλλογής"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Προβολή στοιχείων"
   },
   "viewItemsHidePass": {
     "message": "View items, hidden passwords"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Επεξεργασία στοιχείων"
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
@@ -2218,11 +2250,14 @@
   "disable": {
     "message": "Απενεργοποίηση"
   },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
+  },
   "revokeAccess": {
     "message": "Ανάκληση πρόσβασης"
   },
   "revoke": {
-    "message": "Revoke"
+    "message": "Ανάκληση"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Ο πάροχος σύνδεσης δύο βημάτων του λογαριασμού σας, είναι ενεργοποιημένος."
@@ -3387,10 +3422,10 @@
     }
   },
   "inviteSingleEmailDesc": {
-    "message": "You have 1 invite remaining."
+    "message": "Σας απομένει 1 πρόσκληση."
   },
   "inviteZeroEmailDesc": {
-    "message": "You have 0 invites remaining."
+    "message": "Σας απομένουν 0 προσκλήσεις."
   },
   "userUsingTwoStep": {
     "message": "Αυτός ο χρήστης χρησιμοποιεί τρόπο σύνδεσης δύο βημάτων για να προστατεύσει το λογαριασμό του."
@@ -3466,6 +3501,9 @@
   },
   "webVault": {
     "message": "Web Vault"
+  },
+  "webApp": {
+    "message": "Web app"
   },
   "cli": {
     "message": "CLI"
@@ -3895,10 +3933,10 @@
     "message": "Συσκευή"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Κατάσταση σύνδεσης"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Πρώτη σύνδεση"
   },
   "trusted": {
     "message": "Trusted"
@@ -3919,16 +3957,16 @@
     }
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Τύπος συσκευής"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "Διεύθυνση IP"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "Επιβεβαίωση σύνδεσης"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "Άρνηση σύνδεσης"
   },
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
@@ -3949,11 +3987,27 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Μόλις τώρα"
   },
   "requestedXMinutesAgo": {
     "message": "Requested $MINUTES$ minutes ago",
@@ -4093,6 +4147,9 @@
   "reviewLoginRequest": {
     "message": "Review login request"
   },
+  "loginRequest": {
+    "message": "Login request"
+  },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {
@@ -4140,7 +4197,7 @@
     "message": "Your free trial ends today."
   },
   "clickHereToAddPaymentMethod": {
-    "message": "Click here to add a payment method."
+    "message": "Κάντε κλικ εδώ για να προσθέσετε μια μέθοδο πληρωμής."
   },
   "joinOrganization": {
     "message": "Εγγραφή στον οργανισμό"
@@ -4479,7 +4536,7 @@
     }
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Επεξεργασία $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5363,6 +5420,9 @@
   "emergencyRejected": {
     "message": "Η πρόσβαση έκτακτης ανάγκης απορρίφθηκε"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Επαναφορά κωδικού πρόσβασης για το $USER$. Τώρα μπορείτε να συνδεθείτε χρησιμοποιώντας το νέο κωδικό πρόσβασης.",
     "placeholders": {
@@ -5371,6 +5431,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
   },
   "personalOwnership": {
     "message": "Προσωπική Ιδιοκτησία"
@@ -5763,11 +5826,23 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "αυτός ο χρήστης"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
     "message": "Σε μία ή περισσότερες πολιτικές του οργανισμού απαιτείται ο κύριος κωδικός να πληρεί τις ακόλουθες απαιτήσεις:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "resetPasswordSuccess": {
     "message": "Επιτυχία επαναφοράς κωδικού!"
@@ -5890,7 +5965,7 @@
     "message": "Σφάλμα"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Σφάλμα αποκρυπτογράφησης"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -6034,11 +6109,20 @@
   "add": {
     "message": "Προσθήκη"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "Ενημερώθηκε ο κύριος κωδικός πρόσβασης"
   },
   "updateMasterPassword": {
     "message": "Ενημερώστε τον κύριο κωδικό πρόσβασης"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "updateMasterPasswordWarning": {
     "message": "Ο Κύριος Κωδικός Πρόσβασης σας άλλαξε πρόσφατα από διαχειριστή στον οργανισμό σας. Για να αποκτήσετε πρόσβαση στο vault, πρέπει να ενημερώσετε το κύριο κωδικό τώρα. Η διαδικασία θα σας αποσυνδέσει από την τρέχουσα συνεδρία σας, απαιτώντας από εσάς να συνδεθείτε ξανά. Οι ενεργές συνεδρίες σε άλλες συσκευές ενδέχεται να συνεχίσουν να είναι ενεργές για μία ώρα."
@@ -6321,7 +6405,7 @@
     "message": "Shared collections for family members"
   },
   "memberFamilies": {
-    "message": "Member families"
+    "message": "Οικογένειες μελών"
   },
   "noMemberFamilies": {
     "message": "No member families"
@@ -7614,9 +7698,9 @@
     "message": "Ο λογαριασμός υπηρεσίας ενημερώθηκε",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Πληκτρολογήστε ή επιλέξτε έργα ή μυστικά",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Πληκτρολογήστε για φιλτράρισμα",
@@ -7701,8 +7785,8 @@
     "message": "Διακριτικά πρόσβασης",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Νέο διακριτικό πρόσβασης",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -7972,7 +8056,7 @@
     "message": "Πρόσκληση μέλους"
   },
   "addSponsorship": {
-    "message": "Add sponsorship"
+    "message": "Προσθήκη χορηγίας"
   },
   "needsConfirmation": {
     "message": "Χρειάζεται επιβεβαίωση"
@@ -8203,8 +8287,44 @@
   "errorReadingImportFile": {
     "message": "An error occurred when trying to read the import file"
   },
+  "accessedSecretWithId": {
+    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Accessed secret $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Created a new secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8383,6 +8503,12 @@
   },
   "requestAdminApproval": {
     "message": "Αίτημα έγκρισης διαχειριστή"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "trustedDeviceEncryption": {
     "message": "Κρυπτογράφηση έμπιστης συσκευής"
@@ -8838,6 +8964,30 @@
     "message": "Κοινές μορφές",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "maintainYourSubscription": {
     "message": "Για να διατηρήσετε τη συνδρομή σας στο $ORG$, ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
@@ -9276,7 +9426,7 @@
     "message": "Χρησιμοποιήστε το SDK του Bitwarden Secrets Manager στις ακόλουθες γλώσσες προγραμματισμού για να αναπτύξετε τις δικές σας εφαρμογές."
   },
   "ssoDescStart": {
-    "message": "Configure",
+    "message": "Διαμόρφωση",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
   "ssoDescEnd": {
@@ -9290,7 +9440,7 @@
     "message": "SCIM"
   },
   "scimIntegrationDescStart": {
-    "message": "Configure ",
+    "message": "Διαμόρφωση ",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "scimIntegrationDescEnd": {
@@ -9304,13 +9454,13 @@
     "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
   "eventManagement": {
-    "message": "Event management"
+    "message": "Διαχείριση συμβάντων"
   },
   "eventManagementDesc": {
     "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
   "deviceManagement": {
-    "message": "Device management"
+    "message": "Διαχείριση συσκευών"
   },
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
@@ -9935,22 +10085,22 @@
     "message": "Key algorithm"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Ιδιωτικό κλειδί"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Δημόσιο κλειδί"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Αποτύπωμα"
   },
   "sshKeyFingerprint": {
-    "message": "Fingerprint"
+    "message": "Αποτύπωμα"
   },
   "sshKeyPrivateKey": {
-    "message": "Private key"
+    "message": "Ιδιωτικό κλειδί"
   },
   "sshKeyPublicKey": {
-    "message": "Public key"
+    "message": "Δημόσιο κλειδί"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -10091,7 +10241,7 @@
     "message": "To host Bitwarden on your own server, you will need to upload your license file. To support Free Families plans and advanced billing capabilities for your self-hosted organization, you will need to set up automatic sync in your self-hosted organization."
   },
   "selfHostingTitleProper": {
-    "message": "Self-Hosting"
+    "message": "Αυτοφιλοξενία"
   },
   "claim-domain-single-org-warning": {
     "message": "Claiming a domain will turn on the single organization policy."
@@ -10205,7 +10355,7 @@
     "message": "Remove members"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Συσκευές"
   },
   "deviceListDescription": {
     "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
@@ -10335,10 +10485,10 @@
     "message": "The password you entered is incorrect."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Εισαγωγή"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Επιβεβαίωση κωδικού πρόσβασης"
   },
   "enterSshKeyPasswordDesc": {
     "message": "Enter the password for the SSH key."
@@ -10347,7 +10497,7 @@
     "message": "Enter password"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "Το κλειδί SSH δεν είναι έγκυρο"
   },
   "sshKeyTypeUnsupported": {
     "message": "The SSH key type is not supported"
@@ -10359,13 +10509,13 @@
     "message": "SSH key imported successfully"
   },
   "copySSHPrivateKey": {
-    "message": "Copy private key"
+    "message": "Αντιγραφή ιδιωτικού κλειδιού"
   },
   "openingExtension": {
     "message": "Opening the Bitwarden browser extension"
   },
   "somethingWentWrong": {
-    "message": "Something went wrong..."
+    "message": "Κάτι πήγε στραβά..."
   },
   "openingExtensionError": {
     "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
@@ -10377,7 +10527,7 @@
     "message": "Don't have the Bitwarden browser extension?"
   },
   "installExtension": {
-    "message": "Install extension"
+    "message": "Εγκατάσταση επέκτασης"
   },
   "openedExtension": {
     "message": "Opened the browser extension"
@@ -10528,7 +10678,7 @@
     "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
-    "message": "Remove Unlock with PIN"
+    "message": "Κατάργηση ξεκλειδώματος με PIN"
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
@@ -10588,7 +10738,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "Ιστότοπος",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -10628,8 +10778,53 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Autofill your passwords securely with one click"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Get the Bitwarden browser extension and start autofilling today"
+  },
+  "getTheExtension": {
+    "message": "Get the extension"
+  },
+  "addItLater": {
+    "message": "Add it later"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "You can't autofill passwords without the browser extension"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Are you sure you don't want to add the extension now?"
+  },
+  "skipToWebApp": {
+    "message": "Skip to web app"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden extension installed!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Open the extension to log in and start autofilling."
+  },
+  "openBitwardenExtension": {
+    "message": "Open Bitwarden extension"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "For tips on getting started with Bitwarden visit the",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Learning Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Help Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+  },
   "restart": {
-    "message": "Restart"
+    "message": "Επανεκκίνηση"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
@@ -10647,6 +10842,58 @@
       "date": {
         "content": "$2",
         "example": "12/31/2024"
+      }
+    }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Billing address required to add credit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Billing address"
+  },
+  "addBillingAddress": {
+    "message": "Add billing address"
+  },
+  "editBillingAddress": {
+    "message": "Edit billing address"
+  },
+  "noBillingAddress": {
+    "message": "No address on file."
+  },
+  "billingAddressUpdated": {
+    "message": "Your billing address has been updated."
+  },
+  "paymentDetails": {
+    "message": "Payment details"
+  },
+  "paymentMethodUpdated": {
+    "message": "Your payment method has been updated."
+  },
+  "bankAccountVerified": {
+    "message": "Your bank account has been verified."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+  },
+  "mustBePositiveNumber": {
+    "message": "Must be a positive number"
+  },
+  "cardSecurityCode": {
+    "message": "Card security code"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "taxId": {
+    "message": "Tax ID: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
       }
     }
   }

@@ -10,7 +10,6 @@ import {
   AfterContentChecked,
   Component,
   ContentChild,
-  Input,
   OnDestroy,
   TemplateRef,
   Directive,
@@ -18,6 +17,7 @@ import {
   AfterViewInit,
   ElementRef,
   TrackByFunction,
+  input,
 } from "@angular/core";
 
 import { ScrollLayoutDirective } from "../layout";
@@ -64,10 +64,10 @@ export class TableScrollComponent
   implements AfterContentChecked, AfterViewInit, OnDestroy
 {
   /** The size of the rows in the list (in pixels). */
-  @Input({ required: true }) rowSize: number;
+  readonly rowSize = input.required<number>();
 
   /** Optional trackBy function. */
-  @Input() trackBy: TrackByFunction<any> | undefined;
+  readonly trackBy = input<TrackByFunction<any> | undefined>();
 
   @ContentChild(BitRowDef) protected rowDef: BitRowDef;
 

@@ -8,13 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { CollectionId } from "@bitwarden/common/types/guid";
 
 import { getUserId } from "../../auth/services/account.service";
-import { Cipher } from "../models/domain/cipher";
-import { CipherView } from "../models/view/cipher.view";
-
-/**
- * Represents either a cipher or a cipher view.
- */
-type CipherLike = Cipher | CipherView;
+import { CipherLike } from "../types/cipher-like";
 
 /**
  * Service for managing user cipher authorization.
@@ -95,7 +89,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           }
         }
 
-        return cipher.permissions.delete;
+        return !!cipher.permissions?.delete;
       }),
     );
   }
@@ -118,7 +112,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           }
         }
 
-        return cipher.permissions.restore;
+        return !!cipher.permissions?.restore;
       }),
     );
   }

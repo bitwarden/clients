@@ -1,8 +1,6 @@
+import { AbstractStorageService, ObservableStorageService } from "@bitwarden/storage-core";
+
 import { LogService } from "../../abstractions/log.service";
-import {
-  AbstractStorageService,
-  ObservableStorageService,
-} from "../../abstractions/storage.service";
 import { GlobalState } from "../global-state";
 import { KeyDefinition, globalKeyBuilder } from "../key-definition";
 

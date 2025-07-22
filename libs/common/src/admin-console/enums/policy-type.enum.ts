@@ -6,7 +6,7 @@ export enum PolicyType {
   PasswordGenerator = 2, // Sets minimum requirements/default type for generated passwords/passphrases
   SingleOrg = 3, // Allows users to only be apart of one organization
   RequireSso = 4, // Requires users to authenticate with SSO
-  PersonalOwnership = 5, // Disables personal vault ownership for adding/cloning items
+  OrganizationDataOwnership = 5, // Enforces organization ownership items added/cloned to the default collection
   DisableSend = 6, // Disables the ability to create and edit Bitwarden Sends
   SendOptions = 7, // Sets restrictions or defaults for Bitwarden Sends
   ResetPassword = 8, // Allows orgs to use reset password : also can enable auto-enrollment during invite flow

@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Note sécurisée"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
     "message": "Clé SSH"
   },
@@ -861,8 +864,28 @@
   "copyName": {
     "message": "Copier le nom"
   },
+  "cardNumber": {
+    "message": "numéro de carte"
+  },
+  "copyFieldCipherName": {
+    "message": "Copier $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Moi"
+  },
+  "myItems": {
+    "message": "Mes éléments"
   },
   "myVault": {
     "message": "Mon coffre"
@@ -1781,6 +1804,9 @@
   "loggedOutWarning": {
     "message": "En poursuivant, vous serez déconnecté de votre session en cours, ce qui vous obligera à vous reconnecter. Les sessions actives sur d'autres appareils peuvent rester actives pendant encore une heure."
   },
+  "changePasswordWarning": {
+    "message": "Après avoir changé votre mot de passe, vous devrez vous connecter avec votre nouveau mot de passe. Les sessions actives sur d'autres appareils seront déconnectées dans un délai d'une heure."
+  },
   "emailChanged": {
     "message": "Courriel sauvegardé"
   },
@@ -2153,11 +2179,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "La configuration d'un système d'authentification à deux facteurs peut définitivement vous verrouiller l'accès à votre compte Bitwarden. Un code de récupération vous permet d'accéder à votre compte dans le cas où vous ne pourriez plus utiliser votre fournisseur normal d'authentification à deux facteurs (exemple : vous perdez votre appareil). L'assistance de Bitwarden ne pourra pas vous aider si vous perdez l'accès à votre compte. Nous vous recommandons de noter ou d'imprimer le code de récupération et de le conserver en lieu sûr."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Supprimer le type d'élément de la carte"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Ne pas autoriser les membres à créer des types d'objets de carte."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Ne pas autoriser les membres à créer des types d'éléments de carte. Les cartes existantes seront automatiquement supprimées."
+  },
+  "restrictCardTypeImport": {
+    "message": "Impossible d'importer les types de l'élément de la carte"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Une politique de sécurité définie par une organisation ou plus vous empêche d'importer des cartes dans vos coffres."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Votre code de récupération à usage unique peut être utilisé pour désactiver la connexion en deux étapes si vous perdez l'accès à votre fournisseur de connexion en deux étapes. Bitwarden vous recommande d'écrire le code de récupération et de le conserver dans un endroit sûr."
@@ -2217,6 +2249,9 @@
   },
   "disable": {
     "message": "Désactiver"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Informations sur le membre non trouvés."
   },
   "revokeAccess": {
     "message": "Révoquer l'Accès"
@@ -3467,6 +3502,9 @@
   "webVault": {
     "message": "Coffre web"
   },
+  "webApp": {
+    "message": "Application web"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3949,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vraiment vous, essayez de vous connecter à nouveau avec l'appareil."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Demande de connexion approuvée pour $EMAIL$ sur $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vous, essayez de vous connecter à nouveau avec l'appareil."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "La demande de connexion a déjà expiré."
   },
@@ -4092,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Examiner la demande de connexion"
+  },
+  "loginRequest": {
+    "message": "Demande de connexion"
   },
   "freeTrialEndPromptCount": {
     "message": "Votre essai gratuit se termine dans $COUNT$ jours.",
@@ -5073,7 +5130,7 @@
     "message": "La politique d'organisation unique Entreprise doit être activée avant d'activer cette politique."
   },
   "requireSsoPolicyReqError": {
-    "message": "La politique \"Organisation Unique\" n'est pas activée."
+    "message": "La politique « Organisation Unique » n'est pas activée."
   },
   "requireSsoExemption": {
     "message": "Les propriétaires et les administrateurs de l'organisation sont exonérés de l'application de cette politique."
@@ -5363,6 +5420,9 @@
   "emergencyRejected": {
     "message": "Accès d'urgence refusé."
   },
+  "grantorDetailsNotFound": {
+    "message": "Détails de la source non trouvés"
+  },
   "passwordResetFor": {
     "message": "Mot de passe réinitialisé pour $USER$. Vous pouvez maintenant vous connecter en utilisant le nouveau mot de passe.",
     "placeholders": {
@@ -5371,6 +5431,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Forcer la propriété des données de l'organisation"
   },
   "personalOwnership": {
     "message": "Supprimer le coffre individuel"
@@ -5763,10 +5826,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "En poursuivant, $NAME$ sera déconnecté de sa session actuelle, ce qui l'obligera à se reconnecter. Les sessions actives sur d'autres appareils peuvent rester actives pendant encore une heure.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "cet utilisateur"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Une ou plusieurs politiques de sécurité de l'organisation exigent que votre mot de passe principal réponde aux exigences suivantes :"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Une ou plusieurs politiques de sécurité de l'organisation exigent que votre mot de passe principal réponde aux exigences suivantes :"
   },
   "resetPasswordSuccess": {
@@ -6034,11 +6109,20 @@
   "add": {
     "message": "Ajouter"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Mot de passe principal défini avec succès"
+  },
   "updatedMasterPassword": {
     "message": "Mot de passe principal enregistré"
   },
   "updateMasterPassword": {
     "message": "Mettre à jour le mot de passe principal"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Changez votre mot de passe principal pour terminer la récupération du compte."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Votre mot de passe principal ne répond pas aux exigences de cette organisation. Changez votre mot de passe principal pour continuer."
   },
   "updateMasterPasswordWarning": {
     "message": "Votre mot de passe principal a été récemment changé par un administrateur de votre organisation. Pour pouvoir accéder au coffre, vous devez mettre à jour votre mot de passe principal maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuvent rester actives pendant encore une heure."
@@ -7614,9 +7698,9 @@
     "message": "Compte de service mis à jour",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Saisir ou sélectionner des projets ou des secrets",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Saisissez ou sélectionnez des projets",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Saisir pour filtrer",
@@ -7701,8 +7785,8 @@
     "message": "Jetons d'accès",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nouveau jeton d'accès",
+  "createAccessToken": {
+    "message": "Créer un jeton d'accès",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8203,8 +8287,44 @@
   "errorReadingImportFile": {
     "message": "Une erreur est survenue lors de la lecture du fichier importé"
   },
+  "accessedSecretWithId": {
+    "message": "A accédé un secret avec identifiant : $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Accès au secret $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "A modifié un secret avec identifiant : $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "A supprimé un secret avec identifiant : $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "A créé un secret avec identifiant : $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8383,6 +8503,12 @@
   },
   "requestAdminApproval": {
     "message": "Demander l'approbation de l'administrateur"
+  },
+  "unableToCompleteLogin": {
+    "message": "Impossible de compléter la connexion"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Vous devez vous connecter sur un appareil de confiance ou demander à votre administrateur de vous assigner un mot de passe."
   },
   "trustedDeviceEncryption": {
     "message": "Chiffrement de l'appareil de confiance"
@@ -8837,6 +8963,30 @@
   "commonImportFormats": {
     "message": "Formats communs",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "La détection de correspondance d'URI est la façon dont Bitwarden identifie les suggestions de remplissage automatique.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "« Expression régulière » est une option avancée avec un risque accru d'exposer les identifiants.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "« Commence par » est une option avancée avec un risque accru d'exposer les identifiants.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "En savoir plus sur la détection de correspondance",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Options avancées",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Avertissement",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Afin de maintenir votre abonnement pour $ORG$, ",
@@ -10628,6 +10778,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Remplissez automatiquement vos mots de passe en un clic"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Obtenez l'extension de navigateur Bitwarden et commencez à remplir automatiquement dès aujourd'hui"
+  },
+  "getTheExtension": {
+    "message": "Obtenez l'extension"
+  },
+  "addItLater": {
+    "message": "Ajoutez la plus tard"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "Vous ne pouvez pas saisir automatiquement les mots de passe sans l'extension de navigateur"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Êtes-vous sûr de ne pas vouloir ajouter l'extension maintenant ?"
+  },
+  "skipToWebApp": {
+    "message": "Passer à l'application web"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "L'extension Bitwarden est installée !"
+  },
+  "openExtensionToAutofill": {
+    "message": "Ouvrez l'extension pour vous connecter et démarrer le remplissage automatique."
+  },
+  "openBitwardenExtension": {
+    "message": "Ouvrir l'extension Bitwarden"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "Pour des conseils sur les débuts avec Bitwarden, visitez le",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Centre d'apprentissage",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Centre d’aide",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "Avec l'extension de navigateur Bitwarden, vous pouvez facilement créer de nouveaux identifiants, accéder à vos identifiants enregistrés directement à partir de la barre d'outils de votre navigateur, et vous connecter rapidement aux comptes en utilisant le remplissage automatique de Bitwarden."
+  },
   "restart": {
     "message": "Redémarrer"
   },
@@ -10647,6 +10842,58 @@
       "date": {
         "content": "$2",
         "example": "12/31/2024"
+      }
+    }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "L'adresse de facturation est requise pour ajouter du crédit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Adresse de facturation"
+  },
+  "addBillingAddress": {
+    "message": "Ajouter une adresse de facturation"
+  },
+  "editBillingAddress": {
+    "message": "Modifier l'adresse de facturation"
+  },
+  "noBillingAddress": {
+    "message": "Aucune adresse sur le fichier."
+  },
+  "billingAddressUpdated": {
+    "message": "Votre adresse de facturation a été mise à jour."
+  },
+  "paymentDetails": {
+    "message": "Informations de paiement"
+  },
+  "paymentMethodUpdated": {
+    "message": "Votre méthode de paiement a bien été mise à jour."
+  },
+  "bankAccountVerified": {
+    "message": "Votre compte bancaire a été vérifié."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Tout crédit disponible sera automatiquement appliqué aux factures générées pour ce compte."
+  },
+  "mustBePositiveNumber": {
+    "message": "Doit être un nombre positif"
+  },
+  "cardSecurityCode": {
+    "message": "Code de sécurité de la carte"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Code de sécurité de la carte, également connu sous le nom de CVV ou CVC, est généralement un numéro à 3 chiffres imprimé au dos de votre carte de crédit ou un numéro à 4 chiffres imprimé au recto au-dessus du numéro de votre carte."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Le paiement avec un compte bancaire est seulement disponible pour les clients aux États-Unis. Vous devrez procéder à la vérification de votre compte bancaire. Nous effectuerons un micro-dépôt dans les 1-2 prochains jours ouvrables. Entrez le code de la transaction de ce dépôt sur la page d'Informations de Paiement pour compléter la vérification du compte bancaire. Si vous ne complétez pas la vérification de votre compte bancaire résultera en un paiement manqué et votre abonnement sera suspendu."
+  },
+  "taxId": {
+    "message": "ID de la taxe : $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
       }
     }
   }

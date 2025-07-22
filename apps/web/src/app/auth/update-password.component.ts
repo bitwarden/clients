@@ -1,10 +1,9 @@
 import { Component, inject } from "@angular/core";
 
 import { UpdatePasswordComponent as BaseUpdatePasswordComponent } from "@bitwarden/angular/auth/components/update-password.component";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 
 import { RouterService } from "../core";
-
-import { AcceptOrganizationInviteService } from "./organization-invite/accept-organization.service";
 
 @Component({
   selector: "app-update-password",
@@ -13,13 +12,13 @@ import { AcceptOrganizationInviteService } from "./organization-invite/accept-or
 })
 export class UpdatePasswordComponent extends BaseUpdatePasswordComponent {
   private routerService = inject(RouterService);
-  private acceptOrganizationInviteService = inject(AcceptOrganizationInviteService);
+  private organizationInviteService = inject(OrganizationInviteService);
 
   override async cancel() {
     // clearing the login redirect url so that the user
     // does not join the organization if they cancel
     await this.routerService.getAndClearLoginRedirectUrl();
-    await this.acceptOrganizationInviteService.clearOrganizationInvitation();
+    await this.organizationInviteService.clearOrganizationInvitation();
     await super.cancel();
   }
 }

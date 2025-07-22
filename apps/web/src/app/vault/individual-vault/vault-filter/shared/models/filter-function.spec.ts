@@ -3,7 +3,6 @@
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { RestrictedCipherType } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { createFilterFunction } from "./filter-function";
 import { All } from "./routed-vault-filter.model";
@@ -215,46 +214,6 @@ describe("createFilter", () => {
       expect(result).toBe(true);
     });
   });
-
-  describe("given restricted types", () => {
-    const restrictedTypes: RestrictedCipherType[] = [
-      { cipherType: CipherType.Login, allowViewOrgIds: [] },
-    ];
-
-    it("should filter out a cipher whose type is fully restricted", () => {
-      const cipher = createCipher({ type: CipherType.Login });
-      const filterFunction = createFilterFunction({}, restrictedTypes);
-
-      expect(filterFunction(cipher)).toBe(false);
-    });
-
-    it("should allow a cipher when the cipher's organization allows it", () => {
-      const cipher = createCipher({ type: CipherType.Login, organizationId: "org1" });
-      const restricted: RestrictedCipherType[] = [
-        { cipherType: CipherType.Login, allowViewOrgIds: ["org1"] },
-      ];
-      const filterFunction2 = createFilterFunction({}, restricted);
-
-      expect(filterFunction2(cipher)).toBe(true);
-    });
-
-    it("should filter out a personal vault cipher when the owning orgs does not allow it", () => {
-      const cipher = createCipher({ type: CipherType.Card, organizationId: "org1" });
-      const restricted2: RestrictedCipherType[] = [
-        { cipherType: CipherType.Card, allowViewOrgIds: [] },
-      ];
-      const filterFunction3 = createFilterFunction({}, restricted2);
-
-      expect(filterFunction3(cipher)).toBe(false);
-    });
-
-    it("should not filter a cipher if there are no restricted types", () => {
-      const cipher = createCipher({ type: CipherType.Login });
-      const filterFunction = createFilterFunction({}, []);
-
-      expect(filterFunction(cipher)).toBe(true);
-    });
-  });
 });
 
 function createCipher(options: Partial<CipherView> = {}) {
@@ -262,7 +221,7 @@ function createCipher(options: Partial<CipherView> = {}) {
 
   cipher.favorite = options.favorite ?? false;
   cipher.deletedDate = options.deletedDate;
-  cipher.type = options.type;
+  cipher.type = options.type ?? CipherType.Login;
   cipher.folderId = options.folderId;
   cipher.collectionIds = options.collectionIds;
   cipher.organizationId = options.organizationId;

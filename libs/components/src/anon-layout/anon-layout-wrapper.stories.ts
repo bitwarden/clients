@@ -87,6 +87,7 @@ const decorators = (options: {
               appLogoLabel: "app logo label",
               finishCreatingYourAccountBySettingAPassword:
                 "Finish creating your account by setting a password",
+              enterpriseSingleSignOn: "Enterprise Single Sign-On",
             });
           },
         },

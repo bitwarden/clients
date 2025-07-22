@@ -10,7 +10,6 @@ import {
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -19,6 +18,7 @@ import { ListResponse as ApiListResponse } from "@bitwarden/common/models/respon
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
@@ -29,6 +29,7 @@ import { ListResponse } from "../models/response/list.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
+import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
 export class ListCommand {
   constructor(
@@ -41,6 +42,7 @@ export class ListCommand {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -133,6 +135,8 @@ export class ListCommand {
     if (options.search != null && options.search.trim() !== "") {
       ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
     }
+
+    ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
 
     await this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, ciphers, true);
 

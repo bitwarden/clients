@@ -4,7 +4,7 @@ import { IpcClient, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-inte
 
 export abstract class IpcService {
   private _client?: IpcClient;
-  protected get client(): IpcClient {
+  get client(): IpcClient {
     if (!this._client) {
       throw new Error("IpcService not initialized");
     }

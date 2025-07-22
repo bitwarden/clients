@@ -1,0 +1,56 @@
+<i
+  *ngIf="state === SetupExtensionState.Loading"
+  class="bwi bwi-spinner bwi-spin bwi-3x tw-text-muted"
+  aria-hidden="true"
+  [appA11yTitle]="'loading' | i18n"
+></i>
+
+<section *ngIf="state === SetupExtensionState.NeedsExtension" class="tw-text-center tw-mt-4">
+  <h1 class="tw-text-xl tw-font-semibold tw-text-main sm:tw-text-2xl">
+    {{ "setupExtensionPageTitle" | i18n }}
+  </h1>
+  <h2 class="tw-text-sm tw-text-main tw-mb-6 tw-font-normal sm:tw-text-base">
+    {{ "setupExtensionPageDescription" | i18n }}
+  </h2>
+  <vault-add-extension-videos></vault-add-extension-videos>
+  <div class="tw-flex tw-flex-col tw-gap-4 tw-items-center">
+    <a
+      bitButton
+      buttonType="primary"
+      [href]="webStoreUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {{ "getTheExtension" | i18n }}
+    </a>
+    <button type="button" bitLink (click)="addItLater()">
+      {{ "addItLater" | i18n }}
+    </button>
+  </div>
+</section>
+
+<section *ngIf="state === SetupExtensionState.Success" class="tw-flex tw-flex-col tw-items-center">
+  <bit-icon [icon]="PartyIcon"></bit-icon>
+  <h1 bitTypography="h2" class="tw-mb-6 tw-mt-4">{{ "bitwardenExtensionInstalled" | i18n }}</h1>
+  <div
+    class="tw-flex tw-flex-col tw-rounded-2xl tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-p-8"
+  >
+    <p>{{ "openExtensionToAutofill" | i18n }}</p>
+    <button type="button" bitButton buttonType="primary" class="tw-mb-2" (click)="openExtension()">
+      {{ "openBitwardenExtension" | i18n }}
+    </button>
+    <a bitButton buttonType="secondary" routerLink="/vault">
+      {{ "skipToWebApp" | i18n }}
+    </a>
+  </div>
+  <p class="tw-mt-10 tw-max-w-96 tw-text-center">
+    {{ "gettingStartedWithBitwardenPart1" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/">
+      {{ "gettingStartedWithBitwardenPart2" | i18n }}
+    </a>
+    {{ "and" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/learning-center/">
+      {{ "gettingStartedWithBitwardenPart3" | i18n }}
+    </a>
+  </p>
+</section>

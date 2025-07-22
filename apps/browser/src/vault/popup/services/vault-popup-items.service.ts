@@ -20,22 +20,25 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
 import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { waitUntil } from "../../util";
-import { PopupCipherView } from "../views/popup-cipher.view";
+import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
@@ -95,42 +98,52 @@ export class VaultPopupItemsService {
    * Observable that contains the list of all decrypted ciphers.
    * @private
    */
-  private _allDecryptedCiphers$: Observable<CipherView[]> = this.accountService.activeAccount$.pipe(
-    map((a) => a?.id),
-    filter((userId): userId is UserId => userId != null),
-    switchMap((userId) =>
-      merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
-        runInsideAngular(this.ngZone),
-        tap(() => this._ciphersLoading$.next()),
-        waitUntilSync(this.syncService),
-        switchMap(() =>
-          combineLatest([
-            Utils.asyncToObservable(() => this.cipherService.getAllDecrypted(userId)),
-            this.cipherService.failedToDecryptCiphers$(userId),
-          ]),
-        ),
-        map(([ciphers, failedToDecryptCiphers]) => [...(failedToDecryptCiphers || []), ...ciphers]),
-      ),
-    ),
-    shareReplay({ refCount: true, bufferSize: 1 }),
-  );
+  private _allDecryptedCiphers$: Observable<CipherViewLike[]> =
+    this.accountService.activeAccount$.pipe(
+      map((a) => a?.id),
+      filter((userId): userId is UserId => userId != null),
+      switchMap((userId) =>
+        merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+          runInsideAngular(this.ngZone),
+          tap(() => this._ciphersLoading$.next()),
+          waitUntilSync(this.syncService),
+          switchMap(() =>
+            combineLatest([
+              this.cipherService
+                .cipherListViews$(userId)
+                .pipe(filter((ciphers) => ciphers != null)),
+              this.cipherService.failedToDecryptCiphers$(userId),
+              this.restrictedItemTypesService.restricted$.pipe(startWith([])),
+            ]),
+          ),
+          map(([ciphers, failedToDecryptCiphers, restrictions]) => {
+            const allCiphers = [...(failedToDecryptCiphers || []), ...ciphers];
 
-  private _activeCipherList$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
+            return allCiphers.filter(
+              (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions),
+            );
+          }),
+        ),
+      ),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+  private _activeCipherList$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
       combineLatest([this.organizations$, this.collectionService.decryptedCollections$]).pipe(
         map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
-            .filter((c) => !c.isDeleted)
-            .map(
-              (cipher) =>
-                new PopupCipherView(
-                  cipher,
-                  cipher.collectionIds?.map((colId) => collectionMap[colId as CollectionId]),
-                  orgMap[cipher.organizationId as OrganizationId],
-                ),
-            );
+            .filter((c) => !CipherViewLikeUtils.isDeleted(c))
+            .map((cipher) => {
+              (cipher as PopupCipherViewLike).collections = cipher.collectionIds?.map(
+                (colId) => collectionMap[colId as CollectionId],
+              );
+              (cipher as PopupCipherViewLike).organization =
+                orgMap[cipher.organizationId as OrganizationId];
+              return cipher;
+            });
         }),
       ),
     ),
@@ -149,21 +162,23 @@ export class VaultPopupItemsService {
     }),
   );
 
-  private _filteredCipherList$: Observable<PopupCipherView[]> = combineLatest([
+  private _filteredCipherList$: Observable<PopupCipherViewLike[]> = combineLatest([
     this._activeCipherList$,
     this.searchText$,
     this.vaultPopupListFiltersService.filterFunction$,
     getUserId(this.accountService.activeAccount$),
   ]).pipe(
-    map(([ciphers, searchText, filterFunction, userId]): [CipherView[], string, UserId] => [
-      filterFunction(ciphers),
-      searchText,
-      userId,
-    ]),
+    map(
+      ([ciphers, searchText, filterFunction, userId]): [PopupCipherViewLike[], string, UserId] => [
+        filterFunction(ciphers),
+        searchText,
+        userId,
+      ],
+    ),
     switchMap(
       ([ciphers, searchText, userId]) =>
         this.searchService.searchCiphers(userId, searchText, undefined, ciphers) as Promise<
-          PopupCipherView[]
+          PopupCipherViewLike[]
         >,
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
@@ -175,7 +190,7 @@ export class VaultPopupItemsService {
    *
    * See {@link refreshCurrentTab} to trigger re-evaluation of the current tab.
    */
-  autoFillCiphers$: Observable<PopupCipherView[]> = combineLatest([
+  autoFillCiphers$: Observable<PopupCipherViewLike[]> = combineLatest([
     this._filteredCipherList$,
     this._otherAutoFillTypes$,
     this.vaultPopupAutofillService.currentAutofillTab$,
@@ -194,7 +209,7 @@ export class VaultPopupItemsService {
    * List of favorite ciphers that are not currently suggested for autofill.
    * Ciphers are sorted by name.
    */
-  favoriteCiphers$: Observable<PopupCipherView[]> = this.autoFillCiphers$.pipe(
+  favoriteCiphers$: Observable<PopupCipherViewLike[]> = this.autoFillCiphers$.pipe(
     withLatestFrom(this._filteredCipherList$),
     map(([autoFillCiphers, ciphers]) =>
       ciphers.filter((cipher) => cipher.favorite && !autoFillCiphers.includes(cipher)),
@@ -206,7 +221,7 @@ export class VaultPopupItemsService {
    * List of all remaining ciphers that are not currently suggested for autofill or marked as favorite.
    * Ciphers are sorted by name.
    */
-  remainingCiphers$: Observable<PopupCipherView[]> = this.favoriteCiphers$.pipe(
+  remainingCiphers$: Observable<PopupCipherViewLike[]> = this.favoriteCiphers$.pipe(
     concatMap(
       (
         favoriteCiphers, // concatMap->of is used to make withLatestFrom lazy to avoid race conditions with autoFillCiphers$
@@ -274,21 +289,23 @@ export class VaultPopupItemsService {
   /**
    * Observable that contains the list of ciphers that have been deleted.
    */
-  deletedCiphers$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
+  deletedCiphers$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
       combineLatest([this.organizations$, this.collectionService.decryptedCollections$]).pipe(
         map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
-            .filter((c) => c.isDeleted)
+            .filter((c) => CipherViewLikeUtils.isDeleted(c))
             .map(
               (cipher) =>
-                new PopupCipherView(
-                  cipher,
-                  cipher.collectionIds?.map((colId) => collectionMap[colId as CollectionId]),
-                  orgMap[cipher.organizationId as OrganizationId],
-                ),
+                ({
+                  ...cipher,
+                  collections: cipher.collectionIds?.map(
+                    (colId) => collectionMap[colId as CollectionId],
+                  ),
+                  organization: orgMap[cipher.organizationId as OrganizationId],
+                }) as PopupCipherViewLike,
             );
         }),
       ),
@@ -307,6 +324,7 @@ export class VaultPopupItemsService {
     private syncService: SyncService,
     private accountService: AccountService,
     private ngZone: NgZone,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   applyFilter(newSearchText: string) {
@@ -318,7 +336,7 @@ export class VaultPopupItemsService {
    * Sorts by type, then by last used date, and finally by name.
    * @private
    */
-  private sortCiphersForAutofill(a: CipherView, b: CipherView): number {
+  private sortCiphersForAutofill(a: CipherViewLike, b: CipherViewLike): number {
     const typeOrder = {
       [CipherType.Login]: 1,
       [CipherType.Card]: 2,
@@ -327,10 +345,13 @@ export class VaultPopupItemsService {
       [CipherType.SshKey]: 5,
     } as Record<CipherType, number>;
 
+    const aType = CipherViewLikeUtils.getType(a);
+    const bType = CipherViewLikeUtils.getType(b);
+
     // Compare types first
-    if (typeOrder[a.type] < typeOrder[b.type]) {
+    if (typeOrder[aType] < typeOrder[bType]) {
       return -1;
-    } else if (typeOrder[a.type] > typeOrder[b.type]) {
+    } else if (typeOrder[aType] > typeOrder[bType]) {
       return 1;
     }
 

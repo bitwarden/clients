@@ -21,7 +21,6 @@ import { ProviderUserBulkRequest } from "../admin-console/models/request/provide
 import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
-import { SelectionReadOnlyRequest } from "../admin-console/models/request/selection-read-only.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
@@ -260,11 +259,6 @@ export abstract class ApiService {
     organizationId: string,
     request: CollectionRequest,
   ) => Promise<CollectionDetailsResponse>;
-  putCollectionUsers: (
-    organizationId: string,
-    id: string,
-    request: SelectionReadOnlyRequest[],
-  ) => Promise<any>;
   putCollection: (
     organizationId: string,
     id: string,
@@ -272,11 +266,6 @@ export abstract class ApiService {
   ) => Promise<CollectionDetailsResponse>;
   deleteCollection: (organizationId: string, id: string) => Promise<any>;
   deleteManyCollections: (organizationId: string, collectionIds: string[]) => Promise<any>;
-  deleteCollectionUser: (
-    organizationId: string,
-    id: string,
-    organizationUserId: string,
-  ) => Promise<any>;
 
   getGroupUsers: (organizationId: string, id: string) => Promise<string[]>;
   deleteGroupUser: (organizationId: string, id: string, organizationUserId: string) => Promise<any>;

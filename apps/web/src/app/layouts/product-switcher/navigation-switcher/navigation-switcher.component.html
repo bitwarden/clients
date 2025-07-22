@@ -16,43 +16,45 @@
     >
       <span class="tw-text-xs !tw-text-alt2 tw-p-2 tw-pb-0">{{ "moreFromBitwarden" | i18n }}</span>
       <ng-container *ngFor="let more of moreProducts">
-        <!-- <a> for when the marketing route is external -->
-        <a
-          *ngIf="more.marketingRoute.external"
-          [href]="more.marketingRoute.route"
-          target="_blank"
-          rel="noreferrer"
-          class="tw-flex tw-py-2 tw-px-4 tw-font-semibold !tw-text-alt2 !tw-no-underline hover:tw-bg-primary-300/60 [&>:not(.bwi)]:hover:tw-underline"
-        >
-          <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
-          <div>
-            {{ more.otherProductOverrides?.name ?? more.name }}
-            <div
-              *ngIf="more.otherProductOverrides?.supportingText"
-              class="tw-text-xs tw-font-normal"
-            >
-              {{ more.otherProductOverrides.supportingText }}
+        <div class="tw-ps-2 tw-pe-2">
+          <!-- <a> for when the marketing route is external -->
+          <a
+            *ngIf="more.marketingRoute.external"
+            [href]="more.marketingRoute.route"
+            target="_blank"
+            rel="noreferrer"
+            class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-font-bold !tw-text-alt2 !tw-no-underline hover:tw-bg-hover-contrast [&>:not(.bwi)]:hover:tw-underline"
+          >
+            <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
+            <div>
+              {{ more.otherProductOverrides?.name ?? more.name }}
+              <div
+                *ngIf="more.otherProductOverrides?.supportingText"
+                class="tw-text-xs tw-font-normal"
+              >
+                {{ more.otherProductOverrides.supportingText }}
+              </div>
             </div>
-          </div>
-        </a>
-        <!-- <a> for when the marketing route is internal, it needs to use [routerLink] instead of [href] like the external <a> uses. -->
-        <a
-          *ngIf="!more.marketingRoute.external"
-          [routerLink]="more.marketingRoute.route"
-          rel="noreferrer"
-          class="tw-flex tw-py-2 tw-px-4 tw-font-semibold !tw-text-alt2 !tw-no-underline hover:tw-bg-primary-300/60 [&>:not(.bwi)]:hover:tw-underline"
-        >
-          <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
-          <div>
-            {{ more.otherProductOverrides?.name ?? more.name }}
-            <div
-              *ngIf="more.otherProductOverrides?.supportingText"
-              class="tw-text-xs tw-font-normal"
-            >
-              {{ more.otherProductOverrides.supportingText }}
+          </a>
+          <!-- <a> for when the marketing route is internal, it needs to use [routerLink] instead of [href] like the external <a> uses. -->
+          <a
+            *ngIf="!more.marketingRoute.external"
+            [routerLink]="more.marketingRoute.route"
+            rel="noreferrer"
+            class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-font-bold !tw-text-alt2 !tw-no-underline hover:tw-bg-hover-contrast [&>:not(.bwi)]:hover:tw-underline"
+          >
+            <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
+            <div>
+              {{ more.otherProductOverrides?.name ?? more.name }}
+              <div
+                *ngIf="more.otherProductOverrides?.supportingText"
+                class="tw-text-xs tw-font-normal"
+              >
+                {{ more.otherProductOverrides.supportingText }}
+              </div>
             </div>
-          </div>
-        </a>
+          </a>
+        </div>
       </ng-container>
     </section>
   </ng-container>

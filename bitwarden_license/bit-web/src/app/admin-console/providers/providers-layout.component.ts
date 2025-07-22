@@ -10,6 +10,8 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderStatusType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Icon, IconModule } from "@bitwarden/components";
 import { BusinessUnitPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/business-unit-portal-logo.icon";
 import { ProviderPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/provider-portal-logo";
@@ -32,10 +34,12 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected canAccessBilling$: Observable<boolean>;
 
   protected clientsTranslationKey$: Observable<string>;
+  protected managePaymentDetailsOutsideCheckout$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,
+    private configService: ConfigService,
   ) {}
 
   ngOnInit() {
@@ -68,6 +72,10 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       map((provider) =>
         provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
       ),
+    );
+
+    this.managePaymentDetailsOutsideCheckout$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
   }
 
