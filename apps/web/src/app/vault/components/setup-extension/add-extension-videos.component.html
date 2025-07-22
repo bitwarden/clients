@@ -46,10 +46,10 @@
   The first video is relatively positioned to force the layout and spacing of the videos.
 -->
 <div
-  class="tw-mx-auto tw-w-[15rem] tw-mb-8 tw-relative md:tw-grid md:tw-gap-10 md:tw-w-auto md:tw-grid-rows-1 md:tw-grid-cols-3 md:tw-justify-center md:tw-justify-items-center"
+  class="tw-mx-auto tw-w-[15rem] tw-mb-8 tw-relative md:tw-grid md:tw-gap-10 md:tw-w-auto md:tw-grid-rows-1 md:tw-grid-cols-3 md:tw-justify-center md:tw-justify-items-center xl:tw-gap-12"
   [attr.aria-label]="'setupExtensionContentAlt' | i18n"
 >
-  <div class="tw-relative tw-w-[15rem] tw-max-w-full tw-aspect-[0.807]">
+  <div [ngClass]="videoContainerClass">
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
@@ -58,9 +58,8 @@
     <ng-container *ngTemplateOutlet="newLoginItem"></ng-container>
   </div>
 
-  <div
-    class="tw-absolute tw-left-0 tw-top-0 tw-opacity-0 md:tw-opacity-100 md:tw-relative tw-w-[15rem] tw-max-w-full tw-aspect-[0.807]"
-  >
+  <!-- Use `tw-relative` on the first video container to maintain the proper spacing -->
+  <div [ngClass]="videoContainerClass" class="tw-relative">
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
@@ -69,9 +68,7 @@
     <ng-container *ngTemplateOutlet="browserExtensionEasyAccess"></ng-container>
   </div>
 
-  <div
-    class="tw-absolute tw-left-0 tw-top-0 tw-opacity-0 md:tw-opacity-100 md:tw-relative tw-w-[15rem] tw-max-w-full tw-aspect-[0.807]"
-  >
+  <div [ngClass]="videoContainerClass">
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"

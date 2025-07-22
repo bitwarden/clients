@@ -39,6 +39,7 @@ import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -69,6 +70,7 @@ describe("SettingsComponent", () => {
   const messagingService = mock<MessagingService>();
   const keyService = mock<KeyService>();
   const dialogService = mock<DialogService>();
+  const desktopAutotypeService = mock<DesktopAutotypeService>();
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -124,6 +126,7 @@ describe("SettingsComponent", () => {
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: ValidationService, useValue: validationService },
         { provide: MessagingService, useValue: messagingService },
+        { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -160,6 +163,7 @@ describe("SettingsComponent", () => {
     themeStateService.selectedTheme$ = of(ThemeType.System);
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+    desktopAutotypeService.autotypeEnabled$ = of(false);
   });
 
   afterEach(() => {
@@ -267,74 +271,46 @@ describe("SettingsComponent", () => {
       vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(true);
     });
 
-    it("require password or pin on app start message when RemoveUnlockWithPin policy is disabled and pin set and windows desktop", async () => {
-      const policy = new Policy();
-      policy.type = PolicyType.RemoveUnlockWithPin;
-      policy.enabled = false;
-      policyService.policiesByType$.mockReturnValue(of([policy]));
-      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      i18nService.t.mockImplementation((id: string) => {
-        if (id === "requirePasswordOnStart") {
-          return "Require password or pin on app start";
-        } else if (id === "requirePasswordWithoutPinOnStart") {
-          return "Require password on app start";
-        }
-        return "";
+    describe("windows desktop", () => {
+      beforeEach(() => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+
+        // Recreate component to apply the correct device
+        fixture = TestBed.createComponent(SettingsComponent);
+        component = fixture.componentInstance;
       });
-      pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
-      await component.ngOnInit();
-      fixture.detectChanges();
+      it("require password or pin on app start not visible when RemoveUnlockWithPin policy is disabled and pin set and windows desktop", async () => {
+        const policy = new Policy();
+        policy.type = PolicyType.RemoveUnlockWithPin;
+        policy.enabled = false;
+        policyService.policiesByType$.mockReturnValue(of([policy]));
+        pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
-      const requirePasswordOnStartLabelElement = fixture.debugElement.query(
-        By.css("label[for='requirePasswordOnStart']"),
-      );
-      expect(requirePasswordOnStartLabelElement).not.toBeNull();
-      expect(requirePasswordOnStartLabelElement.children).toHaveLength(1);
-      expect(requirePasswordOnStartLabelElement.children[0].name).toBe("input");
-      expect(requirePasswordOnStartLabelElement.children[0].attributes).toMatchObject({
-        id: "requirePasswordOnStart",
-        type: "checkbox",
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        const requirePasswordOnStartLabelElement = fixture.debugElement.query(
+          By.css("label[for='requirePasswordOnStart']"),
+        );
+        expect(requirePasswordOnStartLabelElement).toBeNull();
       });
-      const textNodes = requirePasswordOnStartLabelElement.childNodes
-        .filter((node) => node.nativeNode.nodeType === Node.TEXT_NODE)
-        .map((node) => node.nativeNode.wholeText?.trim());
-      expect(textNodes).toContain("Require password or pin on app start");
-    });
 
-    it("require password on app start message when RemoveUnlockWithPin policy is enabled and pin set and windows desktop", async () => {
-      const policy = new Policy();
-      policy.type = PolicyType.RemoveUnlockWithPin;
-      policy.enabled = true;
-      policyService.policiesByType$.mockReturnValue(of([policy]));
-      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      i18nService.t.mockImplementation((id: string) => {
-        if (id === "requirePasswordOnStart") {
-          return "Require password or pin on app start";
-        } else if (id === "requirePasswordWithoutPinOnStart") {
-          return "Require password on app start";
-        }
-        return "";
+      it("require password on app start not visible when RemoveUnlockWithPin policy is enabled and pin set and windows desktop", async () => {
+        const policy = new Policy();
+        policy.type = PolicyType.RemoveUnlockWithPin;
+        policy.enabled = true;
+        policyService.policiesByType$.mockReturnValue(of([policy]));
+        pinServiceAbstraction.isPinSet.mockResolvedValue(true);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        const requirePasswordOnStartLabelElement = fixture.debugElement.query(
+          By.css("label[for='requirePasswordOnStart']"),
+        );
+        expect(requirePasswordOnStartLabelElement).toBeNull();
       });
-      pinServiceAbstraction.isPinSet.mockResolvedValue(true);
-
-      await component.ngOnInit();
-      fixture.detectChanges();
-
-      const requirePasswordOnStartLabelElement = fixture.debugElement.query(
-        By.css("label[for='requirePasswordOnStart']"),
-      );
-      expect(requirePasswordOnStartLabelElement).not.toBeNull();
-      expect(requirePasswordOnStartLabelElement.children).toHaveLength(1);
-      expect(requirePasswordOnStartLabelElement.children[0].name).toBe("input");
-      expect(requirePasswordOnStartLabelElement.children[0].attributes).toMatchObject({
-        id: "requirePasswordOnStart",
-        type: "checkbox",
-      });
-      const textNodes = requirePasswordOnStartLabelElement.childNodes
-        .filter((node) => node.nativeNode.nodeType === Node.TEXT_NODE)
-        .map((node) => node.nativeNode.wholeText?.trim());
-      expect(textNodes).toContain("Require password on app start");
     });
   });
 

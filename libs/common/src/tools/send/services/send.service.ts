@@ -7,11 +7,11 @@ import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from
 import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -89,10 +89,13 @@ export class SendService implements InternalSendServiceAbstraction {
     }
     // Key is not a SymmetricCryptoKey, but key material used to derive the cryptoKey
     send.key = await this.encryptService.encryptBytes(model.key, userKey);
+    // FIXME: model.name can be null. encryptString should not be called with null values.
     send.name = await this.encryptService.encryptString(model.name, model.cryptoKey);
+    // FIXME: model.notes can be null. encryptString should not be called with null values.
     send.notes = await this.encryptService.encryptString(model.notes, model.cryptoKey);
     if (send.type === SendType.Text) {
       send.text = new SendText();
+      // FIXME: model.text.text can be null. encryptString should not be called with null values.
       send.text.text = await this.encryptService.encryptString(model.text.text, model.cryptoKey);
       send.text.hidden = model.text.hidden;
     } else if (send.type === SendType.File) {

@@ -5,11 +5,11 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { KeyService } from "@bitwarden/key-management";
 
 import { makeEncString, makeStaticByteArray } from "../../../../spec";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncryptionType } from "../../../platform/enums";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { ContainerService } from "../../../platform/services/container.service";
 import { UserKey, OrgKey } from "../../../types/key";
-import { EncryptionType } from "../../enums";
-import { ContainerService } from "../../services/container.service";
+import { EncryptService } from "../abstractions/encrypt.service";
 
 import { EncString } from "./enc-string";
 

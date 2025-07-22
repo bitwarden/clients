@@ -12,6 +12,7 @@ import { AccountServiceImplementation } from "@bitwarden/common/auth/services/ac
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -32,8 +33,10 @@ import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 
+import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
+import { DesktopAutotypeService } from "./autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
@@ -44,6 +47,7 @@ import { PowerMonitorMain } from "./main/power-monitor.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { SlimConfigService } from "./platform/config/slim-config.service";
 import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
@@ -55,6 +59,7 @@ import { EphemeralValueStorageService } from "./platform/services/ephemeral-valu
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
+import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
 
 export class Main {
@@ -85,6 +90,8 @@ export class Main {
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
   versionMain: VersionMain;
   sshAgentService: MainSshAgentService;
+  sdkLoadService: SdkLoadService;
+  mainDesktopAutotypeService: MainDesktopAutotypeService;
 
   constructor() {
     // Set paths for portable builds
@@ -140,6 +147,8 @@ export class Main {
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
+    this.sdkLoadService = new MainSdkLoadService();
+
     this.mainCryptoFunctionService = new NodeCryptoFunctionService();
 
     const stateEventRegistrarService = new StateEventRegistrarService(
@@ -192,6 +201,16 @@ export class Main {
       this.logService,
       true,
     );
+
+    this.windowMain = new WindowMain(
+      biometricStateService,
+      this.logService,
+      this.storageService,
+      this.desktopSettingsService,
+      (arg) => this.processDeepLink(arg),
+      (win) => this.trayMain.setupWindowListeners(win),
+    );
+
     this.biometricsService = new MainBiometricsService(
       this.i18nService,
       this.windowMain,
@@ -202,14 +221,6 @@ export class Main {
       this.mainCryptoFunctionService,
     );
 
-    this.windowMain = new WindowMain(
-      biometricStateService,
-      this.logService,
-      this.storageService,
-      this.desktopSettingsService,
-      (arg) => this.processDeepLink(arg),
-      (win) => this.trayMain.setupWindowListeners(win),
-    );
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
     this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
 
@@ -293,6 +304,15 @@ export class Main {
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
+
+    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
+      new DesktopAutotypeService(
+        new SlimConfigService(this.environmentService, globalStateProvider),
+        globalStateProvider,
+        process.platform === "win32",
+      ),
+    );
+    this.mainDesktopAutotypeService.init();
   }
 
   bootstrap() {
@@ -373,6 +393,8 @@ export class Main {
         this.windowMain.win.on("minimize", () => {
           this.messagingService.send("windowHidden");
         });
+
+        await this.sdkLoadService.loadAndInit();
       },
       (e: any) => {
         this.logService.error("Error while running migrations:", e);
