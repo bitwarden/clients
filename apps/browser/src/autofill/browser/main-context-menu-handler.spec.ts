@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -22,6 +22,10 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { MainContextMenuHandler } from "./main-context-menu-handler";
 
@@ -69,6 +73,8 @@ describe("context-menu", () => {
   let logService: MockProxy<LogService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let accountService: MockProxy<AccountService>;
+  let restricted$: BehaviorSubject<RestrictedCipherType[]>;
+  let restrictedItemTypesService: RestrictedItemTypesService;
 
   let removeAllSpy: jest.SpyInstance<void, [callback?: () => void]>;
   let createSpy: jest.SpyInstance<
@@ -85,6 +91,10 @@ describe("context-menu", () => {
     logService = mock();
     billingAccountProfileStateService = mock();
     accountService = mock();
+    restricted$ = new BehaviorSubject<RestrictedCipherType[]>([]);
+    restrictedItemTypesService = {
+      restricted$,
+    } as Partial<RestrictedItemTypesService> as RestrictedItemTypesService;
 
     removeAllSpy = jest
       .spyOn(chrome.contextMenus, "removeAll")
@@ -105,6 +115,7 @@ describe("context-menu", () => {
       logService,
       billingAccountProfileStateService,
       accountService,
+      restrictedItemTypesService,
     );
 
     jest.spyOn(MainContextMenuHandler, "remove");
@@ -146,6 +157,24 @@ describe("context-menu", () => {
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
       expect(createSpy).toHaveBeenCalledTimes(11);
+    });
+
+    it("has menu enabled and has premium, but card type is restricted", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+
+      restricted$.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+
+      const createdMenu = await sut.init();
+      expect(createdMenu).toBeTruthy();
+      expect(createSpy).toHaveBeenCalledTimes(10);
+    });
+    it("has menu enabled, does not have premium, and card type is restricted", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      restricted$.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+
+      const createdMenu = await sut.init();
+      expect(createdMenu).toBeTruthy();
+      expect(createSpy).toHaveBeenCalledTimes(9);
     });
   });
 

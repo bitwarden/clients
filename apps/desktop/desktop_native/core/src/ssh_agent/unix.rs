@@ -15,9 +15,9 @@ use tokio_util::sync::CancellationToken;
 
 use crate::ssh_agent::peercred_unix_listener_stream::PeercredUnixListenerStream;
 
-use super::{BitwardenDesktopAgent, SshAgentUIRequest};
+use super::{BitwardenDesktopAgent, BitwardenSshKey, SshAgentUIRequest};
 
-impl BitwardenDesktopAgent {
+impl BitwardenDesktopAgent<BitwardenSshKey> {
     pub async fn start_server(
         auth_request_tx: tokio::sync::mpsc::Sender<SshAgentUIRequest>,
         auth_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
@@ -65,16 +65,10 @@ impl BitwardenDesktopAgent {
                 }
             };
 
-            println!(
-                "[SSH Agent Native Module] Starting SSH Agent server on {:?}",
-                ssh_path
-            );
+            println!("[SSH Agent Native Module] Starting SSH Agent server on {ssh_path:?}");
             let sockname = std::path::Path::new(&ssh_path);
             if let Err(e) = std::fs::remove_file(sockname) {
-                println!(
-                    "[SSH Agent Native Module] Could not remove existing socket file: {}",
-                    e
-                );
+                println!("[SSH Agent Native Module] Could not remove existing socket file: {e}");
                 if e.kind() != std::io::ErrorKind::NotFound {
                     return;
                 }
@@ -85,10 +79,7 @@ impl BitwardenDesktopAgent {
                     // Only the current user should be able to access the socket
                     if let Err(e) = fs::set_permissions(sockname, fs::Permissions::from_mode(0o600))
                     {
-                        println!(
-                            "[SSH Agent Native Module] Could not set socket permissions: {}",
-                            e
-                        );
+                        println!("[SSH Agent Native Module] Could not set socket permissions: {e}");
                         return;
                     }
 
@@ -112,10 +103,7 @@ impl BitwardenDesktopAgent {
                     println!("[SSH Agent Native Module] SSH Agent server exited");
                 }
                 Err(e) => {
-                    eprintln!(
-                        "[SSH Agent Native Module] Error while starting agent server: {}",
-                        e
-                    );
+                    eprintln!("[SSH Agent Native Module] Error while starting agent server: {e}");
                 }
             }
         });

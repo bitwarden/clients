@@ -11,10 +11,13 @@ import {
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   Argon2KdfConfig,
@@ -96,7 +99,7 @@ export class OrganizationUserResetPasswordService
     newMasterPassword: string,
     email: string,
     orgUserId: string,
-    orgId: string,
+    orgId: OrganizationId,
   ): Promise<void> {
     const response = await this.organizationUserApiService.getOrganizationUserResetPasswordDetails(
       orgId,

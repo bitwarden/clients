@@ -24,6 +24,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -48,6 +49,7 @@ import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -72,9 +74,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
+  showEnableAutotype = false;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
+  isMac: boolean;
 
   enableTrayText: string;
   enableTrayDescText: string;
@@ -133,6 +137,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
+    enableAutotype: false,
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -156,6 +161,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private userVerificationService: UserVerificationServiceAbstraction,
     private desktopSettingsService: DesktopSettingsService,
+    private desktopAutotypeService: DesktopAutotypeService,
     private biometricStateService: BiometricStateService,
     private biometricsService: DesktopBiometricsService,
     private desktopAutofillSettingsService: DesktopAutofillSettingsService,
@@ -165,31 +171,33 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private validationService: ValidationService,
   ) {
-    const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
+    this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
+    this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
+    this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
     // Workaround to avoid ghosting trays https://github.com/electron/electron/issues/17622
     this.requireEnableTray = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
 
-    const trayKey = isMac ? "enableMenuBar" : "enableTray";
+    const trayKey = this.isMac ? "enableMenuBar" : "enableTray";
     this.enableTrayText = this.i18nService.t(trayKey);
     this.enableTrayDescText = this.i18nService.t(trayKey + "Desc");
 
-    const minToTrayKey = isMac ? "enableMinToMenuBar" : "enableMinToTray";
+    const minToTrayKey = this.isMac ? "enableMinToMenuBar" : "enableMinToTray";
     this.enableMinToTrayText = this.i18nService.t(minToTrayKey);
     this.enableMinToTrayDescText = this.i18nService.t(minToTrayKey + "Desc");
 
-    const closeToTrayKey = isMac ? "enableCloseToMenuBar" : "enableCloseToTray";
+    const closeToTrayKey = this.isMac ? "enableCloseToMenuBar" : "enableCloseToTray";
     this.enableCloseToTrayText = this.i18nService.t(closeToTrayKey);
     this.enableCloseToTrayDescText = this.i18nService.t(closeToTrayKey + "Desc");
 
-    const startToTrayKey = isMac ? "startToMenuBar" : "startToTray";
+    const startToTrayKey = this.isMac ? "startToMenuBar" : "startToTray";
     this.startToTrayText = this.i18nService.t(startToTrayKey);
     this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
 
     this.showOpenAtLoginOption = !ipc.platform.isWindowsStore;
 
     // DuckDuckGo browser is only for macos initially
-    this.showDuckDuckGoIntegrationOption = isMac;
+    this.showDuckDuckGoIntegrationOption = this.isMac;
 
     const localeOptions: any[] = [];
     this.i18nService.supportedTranslationLocales.forEach((locale) => {
@@ -234,15 +242,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    this.isLinux = (await this.platformUtilsService.getDevice()) === DeviceType.LinuxDesktop;
 
-    if (activeAccount == null || activeAccount.id == null) {
-      return;
-    }
+    // Autotype is for Windows initially
+    const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
+    const windowsDesktopAutotypeFeatureFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.WindowsDesktopAutotype,
+    );
+    this.showEnableAutotype = isWindows && windowsDesktopAutotypeFeatureFlag;
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
-
-    this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
     this.currentUserEmail = activeAccount.email;
     this.currentUserId = activeAccount.id;
@@ -333,6 +341,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
+      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabled$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -449,7 +458,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
       activeAccount.id,
       newValue,
-      this.form.value.vaultTimeoutAction,
+      this.form.getRawValue().vaultTimeoutAction,
     );
   }
 
@@ -853,6 +862,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  async saveEnableAutotype() {
+    await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
+  }
+
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {
     let vaultTimeoutOptions: VaultTimeoutOption[] = [
       { name: this.i18nService.t("oneMinute"), value: 1 },
@@ -894,30 +907,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         return "unlockWithWindowsHello";
       case DeviceType.LinuxDesktop:
         return "unlockWithPolkit";
-      default:
-        throw new Error("Unsupported platform");
-    }
-  }
-
-  get autoPromptBiometricsText() {
-    switch (this.platformUtilsService.getDevice()) {
-      case DeviceType.MacOsDesktop:
-        return "autoPromptTouchId";
-      case DeviceType.WindowsDesktop:
-        return "autoPromptWindowsHello";
-      case DeviceType.LinuxDesktop:
-        return "autoPromptPolkit";
-      default:
-        throw new Error("Unsupported platform");
-    }
-  }
-
-  get additionalBiometricSettingsText() {
-    switch (this.platformUtilsService.getDevice()) {
-      case DeviceType.MacOsDesktop:
-        return "additionalTouchIdSettings";
-      case DeviceType.WindowsDesktop:
-        return "additionalWindowsHelloSettings";
       default:
         throw new Error("Unsupported platform");
     }

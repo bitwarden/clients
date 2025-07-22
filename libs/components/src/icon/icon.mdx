@@ -41,12 +41,14 @@ import { IconModule } from "@bitwarden/components";
 
    - A non-comprehensive list of common colors and their associated classes is below:
 
-     | Hardcoded Value                                                                                                                          | Tailwind Stroke Class     | Tailwind Fill Class     | Tailwind Variable       |
-     | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ----------------------- | ----------------------- |
-     | `#020F66` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#020F66"}}></span> | `tw-stroke-art-primary`   | `tw-fill-art-primary`   | `--color-art-primary`   |
-     | `#10949D` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#10949D"}}></span> | `tw-stroke-art-accent`    | `tw-fill-art-accent`    | `--color-art-accent`    |
-     | `#2CDDE9` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#2CDDE9"}}></span> | `tw-stroke-art-accent`    | `tw-fill-art-accent`    | `--color-art-accent`    |
-     | `#89929F` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#89929F"}}></span> | `tw-stroke-secondary-600` | `tw-fill-secondary-600` | `--color-secondary-600` |
+     | Hardcoded Value                                                                                                                          | Tailwind Stroke Class                 | Tailwind Fill Class                 | Tailwind Variable                   |
+     | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | ----------------------------------- | ----------------------------------- |
+     | `#020F66` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#020F66"}}></span> | `tw-stroke-illustration-outline`      | `tw-fill-illustration-outline`      | `--color-illustration-outline`      |
+     | `#DBE5F6` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#DBE5F6"}}></span> | `tw-stroke-illustration-bg-primary`   | `tw-fill-illustration-bg-primary`   | `--color-illustration-bg-primary`   |
+     | `#AAC3EF` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#AAC3EF"}}></span> | `tw-stroke-illustration-bg-secondary` | `tw-fill-illustration-bg-secondary` | `--color-illustration-bg-secondary` |
+     | `#FFFFFF` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#FFFFFF"}}></span> | `tw-stroke-illustration-bg-tertiary`  | `tw-fill-illustration-bg-tertiary`  | `--color-illustration-bg-tertiary`  |
+     | `#FFBF00` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#FFBF00"}}></span> | `tw-stroke-illustration-tertiary`     | `tw-fill-illustration-tertiary`     | `--color-illustration-tertiary`     |
+     | `#175DDC` <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#175DDC"}}></span> | `tw-stroke-illustration-logo`         | `tw-fill-illustration-logo`         | `--color-illustration-logo`         |
 
    - If the hex that you have on an SVG path is not listed above, there are a few ways to figure out
      the appropriate Tailwind class:
@@ -56,20 +58,20 @@ import { IconModule } from "@bitwarden/components";
        - Click on an individual path on the SVG until you see the path's properties in the
          right-hand panel.
        - Scroll down to the Colors section.
-         - Example: `Color/Art/Primary`
+         - Example: `Color/Illustration/Outline`
          - This also includes Hex or RGB values that can be used to find the appropriate Tailwind
            variable as well if you follow the manual search option below.
        - Create the appropriate stroke or fill class from the color used.
-         - Example: `Color/Art/Primary` corresponds to `--color-art-primary` which corresponds to
-           `tw-stroke-art-primary` or `tw-fill-art-primary`.
+         - Example: `Color/Illustration/Outline` corresponds to `--color-illustration-outline` which
+           corresponds to `tw-stroke-illustration-outline` or `tw-fill-illustration-outline`.
      - **Option 2: Manual Search**
        - Take the path's stroke or fill hex value and convert it to RGB using a tool like
          [Hex to RGB](https://www.rgbtohex.net/hex-to-rgb/).
        - Search for the RGB value without commas in our `tw-theme.css` to find the Tailwind variable
          that corresponds to the color.
        - Create the appropriate stroke or fill class using the Tailwind variable.
-         - Example: `--color-art-primary` corresponds to `tw-stroke-art-primary` or
-           `tw-fill-art-primary`.
+         - Example: `--color-illustration-outline` corresponds to `tw-stroke-illustration-outline`
+           or `tw-fill-illustration-outline`.
 
 6. **Remove any hardcoded width or height attributes** if your SVG has a configured
    [viewBox](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox) attribute in order

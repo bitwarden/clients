@@ -55,6 +55,8 @@ jobs:
     name: Release
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: write
     steps:
       - name: Download all Release artifacts
         if: ${{ inputs.release_type != 'Dry Run' }}

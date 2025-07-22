@@ -1,5 +1,4 @@
 export * from "./bitwarden-logo.icon";
-export * from "./bitwarden-shield.icon";
 export * from "./extension-bitwarden-logo.icon";
 export * from "./lock.icon";
 export * from "./generator";

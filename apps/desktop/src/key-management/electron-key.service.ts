@@ -51,10 +51,6 @@ export class ElectronKeyService extends DefaultKeyService {
     );
   }
 
-  override async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
-    return super.hasUserKeyStored(keySuffix, userId);
-  }
-
   override async clearStoredUserKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<void> {
     await super.clearStoredUserKey(keySuffix, userId);
   }

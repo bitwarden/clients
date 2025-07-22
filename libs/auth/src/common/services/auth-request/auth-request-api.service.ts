@@ -1,15 +1,22 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { AuthRequestApiService } from "../../abstractions/auth-request-api.service";
+import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
 
-export class DefaultAuthRequestApiService implements AuthRequestApiService {
+export class DefaultAuthRequestApiService implements AuthRequestApiServiceAbstraction {
   constructor(
     private apiService: ApiService,
     private logService: LogService,
   ) {}
+
+  async getPendingAuthRequests(): Promise<ListResponse<AuthRequestResponse>> {
+    const path = `/auth-requests/pending`;
+    const r = await this.apiService.send("GET", path, null, true, true);
+    return new ListResponse(r, AuthRequestResponse);
+  }
 
   async getAuthRequest(requestId: string): Promise<AuthRequestResponse> {
     try {

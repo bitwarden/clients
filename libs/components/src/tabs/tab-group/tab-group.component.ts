@@ -15,6 +15,7 @@ import {
   Output,
   QueryList,
   ViewChildren,
+  input,
 } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 
@@ -49,19 +50,21 @@ export class TabGroupComponent
   /**
    * Aria label for the tab list menu
    */
-  @Input() label = "";
+  readonly label = input("");
 
   /**
    * Keep the content of off-screen tabs in the DOM.
    * Useful for keeping <audio> or <video> elements from re-initializing
    * after navigating between tabs.
    */
-  @Input() preserveContent = false;
+  readonly preserveContent = input(false);
 
   @ContentChildren(TabComponent) tabs: QueryList<TabComponent>;
   @ViewChildren(TabListItemDirective) tabLabels: QueryList<TabListItemDirective>;
 
   /** The index of the active tab. */
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get selectedIndex(): number | null {
     return this._selectedIndex;

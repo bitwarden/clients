@@ -97,7 +97,11 @@ export class SetPasswordJitComponent implements OnInit {
     this.submitting = true;
 
     const credentials: SetPasswordCredentials = {
-      ...passwordInputResult,
+      newMasterKey: passwordInputResult.newMasterKey,
+      newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+      newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+      newPasswordHint: passwordInputResult.newPasswordHint,
+      kdfConfig: passwordInputResult.kdfConfig,
       orgSsoIdentifier: this.orgSsoIdentifier,
       orgId: this.orgId,
       resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,

@@ -24,7 +24,7 @@
     "message": "ID"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "メモ"
   },
   "typeSecureNote": {
     "message": "セキュアメモ"
@@ -241,22 +241,22 @@
     "message": "SSH エージェントとは、Bitwarden 保管庫から直接 SSH リクエストに署名できる、開発者を対象としたサービスです。"
   },
   "sshAgentPromptBehavior": {
-    "message": "Ask for authorization when using SSH agent"
+    "message": "SSHエージェントを使用する際に認証を要求する"
   },
   "sshAgentPromptBehaviorDesc": {
-    "message": "Choose how to handle SSH-agent authorization requests."
+    "message": "SSHエージェント認可リクエストの処理方法を選択します。"
   },
   "sshAgentPromptBehaviorHelp": {
-    "message": "Remember SSH authorizations"
+    "message": "SSH認可を記憶する"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "Always"
+    "message": "常に表示する"
   },
   "sshAgentPromptBehaviorNever": {
-    "message": "Never"
+    "message": "表示しない"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
-    "message": "Remember until vault is locked"
+    "message": "保管庫がロックされるまで記憶する"
   },
   "premiumRequired": {
     "message": "プレミアム会員専用"
@@ -409,16 +409,16 @@
     "message": "認証キー (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "認証キー"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "自動入力のオプション"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "ウェブサイト (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "ウェブサイト (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -428,49 +428,49 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "ウェブサイトを追加しました"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "ウェブサイトを追加"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "ウェブサイトを削除"
   },
   "owner": {
-    "message": "Owner"
+    "message": "所有者"
   },
   "addField": {
-    "message": "Add field"
+    "message": "フィールドを追加"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "フィールドを編集"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "この添付ファイルを完全に削除してもよろしいですか？"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "フィールドの種類"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "フィールドのラベル"
   },
   "add": {
-    "message": "Add"
+    "message": "追加"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "秘密の質問などのデータには、テキストフィールドを使用します"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "パスワードのような機密データには、非表示フィールドを使用します"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "「メールアドレスを記憶する」などのフォームのチェックボックスを自動入力する場合は、チェックボックスを使用します"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "特定のウェブサイトで自動入力の問題が発生している場合は、リンクされたフィールドを使用します。"
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "フィールドの HTML の id、name、aria-label、placeholder を入力します。"
   },
   "folder": {
     "message": "フォルダー"
@@ -498,7 +498,7 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "チェックボックス"
   },
   "linkedValue": {
     "message": "リンクされた値",
@@ -571,6 +571,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "認証コード (TOTP) をコピー"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "長さ"
@@ -695,7 +709,7 @@
     "message": "最大ファイルサイズは500MBです。"
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "従来の暗号化はサポートされていません。アカウントを復元するにはサポートにお問い合わせください。"
   },
   "editedFolder": {
     "message": "フォルダーを編集しました"
@@ -1425,6 +1439,9 @@
     "message": "セキュリティコードのコピー",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "プレミアム会員"
   },
@@ -1715,6 +1732,12 @@
   },
   "accountRestricted": {
     "message": "アカウント制限"
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「ファイルパスワード」と「ファイルパスワードの確認」が一致しません。"
@@ -2386,6 +2409,9 @@
   "passwordConfirmationDesc": {
     "message": "この操作は保護されています。続行するには、確認のためにマスターパスワードを再入力してください。"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "マスターパスワードを更新しました"
   },
@@ -2397,6 +2423,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。"
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "あなたの組織は信頼できるデバイスの暗号化を無効化しました。保管庫にアクセスするにはマスターパスワードを設定してください。"
@@ -3135,6 +3170,12 @@
   "requestAdminApproval": {
     "message": "管理者の承認を要求する"
   },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+  },
   "region": {
     "message": "リージョン"
   },
@@ -3526,6 +3567,30 @@
     "message": "一般的な形式",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "成功"
   },
@@ -3632,25 +3697,25 @@
     "message": "生体認証によるロック解除は、不明な理由により現在利用できません。"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "アイテムの詳細"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "アイテム名"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "ログイン資格情報"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "追加のオプション"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "アイテムの履歴"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "直近の編集"
   },
   "upload": {
-    "message": "Upload"
+    "message": "アップロード"
   },
   "authorize": {
     "message": "認可"
@@ -3734,10 +3799,10 @@
     "message": "移動"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "新しいフォルダー"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "フォルダー名"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -3949,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

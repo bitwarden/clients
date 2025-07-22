@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FieldType } from "@bitwarden/common/vault/enums";
+
 import { ImportResult } from "../models/import-result";
 
 import { BaseImporter } from "./base-importer";
@@ -31,19 +33,9 @@ export class RoboFormCsvImporter extends BaseImporter implements Importer {
       cipher.login.uris = this.makeUriArray(value.Url);
 
       if (!this.isNullOrWhitespace(value.Rf_fields)) {
-        let fields: string[] = [value.Rf_fields];
-        if (value.__parsed_extra != null && value.__parsed_extra.length > 0) {
-          fields = fields.concat(value.__parsed_extra);
-        }
-        fields.forEach((field: string) => {
-          const parts = field.split(":");
-          if (parts.length < 3) {
-            return;
-          }
-          const key = parts[0] === "-no-name-" ? null : parts[0];
-          const val = parts.length === 4 && parts[2] === "rck" ? parts[1] : parts[2];
-          this.processKvp(cipher, key, val);
-        });
+        this.parseRfFields(cipher, value);
+      } else if (!this.isNullOrWhitespace(value.RfFieldsV2)) {
+        this.parseRfFieldsV2(cipher, value);
       }
 
       this.convertToNoteIfNeeded(cipher);
@@ -67,5 +59,67 @@ export class RoboFormCsvImporter extends BaseImporter implements Importer {
 
     result.success = true;
     return Promise.resolve(result);
+  }
+
+  private parseRfFields(cipher: any, value: any): void {
+    let fields: string[] = [value.Rf_fields];
+
+    if (value.__parsed_extra != null && value.__parsed_extra.length > 0) {
+      fields = fields.concat(value.__parsed_extra);
+    }
+
+    fields.forEach((field: string) => {
+      const parts = field.split(":");
+      if (parts.length < 3) {
+        return;
+      }
+      const key = parts[0] === "-no-name-" ? null : parts[0];
+      const val = parts.length === 4 && parts[2] === "rck" ? parts[1] : parts[2];
+      this.processKvp(cipher, key, val);
+    });
+  }
+
+  private parseRfFieldsV2(cipher: any, value: any): void {
+    let fields: string[] = [value.RfFieldsV2];
+    if (value.__parsed_extra != null && value.__parsed_extra.length > 0) {
+      fields = fields.concat(value.__parsed_extra);
+    }
+
+    let userIdCount = 1;
+    let passwordCount = 1;
+
+    fields.forEach((field: string) => {
+      const parts = field.split(",");
+      if (parts.length < 5) {
+        return;
+      }
+
+      const key = parts[0] === "-no-name-" ? null : parts[0];
+      const type = parts[3] === "pwd" ? FieldType.Hidden : FieldType.Text;
+      const val = parts[4];
+
+      if (key === "TOTP KEY$") {
+        cipher.login.totp = val;
+        return;
+      }
+
+      // Skip if value matches login fields
+      if (key === "User ID$" && val === cipher.login.username) {
+        return;
+      }
+      if (key === "Password$" && val === cipher.login.password) {
+        return;
+      }
+
+      // Index any extra User IDs or Passwords
+      let displayKey = key;
+      if (key === "User ID$") {
+        displayKey = `Alternate User ID ${userIdCount++}`;
+      } else if (key === "Password$") {
+        displayKey = `Alternate Password ${passwordCount++}`;
+      }
+
+      this.processKvp(cipher, displayKey, val, type);
+    });
   }
 }

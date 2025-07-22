@@ -18,6 +18,7 @@ apps/cli/src/auth @bitwarden/team-auth-dev
 apps/desktop/src/auth @bitwarden/team-auth-dev
 apps/web/src/app/auth @bitwarden/team-auth-dev
 libs/auth @bitwarden/team-auth-dev
+libs/user-core @bitwarden/team-auth-dev
 # web connectors used for auth
 apps/web/src/connectors @bitwarden/team-auth-dev
 bitwarden_license/bit-web/src/app/auth @bitwarden/team-auth-dev
@@ -91,6 +92,10 @@ libs/common/spec @bitwarden/team-platform-dev
 libs/common/src/state-migrations @bitwarden/team-platform-dev
 libs/platform @bitwarden/team-platform-dev
 libs/storage-core @bitwarden/team-platform-dev
+libs/logging @bitwarden/team-platform-dev
+libs/storage-test-utils @bitwarden/team-platform-dev
+libs/messaging @bitwarden/team-platform-dev
+libs/messaging-internal @bitwarden/team-platform-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files
@@ -131,9 +136,12 @@ libs/common/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-dev
+apps/desktop/desktop_native/autotype @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
+apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-dev
+.github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-dev
 # SSH Agent
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
 

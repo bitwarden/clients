@@ -138,8 +138,10 @@ export class CriticalApplicationsComponent implements OnInit {
     const apps = this.dataSource.data;
     const cipherIds = apps
       .filter((_) => _.atRiskPasswordCount > 0)
-      .flatMap((app) => app.atRiskMemberDetails.map((member) => member.cipherId));
+      .flatMap((app) => app.atRiskCipherIds);
+
     const distinctCipherIds = Array.from(new Set(cipherIds));
+
     const tasks: CreateTasksRequest[] = distinctCipherIds.map((cipherId) => ({
       cipherId: cipherId as CipherId,
       type: SecurityTaskType.UpdateAtRiskCredential,

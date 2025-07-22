@@ -2,11 +2,17 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -61,6 +67,9 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private i18nService: I18nService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private configService: ConfigService,
+    private accountService: AccountService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -141,8 +150,29 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.loginSuccessHandlerService.run(authResult.userId);
 
-      // If verification succeeds, navigate to vault
-      await this.router.navigate(["/vault"]);
+      // TODO: PM-22663 use the new service to handle routing.
+      if (
+        await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+      ) {
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+
+        const forceSetPasswordReason = await firstValueFrom(
+          this.masterPasswordService.forceSetPasswordReason$(activeUserId),
+        );
+
+        if (
+          forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
+          forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
+        ) {
+          await this.router.navigate(["/change-password"]);
+        } else {
+          await this.router.navigate(["/vault"]);
+        }
+      } else {
+        await this.router.navigate(["/vault"]);
+      }
     } catch (e) {
       this.logService.error(e);
       let errorMessage =

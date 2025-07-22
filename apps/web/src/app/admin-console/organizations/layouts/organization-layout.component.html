@@ -4,7 +4,7 @@
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
     <bit-nav-group
       icon="bwi-filter"
-      *ngIf="organization.useRiskInsights"
+      *ngIf="organization.useRiskInsights && organization.canAccessReports"
       [text]="'accessIntelligence' | i18n"
       route="access-intelligence"
     >
@@ -74,7 +74,11 @@
     >
       <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
       <ng-container *ngIf="(showPaymentAndHistory$ | async) && (organizationIsUnmanaged$ | async)">
-        <bit-nav-item [text]="'paymentMethod' | i18n" route="billing/payment-method"></bit-nav-item>
+        @let paymentDetailsPageData = paymentDetailsPageData$ | async;
+        <bit-nav-item
+          [text]="paymentDetailsPageData.textKey | i18n"
+          [route]="paymentDetailsPageData.route"
+        ></bit-nav-item>
         <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
       </ng-container>
     </bit-nav-group>

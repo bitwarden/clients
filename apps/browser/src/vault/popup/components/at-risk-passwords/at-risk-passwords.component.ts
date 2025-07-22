@@ -155,32 +155,35 @@ export class AtRiskPasswordsComponent implements OnInit {
           (t) =>
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
             t.cipherId != null &&
-            ciphers[t.cipherId] != null,
+            ciphers[t.cipherId] != null &&
+            !ciphers[t.cipherId].isDeleted,
         )
         .map((t) => ciphers[t.cipherId!]),
     ),
   );
 
-  protected pageDescription$ = this.activeUserData$.pipe(
-    switchMap(({ tasks, userId }) => {
-      const orgIds = new Set(tasks.map((t) => t.organizationId));
+  protected pageDescription$ = combineLatest([this.activeUserData$, this.atRiskItems$]).pipe(
+    switchMap(([{ userId }, atRiskCiphers]) => {
+      const orgIds = new Set(
+        atRiskCiphers.filter((c) => c.organizationId).map((c) => c.organizationId),
+      ) as Set<string>;
       if (orgIds.size === 1) {
         const [orgId] = orgIds;
         return this.organizationService.organizations$(userId).pipe(
           getOrganizationById(orgId),
           map((org) =>
             this.i18nService.t(
-              tasks.length === 1
+              atRiskCiphers.length === 1
                 ? "atRiskPasswordDescSingleOrg"
                 : "atRiskPasswordsDescSingleOrgPlural",
               org?.name,
-              tasks.length,
+              atRiskCiphers.length,
             ),
           ),
         );
       }
 
-      return of(this.i18nService.t("atRiskPasswordsDescMultiOrgPlural", tasks.length));
+      return of(this.i18nService.t("atRiskPasswordsDescMultiOrgPlural", atRiskCiphers.length));
     }),
   );
 

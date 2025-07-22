@@ -22,7 +22,7 @@
       <bit-label>{{ "owner" | i18n }}</bit-label>
       <bit-select formControlName="organizationId">
         <bit-option
-          *ngIf="showPersonalOwnerOption"
+          *ngIf="showOrganizationDataOwnershipOption"
           [value]="null"
           [label]="userEmail$ | async"
         ></bit-option>

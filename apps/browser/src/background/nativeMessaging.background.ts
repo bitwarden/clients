@@ -4,12 +4,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
@@ -105,6 +105,16 @@ export class NativeMessagingBackground {
   }
 
   async connect() {
+    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
+      this.logService.warning(
+        "[Native Messaging IPC] Native messaging permission is missing for biometrics",
+      );
+      return;
+    }
+    if (this.connected || this.connecting) {
+      return;
+    }
+
     this.logService.info("[Native Messaging IPC] Connecting to Bitwarden Desktop app...");
     const appId = await this.appIdService.getAppId();
     this.appId = appId;

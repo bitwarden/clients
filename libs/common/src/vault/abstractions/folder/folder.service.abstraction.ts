@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -15,27 +13,27 @@ import { FolderWithIdRequest } from "../../models/request/folder-with-id.request
 import { FolderView } from "../../models/view/folder.view";
 
 export abstract class FolderService implements UserKeyRotationDataProvider<FolderWithIdRequest> {
-  folders$: (userId: UserId) => Observable<Folder[]>;
-  folderViews$: (userId: UserId) => Observable<FolderView[]>;
+  abstract folders$(userId: UserId): Observable<Folder[]>;
+  abstract folderViews$(userId: UserId): Observable<FolderView[]>;
 
-  clearDecryptedFolderState: (userId: UserId) => Promise<void>;
-  encrypt: (model: FolderView, key: SymmetricCryptoKey) => Promise<Folder>;
-  get: (id: string, userId: UserId) => Promise<Folder>;
-  getDecrypted$: (id: string, userId: UserId) => Observable<FolderView | undefined>;
+  abstract clearDecryptedFolderState(userId: UserId): Promise<void>;
+  abstract encrypt(model: FolderView, key: SymmetricCryptoKey): Promise<Folder>;
+  abstract get(id: string, userId: UserId): Promise<Folder>;
+  abstract getDecrypted$(id: string, userId: UserId): Observable<FolderView | undefined>;
   /**
    * @deprecated Use firstValueFrom(folders$) directly instead
    * @param userId The user id
    * @returns Promise of folders array
    */
-  getAllFromState: (userId: UserId) => Promise<Folder[]>;
+  abstract getAllFromState(userId: UserId): Promise<Folder[]>;
   /**
    * @deprecated Only use in CLI!
    */
-  getFromState: (id: string, userId: UserId) => Promise<Folder>;
+  abstract getFromState(id: string, userId: UserId): Promise<Folder>;
   /**
    * @deprecated Only use in CLI!
    */
-  getAllDecryptedFromState: (userId: UserId) => Promise<FolderView[]>;
+  abstract getAllDecryptedFromState(userId: UserId): Promise<FolderView[]>;
   /**
    * Returns user folders re-encrypted with the new user key.
    * @param originalUserKey the original user key
@@ -44,16 +42,16 @@ export abstract class FolderService implements UserKeyRotationDataProvider<Folde
    * @throws Error if new user key is null
    * @returns a list of user folders that have been re-encrypted with the new user key
    */
-  getRotatedData: (
+  abstract getRotatedData(
     originalUserKey: UserKey,
     newUserKey: UserKey,
     userId: UserId,
-  ) => Promise<FolderWithIdRequest[]>;
+  ): Promise<FolderWithIdRequest[]>;
 }
 
 export abstract class InternalFolderService extends FolderService {
-  upsert: (folder: FolderData | FolderData[], userId: UserId) => Promise<void>;
-  replace: (folders: { [id: string]: FolderData }, userId: UserId) => Promise<void>;
-  clear: (userId: UserId) => Promise<void>;
-  delete: (id: string | string[], userId: UserId) => Promise<any>;
+  abstract upsert(folder: FolderData | FolderData[], userId: UserId): Promise<void>;
+  abstract replace(folders: { [id: string]: FolderData }, userId: UserId): Promise<void>;
+  abstract clear(userId: UserId): Promise<void>;
+  abstract delete(id: string | string[], userId: UserId): Promise<any>;
 }
