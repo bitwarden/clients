@@ -6,6 +6,7 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
+      - "uif/chromatic-externals"
   pull_request_target:
     types: [opened, synchronize, reopened]
     branches:
