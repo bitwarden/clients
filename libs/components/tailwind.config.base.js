@@ -155,7 +155,6 @@ module.exports = {
         "90vw": "90vw",
       }),
       fontSize: {
-        xs: [".8125rem", "1rem"],
         "3xl": ["1.75rem", "2rem"],
       },
     },
