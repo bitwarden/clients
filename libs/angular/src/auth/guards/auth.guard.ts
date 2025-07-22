@@ -83,13 +83,6 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree(["lock"], { queryParams: { promptBiometric: true } });
   }
 
-  if (
-    !routerState.url.includes("remove-password") &&
-    (await firstValueFrom(keyConnectorService.convertAccountRequired$))
-  ) {
-    return router.createUrlTree(["/remove-password"]);
-  }
-
   // TDE org user has "manage account recovery" permission
   if (
     forceSetPasswordReason ===
@@ -124,6 +117,15 @@ export const authGuard: CanActivateFn = async (
   ) {
     const route = isChangePasswordFlagOn ? "/change-password" : "/update-temp-password";
     return router.createUrlTree([route]);
+  }
+
+  // Remove password when Key Connector is enabled
+  if (
+    forceSetPasswordReason == ForceSetPasswordReason.None &&
+    !routerState.url.includes("remove-password") &&
+    (await firstValueFrom(keyConnectorService.convertAccountRequired$))
+  ) {
+    return router.createUrlTree(["/remove-password"]);
   }
 
   return true;
