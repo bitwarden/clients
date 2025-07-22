@@ -138,7 +138,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
         accelerator: "CmdOrCtrl+Shift+K",
       },
     ].filter((item) => {
-      return !this._restrictedCipherTypes.some(
+      return !this._restrictedCipherTypes?.some(
         (restrictedType) => restrictedType === this.mapMenuItemToCipherType(item.id),
       );
     });
