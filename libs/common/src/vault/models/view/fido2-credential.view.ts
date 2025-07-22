@@ -2,7 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { Fido2CredentialView as SdkFido2CredentialView } from "@bitwarden/sdk-internal";
+import {
+  Fido2CredentialView as SdkFido2CredentialView,
+  Fido2CredentialFullView,
+} from "@bitwarden/sdk-internal";
 
 import { ItemView } from "./item.view";
 
@@ -55,5 +58,23 @@ export class Fido2CredentialView extends ItemView {
     view.creationDate = obj.creationDate ? new Date(obj.creationDate) : null;
 
     return view;
+  }
+
+  toSdkFido2CredentialFullView(): Fido2CredentialFullView {
+    return {
+      credentialId: this.credentialId,
+      keyType: this.keyType,
+      keyAlgorithm: this.keyAlgorithm,
+      keyCurve: this.keyCurve,
+      keyValue: this.keyValue,
+      rpId: this.rpId,
+      userHandle: this.userHandle,
+      userName: this.userName,
+      counter: this.counter.toString(),
+      rpName: this.rpName,
+      userDisplayName: this.userDisplayName,
+      discoverable: this.discoverable ? "true" : "false",
+      creationDate: this.creationDate?.toISOString(),
+    };
   }
 }
