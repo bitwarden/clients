@@ -64,7 +64,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   @Input() addAccessToggle: boolean;
   @Input() activeCollection: CollectionView | undefined;
 
-  private checkRestrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
+  private restrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
 
   private _ciphers?: C[] = [];
   @Input() get ciphers(): C[] {
@@ -284,7 +284,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // TODO: PM-13944 Refactor to use cipherAuthorizationService.canClone$ instead
   protected canClone(vaultItem: VaultItem<C>) {
     // This will check for restrictions from org policies before allowing cloning.
-    const isItemRestricted = this.checkRestrictedPolicies().some(
+    const isItemRestricted = this.restrictedPolicies().some(
       (rt) => rt.cipherType === vaultItem.cipher.type,
     );
     if (isItemRestricted) {

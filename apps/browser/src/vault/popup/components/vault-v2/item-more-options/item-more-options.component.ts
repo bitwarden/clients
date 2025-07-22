@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -70,16 +70,17 @@ export class ItemMoreOptionsComponent {
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
    * @protected
    */
-  protected canClone$ = combineLatest(
+  protected canClone$ = combineLatest([
     this._cipher$,
     this.restrictedItemTypesService.restricted$,
-  ).pipe(
+  ]).pipe(
+    filter(([c]) => c != null),
     switchMap(([c, restrictedTypes]) => {
       // This will check for restrictions from org policies before allowing cloning.
       const isItemRestricted = restrictedTypes.some(
         (restrictType) => restrictType.cipherType === c.type,
       );
-      if (c != null && !isItemRestricted) {
+      if (!isItemRestricted) {
         return this.cipherAuthorizationService.canCloneCipher$(c);
       }
       return new BehaviorSubject(false);
