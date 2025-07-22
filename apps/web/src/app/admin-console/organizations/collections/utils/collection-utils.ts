@@ -83,5 +83,6 @@ function cloneCollection(
   cloned.readOnly = collection.readOnly;
   cloned.manage = collection.manage;
   cloned.type = collection.type;
+
   return cloned;
 }
