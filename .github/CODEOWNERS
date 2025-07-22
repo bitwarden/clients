@@ -138,6 +138,8 @@ apps/desktop/desktop_native/autotype @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
+apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-dev
+.github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-dev
 # SSH Agent
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
 
