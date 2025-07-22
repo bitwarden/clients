@@ -5,6 +5,7 @@ import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-s
 import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
 import { ScrollLayoutDirective } from "@bitwarden/components";
 
+import { OrganizationFreeTrialWarningComponent } from "../../../billing/warnings/components";
 import { LooseComponentsModule } from "../../../shared";
 import { SharedOrganizationModule } from "../shared";
 
@@ -29,6 +30,7 @@ import { MembersComponent } from "./members.component";
     ScrollingModule,
     PasswordStrengthV2Component,
     ScrollLayoutDirective,
+    OrganizationFreeTrialWarningComponent,
   ],
   declarations: [
     BulkConfirmDialogComponent,

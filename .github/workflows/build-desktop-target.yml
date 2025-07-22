@@ -38,6 +38,7 @@ jobs:
     uses: ./.github/workflows/build-desktop.yml
     secrets: inherit
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
       id-token: write
 
