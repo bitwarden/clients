@@ -108,13 +108,6 @@ export abstract class TokenService {
    * @param vaultTimeout The timeout for the vault.
    * @returns A promise that resolves with the client secret that has been set.
    */
-  /**
-   * Sets the API Key Client Secret for the active user id in memory or disk based on the given vaultTimeoutAction and vaultTimeout.
-   * @param clientSecret The API Key Client Secret to set.
-   * @param vaultTimeoutAction The action to take when the vault times out.
-   * @param vaultTimeout The timeout for the vault.
-   * @returns A promise that resolves with the client secret that has been set.
-   */
   abstract setClientSecret(
     clientSecret: string,
     vaultTimeoutAction: VaultTimeoutAction,
