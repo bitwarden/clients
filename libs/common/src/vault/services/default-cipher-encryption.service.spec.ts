@@ -251,8 +251,8 @@ describe("DefaultCipherEncryptionService", () => {
     });
   });
 
-  describe("encryptWithKey", () => {
-    it("should call the sdk method to encrypt the cipher with a new key", async () => {
+  describe("encryptCipherForRotation", () => {
+    it("should call the sdk method to encrypt the cipher with a new key for rotation", async () => {
       mockSdkClient.vault().ciphers().encrypt_with_key.mockReturnValue({
         cipher: sdkCipher,
         encryptedFor: userId,
@@ -262,7 +262,7 @@ describe("DefaultCipherEncryptionService", () => {
         Utils.fromUtf8ToArray("00000000000000000000000000000000"),
       ) as UserKey;
 
-      const result = await cipherEncryptionService.encryptWithKey(
+      const result = await cipherEncryptionService.encryptCipherForRotation(
         cipherViewObj,
         userId,
         newUserKey,

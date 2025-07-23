@@ -1520,7 +1520,7 @@ export class CipherService implements CipherServiceAbstraction {
     encryptedCiphers = await Promise.all(
       userCiphers.map(async (cipher) => {
         const encryptedCipher = useSdkEncryption
-          ? await this.cipherEncryptionService.encryptWithKey(cipher, userId, newUserKey)
+          ? await this.cipherEncryptionService.encryptCipherForRotation(cipher, userId, newUserKey)
           : await this.encrypt(cipher, userId, newUserKey, originalUserKey);
         return new CipherWithIdRequest(encryptedCipher);
       }),

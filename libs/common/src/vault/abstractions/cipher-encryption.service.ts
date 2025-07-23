@@ -34,12 +34,12 @@ export abstract class CipherEncryptionService {
   ): Promise<EncryptionContext | undefined>;
 
   /**
-   * Encrypts cipher for a given userId with a new key. Should only be used for key rotation.
+   * Encrypts cipher for a given userId with a new key for key rotation.
    * @param model The cipher view encrypt
    * @param userId The user ID to initialize the SDK client with
    * @param newKey The new key to use for re-encryption
    */
-  abstract encryptWithKey(
+  abstract encryptCipherForRotation(
     model: CipherView,
     userId: UserId,
     newKey: UserKey,

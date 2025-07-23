@@ -85,7 +85,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     );
   }
 
-  async encryptWithKey(
+  async encryptCipherForRotation(
     model: CipherView,
     userId: UserId,
     newKey: UserKey,
@@ -103,7 +103,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           const encryptionContext = ref.value
             .vault()
             .ciphers()
-            .encrypt_with_key(sdkCipherView, newKey.toBase64());
+            .encrypt_cipher_for_rotation(sdkCipherView, newKey.toBase64());
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
