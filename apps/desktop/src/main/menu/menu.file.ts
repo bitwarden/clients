@@ -55,18 +55,9 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
     accounts: { [userId: string]: MenuAccount },
     isLocked: boolean,
     isLockable: boolean,
-    restrictedCipherTypes: CipherType[],
+    private restrictedCipherTypes: CipherType[],
   ) {
-    super(
-      i18nService,
-      messagingService,
-      updater,
-      window,
-      accounts,
-      isLocked,
-      isLockable,
-      restrictedCipherTypes,
-    );
+    super(i18nService, messagingService, updater, window, accounts, isLocked, isLockable);
   }
 
   private get addNewLogin(): MenuItemConstructorOptions {
@@ -138,7 +129,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
         accelerator: "CmdOrCtrl+Shift+K",
       },
     ].filter((item) => {
-      return !this._restrictedCipherTypes?.some(
+      return !this.restrictedCipherTypes?.some(
         (restrictedType) => restrictedType === this.mapMenuItemToCipherType(item.id),
       );
     });

@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { CipherType } from "@bitwarden/common/vault/enums";
 export class MenuUpdateRequest {
-  activeUserId: string;
-  accounts: { [userId: string]: MenuAccount };
-  restrictedCipherTypes: CipherType[];
+  activeUserId: string | null;
+  accounts: { [userId: string]: MenuAccount } | null;
+  restrictedCipherTypes: CipherType[] | null;
 }
 
 export class MenuAccount {

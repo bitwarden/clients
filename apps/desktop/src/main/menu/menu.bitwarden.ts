@@ -2,7 +2,6 @@ import { BrowserWindow, MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { CipherType } from "@bitwarden/sdk-internal";
 
 import { isMac } from "../../utils";
 import { UpdaterMain } from "../updater.main";
@@ -55,18 +54,8 @@ export class BitwardenMenu extends FirstMenu implements IMenubarMenu {
     accounts: { [userId: string]: MenuAccount },
     isLocked: boolean,
     isLockable: boolean,
-    restrictedCipherTypes: CipherType[],
   ) {
-    super(
-      i18nService,
-      messagingService,
-      updater,
-      window,
-      accounts,
-      isLocked,
-      isLockable,
-      restrictedCipherTypes,
-    );
+    super(i18nService, messagingService, updater, window, accounts, isLocked, isLockable);
   }
 
   private get aboutBitwarden(): MenuItemConstructorOptions {

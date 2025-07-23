@@ -116,7 +116,6 @@ export class Menubar {
             updateRequest?.accounts,
             isLocked,
             isLockable,
-            updateRequest?.restrictedCipherTypes,
           ),
         ],
         ...this.items,
