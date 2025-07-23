@@ -7,7 +7,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import { Collection, CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -32,22 +32,23 @@ const createMockCollection = (
   readOnly = false,
   canEdit = true,
 ): CollectionView => {
-  return {
-    id,
-    name,
-    organizationId,
-    externalId: "",
-    readOnly,
-    hidePasswords: false,
-    manage: true,
-    assigned: true,
-    type: CollectionTypes.DefaultUserCollection,
-    isDefaultCollection: true,
-    canEditItems: jest.fn().mockReturnValue(canEdit),
-    canEdit: jest.fn(),
-    canDelete: jest.fn(),
-    canViewCollectionInfo: jest.fn(),
-  };
+  const cv = new CollectionView(new Collection());
+  cv.id = id;
+  cv.organizationId = organizationId;
+  cv.readOnly = readOnly;
+  cv.manage = true;
+  cv.type = CollectionTypes.DefaultUserCollection;
+  cv.externalId = "";
+  cv.hidePasswords = false;
+  cv.assigned = true;
+  cv.canEditName = jest.fn().mockReturnValue(true);
+  cv.canEditItems = jest.fn().mockReturnValue(canEdit);
+  cv.canEdit = jest.fn();
+  cv.canDelete = jest.fn();
+  cv.canViewCollectionInfo = jest.fn();
+  cv.name = name;
+
+  return cv;
 };
 
 describe("ItemDetailsSectionComponent", () => {
