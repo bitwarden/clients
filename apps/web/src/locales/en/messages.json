@@ -629,6 +629,9 @@
   "searchGroups": {
     "message": "Search groups"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "allItems": {
     "message": "All items"
   },
