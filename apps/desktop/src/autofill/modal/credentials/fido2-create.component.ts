@@ -141,12 +141,15 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   }
 
   async closeModal(): Promise<void> {
-    await this.router.navigate(["/"]);
+    await this.desktopSettingsService.setModalMode(false);
+    await this.accountService.setShowHeader(true);
 
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
       this.session.confirmChosenCipher(null);
     }
+
+    await this.router.navigate(["/"]);
   }
 
   private initializeCiphersObservable(rpid: string): void {

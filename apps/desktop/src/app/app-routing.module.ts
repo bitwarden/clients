@@ -47,6 +47,7 @@ import { LockComponent } from "@bitwarden/key-management-ui";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
+import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
@@ -296,7 +297,7 @@ const routes: Routes = [
       },
       {
         path: "lock",
-        canActivate: [lockGuard()],
+        canActivate: [lockGuard(), reactiveUnlockVaultGuard],
         data: {
           pageIcon: Icons.LockIcon,
           pageTitle: {
