@@ -9,7 +9,6 @@ import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { CollectionId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
@@ -280,7 +279,7 @@ export abstract class BaseImporter {
     result.collections = result.folders.map((f) => {
       const collection = new CollectionView();
       collection.name = f.name;
-      collection.id = (f.id ?? "") as CollectionId; // folder id may be null, which is not suitable for collections.
+      collection.id = f.id ?? undefined; // folder id may be null, which is not suitable for collections.
       return collection;
     });
     result.folderRelationships = [];

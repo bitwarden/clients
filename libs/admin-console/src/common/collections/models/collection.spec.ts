@@ -21,26 +21,20 @@ describe("Collection", () => {
     };
   });
 
-  it("Throws when not provided name and organizationId", () => {
-    expect(() => new Collection()).toThrow();
-  });
+  it("Convert from empty", () => {
+    const data = new CollectionData({} as any);
+    const card = new Collection(data);
 
-  it("Convert from partial", () => {
-    const card = new Collection({
-      name: "name",
-      organizationId: "orgId" as OrganizationId,
-      id: "id" as CollectionId,
+    expect(card).toEqual({
+      externalId: null,
+      hidePasswords: null,
+      id: null,
+      name: null,
+      organizationId: null,
+      readOnly: null,
+      manage: null,
+      type: null,
     });
-    expect(() => card).not.toThrow();
-
-    expect(card.name).not.toBe(null);
-    expect(card.organizationId).not.toBe(null);
-    expect(card.id).not.toBe(null);
-    expect(card.externalId).toBe(null);
-    expect(card.readOnly).toBe(null);
-    expect(card.manage).toBe(null);
-    expect(card.hidePasswords).toBe(null);
-    expect(card.type).toEqual(null);
   });
 
   it("Convert", () => {
@@ -59,13 +53,10 @@ describe("Collection", () => {
   });
 
   it("Decrypt", async () => {
-    const collectionData = {
-      name: "encName",
-      organizationId: "orgId" as OrganizationId,
-      id: "id" as CollectionId,
-    };
-    const collection = new Collection(collectionData);
-    collection.name = mockEnc(collectionData.name);
+    const collection = new Collection();
+    collection.id = "id";
+    collection.organizationId = "orgId" as OrganizationId;
+    collection.name = mockEnc("encName");
     collection.externalId = "extId";
     collection.readOnly = false;
     collection.hidePasswords = false;
