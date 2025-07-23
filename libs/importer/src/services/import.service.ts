@@ -175,12 +175,9 @@ export class ImportService implements ImportServiceAbstraction {
     );
 
     // Filter out restricted item types from the import result
-    importResult.ciphers = importResult.ciphers.filter((cipher) => {
-      if (restrictedItemTypes.includes(cipher.type)) {
-        return false;
-      }
-      return true;
-    });
+    importResult.ciphers = importResult.ciphers.filter(
+      (cipher) => !restrictedItemTypes.includes(cipher.type),
+    );
 
     if (organizationId && !selectedImportTarget && !canAccessImportExport) {
       const hasUnassignedCollections =
