@@ -2,13 +2,16 @@ import { DOCUMENT, NgIf } from "@angular/common";
 import { Component, DestroyRef, inject, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
-import { pairwise, startWith } from "rxjs";
+import { firstValueFrom, pairwise, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
 import {
@@ -20,9 +23,13 @@ import {
 } from "@bitwarden/components";
 import { VaultIcons } from "@bitwarden/vault";
 
+import { SETUP_EXTENSION_DISMISSED } from "../../guards/setup-extension-redirect.guard";
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
 
-import { AddExtensionLaterDialogComponent } from "./add-extension-later-dialog.component";
+import {
+  AddExtensionLaterDialogComponent,
+  AddExtensionLaterDialogData,
+} from "./add-extension-later-dialog.component";
 import { AddExtensionVideosComponent } from "./add-extension-videos.component";
 
 const SetupExtensionState = {
@@ -53,6 +60,8 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   private platformUtilsService = inject(PlatformUtilsService);
   private dialogService = inject(DialogService);
+  private stateProvider = inject(StateProvider);
+  private accountService = inject(AccountService);
   private document = inject(DOCUMENT);
 
   protected SetupExtensionState = SetupExtensionState;
@@ -96,6 +105,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
         // Extension was not installed and now it is, show success state
         if (previousState === false && currentState) {
           this.dialogRef?.close();
+          void this.dismissExtensionPage();
           this.state = SetupExtensionState.Success;
         }
 
@@ -125,17 +135,31 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
     const isMobile = Utils.isMobileBrowser;
 
     if (!isFeatureEnabled || isMobile) {
+      await this.dismissExtensionPage();
       await this.router.navigate(["/vault"]);
     }
   }
 
   /** Opens the add extension later dialog */
   addItLater() {
-    this.dialogRef = this.dialogService.open(AddExtensionLaterDialogComponent);
+    this.dialogRef = this.dialogService.open<unknown, AddExtensionLaterDialogData>(
+      AddExtensionLaterDialogComponent,
+      {
+        data: {
+          onDismiss: this.dismissExtensionPage.bind(this),
+        },
+      },
+    );
   }
 
   /** Opens the browser extension */
   openExtension() {
     void this.webBrowserExtensionInteractionService.openExtension();
+  }
+
+  /** Update local state to never show this page again. */
+  private async dismissExtensionPage() {
+    const accountId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    void this.stateProvider.getUser(accountId, SETUP_EXTENSION_DISMISSED).update(() => true);
   }
 }
