@@ -11,10 +11,7 @@ export class SecretVerificationRequest {
   /**
    * Mutates this request to include the master password authentication data, to authenticate the request.
    */
-  authenticateWith(
-    masterPasswordAuthenticationData: MasterPasswordAuthenticationData,
-  ): SecretVerificationRequest {
+  authenticateWith(masterPasswordAuthenticationData: MasterPasswordAuthenticationData) {
     this.masterPasswordHash = masterPasswordAuthenticationData.masterPasswordAuthenticationHash;
-    return this;
   }
 }

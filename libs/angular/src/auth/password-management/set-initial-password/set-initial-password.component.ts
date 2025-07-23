@@ -209,10 +209,12 @@ export class SetInitialPasswordComponent implements OnInit {
 
   private async setInitialPassword(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
+    assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
     assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
     assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.newLocalMasterKeyHash, "newLocalMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    assertTruthy(passwordInputResult.salt, "salt", ctx);
     assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
     assertTruthy(this.orgId, "orgId", ctx);
     assertTruthy(this.userType, "userType", ctx);
@@ -222,11 +224,10 @@ export class SetInitialPasswordComponent implements OnInit {
 
     try {
       const credentials: SetInitialPasswordCredentials = {
-        newMasterKey: passwordInputResult.newMasterKey,
-        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
-        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+        newPassword: passwordInputResult.newPassword,
         newPasswordHint: passwordInputResult.newPasswordHint,
         kdfConfig: passwordInputResult.kdfConfig,
+        salt: passwordInputResult.salt,
         orgSsoIdentifier: this.orgSsoIdentifier,
         orgId: this.orgId,
         resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,

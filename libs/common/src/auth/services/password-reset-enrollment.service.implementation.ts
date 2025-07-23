@@ -57,13 +57,10 @@ export class PasswordResetEnrollmentServiceImplementation
     // RSA Encrypt user's userKey.key with organization public key
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, orgPublicKey);
 
-    const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
-    resetRequest.resetPasswordKey = encryptedKey.encryptedString;
-
     await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
       organizationId,
       userId,
-      resetRequest,
+      new OrganizationUserResetPasswordEnrollmentRequest(encryptedKey.toUnsignedSharedKey()),
     );
   }
 }

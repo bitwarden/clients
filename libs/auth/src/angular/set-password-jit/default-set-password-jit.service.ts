@@ -163,9 +163,10 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
 
     const encryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
-    const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
+    const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest(
+      encryptedUserKey.toUnsignedSharedKey(),
+    );
     resetRequest.masterPasswordHash = masterKeyHash;
-    resetRequest.resetPasswordKey = encryptedUserKey.encryptedString;
 
     await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
       orgId,

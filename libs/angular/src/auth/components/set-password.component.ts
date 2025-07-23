@@ -218,9 +218,10 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
               publicKey,
             );
 
-            const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
+            const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest(
+              encryptedUserKey.toUnsignedSharedKey(),
+            );
             resetRequest.masterPasswordHash = masterPasswordHash;
-            resetRequest.resetPasswordKey = encryptedUserKey.encryptedString;
 
             return this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
               this.orgId,
