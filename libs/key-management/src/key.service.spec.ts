@@ -1192,4 +1192,105 @@ describe("keyService", () => {
       });
     });
   });
+
+  describe("initAccount", () => {
+    let userKey: UserKey;
+    let mockPublicKey: string;
+    let mockPrivateKey: EncString;
+
+    beforeEach(() => {
+      userKey = makeSymmetricCryptoKey<UserKey>(64);
+      mockPublicKey = "mockPublicKey";
+      mockPrivateKey = makeEncString("mockPrivateKey");
+
+      keyGenerationService.createKey.mockResolvedValue(userKey);
+      jest.spyOn(keyService, "makeKeyPair").mockResolvedValue([mockPublicKey, mockPrivateKey]);
+      jest.spyOn(keyService, "setUserKey").mockResolvedValue();
+    });
+
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(keyService.initAccount(userId)).rejects.toThrow("UserId is required.");
+        expect(keyService.setUserKey).not.toHaveBeenCalled();
+      },
+    );
+
+    it("throws when user already has a user key", async () => {
+      const existingUserKey = makeSymmetricCryptoKey<UserKey>(64);
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(existingUserKey);
+
+      await expect(keyService.initAccount(mockUserId)).rejects.toThrow(
+        "Cannot initialize account, keys already exist.",
+      );
+      expect(logService.error).toHaveBeenCalledWith(
+        "Tried to initialize account with existing user key.",
+      );
+      expect(keyService.setUserKey).not.toHaveBeenCalled();
+    });
+
+    it("throws when private key creation fails", async () => {
+      // Simulate failure
+      const invalidPrivateKey = new EncString(
+        "2.AAAw2vTUePO+CCyokcIfVw==|DTBNlJ5yVsV2Bsk3UU3H6Q==|YvFBff5gxWqM+UsFB6BKimKxhC32AtjF3IStpU1Ijwg=",
+      );
+      invalidPrivateKey.encryptedString = null as unknown as EncryptedString;
+      jest.spyOn(keyService, "makeKeyPair").mockResolvedValue([mockPublicKey, invalidPrivateKey]);
+
+      await expect(keyService.initAccount(mockUserId)).rejects.toThrow(
+        "Failed to create valid private key.",
+      );
+      expect(keyService.setUserKey).not.toHaveBeenCalled();
+    });
+
+    it("successfully initializes account with new keys", async () => {
+      const keyCreationSize = 512;
+      const privateKeyState = stateProvider.singleUser.getFake(
+        mockUserId,
+        USER_ENCRYPTED_PRIVATE_KEY,
+      );
+
+      const result = await keyService.initAccount(mockUserId);
+
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(keyCreationSize);
+      expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+      expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, mockUserId);
+      expect(privateKeyState.nextMock).toHaveBeenCalledWith(mockPrivateKey.encryptedString);
+      expect(result).toEqual({
+        userKey: userKey,
+        publicKey: mockPublicKey,
+        privateKey: mockPrivateKey,
+      });
+    });
+  });
+
+  describe("makeKeyPair", () => {
+    test.each([null as unknown as SymmetricCryptoKey, undefined as unknown as SymmetricCryptoKey])(
+      "throws when the provided key is %s",
+      async (key) => {
+        await expect(keyService.makeKeyPair(key)).rejects.toThrow(
+          "'key' is a required parameter and must be non-null.",
+        );
+      },
+    );
+
+    it("generates a key pair and returns public key and encrypted private key", async () => {
+      const mockKey = new SymmetricCryptoKey(new Uint8Array(64));
+      const mockKeyPair: [Uint8Array, Uint8Array] = [new Uint8Array(256), new Uint8Array(256)];
+      const mockPublicKeyB64 = "mockPublicKeyB64";
+      const mockPrivateKeyEncString = makeEncString("encryptedPrivateKey");
+
+      cryptoFunctionService.rsaGenerateKeyPair.mockResolvedValue(mockKeyPair);
+      jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(mockPublicKeyB64);
+      encryptService.wrapDecapsulationKey.mockResolvedValue(mockPrivateKeyEncString);
+
+      const [publicKey, privateKey] = await keyService.makeKeyPair(mockKey);
+
+      expect(cryptoFunctionService.rsaGenerateKeyPair).toHaveBeenCalledWith(2048);
+      expect(Utils.fromBufferToB64).toHaveBeenCalledWith(mockKeyPair[0]);
+      expect(encryptService.wrapDecapsulationKey).toHaveBeenCalledWith(mockKeyPair[1], mockKey);
+      expect(publicKey).toBe(mockPublicKeyB64);
+      expect(privateKey).toBe(mockPrivateKeyEncString);
+    });
+  });
 });

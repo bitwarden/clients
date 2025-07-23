@@ -90,4 +90,22 @@ export class Field extends Domain {
       linkedId: this.linkedId as unknown as SdkLinkedIdType,
     };
   }
+
+  /**
+   * Maps SDK Field to Field
+   * @param obj The SDK Field object to map
+   */
+  static fromSdkField(obj: SdkField): Field | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const field = new Field();
+    field.name = EncString.fromJSON(obj.name);
+    field.value = EncString.fromJSON(obj.value);
+    field.type = obj.type;
+    field.linkedId = obj.linkedId;
+
+    return field;
+  }
 }

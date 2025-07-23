@@ -1,7 +1,8 @@
 import { Subject, firstValueFrom } from "rxjs";
 
-import { getCommand, isExternalMessage, tagAsExternal } from "./helpers";
-import { Message, CommandDefinition } from "./types";
+import { CommandDefinition, isExternalMessage, Message } from "@bitwarden/messaging";
+
+import { getCommand, tagAsExternal } from "./helpers";
 
 describe("helpers", () => {
   describe("getCommand", () => {

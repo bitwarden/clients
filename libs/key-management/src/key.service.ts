@@ -653,19 +653,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    * Initialize all necessary crypto keys needed for a new account.
    * Warning! This completely replaces any existing keys!
    */
-  async initAccount(): Promise<{
+  async initAccount(userId: UserId): Promise<{
     userKey: UserKey;
     publicKey: string;
     privateKey: EncString;
   }> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-
-    if (activeUserId == null) {
-      throw new Error("Cannot initilize an account if one is not active.");
+    if (userId == null) {
+      throw new Error("UserId is required.");
     }
 
     // Verify user key doesn't exist
-    const existingUserKey = await this.getUserKey(activeUserId);
+    const existingUserKey = await this.getUserKey(userId);
 
     if (existingUserKey != null) {
       this.logService.error("Tried to initialize account with existing user key.");
@@ -678,9 +676,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("Failed to create valid private key.");
     }
 
-    await this.setUserKey(userKey, activeUserId);
+    await this.setUserKey(userKey, userId);
     await this.stateProvider
-      .getUser(activeUserId, USER_ENCRYPTED_PRIVATE_KEY)
+      .getUser(userId, USER_ENCRYPTED_PRIVATE_KEY)
       .update(() => privateKey.encryptedString!);
 
     return {

@@ -390,11 +390,12 @@ export abstract class KeyService {
   /**
    * Initialize all necessary crypto keys needed for a new account.
    * Warning! This completely replaces any existing keys!
+   * @param userId The user id of the target user.
    * @returns The user's newly created  public key, private key, and encrypted private key
-   *
-   * @throws An error if there is no user currently active.
+   * @throws An error if the userId is null or undefined.
+   * @throws An error if the user already has a user key.
    */
-  abstract initAccount(): Promise<{
+  abstract initAccount(userId: UserId): Promise<{
     userKey: UserKey;
     publicKey: string;
     privateKey: EncString;
