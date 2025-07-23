@@ -35,9 +35,6 @@ export enum FeatureFlag {
   AllowTrialLengthZero = "pm-20322-allow-trial-length-0",
   PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
 
-  /* Data Insights and Reporting */
-  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
-
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
@@ -89,9 +86,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
-
-  /* Data Insights and Reporting */
-  [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
