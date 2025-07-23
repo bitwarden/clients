@@ -5,6 +5,7 @@ import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
+import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -45,6 +46,7 @@ import {
   AccountService as AccountServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import {
@@ -143,6 +145,7 @@ import {
 
 import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
+import { ExtensionChangePasswordService } from "../../auth/popup/change-password/extension-change-password.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
@@ -663,6 +666,11 @@ const safeProviders: SafeProvider[] = [
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: ChangePasswordService,
+    useClass: ExtensionChangePasswordService,
+    deps: [KeyService, MasterPasswordApiService, InternalMasterPasswordServiceAbstraction, WINDOW],
   }),
   safeProvider({
     provide: NotificationsService,
