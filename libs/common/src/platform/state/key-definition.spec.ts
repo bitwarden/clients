@@ -12,7 +12,7 @@ describe("KeyDefinition", () => {
     it("throws on undefined deserializer", () => {
       expect(() => {
         new KeyDefinition<boolean>(fakeStateDefinition, "fake", {
-          deserializer: undefined,
+          deserializer: undefined!,
         });
       });
     });
@@ -153,7 +153,7 @@ describe("KeyDefinition", () => {
       const deserializedValue = recordDefinition.deserializer({
         test1: false,
         test2: true,
-      });
+      })!;
 
       expect(Object.keys(deserializedValue)).toHaveLength(2);
 
@@ -174,7 +174,7 @@ describe("KeyDefinition", () => {
 
       const fancyRecord = recordDefinition.deserializer(
         JSON.parse(`{ "myKey": false, "mySecondKey": true }`),
-      );
+      )!;
 
       expect(fancyRecord).toBeTruthy();
       expect(Object.keys(fancyRecord)).toHaveLength(2);
@@ -193,7 +193,7 @@ describe("KeyDefinition", () => {
       expect(arrayDefinition.deserializer).toBeTruthy();
 
       // NOTE: `as any` is here until we migrate to Nx: https://bitwarden.atlassian.net/browse/PM-6493
-      const deserializedValue = arrayDefinition.deserializer([false, true] as any);
+      const deserializedValue = arrayDefinition.deserializer([false, true] as any)!;
 
       expect(deserializedValue).toBeTruthy();
       expect(deserializedValue).toHaveLength(2);

@@ -1,7 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { mergeOptions, OptionsWithDefaultsDeep } from "../../types/options";
 import { StorageKey } from "../../types/state";
 
 import { array, record } from "./deserialization-helpers";
@@ -42,7 +41,7 @@ export type KeyDefinitionOptions<T> = {
    * @param jsonValue The JSON object representation of your state.
    * @returns The fully typed version of your state.
    */
-  readonly deserializer: (jsonValue: Jsonify<T>) => T | null;
+  readonly deserializer: (jsonValue: Jsonify<T> | null) => T | null;
   /**
    * The number of milliseconds to wait before cleaning up the state after the last subscriber has unsubscribed.
    * Defaults to 1000ms.
@@ -55,13 +54,27 @@ export type KeyDefinitionOptions<T> = {
   readonly debug?: DebugOptions;
 };
 
+const DEFAULT_KEY_DEFINITION_OPTIONS = Object.freeze({
+  cleanupDelayMs: 1000 as number,
+  debug: {
+    enableUpdateLogging: false,
+    enableRetrievalLogging: false,
+  },
+});
+
 /**
  * KeyDefinitions describe the precise location to store data for a given piece of state.
  * The StateDefinition is used to describe the domain of the state, and the KeyDefinition
  * sub-divides that domain into specific keys.
  */
 export class KeyDefinition<T> {
-  readonly debug: Required<DebugOptions>;
+  private readonly options: OptionsWithDefaultsDeep<
+    KeyDefinitionOptions<T>,
+    typeof DEFAULT_KEY_DEFINITION_OPTIONS
+  >;
+  get debug() {
+    return Object.freeze({ ...this.options.debug });
+  }
 
   /**
    * Creates a new instance of a KeyDefinition
@@ -75,24 +88,19 @@ export class KeyDefinition<T> {
   constructor(
     readonly stateDefinition: StateDefinition,
     readonly key: string,
-    private readonly options: KeyDefinitionOptions<T>,
+    options: KeyDefinitionOptions<T>,
   ) {
     if (options.deserializer == null) {
       throw new Error(`'deserializer' is a required property on key ${this.errorKeyName}`);
     }
 
-    if (options.cleanupDelayMs < 0) {
+    this.options = mergeOptions(options, DEFAULT_KEY_DEFINITION_OPTIONS);
+
+    if (this.options.cleanupDelayMs < 0) {
       throw new Error(
-        `'cleanupDelayMs' must be greater than or equal to 0. Value of ${options.cleanupDelayMs} passed to key ${this.errorKeyName} `,
+        `'cleanupDelayMs' must be greater than or equal to 0. Value of ${this.options.cleanupDelayMs} passed to key ${this.errorKeyName} `,
       );
     }
-
-    // Normalize optional debug options
-    const { enableUpdateLogging = false, enableRetrievalLogging = false } = options.debug ?? {};
-    this.debug = {
-      enableUpdateLogging,
-      enableRetrievalLogging,
-    };
   }
 
   /**
@@ -106,7 +114,7 @@ export class KeyDefinition<T> {
    * Gets the number of milliseconds to wait before cleaning up the state after the last subscriber has unsubscribed.
    */
   get cleanupDelayMs() {
-    return this.options.cleanupDelayMs < 0 ? 0 : (this.options.cleanupDelayMs ?? 1000);
+    return this.options.cleanupDelayMs;
   }
 
   /**

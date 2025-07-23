@@ -1,5 +1,3 @@
-import { Jsonify } from "type-fest";
-
 import {
   COLLECTION_DATA,
   DeriveDefinition,
@@ -15,7 +13,7 @@ export const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<Collection
   COLLECTION_DATA,
   "collections",
   {
-    deserializer: (jsonData: Jsonify<CollectionData>) => CollectionData.fromJSON(jsonData),
+    deserializer: (jsonData) => CollectionData.fromJSON(jsonData!),
     clearOn: ["logout"],
   },
 );

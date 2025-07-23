@@ -8,8 +8,8 @@ import { Jsonify } from "type-fest";
  * @returns
  */
 export function array<T>(
-  elementDeserializer: (element: Jsonify<T>) => T,
-): (array: Jsonify<T[]>) => T[] {
+  elementDeserializer: (element: Jsonify<T> | null) => T | null,
+): (array: Jsonify<T[]> | null) => T[] | null {
   return (array) => {
     if (array == null) {
       return null;
@@ -24,9 +24,9 @@ export function array<T>(
  * @param valueDeserializer
  */
 export function record<T, TKey extends string | number = string>(
-  valueDeserializer: (value: Jsonify<T>) => T,
-): (record: Jsonify<Record<TKey, T>>) => Record<TKey, T> {
-  return (jsonValue: Jsonify<Record<TKey, T> | null>) => {
+  valueDeserializer: (value: Jsonify<T> | null) => T | null,
+): (record: Jsonify<Record<TKey, T>> | null) => Record<TKey, T> | null {
+  return (jsonValue: Jsonify<Record<TKey, T>> | null) => {
     if (jsonValue == null) {
       return null;
     }
