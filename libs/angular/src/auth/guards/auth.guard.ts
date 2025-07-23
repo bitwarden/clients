@@ -85,7 +85,6 @@ export const authGuard: CanActivateFn = async (
   if (
     forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission &&
-    !routerState.url.includes("set-password") &&
     !routerState.url.includes("set-initial-password")
   ) {
     const route = "/set-initial-password";
@@ -95,7 +94,6 @@ export const authGuard: CanActivateFn = async (
   // TDE Offboarding on trusted device
   if (
     forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding &&
-    !routerState.url.includes("update-temp-password") &&
     !routerState.url.includes("set-initial-password")
   ) {
     const route = "/set-initial-password";
@@ -106,7 +104,6 @@ export const authGuard: CanActivateFn = async (
   if (
     (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
       forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
-    !routerState.url.includes("update-temp-password") &&
     !routerState.url.includes("change-password")
   ) {
     const route = "/change-password";
