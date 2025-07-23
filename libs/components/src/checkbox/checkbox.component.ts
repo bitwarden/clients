@@ -15,6 +15,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
   protected inputClasses = [
     "tw-appearance-none",
     "tw-outline-none",
+    "tw-box-border",
     "tw-relative",
     "tw-transition",
     "tw-cursor-pointer",
@@ -37,6 +38,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "before:tw-border",
     "before:tw-border-solid",
     "before:tw-border-secondary-500",
+    "before:tw-box-border",
 
     "after:tw-content-['']",
     "after:tw-block",
@@ -44,6 +46,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "after:tw-inset-0",
     "after:tw-h-[1.12rem]",
     "after:tw-w-[1.12rem]",
+    "after:tw-box-border",
 
     "hover:before:tw-border-2",
     "[&>label]:before:tw-border-2",
@@ -101,6 +104,8 @@ export class CheckboxComponent implements BitFormControlAbstraction {
   protected indeterminateImage =
     `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 13 13"%3E%3Cpath stroke="%23fff" stroke-width="2" d="M2.5 6.5h8"/%3E%3C/svg%3E%0A')`;
 
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding()
   @Input()
   get disabled() {
@@ -111,6 +116,8 @@ export class CheckboxComponent implements BitFormControlAbstraction {
   }
   private _disabled: boolean;
 
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get required() {
     return (

@@ -57,7 +57,7 @@
   --color-text-code: 192 17 118;
 
   --color-hover-default: rgb(26 65 172 / 0.1);
-  --color-hover-contrast: rgb(219 229 246 / 0.15);
+  --color-hover-contrast: rgb(255 255 255 / 0.15);
 
   --color-marketing-logo: 23 93 220;
 
@@ -128,7 +128,7 @@
   --color-text-code: 255 143 208;
 
   --color-hover-default: rgb(170 195 239 / 0.1);
-  --color-hover-contrast: rgb(26 39 78 / 0.15);
+  --color-hover-contrast: rgb(0 0 0 / 0.15);
 
   --color-marketing-logo: 255 255 255;
 

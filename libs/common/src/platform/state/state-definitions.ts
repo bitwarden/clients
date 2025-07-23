@@ -95,6 +95,8 @@ export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSetting
   web: "disk-local",
 });
 
+export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
+
 // Components
 
 export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanner", "disk", {
@@ -105,6 +107,9 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
 
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {
   web: "disk-local",
+});
+export const BADGE_MEMORY = new StateDefinition("badge", "memory", {
+  browser: "memory-large-object",
 });
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
@@ -197,6 +202,13 @@ export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");
 export const NUDGES_DISK = new StateDefinition("nudges", "disk", { web: "disk-local" });
+export const SETUP_EXTENSION_DISMISSED_DISK = new StateDefinition(
+  "setupExtensionDismissed",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",

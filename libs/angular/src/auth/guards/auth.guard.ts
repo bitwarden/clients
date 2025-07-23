@@ -47,9 +47,6 @@ export const authGuard: CanActivateFn = async (
   const isSetInitialPasswordFlagOn = await configService.getFeatureFlag(
     FeatureFlag.PM16117_SetInitialPasswordRefactor,
   );
-  const isChangePasswordFlagOn = await configService.getFeatureFlag(
-    FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
-  );
 
   // User JIT provisioned into a master-password-encryption org
   if (
@@ -113,6 +110,10 @@ export const authGuard: CanActivateFn = async (
     const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/update-temp-password";
     return router.createUrlTree([route]);
   }
+
+  const isChangePasswordFlagOn = await configService.getFeatureFlag(
+    FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+  );
 
   // Post- Account Recovery or Weak Password on login
   if (

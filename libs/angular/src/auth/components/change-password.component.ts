@@ -7,12 +7,12 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -37,15 +37,15 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
   protected destroy$ = new Subject<void>();
 
   constructor(
+    protected accountService: AccountService,
+    protected dialogService: DialogService,
     protected i18nService: I18nService,
+    protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
+    protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected messagingService: MessagingService,
     protected platformUtilsService: PlatformUtilsService,
     protected policyService: PolicyService,
-    protected dialogService: DialogService,
-    protected kdfConfigService: KdfConfigService,
-    protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    protected accountService: AccountService,
     protected toastService: ToastService,
   ) {}
 

@@ -44,14 +44,18 @@ export default {
   component: TabGroupComponent,
   decorators: [
     moduleMetadata({
-      declarations: [
+      imports: [
+        CommonModule,
+        TabsModule,
+        ButtonModule,
+        FormFieldModule,
+        RouterModule,
         ActiveDummyComponent,
         ItemTwoDummyComponent,
         ItemThreeDummyComponent,
         ItemWithChildCounterDummyComponent,
         DisabledDummyComponent,
       ],
-      imports: [CommonModule, TabsModule, ButtonModule, FormFieldModule, RouterModule],
     }),
     applicationConfig({
       providers: [

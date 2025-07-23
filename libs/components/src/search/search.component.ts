@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, ElementRef, ViewChild, input, model } from "@angular/core";
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
@@ -43,9 +43,9 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 
-  @Input() disabled: boolean;
-  @Input() placeholder: string;
-  @Input() autocomplete: string;
+  readonly disabled = model<boolean>();
+  readonly placeholder = input<string>();
+  readonly autocomplete = input<string>();
 
   getFocusTarget() {
     return this.input?.nativeElement;
@@ -76,6 +76,6 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   }
 
   setDisabledState(isDisabled: boolean) {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 }
