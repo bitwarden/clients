@@ -8,6 +8,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -85,6 +86,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
         registry: ExtensionRegistry,
         logger: LogService,
         environment: PlatformUtilsService,
+        configService: ConfigService,
       ) => {
         let log: LogProvider;
         if (environment.isDev()) {
@@ -104,6 +106,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           policy,
           extension,
           log,
+          configService,
         };
       },
       deps: [
@@ -113,6 +116,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
         ExtensionRegistry,
         LogService,
         PlatformUtilsService,
+        ConfigService,
       ],
     }),
     safeProvider({
