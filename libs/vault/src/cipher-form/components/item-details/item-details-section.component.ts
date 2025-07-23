@@ -98,7 +98,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     return this.config.mode === "partial-edit";
   }
 
-  get organizationDataOwnershipDisabled() {
+  get allowPersonalOwnership() {
     return this.config.organizationDataOwnershipDisabled;
   }
 
@@ -111,20 +111,17 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   /**
-   * Show the organization data ownership option in the Owner dropdown when:
-   * 1. organization data ownership disabled policy IS NOT enabled
-   * 2. `organizationId` control is disabled
-   * 3. organization data ownership disabled policy IS enabled
-   * AND they're editing a cipher that is not currently owned by an organization
-   *
-   * This avoids the scenario where the dropdown is empty because the user personally
-   * owns the cipher but cannot edit the ownership.
+   * Show the personal ownership option in the Owner dropdown when any of the following:
+   * - personal ownership is allowed
+   * - `organizationId` control is disabled
+   * - personal ownership is not allowed AND the user is editing a cipher that is not
+   * currently owned by an organization
    */
-  get showOrganizationDataOwnershipOption() {
+  get showPersonalOwnershipOption() {
     return (
-      this.organizationDataOwnershipDisabled ||
+      this.allowPersonalOwnership ||
       this.itemDetailsForm.controls.organizationId.disabled ||
-      (!this.organizationDataOwnershipDisabled &&
+      (!this.allowPersonalOwnership &&
         this.config.originalCipher &&
         this.itemDetailsForm.controls.organizationId.value === null)
     );
@@ -178,7 +175,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     }
 
     // If personal ownership is allowed and there is at least one organization, allow ownership change.
-    if (this.organizationDataOwnershipDisabled) {
+    if (this.allowPersonalOwnership) {
       return this.organizations.length > 0;
     }
 
@@ -197,7 +194,7 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get defaultOwner() {
-    return this.organizationDataOwnershipDisabled ? null : this.organizations[0].id;
+    return this.allowPersonalOwnership ? null : this.organizations[0].id;
   }
 
   async ngOnInit() {
@@ -207,7 +204,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
     this.userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    if (!this.organizationDataOwnershipDisabled && this.organizations.length === 0) {
+    if (!this.allowPersonalOwnership && this.organizations.length === 0) {
       throw new Error("No organizations available for ownership.");
     }
 
@@ -226,7 +223,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       });
       await this.updateCollectionOptions(this.initialValues?.collectionIds);
     }
-    this.setFormStatus();
+    this.setFormState();
     if (!this.allowOwnershipChange) {
       this.itemDetailsForm.controls.organizationId.disable();
     }
@@ -235,7 +232,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         concatMap(async () => {
           await this.updateCollectionOptions();
-          this.setFormStatus();
+          this.setFormState();
         }),
       )
       .subscribe();
@@ -246,8 +243,8 @@ export class ItemDetailsSectionComponent implements OnInit {
    * requires all ciphers to be owned by an organization, disable the entire form
    * until the user selects an organization.
    */
-  private setFormStatus() {
-    if (this.config.originalCipher && !this.organizationDataOwnershipDisabled) {
+  private setFormState() {
+    if (this.config.originalCipher && !this.allowPersonalOwnership) {
       if (this.itemDetailsForm.controls.organizationId.value === null) {
         this.cipherFormContainer.disableFormFields();
         this.itemDetailsForm.controls.organizationId.enable();
@@ -266,7 +263,7 @@ export class ItemDetailsSectionComponent implements OnInit {
    * - the selected org doesn't have the "no private data policy" enabled
    */
   private async getDefaultCollectionId(orgId?: OrganizationId) {
-    if (!orgId || this.organizationDataOwnershipDisabled) {
+    if (!orgId || this.allowPersonalOwnership) {
       return;
     }
 
@@ -319,7 +316,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         );
       }
 
-      if (!this.organizationDataOwnershipDisabled && prefillCipher.organizationId == null) {
+      if (!this.allowPersonalOwnership && prefillCipher.organizationId == null) {
         this.itemDetailsForm.controls.organizationId.setValue(this.defaultOwner);
       }
     }
