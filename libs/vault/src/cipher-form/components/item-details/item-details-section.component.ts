@@ -3,13 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { concatMap, firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -41,7 +35,7 @@ import {
   CipherFormConfig,
   OptionalInitialValues,
 } from "../../abstractions/cipher-form-config.service";
-import { CipherForm, CipherFormContainer } from "../../cipher-form-container";
+import { CipherFormContainer } from "../../cipher-form-container";
 
 @Component({
   selector: "vault-item-details-section",
@@ -93,9 +87,6 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   @Input()
   originalCipherView: CipherView;
-
-  @Input()
-  cipherForm: FormGroup<CipherForm>;
 
   get readOnlyCollectionsNames(): string[] {
     return this.readOnlyCollections.map((c) => c.name);
@@ -258,10 +249,10 @@ export class ItemDetailsSectionComponent implements OnInit {
   private setFormStatus() {
     if (this.config.originalCipher && !this.organizationDataOwnershipDisabled) {
       if (this.itemDetailsForm.controls.organizationId.value === null) {
-        this.cipherForm.disable({ emitEvent: false });
+        this.cipherFormContainer.disableFormFields();
         this.itemDetailsForm.controls.organizationId.enable();
       } else {
-        this.cipherForm.enable({ emitEvent: false });
+        this.cipherFormContainer.enableFormFields();
       }
     }
   }
