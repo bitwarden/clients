@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/guid",
+  "version": "0.0.1",
+  "description": "Guid utilities extracted from common",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}
