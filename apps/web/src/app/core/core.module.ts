@@ -78,7 +78,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
@@ -240,8 +239,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ThemeStateService,
-    useFactory: (globalStateProvider: GlobalStateProvider) =>
-      new DefaultThemeStateService(globalStateProvider, ThemeTypes.System),
+    useClass: DefaultThemeStateService,
     deps: [GlobalStateProvider],
   }),
   safeProvider({
