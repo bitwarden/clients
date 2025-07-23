@@ -1070,6 +1070,7 @@ export default class MainBackground {
       this.pinService,
       this.accountService,
       this.sdkService,
+      this.restrictedItemTypesService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
