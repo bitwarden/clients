@@ -301,6 +301,14 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("KdfConfig is required to create master key.");
       }
 
+      const salt =
+        this.userId != null
+          ? await firstValueFrom(this.masterPasswordService.saltForAccount$(this.userId))
+          : this.masterPasswordService.emailToSalt(this.email);
+      if (salt == null) {
+        throw new Error("Salt is required to create master key.");
+      }
+
       // 2. Verify current password is correct (if necessary)
       if (
         this.flow === InputPasswordFlow.ChangePassword ||
@@ -346,6 +354,7 @@ export class InputPasswordComponent implements OnInit {
 
       const passwordInputResult: PasswordInputResult = {
         newPassword,
+        salt,
         newMasterKey,
         newServerMasterKeyHash,
         newLocalMasterKeyHash,

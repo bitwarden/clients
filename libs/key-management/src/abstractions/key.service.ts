@@ -170,6 +170,7 @@ export abstract class KeyService {
    */
   abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId: string): Promise<void>;
   /**
+   * @deprecated
    * @throws Error when userId is null and no active user
    * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @param password The user's master password that will be used to derive a master key if one isn't found

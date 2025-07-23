@@ -43,6 +43,10 @@ export class EncString implements Encrypted {
     return this.data == null ? null : Utils.fromB64ToArray(this.data);
   }
 
+  toEncryptedString(): EncryptedString {
+    return this.encryptedString;
+  }
+
   toJSON() {
     return this.encryptedString as string;
   }
