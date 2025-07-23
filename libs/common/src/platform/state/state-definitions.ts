@@ -206,6 +206,13 @@ export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");
 export const NUDGES_DISK = new StateDefinition("nudges", "disk", { web: "disk-local" });
+export const SETUP_EXTENSION_DISMISSED_DISK = new StateDefinition(
+  "setupExtensionDismissed",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",

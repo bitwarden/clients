@@ -14,6 +14,7 @@ import {
   shareReplay,
   switchMap,
   withLatestFrom,
+  tap,
 } from "rxjs";
 
 import {
@@ -62,6 +63,7 @@ import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "../../../billing/organizations/change-plan-dialog.component";
+import { OrganizationWarningsService } from "../../../billing/warnings/services";
 import { BaseMembersComponent } from "../../common/base-members.component";
 import { PeopleTableDataSource } from "../../common/people-table-data-source";
 import { GroupApiService } from "../core";
@@ -149,6 +151,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private configService: ConfigService,
     private organizationUserService: OrganizationUserService,
+    private organizationWarningsService: OrganizationWarningsService,
   ) {
     super(
       apiService,
@@ -248,6 +251,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     this.showUserManagementControls$ = organization$.pipe(
       map((organization) => organization.canManageUsers),
     );
+    organization$
+      .pipe(
+        takeUntilDestroyed(),
+        tap((org) => (this.organization = org)),
+        switchMap((org) => this.organizationWarningsService.showInactiveSubscriptionDialog$(org)),
+      )
+      .subscribe();
   }
 
   async getUsers(): Promise<OrganizationUserView[]> {
@@ -942,5 +952,15 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     return this.dataSource
       .getCheckedUsers()
       .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
+  }
+
+  async navigateToPaymentMethod() {
+    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    );
+    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
+    await this.router.navigate(["organizations", `${this.organization?.id}`, "billing", route], {
+      state: { launchPaymentModalAutomatically: true },
+    });
   }
 }
