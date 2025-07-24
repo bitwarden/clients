@@ -1,10 +1,6 @@
 /**
  * This barrel file should only contain Angular exports
  */
-// change password
-export * from "./change-password/change-password.component";
-export * from "./change-password/change-password.service.abstraction";
-export * from "./change-password/default-change-password.service";
 
 // fingerprint dialog
 export * from "./fingerprint-dialog/fingerprint-dialog.component";
@@ -44,11 +40,6 @@ export * from "./registration/registration-start/registration-start-secondary.co
 export * from "./registration/registration-env-selector/registration-env-selector.component";
 export * from "./registration/registration-finish/registration-finish.service";
 export * from "./registration/registration-finish/default-registration-finish.service";
-
-// set password (JIT user)
-export * from "./set-password-jit/set-password-jit.component";
-export * from "./set-password-jit/set-password-jit.service.abstraction";
-export * from "./set-password-jit/default-set-password-jit.service";
 
 // user verification
 export * from "./user-verification/user-verification-dialog.component";

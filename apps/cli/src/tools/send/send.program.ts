@@ -4,13 +4,12 @@ import * as fs from "fs";
 import * as path from "path";
 
 import * as chalk from "chalk";
-import { program, Command, OptionValues } from "commander";
+import { program, Command, Option, OptionValues } from "commander";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 
 import { BaseProgram } from "../../base-program";
-import { GetCommand } from "../../commands/get.command";
 import { Response } from "../../models/response";
 import { CliUtils } from "../../utils";
 
@@ -22,10 +21,12 @@ import {
   SendListCommand,
   SendReceiveCommand,
   SendRemovePasswordCommand,
+  SendTemplateCommand,
 } from "./commands";
 import { SendFileResponse } from "./models/send-file.response";
 import { SendTextResponse } from "./models/send-text.response";
 import { SendResponse } from "./models/send.response";
+import { parseEmail } from "./util";
 
 const writeLn = CliUtils.writeLn;
 
@@ -47,6 +48,17 @@ export class SendProgram extends BaseProgram {
         "-d, --deleteInDays <days>",
         "The number of days in the future to set deletion date, defaults to 7",
         "7",
+      )
+      .addOption(
+        new Option(
+          "--password <password>",
+          "optional password to access this Send. Can also be specified in JSON.",
+        ).conflicts("email"),
+      )
+      .option(
+        "--email <email>",
+        "optional emails to access this Send. Can also be specified in JSON.",
+        parseEmail,
       )
       .option("-a, --maxAccessCount <amount>", "The amount of max possible accesses.")
       .option("--hidden", "Hide <data> in web by default. Valid only if --file is not set.")
@@ -128,6 +140,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendService,
           this.serviceContainer.environmentService,
           this.serviceContainer.searchService,
+          this.serviceContainer.accountService,
         );
         const response = await cmd.run(options);
         this.processResponse(response);
@@ -138,26 +151,9 @@ export class SendProgram extends BaseProgram {
     return new Command("template")
       .argument("<object>", "Valid objects are: send.text, send.file")
       .description("Get json templates for send objects")
-      .action(async (object) => {
-        const cmd = new GetCommand(
-          this.serviceContainer.cipherService,
-          this.serviceContainer.folderService,
-          this.serviceContainer.collectionService,
-          this.serviceContainer.totpService,
-          this.serviceContainer.auditService,
-          this.serviceContainer.keyService,
-          this.serviceContainer.encryptService,
-          this.serviceContainer.searchService,
-          this.serviceContainer.apiService,
-          this.serviceContainer.organizationService,
-          this.serviceContainer.eventCollectionService,
-          this.serviceContainer.billingAccountProfileStateService,
-          this.serviceContainer.accountService,
-          this.serviceContainer.cliRestrictedItemTypesService,
-        );
-        const response = await cmd.run("template", object, null);
-        this.processResponse(response);
-      });
+      .action((options: OptionValues) =>
+        this.processResponse(new SendTemplateCommand().run(options.object)),
+      );
   }
 
   private getCommand(): Command {
@@ -193,6 +189,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
+          this.serviceContainer.accountService,
         );
         const response = await cmd.run(id, options);
         this.processResponse(response);
@@ -206,10 +203,6 @@ export class SendProgram extends BaseProgram {
       .option("--file <path>", "file to Send. Can also be specified in parent's JSON.")
       .option("--text <text>", "text to Send. Can also be specified in parent's JSON.")
       .option("--hidden", "text hidden flag. Valid only with the --text option.")
-      .option(
-        "--password <password>",
-        "optional password to access this Send. Can also be specified in JSON",
-      )
       .on("--help", () => {
         writeLn("");
         writeLn("Note:");
@@ -217,13 +210,13 @@ export class SendProgram extends BaseProgram {
         writeLn("", true);
       })
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
-        // Work-around to support `--fullObject` option for `send create --fullObject`
-        // Calling `option('--fullObject', ...)` above won't work due to Commander doesn't like same option
-        // to be defind on both parent-command and sub-command
-        const { fullObject = false } = args.parent.opts();
+        // subcommands inherit flags from their parent; they cannot override them
+        const { fullObject = false, email = undefined, password = undefined } = args.parent.opts();
         const mergedOptions = {
           ...options,
           fullObject: fullObject,
+          email,
+          password,
         };
 
         const response = await this.runCreate(encodedJson, mergedOptions);
@@ -245,7 +238,7 @@ export class SendProgram extends BaseProgram {
         writeLn("  You cannot update a File-type Send's file. Just delete and remake it");
         writeLn("", true);
       })
-      .action(async (encodedJson: string, options: OptionValues) => {
+      .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         await this.exitIfLocked();
         const getCmd = new SendGetCommand(
           this.serviceContainer.sendService,
@@ -253,6 +246,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
+          this.serviceContainer.accountService,
         );
         const cmd = new SendEditCommand(
           this.serviceContainer.sendService,
@@ -261,7 +255,16 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.accountService,
         );
-        const response = await cmd.run(encodedJson, options);
+
+        // subcommands inherit flags from their parent; they cannot override them
+        const { email = undefined, password = undefined } = args.parent.opts();
+        const mergedOptions = {
+          ...options,
+          email,
+          password,
+        };
+
+        const response = await cmd.run(encodedJson, mergedOptions);
         this.processResponse(response);
       });
   }

@@ -4,8 +4,8 @@ import { Jsonify } from "type-fest";
 
 import { Identity as SdkIdentity } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { IdentityData } from "../data/identity.data";
 import { IdentityView } from "../view/identity.view";
@@ -194,5 +194,37 @@ export class Identity extends Domain {
       passportNumber: this.passportNumber?.toJSON(),
       licenseNumber: this.licenseNumber?.toJSON(),
     };
+  }
+
+  /**
+   * Maps an SDK Identity object to an Identity
+   * @param obj - The SDK Identity object
+   */
+  static fromSdkIdentity(obj: SdkIdentity): Identity | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const identity = new Identity();
+    identity.title = EncString.fromJSON(obj.title);
+    identity.firstName = EncString.fromJSON(obj.firstName);
+    identity.middleName = EncString.fromJSON(obj.middleName);
+    identity.lastName = EncString.fromJSON(obj.lastName);
+    identity.address1 = EncString.fromJSON(obj.address1);
+    identity.address2 = EncString.fromJSON(obj.address2);
+    identity.address3 = EncString.fromJSON(obj.address3);
+    identity.city = EncString.fromJSON(obj.city);
+    identity.state = EncString.fromJSON(obj.state);
+    identity.postalCode = EncString.fromJSON(obj.postalCode);
+    identity.country = EncString.fromJSON(obj.country);
+    identity.company = EncString.fromJSON(obj.company);
+    identity.email = EncString.fromJSON(obj.email);
+    identity.phone = EncString.fromJSON(obj.phone);
+    identity.ssn = EncString.fromJSON(obj.ssn);
+    identity.username = EncString.fromJSON(obj.username);
+    identity.passportNumber = EncString.fromJSON(obj.passportNumber);
+    identity.licenseNumber = EncString.fromJSON(obj.licenseNumber);
+
+    return identity;
   }
 }

@@ -1,37 +1,18 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { firstValueFrom, fromEvent, filter, map, takeUntil, defaultIfEmpty, Subject } from "rxjs";
-import { Jsonify } from "type-fest";
-
 import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Decryptable } from "@bitwarden/common/platform/interfaces/decryptable.interface";
 import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { getClassInitializer } from "@bitwarden/common/platform/services/cryptography/get-class-initializer";
 
-import {
-  DefaultFeatureFlagValue,
-  FeatureFlag,
-  getFeatureFlagValue,
-} from "../../../enums/feature-flag.enum";
+import { DefaultFeatureFlagValue, FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
-import { buildDecryptMessage, buildSetConfigMessage } from "../types/worker-command.type";
 
-// TTL (time to live) is not strictly required but avoids tying up memory resources if inactive
-const workerTTL = 60000; // 1 minute
-const maxWorkers = 8;
-const minNumberOfItemsForMultithreading = 400;
-
+/**
+ * @deprecated Will be deleted in an immediate subsequent PR
+ */
 export class BulkEncryptServiceImplementation implements BulkEncryptService {
-  private workers: Worker[] = [];
-  private timeout: any;
-  private currentServerConfig: ServerConfig | undefined = undefined;
   protected useSDKForDecryption: boolean = DefaultFeatureFlagValue[FeatureFlag.UseSDKForDecryption];
-
-  private clear$ = new Subject<void>();
 
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
@@ -54,139 +35,12 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
       return [];
     }
 
-    if (typeof window === "undefined" || this.useSDKForDecryption) {
-      this.logService.info("Window not available in BulkEncryptService, decrypting sequentially");
-      const results = [];
-      for (let i = 0; i < items.length; i++) {
-        results.push(await items[i].decrypt(key));
-      }
-      return results;
-    }
-
-    const decryptedItems = await this.getDecryptedItemsFromWorkers(items, key);
-    return decryptedItems;
-  }
-
-  onServerConfigChange(newConfig: ServerConfig): void {
-    this.currentServerConfig = newConfig;
-    this.useSDKForDecryption = getFeatureFlagValue(newConfig, FeatureFlag.UseSDKForDecryption);
-    this.updateWorkerServerConfigs(newConfig);
-  }
-
-  /**
-   * Sends items to a set of web workers to decrypt them. This utilizes multiple workers to decrypt items
-   * faster without interrupting other operations (e.g. updating UI).
-   */
-  private async getDecryptedItemsFromWorkers<T extends InitializerMetadata>(
-    items: Decryptable<T>[],
-    key: SymmetricCryptoKey,
-  ): Promise<T[]> {
-    if (items == null || items.length < 1) {
-      return [];
-    }
-
-    this.clearTimeout();
-
-    const hardwareConcurrency = navigator.hardwareConcurrency || 1;
-    let numberOfWorkers = Math.min(hardwareConcurrency, maxWorkers);
-    if (items.length < minNumberOfItemsForMultithreading) {
-      numberOfWorkers = 1;
-    }
-
-    this.logService.info(
-      `Starting decryption using multithreading with ${numberOfWorkers} workers for ${items.length} items`,
-    );
-
-    if (this.workers.length == 0) {
-      for (let i = 0; i < numberOfWorkers; i++) {
-        this.workers.push(
-          new Worker(
-            new URL(
-              /* webpackChunkName: 'encrypt-worker' */
-              "@bitwarden/common/key-management/crypto/services/encrypt.worker.ts",
-              import.meta.url,
-            ),
-          ),
-        );
-      }
-      if (this.currentServerConfig != undefined) {
-        this.updateWorkerServerConfigs(this.currentServerConfig);
-      }
-    }
-
-    const itemsPerWorker = Math.floor(items.length / this.workers.length);
     const results = [];
-
-    for (const [i, worker] of this.workers.entries()) {
-      const start = i * itemsPerWorker;
-      const end = start + itemsPerWorker;
-      const itemsForWorker = items.slice(start, end);
-
-      // push the remaining items to the last worker
-      if (i == this.workers.length - 1) {
-        itemsForWorker.push(...items.slice(end));
-      }
-
-      const id = Utils.newGuid();
-      const request = buildDecryptMessage({
-        id,
-        items: itemsForWorker,
-        key: key,
-      });
-
-      worker.postMessage(request);
-      results.push(
-        firstValueFrom(
-          fromEvent(worker, "message").pipe(
-            filter((response: MessageEvent) => response.data?.id === id),
-            map((response) => JSON.parse(response.data.items)),
-            map((items) =>
-              items.map((jsonItem: Jsonify<T>) => {
-                const initializer = getClassInitializer<T>(jsonItem.initializerKey);
-                return initializer(jsonItem);
-              }),
-            ),
-            takeUntil(this.clear$),
-            defaultIfEmpty([]),
-          ),
-        ),
-      );
+    for (let i = 0; i < items.length; i++) {
+      results.push(await items[i].decrypt(key));
     }
-
-    const decryptedItems = (await Promise.all(results)).flat();
-    this.logService.info(
-      `Finished decrypting ${decryptedItems.length} items using ${numberOfWorkers} workers`,
-    );
-
-    this.restartTimeout();
-
-    return decryptedItems;
+    return results;
   }
 
-  private updateWorkerServerConfigs(newConfig: ServerConfig) {
-    this.workers.forEach((worker) => {
-      const request = buildSetConfigMessage({ newConfig });
-      worker.postMessage(request);
-    });
-  }
-
-  private clear() {
-    this.clear$.next();
-    for (const worker of this.workers) {
-      worker.terminate();
-    }
-    this.workers = [];
-    this.clearTimeout();
-  }
-
-  private restartTimeout() {
-    this.clearTimeout();
-    this.timeout = setTimeout(() => this.clear(), workerTTL);
-  }
-
-  private clearTimeout() {
-    if (this.timeout != null) {
-      clearTimeout(this.timeout);
-    }
-  }
+  onServerConfigChange(newConfig: ServerConfig): void {}
 }

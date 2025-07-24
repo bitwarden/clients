@@ -10,6 +10,7 @@ import { Observable, combineLatest, filter, first, map, switchMap } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -70,7 +71,12 @@ export class AssignCollections {
       ),
     );
 
-    combineLatest([cipher$, this.collectionService.decryptedCollections$])
+    const decryptedCollection$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+    );
+
+    combineLatest([cipher$, decryptedCollection$])
       .pipe(takeUntilDestroyed(), first())
       .subscribe(([cipherView, collections]) => {
         let availableCollections = collections;

@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Защищенная заметка"
   },
+  "typeNote": {
+    "message": "Заметка"
+  },
   "typeSshKey": {
     "message": "Ключ SSH"
   },
@@ -861,8 +864,28 @@
   "copyName": {
     "message": "Скопировать имя"
   },
+  "cardNumber": {
+    "message": "номер карты"
+  },
+  "copyFieldCipherName": {
+    "message": "Копировать $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Мое"
+  },
+  "myItems": {
+    "message": "Мои элементы"
   },
   "myVault": {
     "message": "Хранилище"
@@ -1780,6 +1803,9 @@
   },
   "loggedOutWarning": {
     "message": "В случае продолжения, ваша сессия будет завершена и вам будет предложено авторизоваться повторно. Сессии на других устройствах могут оставаться активными в течение одного часа."
+  },
+  "changePasswordWarning": {
+    "message": "После смены пароля потребуется авторизоваться с новым паролем. Активные сессии на других устройствах будут завершены в течение одного часа."
   },
   "emailChanged": {
     "message": "Email сохранен"
@@ -3275,9 +3301,6 @@
   "defaultCollection": {
     "message": "Коллекция по умолчанию"
   },
-  "myItems": {
-    "message": "Мои элементы"
-  },
   "getHelp": {
     "message": "Получить помощь"
   },
@@ -3478,6 +3501,9 @@
   },
   "webVault": {
     "message": "Веб-хранилище"
+  },
+  "webApp": {
+    "message": "Веб-приложение"
   },
   "cli": {
     "message": "CLI"
@@ -3961,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Вы отклонили попытку авторизации с другого устройства. Если это действительно были вы, попробуйте авторизоваться с этого устройства еще раз."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Запрос входа для $EMAIL$ на $DEVICE$ одобрен",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Вы отклонили попытку авторизации с другого устройства. Если это были вы, попробуйте авторизоваться с этого устройства еще раз."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Запрос на вход истек."
   },
@@ -3968,7 +4010,7 @@
     "message": "Только что"
   },
   "requestedXMinutesAgo": {
-    "message": "Запрошено $MINUTES$ мин назад",
+    "message": "Запрошено $MINUTES$ минут назад",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4104,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Просмотр запроса на вход"
+  },
+  "loginRequest": {
+    "message": "Запрос на вход"
   },
   "freeTrialEndPromptCount": {
     "message": "Ваша бесплатная пробная версия заканчивается через $COUNT$ дней.",
@@ -6064,11 +6109,20 @@
   "add": {
     "message": "Добавить"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Мастер-пароль успешно установлен"
+  },
   "updatedMasterPassword": {
     "message": "Мастер-пароль сохранен"
   },
   "updateMasterPassword": {
     "message": "Обновить мастер-пароль"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Измените мастер-пароль, чтобы завершить восстановление аккаунта."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Ваш мастер-пароль не соответствует требованиям этой организации. Измените его, чтобы продолжить."
   },
   "updateMasterPasswordWarning": {
     "message": "Мастер-пароль недавно был изменен администратором вашей организации. Чтобы получить доступ к хранилищу, вы должны обновить мастер-пароль сейчас. В результате текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение одного часа."
@@ -8233,8 +8287,44 @@
   "errorReadingImportFile": {
     "message": "Произошла ошибка при попытке чтения импортируемого файла"
   },
+  "accessedSecretWithId": {
+    "message": "Доступ к секрету с идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Получен доступ к секрету $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Изменен секрет с идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Удален секрет с идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Создан новый секрет с идентификатором: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8413,6 +8503,12 @@
   },
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Не удалось завершить вход"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Вам необходимо авторизоваться с доверенного устройства или попросить вашего администратора назначить вам пароль."
   },
   "trustedDeviceEncryption": {
     "message": "Шифрование доверенного устройства"
@@ -8867,6 +8963,30 @@
   "commonImportFormats": {
     "message": "Основные форматы",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Обнаружение совпадения URI - это способ, с помощью которого Bitwarden идентифицирует предложения по автозаполнению.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Регулярное выражение\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Начинается с\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Подробнее об обнаружении совпадений",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Расширенные настройки",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Предупреждение",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Для сохранения подписки на $ORG$ ",
@@ -10658,6 +10778,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Автозаполнение паролей безопасно одним нажатием"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Установите расширение для браузера Bitwarden и начните использовать автозаполнение уже сегодня"
+  },
+  "getTheExtension": {
+    "message": "Получить расширение"
+  },
+  "addItLater": {
+    "message": "Добавить позже"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "Вы не можете автоматически заполнять пароли без расширения браузера"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Вы уверены, что не хотите добавить расширение прямо сейчас?"
+  },
+  "skipToWebApp": {
+    "message": "Перейти к веб-приложению"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Расширение Bitwarden установлено!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Откройте расширение, чтобы авторизоваться и начать использовать автозаполнение."
+  },
+  "openBitwardenExtension": {
+    "message": "Открыть расширение Bitwarden"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "Для получения советов по началу работы с Bitwarden посетите сайт",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "База знаний",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Центр поддержки",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "С помощью расширения Bitwarden вы можете легко создавать новые логины, получать доступ к сохраненным логинам непосредственно с панели инструментов браузера и быстро входить в аккаунты с помощью автозаполнения Bitwarden."
+  },
   "restart": {
     "message": "Перезапустить"
   },
@@ -10683,5 +10848,53 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Для пополнения счета необходим платежный адрес.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Платежный адрес"
+  },
+  "addBillingAddress": {
+    "message": "Добавить платежный адрес"
+  },
+  "editBillingAddress": {
+    "message": "Изменить платежный адрес"
+  },
+  "noBillingAddress": {
+    "message": "Нет адреса в файле."
+  },
+  "billingAddressUpdated": {
+    "message": "Ваш платежный адрес был обновлен."
+  },
+  "paymentDetails": {
+    "message": "Детали оплаты"
+  },
+  "paymentMethodUpdated": {
+    "message": "Ваш способ оплаты обновлен."
+  },
+  "bankAccountVerified": {
+    "message": "Ваш банковский счет был подтвержден."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Любой доступный кредит будет автоматически зачислен на счета, сгенерированные для этого счета."
+  },
+  "mustBePositiveNumber": {
+    "message": "Должно быть положительным числом"
+  },
+  "cardSecurityCode": {
+    "message": "Код безопасности карты"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Код безопасности карты, также известный как CVV или CVC. Обычно это трехзначный номер, напечатанный на обратной стороне вашей кредитной карты или четырехзначный номер, напечатанный на лицевой стороне над номером вашей карты."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Оплата с помощью банковского счета доступна только для клиентов в США. Вам потребуется подтвердить свой банковский счет. Мы сделаем микродепозит в течение следующих 1-2 рабочих дней. Введите код дескриптора выписки из этого депозита на странице платежных реквизитов для подтверждения банковского счета. Неподтверждение банковского счета приведет к пропуску платежа и приостановке подписки."
+  },
+  "taxId": {
+    "message": "ID налога: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
   }
 }

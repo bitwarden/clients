@@ -8,6 +8,7 @@ import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
@@ -87,6 +88,10 @@ describe("VaultBannersComponent", () => {
             allMessages$: messageSubject.asObservable(),
           }),
         },
+        {
+          provide: ConfigService,
+          useValue: mock<ConfigService>(),
+        },
       ],
     })
       .overrideProvider(VaultBannersService, { useValue: bannerService })
@@ -107,7 +112,7 @@ describe("VaultBannersComponent", () => {
       fixture.detectChanges();
 
       const banner = fixture.debugElement.query(By.directive(BannerComponent));
-      expect(banner.componentInstance.bannerType).toBe("premium");
+      expect(banner.componentInstance.bannerType()).toBe("premium");
     });
 
     it("dismisses premium banner", async () => {

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as papa from "papaparse";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import {
   CollectionService,
@@ -225,14 +225,7 @@ export class OrganizationVaultExportService
   ): Promise<string> {
     let decCiphers: CipherView[] = [];
     let allDecCiphers: CipherView[] = [];
-    let decCollections: CollectionView[] = [];
     const promises = [];
-
-    promises.push(
-      this.collectionService.getAllDecrypted().then(async (collections) => {
-        decCollections = collections.filter((c) => c.organizationId == organizationId && c.manage);
-      }),
-    );
 
     promises.push(
       this.cipherService.getAllDecrypted(activeUserId).then((ciphers) => {
@@ -240,6 +233,16 @@ export class OrganizationVaultExportService
       }),
     );
     await Promise.all(promises);
+
+    const decCollections: CollectionView[] = await firstValueFrom(
+      this.collectionService
+        .decryptedCollections$(activeUserId)
+        .pipe(
+          map((collections) =>
+            collections.filter((c) => c.organizationId == organizationId && c.manage),
+          ),
+        ),
+    );
 
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
@@ -263,14 +266,7 @@ export class OrganizationVaultExportService
   ): Promise<string> {
     let encCiphers: Cipher[] = [];
     let allCiphers: Cipher[] = [];
-    let encCollections: Collection[] = [];
     const promises = [];
-
-    promises.push(
-      this.collectionService.getAll().then((collections) => {
-        encCollections = collections.filter((c) => c.organizationId == organizationId && c.manage);
-      }),
-    );
 
     promises.push(
       this.cipherService.getAll(activeUserId).then((ciphers) => {
@@ -279,6 +275,15 @@ export class OrganizationVaultExportService
     );
 
     await Promise.all(promises);
+
+    const encCollections: Collection[] = await firstValueFrom(
+      this.collectionService.encryptedCollections$(activeUserId).pipe(
+        map((collections) => collections ?? []),
+        map((collections) =>
+          collections.filter((c) => c.organizationId == organizationId && c.manage),
+        ),
+      ),
+    );
 
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 

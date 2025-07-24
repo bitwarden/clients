@@ -18,12 +18,14 @@ import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/resp
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -31,7 +33,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
@@ -123,6 +124,7 @@ describe("LoginStrategy", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
+  let configService: MockProxy<ConfigService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -148,6 +150,7 @@ describe("LoginStrategy", () => {
     passwordStrengthService = mock<PasswordStrengthService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     environmentService = mock<EnvironmentService>();
+    configService = mock<ConfigService>();
 
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
 
@@ -177,6 +180,7 @@ describe("LoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
+      configService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
   });
@@ -491,6 +495,7 @@ describe("LoginStrategy", () => {
         vaultTimeoutSettingsService,
         kdfConfigService,
         environmentService,
+        configService,
       );
 
       apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
@@ -551,6 +556,7 @@ describe("LoginStrategy", () => {
         vaultTimeoutSettingsService,
         kdfConfigService,
         environmentService,
+        configService,
       );
 
       const result = await passwordLoginStrategy.logIn(credentials);

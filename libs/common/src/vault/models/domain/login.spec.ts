@@ -1,8 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";

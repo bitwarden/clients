@@ -15,17 +15,17 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
-import { AcceptOrganizationInviteService } from "@bitwarden/web-vault/app/auth/organization-invite/accept-organization.service";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
 import { WebSetInitialPasswordService } from "./web-set-initial-password.service";
@@ -43,7 +43,7 @@ describe("WebSetInitialPasswordService", () => {
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
-  let acceptOrganizationInviteService: MockProxy<AcceptOrganizationInviteService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
   let routerService: MockProxy<RouterService>;
 
   beforeEach(() => {
@@ -57,7 +57,7 @@ describe("WebSetInitialPasswordService", () => {
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
-    acceptOrganizationInviteService = mock<AcceptOrganizationInviteService>();
+    organizationInviteService = mock<OrganizationInviteService>();
     routerService = mock<RouterService>();
 
     sut = new WebSetInitialPasswordService(
@@ -71,7 +71,7 @@ describe("WebSetInitialPasswordService", () => {
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
-      acceptOrganizationInviteService,
+      organizationInviteService,
       routerService,
     );
   });
@@ -169,9 +169,7 @@ describe("WebSetInitialPasswordService", () => {
 
         // Assert
         expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-        expect(acceptOrganizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(
-          1,
-        );
+        expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -201,7 +199,7 @@ describe("WebSetInitialPasswordService", () => {
         // Assert
         await expect(promise).rejects.toThrow();
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
-        expect(acceptOrganizationInviteService.clearOrganizationInvitation).not.toHaveBeenCalled();
+        expect(organizationInviteService.clearOrganizationInvitation).not.toHaveBeenCalled();
       });
     });
   });

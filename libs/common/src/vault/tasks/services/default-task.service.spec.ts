@@ -365,7 +365,7 @@ describe("Default task service", () => {
         const subscription = service.listenForTaskNotifications();
 
         const notification = {
-          type: NotificationType.PendingSecurityTasks,
+          type: NotificationType.RefreshSecurityTasks,
         } as NotificationResponse;
         mockNotifications$.next([notification, userId]);
 
@@ -390,7 +390,7 @@ describe("Default task service", () => {
         const subscription = service.listenForTaskNotifications();
 
         const notification = {
-          type: NotificationType.PendingSecurityTasks,
+          type: NotificationType.RefreshSecurityTasks,
         } as NotificationResponse;
         mockNotifications$.next([notification, "other-user-id" as UserId]);
 

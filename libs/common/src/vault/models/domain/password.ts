@@ -4,8 +4,8 @@ import { Jsonify } from "type-fest";
 
 import { PasswordHistory } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { PasswordHistoryData } from "../data/password-history.data";
 import { PasswordHistoryView } from "../view/password-history.view";
@@ -70,5 +70,21 @@ export class Password extends Domain {
       password: this.password.toJSON(),
       lastUsedDate: this.lastUsedDate.toISOString(),
     };
+  }
+
+  /**
+   * Maps an SDK PasswordHistory object to a Password
+   * @param obj - The SDK PasswordHistory object
+   */
+  static fromSdkPasswordHistory(obj: PasswordHistory): Password | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const passwordHistory = new Password();
+    passwordHistory.password = EncString.fromJSON(obj.password);
+    passwordHistory.lastUsedDate = new Date(obj.lastUsedDate);
+
+    return passwordHistory;
   }
 }
