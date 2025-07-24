@@ -14,8 +14,6 @@ export enum FeatureFlag {
   CreateDefaultLocation = "pm-19467-create-default-location",
 
   /* Auth */
-  PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
-  PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
@@ -45,6 +43,9 @@ export enum FeatureFlag {
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
+
+  /* DIRT */
+  EventBasedOrganizationIntegrations = "event-based-organization-integrations",
 
   /* Vault */
   PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
@@ -89,6 +90,9 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
 
+  /* DIRT */
+  [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
+
   /* Vault */
   [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
@@ -101,8 +105,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
-  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
 
   /* Billing */

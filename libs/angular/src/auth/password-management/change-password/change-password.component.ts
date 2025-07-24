@@ -178,6 +178,9 @@ export class ChangePasswordComponent implements OnInit {
 
         // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
         this.messagingService.send("logout");
+
+        // Close the popout if we are in a browser extension popout.
+        this.changePasswordService.closeBrowserExtensionPopout?.();
       }
     } catch (error) {
       this.logService.error(error);

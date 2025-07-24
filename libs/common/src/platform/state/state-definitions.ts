@@ -164,9 +164,13 @@ export const SEND_ACCESS_AUTH_MEMORY = new StateDefinition("sendAccessAuth", "me
 
 // Vault
 
-export const COLLECTION_DATA = new StateDefinition("collection", "disk", {
+export const COLLECTION_DISK = new StateDefinition("collection", "disk", {
   web: "memory",
 });
+export const COLLECTION_MEMORY = new StateDefinition("decryptedCollections", "memory", {
+  browser: "memory-large-object",
+});
+
 export const FOLDER_DISK = new StateDefinition("folder", "disk", { web: "memory" });
 export const FOLDER_MEMORY = new StateDefinition("decryptedFolders", "memory", {
   browser: "memory-large-object",
