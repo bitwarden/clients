@@ -21,10 +21,19 @@ import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 /**
- * The amount of time in milliseconds to wait for a response from the browser extension.
+ * The amount of time in milliseconds to wait for a response from the browser extension. A longer duration is
+ * used to allow for the extension to open and then emit to the message.
  * NOTE: This value isn't computed by any means, it is just a reasonable timeout for the extension to respond.
  */
-const MESSAGE_RESPONSE_TIMEOUT_MS = 1500;
+const OPEN_RESPONSE_TIMEOUT_MS = 1500;
+
+/**
+ * Timeout for checking if the extension is installed.
+ *
+ * A shorter timeout is used to avoid waiting for too long for the extension. The listener for
+ * checking the installation runs in the background scripts so the response should be relatively quick.
+ */
+const CHECK_FOR_EXTENSION_TIMEOUT_MS = 25;
 
 @Injectable({
   providedIn: "root",
@@ -63,7 +72,7 @@ export class WebBrowserInteractionService {
           filter((event) => event.data.command === VaultMessages.PopupOpened),
           map(() => true),
         ),
-        timer(MESSAGE_RESPONSE_TIMEOUT_MS).pipe(map(() => false)),
+        timer(OPEN_RESPONSE_TIMEOUT_MS).pipe(map(() => false)),
       )
         .pipe(take(1))
         .subscribe((didOpen) => {
@@ -85,7 +94,7 @@ export class WebBrowserInteractionService {
         filter((event) => event.data.command === VaultMessages.HasBwInstalled),
         map(() => true),
       ),
-      timer(MESSAGE_RESPONSE_TIMEOUT_MS).pipe(map(() => false)),
+      timer(CHECK_FOR_EXTENSION_TIMEOUT_MS).pipe(map(() => false)),
     ).pipe(
       tap({
         subscribe: () => {

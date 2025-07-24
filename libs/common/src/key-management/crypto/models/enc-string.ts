@@ -153,6 +153,10 @@ export class EncString implements Encrypted {
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
 
+  /**
+   * @deprecated - This function is deprecated. Use EncryptService.decryptString instead.
+   * @returns - The decrypted string, or `[error: cannot decrypt]` if decryption fails.
+   */
   async decrypt(
     orgId: string | null,
     key: SymmetricCryptoKey | null = null,
