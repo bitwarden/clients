@@ -1,6 +1,6 @@
- 
+import { LogService } from "@bitwarden/logging";
+
 import { ClientType } from "../enums";
-import { LogService } from "../platform/abstractions/log.service";
 import { AbstractStorageService } from "../platform/abstractions/storage.service";
 
 export type StateDefinitionLike = { name: string };

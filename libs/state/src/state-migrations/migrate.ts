@@ -1,5 +1,5 @@
- 
-import { LogService } from "../platform/abstractions/log.service";
+import { LogService } from "@bitwarden/logging";
+
 import { AbstractStorageService } from "../platform/abstractions/storage.service";
 
 import { MigrationBuilder } from "./migration-builder";
