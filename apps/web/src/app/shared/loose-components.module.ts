@@ -14,11 +14,8 @@ import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/
 import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
-import { SetPasswordComponent } from "../auth/set-password.component";
 import { DangerZoneComponent } from "../auth/settings/account/danger-zone.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
-import { UpdatePasswordComponent } from "../auth/update-password.component";
-import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
 import { FreeBitwardenFamiliesComponent } from "../billing/members/free-bitwarden-families.component";
@@ -75,12 +72,9 @@ import { SharedModule } from "./shared.module";
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
-    SetPasswordComponent,
     SponsoredFamiliesComponent,
     FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    UpdatePasswordComponent,
-    UpdateTempPasswordComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
   ],
@@ -99,12 +93,9 @@ import { SharedModule } from "./shared.module";
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
-    SetPasswordComponent,
     SponsoredFamiliesComponent,
     FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    UpdateTempPasswordComponent,
-    UpdatePasswordComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
     HeaderModule,

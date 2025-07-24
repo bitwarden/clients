@@ -22,41 +22,48 @@
   </bit-breadcrumbs>
 
   <ng-container slot="title-suffix">
-    <ng-container *ngIf="collection != null && (canEditCollection || canDeleteCollection)">
-      <button
-        bitIconButton="bwi-angle-down"
-        [bitMenuTriggerFor]="editCollectionMenu"
-        size="small"
-        type="button"
-        aria-haspopup="true"
-      ></button>
-      <bit-menu #editCollectionMenu>
+    @if (collection != null && (canEditCollection || canDeleteCollection)) {
+      <ng-container>
         <button
+          bitIconButton="bwi-angle-down"
+          [bitMenuTriggerFor]="editCollectionMenu"
+          size="small"
           type="button"
-          *ngIf="canEditCollection"
-          bitMenuItem
-          (click)="editCollection(CollectionDialogTabType.Info)"
-        >
-          <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-          {{ "editInfo" | i18n }}
-        </button>
-        <button
-          type="button"
-          *ngIf="canEditCollection"
-          bitMenuItem
-          (click)="editCollection(CollectionDialogTabType.Access)"
-        >
-          <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-          {{ "access" | i18n }}
-        </button>
-        <button type="button" *ngIf="canDeleteCollection" bitMenuItem (click)="deleteCollection()">
-          <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-            {{ "delete" | i18n }}
-          </span>
-        </button>
-      </bit-menu>
-    </ng-container>
+          aria-haspopup="true"
+        ></button>
+        <bit-menu #editCollectionMenu>
+          <button
+            type="button"
+            *ngIf="canEditCollection"
+            bitMenuItem
+            (click)="editCollection(CollectionDialogTabType.Info)"
+          >
+            <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+            {{ "editInfo" | i18n }}
+          </button>
+          <button
+            type="button"
+            *ngIf="canEditCollection"
+            bitMenuItem
+            (click)="editCollection(CollectionDialogTabType.Access)"
+          >
+            <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+            {{ "access" | i18n }}
+          </button>
+          <button
+            type="button"
+            *ngIf="canDeleteCollection"
+            bitMenuItem
+            (click)="deleteCollection()"
+          >
+            <span class="tw-text-danger">
+              <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+              {{ "delete" | i18n }}
+            </span>
+          </button>
+        </bit-menu>
+      </ng-container>
+    }
     <small *ngIf="loading">
       <i
         class="bwi bwi-spinner bwi-spin tw-text-muted"

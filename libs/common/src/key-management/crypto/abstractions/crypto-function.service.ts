@@ -41,7 +41,6 @@ export abstract class CryptoFunctionService {
     algorithm: "sha1" | "sha256" | "sha512",
   ): Promise<Uint8Array | string>;
   abstract compareFast(a: Uint8Array | string, b: Uint8Array | string): Promise<boolean>;
-  abstract aesEncrypt(data: Uint8Array, iv: Uint8Array, key: Uint8Array): Promise<Uint8Array>;
   abstract aesDecryptFastParameters(
     data: string,
     iv: string,
