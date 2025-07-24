@@ -262,7 +262,6 @@ const safeProviders: SafeProvider[] = [
       PolicyApiServiceAbstraction,
       LogService,
       PolicyService,
-      ConfigService,
     ],
   }),
   safeProvider({

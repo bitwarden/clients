@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Search vault"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Add item"
   },

@@ -13,6 +13,7 @@ import {
   Observable,
   shareReplay,
   switchMap,
+  withLatestFrom,
   tap,
 } from "rxjs";
 
@@ -303,17 +304,27 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
    * Retrieve a map of all collection IDs <-> names for the organization.
    */
   async getCollectionNameMap() {
-    const collectionMap = new Map<string, string>();
-    const response = await this.apiService.getCollections(this.organization.id);
-
-    const collections = response.data.map(
-      (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
+    const response = from(this.apiService.getCollections(this.organization.id)).pipe(
+      map((res) =>
+        res.data.map((r) => new Collection(new CollectionData(r as CollectionDetailsResponse))),
+      ),
     );
-    const decryptedCollections = await this.collectionService.decryptMany(collections);
 
-    decryptedCollections.forEach((c) => collectionMap.set(c.id, c.name));
+    const decryptedCollections$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      withLatestFrom(response),
+      switchMap(([orgKeys, collections]) =>
+        this.collectionService.decryptMany$(collections, orgKeys),
+      ),
+      map((collections) => {
+        const collectionMap = new Map<string, string>();
+        collections.forEach((c) => collectionMap.set(c.id, c.name));
+        return collectionMap;
+      }),
+    );
 
-    return collectionMap;
+    return await firstValueFrom(decryptedCollections$);
   }
 
   removeUser(id: string): Promise<void> {

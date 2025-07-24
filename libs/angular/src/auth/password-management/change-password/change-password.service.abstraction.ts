@@ -59,4 +59,10 @@ export abstract class ChangePasswordService {
    * - Currently only used on the web change password service.
    */
   clearDeeplinkState?: () => Promise<void>;
+
+  /**
+   * Optional method that closes the browser extension popout if in a popout
+   * If not in a popout, does nothing.
+   */
+  abstract closeBrowserExtensionPopout?(): void;
 }

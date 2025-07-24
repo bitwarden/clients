@@ -325,7 +325,7 @@ export abstract class LoginStrategy {
 
   protected async createKeyPairForOldAccount(userId: UserId) {
     try {
-      const userKey = await this.keyService.getUserKeyWithLegacySupport(userId);
+      const userKey = await this.keyService.getUserKey(userId);
       const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
       if (!privateKey.encryptedString) {
         throw new Error("Failed to create encrypted private key");
