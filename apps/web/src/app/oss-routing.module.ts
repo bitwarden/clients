@@ -13,6 +13,8 @@ import {
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { preventProdAccessGuard } from "@bitwarden/angular/platform/guard/prevent-prod-access.guard";
+import { preventSelfHostedAccessGuard } from "@bitwarden/angular/platform/guard/prevent-self-hosted-access.guard";
 import {
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -177,6 +179,20 @@ const routes: Routes = [
     path: "",
     component: AnonLayoutWrapperComponent,
     children: [
+      {
+        path: "feature-flags",
+        canMatch: [preventProdAccessGuard, preventSelfHostedAccessGuard],
+        data: {
+          pageTitle: {
+            key: "featureFlags",
+          },
+          maxWidth: "3xl",
+          hideIcon: true, // TODO: log bug with UIF or offer a PR to fix where this isn't reset to false upon navigation
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        loadComponent: () =>
+          import("@bitwarden/angular/platform/feature-flags").then((m) => m.FeatureFlagsComponent),
+      },
+
       {
         path: "signup",
         canActivate: [unauthGuardFn()],
@@ -701,6 +717,27 @@ const routes: Routes = [
             path: "sponsored-families",
             component: SponsoredFamiliesComponent,
             data: { titleId: "sponsoredFamilies" } satisfies RouteDataProperties,
+          },
+          {
+            path: "developer-tools",
+            data: { titleId: "developerTools" } satisfies RouteDataProperties,
+            canMatch: [preventProdAccessGuard, preventSelfHostedAccessGuard],
+            loadComponent: () =>
+              import("./platform/settings/developer-tools").then((m) => m.DeveloperToolsComponent),
+            children: [
+              {
+                path: "",
+                redirectTo: "feature-flags",
+                pathMatch: "full",
+              },
+              {
+                path: "feature-flags",
+                loadComponent: () =>
+                  import("@bitwarden/angular/platform/feature-flags").then(
+                    (m) => m.FeatureFlagsComponent,
+                  ),
+              },
+            ],
           },
         ],
       },

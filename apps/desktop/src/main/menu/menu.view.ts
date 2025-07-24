@@ -134,6 +134,14 @@ export class ViewMenu implements IMenubarMenu {
     };
   }
 
+  // private get viewFeatureFlags(): MenuItemConstructorOptions {
+  //   return {
+  //     id: "viewFeatureFlags",
+  //     label: this.localize("viewFeatureFlags"),
+  //     role: "viewFeatureFlags",
+  //   };
+  // }
+
   private localize(s: string) {
     return this._i18nService.t(s);
   }
