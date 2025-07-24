@@ -47,6 +47,9 @@ export enum FeatureFlag {
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
 
+  /* DIRT */
+  EventBasedOrganizationIntegrations = "event-based-organization-integrations",
+
   /* Vault */
   PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
@@ -89,6 +92,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
+
+  /* DIRT */
+  [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
