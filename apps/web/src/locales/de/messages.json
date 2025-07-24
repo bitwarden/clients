@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Sichere Notiz"
   },
+  "typeNote": {
+    "message": "Notiz"
+  },
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Name kopieren"
+  },
+  "cardNumber": {
+    "message": "Kartennummer"
+  },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopieren",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Ich"
@@ -1785,7 +1805,7 @@
     "message": "Wenn du fortfährst, wirst du aus deiner aktuellen Sitzung ausgeloggt. Aktive Sitzungen auf anderen Geräten können bis zu einer Stunde weiterhin aktiv bleiben."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Nachdem du dein Passwort geändert hast, musst du dich mit deinem neuen Passwort anmelden. Aktive Sitzungen auf anderen Geräten werden innerhalb einer Stunde abgemeldet."
   },
   "emailChanged": {
     "message": "E-Mail-Adresse gespeichert"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Web-Tresor"
   },
+  "webApp": {
+    "message": "Web-App"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Anmeldeanfrage für $EMAIL$ auf $DEVICE$ genehmigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Anmeldeanfrage ist bereits abgelaufen."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Anmeldeanfrage überprüfen"
+  },
+  "loginRequest": {
+    "message": "Anmeldungsanfrage"
   },
   "freeTrialEndPromptCount": {
     "message": "Deine kostenlose Testversion endet in $COUNT$ Tagen.",
@@ -6068,7 +6110,7 @@
     "message": "Hinzufügen"
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master-Passwort erfolgreich eingerichtet"
+    "message": "Master-Passwort erfolgreich festgelegt"
   },
   "updatedMasterPassword": {
     "message": "Master-Passwort gespeichert"
@@ -6077,10 +6119,10 @@
     "message": "Master-Passwort aktualisieren"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Ändere dein Master-Passwort, um die Kontowiederherstellung abzuschließen."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "Dein Master-Passwort entspricht nicht den Anforderungen dieser Organisation. Ändere dein Master-Passwort, um fortzufahren."
   },
   "updateMasterPasswordWarning": {
     "message": "Dein Master-Passwort wurde kürzlich von einem Administrator deiner Organisation geändert. Um auf den Tresor zuzugreifen, musst du dein Master-Passwort jetzt aktualisieren. Wenn Du fortfährst, wirst du aus der aktuellen Sitzung abgemeldet und eine erneute Anmeldung ist erforderlich. Aktive Sitzungen auf anderen Geräten können bis zu einer Stunde weiterhin aktiv bleiben."
@@ -8246,7 +8288,7 @@
     "message": "Beim Lesen der Importdatei ist ein Fehler aufgetreten"
   },
   "accessedSecretWithId": {
-    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "message": "Zugriff auf Geheimnis mit der Kennung: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8264,7 +8306,7 @@
     }
   },
   "editedSecretWithId": {
-    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "message": "Ein Geheimnis bearbeitet mit der Kennung: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8273,7 +8315,7 @@
     }
   },
   "deletedSecretWithId": {
-    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "message": "Ein Geheimnis gelöscht mit der Kennung: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8282,7 +8324,7 @@
     }
   },
   "createdSecretWithId": {
-    "message": "Created a new secret with identifier: $SECRET_ID$",
+    "message": "Ein neues Geheimnis erstellt mit Kennung: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8463,10 +8505,10 @@
     "message": "Admin-Genehmigung anfragen"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Anmeldung kann nicht abgeschlossen werden"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "Du musst dich auf einem vertrauenswürdigen Gerät anmelden oder deinem Administrator bitten, dir ein Passwort zuzuweisen."
   },
   "trustedDeviceEncryption": {
     "message": "Vertrauenswürdige Geräteverschlüsselung"
@@ -8923,27 +8965,27 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Auto-Ausfüllen-Vorschläge erkennt.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Regulärer Ausdruck\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Beginnt mit\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Mehr über die Übereinstimmungs-Erkennung",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Erweiterte Optionen",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Warnung",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
@@ -10737,49 +10779,49 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "setupExtensionPageTitle": {
-    "message": "Autofill your passwords securely with one click"
+    "message": "Fülle deine Passwörter sicher mit einem Klick automatisch aus"
   },
   "setupExtensionPageDescription": {
-    "message": "Get the Bitwarden browser extension and start autofilling today"
+    "message": "Lade dir die Bitwarden Browser-Erweiterung herunter und nutze Auto-Ausfüllen noch heute"
   },
   "getTheExtension": {
-    "message": "Get the extension"
+    "message": "Erweiterung herunterladen"
   },
   "addItLater": {
-    "message": "Add it later"
+    "message": "Später hinzufügen"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "You can't autofill passwords without the browser extension"
+    "message": "Du kannst Passwörter nicht ohne die Browser-Erweiterung automatisch ausfüllen"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
-    "message": "Are you sure you don't want to add the extension now?"
+    "message": "Bist du sicher, dass du die Erweiterung jetzt nicht hinzufügen möchtest?"
   },
   "skipToWebApp": {
-    "message": "Skip to web app"
+    "message": "Zur Web-App springen"
   },
   "bitwardenExtensionInstalled": {
-    "message": "Bitwarden extension installed!"
+    "message": "Bitwarden-Erweiterung installiert!"
   },
   "openExtensionToAutofill": {
-    "message": "Open the extension to log in and start autofilling."
+    "message": "Öffne die Erweiterung, um dich anzumelden und Auto-Ausfüllen zu nutzen."
   },
   "openBitwardenExtension": {
-    "message": "Open Bitwarden extension"
+    "message": "Bitwarden-Erweiterung öffnen"
   },
   "gettingStartedWithBitwardenPart1": {
-    "message": "For tips on getting started with Bitwarden visit the",
+    "message": "Tipps für die ersten Schritte mit Bitwarden findest du unter",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
-    "message": "Learning Center",
+    "message": "Lernzentrum",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
-    "message": "Help Center",
+    "message": "Hilfezentrum",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
-    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+    "message": "Mit der Bitwarden Browser-Erweiterung kannst du ganz einfach neue Zugangsdaten erstellen, auf deine gespeicherten Zugangsdaten direkt von deiner Browser-Symbolleiste aus zugreifen und dich schnell mit Bitwarden Auto-Ausfüllen bei Konten anmelden."
   },
   "restart": {
     "message": "Neustarten"
@@ -10808,46 +10850,46 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "billingAddress": {
-    "message": "Billing address"
+    "message": "Rechnungsadresse"
   },
   "addBillingAddress": {
-    "message": "Add billing address"
+    "message": "Rechnungsadresse hinzufügen"
   },
   "editBillingAddress": {
-    "message": "Edit billing address"
+    "message": "Rechnungsadresse bearbeiten"
   },
   "noBillingAddress": {
-    "message": "No address on file."
+    "message": "Keine Adresse angegeben."
   },
   "billingAddressUpdated": {
-    "message": "Your billing address has been updated."
+    "message": "Deine Rechnungsadresse wurde aktualisiert."
   },
   "paymentDetails": {
-    "message": "Payment details"
+    "message": "Zahlungsdaten"
   },
   "paymentMethodUpdated": {
-    "message": "Your payment method has been updated."
+    "message": "Deine Zahlungsart wurde aktualisiert."
   },
   "bankAccountVerified": {
-    "message": "Your bank account has been verified."
+    "message": "Dein Bankkonto wurde verifiziert."
   },
   "availableCreditAppliedToInvoice": {
-    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+    "message": "Jedes verfügbare Guthaben wird automatisch auf die für dieses Konto erstellten Rechnungen angerechnet."
   },
   "mustBePositiveNumber": {
-    "message": "Must be a positive number"
+    "message": "Muss eine positive Zahl sein"
   },
   "cardSecurityCode": {
-    "message": "Card security code"
+    "message": "Karten-Sicherheitscode"
   },
   "cardSecurityCodeDescription": {
-    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+    "message": "Der Karten-Sicherheitscode, auch CVV oder CVC genannt, ist typischerweise eine dreistellige Zahl, die auf der Rückseite oder als vierstellige Zahl auf der Vorderseite über deiner Kartennummer gedruckt ist."
   },
   "verifyBankAccountWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Die Zahlung mit einem Bankkonto ist nur für Kunden in den Vereinigten Staaten möglich. Du musst dein Bankkonto verifizieren. Wir werden innerhalb der nächsten 1-2 Werktage eine Mikro-Einzahlung vornehmen. Gib den Code aus der Auszugsbeschreibung dieser Einzahlung ein, um das Bankkonto zu verifizieren. Schlägt die Verifizierung des Bankkontos fehl, wird dies als versäumte Zahlung gewertet und dein Abonnement gesperrt."
   },
   "taxId": {
-    "message": "Tax ID: $TAX_ID$",
+    "message": "Steuernummer: $TAX_ID$",
     "placeholders": {
       "tax_id": {
         "content": "$1",

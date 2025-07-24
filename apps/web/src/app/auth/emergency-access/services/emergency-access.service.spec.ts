@@ -22,9 +22,11 @@ import { KdfType, KeyService } from "@bitwarden/key-management";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
+import { GranteeEmergencyAccess, GrantorEmergencyAccess } from "../models/emergency-access";
 import { EmergencyAccessPasswordRequest } from "../request/emergency-access-password.request";
 import {
   EmergencyAccessGranteeDetailsResponse,
+  EmergencyAccessGrantorDetailsResponse,
   EmergencyAccessTakeoverResponse,
 } from "../response/emergency-access.response";
 
@@ -242,11 +244,19 @@ describe("EmergencyAccessService", () => {
 
     const mockEmergencyAccess = {
       data: [
-        createMockEmergencyAccess("0", "EA 0", EmergencyAccessStatusType.Invited),
-        createMockEmergencyAccess("1", "EA 1", EmergencyAccessStatusType.Accepted),
-        createMockEmergencyAccess("2", "EA 2", EmergencyAccessStatusType.Confirmed),
-        createMockEmergencyAccess("3", "EA 3", EmergencyAccessStatusType.RecoveryInitiated),
-        createMockEmergencyAccess("4", "EA 4", EmergencyAccessStatusType.RecoveryApproved),
+        createMockEmergencyAccessGranteeDetails("0", "EA 0", EmergencyAccessStatusType.Invited),
+        createMockEmergencyAccessGranteeDetails("1", "EA 1", EmergencyAccessStatusType.Accepted),
+        createMockEmergencyAccessGranteeDetails("2", "EA 2", EmergencyAccessStatusType.Confirmed),
+        createMockEmergencyAccessGranteeDetails(
+          "3",
+          "EA 3",
+          EmergencyAccessStatusType.RecoveryInitiated,
+        ),
+        createMockEmergencyAccessGranteeDetails(
+          "4",
+          "EA 4",
+          EmergencyAccessStatusType.RecoveryApproved,
+        ),
       ],
     } as ListResponse<EmergencyAccessGranteeDetailsResponse>;
 
@@ -295,14 +305,131 @@ describe("EmergencyAccessService", () => {
       ).rejects.toThrow("New user key is required for rotation.");
     });
   });
+
+  describe("getEmergencyAccessTrusted", () => {
+    it("should return an empty array if no emergency access is granted", async () => {
+      emergencyAccessApiService.getEmergencyAccessTrusted.mockResolvedValue({
+        data: [],
+      } as ListResponse<EmergencyAccessGranteeDetailsResponse>);
+
+      const result = await emergencyAccessService.getEmergencyAccessTrusted();
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return an empty array if the API returns an empty response", async () => {
+      emergencyAccessApiService.getEmergencyAccessTrusted.mockResolvedValue(
+        null as unknown as ListResponse<EmergencyAccessGranteeDetailsResponse>,
+      );
+
+      const result = await emergencyAccessService.getEmergencyAccessTrusted();
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return a list of trusted emergency access contacts", async () => {
+      const mockEmergencyAccess = [
+        createMockEmergencyAccessGranteeDetails("1", "EA 1", EmergencyAccessStatusType.Invited),
+        createMockEmergencyAccessGranteeDetails("2", "EA 2", EmergencyAccessStatusType.Invited),
+        createMockEmergencyAccessGranteeDetails("3", "EA 3", EmergencyAccessStatusType.Accepted),
+        createMockEmergencyAccessGranteeDetails("4", "EA 4", EmergencyAccessStatusType.Confirmed),
+        createMockEmergencyAccessGranteeDetails(
+          "5",
+          "EA 5",
+          EmergencyAccessStatusType.RecoveryInitiated,
+        ),
+      ];
+      emergencyAccessApiService.getEmergencyAccessTrusted.mockResolvedValue({
+        data: mockEmergencyAccess,
+      } as ListResponse<EmergencyAccessGranteeDetailsResponse>);
+
+      const result = await emergencyAccessService.getEmergencyAccessTrusted();
+
+      expect(result).toHaveLength(mockEmergencyAccess.length);
+
+      result.forEach((access, index) => {
+        expect(access).toBeInstanceOf(GranteeEmergencyAccess);
+
+        expect(access.id).toBe(mockEmergencyAccess[index].id);
+        expect(access.name).toBe(mockEmergencyAccess[index].name);
+        expect(access.status).toBe(mockEmergencyAccess[index].status);
+        expect(access.type).toBe(mockEmergencyAccess[index].type);
+      });
+    });
+  });
+
+  describe("getEmergencyAccessGranted", () => {
+    it("should return an empty array if no emergency access is granted", async () => {
+      emergencyAccessApiService.getEmergencyAccessGranted.mockResolvedValue({
+        data: [],
+      } as ListResponse<EmergencyAccessGrantorDetailsResponse>);
+
+      const result = await emergencyAccessService.getEmergencyAccessGranted();
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return an empty array if the API returns an empty response", async () => {
+      emergencyAccessApiService.getEmergencyAccessGranted.mockResolvedValue(
+        null as unknown as ListResponse<EmergencyAccessGrantorDetailsResponse>,
+      );
+
+      const result = await emergencyAccessService.getEmergencyAccessGranted();
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return a list of granted emergency access contacts", async () => {
+      const mockEmergencyAccess = [
+        createMockEmergencyAccessGrantorDetails("1", "EA 1", EmergencyAccessStatusType.Invited),
+        createMockEmergencyAccessGrantorDetails("2", "EA 2", EmergencyAccessStatusType.Invited),
+        createMockEmergencyAccessGrantorDetails("3", "EA 3", EmergencyAccessStatusType.Accepted),
+        createMockEmergencyAccessGrantorDetails("4", "EA 4", EmergencyAccessStatusType.Confirmed),
+        createMockEmergencyAccessGrantorDetails(
+          "5",
+          "EA 5",
+          EmergencyAccessStatusType.RecoveryInitiated,
+        ),
+      ];
+      emergencyAccessApiService.getEmergencyAccessGranted.mockResolvedValue({
+        data: mockEmergencyAccess,
+      } as ListResponse<EmergencyAccessGrantorDetailsResponse>);
+
+      const result = await emergencyAccessService.getEmergencyAccessGranted();
+
+      expect(result).toHaveLength(mockEmergencyAccess.length);
+
+      result.forEach((access, index) => {
+        expect(access).toBeInstanceOf(GrantorEmergencyAccess);
+
+        expect(access.id).toBe(mockEmergencyAccess[index].id);
+        expect(access.name).toBe(mockEmergencyAccess[index].name);
+        expect(access.status).toBe(mockEmergencyAccess[index].status);
+        expect(access.type).toBe(mockEmergencyAccess[index].type);
+      });
+    });
+  });
 });
 
-function createMockEmergencyAccess(
+function createMockEmergencyAccessGranteeDetails(
   id: string,
   name: string,
   status: EmergencyAccessStatusType,
 ): EmergencyAccessGranteeDetailsResponse {
   const emergencyAccess = new EmergencyAccessGranteeDetailsResponse({});
+  emergencyAccess.id = id;
+  emergencyAccess.name = name;
+  emergencyAccess.type = 0;
+  emergencyAccess.status = status;
+  return emergencyAccess;
+}
+
+function createMockEmergencyAccessGrantorDetails(
+  id: string,
+  name: string,
+  status: EmergencyAccessStatusType,
+): EmergencyAccessGrantorDetailsResponse {
+  const emergencyAccess = new EmergencyAccessGrantorDetailsResponse({});
   emergencyAccess.id = id;
   emergencyAccess.name = name;
   emergencyAccess.type = 0;

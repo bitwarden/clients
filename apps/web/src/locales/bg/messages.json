@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Защитена бележка"
   },
+  "typeNote": {
+    "message": "Бележка"
+  },
   "typeSshKey": {
     "message": "SSH ключ"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Копиране на името"
+  },
+  "cardNumber": {
+    "message": "номер на карта"
+  },
+  "copyFieldCipherName": {
+    "message": "Копиране на $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Аз"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Трезор по уеб"
   },
+  "webApp": {
+    "message": "Приложение по уеб"
+  },
   "cli": {
     "message": "ИКР"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Вие отказахте опит за вписване от друго устройство. Ако това наистина сте били Вие, опитайте да се впишете от устройството отново."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Заявката за вписване за $EMAIL$ на $DEVICE$ е одобрена",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Вие отказахте опит за вписване от друго устройство. Ако това сте били Вие, опитайте да се впишете от устройството отново."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Заявката за вписване вече е изтекла."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Преглед на заявката за вписване"
+  },
+  "loginRequest": {
+    "message": "Заявка за вписване"
   },
   "freeTrialEndPromptCount": {
     "message": "Вашият безплатен пробен период приключва след $COUNT$ дни.",

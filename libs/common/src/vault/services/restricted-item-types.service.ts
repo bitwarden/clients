@@ -9,16 +9,14 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { Cipher } from "../models/domain/cipher";
+import { CipherLike } from "../types/cipher-like";
+import { CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 export type RestrictedCipherType = {
   cipherType: CipherType;
   allowViewOrgIds: string[];
 };
-
-type CipherLike = Cipher | CipherView;
 
 export class RestrictedItemTypesService {
   /**
@@ -94,7 +92,9 @@ export class RestrictedItemTypesService {
    * - Otherwise → restricted
    */
   isCipherRestricted(cipher: CipherLike, restrictedTypes: RestrictedCipherType[]): boolean {
-    const restriction = restrictedTypes.find((r) => r.cipherType === cipher.type);
+    const restriction = restrictedTypes.find(
+      (r) => r.cipherType === CipherViewLikeUtils.getType(cipher),
+    );
 
     // If cipher type is not restricted by any organization, allow it
     if (!restriction) {

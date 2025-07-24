@@ -1829,6 +1829,9 @@
   "securityCode": {
     "message": "Beveiligingscode"
   },
+  "cardNumber": {
+    "message": "kaartnummer"
+  },
   "ex": {
     "message": "bijv."
   },
@@ -3460,6 +3463,28 @@
   "logInRequestSent": {
     "message": "Verzoek verzonden"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
+  },
+  "device": {
+    "message": "Apparaat"
+  },
+  "loginStatus": {
+    "message": "Loginstatus"
+  },
   "masterPasswordChanged": {
     "message": "Hoofdwachtwoord gewijzigd"
   },
@@ -3555,6 +3580,113 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Onthoud dit apparaat om in het vervolg naadloos in te loggen"
+  },
+  "manageDevices": {
+    "message": "Apparaten beheren"
+  },
+  "currentSession": {
+    "message": "Huidige sessie"
+  },
+  "mobile": {
+    "message": "Mobiel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensie",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Webkluis"
+  },
+  "webApp": {
+    "message": "Web-app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Verzoek in behandeling"
+  },
+  "firstLogin": {
+    "message": "Eerst inloggen"
+  },
+  "trusted": {
+    "message": "Vertrouwd"
+  },
+  "needsApproval": {
+    "message": "Heeft goedkeuring nodig"
+  },
+  "devices": {
+    "message": "Apparaten"
+  },
+  "accessAttemptBy": {
+    "message": "Inlogpoging door $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Toegang bevestigen"
+  },
+  "denyAccess": {
+    "message": "Toegang weigeren"
+  },
+  "time": {
+    "message": "Tijd"
+  },
+  "deviceType": {
+    "message": "Apparaattype"
+  },
+  "loginRequest": {
+    "message": "Log-inverzoek"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Dit verzoek is niet langer geldig."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Probeer je toegang te krijgen tot je account?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Inloggen voor $EMAIL$ bevestigd op $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Inlogverzoek is al verlopen."
+  },
+  "justNow": {
+    "message": "Zojuist"
+  },
+  "requestedXMinutesAgo": {
+    "message": "$MINUTES$ minuten geleden aangevraagd",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Apparaattoestemming vereist. Kies een goedkeuringsoptie hieronder:"
@@ -4465,17 +4597,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "$FIELD$, $VALUE$ kopiëren",
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopiëren",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },

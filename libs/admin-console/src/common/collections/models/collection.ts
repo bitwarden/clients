@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import Domain from "@bitwarden/common/platform/models/domain/domain-base";
+import Domain, { EncryptableKeys } from "@bitwarden/common/platform/models/domain/domain-base";
 import { OrgKey } from "@bitwarden/common/types/key";
 
 import { CollectionData } from "./collection.data";
@@ -15,16 +13,16 @@ export const CollectionTypes = {
 export type CollectionType = (typeof CollectionTypes)[keyof typeof CollectionTypes];
 
 export class Collection extends Domain {
-  id: string;
-  organizationId: string;
-  name: EncString;
-  externalId: string;
-  readOnly: boolean;
-  hidePasswords: boolean;
-  manage: boolean;
-  type: CollectionType;
+  id: string | undefined;
+  organizationId: string | undefined;
+  name: EncString | undefined;
+  externalId: string | undefined;
+  readOnly: boolean = false;
+  hidePasswords: boolean = false;
+  manage: boolean = false;
+  type: CollectionType = CollectionTypes.SharedCollection;
 
-  constructor(obj?: CollectionData) {
+  constructor(obj?: CollectionData | null) {
     super();
     if (obj == null) {
       return;
@@ -51,8 +49,8 @@ export class Collection extends Domain {
     return this.decryptObj<Collection, CollectionView>(
       this,
       new CollectionView(this),
-      ["name"],
-      this.organizationId,
+      ["name"] as EncryptableKeys<Collection, CollectionView>[],
+      this.organizationId ?? null,
       orgKey,
     );
   }

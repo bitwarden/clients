@@ -17,16 +17,40 @@
     </div>
   </div>
   <div class="tw-p-5">
-    <h3 class="tw-text-main tw-text-lg tw-font-semibold">{{ name }}</h3>
-    <a
-      class="tw-block tw-mb-0 tw-font-bold hover:tw-no-underline focus:tw-outline-none after:tw-content-[''] after:tw-block after:tw-absolute after:tw-size-full after:tw-left-0 after:tw-top-0"
-      [href]="linkURL"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-    </a>
-    <span *ngIf="showNewBadge()" bitBadge class="tw-mt-3" variant="secondary">
-      {{ "new" | i18n }}
-    </span>
+    <h3 class="tw-text-main tw-text-lg tw-font-semibold">
+      {{ name }}
+      @if (showConnectedBadge()) {
+        <span class="tw-ml-3">
+          @if (isConnected) {
+            <span bitBadge variant="success">{{ "on" | i18n }}</span>
+          }
+          @if (!isConnected) {
+            <span bitBadge>{{ "off" | i18n }}</span>
+          }
+        </span>
+      }
+    </h3>
+    <p class="tw-mb-0">{{ description }}</p>
+
+    @if (canSetupConnection) {
+      <button type="button" class="tw-mt-3" bitButton (click)="setupConnection(name)">
+        <span>{{ "connectIntegrationButtonDesc" | i18n: name }}</span>
+      </button>
+    }
+
+    @if (linkURL) {
+      <a
+        class="tw-block tw-mb-0 tw-font-bold hover:tw-no-underline focus:tw-outline-none after:tw-content-[''] after:tw-block after:tw-absolute after:tw-size-full after:tw-left-0 after:tw-top-0"
+        [href]="linkURL"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+      </a>
+    }
+    @if (showNewBadge()) {
+      <span bitBadge class="tw-mt-3" variant="secondary">
+        {{ "new" | i18n }}
+      </span>
+    }
   </div>
 </div>

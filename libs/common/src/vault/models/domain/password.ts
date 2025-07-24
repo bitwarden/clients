@@ -71,4 +71,20 @@ export class Password extends Domain {
       lastUsedDate: this.lastUsedDate.toISOString(),
     };
   }
+
+  /**
+   * Maps an SDK PasswordHistory object to a Password
+   * @param obj - The SDK PasswordHistory object
+   */
+  static fromSdkPasswordHistory(obj: PasswordHistory): Password | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const passwordHistory = new Password();
+    passwordHistory.password = EncString.fromJSON(obj.password);
+    passwordHistory.lastUsedDate = new Date(obj.lastUsedDate);
+
+    return passwordHistory;
+  }
 }

@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Note sécurisée"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
     "message": "Clé SSH"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Copier le nom"
+  },
+  "cardNumber": {
+    "message": "numéro de carte"
+  },
+  "copyFieldCipherName": {
+    "message": "Copier $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Moi"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Coffre web"
   },
+  "webApp": {
+    "message": "Application web"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vraiment vous, essayez de vous connecter à nouveau avec l'appareil."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Demande de connexion approuvée pour $EMAIL$ sur $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vous, essayez de vous connecter à nouveau avec l'appareil."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "La demande de connexion a déjà expiré."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Examiner la demande de connexion"
+  },
+  "loginRequest": {
+    "message": "Demande de connexion"
   },
   "freeTrialEndPromptCount": {
     "message": "Votre essai gratuit se termine dans $COUNT$ jours.",

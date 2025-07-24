@@ -272,25 +272,29 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    this.organizations$ = combineLatest({
-      collections: this.collectionService.decryptedCollections$,
-      memberOrganizations: this.accountService.activeAccount$.pipe(
+    this.organizations$ = this.accountService.activeAccount$
+      .pipe(
         getUserId,
-        switchMap((userId) => this.organizationService.memberOrganizations$(userId)),
-      ),
-    }).pipe(
-      map(({ collections, memberOrganizations }) => {
-        const managedCollectionsOrgIds = new Set(
-          collections.filter((c) => c.manage).map((c) => c.organizationId),
-        );
-        // Filter organizations that exist in managedCollectionsOrgIds
-        const filteredOrgs = memberOrganizations.filter((org) =>
-          managedCollectionsOrgIds.has(org.id),
-        );
-        // Sort the filtered organizations based on the name
-        return filteredOrgs.sort(Utils.getSortFunction(this.i18nService, "name"));
-      }),
-    );
+        switchMap((userId) =>
+          combineLatest({
+            collections: this.collectionService.decryptedCollections$(userId),
+            memberOrganizations: this.organizationService.memberOrganizations$(userId),
+          }),
+        ),
+      )
+      .pipe(
+        map(({ collections, memberOrganizations }) => {
+          const managedCollectionsOrgIds = new Set(
+            collections.filter((c) => c.manage).map((c) => c.organizationId),
+          );
+          // Filter organizations that exist in managedCollectionsOrgIds
+          const filteredOrgs = memberOrganizations.filter((org) =>
+            managedCollectionsOrgIds.has(org.id),
+          );
+          // Sort the filtered organizations based on the name
+          return filteredOrgs.sort(Utils.getSortFunction(this.i18nService, "name"));
+        }),
+      );
 
     combineLatest([
       this.disablePersonalVaultExportPolicy$,
