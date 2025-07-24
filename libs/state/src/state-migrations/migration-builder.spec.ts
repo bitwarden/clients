@@ -1,6 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-// eslint-disable-next-line import/no-restricted-paths
+ 
 import { ClientType } from "../enums";
 
 import { MigrationBuilder } from "./migration-builder";

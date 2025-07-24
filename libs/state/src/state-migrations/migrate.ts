@@ -1,6 +1,5 @@
-// eslint-disable-next-line import/no-restricted-paths -- Needed to print log messages
+ 
 import { LogService } from "../platform/abstractions/log.service";
-// eslint-disable-next-line import/no-restricted-paths -- Needed to interface with storage locations
 import { AbstractStorageService } from "../platform/abstractions/storage.service";
 
 import { MigrationBuilder } from "./migration-builder";

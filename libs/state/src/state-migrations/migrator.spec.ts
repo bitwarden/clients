@@ -1,10 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-// eslint-disable-next-line import/no-restricted-paths -- Needed client type enum
+ 
 import { ClientType } from "../enums";
-// eslint-disable-next-line import/no-restricted-paths -- Needed to print log messages
 import { LogService } from "../platform/abstractions/log.service";
-// eslint-disable-next-line import/no-restricted-paths -- Needed to interface with storage locations
 import { AbstractStorageService } from "../platform/abstractions/storage.service";
 
 import { MigrationHelper } from "./migration-helper";
