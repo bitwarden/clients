@@ -93,7 +93,7 @@ export class ItemMoreOptionsComponent {
     switchMap((userId) => {
       return combineLatest([
         this.organizationService.hasOrganizations(userId),
-        this.collectionService.decryptedCollections$,
+        this.collectionService.decryptedCollections$(userId),
       ]).pipe(
         map(([hasOrgs, collections]) => {
           const canEditCollections = collections.some((c) => !c.readOnly);
