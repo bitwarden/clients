@@ -30,7 +30,7 @@
               </button>
             </h2>
             <ng-container *ngIf="showSecurity">
-              <bit-section>
+              <bit-section disableMargin>
                 <bit-section-header>
                   <h2 bitTypography="h6">{{ "vaultTimeoutHeader" | i18n }}</h2>
                 </bit-section-header>
@@ -62,7 +62,7 @@
                   {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
                 </bit-hint>
               </bit-section>
-              <div class="form-group" *ngIf="(pinEnabled$ | async) || this.form.value.pin">
+              <div class="form-group tw-mt-4" *ngIf="(pinEnabled$ | async) || this.form.value.pin">
                 <div class="checkbox">
                   <label for="pin">
                     <input id="pin" type="checkbox" formControlName="pin" />
