@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Observable, map, switchMap, firstValueFrom, timeout, throwError, NEVER } from "rxjs";
 
-import { UserId } from "../../../types/guid";
+import { UserId } from "@bitwarden/user-core";
 import { StateUpdateOptions } from "../state-update-options";
 import { UserKeyDefinition } from "../user-key-definition";
 import { ActiveUserState, CombinedState, activeMarker } from "../user-state";

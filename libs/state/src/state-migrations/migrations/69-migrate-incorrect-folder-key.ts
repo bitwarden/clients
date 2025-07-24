@@ -1,8 +1,5 @@
-import {
-  KeyDefinitionLike,
-  MigrationHelper,
-} from "@bitwarden/common/state-migrations/migration-helper";
-import { Migrator } from "@bitwarden/common/state-migrations/migrator";
+import { KeyDefinitionLike, MigrationHelper } from "../migration-helper";
+import { Migrator } from "../migrator";
 
 const BAD_FOLDER_KEY: KeyDefinitionLike = {
   key: "folder", // We inadvertently changed the key from "folders" to "folder"

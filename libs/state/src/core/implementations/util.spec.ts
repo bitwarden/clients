@@ -1,4 +1,4 @@
-import { FakeStorageService } from "../../../../spec/fake-storage.service";
+import { FakeStorageService } from "@bitwarden/storage-test-utils";
 
 import { getStoredValue } from "./util";
 
@@ -19,9 +19,7 @@ describe("getStoredValue", () => {
     });
 
     it("should deserialize", async () => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-       
-      storageService.save(key, value);
+      await storageService.save(key, value);
 
       const result = await getStoredValue(key, storageService, deserializer);
 
@@ -34,9 +32,7 @@ describe("getStoredValue", () => {
     });
 
     it("should not deserialize", async () => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-       
-      storageService.save(key, value);
+      await storageService.save(key, value);
 
       const result = await getStoredValue(key, storageService, deserializer);
 
@@ -44,9 +40,7 @@ describe("getStoredValue", () => {
     });
 
     it("should convert undefined to null", async () => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-       
-      storageService.save(key, undefined);
+      await storageService.save(key, undefined);
 
       const result = await getStoredValue(key, storageService, deserializer);
 

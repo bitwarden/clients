@@ -7,12 +7,12 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { trackEmissions, awaitAsync } from "@bitwarden/common/spec";
 import { newGuid } from "@bitwarden/guid";
+import { LogService } from "@bitwarden/logging";
+import { FakeStorageService } from "@bitwarden/storage-test-utils";
+import { UserId } from "@bitwarden/user-core";
 
-import { trackEmissions, awaitAsync } from "../../../../spec";
-import { FakeStorageService } from "../../../../spec/fake-storage.service";
-import { UserId } from "../../../types/guid";
-import { LogService } from "../../abstractions/log.service";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
 import { UserKeyDefinition } from "../user-key-definition";
@@ -525,9 +525,7 @@ describe("DefaultSingleUserState", () => {
       expect(diskStorageService["updatesSubject"]["observers"]).toHaveLength(1);
 
       // Still be listening to storage updates
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-       
-      diskStorageService.save(userKey, newData);
+      await diskStorageService.save(userKey, newData);
       await awaitAsync(); // storage updates are behind a promise
       expect(sub2Emissions).toEqual([null, newData]);
 
@@ -549,9 +547,7 @@ describe("DefaultSingleUserState", () => {
       const emissions = trackEmissions(userState.state$);
       await awaitAsync();
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-       
-      diskStorageService.save(userKey, newData);
+      await diskStorageService.save(userKey, newData);
       await awaitAsync();
 
       expect(emissions).toEqual([null, newData]);

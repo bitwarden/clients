@@ -1,4 +1,4 @@
-import { PossibleLocation, StorageServiceProvider } from "../services/storage-service.provider";
+import { PossibleLocation, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { GlobalState } from "./global-state";
 import { GlobalStateProvider } from "./global-state.provider";

@@ -6,8 +6,8 @@ import {
   StorageServiceProvider,
 } from "@bitwarden/storage-core";
 
-import { FakeGlobalStateProvider } from "../../../spec";
-import { UserId } from "../../types/guid";
+import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/user-core";
 
 import { STATE_LOCK_EVENT } from "./state-event-registrar.service";
 import { StateEventRunnerService } from "./state-event-runner.service";

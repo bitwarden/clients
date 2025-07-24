@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { isGuid } from "@bitwarden/guid";
 import { array, record } from "@bitwarden/serialization";
+import { UserId } from "@bitwarden/user-core";
 
-import { UserId } from "../../types/guid";
-import { StorageKey } from "../../types/state";
+import { StorageKey } from "../types/state";
 
 import { DebugOptions, KeyDefinitionOptions } from "./key-definition";
 import { StateDefinition } from "./state-definition";

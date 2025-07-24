@@ -17,8 +17,8 @@ import { Jsonify } from "type-fest";
 
 import { AbstractStorageService, ObservableStorageService } from "@bitwarden/storage-core";
 
-import { StorageKey } from "../../../types/state";
-import { LogService } from "../../abstractions/log.service";
+import { StorageKey } from "../../types/state";
+import { LogService } from "@bitwarden/logging";
 import { DebugOptions } from "../key-definition";
 import { populateOptionsWithDefault, StateUpdateOptions } from "../state-update-options";
 

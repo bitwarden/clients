@@ -2,8 +2,8 @@ import { Observable, combineLatest, of } from "rxjs";
 
 import { AbstractStorageService, ObservableStorageService } from "@bitwarden/storage-core";
 
-import { UserId } from "../../../types/guid";
-import { LogService } from "../../abstractions/log.service";
+import { UserId } from "@bitwarden/user-core";
+import { LogService } from "@bitwarden/logging";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
 import { UserKeyDefinition } from "../user-key-definition";
 import { CombinedState, SingleUserState } from "../user-state";

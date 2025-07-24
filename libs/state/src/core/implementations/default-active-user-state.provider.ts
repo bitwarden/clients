@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { Observable, distinctUntilChanged, map } from "rxjs";
 
-import { AccountService } from "../../../auth/abstractions/account.service";
-import { UserId } from "../../../types/guid";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserId } from "@bitwarden/user-core";
 import { UserKeyDefinition } from "../user-key-definition";
 import { ActiveUserState } from "../user-state";
 import { ActiveUserStateProvider, SingleUserStateProvider } from "../user-state.provider";

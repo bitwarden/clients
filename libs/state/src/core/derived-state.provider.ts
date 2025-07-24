@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { DerivedStateDependencies } from "../../types/state";
+import { DerivedStateDependencies } from "../types/state";
 
 import { DeriveDefinition } from "./derive-definition";
 import { DerivedState } from "./derived-state";

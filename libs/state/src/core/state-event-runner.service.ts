@@ -4,7 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { StorageServiceProvider } from "@bitwarden/storage-core";
 
-import { UserId } from "../../types/guid";
+import { UserId } from "@bitwarden/user-core";
 
 import { GlobalState } from "./global-state";
 import { GlobalStateProvider } from "./global-state.provider";

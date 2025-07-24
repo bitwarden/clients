@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
-import { mockAccountServiceWith, trackEmissions } from "../../../../spec";
-import { UserId } from "../../../types/guid";
+import { mockAccountServiceWith, trackEmissions } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/user-core";
 import { SingleUserStateProvider } from "../user-state.provider";
 
 import { DefaultActiveUserStateProvider } from "./default-active-user-state.provider";

@@ -4,16 +4,19 @@
  */
 import { Observable, of } from "rxjs";
 
-import { awaitAsync, trackEmissions } from "../../../../spec";
-import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
+import { awaitAsync, trackEmissions } from "@bitwarden/common/spec";
+import {
+  FakeAccountService,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec/fake-account-service";
 import {
   FakeActiveUserStateProvider,
   FakeDerivedStateProvider,
   FakeGlobalStateProvider,
   FakeSingleUserStateProvider,
-} from "../../../../spec/fake-state-provider";
-import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { UserId } from "../../../types/guid";
+} from "@bitwarden/common/spec/fake-state-provider";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { UserId } from "@bitwarden/user-core";
 import { DeriveDefinition } from "../derive-definition";
 import { KeyDefinition } from "../key-definition";
 import { StateDefinition } from "../state-definition";

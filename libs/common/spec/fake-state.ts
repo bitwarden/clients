@@ -10,13 +10,11 @@ import {
   KeyDefinition,
   DeriveDefinition,
   UserKeyDefinition,
-} from "../src/platform/state";
-// eslint-disable-next-line import/no-restricted-paths -- using unexposed options for clean typing in test class
-import { StateUpdateOptions } from "../src/platform/state/state-update-options";
-// eslint-disable-next-line import/no-restricted-paths -- using unexposed options for clean typing in test class
-import { CombinedState, activeMarker } from "../src/platform/state/user-state";
+ DerivedStateDependencies , StateUpdateOptions , CombinedState, activeMarker } from "@bitwarden/state";
+ 
+ 
+
 import { UserId } from "../src/types/guid";
-import { DerivedStateDependencies } from "../src/types/state";
 
 import { FakeAccountService } from "./fake-account-service";
 

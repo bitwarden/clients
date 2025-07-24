@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { Observable, filter, of, switchMap, take } from "rxjs";
 
-import { UserId } from "../../../types/guid";
-import { DerivedStateDependencies } from "../../../types/state";
+import { UserId } from "@bitwarden/user-core";
+import { DerivedStateDependencies } from "../../types/state";
 import { DeriveDefinition } from "../derive-definition";
 import { DerivedState } from "../derived-state";
 import { DerivedStateProvider } from "../derived-state.provider";

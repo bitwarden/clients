@@ -1,11 +1,12 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-import { LogService } from "@bitwarden/logging";
 
-import { FakeStorageService } from "../../spec/fake-storage.service";
-import { ClientType } from "../enums";
-import { AbstractStorageService } from "../platform/abstractions/storage.service";
-import { Utils } from "../platform/misc/utils";
+import { ClientType } from "@bitwarden/common/enums";
+// eslint-disable-next-line no-restricted-imports
+import { Utils } from "@bitwarden/common/src/platform/misc/utils";
+import { LogService } from "@bitwarden/logging";
+import { AbstractStorageService } from "@bitwarden/storage-core";
+import { FakeStorageService } from "@bitwarden/storage-test-utils";
 
 import { MigrationHelper, MigrationHelperType } from "./migration-helper";
 import { Migrator } from "./migrator";

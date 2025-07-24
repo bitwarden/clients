@@ -1,1 +1,4 @@
-export { createMigrationBuilder, waitForMigrations, CURRENT_VERSION } from "./migrate";
+export * from "./migrate";
+export * from "./migration-builder";
+export * from "./migration-helper";
+export * from "./migrator";
