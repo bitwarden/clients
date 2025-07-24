@@ -12,6 +12,7 @@ import {
   authGuard,
   lockGuard,
   redirectGuard,
+  redirectToVaultIfUnlockedGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
@@ -39,12 +40,14 @@ import {
   UserLockIcon,
   VaultIcon,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperData, Icons } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
+import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
@@ -254,6 +257,12 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
+    path: "device-management",
+    component: ExtensionDeviceManagementComponent,
+    canActivate: [canAccessFeature(FeatureFlag.PM14938_BrowserExtensionLoginApproval), authGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
     path: "notifications",
     component: NotificationsSettingsComponent,
     canActivate: [authGuard],
@@ -423,6 +432,7 @@ const routes: Routes = [
       },
       {
         path: "login-with-device",
+        canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -471,6 +481,7 @@ const routes: Routes = [
       },
       {
         path: "admin-approval-requested",
+        canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {

@@ -323,7 +323,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     await this.loginSuccessHandlerService.run(authResult.userId);
 
     // Determine where to send the user next
-    // The AuthGuard will handle routing to update-temp-password based on state
+    // The AuthGuard will handle routing to change-password based on state
 
     // TODO: PM-18269 - evaluate if we can combine this with the
     // password evaluation done in the password login strategy.
@@ -335,7 +335,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       if (orgPolicies) {
         // Since we have retrieved the policies, we can go ahead and set them into state for future use
-        // e.g., the update-password page currently only references state for policy data and
+        // e.g., the change-password page currently only references state for policy data and
         // doesn't fallback to pulling them from the server like it should if they are null.
         await this.setPoliciesIntoState(authResult.userId, orgPolicies.policies);
 

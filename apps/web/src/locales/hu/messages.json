@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Biztonságos jegyzet"
   },
+  "typeNote": {
+    "message": "Jegyzet"
+  },
   "typeSshKey": {
     "message": "SSH kulcs"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Név másolása"
+  },
+  "cardNumber": {
+    "message": "kártya szám"
+  },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ másolása",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Én"
@@ -1785,7 +1805,7 @@
     "message": "A folytatásban a felhasználó kiléptetésre kerül a jelenlegi munkamenetből, szükséges az ismételt bejelentkezés. Más eszközökön aktív munkamenetek akár egy órán keresztül is aktívak maradhatnak."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "A jelszó megváltoztatása után be kell jelentkezni az új jelszóval. Az aktív munkamenetek más eszközökön egy órán belül kijelentkeznek."
   },
   "emailChanged": {
     "message": "Az email cím megváltozott."
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Webes széf"
   },
+  "webApp": {
+    "message": "Webalkalmazás"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "A bejelentkezési kérelem jóváhagyásra került: $EMAIL$ - $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "A bejelentkezési kérés már lejárt."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Bejelentkezési kérés áttekintése"
+  },
+  "loginRequest": {
+    "message": "Bejelentkezés kérés"
   },
   "freeTrialEndPromptCount": {
     "message": "Az ingyenes próbaidőszak $COUNT$ nap múlva ér véget.",
@@ -6077,10 +6119,10 @@
     "message": "Mesterjelszó frissítése"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Módosítsuk a mesterjelszót a fiók helyreállításának befejezéséhez."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "A mesterjelszó nem felel meg a szervezet követelményeinek. Módosítsuk a mesterjelszót a folytatáshoz."
   },
   "updateMasterPasswordWarning": {
     "message": "A mesterjelszót nemrégiben megváltoztatta a szervezet rendszergazdája. A tároló eléréséhez most frissíteni kell a mesterjelszót. A folytatás kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A más eszközökön végzett aktív munkamenetek akár egy órán keresztül is aktívak maradhatnak."
@@ -8938,6 +8980,14 @@
     "message": "Bővebben az egyezés felismerésről",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
+  "uriAdvancedOption": {
+    "message": "Haladó opciók",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Figyelmeztetés",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "maintainYourSubscription": {
     "message": "$ORG$ előfizetés fenntartásához, ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
@@ -10800,46 +10850,46 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "billingAddress": {
-    "message": "Billing address"
+    "message": "Számlázási cím"
   },
   "addBillingAddress": {
-    "message": "Add billing address"
+    "message": "Számlázási cím hozzáadása"
   },
   "editBillingAddress": {
-    "message": "Edit billing address"
+    "message": "Számlázási cím szerkesztése"
   },
   "noBillingAddress": {
-    "message": "No address on file."
+    "message": "Nincs cím rögzítve."
   },
   "billingAddressUpdated": {
-    "message": "Your billing address has been updated."
+    "message": "A számlázási cím frissítésre került."
   },
   "paymentDetails": {
-    "message": "Payment details"
+    "message": "Fizetési részletek"
   },
   "paymentMethodUpdated": {
-    "message": "Your payment method has been updated."
+    "message": "A fizetési mód frissítésre került."
   },
   "bankAccountVerified": {
-    "message": "Your bank account has been verified."
+    "message": "A bankszámla megerősítésre került."
   },
   "availableCreditAppliedToInvoice": {
-    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+    "message": "Bármilyen rendelkezésre álló jóváírás automatikusan érvényesül az ehhez a számlához generált számlákra."
   },
   "mustBePositiveNumber": {
-    "message": "Must be a positive number"
+    "message": "Pozitív számnak kell lennie."
   },
   "cardSecurityCode": {
-    "message": "Card security code"
+    "message": "Kártya biztonsági kód"
   },
   "cardSecurityCodeDescription": {
-    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+    "message": "A kártya biztonsági kódja, más néven CVV vagy CVC, általában egy 3 számjegyű szám, amelyet a hitelkártya hátoldalára nyomtatnak vagy egy 4 számjegyű szám, amelyet a kártyaszám feletti előlapra nyomtatnak."
   },
   "verifyBankAccountWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "A bankszámlával történő fizetés csak az Egyesült Államokban lévő ügyfelek számára elérhető. Ellenőrizni kell bankszámlát. A következő 1-2 munkanapon belül mikrobetét készül.  A bankszámla ellenőrzéséhez írjuk be a kimutatás leíró kódot ebből a befizetésből a Fizetési adatok oldalon. A bankszámla ellenőrzésének elmulasztása a fizetés elmaradását és az előfizetés felfüggesztését vonja maga után."
   },
   "taxId": {
-    "message": "Tax ID: $TAX_ID$",
+    "message": "Adó azonosító: $TAX_ID$",
     "placeholders": {
       "tax_id": {
         "content": "$1",

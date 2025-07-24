@@ -280,6 +280,9 @@ export class DefaultPolicyService implements PolicyService {
       case PolicyType.RestrictedItemTypes:
         // restricted item types policy
         return false;
+      case PolicyType.RemoveUnlockWithPin:
+        // Remove Unlock with PIN policy
+        return false;
       case PolicyType.OrganizationDataOwnership:
         // organization data ownership policy applies to everyone except admins and owners
         return organization.isAdmin;

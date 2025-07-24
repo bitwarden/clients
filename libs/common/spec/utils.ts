@@ -3,7 +3,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { Observable } from "rxjs";
 
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
 import { EncryptionType } from "../src/platform/enums";
 import { Utils } from "../src/platform/misc/utils";

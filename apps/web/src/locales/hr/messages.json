@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Sigurna bilješka"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
     "message": "SSH ključ"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Kopiraj ime"
+  },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Ja"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Web trezor"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Zahtjev za prijavu je već istekao."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Pregledaj zahtjev za prijavu"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Besplatno probno razdoblje završava za $COUNT$ dan/a.",
@@ -8937,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Više o otkrivanju podudaranja",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Napredne mogućnosti",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Upozorenje",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Za održavanje svoje pretplate za $ORG$, ",

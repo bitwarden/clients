@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Note sécurisée"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
     "message": "Clé SSH"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Copier le nom"
+  },
+  "cardNumber": {
+    "message": "numéro de carte"
+  },
+  "copyFieldCipherName": {
+    "message": "Copier $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Moi"
@@ -2169,7 +2189,7 @@
     "message": "Impossible d'importer les types de l'élément de la carte"
   },
   "restrictCardTypeImportDesc": {
-    "message": "Une politique de sécurité définie par 1 organisation ou plus vous empêche d'importer des cartes dans vos coffres."
+    "message": "Une politique de sécurité définie par une organisation ou plus vous empêche d'importer des cartes dans vos coffres."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Votre code de récupération à usage unique peut être utilisé pour désactiver la connexion en deux étapes si vous perdez l'accès à votre fournisseur de connexion en deux étapes. Bitwarden vous recommande d'écrire le code de récupération et de le conserver dans un endroit sûr."
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Coffre web"
   },
+  "webApp": {
+    "message": "Application web"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vraiment vous, essayez de vous connecter à nouveau avec l'appareil."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Demande de connexion approuvée pour $EMAIL$ sur $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vous, essayez de vous connecter à nouveau avec l'appareil."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "La demande de connexion a déjà expiré."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Examiner la demande de connexion"
+  },
+  "loginRequest": {
+    "message": "Demande de connexion"
   },
   "freeTrialEndPromptCount": {
     "message": "Votre essai gratuit se termine dans $COUNT$ jours.",
@@ -5088,7 +5130,7 @@
     "message": "La politique d'organisation unique Entreprise doit être activée avant d'activer cette politique."
   },
   "requireSsoPolicyReqError": {
-    "message": "La politique \"Organisation Unique\" n'est pas activée."
+    "message": "La politique « Organisation Unique » n'est pas activée."
   },
   "requireSsoExemption": {
     "message": "Les propriétaires et les administrateurs de l'organisation sont exonérés de l'application de cette politique."
@@ -8923,7 +8965,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "La détection de correspondance d'URL est la façon dont Bitwarden identifie les suggestions de remplissage automatique.",
+    "message": "La détection de correspondance d'URI est la façon dont Bitwarden identifie les suggestions de remplissage automatique.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -8937,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "En savoir plus sur la détection de correspondance",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Options avancées",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Avertissement",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Afin de maintenir votre abonnement pour $ORG$, ",

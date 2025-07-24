@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Ellenőrző kód másolása (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ másolása",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Hossz"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Biztonsági kód másolása",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kártya szám"
   },
   "premiumMembership": {
     "message": "Prémium tagság"
@@ -2408,13 +2425,13 @@
     "message": "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "A jelszó megváltoztatása után be kell jelentkezni az új jelszóval. Az aktív munkamenetek más eszközökön egy órán belül kijelentkeznek."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Módosítsuk a mesterjelszót a fiók helyreállításának befejezéséhez."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "A mesterjelszó nem felel meg a szervezet követelményeinek. Módosítsuk a mesterjelszót a folytatáshoz."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "A szervezete letiltotta a megbízható eszközök titkosítását. Állítsunk be egy mesterjelszót a széf eléréséhez."
@@ -3566,6 +3583,14 @@
     "message": "Bővebben az egyezés felismerésről",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
+  "uriAdvancedOption": {
+    "message": "Haladó opciók",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Figyelmeztetés",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "Sikeres"
   },
@@ -3989,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Automatikus típusú parancsikon engedélyezése"
+  },
+  "enableAutotypeDescription": {
+    "message": "A Bitwarden nem érvényesíti a beviteli helyeket, győződjünk meg róla, hogy a megfelelő ablakban és mezőben vagyunk, mielőtt a parancsikont használnánk."
   }
 }

@@ -9,7 +9,7 @@ import { ServerConfig } from "../../../platform/abstractions/config/server-confi
 import { EncryptService } from "../abstractions/encrypt.service";
 
 /**
- * @deprecated For the feature flag from PM-4154, remove once feature is rolled out
+ * @deprecated Will be deleted in an immediate subsequent PR
  */
 export class FallbackBulkEncryptService implements BulkEncryptService {
   private featureFlagEncryptService: BulkEncryptService;
@@ -25,22 +25,10 @@ export class FallbackBulkEncryptService implements BulkEncryptService {
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,
   ): Promise<T[]> {
-    if (this.featureFlagEncryptService != null) {
-      return await this.featureFlagEncryptService.decryptItems(items, key);
-    } else {
-      return await this.encryptService.decryptItems(items, key);
-    }
+    return await this.encryptService.decryptItems(items, key);
   }
 
-  async setFeatureFlagEncryptService(featureFlagEncryptService: BulkEncryptService) {
-    if (this.currentServerConfig !== undefined) {
-      featureFlagEncryptService.onServerConfigChange(this.currentServerConfig);
-    }
-    this.featureFlagEncryptService = featureFlagEncryptService;
-  }
+  async setFeatureFlagEncryptService(featureFlagEncryptService: BulkEncryptService) {}
 
-  onServerConfigChange(newConfig: ServerConfig): void {
-    this.currentServerConfig = newConfig;
-    (this.featureFlagEncryptService ?? this.encryptService).onServerConfigChange(newConfig);
-  }
+  onServerConfigChange(newConfig: ServerConfig): void {}
 }

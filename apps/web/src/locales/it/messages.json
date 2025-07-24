@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Nota sicura"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
     "message": "Chiave SSH"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Copia nome"
+  },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Io"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Cassaforte web"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Hai negato un tentativo di accesso da un altro dispositivo. Se eri davvero tu, prova di nuovo ad accedere con il dispositivo."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "La richiesta di accesso è già scaduta."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Rivedi richiesta di accesso"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Il tuo periodo di prova scade tra $COUNT$ giorni.",
@@ -8937,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Per mantenere il tuo abbonamento a $ORG$, ",

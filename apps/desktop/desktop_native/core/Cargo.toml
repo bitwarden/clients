@@ -23,7 +23,6 @@ anyhow = { workspace = true }
 arboard = { workspace = true, features = [
     "wayland-data-control",
 ] }
-argon2 = { workspace = true, features = ["zeroize"] }
 base64 = { workspace = true }
 byteorder = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }

@@ -81,32 +81,25 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree(["/remove-password"]);
   }
 
-  // TDE org user has "manage account recovery" permission
+  // Handle cases where a user needs to set a password when they don't already have one:
+  // - TDE org user has been given "manage account recovery" permission
+  // - TDE offboarding on a trusted device, where we have access to their encryption key wrap with their new password
   if (
-    forceSetPasswordReason ===
-      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission &&
-    !routerState.url.includes("set-password") &&
+    (forceSetPasswordReason ===
+      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission ||
+      forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding) &&
     !routerState.url.includes("set-initial-password")
   ) {
     const route = "/set-initial-password";
     return router.createUrlTree([route]);
   }
 
-  // TDE Offboarding on trusted device
-  if (
-    forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding &&
-    !routerState.url.includes("update-temp-password") &&
-    !routerState.url.includes("set-initial-password")
-  ) {
-    const route = "/set-initial-password";
-    return router.createUrlTree([route]);
-  }
-
-  // Post- Account Recovery or Weak Password on login
+  // Handle cases where a user has a password but needs to set a new one:
+  // - Account recovery
+  // - Weak Password on login
   if (
     (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
       forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
-    !routerState.url.includes("update-temp-password") &&
     !routerState.url.includes("change-password")
   ) {
     const route = "/change-password";

@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -41,7 +42,7 @@ import { ChangePasswordService } from "./change-password.service.abstraction";
 @Component({
   selector: "auth-change-password",
   templateUrl: "change-password.component.html",
-  imports: [InputPasswordComponent, I18nPipe, CalloutComponent],
+  imports: [InputPasswordComponent, I18nPipe, CalloutComponent, CommonModule],
 })
 export class ChangePasswordComponent implements OnInit {
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
@@ -177,6 +178,9 @@ export class ChangePasswordComponent implements OnInit {
 
         // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
         this.messagingService.send("logout");
+
+        // Close the popout if we are in a browser extension popout.
+        this.changePasswordService.closeBrowserExtensionPopout?.();
       }
     } catch (error) {
       this.logService.error(error);

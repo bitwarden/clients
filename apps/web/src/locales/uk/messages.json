@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Захищена нотатка"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
     "message": "Ключ SSH"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Копіювати ім'я"
+  },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Я"
@@ -1785,7 +1805,7 @@
     "message": "Продовжуючи, ви вийдете з поточного сеансу і необхідно буде виконати вхід знову. Активні сеанси на інших пристроях можуть залишатися активними протягом години."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Після зміни пароля потрібно буде ввійти в систему з новим паролем. Активні сеанси на інших пристроях буде завершено протягом години."
   },
   "emailChanged": {
     "message": "Е-пошту змінено"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Вебсховище"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте увійти з пристроєм знову."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Термін дії запиту на вхід завершився."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Переглянути запит входу"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Ваш безплатний пробний період завершується через $COUNT$ днів.",
@@ -6077,10 +6119,10 @@
     "message": "Оновити головний пароль"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Змініть свій головний пароль, щоб завершити відновлення облікового запису."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "Ваш головний пароль не відповідає вимогам цієї організації. Змініть свій головний пароль, щоб продовжити."
   },
   "updateMasterPasswordWarning": {
     "message": "Ваш головний пароль нещодавно було змінено адміністратором організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
@@ -8463,10 +8505,10 @@
     "message": "Запит підтвердження адміністратора"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Не вдалося завершити вхід"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "Ви повинні ввійти до системи на довіреному пристрої або попросити адміністратора призначити вам пароль."
   },
   "trustedDeviceEncryption": {
     "message": "Шифрування довіреного пристрою"
@@ -8937,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Докладніше про виявлення збігів",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Додаткові налаштування",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Попередження",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Щоб зберегти свою передплату на $ORG$, ",
@@ -10800,46 +10850,46 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "billingAddress": {
-    "message": "Billing address"
+    "message": "Платіжна адреса"
   },
   "addBillingAddress": {
-    "message": "Add billing address"
+    "message": "Додати платіжну адресу"
   },
   "editBillingAddress": {
-    "message": "Edit billing address"
+    "message": "Редагувати платіжну адресу"
   },
   "noBillingAddress": {
-    "message": "No address on file."
+    "message": "Немає збереженої адреси."
   },
   "billingAddressUpdated": {
-    "message": "Your billing address has been updated."
+    "message": "Вашу платіжну адресу оновлено."
   },
   "paymentDetails": {
-    "message": "Payment details"
+    "message": "Подробиці платежу"
   },
   "paymentMethodUpdated": {
-    "message": "Your payment method has been updated."
+    "message": "Ваш спосіб оплати оновлено."
   },
   "bankAccountVerified": {
-    "message": "Your bank account has been verified."
+    "message": "Ваш банківський рахунок підтверджено."
   },
   "availableCreditAppliedToInvoice": {
-    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+    "message": "Наявні кредити автоматично застосуються для сплати рахунків, згенерованих для цього облікового запису."
   },
   "mustBePositiveNumber": {
-    "message": "Must be a positive number"
+    "message": "Має бути додатним числом"
   },
   "cardSecurityCode": {
-    "message": "Card security code"
+    "message": "Код безпеки картки"
   },
   "cardSecurityCodeDescription": {
-    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+    "message": "Код безпеки картки, також відомий як CVV чи CVC, – це номер із 3 цифр, який зазвичай можна знайти на звороті вашої кредитної картки, або номер із 4 цифр, надрукований під номером картки на лицьовій стороні."
   },
   "verifyBankAccountWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Оплата з банківським рахунком доступна тільки для клієнтів у США. Вам необхідно буде підтвердити свій банківський рахунок. Ми здійснимо мікродепозит протягом наступних 1–2 робочих днів. Введіть код дескриптора з квитанції для цього депозиту, який можна знайти на сторінці подробиць платежу, щоб підтвердити банківський рахунок. У разі невдалого підтвердження банківського рахунку платіж не буде проведено і ваша передплата призупиниться."
   },
   "taxId": {
-    "message": "Tax ID: $TAX_ID$",
+    "message": "ІПН: $TAX_ID$",
     "placeholders": {
       "tax_id": {
         "content": "$1",

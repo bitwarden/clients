@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Verificatiecode kopiëren (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopiëren",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Lengte"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Beveiligingscode kopiëren",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kaartnummer"
   },
   "premiumMembership": {
     "message": "Premium-abonnement"
@@ -3566,6 +3583,14 @@
     "message": "Lees meer over overeenkomstdetectie",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
+  "uriAdvancedOption": {
+    "message": "Geavanceerde opties",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Waarschuwing",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "Succes"
   },
@@ -3989,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Snelkoppeling autotype inschakelen"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden valideert de invoerlocaties niet, zorg ervoor dat je je in het juiste venster en veld bevindt voordat je de snelkoppeling gebruikt."
   }
 }

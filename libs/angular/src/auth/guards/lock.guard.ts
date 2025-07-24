@@ -13,7 +13,6 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { KeyService } from "@bitwarden/key-management";
 
 /**
@@ -31,7 +30,6 @@ export function lockGuard(): CanActivateFn {
     const authService = inject(AuthService);
     const keyService = inject(KeyService);
     const deviceTrustService = inject(DeviceTrustServiceAbstraction);
-    const messagingService = inject(MessagingService);
     const router = inject(Router);
     const userVerificationService = inject(UserVerificationService);
     const vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
@@ -53,11 +51,6 @@ export function lockGuard(): CanActivateFn {
     // if user can't lock, they can't access the lock screen
     const canLock = await vaultTimeoutSettingsService.canLock(activeUser.id);
     if (!canLock) {
-      return false;
-    }
-
-    if (await keyService.isLegacyUser()) {
-      messagingService.send("logout");
       return false;
     }
 

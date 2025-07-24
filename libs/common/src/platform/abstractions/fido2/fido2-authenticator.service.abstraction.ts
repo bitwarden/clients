@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 
 /**
@@ -17,11 +15,11 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
    * @param abortController An AbortController that can be used to abort the operation.
    * @returns A promise that resolves with the new credential and an attestation signature.
    **/
-  makeCredential: (
+  abstract makeCredential(
     params: Fido2AuthenticatorMakeCredentialsParams,
     window: ParentWindowReference,
     abortController?: AbortController,
-  ) => Promise<Fido2AuthenticatorMakeCredentialResult>;
+  ): Promise<Fido2AuthenticatorMakeCredentialResult>;
 
   /**
    * Generate an assertion using an existing credential as describe in:
@@ -31,11 +29,11 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
    * @param abortController An AbortController that can be used to abort the operation.
    * @returns A promise that resolves with the asserted credential and an assertion signature.
    */
-  getAssertion: (
+  abstract getAssertion(
     params: Fido2AuthenticatorGetAssertionParams,
     window: ParentWindowReference,
     abortController?: AbortController,
-  ) => Promise<Fido2AuthenticatorGetAssertionResult>;
+  ): Promise<Fido2AuthenticatorGetAssertionResult>;
 
   /**
    * Discover credentials for a given Relying Party
@@ -43,7 +41,7 @@ export abstract class Fido2AuthenticatorService<ParentWindowReference> {
    * @param rpId The Relying Party's ID
    * @returns A promise that resolves with an array of discoverable credentials
    */
-  silentCredentialDiscovery: (rpId: string) => Promise<Fido2CredentialView[]>;
+  abstract silentCredentialDiscovery(rpId: string): Promise<Fido2CredentialView[]>;
 }
 
 // FIXME: update to use a const object instead of a typescript enum

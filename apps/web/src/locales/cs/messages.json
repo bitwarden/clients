@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Zabezpečená poznámka"
   },
+  "typeNote": {
+    "message": "Poznámka"
+  },
   "typeSshKey": {
     "message": "SSH klíč"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Kopírovat název"
+  },
+  "cardNumber": {
+    "message": "číslo karty"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Já"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Webový trezor"
   },
+  "webApp": {
+    "message": "Webová aplikace"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to opravdu Vy, zkuste se znovu přihlásit do zařízení."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Požadavek na přihlášení byl schválen pro $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to Vy, zkuste se znovu přihlásit do zařízení."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Požadavek na přihlášení již vypršel."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Podívat se na žádost o přihlášení"
+  },
+  "loginRequest": {
+    "message": "Požadavek na přihlášení"
   },
   "freeTrialEndPromptCount": {
     "message": "Vaše zkušební doba končí za $COUNT$ dnů.",
@@ -8937,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Další informace o detekci shody",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Rozšířené volby",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Varování",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Pro správu předplatného pro $ORG$, ",

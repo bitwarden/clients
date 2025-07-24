@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Защищенная заметка"
   },
+  "typeNote": {
+    "message": "Заметка"
+  },
   "typeSshKey": {
     "message": "Ключ SSH"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Скопировать имя"
+  },
+  "cardNumber": {
+    "message": "номер карты"
+  },
+  "copyFieldCipherName": {
+    "message": "Копировать $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Мое"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Веб-хранилище"
   },
+  "webApp": {
+    "message": "Веб-приложение"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Вы отклонили попытку авторизации с другого устройства. Если это действительно были вы, попробуйте авторизоваться с этого устройства еще раз."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Запрос входа для $EMAIL$ на $DEVICE$ одобрен",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Вы отклонили попытку авторизации с другого устройства. Если это были вы, попробуйте авторизоваться с этого устройства еще раз."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Запрос на вход истек."
   },
@@ -3971,7 +4010,7 @@
     "message": "Только что"
   },
   "requestedXMinutesAgo": {
-    "message": "Запрошено $MINUTES$ мин назад",
+    "message": "Запрошено $MINUTES$ минут назад",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Просмотр запроса на вход"
+  },
+  "loginRequest": {
+    "message": "Запрос на вход"
   },
   "freeTrialEndPromptCount": {
     "message": "Ваша бесплатная пробная версия заканчивается через $COUNT$ дней.",
@@ -8937,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Подробнее об обнаружении совпадений",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Расширенные настройки",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Предупреждение",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Для сохранения подписки на $ORG$ ",

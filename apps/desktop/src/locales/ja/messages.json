@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "認証コード (TOTP) をコピー"
   },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "長さ"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "セキュリティコードのコピー",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "プレミアム会員"
@@ -3566,6 +3583,14 @@
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "成功"
   },
@@ -3672,25 +3697,25 @@
     "message": "生体認証によるロック解除は、不明な理由により現在利用できません。"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "アイテムの詳細"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "アイテム名"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "ログイン資格情報"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "追加のオプション"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "アイテムの履歴"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "直近の編集"
   },
   "upload": {
-    "message": "Upload"
+    "message": "アップロード"
   },
   "authorize": {
     "message": "認可"
@@ -3774,10 +3799,10 @@
     "message": "移動"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "新しいフォルダー"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "フォルダー名"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -3989,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

@@ -1,9 +1,9 @@
 import { ConditionalExcept, ConditionalKeys, Constructor } from "type-fest";
 
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 
-import { EncString } from "./enc-string";
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
@@ -14,7 +14,7 @@ export type DecryptedObject<
 > = Record<TDecryptedKeys, string> & Omit<TEncryptedObject, TDecryptedKeys>;
 
 // extracts shared keys from the domain and view types
-type EncryptableKeys<D extends Domain, V extends View> = (keyof D &
+export type EncryptableKeys<D extends Domain, V extends View> = (keyof D &
   ConditionalKeys<D, EncString | null>) &
   (keyof V & ConditionalKeys<V, string | null>);
 

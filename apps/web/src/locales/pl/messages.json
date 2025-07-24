@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Bezpieczna notatka"
   },
+  "typeNote": {
+    "message": "Notatka"
+  },
   "typeSshKey": {
     "message": "Klucz SSH"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Skopiuj nazwę"
+  },
+  "cardNumber": {
+    "message": "numer karty"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopiuj $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Ja"
@@ -1785,7 +1805,7 @@
     "message": "Ta czynność spowoduje wylogowanie z bieżącej sesji, przez co konieczne będzie ponowne zalogowanie się. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie godzinę."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Po zmianie hasła musisz się zalogować przy użyciu nowego hasła. Aktywne sesje na innych urządzeniach zostaną wylogowane w ciągu jednej godziny."
   },
   "emailChanged": {
     "message": "Adres e-mail został zapisany"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Sejf internetowy"
   },
+  "webApp": {
+    "message": "Aplikacja internetowa"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Logowanie potwierdzone dla $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Prośba logowania wygasła."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Przejrzyj żądanie logowania"
+  },
+  "loginRequest": {
+    "message": "Żądanie logowania"
   },
   "freeTrialEndPromptCount": {
     "message": "Twój okres próbny kończy się za $COUNT$ dni.",
@@ -6077,10 +6119,10 @@
     "message": "Zaktualizuj hasło główne"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Zmień hasło główne, aby zakończyć odzyskiwanie konta."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "Twoje hasło główne nie spełnia wymagań tej organizacji. Zmień hasło główne, aby kontynuować."
   },
   "updateMasterPasswordWarning": {
     "message": "Hasło główne zostało zmienione przez administratora Twojej organizacji. Musisz je zaktualizować, aby uzyskać dostęp do sejfu. Ta czynność spowoduje wylogowanie z bieżącej sesji, przez co konieczne będzie ponowne zalogowanie się. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie godzinę."
@@ -8938,6 +8980,14 @@
     "message": "Dowiedz się więcej o wykrywaniu dopasowania",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
+  "uriAdvancedOption": {
+    "message": "Ustawienia zaawansowane",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Ostrzeżenie",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "maintainYourSubscription": {
     "message": "Aby utrzymać subskrypcję dla $ORG$ ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
@@ -10800,46 +10850,46 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "billingAddress": {
-    "message": "Billing address"
+    "message": "Adres rozliczeniowy"
   },
   "addBillingAddress": {
-    "message": "Add billing address"
+    "message": "Dodaj adres rozliczeniowy"
   },
   "editBillingAddress": {
-    "message": "Edit billing address"
+    "message": "Edytuj adres rozliczeniowy"
   },
   "noBillingAddress": {
-    "message": "No address on file."
+    "message": "Brak adresu w pliku."
   },
   "billingAddressUpdated": {
-    "message": "Your billing address has been updated."
+    "message": "Twój adres rozliczeniowy został zaktualizowany."
   },
   "paymentDetails": {
-    "message": "Payment details"
+    "message": "Szczegóły płatności"
   },
   "paymentMethodUpdated": {
-    "message": "Your payment method has been updated."
+    "message": "Twoja metoda płatności została zaktualizowana."
   },
   "bankAccountVerified": {
-    "message": "Your bank account has been verified."
+    "message": "Twoje konto bankowe zostało zweryfikowane."
   },
   "availableCreditAppliedToInvoice": {
-    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+    "message": "Wszelkie dostępne środki zostaną automatycznie zastosowane do faktur wygenerowanych dla tego konta."
   },
   "mustBePositiveNumber": {
-    "message": "Must be a positive number"
+    "message": "Musi być liczbą dodatnią"
   },
   "cardSecurityCode": {
-    "message": "Card security code"
+    "message": "Kod bezpieczeństwa karty"
   },
   "cardSecurityCodeDescription": {
-    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+    "message": "Kod bezpieczeństwa karty, znany również jako CVV lub CVC, jest to zazwyczaj trzycyfrowy numer wydrukowany na odwrocie karty kredytowej lub czterocyfrowy numer wydrukowany na przodzie nad numerem karty."
   },
   "verifyBankAccountWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Płatność za pomocą konta bankowego jest dostępna tylko dla klientów w Stanach Zjednoczonych. Będziesz musiał/musiała zweryfikować swoje konto bankowe. W ciągu najbliższych 1-2 dni roboczych dokonamy mikrowpłaty. Wprowadź kod deskryptora z tej wpłaty na stronie dostawcy subskrypcji, aby zweryfikować konto bankowe. Niezweryfikowanie konta bankowego spowoduje brak płatności i zawieszenie Twojej subskrypcji."
   },
   "taxId": {
-    "message": "Tax ID: $TAX_ID$",
+    "message": "ID Podatku: $TAX_ID$",
     "placeholders": {
       "tax_id": {
         "content": "$1",

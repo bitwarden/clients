@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Observable, map, concatMap, share, ReplaySubject, timer, combineLatest, of } from "rxjs";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import {
   SingleUserState,
   StateProvider,

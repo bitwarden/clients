@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Zabezpečená poznámka"
   },
+  "typeNote": {
+    "message": "Poznámka"
+  },
   "typeSshKey": {
     "message": "Kľúč SSH"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Kopírovať meno"
+  },
+  "cardNumber": {
+    "message": "číslo karty"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopírovať $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Ja"
@@ -1785,7 +1805,7 @@
     "message": "Ak budete pokračovať, budete odhlásený a budete sa musieť opäť prihlásiť. Aktívne sedenia na iných zariadeniach môžu byť aktívne ešte hodinu."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Po zmene hesla sa musíte prihlásiť pomocou nového hesla. Aktívne relácie na iných zariadeniach budú do jednej hodiny odhlásené."
   },
   "emailChanged": {
     "message": "E-mail bol zmenený"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Webový trezor"
   },
+  "webApp": {
+    "message": "Webová aplikácia"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli naozaj vy, skúste sa prihlásiť pomocou zariadenia znova."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Potvrdené prihlásenie pre $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli vy, skúste sa prihlásiť pomocou zariadenia znova."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Platnosť žiadosti o prihlásenie už vypršala."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Skontrolovať požiadavku o prihlásenie"
+  },
+  "loginRequest": {
+    "message": "Žiadosť o prihlásenie"
   },
   "freeTrialEndPromptCount": {
     "message": "Vaše bezplatné skúšobné obdobie vyprší o $COUNT$ dní.",
@@ -6077,10 +6119,10 @@
     "message": "Aktualizovať hlavné heslo"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Zmeňte hlavné heslo, aby ste dokončili obnovenie účtu."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "Vaše hlavné heslo nespĺňa požiadavky tejto organizácie. Ak chcete pokračovať, zmeňte hlavné heslo."
   },
   "updateMasterPasswordWarning": {
     "message": "Vaše hlavné heslo nedávno zmenil správca vo vašej organizácii. Ak chcete získať prístup k trezoru, musíte aktualizovať vaše hlavné heslo teraz. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu."
@@ -8463,10 +8505,10 @@
     "message": "Žiadosť o schválenie správcom"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Nepodarilo sa dokončiť prihlásenie"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "Musíte sa prihlásiť na dôveryhodnom zariadení alebo požiadať správcu o priradenie hesla."
   },
   "trustedDeviceEncryption": {
     "message": "Šifrovanie dôveryhodného zariadenia"
@@ -8923,20 +8965,28 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Zisťovanie zhody URI je spôsob, akým Bitwarden identifikuje návrhy na automatické vypĺňanie.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Regulárny výraz\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Začína na\" je rozšírená možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Viac informácií o zisťovaní zhody",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Rozšírené možnosti",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Upozornenie",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Aby ste udržali predplatné pre $ORG$, ",
@@ -10729,49 +10779,49 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "setupExtensionPageTitle": {
-    "message": "Autofill your passwords securely with one click"
+    "message": "Jedným klikom automaticky a bezpečne vyplňte vaše heslá"
   },
   "setupExtensionPageDescription": {
-    "message": "Get the Bitwarden browser extension and start autofilling today"
+    "message": "Získajte rozšírenie Bitwarden pre prehliadače a začnite automaticky vypĺňať heslá už dnes"
   },
   "getTheExtension": {
-    "message": "Get the extension"
+    "message": "Získať rozšírenie"
   },
   "addItLater": {
-    "message": "Add it later"
+    "message": "Pridať neskor"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "You can't autofill passwords without the browser extension"
+    "message": "Bez rozšírenia Bitwarden pre prehliadače nie je možné automaticky vypĺňať heslá"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
-    "message": "Are you sure you don't want to add the extension now?"
+    "message": "Naozaj teraz nechcete pridať rozšírenie?"
   },
   "skipToWebApp": {
-    "message": "Skip to web app"
+    "message": "Preskočiť na webovú aplikáciu"
   },
   "bitwardenExtensionInstalled": {
-    "message": "Bitwarden extension installed!"
+    "message": "Rozšírenie Bitwarden nainštalované!"
   },
   "openExtensionToAutofill": {
-    "message": "Open the extension to log in and start autofilling."
+    "message": "Otvorte rozšírenie, prihláste sa a začnite automatické vypĺňanie."
   },
   "openBitwardenExtension": {
-    "message": "Open Bitwarden extension"
+    "message": "Otvoriť rozšírenie Bitwarden"
   },
   "gettingStartedWithBitwardenPart1": {
-    "message": "For tips on getting started with Bitwarden visit the",
+    "message": "Pre tipy ako začať s Bitwarden, navštívte",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
-    "message": "Learning Center",
+    "message": "Vzdelávacie centrum",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
-    "message": "Help Center",
+    "message": "Centrum pomoci",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
-    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+    "message": "S rozšírením Bitwarden pre prehliadače ľahko vytvorite nove prihlasovacie údaje, pristúpite k vaším uloženým údajom priamo z prehliadača a rýchlo sa prihlásite pomocou Bitwarden automatického vypĺňania."
   },
   "restart": {
     "message": "Reštartovať"
@@ -10800,46 +10850,46 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "billingAddress": {
-    "message": "Billing address"
+    "message": "Fakturačná adresa"
   },
   "addBillingAddress": {
-    "message": "Add billing address"
+    "message": "Pridať fakturačnú adresu"
   },
   "editBillingAddress": {
-    "message": "Edit billing address"
+    "message": "Upraviť fakturačnú adresu"
   },
   "noBillingAddress": {
-    "message": "No address on file."
+    "message": "Žiadna adresa v záznamoch."
   },
   "billingAddressUpdated": {
-    "message": "Your billing address has been updated."
+    "message": "Vaša fakturačná adresa bola aktualizovaná."
   },
   "paymentDetails": {
-    "message": "Payment details"
+    "message": "Platobné údaje"
   },
   "paymentMethodUpdated": {
-    "message": "Your payment method has been updated."
+    "message": "Vaša platobná metóda bola aktualizovaná."
   },
   "bankAccountVerified": {
-    "message": "Your bank account has been verified."
+    "message": "Váš bankový účet bol overený."
   },
   "availableCreditAppliedToInvoice": {
-    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+    "message": "Dostupný kredit sa automaticky použije na faktúry vytvorené pre tento účet."
   },
   "mustBePositiveNumber": {
-    "message": "Must be a positive number"
+    "message": "Musí byť kladné číslo"
   },
   "cardSecurityCode": {
-    "message": "Card security code"
+    "message": "Bezpečnostný kód karty"
   },
   "cardSecurityCodeDescription": {
-    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+    "message": "Bezpečnostný kód karty, známy aj ako CVV alebo CVC, je zvyčajne trojmiestne číslo vytlačené na zadnej strane kreditnej karty alebo štvormiestne číslo vytlačené na prednej strane nad číslom karty."
   },
   "verifyBankAccountWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Platba prostredníctvom bankového účtu je dostupná len pre zákazníkov v Spojených Štátoch. Budete musieť overiť svoj bankový účet. V priebehu nasledujúcich 1-2 pracovných dní vykonáme mikro vklad. Na overenie bankového účtu zadajte kód popisu výpisu z tohto vkladu na fakturačnej stránke. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
   },
   "taxId": {
-    "message": "Tax ID: $TAX_ID$",
+    "message": "Daňové ID: $TAX_ID$",
     "placeholders": {
       "tax_id": {
         "content": "$1",

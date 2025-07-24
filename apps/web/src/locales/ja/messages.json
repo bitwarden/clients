@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "セキュアメモ"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
     "message": "SSH 鍵"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "名前をコピー"
+  },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "自分"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "ウェブ保管庫"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "別のデバイスからのログイン試行を拒否しました。本当にあなたであった場合は、もう一度デバイスでログインしてみてください。"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "ログインリクエストの有効期限が切れています。"
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "ログインリクエストの内容を確認"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "無料体験はあと $COUNT$ 日で終了します。",
@@ -8937,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "$ORG$のサブスクリプションを維持するには、 ",
