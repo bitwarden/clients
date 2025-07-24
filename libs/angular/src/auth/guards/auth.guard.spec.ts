@@ -145,7 +145,7 @@ describe("AuthGuard", () => {
     });
   });
 
-  describe("given user is Unlocked", () => {
+  describe("given user is Unlocked and ForceSetPasswordReason requires setting an initial password", () => {
     const tests = [
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
       ForceSetPasswordReason.TdeOffboarding,
@@ -173,7 +173,7 @@ describe("AuthGuard", () => {
       });
     });
 
-    describe("given the PM16117_ChangeExistingPasswordRefactor feature flag is ON", () => {
+    describe("given user is Unlocked and ForceSetPasswordReason requires changing an existing password", () => {
       const tests = [
         ForceSetPasswordReason.AdminForcePasswordReset,
         ForceSetPasswordReason.WeakMasterPassword,
