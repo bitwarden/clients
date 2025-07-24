@@ -1,3 +1,4 @@
+import { DialogRef } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
@@ -5,20 +6,26 @@ import { RouterModule } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DIALOG_DATA } from "@bitwarden/components";
 
 import { AddExtensionLaterDialogComponent } from "./add-extension-later-dialog.component";
 
 describe("AddExtensionLaterDialogComponent", () => {
   let fixture: ComponentFixture<AddExtensionLaterDialogComponent>;
   const getDevice = jest.fn().mockReturnValue(null);
+  const onDismiss = jest.fn();
 
   beforeEach(async () => {
+    onDismiss.mockClear();
+
     await TestBed.configureTestingModule({
       imports: [AddExtensionLaterDialogComponent, RouterModule.forRoot([])],
       providers: [
         provideNoopAnimations(),
         { provide: PlatformUtilsService, useValue: { getDevice } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: DialogRef, useValue: { close: jest.fn() } },
+        { provide: DIALOG_DATA, useValue: { onDismiss } },
       ],
     }).compileComponents();
 
@@ -38,5 +45,12 @@ describe("AddExtensionLaterDialogComponent", () => {
     const skipLink = fixture.debugElement.queryAll(By.css("a[bitButton]"))[1];
 
     expect(skipLink.attributes.href).toBe("/vault");
+  });
+
+  it('invokes `onDismiss` when "Skip to Web App" is clicked', () => {
+    const skipLink = fixture.debugElement.queryAll(By.css("a[bitButton]"))[1];
+    skipLink.triggerEventHandler("click", {});
+
+    expect(onDismiss).toHaveBeenCalled();
   });
 });

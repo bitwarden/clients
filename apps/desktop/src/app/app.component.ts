@@ -68,6 +68,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
@@ -172,6 +173,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -523,10 +525,12 @@ export class AppComponent implements OnInit, OnDestroy {
   private async updateAppMenu() {
     let updateRequest: MenuUpdateRequest;
     const stateAccounts = await firstValueFrom(this.accountService.accounts$);
+
     if (stateAccounts == null || Object.keys(stateAccounts).length < 1) {
       updateRequest = {
         accounts: null,
         activeUserId: null,
+        restrictedCipherTypes: null,
       };
     } else {
       const accounts: { [userId: string]: MenuAccount } = {};
@@ -557,6 +561,9 @@ export class AppComponent implements OnInit, OnDestroy {
         activeUserId: await firstValueFrom(
           this.accountService.activeAccount$.pipe(map((a) => a?.id)),
         ),
+        restrictedCipherTypes: (
+          await firstValueFrom(this.restrictedItemTypesService.restricted$)
+        ).map((restrictedItems) => restrictedItems.cipherType),
       };
     }
 
@@ -670,7 +677,6 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.keyService.clearKeys(userBeingLoggedOut);
       await this.cipherService.clear(userBeingLoggedOut);
       await this.folderService.clear(userBeingLoggedOut);
-      await this.collectionService.clear(userBeingLoggedOut);
       await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
 

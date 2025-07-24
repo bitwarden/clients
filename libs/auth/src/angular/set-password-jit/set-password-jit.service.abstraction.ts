@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
@@ -31,5 +29,5 @@ export abstract class SetPasswordJitService {
    * @throws If any property on the `credentials` object is null or undefined, or if a protectedUserKey
    *         or newKeyPair could not be created.
    */
-  setPassword: (credentials: SetPasswordCredentials) => Promise<void>;
+  abstract setPassword(credentials: SetPasswordCredentials): Promise<void>;
 }

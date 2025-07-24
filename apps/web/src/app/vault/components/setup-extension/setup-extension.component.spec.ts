@@ -3,12 +3,14 @@ import { By } from "@angular/platform-browser";
 import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { StateProvider } from "@bitwarden/common/platform/state";
 
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
 
@@ -21,11 +23,13 @@ describe("SetupExtensionComponent", () => {
   const getFeatureFlag = jest.fn().mockResolvedValue(false);
   const navigate = jest.fn().mockResolvedValue(true);
   const openExtension = jest.fn().mockResolvedValue(true);
+  const update = jest.fn().mockResolvedValue(true);
   const extensionInstalled$ = new BehaviorSubject<boolean | null>(null);
 
   beforeEach(async () => {
     navigate.mockClear();
     openExtension.mockClear();
+    update.mockClear();
     getFeatureFlag.mockClear().mockResolvedValue(true);
     window.matchMedia = jest.fn().mockReturnValue(false);
 
@@ -36,6 +40,14 @@ describe("SetupExtensionComponent", () => {
         { provide: ConfigService, useValue: { getFeatureFlag } },
         { provide: WebBrowserInteractionService, useValue: { extensionInstalled$, openExtension } },
         { provide: PlatformUtilsService, useValue: { getDevice: () => DeviceType.UnknownBrowser } },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: new BehaviorSubject({ account: { id: "account-id" } }) },
+        },
+        {
+          provide: StateProvider,
+          useValue: { getUser: () => ({ update }) },
+        },
       ],
     }).compileComponents();
 
@@ -119,6 +131,10 @@ describe("SetupExtensionComponent", () => {
         openExtensionButton.triggerEventHandler("click");
 
         expect(openExtension).toHaveBeenCalled();
+      });
+
+      it("dismisses the extension page", () => {
+        expect(update).toHaveBeenCalledTimes(1);
       });
     });
   });
