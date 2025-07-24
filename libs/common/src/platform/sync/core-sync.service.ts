@@ -172,7 +172,11 @@ export abstract class CoreSyncService implements SyncService {
           notification.collectionIds != null &&
           notification.collectionIds.length > 0
         ) {
-          const collections = await this.collectionService.getAll();
+          const collections = await firstValueFrom(
+            this.collectionService
+              .encryptedCollections$(userId)
+              .pipe(map((collections) => collections ?? [])),
+          );
           if (collections != null) {
             for (let i = 0; i < collections.length; i++) {
               if (notification.collectionIds.indexOf(collections[i].id) > -1) {

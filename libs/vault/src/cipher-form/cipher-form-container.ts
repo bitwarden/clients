@@ -70,4 +70,8 @@ export abstract class CipherFormContainer {
 
   /** Returns true when the `CipherFormContainer` was initialized with a cached cipher available. */
   abstract initializedWithCachedCipher(): boolean;
+
+  abstract disableFormFields(): void;
+
+  abstract enableFormFields(): void;
 }

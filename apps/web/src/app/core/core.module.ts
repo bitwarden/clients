@@ -33,7 +33,6 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   LoginComponentService,
-  SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
   TwoFactorAuthDuoComponentService,
@@ -117,7 +116,6 @@ import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import {
   WebChangePasswordService,
-  WebSetPasswordJitService,
   WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
@@ -264,7 +262,6 @@ const safeProviders: SafeProvider[] = [
       PolicyApiServiceAbstraction,
       LogService,
       PolicyService,
-      ConfigService,
     ],
   }),
   safeProvider({
@@ -277,21 +274,6 @@ const safeProviders: SafeProvider[] = [
     provide: LockComponentService,
     useClass: WebLockComponentService,
     deps: [],
-  }),
-  safeProvider({
-    provide: SetPasswordJitService,
-    useClass: WebSetPasswordJitService,
-    deps: [
-      EncryptService,
-      I18nServiceAbstraction,
-      KdfConfigService,
-      KeyServiceAbstraction,
-      MasterPasswordApiService,
-      InternalMasterPasswordServiceAbstraction,
-      OrganizationApiServiceAbstraction,
-      OrganizationUserApiService,
-      InternalUserDecryptionOptionsServiceAbstraction,
-    ],
   }),
   safeProvider({
     provide: SetInitialPasswordService,
