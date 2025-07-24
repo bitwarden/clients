@@ -1,4 +1,5 @@
 import { CollectionDetailsResponse } from "@bitwarden/admin-console/common";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { CollectionAccessSelectionView, CollectionAdminView } from "../models";
 
@@ -8,7 +9,10 @@ export abstract class CollectionAdminService {
     organizationId: string,
     collectionId: string,
   ): Promise<CollectionAdminView | undefined>;
-  abstract save(collection: CollectionAdminView): Promise<CollectionDetailsResponse>;
+  abstract save(
+    collection: CollectionAdminView,
+    userId: UserId,
+  ): Promise<CollectionDetailsResponse>;
   abstract delete(organizationId: string, collectionId: string): Promise<void>;
   abstract bulkAssignAccess(
     organizationId: string,

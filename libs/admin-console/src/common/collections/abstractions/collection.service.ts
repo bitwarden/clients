@@ -1,4 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
 import { Observable } from "rxjs";
 
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -8,27 +7,25 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionData, Collection, CollectionView } from "../models";
 
 export abstract class CollectionService {
-  abstract encryptedCollections$: Observable<Collection[]>;
-  abstract decryptedCollections$: Observable<CollectionView[]>;
-
-  abstract clearActiveUserCache(): Promise<void>;
-  abstract encrypt(model: CollectionView): Promise<Collection>;
-  abstract decryptedCollectionViews$(ids: CollectionId[]): Observable<CollectionView[]>;
-  /**
-   * @deprecated This method will soon be made private
-   * See PM-12375
-   */
-  abstract decryptMany(
-    collections: Collection[],
-    orgKeys?: Record<OrganizationId, OrgKey>,
-  ): Promise<CollectionView[]>;
-  abstract get(id: string): Promise<Collection>;
-  abstract getAll(): Promise<Collection[]>;
-  abstract getAllDecrypted(): Promise<CollectionView[]>;
-  abstract getAllNested(collections?: CollectionView[]): Promise<TreeNode<CollectionView>[]>;
-  abstract getNested(id: string): Promise<TreeNode<CollectionView>>;
-  abstract upsert(collection: CollectionData | CollectionData[]): Promise<any>;
+  abstract encryptedCollections$(userId: UserId): Observable<Collection[] | null>;
+  abstract decryptedCollections$(userId: UserId): Observable<CollectionView[]>;
+  abstract upsert(collection: CollectionData, userId: UserId): Promise<any>;
   abstract replace(collections: { [id: string]: CollectionData }, userId: UserId): Promise<any>;
-  abstract clear(userId?: string): Promise<void>;
-  abstract delete(id: string | string[]): Promise<any>;
+  /**
+   * @deprecated This method will soon be made private, use `decryptedCollections$` instead.
+   */
+  abstract decryptMany$(
+    collections: Collection[],
+    orgKeys: Record<OrganizationId, OrgKey>,
+  ): Observable<CollectionView[]>;
+  abstract delete(ids: CollectionId[], userId: UserId): Promise<any>;
+  abstract encrypt(model: CollectionView, userId: UserId): Promise<Collection>;
+  /**
+   * Transforms the input CollectionViews into TreeNodes
+   */
+  abstract getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[];
+  /*
+   * Transforms the input CollectionViews into TreeNodes and then returns the Treenode with the specified id
+   */
+  abstract getNested(collections: CollectionView[], id: string): TreeNode<CollectionView>;
 }
