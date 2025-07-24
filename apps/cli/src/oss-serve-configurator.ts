@@ -3,6 +3,7 @@
 import * as koaMulter from "@koa/multer";
 import * as koaRouter from "@koa/router";
 import * as koa from "koa";
+import { firstValueFrom, map } from "rxjs";
 
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
@@ -78,6 +79,7 @@ export class OssServeConfigurator {
       this.serviceContainer.apiService,
       this.serviceContainer.eventCollectionService,
       this.serviceContainer.accountService,
+      this.serviceContainer.keyService,
       this.serviceContainer.cliRestrictedItemTypesService,
     );
     this.createCommand = new CreateCommand(
@@ -170,6 +172,7 @@ export class OssServeConfigurator {
       this.serviceContainer.searchService,
       this.serviceContainer.encryptService,
       this.serviceContainer.apiService,
+      this.serviceContainer.accountService,
     );
     this.sendEditCommand = new SendEditCommand(
       this.serviceContainer.sendService,
@@ -182,6 +185,7 @@ export class OssServeConfigurator {
       this.serviceContainer.sendService,
       this.serviceContainer.environmentService,
       this.serviceContainer.searchService,
+      this.serviceContainer.accountService,
     );
     this.sendRemovePasswordCommand = new SendRemovePasswordCommand(
       this.serviceContainer.sendService,
@@ -414,7 +418,10 @@ export class OssServeConfigurator {
       this.processResponse(res, Response.error("You are not logged in."));
       return true;
     }
-    if (await this.serviceContainer.keyService.hasUserKey()) {
+    const userId = await firstValueFrom(
+      this.serviceContainer.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+    if (await this.serviceContainer.keyService.hasUserKey(userId)) {
       return false;
     }
     this.processResponse(res, Response.error("Vault is locked."));

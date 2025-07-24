@@ -65,8 +65,8 @@ export class SsoComponent implements OnInit, OnDestroy {
 
   readonly samlSigningAlgorithms = [
     "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
-    "http://www.w3.org/2000/09/xmldsig#rsa-sha384",
-    "http://www.w3.org/2000/09/xmldsig#rsa-sha512",
+    "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384",
+    "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512",
   ];
 
   readonly samlSigningAlgorithmOptions: SelectOptions[] = this.samlSigningAlgorithms.map(

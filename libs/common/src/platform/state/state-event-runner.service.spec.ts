@@ -1,9 +1,13 @@
 import { mock } from "jest-mock-extended";
 
+import {
+  AbstractStorageService,
+  ObservableStorageService,
+  StorageServiceProvider,
+} from "@bitwarden/storage-core";
+
 import { FakeGlobalStateProvider } from "../../../spec";
 import { UserId } from "../../types/guid";
-import { AbstractStorageService, ObservableStorageService } from "../abstractions/storage.service";
-import { StorageServiceProvider } from "../services/storage-service.provider";
 
 import { STATE_LOCK_EVENT } from "./state-event-registrar.service";
 import { StateEventRunnerService } from "./state-event-runner.service";

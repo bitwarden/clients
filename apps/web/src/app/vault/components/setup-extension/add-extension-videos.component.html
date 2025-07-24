@@ -1,0 +1,79 @@
+<ng-template #newLoginItem>
+  <video
+    #video
+    muted
+    [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
+    [attr.aria-hidden]="!allVideosLoaded"
+    class="tw-block tw-max-w-full tw-shadow-md tw-rounded-lg"
+    (loadeddata)="onVideoLoad()"
+    src="https://assets.bitwarden.com/extension-animations/new-login-item.mp4"
+    appDarkImgSrc="https://assets.bitwarden.com/extension-animations/new-login-item-dark.mp4"
+    aria-hidden
+  ></video>
+</ng-template>
+
+<ng-template #browserExtensionEasyAccess>
+  <video
+    #video
+    muted
+    [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
+    [attr.aria-hidden]="!allVideosLoaded"
+    class="tw-block tw-max-w-full tw-shadow-md tw-rounded-lg"
+    (loadeddata)="onVideoLoad()"
+    src="https://assets.bitwarden.com/extension-animations/browser-extension-easy-access.mp4"
+    appDarkImgSrc="https://assets.bitwarden.com/extension-animations/browser-extension-easy-access-dark.mp4"
+    aria-hidden
+  ></video>
+</ng-template>
+
+<ng-template #onboardingAutofill>
+  <video
+    #video
+    muted
+    [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
+    [attr.aria-hidden]="!allVideosLoaded"
+    class="tw-block tw-max-w-full tw-shadow-md tw-rounded-lg"
+    (loadeddata)="onVideoLoad()"
+    src="https://assets.bitwarden.com/extension-animations/onboarding-autofill.mp4"
+    appDarkImgSrc="https://assets.bitwarden.com/extension-animations/onboarding-autofill-dark.mp4"
+    aria-hidden
+  ></video>
+</ng-template>
+
+<!--
+  On desktop, videos are shown in a 1 row, 3 column grid.
+  Below tablet viewports, videos are shown one at a time. The videos are absolute positioned, except the first.
+  The first video is relatively positioned to force the layout and spacing of the videos.
+-->
+<div
+  class="tw-mx-auto tw-w-[15rem] tw-mb-8 tw-relative md:tw-grid md:tw-gap-10 md:tw-w-auto md:tw-grid-rows-1 md:tw-grid-cols-3 md:tw-justify-center md:tw-justify-items-center xl:tw-gap-12"
+  [attr.aria-label]="'setupExtensionContentAlt' | i18n"
+>
+  <div [ngClass]="videoContainerClass">
+    <div
+      *ngIf="!allVideosLoaded"
+      class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
+      data-testid="video-pulse"
+    ></div>
+    <ng-container *ngTemplateOutlet="newLoginItem"></ng-container>
+  </div>
+
+  <!-- Use `tw-relative` on the first video container to maintain the proper spacing -->
+  <div [ngClass]="videoContainerClass" class="tw-relative">
+    <div
+      *ngIf="!allVideosLoaded"
+      class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
+      data-testid="video-pulse"
+    ></div>
+    <ng-container *ngTemplateOutlet="browserExtensionEasyAccess"></ng-container>
+  </div>
+
+  <div [ngClass]="videoContainerClass">
+    <div
+      *ngIf="!allVideosLoaded"
+      class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
+      data-testid="video-pulse"
+    ></div>
+    <ng-container *ngTemplateOutlet="onboardingAutofill"></ng-container>
+  </div>
+</div>

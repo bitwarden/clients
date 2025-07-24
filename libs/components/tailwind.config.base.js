@@ -83,6 +83,10 @@ module.exports = {
         alt3: rgba("--color-background-alt3"),
         alt4: rgba("--color-background-alt4"),
       },
+      hover: {
+        default: "var(--color-hover-default)",
+        contrast: "var(--color-hover-contrast)",
+      },
       "marketing-logo": rgba("--color-marketing-logo"),
       illustration: {
         outline: rgba("--color-illustration-outline"),
@@ -151,6 +155,7 @@ module.exports = {
         "90vw": "90vw",
       }),
       fontSize: {
+        xs: [".8125rem", "1rem"],
         "3xl": ["1.75rem", "2rem"],
       },
     },

@@ -6,12 +6,13 @@ import { any, mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, map, of, timeout } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { StorageServiceProvider } from "@bitwarden/storage-core";
+
 import { awaitAsync, trackEmissions } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { Account } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
-import { StorageServiceProvider } from "../../services/storage-service.provider";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
 import { UserKeyDefinition } from "../user-key-definition";

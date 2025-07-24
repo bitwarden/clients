@@ -1,10 +1,10 @@
 <div
   class="tw-flex tw-items-center tw-gap-2 tw-p-2 tw-ps-4 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
   [ngClass]="bannerClass"
-  [attr.role]="useAlertRole ? 'status' : null"
-  [attr.aria-live]="useAlertRole ? 'polite' : null"
+  [attr.role]="useAlertRole() ? 'status' : null"
+  [attr.aria-live]="useAlertRole() ? 'polite' : null"
 >
-  @if (icon) {
+  @if (icon(); as icon) {
     <i class="bwi tw-align-middle tw-text-base" [ngClass]="icon" aria-hidden="true"></i>
   }
   <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
@@ -12,7 +12,7 @@
     <ng-content></ng-content>
   </span>
   <!-- Overriding hover and focus-visible colors for a11y against colored background -->
-  @if (showClose) {
+  @if (showClose()) {
     <button
       class="hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
       type="button"

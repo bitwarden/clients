@@ -14,12 +14,13 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
@@ -28,6 +29,7 @@ import {
   SetInitialPasswordService,
   SetInitialPasswordCredentials,
   SetInitialPasswordUserType,
+  SetInitialPasswordTdeOffboardingCredentials,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -244,5 +246,45 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       enrollmentRequest,
     );
+  }
+
+  async setInitialPasswordTdeOffboarding(
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) {
+    const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} not found. Could not set password.`);
+      }
+    }
+
+    if (userId == null) {
+      throw new Error("userId not found. Could not set password.");
+    }
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("userKey not found. Could not set password.");
+    }
+
+    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+      newMasterKey,
+      userKey,
+    );
+
+    if (!newMasterKeyEncryptedUserKey[1].encryptedString) {
+      throw new Error("newMasterKeyEncryptedUserKey not found. Could not set password.");
+    }
+
+    const request = new UpdateTdeOffboardingPasswordRequest();
+    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
+    request.newMasterPasswordHash = newServerMasterKeyHash;
+    request.masterPasswordHint = newPasswordHint;
+
+    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
+
+    // Clear force set password reason to allow navigation back to vault.
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
 }

@@ -2,11 +2,10 @@ import { combineLatest, firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -61,7 +60,8 @@ export class DefaultUserAsymmetricKeysRegenerationService
       return false;
     }
 
-    if (userKey.inner().type === EncryptionType.CoseEncrypt0) {
+    if (userKey.inner().type === 
+        .CoseEncrypt0) {
       this.logService.error(
         "[UserAsymmetricKeyRegeneration] Cannot regenerate asymmetric keys for accounts on V2 encryption.",
       );

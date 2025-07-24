@@ -11,13 +11,11 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
   CreateDefaultLocation = "pm-19467-create-default-location",
 
   /* Auth */
   PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
-  PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
@@ -26,6 +24,7 @@ export enum FeatureFlag {
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
+  WindowsDesktopAutotype = "windows-desktop-autotype",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -33,9 +32,8 @@ export enum FeatureFlag {
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
   UseOrganizationWarningsService = "use-organization-warnings-service",
-
-  /* Data Insights and Reporting */
-  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
+  AllowTrialLengthZero = "pm-20322-allow-trial-length-0",
+  PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -43,18 +41,24 @@ export enum FeatureFlag {
   UseSDKForDecryption = "use-sdk-for-decryption",
   PM17987_BlockType0 = "pm-17987-block-type-0",
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
+  ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
+
+  /* DIRT */
+  EventBasedOrganizationIntegrations = "event-based-organization-integrations",
 
   /* Vault */
   PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
+  PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
+  PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
   RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
+  PM19315EndUserActivationMvp = "pm-19315-end-user-activation-mvp",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -75,7 +79,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
   [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
@@ -84,26 +87,28 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-
-  /* Data Insights and Reporting */
-  [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
+
+  /* DIRT */
+  [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
+  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
+  [FeatureFlag.PM19315EndUserActivationMvp]: FALSE,
+  [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
-  [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
   [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
 
   /* Billing */
@@ -112,6 +117,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,
+  [FeatureFlag.AllowTrialLengthZero]: FALSE,
+  [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
@@ -119,6 +126,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseSDKForDecryption]: FALSE,
   [FeatureFlag.PM17987_BlockType0]: FALSE,
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
+  [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,

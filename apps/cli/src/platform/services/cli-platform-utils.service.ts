@@ -108,6 +108,14 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
+  }
+
   showToast(
     type: "error" | "success" | "warning" | "info",
     title: string,

@@ -9,6 +9,7 @@ import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -263,7 +264,7 @@ export class SsoLoginStrategy extends LoginStrategy {
         );
       }
 
-      if (await this.keyService.hasUserKey()) {
+      if (await this.keyService.hasUserKey(userId)) {
         // Now that we have a decrypted user key in memory, we can check if we
         // need to establish trust on the current device
         await this.deviceTrustService.trustDeviceIfRequired(userId);
@@ -343,13 +344,38 @@ export class SsoLoginStrategy extends LoginStrategy {
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    const newSsoUser = tokenResponse.key == null;
+    const isSetInitialPasswordFlagOn = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_SetInitialPasswordRefactor,
+    );
 
-    if (!newSsoUser) {
-      await this.keyService.setPrivateKey(
-        tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
-        userId,
-      );
+    if (isSetInitialPasswordFlagOn) {
+      if (tokenResponse.hasMasterKeyEncryptedUserKey()) {
+        // User has masterKeyEncryptedUserKey, so set the userKeyEncryptedPrivateKey
+        // Note: new JIT provisioned SSO users will not yet have a user asymmetric key pair
+        // and so we don't want them falling into the createKeyPairForOldAccount flow
+        await this.keyService.setPrivateKey(
+          tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+          userId,
+        );
+      } else if (tokenResponse.privateKey) {
+        // User doesn't have masterKeyEncryptedUserKey but they do have a userKeyEncryptedPrivateKey
+        // This is just existing TDE users or a TDE offboarder on an untrusted device
+        await this.keyService.setPrivateKey(tokenResponse.privateKey, userId);
+      }
+      // else {
+      //    User could be new JIT provisioned SSO user in either a MP encryption org OR a TDE org.
+      //    In either case, the user doesn't yet have a user asymmetric key pair, a user key, or a master key + master key encrypted user key.
+      // }
+    } else {
+      // A user that does not yet have a masterKeyEncryptedUserKey set is a new SSO user
+      const newSsoUser = tokenResponse.key == null;
+
+      if (!newSsoUser) {
+        await this.keyService.setPrivateKey(
+          tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+          userId,
+        );
+      }
     }
   }
 
@@ -389,13 +415,46 @@ export class SsoLoginStrategy extends LoginStrategy {
       return false;
     }
 
-    // Check for TDE offboarding - user is being offboarded from TDE and needs to set a password
+    // Check for TDE offboarding - user is being offboarded from TDE and needs to set a password on a trusted device
     if (userDecryptionOptions.trustedDeviceOption?.isTdeOffboarding) {
       await this.masterPasswordService.setForceSetPasswordReason(
         ForceSetPasswordReason.TdeOffboarding,
         userId,
       );
       return true;
+    }
+
+    // If a TDE org user in an offboarding state logs in on an untrusted device, then they will receive their existing userKeyEncryptedPrivateKey from the server, but
+    // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavilable here for TDE org users on untrusted devices.
+    // - UserDecryptionOptions.trustedDeviceOption is undefined -- device isn't trusted.
+    // - UserDecryptionOptions.hasMasterPassword is false -- user doesn't have a master password.
+    // - UserDecryptionOptions.UsesKeyConnector is undefined. -- they aren't using key connector
+    // - UserKey is not set after successful login -- because automatic decryption is not available
+    // - userKeyEncryptedPrivateKey is set after successful login -- this is the key differentiator between a TDE org user logging into an untrusted device and MP encryption JIT provisioned user logging in for the first time.
+    const isSetInitialPasswordFlagOn = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_SetInitialPasswordRefactor,
+    );
+
+    if (isSetInitialPasswordFlagOn) {
+      const hasUserKeyEncryptedPrivateKey = await firstValueFrom(
+        this.keyService.userEncryptedPrivateKey$(userId),
+      );
+      const hasUserKey = await this.keyService.hasUserKey(userId);
+
+      // TODO: PM-23491 we should explore consolidating this logic into a flag on the server. It could be set when an org is switched from TDE to MP encryption for each org user.
+      if (
+        !userDecryptionOptions.trustedDeviceOption &&
+        !userDecryptionOptions.hasMasterPassword &&
+        !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
+        hasUserKeyEncryptedPrivateKey &&
+        !hasUserKey
+      ) {
+        await this.masterPasswordService.setForceSetPasswordReason(
+          ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
+          userId,
+        );
+        return true;
+      }
     }
 
     // Check if user has permission to set password but hasn't yet

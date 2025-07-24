@@ -10,6 +10,7 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
@@ -81,6 +82,8 @@ import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
 import { BrowserExtensionPromptComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt.component";
+import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
+import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -143,13 +146,29 @@ const routes: Routes = [
       {
         path: "update-temp-password",
         component: UpdateTempPasswordComponent,
-        canActivate: [authGuard],
+        canActivate: [
+          canAccessFeature(
+            FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+            false,
+            "change-password",
+            false,
+          ),
+          authGuard,
+        ],
         data: { titleId: "updateTempPassword" } satisfies RouteDataProperties,
       },
       {
         path: "update-password",
         component: UpdatePasswordComponent,
-        canActivate: [authGuard],
+        canActivate: [
+          canAccessFeature(
+            FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+            false,
+            "change-password",
+            false,
+          ),
+          authGuard,
+        ],
         data: { titleId: "updatePassword" } satisfies RouteDataProperties,
       },
     ],
@@ -579,6 +598,28 @@ const routes: Routes = [
           },
         ],
       },
+      {
+        path: "change-password",
+        component: ChangePasswordComponent,
+        canActivate: [
+          canAccessFeature(FeatureFlag.PM16117_ChangeExistingPasswordRefactor),
+          authGuard,
+        ],
+      },
+      {
+        path: "setup-extension",
+        data: {
+          hideCardWrapper: true,
+          hideIcon: true,
+          maxWidth: "4xl",
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: SetupExtensionComponent,
+          },
+        ],
+      },
     ],
   },
   {
@@ -588,6 +629,7 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
+        canActivate: [setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
       },
       {

@@ -249,7 +249,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
   private async handleActiveAccountChange(activeAccount: Account) {
     // this account may be unlocked, prevent any prompts so we can redirect to vault
-    if (await this.keyService.hasUserKeyInMemory(activeAccount.id)) {
+    if (await this.keyService.hasUserKey(activeAccount.id)) {
       return;
     }
 
@@ -576,6 +576,9 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.activeAccount == null) {
       throw new Error("No active user.");
     }
+
+    // Add a mark to indicate that the user has unlocked their vault. A good starting point for measuring unlock performance.
+    this.logService.mark("Vault unlocked");
 
     await this.keyService.setUserKey(key, this.activeAccount.id);
 

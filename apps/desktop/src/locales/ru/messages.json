@@ -514,7 +514,7 @@
     "message": "Элемент добавлен"
   },
   "editedItem": {
-    "message": "Элемент изменен"
+    "message": "Элемент сохранен"
   },
   "deleteItem": {
     "message": "Удалить элемент"
@@ -571,6 +571,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Скопировать код подтверждения (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Копировать $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Длина"
@@ -938,7 +952,7 @@
     "message": "Вставьте ключ безопасности в USB-порт компьютера. Если у ключа есть кнопка, нажмите ее."
   },
   "recoveryCodeDesc": {
-    "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашей учетной записи."
+    "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашего аккаунта."
   },
   "recoveryCodeTitle": {
     "message": "Код восстановления"
@@ -977,7 +991,7 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Используйте любой ключ безопасности с поддержкой WebAuthn для доступа к вашей учетной записи."
+    "message": "Используйте любой ключ безопасности с поддержкой WebAuthn для доступа к вашему аккаунту."
   },
   "emailTitle": {
     "message": "Email"
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Скопировать код безопасности",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "номер карты"
   },
   "premiumMembership": {
     "message": "Премиум"
@@ -2392,6 +2409,9 @@
   "passwordConfirmationDesc": {
     "message": "Это действие защищено. Чтобы продолжить, введите ваш мастер-пароль для подтверждения личности."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Мастер-пароль успешно установлен"
+  },
   "updatedMasterPassword": {
     "message": "Мастер-пароль обновлен"
   },
@@ -2403,6 +2423,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
+  },
+  "changePasswordWarning": {
+    "message": "После смены пароля потребуется авторизоваться с новым паролем. Активные сессии на других устройствах будут завершены в течение одного часа."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Измените мастер-пароль, чтобы завершить восстановление аккаунта."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Ваш мастер-пароль не соответствует требованиям этой организации. Измените его, чтобы продолжить."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "В вашей организации отключено шифрование доверенных устройств. Пожалуйста, установите мастер-пароль для доступа к вашему хранилищу."
@@ -3141,6 +3170,12 @@
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
   },
+  "unableToCompleteLogin": {
+    "message": "Не удалось завершить вход"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Вам необходимо авторизоваться с доверенного устройства или попросить вашего администратора назначить вам пароль."
+  },
   "region": {
     "message": "Регион"
   },
@@ -3531,6 +3566,30 @@
   "commonImportFormats": {
     "message": "Основные форматы",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Обнаружение совпадения URI - это способ, с помощью которого Bitwarden идентифицирует предложения по автозаполнению.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Регулярное выражение\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Начинается с\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Подробнее об обнаружении совпадений",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Расширенные настройки",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Предупреждение",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Успешно"
@@ -3955,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Включить автоввод ярлыка"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
   }
 }

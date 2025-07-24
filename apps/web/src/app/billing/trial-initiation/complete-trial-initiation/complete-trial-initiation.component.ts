@@ -4,7 +4,7 @@ import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -18,6 +18,7 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import {
   OrganizationBillingServiceAbstraction as OrganizationBillingService,
   OrganizationInformation,
@@ -31,7 +32,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 
-import { AcceptOrganizationInviteService } from "../../../auth/organization-invite/accept-organization.service";
 import {
   OrganizationCreatedEvent,
   SubscriptionProduct,
@@ -101,6 +101,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   protected trialPaymentOptional$ = this.configService.getFeatureFlag$(
     FeatureFlag.TrialPaymentOptional,
   );
+  protected allowTrialLengthZero$ = this.configService.getFeatureFlag$(
+    FeatureFlag.AllowTrialLengthZero,
+  );
 
   constructor(
     protected router: Router,
@@ -112,7 +115,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private routerService: RouterService,
     private organizationBillingService: OrganizationBillingService,
-    private acceptOrganizationInviteService: AcceptOrganizationInviteService,
+    private organizationInviteService: OrganizationInviteService,
     private toastService: ToastService,
     private registrationFinishService: RegistrationFinishService,
     private validationService: ValidationService,
@@ -171,7 +174,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       this.setupFamilySponsorship(qParams.sponsorshipToken);
     });
 
-    const invite = await this.acceptOrganizationInviteService.getOrganizationInvite();
+    const invite = await this.organizationInviteService.getOrganizationInvite();
     let policies: Policy[] | null = null;
 
     if (invite != null) {
@@ -333,6 +336,18 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
     return this.productTier;
   }
+
+  readonly showBillingStep$ = combineLatest([
+    this.trialPaymentOptional$,
+    this.allowTrialLengthZero$,
+  ]).pipe(
+    map(([trialPaymentOptional, allowTrialLengthZero]) => {
+      return (
+        (!trialPaymentOptional && !this.isSecretsManagerFree) ||
+        (trialPaymentOptional && allowTrialLengthZero && this.trialLength === 0)
+      );
+    }),
+  );
 
   /** Create an organization unless the trial is for secrets manager */
   async conditionallyCreateOrganization(): Promise<void> {

@@ -30,6 +30,10 @@ export interface AnonLayoutWrapperData {
    */
   pageIcon?: Icon | null;
   /**
+   * Hides the default Bitwarden shield icon.
+   */
+  hideIcon?: boolean;
+  /**
    * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
    */
   showReadonlyHostname?: boolean;
@@ -56,6 +60,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected showReadonlyHostname: boolean;
   protected maxWidth: AnonLayoutMaxWidth;
   protected hideCardWrapper: boolean;
+  protected hideIcon: boolean = false;
 
   constructor(
     private router: Router,
@@ -102,6 +107,10 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
 
     if (firstChildRouteData["pageIcon"] !== undefined) {
       this.pageIcon = firstChildRouteData["pageIcon"];
+    }
+
+    if (firstChildRouteData["hideIcon"] !== undefined) {
+      this.hideIcon = firstChildRouteData["hideIcon"];
     }
 
     this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
@@ -169,6 +178,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.showReadonlyHostname = null;
     this.maxWidth = null;
     this.hideCardWrapper = null;
+    this.hideIcon = null;
   }
 
   ngOnDestroy() {

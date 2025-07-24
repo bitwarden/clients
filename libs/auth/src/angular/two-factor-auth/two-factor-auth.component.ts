@@ -60,11 +60,11 @@ import {
   TwoFactorAuthDuoIcon,
 } from "../icons/two-factor-auth";
 
-import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator.component";
+import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
 import { TwoFactorAuthDuoComponent } from "./child-components/two-factor-auth-duo/two-factor-auth-duo.component";
 import { TwoFactorAuthEmailComponent } from "./child-components/two-factor-auth-email/two-factor-auth-email.component";
 import { TwoFactorAuthWebAuthnComponent } from "./child-components/two-factor-auth-webauthn/two-factor-auth-webauthn.component";
-import { TwoFactorAuthYubikeyComponent } from "./child-components/two-factor-auth-yubikey.component";
+import { TwoFactorAuthYubikeyComponent } from "./child-components/two-factor-auth-yubikey/two-factor-auth-yubikey.component";
 import {
   TwoFactorAuthComponentCacheService,
   TwoFactorAuthComponentData,
@@ -179,9 +179,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       this.activatedRoute.snapshot.queryParamMap.get("identifier") ?? undefined;
 
     this.listenForAuthnSessionTimeout();
-
-    // Initialize the cache
-    await this.twoFactorAuthComponentCacheService.init();
 
     // Load cached form data if available
     let loadedCachedProviderType = false;
@@ -394,7 +391,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "error",
-      title: this.i18nService.t("errorOccured"),
+      title: this.i18nService.t("errorOccurred"),
       message: this.i18nService.t("legacyEncryptionUnsupported"),
     });
     return true;
@@ -494,7 +491,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const defaultSuccessRoute = await this.determineDefaultSuccessRoute();
+    const defaultSuccessRoute = await this.determineDefaultSuccessRoute(authResult.userId);
 
     await this.router.navigate([defaultSuccessRoute], {
       queryParams: {
@@ -503,10 +500,26 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async determineDefaultSuccessRoute(): Promise<string> {
+  private async determineDefaultSuccessRoute(userId: UserId): Promise<string> {
     const activeAccountStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (activeAccountStatus === AuthenticationStatus.Locked) {
       return "lock";
+    }
+
+    // TODO: PM-22663 use the new service to handle routing.
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+    ) {
+      const forceSetPasswordReason = await firstValueFrom(
+        this.masterPasswordService.forceSetPasswordReason$(userId),
+      );
+
+      if (
+        forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
+        forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
+      ) {
+        return "change-password";
+      }
     }
 
     return "vault";

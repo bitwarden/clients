@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Doğrulama kodunu kopyala (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Uzunluq"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Güvənlik kodunu kopyala",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kart nömrəsi"
   },
   "premiumMembership": {
     "message": "Premium üzvlük"
@@ -2392,6 +2409,9 @@
   "passwordConfirmationDesc": {
     "message": "Bu əməliyyat qorumalıdır, davam etmək üçün lütfən kimliyinizi doğrulamaq məqsədilə ana parolunuzu yenidən daxil edin."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Ana parol uğurla təyin edildi"
+  },
   "updatedMasterPassword": {
     "message": "Güncəllənmiş ana parol"
   },
@@ -2403,6 +2423,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə müraciət üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
+  },
+  "changePasswordWarning": {
+    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saat ərzində çıxış sonlandırılacaq."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Hesabın geri qaytarılması prosesini tamamlamaq üçün ana parolunuzu dəyişdirin."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Ana parolunuz bu təşkilatın tələblərinə cavab vermir. Davam etmək üçün ana parolunuzu dəyişdirin."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Təşkilatınız, güvənli cihaz şifrələməsini sıradan çıxartdı. Seyfinizə müraciət etmək üçün lütfən ana parol təyin edin."
@@ -3141,6 +3170,12 @@
   "requestAdminApproval": {
     "message": "Admin təsdiqini tələb et"
   },
+  "unableToCompleteLogin": {
+    "message": "Giriş prosesi tamamlana bilmir"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Güvəndiyiniz bir cihazda giriş etməli və ya inzibatçınızdan sizə bir parol təyin etməsini xahiş etməlisiniz."
+  },
   "region": {
     "message": "Bölgə"
   },
@@ -3531,6 +3566,30 @@
   "commonImportFormats": {
     "message": "Ortaq formatlar",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI uyuşma aşkarlaması, Bitwarden-in avto-doldurma təkliflərini necə müəyyən etdiyini göstərir.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Müntəzəm ifadə\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"İlə başlayır\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Uyuşma aşkarlaması barədə daha çox",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Qabaqcıl seçimlər",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Xəbərdarlıq",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Uğurlu"
@@ -3955,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Avto-yazma qısayolunu fəallaşdır"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
   }
 }

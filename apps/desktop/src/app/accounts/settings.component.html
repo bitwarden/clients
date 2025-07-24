@@ -126,13 +126,13 @@
                     {{ biometricText | i18n }}
                   </label>
                 </div>
-                <small class="help-block" *ngIf="this.form.value.biometric && !this.isLinux">{{
-                  additionalBiometricSettingsText | i18n
+                <small class="help-block" *ngIf="this.form.value.biometric && this.isMac">{{
+                  "additionalTouchIdSettings" | i18n
                 }}</small>
               </div>
               <div
                 class="form-group"
-                *ngIf="supportsBiometric && this.form.value.biometric && !this.isLinux"
+                *ngIf="supportsBiometric && this.form.value.biometric && this.isMac"
               >
                 <div class="checkbox form-group-child">
                   <label for="autoPromptBiometrics">
@@ -142,7 +142,7 @@
                       formControlName="autoPromptBiometrics"
                       (change)="updateAutoPromptBiometrics()"
                     />
-                    {{ autoPromptBiometricsText | i18n }}
+                    {{ "autoPromptTouchId" | i18n }}
                   </label>
                 </div>
               </div>
@@ -152,7 +152,7 @@
                   supportsBiometric &&
                   this.form.value.biometric &&
                   (userHasMasterPassword || (this.form.value.pin && userHasPinSet)) &&
-                  !this.isLinux
+                  false
                 "
               >
                 <div class="checkbox form-group-child">
@@ -170,9 +170,6 @@
                     }
                   </label>
                 </div>
-                <small class="help-block form-group-child" *ngIf="isWindows">{{
-                  "recommendedForSecurity" | i18n
-                }}</small>
               </div>
             </ng-container>
           </div>
@@ -488,6 +485,22 @@
                 <small class="help-block">{{
                   "enableDuckDuckGoBrowserIntegrationDesc" | i18n
                 }}</small>
+              </div>
+              <div class="form-group" *ngIf="showEnableAutotype">
+                <div class="checkbox">
+                  <label for="enableAutotype">
+                    <input
+                      id="enableAutotype"
+                      type="checkbox"
+                      formControlName="enableAutotype"
+                      (change)="saveEnableAutotype()"
+                    />
+                    {{ "enableAutotype" | i18n }}
+                  </label>
+                </div>
+                <small class="help-block"
+                  ><b>{{ "important" | i18n }}</b> {{ "enableAutotypeDescription" | i18n }}</small
+                >
               </div>
               <div class="form-group">
                 <label for="theme">{{ "theme" | i18n }}</label>

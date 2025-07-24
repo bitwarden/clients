@@ -51,10 +51,11 @@ import {
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { ClientType } from "@bitwarden/common/enums";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
@@ -112,6 +113,7 @@ import { DesktopLoginComponentService } from "../../auth/login/desktop-login-com
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
@@ -140,7 +142,6 @@ import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
-import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
 
 const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
@@ -296,7 +297,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: CryptoFunctionServiceAbstraction,
-    useClass: RendererCryptoFunctionService,
+    useClass: WebCryptoFunctionService,
     deps: [WINDOW],
   }),
   safeProvider({
@@ -382,12 +383,11 @@ const safeProviders: SafeProvider[] = [
     provide: SetPasswordJitService,
     useClass: DesktopSetPasswordJitService,
     deps: [
-      ApiService,
-      MasterPasswordApiService,
-      KeyService,
       EncryptService,
       I18nServiceAbstraction,
       KdfConfigService,
+      KeyService,
+      MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
@@ -469,6 +469,20 @@ const safeProviders: SafeProvider[] = [
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: DesktopAutotypeService,
+    useFactory: (
+      configService: ConfigService,
+      globalStateProvider: GlobalStateProvider,
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+    ) =>
+      new DesktopAutotypeService(
+        configService,
+        globalStateProvider,
+        platformUtilsService.getDevice() === DeviceType.WindowsDesktop,
+      ),
+    deps: [ConfigService, GlobalStateProvider, PlatformUtilsServiceAbstraction],
   }),
 ];
 

@@ -13,7 +13,7 @@
   --color-background: 255 255 255;
   --color-background-alt: 243 246 249;
   --color-background-alt2: 23 92 219;
-  --color-background-alt3: 26 65 172;
+  --color-background-alt3: 22 55 146;
   --color-background-alt4: 2 15 102;
 
   --color-primary-100: 219 229 246;
@@ -55,6 +55,9 @@
   --color-text-contrast: 255 255 255;
   --color-text-alt2: 255 255 255;
   --color-text-code: 192 17 118;
+
+  --color-hover-default: rgb(26 65 172 / 0.1);
+  --color-hover-contrast: rgb(255 255 255 / 0.15);
 
   --color-marketing-logo: 23 93 220;
 
@@ -123,6 +126,9 @@
   --color-text-contrast: 18 26 39;
   --color-text-alt2: 255 255 255;
   --color-text-code: 255 143 208;
+
+  --color-hover-default: rgb(170 195 239 / 0.1);
+  --color-hover-contrast: rgb(0 0 0 / 0.15);
 
   --color-marketing-logo: 255 255 255;
 

@@ -177,15 +177,15 @@ export const Disabled: Story = {
         <bit-radio-group formControlName="radio" aria-label="Example radio group">
           <bit-label>Group of radio buttons</bit-label>
 
-          <bit-radio-button id="radio-first" [value]="0" [disabled]="true">
+          <bit-radio-button [value]="0" [disabled]="true">
             <bit-label>First</bit-label>
           </bit-radio-button>
 
-          <bit-radio-button id="radio-second" [value]="1" [disabled]="true">
+          <bit-radio-button [value]="1" [disabled]="true">
             <bit-label>Second</bit-label>
           </bit-radio-button>
 
-          <bit-radio-button id="radio-third" [value]="2" [disabled]="true">
+          <bit-radio-button [value]="2" [disabled]="true">
             <bit-label>Third</bit-label>
           </bit-radio-button>
         </bit-radio-group>

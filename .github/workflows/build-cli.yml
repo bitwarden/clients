@@ -78,10 +78,8 @@ jobs:
 
       - name: Check secrets
         id: check-secrets
-        env:
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
         run: |
-          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
           echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
 
@@ -108,6 +106,10 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       _WIN_PKG_FETCH_VERSION: 20.11.1
       _WIN_PKG_VERSION: 3.5
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -156,9 +158,11 @@ jobs:
 
       - name: Login to Azure
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Get certificates
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
@@ -168,10 +172,21 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
             jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
 
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -199,13 +214,13 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           EOF
 
       - name: Notarize app
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
         run: |
@@ -261,6 +276,9 @@ jobs:
             { build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
           ]
     runs-on: windows-2022
+    permissions:
+      contents: read
+      id-token: write
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -344,11 +362,13 @@ jobs:
           ResourceHacker -open version-info.rc -save version-info.res -action compile
           ResourceHacker -open %WIN_PKG_BUILT% -save %WIN_PKG_BUILT% -action addoverwrite -resource version-info.res
 
-      - name: Login to Azure
+      - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -361,6 +381,10 @@ jobs:
             code-signing-tenant-id,
             code-signing-client-secret,
             code-signing-cert-name"
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install
         run: npm ci
@@ -520,6 +544,9 @@ jobs:
     name: Check for failures
     if: always()
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     needs:
       - setup
       - cli
@@ -534,11 +561,13 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Login to Azure - Prod Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
         if: failure()
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -547,6 +576,10 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
+
+      - name: Log out from Azure
+        if: failure()
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0

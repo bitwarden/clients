@@ -4,15 +4,19 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { concatMap, map } from "rxjs";
+import { concatMap, firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -124,6 +128,8 @@ export class ItemDetailsSectionComponent implements OnInit {
     private i18nService: I18nService,
     private destroyRef: DestroyRef,
     private accountService: AccountService,
+    private configService: ConfigService,
+    private policyService: PolicyService,
   ) {
     this.cipherFormContainer.registerChildForm("itemDetails", this.itemDetailsForm);
     this.itemDetailsForm.valueChanges
@@ -200,28 +206,59 @@ export class ItemDetailsSectionComponent implements OnInit {
     if (prefillCipher) {
       await this.initFromExistingCipher(prefillCipher);
     } else {
+      const orgId = this.initialValues?.organizationId;
       this.itemDetailsForm.setValue({
         name: this.initialValues?.name || "",
-        organizationId: this.initialValues?.organizationId || this.defaultOwner,
+        organizationId: orgId || this.defaultOwner,
         folderId: this.initialValues?.folderId || null,
         collectionIds: [],
         favorite: false,
       });
-      await this.updateCollectionOptions(this.initialValues?.collectionIds || []);
+      await this.updateCollectionOptions(this.initialValues?.collectionIds);
     }
-
     if (!this.allowOwnershipChange) {
       this.itemDetailsForm.controls.organizationId.disable();
     }
-
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        concatMap(async () => {
-          await this.updateCollectionOptions();
-        }),
+        concatMap(async () => await this.updateCollectionOptions()),
       )
       .subscribe();
+  }
+
+  /**
+   * Gets the default collection IDs for the selected organization.
+   * Returns null if any of the following apply:
+   * - the feature flag is disabled
+   * - no org is currently selected
+   * - the selected org doesn't have the "no private data policy" enabled
+   */
+  private async getDefaultCollectionId(orgId?: OrganizationId) {
+    if (!orgId) {
+      return;
+    }
+    const isFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.CreateDefaultLocation,
+    );
+    if (!isFeatureEnabled) {
+      return;
+    }
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const selectedOrgHasPolicyEnabled = (
+      await firstValueFrom(
+        this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId),
+      )
+    ).find((p) => p.organizationId);
+    if (!selectedOrgHasPolicyEnabled) {
+      return;
+    }
+    const defaultUserCollection = this.collections.find(
+      (c) => c.organizationId === orgId && c.type === CollectionTypes.DefaultUserCollection,
+    );
+    // If the user was added after the policy was enabled as they will not have any private data
+    // and will not have a default collection.
+    return defaultUserCollection?.id;
   }
 
   private async initFromExistingCipher(prefillCipher: CipherView) {
@@ -332,6 +369,11 @@ export class ItemDetailsSectionComponent implements OnInit {
         // Non-admins can only select assigned collections that are not read only. (Non-AC)
         return c.assigned && !c.readOnly;
       })
+      .sort((a, b) => {
+        const aIsDefaultCollection = a.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
+        const bIsDefaultCollection = b.type === CollectionTypes.DefaultUserCollection ? -1 : 0;
+        return aIsDefaultCollection - bIsDefaultCollection;
+      })
       .map((c) => ({
         id: c.id,
         name: c.name,
@@ -349,10 +391,17 @@ export class ItemDetailsSectionComponent implements OnInit {
       return;
     }
 
-    if (startingSelection.length > 0) {
+    if (startingSelection.filter(Boolean).length > 0) {
       collectionsControl.setValue(
         this.collectionOptions.filter((c) => startingSelection.includes(c.id as CollectionId)),
       );
+    } else {
+      const defaultCollectionId = await this.getDefaultCollectionId(orgId);
+      if (defaultCollectionId) {
+        collectionsControl.setValue(
+          this.collectionOptions.filter((c) => c.id === defaultCollectionId),
+        );
+      }
     }
   }
 }
