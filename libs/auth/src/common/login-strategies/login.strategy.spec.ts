@@ -327,7 +327,7 @@ describe("LoginStrategy", () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.privateKey = null;
       keyService.makeKeyPair.mockResolvedValue(["PUBLIC_KEY", new EncString("PRIVATE_KEY")]);
-      keyService.getUserKeyWithLegacySupport.mockResolvedValue(userKey);
+      keyService.getUserKey.mockResolvedValue(userKey);
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
@@ -346,7 +346,7 @@ describe("LoginStrategy", () => {
     });
 
     it("throws if userKey is CoseEncrypt0 (V2 encryption) in createKeyPairForOldAccount", async () => {
-      keyService.getUserKeyWithLegacySupport.mockResolvedValue({
+      keyService.getUserKey.mockResolvedValue({
         inner: () => ({ type: 7 }),
       } as UserKey);
       await expect(passwordLoginStrategy["createKeyPairForOldAccount"](userId)).resolves.toBe(
