@@ -4006,7 +4006,7 @@
       }
     }
   },
-  "enableAutotype": {
+  "enableAutotypeTransitionKey": {
     "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
