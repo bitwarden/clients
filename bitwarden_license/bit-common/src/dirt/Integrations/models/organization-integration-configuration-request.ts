@@ -1,12 +1,17 @@
 import { EventType } from "@bitwarden/common/enums";
 
 export class OrganizationIntegrationConfigurationRequest {
-  eventType?: EventType;
-  configuration?: string;
-  filters?: string;
-  template?: string;
+  eventType?: EventType | null = null;
+  configuration?: string | null = null;
+  filters?: string | null = null;
+  template?: string | null = null;
 
-  constructor(eventType?: EventType, configuration?: string, filters?: string, template?: string) {
+  constructor(
+    eventType?: EventType | null,
+    configuration?: string | null,
+    filters?: string | null,
+    template?: string | null,
+  ) {
     this.eventType = eventType;
     this.configuration = configuration;
     this.filters = filters;
