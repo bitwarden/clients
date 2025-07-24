@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UserId } from "../../../types/guid";
@@ -13,11 +11,11 @@ export abstract class VaultTimeoutSettingsService {
    * @param vaultTimeoutAction The vault timeout action
    * @param userId The user id to set the data for.
    */
-  setVaultTimeoutOptions: (
+  abstract setVaultTimeoutOptions(
     userId: UserId,
     vaultTimeout: VaultTimeout,
     vaultTimeoutAction: VaultTimeoutAction,
-  ) => Promise<void>;
+  ): Promise<void>;
 
   /**
    * Get the available vault timeout actions for the current user
@@ -25,13 +23,13 @@ export abstract class VaultTimeoutSettingsService {
    * **NOTE:** This observable is not yet connected to the state service, so it will not update when the state changes
    * @param userId The user id to check. If not provided, the current user is used
    */
-  availableVaultTimeoutActions$: (userId?: string) => Observable<VaultTimeoutAction[]>;
+  abstract availableVaultTimeoutActions$(userId?: string): Observable<VaultTimeoutAction[]>;
 
   /**
    * Evaluates the user's available vault timeout actions and returns a boolean representing
    * if the user can lock or not
    */
-  canLock: (userId: string) => Promise<boolean>;
+  abstract canLock(userId: string): Promise<boolean>;
 
   /**
    * Gets the vault timeout action for the given user id. The returned value is
@@ -41,7 +39,7 @@ export abstract class VaultTimeoutSettingsService {
    * A new action will be emitted if the current state changes or if the user's policy changes and the new policy affects the action.
    * @param userId - the user id to get the vault timeout action for
    */
-  getVaultTimeoutActionByUserId$: (userId: string) => Observable<VaultTimeoutAction>;
+  abstract getVaultTimeoutActionByUserId$(userId: string): Observable<VaultTimeoutAction>;
 
   /**
    * Get the vault timeout for the given user id. The returned value is calculated based on the current state
@@ -50,14 +48,14 @@ export abstract class VaultTimeoutSettingsService {
    * A new timeout will be emitted if the current state changes or if the user's policy changes and the new policy affects the timeout.
    * @param userId The user id to get the vault timeout for
    */
-  getVaultTimeoutByUserId$: (userId: string) => Observable<VaultTimeout>;
+  abstract getVaultTimeoutByUserId$(userId: string): Observable<VaultTimeout>;
 
   /**
    * Has the user enabled unlock with Biometric.
    * @param userId The user id to check. If not provided, the current user is used
    * @returns boolean true if biometric lock is set
    */
-  isBiometricLockSet: (userId?: string) => Promise<boolean>;
+  abstract isBiometricLockSet(userId?: string): Promise<boolean>;
 
-  clear: (userId: UserId) => Promise<void>;
+  abstract clear(userId: UserId): Promise<void>;
 }

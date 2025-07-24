@@ -1,9 +1,14 @@
-<label class="tw-sr-only" [for]="id">{{ "search" | i18n }}</label>
-<div class="tw-relative tw-flex tw-items-center">
+<form
+  role="search"
+  (mouseenter)="isFormHovered.set(true)"
+  (mouseleave)="isFormHovered.set(false)"
+  class="tw-relative tw-flex tw-items-center tw-w-full"
+>
+  <label class="tw-sr-only" [for]="id">{{ "search" | i18n }}</label>
   <label
     [for]="id"
     aria-hidden="true"
-    class="tw-absolute tw-left-2 tw-z-20 !tw-mb-0 tw-cursor-text"
+    class="tw-absolute tw-start-2 tw-z-20 !tw-mb-0 tw-cursor-text"
   >
     <i class="bwi bwi-search bwi-fw tw-text-muted"></i>
   </label>
@@ -12,12 +17,25 @@
     bitInput
     [type]="inputType"
     [id]="id"
-    [placeholder]="placeholder ?? ('search' | i18n)"
+    [placeholder]="placeholder() ?? ('search' | i18n)"
     class="tw-ps-9"
+    name="searchText"
     [ngModel]="searchText"
     (ngModelChange)="onChange($event)"
-    (blur)="onTouch()"
-    [disabled]="disabled"
-    [attr.autocomplete]="autocomplete"
+    (focus)="isInputFocused.set(true)"
+    (blur)="isInputFocused.set(false); onTouch()"
+    [disabled]="disabled()"
+    [attr.autocomplete]="autocomplete()"
   />
-</div>
+  <button
+    *ngIf="searchText && showResetButton()"
+    [ngClass]="{
+      'tw-opacity-0': !showResetButton(),
+      'tw-bg-text-muted': showResetButton(),
+    }"
+    class="bw-reset-btn tw-size-6 tw-absolute hover:tw-bg-text-main tw-end-2 tw-z-20 !tw-mb-0 tw-cursor-pointer"
+    type="reset"
+    [attr.aria-label]="'resetSearch' | i18n"
+    (click)="clearSearch()"
+  ></button>
+</form>

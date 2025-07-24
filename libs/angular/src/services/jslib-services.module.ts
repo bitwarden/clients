@@ -22,13 +22,11 @@ import {
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
   DefaultRegistrationFinishService,
-  DefaultSetPasswordJitService,
   DefaultTwoFactorAuthComponentService,
   DefaultTwoFactorAuthWebAuthnComponentService,
   LoginComponentService,
   LoginDecryptionOptionsService,
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
-  SetPasswordJitService,
   TwoFactorAuthComponentService,
   TwoFactorAuthWebAuthnComponentService,
 } from "@bitwarden/auth/angular";
@@ -1188,7 +1186,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DevicesServiceAbstraction,
     useClass: DevicesServiceImplementation,
-    deps: [DevicesApiServiceAbstraction, AppIdServiceAbstraction],
+    deps: [AppIdServiceAbstraction, DevicesApiServiceAbstraction, I18nServiceAbstraction],
   }),
   safeProvider({
     provide: AuthRequestApiServiceAbstraction,
@@ -1416,21 +1414,6 @@ const safeProviders: SafeProvider[] = [
     provide: OrganizationInviteService,
     useClass: DefaultOrganizationInviteService,
     deps: [],
-  }),
-  safeProvider({
-    provide: SetPasswordJitService,
-    useClass: DefaultSetPasswordJitService,
-    deps: [
-      EncryptService,
-      I18nServiceAbstraction,
-      KdfConfigService,
-      KeyService,
-      MasterPasswordApiServiceAbstraction,
-      InternalMasterPasswordServiceAbstraction,
-      OrganizationApiServiceAbstraction,
-      OrganizationUserApiService,
-      InternalUserDecryptionOptionsServiceAbstraction,
-    ],
   }),
   safeProvider({
     provide: SetInitialPasswordService,

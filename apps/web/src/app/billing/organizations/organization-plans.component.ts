@@ -48,11 +48,11 @@ import { BillingResponse } from "@bitwarden/common/billing/models/response/billi
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";

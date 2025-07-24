@@ -109,7 +109,12 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   async buildCollections(organizationId?: string): Promise<DynamicTreeNode<CollectionView>> {
-    const storedCollections = await this.collectionService.getAllDecrypted();
+    const storedCollections = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+      ),
+    );
     const orgs = await this.buildOrganizations();
     const defaulCollectionsFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CreateDefaultLocation,
@@ -191,6 +196,9 @@ export function sortDefaultCollections(
     .sort((a, b) => {
       const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
       const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
+      if (!aName || !bName) {
+        throw new Error("Collection does not have an organizationId.");
+      }
       return collator.compare(aName, bName);
     });
   return [

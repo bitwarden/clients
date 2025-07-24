@@ -161,6 +161,11 @@ export const PopoverOpen: Story = {
 
     await userEvent.click(passwordLabelIcon);
   },
+  parameters: {
+    chromatic: {
+      disableSnapshot: true,
+    },
+  },
 };
 
 export const SimpleDialogOpen: Story = {

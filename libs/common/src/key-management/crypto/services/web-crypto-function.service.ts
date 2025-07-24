@@ -204,14 +204,6 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return equals;
   }
 
-  async aesEncrypt(data: Uint8Array, iv: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
-    const impKey = await this.subtle.importKey("raw", key, { name: "AES-CBC" } as any, false, [
-      "encrypt",
-    ]);
-    const buffer = await this.subtle.encrypt({ name: "AES-CBC", iv: iv }, impKey, data);
-    return new Uint8Array(buffer);
-  }
-
   aesDecryptFastParameters(
     data: string,
     iv: string,

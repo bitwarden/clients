@@ -13,6 +13,8 @@ import {
   Observable,
   shareReplay,
   switchMap,
+  withLatestFrom,
+  tap,
 } from "rxjs";
 
 import {
@@ -61,6 +63,7 @@ import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "../../../billing/organizations/change-plan-dialog.component";
+import { OrganizationWarningsService } from "../../../billing/warnings/services";
 import { BaseMembersComponent } from "../../common/base-members.component";
 import { PeopleTableDataSource } from "../../common/people-table-data-source";
 import { GroupApiService } from "../core";
@@ -83,10 +86,6 @@ import {
   openUserAddEditDialog,
 } from "./components/member-dialog";
 import { isFixedSeatPlan } from "./components/member-dialog/validators/org-seat-limit-reached.validator";
-import {
-  ResetPasswordComponent,
-  ResetPasswordDialogResult,
-} from "./components/reset-password.component";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 import { OrganizationUserService } from "./services/organization-user/organization-user.service";
 
@@ -148,6 +147,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private configService: ConfigService,
     private organizationUserService: OrganizationUserService,
+    private organizationWarningsService: OrganizationWarningsService,
   ) {
     super(
       apiService,
@@ -244,19 +244,16 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       )
       .subscribe();
 
-    // Setup feature flag-dependent observables
-    const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.SeparateCustomRolePermissions,
+    this.showUserManagementControls$ = organization$.pipe(
+      map((organization) => organization.canManageUsers),
     );
-    this.showUserManagementControls$ = combineLatest([
-      separateCustomRolePermissionsEnabled$,
-      organization$,
-    ]).pipe(
-      map(
-        ([separateCustomRolePermissionsEnabled, organization]) =>
-          !separateCustomRolePermissionsEnabled || organization.canManageUsers,
-      ),
-    );
+    organization$
+      .pipe(
+        takeUntilDestroyed(),
+        tap((org) => (this.organization = org)),
+        switchMap((org) => this.organizationWarningsService.showInactiveSubscriptionDialog$(org)),
+      )
+      .subscribe();
   }
 
   async getUsers(): Promise<OrganizationUserView[]> {
@@ -307,17 +304,27 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
    * Retrieve a map of all collection IDs <-> names for the organization.
    */
   async getCollectionNameMap() {
-    const collectionMap = new Map<string, string>();
-    const response = await this.apiService.getCollections(this.organization.id);
-
-    const collections = response.data.map(
-      (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
+    const response = from(this.apiService.getCollections(this.organization.id)).pipe(
+      map((res) =>
+        res.data.map((r) => new Collection(new CollectionData(r as CollectionDetailsResponse))),
+      ),
     );
-    const decryptedCollections = await this.collectionService.decryptMany(collections);
 
-    decryptedCollections.forEach((c) => collectionMap.set(c.id, c.name));
+    const decryptedCollections$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      withLatestFrom(response),
+      switchMap(([orgKeys, collections]) =>
+        this.collectionService.decryptMany$(collections, orgKeys),
+      ),
+      map((collections) => {
+        const collectionMap = new Map<string, string>();
+        collections.forEach((c) => collectionMap.set(c.id, c.name));
+        return collectionMap;
+      }),
+    );
 
-    return collectionMap;
+    return await firstValueFrom(decryptedCollections$);
   }
 
   removeUser(id: string): Promise<void> {
@@ -756,52 +763,32 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async resetPassword(user: OrganizationUserView) {
-    const changePasswordRefactorFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
-    );
-
-    if (changePasswordRefactorFlag) {
-      if (!user || !user.email || !user.id) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("orgUserDetailsNotFound"),
-        });
-        this.logService.error("Org user details not found when attempting account recovery");
-
-        return;
-      }
-
-      const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
-        data: {
-          name: this.userNamePipe.transform(user),
-          email: user.email,
-          organizationId: this.organization.id as OrganizationId,
-          organizationUserId: user.id,
-        },
+    if (!user || !user.email || !user.id) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("orgUserDetailsNotFound"),
       });
-
-      const result = await lastValueFrom(dialogRef.closed);
-      if (result === AccountRecoveryDialogResultType.Ok) {
-        await this.load();
-      }
+      this.logService.error("Org user details not found when attempting account recovery");
 
       return;
     }
 
-    const dialogRef = ResetPasswordComponent.open(this.dialogService, {
+    const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
-        email: user != null ? user.email : null,
+        email: user.email,
         organizationId: this.organization.id as OrganizationId,
-        id: user != null ? user.id : null,
+        organizationUserId: user.id,
       },
     });
 
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === ResetPasswordDialogResult.Ok) {
+    if (result === AccountRecoveryDialogResultType.Ok) {
       await this.load();
     }
+
+    return;
   }
 
   protected async removeUserConfirmationDialog(user: OrganizationUserView) {
@@ -941,5 +928,15 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     return this.dataSource
       .getCheckedUsers()
       .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
+  }
+
+  async navigateToPaymentMethod() {
+    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    );
+    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
+    await this.router.navigate(["organizations", `${this.organization?.id}`, "billing", route], {
+      state: { launchPaymentModalAutomatically: true },
+    });
   }
 }

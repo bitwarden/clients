@@ -78,14 +78,14 @@ describe("vault filter service", () => {
     configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.memberOrganizations$.mockReturnValue(organizations);
     folderService.folderViews$.mockReturnValue(folderViews);
-    collectionService.decryptedCollections$ = collectionViews;
+    collectionService.decryptedCollections$.mockReturnValue(collectionViews);
     policyService.policyAppliesToUser$
       .calledWith(PolicyType.OrganizationDataOwnership, mockUserId)
       .mockReturnValue(organizationDataOwnershipPolicy);
     policyService.policyAppliesToUser$
       .calledWith(PolicyType.SingleOrg, mockUserId)
       .mockReturnValue(singleOrgPolicy);
-    cipherService.cipherViews$.mockReturnValue(cipherViews);
+    cipherService.cipherListViews$.mockReturnValue(cipherViews);
 
     vaultFilterService = new VaultFilterService(
       organizationService,

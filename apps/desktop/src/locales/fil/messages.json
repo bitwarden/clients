@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Kopyahin ang verification code (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Kahabaan"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Kopyahin ang code ng seguridad",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "Pagiging miyembro ng premium"
@@ -3997,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

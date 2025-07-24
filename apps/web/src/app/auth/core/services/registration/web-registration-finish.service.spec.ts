@@ -11,9 +11,8 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
@@ -30,7 +29,6 @@ describe("WebRegistrationFinishService", () => {
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let logService: MockProxy<LogService>;
   let policyService: MockProxy<PolicyService>;
-  let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
@@ -39,7 +37,6 @@ describe("WebRegistrationFinishService", () => {
     policyApiService = mock<PolicyApiServiceAbstraction>();
     logService = mock<LogService>();
     policyService = mock<PolicyService>();
-    configService = mock<ConfigService>();
 
     service = new WebRegistrationFinishService(
       keyService,
@@ -48,7 +45,6 @@ describe("WebRegistrationFinishService", () => {
       policyApiService,
       logService,
       policyService,
-      configService,
     );
   });
 
@@ -412,24 +408,6 @@ describe("WebRegistrationFinishService", () => {
           providerUserId: providerUserId,
         }),
       );
-    });
-  });
-
-  describe("determineLoginSuccessRoute", () => {
-    it("returns /setup-extension when the end user activation feature flag is enabled", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
-
-      const result = await service.determineLoginSuccessRoute();
-
-      expect(result).toBe("/setup-extension");
-    });
-
-    it("returns /vault when the end user activation feature flag is disabled", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
-
-      const result = await service.determineLoginSuccessRoute();
-
-      expect(result).toBe("/vault");
     });
   });
 });
