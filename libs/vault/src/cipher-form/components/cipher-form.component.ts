@@ -150,6 +150,14 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     }
   }
 
+  disableFormFields(): void {
+    this.cipherForm.disable({ emitEvent: false });
+  }
+
+  enableFormFields(): void {
+    this.cipherForm.enable({ emitEvent: false });
+  }
+
   /**
    * Registers a child form group with the parent form group. Used by child components to add their form groups to
    * the parent form for validation.
