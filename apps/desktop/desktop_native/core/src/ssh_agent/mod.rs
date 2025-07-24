@@ -3,10 +3,14 @@ use std::sync::{
     Arc,
 };
 
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
 
-use bitwarden_russh::ssh_agent::{self, Key};
+use bitwarden_russh::{
+    session_bind::SessionBindResult,
+    ssh_agent::{self, SshKey},
+};
 
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
 #[cfg_attr(target_os = "macos", path = "unix.rs")]
@@ -20,8 +24,8 @@ pub mod peerinfo;
 mod request_parser;
 
 #[derive(Clone)]
-pub struct BitwardenDesktopAgent {
-    keystore: ssh_agent::KeyStore,
+pub struct BitwardenDesktopAgent<Key> {
+    keystore: ssh_agent::KeyStore<Key>,
     cancellation_token: CancellationToken,
     show_ui_request_tx: tokio::sync::mpsc::Sender<SshAgentUIRequest>,
     get_ui_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
@@ -40,8 +44,47 @@ pub struct SshAgentUIRequest {
     pub is_forwarding: bool,
 }
 
-impl ssh_agent::Agent<peerinfo::models::PeerInfo> for BitwardenDesktopAgent {
-    async fn confirm(&self, ssh_key: Key, data: &[u8], info: &peerinfo::models::PeerInfo) -> bool {
+#[derive(Clone)]
+pub struct BitwardenSshKey {
+    pub private_key: Option<ssh_key::private::PrivateKey>,
+    pub name: String,
+    pub cipher_uuid: String,
+}
+
+impl SshKey for BitwardenSshKey {
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn public_key_bytes(&self) -> Vec<u8> {
+        if let Some(ref private_key) = self.private_key {
+            private_key
+                .public_key()
+                .to_bytes()
+                .expect("Cipher private key is always correctly parsed")
+        } else {
+            Vec::new()
+        }
+    }
+
+    fn private_key(&self) -> Option<Box<dyn ssh_key::SigningKey>> {
+        if let Some(ref private_key) = self.private_key {
+            Some(Box::new(private_key.clone()))
+        } else {
+            None
+        }
+    }
+}
+
+impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
+    for BitwardenDesktopAgent<BitwardenSshKey>
+{
+    async fn confirm(
+        &self,
+        ssh_key: BitwardenSshKey,
+        data: &[u8],
+        info: &peerinfo::models::PeerInfo,
+    ) -> bool {
         if !self.is_running() {
             println!("[BitwardenDesktopAgent] Agent is not running, but tried to call confirm");
             return false;
@@ -51,7 +94,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo> for BitwardenDesktopAgent {
         let request_data = match request_parser::parse_request(data) {
             Ok(data) => data,
             Err(e) => {
-                println!("[SSH Agent] Error while parsing request: {}", e);
+                println!("[SSH Agent] Error while parsing request: {e}");
                 return false;
             }
         };
@@ -63,10 +106,11 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo> for BitwardenDesktopAgent {
         };
 
         println!(
-            "[SSH Agent] Confirming request from application: {}, is_forwarding: {}, namespace: {}",
+            "[SSH Agent] Confirming request from application: {}, is_forwarding: {}, namespace: {}, host_key: {}",
             info.process_name(),
             info.is_forwarding(),
             namespace.clone().unwrap_or_default(),
+            STANDARD.encode(info.host_key())
         );
 
         let mut rx_channel = self.get_ui_response_rx.lock().await.resubscribe();
@@ -117,19 +161,24 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo> for BitwardenDesktopAgent {
         false
     }
 
-    async fn set_is_forwarding(
+    async fn set_sessionbind_info(
         &self,
-        is_forwarding: bool,
+        session_bind_info_result: &SessionBindResult,
         connection_info: &peerinfo::models::PeerInfo,
     ) {
-        // is_forwarding can only be added but never removed from a connection
-        if is_forwarding {
-            connection_info.set_forwarding(is_forwarding);
+        match session_bind_info_result {
+            SessionBindResult::Success(session_bind_info) => {
+                connection_info.set_forwarding(session_bind_info.is_forwarding);
+                connection_info.set_host_key(session_bind_info.host_key.clone());
+            }
+            SessionBindResult::SignatureFailure => {
+                println!("[BitwardenDesktopAgent] Session bind failure: Signature failure");
+            }
         }
     }
 }
 
-impl BitwardenDesktopAgent {
+impl BitwardenDesktopAgent<BitwardenSshKey> {
     pub fn stop(&self) {
         if !self.is_running() {
             println!("[BitwardenDesktopAgent] Tried to stop agent while it is not running");
@@ -170,7 +219,7 @@ impl BitwardenDesktopAgent {
                         .expect("Cipher private key is always correctly parsed");
                     keystore.0.write().expect("RwLock is not poisoned").insert(
                         public_key_bytes,
-                        Key {
+                        BitwardenSshKey {
                             private_key: Some(private_key),
                             name: name.clone(),
                             cipher_uuid: cipher_id.clone(),
@@ -178,7 +227,7 @@ impl BitwardenDesktopAgent {
                     );
                 }
                 Err(e) => {
-                    eprintln!("[SSH Agent Native Module] Error while parsing key: {}", e);
+                    eprintln!("[SSH Agent Native Module] Error while parsing key: {e}");
                 }
             }
         }
@@ -234,10 +283,9 @@ fn parse_key_safe(pem: &str) -> Result<ssh_key::private::PrivateKey, anyhow::Err
         Ok(key) => match key.public_key().to_bytes() {
             Ok(_) => Ok(key),
             Err(e) => Err(anyhow::Error::msg(format!(
-                "Failed to parse public key: {}",
-                e
+                "Failed to parse public key: {e}"
             ))),
         },
-        Err(e) => Err(anyhow::Error::msg(format!("Failed to parse key: {}", e))),
+        Err(e) => Err(anyhow::Error::msg(format!("Failed to parse key: {e}"))),
     }
 }

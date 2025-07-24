@@ -4,8 +4,8 @@ import { Jsonify } from "type-fest";
 
 import { SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { SshKeyData } from "../data/ssh-key.data";
 import { SshKeyView } from "../view/ssh-key.view";
@@ -84,5 +84,22 @@ export class SshKey extends Domain {
       publicKey: this.publicKey.toJSON(),
       fingerprint: this.keyFingerprint.toJSON(),
     };
+  }
+
+  /**
+   * Maps an SDK SshKey object to a SshKey
+   * @param obj - The SDK SshKey object
+   */
+  static fromSdkSshKey(obj: SdkSshKey): SshKey | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const sshKey = new SshKey();
+    sshKey.privateKey = EncString.fromJSON(obj.privateKey);
+    sshKey.publicKey = EncString.fromJSON(obj.publicKey);
+    sshKey.keyFingerprint = EncString.fromJSON(obj.fingerprint);
+
+    return sshKey;
   }
 }

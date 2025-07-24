@@ -6,7 +6,7 @@
         <input bitInput formControlName="uri" #uriInput />
         <button
           type="button"
-          bitIconButton="bwi-cog"
+          [bitIconButton]="showMatchDetection ? 'bwi-cog-f' : 'bwi-cog'"
           bitSuffix
           [appA11yTitle]="toggleTitle"
           (click)="toggleMatchDetection()"
@@ -43,8 +43,16 @@
           *ngFor="let o of uriMatchOptions"
           [label]="o.label"
           [value]="o.value"
+          [disabled]="o.disabled"
         ></bit-option>
       </bit-select>
+      <bit-hint *ngIf="getMatchHints() as hints">
+        {{ hints[0] | i18n }}
+        <ng-container *ngIf="hints.length > 1">
+          <b>{{ "warningCapitalized" | i18n }}:</b>
+          {{ hints[1] | i18n }}
+        </ng-container>
+      </bit-hint>
     </bit-form-field>
   </div>
 </ng-container>

@@ -8,11 +8,11 @@ export interface PasswordInputResult {
   currentLocalMasterKeyHash?: string;
 
   newPassword: string;
-  newPasswordHint: string;
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
-  newLocalMasterKeyHash: string;
+  newPasswordHint?: string;
+  newMasterKey?: MasterKey;
+  newServerMasterKeyHash?: string;
+  newLocalMasterKeyHash?: string;
 
-  kdfConfig: KdfConfig;
+  kdfConfig?: KdfConfig;
   rotateUserKey?: boolean;
 }

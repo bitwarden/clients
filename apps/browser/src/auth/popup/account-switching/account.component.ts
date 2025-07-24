@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule, Location } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -23,7 +24,7 @@ export class AccountComponent {
 
   constructor(
     private accountSwitcherService: AccountSwitcherService,
-    private location: Location,
+    private router: Router,
     private i18nService: I18nService,
     private logService: LogService,
     private biometricsService: BiometricsService,
@@ -44,8 +45,8 @@ export class AccountComponent {
 
     // Navigate out of account switching for unlocked accounts
     // locked or logged out account statuses are handled by background and app.component
-    if (result?.status === AuthenticationStatus.Unlocked) {
-      this.location.back();
+    if (result?.authenticationStatus === AuthenticationStatus.Unlocked) {
+      await this.router.navigate(["vault"]);
       await this.biometricsService.setShouldAutopromptNow(false);
     } else {
       await this.biometricsService.setShouldAutopromptNow(true);

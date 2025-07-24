@@ -4,14 +4,12 @@ import {
   CdkVirtualScrollViewport,
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
-  CdkVirtualScrollableWindow,
 } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   Component,
   ContentChild,
-  Input,
   OnDestroy,
   TemplateRef,
   Directive,
@@ -19,7 +17,10 @@ import {
   AfterViewInit,
   ElementRef,
   TrackByFunction,
+  input,
 } from "@angular/core";
+
+import { ScrollLayoutDirective } from "../layout";
 
 import { RowDirective } from "./row.directive";
 import { TableComponent } from "./table.component";
@@ -52,10 +53,10 @@ export class BitRowDef {
   imports: [
     CommonModule,
     CdkVirtualScrollViewport,
-    CdkVirtualScrollableWindow,
     CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     RowDirective,
+    ScrollLayoutDirective,
   ],
 })
 export class TableScrollComponent
@@ -63,10 +64,10 @@ export class TableScrollComponent
   implements AfterContentChecked, AfterViewInit, OnDestroy
 {
   /** The size of the rows in the list (in pixels). */
-  @Input({ required: true }) rowSize: number;
+  readonly rowSize = input.required<number>();
 
   /** Optional trackBy function. */
-  @Input() trackBy: TrackByFunction<any> | undefined;
+  readonly trackBy = input<TrackByFunction<any> | undefined>();
 
   @ContentChild(BitRowDef) protected rowDef: BitRowDef;
 

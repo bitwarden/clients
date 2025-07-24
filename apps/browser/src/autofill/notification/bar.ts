@@ -7,6 +7,7 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
 import { CollectionView, I18n, OrgView } from "../content/components/common-types";
+import { AtRiskNotification } from "../content/components/notification/at-risk-password/container";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
@@ -56,21 +57,24 @@ function applyNotificationBarStyle() {
 function getI18n() {
   return {
     appName: chrome.i18n.getMessage("appName"),
+    atRiskPassword: chrome.i18n.getMessage("atRiskPassword"),
+    changePassword: chrome.i18n.getMessage("changePassword"),
     close: chrome.i18n.getMessage("close"),
     collection: chrome.i18n.getMessage("collection"),
     folder: chrome.i18n.getMessage("folder"),
+    loginSaveConfirmation: chrome.i18n.getMessage("loginSaveConfirmation"),
     loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
+    loginUpdatedConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
     loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
     loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
-    nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
-    newItem: chrome.i18n.getMessage("newItem"),
-    never: chrome.i18n.getMessage("never"),
     myVault: chrome.i18n.getMessage("myVault"),
+    never: chrome.i18n.getMessage("never"),
+    newItem: chrome.i18n.getMessage("newItem"),
+    nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
     notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
-    notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
     notificationEditTooltip: chrome.i18n.getMessage("notificationEditTooltip"),
     notificationLoginSaveConfirmation: chrome.i18n.getMessage("notificationLoginSaveConfirmation"),
@@ -79,6 +83,7 @@ function getI18n() {
     ),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+    notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
     saveAction: chrome.i18n.getMessage("notificationAddSave"),
     saveAsNewLoginAction: chrome.i18n.getMessage("saveAsNewLoginAction"),
@@ -87,8 +92,8 @@ function getI18n() {
     saveLogin: chrome.i18n.getMessage("saveLogin"),
     typeLogin: chrome.i18n.getMessage("typeLogin"),
     unlockToSave: chrome.i18n.getMessage("unlockToSave"),
-    updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
     updateLogin: chrome.i18n.getMessage("updateLogin"),
+    updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
     vault: chrome.i18n.getMessage("vault"),
     view: chrome.i18n.getMessage("view"),
   };
@@ -124,6 +129,7 @@ export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType
         [NotificationTypes.Add]: i18n.saveLogin,
         [NotificationTypes.Change]: i18n.updateLogin,
         [NotificationTypes.Unlock]: i18n.unlockToSave,
+        [NotificationTypes.AtRiskPassword]: i18n.atRiskPassword,
       }[type]
     : undefined;
 }
@@ -143,6 +149,7 @@ export function getConfirmationHeaderMessage(i18n: I18n, type?: NotificationType
         [NotificationTypes.Add]: i18n.loginSaveSuccess,
         [NotificationTypes.Change]: i18n.loginUpdateSuccess,
         [NotificationTypes.Unlock]: "",
+        [NotificationTypes.AtRiskPassword]: "",
       }[type]
     : undefined;
 }
@@ -193,6 +200,7 @@ export function getNotificationTestId(
     [NotificationTypes.Unlock]: "unlock-notification-bar",
     [NotificationTypes.Add]: "save-notification-bar",
     [NotificationTypes.Change]: "update-notification-bar",
+    [NotificationTypes.AtRiskPassword]: "at-risk-password-notification-bar",
   }[notificationType];
 }
 
@@ -241,28 +249,54 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
 
     if (isVaultLocked) {
-      return render(
-        NotificationContainer({
-          ...notificationBarIframeInitData,
-          headerMessage,
-          type: resolvedType,
-          notificationTestId,
-          theme: resolvedTheme,
-          personalVaultIsAllowed: !personalVaultDisallowed,
-          handleCloseNotification,
-          handleSaveAction: (e) => {
-            sendSaveCipherMessage(true);
+      const notificationConfig = {
+        ...notificationBarIframeInitData,
+        headerMessage,
+        type: resolvedType,
+        notificationTestId,
+        theme: resolvedTheme,
+        personalVaultIsAllowed: !personalVaultDisallowed,
+        handleCloseNotification,
+        handleEditOrUpdateAction,
+        i18n,
+      };
 
-            // @TODO can't close before vault has finished decrypting, but can't leave open during long decrypt because it looks like the experience has failed
-          },
-          handleEditOrUpdateAction,
+      const handleSaveAction = () => {
+        sendSaveCipherMessage(true);
+
+        render(
+          NotificationContainer({
+            ...notificationConfig,
+            handleSaveAction: () => {},
+            isLoading: true,
+          }),
+          document.body,
+        );
+      };
+
+      const UnlockNotification = NotificationContainer({ ...notificationConfig, handleSaveAction });
+
+      return render(UnlockNotification, document.body);
+    }
+
+    // Handle AtRiskPasswordNotification render
+    if (notificationBarIframeInitData.type === NotificationTypes.AtRiskPassword) {
+      return render(
+        AtRiskNotification({
+          ...notificationBarIframeInitData,
+          type: notificationBarIframeInitData.type as NotificationType,
+          theme: resolvedTheme,
           i18n,
+          params: initData.params,
+          handleCloseNotification,
         }),
         document.body,
       );
     }
 
+    // Default scenario: add or update password
     const orgId = selectedVaultSignal.get();
+
     await Promise.all([
       new Promise<OrgView[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetOrgData" }, resolve),
@@ -533,7 +567,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       ...notificationBarIframeInitData,
       error,
       handleCloseNotification,
-      handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
+      handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRiskPasswords" }),
       handleOpenVault: (e: Event) =>
         cipherId ? openViewVaultItemPopout(cipherId) : openAddEditVaultItemPopout(e, {}),
       headerMessage,

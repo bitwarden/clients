@@ -8,8 +8,6 @@ import { firstValueFrom } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -32,7 +30,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { PopupCipherView } from "../../views/popup-cipher.view";
+import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 @Component({
   selector: "app-trash-list-items-container",
@@ -56,7 +54,7 @@ export class TrashListItemsContainerComponent {
    * The list of trashed items to display.
    */
   @Input()
-  ciphers: PopupCipherView[] = [];
+  ciphers: PopupCipherViewLike[] = [];
 
   @Input()
   headerText: string;
@@ -70,20 +68,17 @@ export class TrashListItemsContainerComponent {
     private passwordRepromptService: PasswordRepromptService,
     private accountService: AccountService,
     private router: Router,
-    private configService: ConfigService,
   ) {}
-
-  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
 
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.
    */
-  orgIconTooltip(cipher: PopupCipherView) {
-    if (cipher.collectionIds.length > 1) {
-      return this.i18nService.t("nCollections", cipher.collectionIds.length);
+  orgIconTooltip({ collections, collectionIds }: PopupCipherViewLike) {
+    if (collectionIds.length > 1) {
+      return this.i18nService.t("nCollections", collectionIds.length);
     }
 
-    return cipher.collections[0]?.name;
+    return collections[0]?.name;
   }
 
   async restore(cipher: CipherView) {

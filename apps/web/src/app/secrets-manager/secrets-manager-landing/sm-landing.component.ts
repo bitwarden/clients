@@ -14,7 +14,6 @@ import { SharedModule } from "../../shared/shared.module";
 
 @Component({
   selector: "app-sm-landing",
-  standalone: true,
   imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule],
   templateUrl: "sm-landing.component.html",
 })

@@ -6,39 +6,39 @@
     "message": "โลโก้ Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden - จัดการรหัสผ่าน",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "ไม่ว่าจะอยู่ที่ไหน Bitwarden ก็สามารถปกป้องรหัสผ่าน พาสคีย์ และข้อมูลสำคัญของคุณได้อย่างง่ายดาย",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "ล็อกอิน หรือ สร้างบัญชีใหม่ เพื่อใช้งานตู้นิรภัยของคุณ"
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "ตอบรับคำเชิญแล้ว"
   },
   "createAccount": {
     "message": "สร้างบัญชี"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "เพิ่งเริ่มใช้ Bitwarden ใช่ไหม?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "เข้าสู่ระบบด้วยพาสคีย์"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "ใช้การลงชื่อเพียงครั้งเดียว"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "ยินดีต้อนรับกลับมา"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "ตั้งรหัสผ่านที่รัดกุม"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "ดำเนินการสร้างบัญชีของคุณให้เสร็จสมบูรณ์โดยการตั้งรหัสผ่าน"
   },
   "enterpriseSingleSignOn": {
     "message": "Enterprise Single Sign-On"
@@ -65,7 +65,7 @@
     "message": "คำใบ้เกี่ยวกับรหัสผ่านหลักสามารถช่วยให้คุณนึกรหัสผ่านหลักออกได้หากลืม"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "หากคุณลืมรหัสผ่าน ระบบสามารถส่งคำใบ้รหัสผ่านไปยังอีเมลของคุณได้ จำกัด $CURRENT$/$MAXIMUM$ ตัวอักษร",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -84,7 +84,7 @@
     "message": "Master Password Hint (optional)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "คะแนนความรัดกุมของรหัสผ่าน $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -264,7 +264,7 @@
     "message": "Request password hint"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "กรอกที่อยู่อีเมลบัญชีของคุณ แล้วระบบจะส่งคำใบ้รหัสผ่านไปให้คุณ"
   },
   "getMasterPasswordHint": {
     "message": "รับคำใบ้เกี่ยวกับรหัสผ่านหลักของคุณ"
@@ -668,7 +668,7 @@
     "message": "ตู้เซฟของคุณถูกล็อก ยืนยันตัวตนของคุณเพื่อดำเนินการต่อ"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "ห้องนิรภัยของคุณถูกล็อก"
   },
   "yourAccountIsLocked": {
     "message": "Your account is locked"
@@ -1022,7 +1022,7 @@
     "message": "The \"Add Login Notification\" automatically prompts you to save new logins to your vault whenever you log into them for the first time."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Ask to add an item if one isn't found in your vault. Applies to all logged in accounts."
+    "message": "หากไม่พบรายการในห้องนิรภัยของคุณ ระบบจะถามเพื่อเพิ่มรายการ มีผลกับทุกบัญชีที่ลงชื่อเข้าใช้"
   },
   "showCardsInVaultViewV2": {
     "message": "Always show cards as Autofill suggestions on Vault view"
@@ -1172,6 +1172,12 @@
   "saveFailureDetails": {
     "message": "Oh no! We couldn't save this. Try entering the details manually.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
   },
   "enableChangedPasswordNotification": {
     "message": "ขอให้ปรับปรุงการเข้าสู่ระบบที่มีอยู่"
@@ -1342,7 +1348,7 @@
     "message": "ลบไฟล์แนบแล้ว"
   },
   "newAttachment": {
-    "message": "Add New Attachment"
+    "message": "เพิ่มไฟล์แนบใหม่"
   },
   "noAttachments": {
     "message": "ไม่มีไฟล์แนบ"
@@ -1544,7 +1550,7 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Use any WebAuthn compatible security key to access your account."
+    "message": "ใช้กุญแจความปลอดภัยที่รองรับ WebAuthn ใดก็ได้เพื่อเข้าถึงบัญชีของคุณ"
   },
   "emailTitle": {
     "message": "อีเมล"
@@ -1597,7 +1603,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "คำแนะนำการกรอกข้อมูลอัตโนมัติ"
   },
   "autofillSpotlightTitle": {
     "message": "Easily find autofill suggestions"
@@ -1823,6 +1829,9 @@
   "securityCode": {
     "message": "Security Code"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "ex": {
     "message": "ex."
   },
@@ -1921,6 +1930,9 @@
   },
   "typeSshKey": {
     "message": "SSH key"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "newItemHeader": {
     "message": "New $TYPE$",
@@ -2145,16 +2157,16 @@
     "message": "ปลดล็อกด้วย PIN"
   },
   "setYourPinTitle": {
-    "message": "Set PIN"
+    "message": "ตั้ง PIN"
   },
   "setYourPinButton": {
-    "message": "Set PIN"
+    "message": "ตั้ง PIN"
   },
   "setYourPinCode": {
     "message": "ตั้ง PIN เพื่อใช้ปลดล็อก Bitwarden ทั้งนี้ หากคุณล็อกเอาต์ออกจากแอปโดยสมบูรณ์จะเป็นการลบการตั้งค่า PIN ของคุณด้วย"
   },
-  "setYourPinCode1": {
-    "message": "Your PIN will be used to unlock Bitwarden instead of your master password. Your PIN will reset if you ever fully log out of Bitwarden."
+  "setPinCode": {
+    "message": "ตั้ง PIN เพื่อใช้ปลดล็อก Bitwarden และหากคุณล็อกเอาต์ออกจากแอปโดยสมบูรณ์จะเป็นการลบการตั้งค่า PIN ของคุณ"
   },
   "pinRequired": {
     "message": "ต้องระบุ PIN"
@@ -2169,7 +2181,7 @@
     "message": "ปลดล็อกด้วยไบโอเมตริก"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "เข้าสู่ระบบด้วยรหัสผ่านหลัก"
   },
   "awaitDesktop": {
     "message": "Awaiting confirmation from desktop"
@@ -2181,7 +2193,7 @@
     "message": "ล็อคด้วยรหัสผ่านหลักเมื่อรีสตาร์ทเบราว์เซอร์"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Require master password on browser restart"
+    "message": "กำหนดให้ป้อนรหัสผ่านหลักเมื่อรีสตาร์ทเบราว์เซอร์"
   },
   "selectOneCollection": {
     "message": "คุณต้องเลือกอย่างน้อยหนึ่งคอลเลกชัน"
@@ -2484,6 +2496,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "An organization policy has blocked importing items into your individual vault."
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
@@ -2515,6 +2533,10 @@
   "change": {
     "message": "Change"
   },
+  "changePassword": {
+    "message": "Change password",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Change password - $ITEMNAME$",
     "placeholders": {
@@ -2523,6 +2545,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
@@ -2557,6 +2582,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Review and change one at-risk password"
@@ -2866,7 +2911,7 @@
     "message": "Hide your email address from viewers."
   },
   "passwordPrompt": {
-    "message": "Master password re-prompt"
+    "message": "การยืนยันให้ป้อนรหัสผ่านหลักอีกครั้ง"
   },
   "passwordConfirmation": {
     "message": "Master password confirmation"
@@ -2882,6 +2927,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "You must verify your email to use this feature. You can verify your email in the web vault."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "Updated master password"
@@ -3380,7 +3428,7 @@
     "message": "Fingerprint phrase"
   },
   "fingerprintMatchInfo": {
-    "message": "Please make sure your vault is unlocked and the Fingerprint phrase matches on the other device."
+    "message": "โปรดตรวจสอบให้แน่ใจว่าห้องนิรภัยของคุณปลดล็อกอยู่ และลายนิ้วมือตรงกันบนอุปกรณ์อื่น"
   },
   "resendNotification": {
     "message": "Resend notification"
@@ -3414,6 +3462,31 @@
   },
   "logInRequestSent": {
     "message": "Request sent"
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
   },
   "exposedMasterPassword": {
     "message": "Exposed Master Password"
@@ -3508,6 +3581,113 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Remember this device to make future logins seamless"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Device approval required. Select an approval option below:"
   },
@@ -3528,6 +3708,12 @@
   },
   "requestAdminApproval": {
     "message": "Request admin approval"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
@@ -3603,10 +3789,10 @@
     "message": "Organization is not trusted"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "เพื่อความปลอดภัยของบัญชีของคุณ โปรดยืนยันว่าคุณได้ให้สิทธิ์การเข้าถึงในกรณีฉุกเฉินแก่ผู้ใช้นี้ และลายนิ้วมือของผู้ใช้ตรงกับที่แสดงในบัญชีของพวกเขาเท่านั้น"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "เพื่อความปลอดภัยของบัญชีของคุณ ให้ดำเนินการต่อเมื่อคุณเป็นสมาชิกขององค์กรนี้, ได้เปิดใช้งานการกู้คืนบัญชี, และลายนิ้วมือที่แสดงด้านล่างตรงกับลายนิ้วมือขององค์กรเท่านั้น"
   },
   "orgTrustWarning1": {
     "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
@@ -3884,7 +4070,7 @@
     "message": "Verification required for this action. Set a PIN to continue."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "ตั้ง PIN"
   },
   "verifyWithBiometrics": {
     "message": "Verify with biometrics"
@@ -3981,10 +4167,10 @@
     "message": "Select the import file"
   },
   "chooseFile": {
-    "message": "Choose File"
+    "message": "เลือกไฟล์"
   },
   "noFileChosen": {
-    "message": "No file chosen"
+    "message": "ไม่มีไฟล์ที่เลือก"
   },
   "orCopyPasteFileContents": {
     "message": "or copy/paste the import file contents"
@@ -4015,7 +4201,7 @@
     "message": "Passkey"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "กำลังเข้าถึง"
   },
   "loggedInExclamation": {
     "message": "Logged in!"
@@ -4169,7 +4355,7 @@
     "message": "Available accounts"
   },
   "accountLimitReached": {
-    "message": "Account limit reached. Log out of an account to add another."
+    "message": "ถึงขีดจำกัดของบัญชีแล้ว กรุณาออกจากระบบบัญชีอื่นเพื่อเพิ่มบัญชีใหม่"
   },
   "active": {
     "message": "active"
@@ -4207,6 +4393,26 @@
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Continue to browser settings?",
@@ -4391,17 +4597,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copy $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4424,7 +4630,7 @@
     "message": "Admin Console"
   },
   "accountSecurity": {
-    "message": "Account security"
+    "message": "ความปลอดภัยของบัญชี"
   },
   "notifications": {
     "message": "Notifications"
@@ -4497,10 +4703,10 @@
     "message": "Additional information"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "ประวัติการแก้ไขรายการ"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "แก้ไขล่าสุดเมื่อ"
   },
   "ownerYou": {
     "message": "Owner: You"
@@ -4512,13 +4718,13 @@
     "message": "Copy Successful"
   },
   "upload": {
-    "message": "Upload"
+    "message": "อัปโหลด"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "เพิ่มไฟล์แนบ"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "ขนาดไฟล์สูงสุด คือ 500 MB"
   },
   "deleteAttachmentName": {
     "message": "Delete attachment $NAME$",
@@ -4621,7 +4827,7 @@
     "message": "Authenticator key"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "ตัวเลือกในการป้อนอัตโนมัติ"
   },
   "websiteUri": {
     "message": "Website (URI)"
@@ -4701,7 +4907,7 @@
     "message": "Show animations"
   },
   "addAccount": {
-    "message": "Add account"
+    "message": "เพิ่มบัญชี"
   },
   "loading": {
     "message": "Loading"
@@ -4743,7 +4949,7 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "เพิ่มฟิลด์"
   },
   "add": {
     "message": "Add"
@@ -4755,7 +4961,7 @@
     "message": "Field label"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "ใช้ช่องข้อความสำหรับเก็บข้อมูล เช่น คำถามเพื่อความปลอดภัย"
   },
   "hiddenHelpText": {
     "message": "Use hidden fields for sensitive data like a password"
@@ -4791,7 +4997,7 @@
     }
   },
   "fieldAdded": {
-    "message": "$LABEL$ added",
+    "message": "เพิ่ม $LABEL$ แล้ว",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4922,7 +5128,7 @@
     "message": "Text Sends"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "การจัดการบัญชี"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
@@ -5033,7 +5239,10 @@
     "message": "You can customize your unlock and timeout settings to more quickly access your vault."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "ตั้งค่า PIN สำหรับปลดล็อกแล้ว"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
   },
   "authenticating": {
     "message": "Authenticating"
@@ -5270,7 +5479,7 @@
     "message": "Quick and easy login"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "ตั้งค่าการปลดล็อกด้วยไบโอเมตริกซ์และการกรอกข้อมูลอัตโนมัติ เพื่อลงชื่อเข้าใช้บัญชีของคุณโดยไม่ต้องพิมพ์แม้แต่ตัวอักษรเดียว"
   },
   "secureUser": {
     "message": "Level up your logins"
@@ -5376,5 +5585,9 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

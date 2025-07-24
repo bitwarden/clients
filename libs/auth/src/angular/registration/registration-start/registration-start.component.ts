@@ -14,18 +14,18 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
   FormFieldModule,
+  Icons,
   IconModule,
   LinkModule,
 } from "@bitwarden/components";
 
 import { LoginEmailService } from "../../../common";
-import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
 import { RegistrationUserAddIcon } from "../../icons";
-import { RegistrationCheckEmailIcon } from "../../icons/registration-check-email.icon";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -170,7 +170,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       pageTitle: {
         key: "checkYourEmail",
       },
-      pageIcon: RegistrationCheckEmailIcon,
+      pageIcon: Icons.RegistrationCheckEmailIcon,
     });
     this.registrationStartStateChange.emit(this.state);
   };

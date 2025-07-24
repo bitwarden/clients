@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import {
   Component,
+  DestroyRef,
   NgZone,
   OnDestroy,
   OnInit,
@@ -25,11 +26,15 @@ import {
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
+import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
-import { DESKTOP_SSO_CALLBACK, LogoutReason } from "@bitwarden/auth/common";
+import {
+  DESKTOP_SSO_CALLBACK,
+  LogoutReason,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -61,7 +66,9 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
@@ -163,8 +170,15 @@ export class AppComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private organizationService: OrganizationService,
     private deviceTrustToastService: DeviceTrustToastService,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private readonly destroyRef: DestroyRef,
+    private readonly documentLangSetter: DocumentLangSetter,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+
+    const langSubscription = this.documentLangSetter.start();
+    this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   ngOnInit() {
@@ -409,15 +423,35 @@ export class AppComponent implements OnInit, OnDestroy {
             this.router.navigate(["/remove-password"]);
             break;
           case "switchAccount": {
-            if (message.userId != null) {
-              await this.accountService.switchAccount(message.userId);
+            if (message.userId == null) {
+              this.logService.error("'switchAccount' message received without userId.");
+              return;
             }
+
+            await this.accountService.switchAccount(message.userId);
+
             const locked =
               (await this.authService.getAuthStatus(message.userId)) ===
               AuthenticationStatus.Locked;
             if (locked) {
               this.modalService.closeAll();
-              await this.router.navigate(["lock"]);
+
+              // We only have to handle TDE lock on "switchAccount" message scenarios but not normal
+              // lock scenarios since the user will have always decrypted the vault at least once in those cases.
+              const tdeEnabled = await firstValueFrom(
+                this.userDecryptionOptionsService
+                  .userDecryptionOptionsById$(message.userId)
+                  .pipe(map((decryptionOptions) => decryptionOptions?.trustedDeviceOption != null)),
+              );
+
+              const everHadUserKey = await firstValueFrom(
+                this.keyService.everHadUserKey$(message.userId),
+              );
+              if (tdeEnabled && !everHadUserKey) {
+                await this.router.navigate(["login-initiated"]);
+              } else {
+                await this.router.navigate(["lock"]);
+              }
             } else {
               this.messagingService.send("unlocked");
               this.loading = true;
@@ -491,10 +525,12 @@ export class AppComponent implements OnInit, OnDestroy {
   private async updateAppMenu() {
     let updateRequest: MenuUpdateRequest;
     const stateAccounts = await firstValueFrom(this.accountService.accounts$);
+
     if (stateAccounts == null || Object.keys(stateAccounts).length < 1) {
       updateRequest = {
         accounts: null,
         activeUserId: null,
+        restrictedCipherTypes: null,
       };
     } else {
       const accounts: { [userId: string]: MenuAccount } = {};
@@ -525,6 +561,9 @@ export class AppComponent implements OnInit, OnDestroy {
         activeUserId: await firstValueFrom(
           this.accountService.activeAccount$.pipe(map((a) => a?.id)),
         ),
+        restrictedCipherTypes: (
+          await firstValueFrom(this.restrictedItemTypesService.restricted$)
+        ).map((restrictedItems) => restrictedItems.cipherType),
       };
     }
 
@@ -593,6 +632,8 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  // TODO: PM-21212 - consolidate the logic of this method into the new LogoutService
+  // (requires creating a desktop specific implementation of the LogoutService)
   // Even though the userId parameter is no longer optional doesn't mean a message couldn't be
   // passing null-ish values to us.
   private async logOut(logoutReason: LogoutReason, userId: UserId) {
@@ -636,7 +677,6 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.keyService.clearKeys(userBeingLoggedOut);
       await this.cipherService.clear(userBeingLoggedOut);
       await this.folderService.clear(userBeingLoggedOut);
-      await this.collectionService.clear(userBeingLoggedOut);
       await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
 

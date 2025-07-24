@@ -6,7 +6,6 @@ import { CollectionService, CollectionView } from "@bitwarden/admin-console/comm
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,6 +13,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CardExport } from "@bitwarden/common/models/export/card.export";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
@@ -24,12 +24,12 @@ import { LoginUriExport } from "@bitwarden/common/models/export/login-uri.export
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -44,10 +44,10 @@ import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
 import { Response } from "../models/response";
 import { StringResponse } from "../models/response/string.response";
 import { TemplateResponse } from "../models/response/template.response";
-import { SendResponse } from "../tools/send/models/send.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
+import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
 import { DownloadCommand } from "./download.command";
 
@@ -66,6 +66,7 @@ export class GetCommand extends DownloadCommand {
     private eventCollectionService: EventCollectionService,
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {
     super(encryptService, apiService);
   }
@@ -110,16 +111,16 @@ export class GetCommand extends DownloadCommand {
     }
   }
 
-  private async getCipherView(id: string): Promise<CipherView | CipherView[]> {
+  private async getCipherView(id: string, userId: UserId): Promise<CipherView | CipherView[]> {
     let decCipher: CipherView = null;
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     if (Utils.isGuid(id)) {
-      const cipher = await this.cipherService.get(id, activeUserId);
+      const cipher = await this.cipherService.get(id, userId);
       if (cipher != null) {
-        decCipher = await this.cipherService.decrypt(cipher, activeUserId);
+        decCipher = await this.cipherService.decrypt(cipher, userId);
       }
     } else if (id.trim() !== "") {
-      let ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+      let ciphers = await this.cipherService.getAllDecrypted(userId);
       ciphers = this.searchService.searchCiphersBasic(ciphers, id);
       if (ciphers.length > 1) {
         return ciphers;
@@ -133,19 +134,44 @@ export class GetCommand extends DownloadCommand {
   }
 
   private async getCipher(id: string, filter?: (c: CipherView) => boolean) {
-    let decCipher = await this.getCipherView(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    let decCipher = await this.getCipherView(id, activeUserId);
     if (decCipher == null) {
       return Response.notFound();
     }
+
     if (Array.isArray(decCipher)) {
+      // Apply restricted ciphers filter
+      decCipher = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(decCipher);
+
+      if (decCipher.length === 0) {
+        return Response.error("Access to this item type is restricted by organizational policy.");
+      }
+
       if (filter != null) {
         decCipher = decCipher.filter(filter);
-        if (decCipher.length === 1) {
-          decCipher = decCipher[0];
-        }
       }
-      if (Array.isArray(decCipher)) {
+
+      if (decCipher.length === 0) {
+        return Response.notFound();
+      }
+
+      if (decCipher.length === 1) {
+        decCipher = decCipher[0];
+      } else {
         return Response.multipleResults(decCipher.map((c) => c.id));
+      }
+    } else {
+      const isCipherRestricted =
+        await this.cliRestrictedItemTypesService.isCipherRestricted(decCipher);
+      if (isCipherRestricted) {
+        return Response.error("Access to this item type is restricted by organizational policy.");
+      }
+
+      // Apply filter if provided to single cipher
+      if (filter != null && !filter(decCipher)) {
+        return Response.notFound();
       }
     }
 
@@ -317,7 +343,8 @@ export class GetCommand extends DownloadCommand {
       return cipherResponse;
     }
 
-    const cipher = await this.getCipherView(itemId);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipher = await this.getCipherView(itemId, activeUserId);
     if (
       cipher == null ||
       Array.isArray(cipher) ||
@@ -345,7 +372,6 @@ export class GetCommand extends DownloadCommand {
       return Response.multipleResults(attachments.map((a) => a.id));
     }
 
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const canAccessPremium = await firstValueFrom(
       this.accountProfileService.hasPremiumFromAnySource$(activeUserId),
     );
@@ -417,8 +443,11 @@ export class GetCommand extends DownloadCommand {
 
   private async getCollection(id: string) {
     let decCollection: CollectionView = null;
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (Utils.isGuid(id)) {
-      const collection = await this.collectionService.get(id);
+      const collection = await firstValueFrom(
+        this.collectionService.encryptedCollections$(activeUserId).pipe(getById(id)),
+      );
       if (collection != null) {
         const orgKeys = await firstValueFrom(this.keyService.activeUserOrgKeys$);
         decCollection = await collection.decrypt(
@@ -426,7 +455,9 @@ export class GetCommand extends DownloadCommand {
         );
       }
     } else if (id.trim() !== "") {
-      let collections = await this.collectionService.getAllDecrypted();
+      let collections = await firstValueFrom(
+        this.collectionService.decryptedCollections$(activeUserId),
+      );
       collections = CliUtils.searchCollections(collections, id);
       if (collections.length > 1) {
         return Response.multipleResults(collections.map((c) => c.id));
@@ -550,11 +581,11 @@ export class GetCommand extends DownloadCommand {
       case "org-collection":
         template = OrganizationCollectionRequest.template();
         break;
-      case "send.text":
-        template = SendResponse.template(SendType.Text);
-        break;
       case "send.file":
-        template = SendResponse.template(SendType.File);
+      case "send.text":
+        template = Response.badRequest(
+          `Invalid template object. Use \`bw send template ${id}\` instead.`,
+        );
         break;
       default:
         return Response.badRequest("Unknown template object.");

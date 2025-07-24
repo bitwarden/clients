@@ -39,7 +39,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, LinkModule, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { AuthRequestApiService } from "../../common/abstractions/auth-request-api.service";
+import { AuthRequestApiServiceAbstraction } from "../../common/abstractions/auth-request-api.service";
 import { LoginViaAuthRequestCacheService } from "../../common/services/auth-request/default-login-via-auth-request-cache.service";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -85,7 +85,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private anonymousHubService: AnonymousHubService,
     private appIdService: AppIdService,
-    private authRequestApiService: AuthRequestApiService,
+    private authRequestApiService: AuthRequestApiServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
     private authService: AuthService,
     private cryptoFunctionService: CryptoFunctionService,

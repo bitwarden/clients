@@ -86,7 +86,7 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
     protected i18nService: I18nService,
     protected keyService: KeyService,
     protected validationService: ValidationService,
-    private logService: LogService,
+    protected logService: LogService,
     protected userNamePipe: UserNamePipe,
     protected dialogService: DialogService,
     protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,

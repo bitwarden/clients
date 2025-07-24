@@ -72,6 +72,7 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [
+        A11yTitleDirective,
         FormsModule,
         ReactiveFormsModule,
         FormFieldModule,
@@ -87,8 +88,8 @@ export default {
         SectionComponent,
         TextFieldModule,
         BadgeModule,
+        A11yTitleDirective,
       ],
-      declarations: [A11yTitleDirective],
       providers: [
         {
           provide: I18nService,
@@ -413,13 +414,18 @@ export const Select: Story = {
 
 export const AdvancedSelect: Story = {
   render: (args) => ({
-    props: args,
+    props: {
+      formObj: fb.group({
+        select: "value1",
+      }),
+      ...args,
+    },
     template: /*html*/ `
-      <bit-form-field>
+      <bit-form-field [formGroup]="formObj">
         <bit-label>Label</bit-label>
-        <bit-select>
-          <bit-option label="Select"></bit-option>
-          <bit-option label="Other"></bit-option>
+        <bit-select formControlName="select">
+          <bit-option label="Select" value="value1"></bit-option>
+          <bit-option label="Other" value="value2"></bit-option>
         </bit-select>
       </bit-form-field>
     `,

@@ -34,6 +34,7 @@ export type NotificationButtonRowProps = {
   organizations?: OrgView[];
   primaryButton: {
     text: string;
+    isLoading?: boolean;
     handlePrimaryButtonClick: (args: any) => void;
   };
   personalVaultIsAllowed: boolean;

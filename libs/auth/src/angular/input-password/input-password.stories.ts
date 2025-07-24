@@ -11,12 +11,14 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { DialogService, ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `/apps` import from `/libs`
@@ -73,6 +75,7 @@ export default {
           provide: PlatformUtilsService,
           useValue: {
             launchUri: () => Promise.resolve(true),
+            copyToClipboard: () => true,
           },
         },
         {
@@ -125,16 +128,31 @@ export default {
             showToast: action("ToastService.showToast"),
           } as Partial<ToastService>,
         },
+        {
+          provide: PasswordGenerationServiceAbstraction,
+          useValue: {
+            getOptions: () => ({}),
+            generatePassword: () => "generated-password",
+          },
+        },
+        {
+          provide: ValidationService,
+          useValue: {
+            showError: () => ["validation error"],
+          },
+        },
       ],
     }),
   ],
   args: {
     InputPasswordFlow: {
-      AccountRegistration: InputPasswordFlow.AccountRegistration,
+      SetInitialPasswordAccountRegistration:
+        InputPasswordFlow.SetInitialPasswordAccountRegistration,
       SetInitialPasswordAuthedUser: InputPasswordFlow.SetInitialPasswordAuthedUser,
       ChangePassword: InputPasswordFlow.ChangePassword,
       ChangePasswordWithOptionalUserKeyRotation:
         InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation,
+      ChangePasswordDelegation: InputPasswordFlow.ChangePasswordDelegation,
     },
     userId: "1" as UserId,
     email: "user@email.com",
@@ -154,12 +172,12 @@ export default {
 
 type Story = StoryObj<InputPasswordComponent>;
 
-export const AccountRegistration: Story = {
+export const SetInitialPasswordAccountRegistration: Story = {
   render: (args) => ({
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.AccountRegistration"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [email]="email"
       ></auth-input-password>
     `,
@@ -205,14 +223,24 @@ export const ChangePasswordWithOptionalUserKeyRotation: Story = {
   }),
 };
 
+export const ChangePasswordDelegation: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password [flow]="InputPasswordFlow.ChangePasswordDelegation"></auth-input-password>
+      <br />
+      <div>Note: no buttons here as this flow is expected to be used in a dialog, which will have its own buttons</div>
+    `,
+  }),
+};
+
 export const WithPolicies: Story = {
   render: (args) => ({
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.SetInitialPasswordAuthedUser"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [email]="email"
-        [userId]="userId"
         [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
       ></auth-input-password>
     `,
@@ -224,7 +252,7 @@ export const SecondaryButton: Story = {
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.AccountRegistration"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [email]="email"
         [secondaryButtonText]="{ key: 'cancel' }"
         (onSecondaryButtonClick)="onSecondaryButtonClick()"
@@ -238,7 +266,7 @@ export const SecondaryButtonWithPlaceHolderText: Story = {
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.AccountRegistration"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [email]="email"
         [secondaryButtonText]="{ key: 'backTo', placeholders: ['homepage'] }"
         (onSecondaryButtonClick)="onSecondaryButtonClick()"
@@ -252,7 +280,7 @@ export const InlineButton: Story = {
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.AccountRegistration"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [email]="email"
         [inlineButtons]="true"
       ></auth-input-password>
@@ -265,7 +293,7 @@ export const InlineButtons: Story = {
     props: args,
     template: `
       <auth-input-password
-        [flow]="InputPasswordFlow.AccountRegistration"
+        [flow]="InputPasswordFlow.SetInitialPasswordAccountRegistration"
         [email]="email"
         [secondaryButtonText]="{ key: 'cancel' }"
         [inlineButtons]="true"

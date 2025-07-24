@@ -34,7 +34,7 @@
                   ></i>
                   <span class="sr-only">{{ "shared" | i18n }}</span>
                 </ng-container>
-                <ng-container *ngIf="c.hasAttachments">
+                <ng-container *ngIf="CipherViewLikeUtils.hasAttachments(c)">
                   <i
                     class="bwi bwi-paperclip text-muted"
                     title="{{ 'attachments' | i18n }}"
@@ -44,7 +44,9 @@
                 </ng-container>
               </span>
             </span>
-            <span *ngIf="c.subTitle" class="detail">{{ c.subTitle }}</span>
+            <span *ngIf="CipherViewLikeUtils.subtitle(c)" class="detail">{{
+              CipherViewLikeUtils.subtitle(c)
+            }}</span>
           </div>
         </button>
       </div>
@@ -72,25 +74,11 @@
     <i class="bwi bwi-plus bwi-lg" aria-hidden="true"></i>
   </button>
   <bit-menu #addCipherMenu>
-    <button type="button" bitMenuItem (click)="addCipher(CipherType.Login)">
-      <i class="bwi bwi-globe tw-mr-1" aria-hidden="true"></i>
-      {{ "typeLogin" | i18n }}
-    </button>
-    <button type="button" bitMenuItem (click)="addCipher(CipherType.Card)">
-      <i class="bwi bwi-credit-card tw-mr-1" aria-hidden="true"></i>
-      {{ "typeCard" | i18n }}
-    </button>
-    <button type="button" bitMenuItem (click)="addCipher(CipherType.Identity)">
-      <i class="bwi bwi-id-card tw-mr-1" aria-hidden="true"></i>
-      {{ "typeIdentity" | i18n }}
-    </button>
-    <button type="button" bitMenuItem (click)="addCipher(CipherType.SecureNote)">
-      <i class="bwi bwi-sticky-note tw-mr-1" aria-hidden="true"></i>
-      {{ "typeSecureNote" | i18n }}
-    </button>
-    <button type="button" bitMenuItem (click)="addCipher(CipherType.SshKey)">
-      <i class="bwi bwi-key tw-mr-1" aria-hidden="true"></i>
-      {{ "typeSshKey" | i18n }}
-    </button>
+    @for (itemTypes of itemTypes$ | async; track itemTypes.type) {
+      <button type="button" bitMenuItem (click)="addCipher(itemTypes.type)">
+        <i class="bwi {{ itemTypes.icon }} tw-mr-1" aria-hidden="true"></i>
+        {{ itemTypes.labelKey | i18n }}
+      </button>
+    }
   </bit-menu>
 </ng-template>

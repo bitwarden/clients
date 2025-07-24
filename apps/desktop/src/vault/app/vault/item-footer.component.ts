@@ -1,13 +1,13 @@
 import { CommonModule } from "@angular/common";
 import { Input, Output, EventEmitter, Component, OnInit, ViewChild } from "@angular/core";
-import { Observable, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -25,6 +25,7 @@ export class ItemFooterComponent implements OnInit {
   @Input() collectionId: string | null = null;
   @Input({ required: true }) action: string = "view";
   @Input() isSubmitting: boolean = false;
+  @Input() masterPasswordAlreadyPrompted: boolean = false;
   @Output() onEdit = new EventEmitter<CipherView>();
   @Output() onClone = new EventEmitter<CipherView>();
   @Output() onDelete = new EventEmitter<CipherView>();
@@ -32,10 +33,8 @@ export class ItemFooterComponent implements OnInit {
   @Output() onCancel = new EventEmitter<CipherView>();
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
-  canDeleteCipher$: Observable<boolean> = new Observable();
   activeUserId: UserId | null = null;
-
-  private passwordReprompted = false;
+  passwordReprompted: boolean = false;
 
   constructor(
     protected cipherService: CipherService,
@@ -49,10 +48,8 @@ export class ItemFooterComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
-      this.collectionId as CollectionId,
-    ]);
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.passwordReprompted = this.masterPasswordAlreadyPrompted;
   }
 
   async clone() {

@@ -225,7 +225,10 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    // Users with no master password will not have a key.
+    if (response?.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    }
     await this.keyService.setPrivateKey(response.privateKey, response.id);
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(

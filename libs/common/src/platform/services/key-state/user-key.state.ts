@@ -1,5 +1,5 @@
+import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { UserKey } from "../../../types/key";
-import { EncryptedString } from "../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 import { CRYPTO_DISK, CRYPTO_MEMORY, UserKeyDefinition } from "../../state";
 

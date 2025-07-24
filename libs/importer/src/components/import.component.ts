@@ -45,6 +45,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -99,6 +100,7 @@ const safeProviders: SafeProvider[] = [
       PinServiceAbstraction,
       AccountService,
       SdkService,
+      RestrictedItemTypesService,
     ],
   }),
 ];
@@ -161,6 +163,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected organization: Organization;
   protected destroy$ = new Subject<void>();
 
+  protected readonly isCardTypeRestricted$: Observable<boolean> =
+    this.restrictedItemTypesService.restricted$.pipe(map((items) => items.length > 0));
+
   private _importBlockedByPolicy = false;
   protected isFromAC = false;
 
@@ -220,6 +225,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected importCollectionService: ImportCollectionServiceAbstraction,
     protected toastService: ToastService,
     protected accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -294,7 +300,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     // Retrieve all organizations a user is a member of and has collections they can manage
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.organizations$ = this.organizationService.memberOrganizations$(userId).pipe(
-      combineLatestWith(this.collectionService.decryptedCollections$),
+      combineLatestWith(this.collectionService.decryptedCollections$(userId)),
       map(([organizations, collections]) =>
         organizations
           .filter((org) => collections.some((c) => c.organizationId === org.id && c.manage))
@@ -312,15 +318,15 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         if (value) {
-          this.collections$ = Utils.asyncToObservable(() =>
-            this.collectionService
-              .getAllDecrypted()
-              .then((decryptedCollections) =>
+          this.collections$ = this.collectionService
+            .decryptedCollections$(userId)
+            .pipe(
+              map((decryptedCollections) =>
                 decryptedCollections
                   .filter((c2) => c2.organizationId === value && c2.manage)
                   .sort(Utils.getSortFunction(this.i18nService, "name")),
               ),
-          );
+            );
         }
       });
     this.formGroup.controls.vaultSelector.setValue("myVault");
@@ -331,7 +337,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
       ),
       this.organizations$,
