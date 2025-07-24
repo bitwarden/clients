@@ -4,10 +4,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId, OrganizationIntegrationId } from "@bitwarden/common/types/guid";
 
 import { OrganizationIntegrationRequest } from "../models/organization-integration-request";
+import { OrganizationIntegrationServiceType } from "../models/organization-integration-service-type";
 import { OrganizationIntegrationType } from "../models/organization-integration-type";
 
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
-import { OrganizationIntegrationServiceType } from "../models/organization-integration-service-type";
 
 export const mockIntegrationResponse: any = {
   id: "1" as OrganizationIntegrationId,
