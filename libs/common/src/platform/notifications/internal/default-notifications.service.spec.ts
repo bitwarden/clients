@@ -21,9 +21,9 @@ import { SupportStatus } from "../../misc/support-status";
 import { SyncService } from "../../sync";
 
 import {
-  DefaultNotificationsService,
+  DefaultServerNotificationsService,
   DISABLED_NOTIFICATIONS_URL,
-} from "./default-notifications.service";
+} from "./default-server-notifications.service";
 import { SignalRConnectionService, SignalRNotification } from "./signalr-connection.service";
 import { WebPushConnectionService, WebPushConnector } from "./webpush-connection.service";
 import { WorkerWebPushConnectionService } from "./worker-webpush-connection.service";
@@ -52,7 +52,7 @@ describe("NotificationsService", () => {
     notificationsUrl: string,
   ) => Subject<SignalRNotification>;
 
-  let sut: DefaultNotificationsService;
+  let sut: DefaultServerNotificationsService;
 
   beforeEach(() => {
     syncService = mock<SyncService>();
@@ -93,7 +93,7 @@ describe("NotificationsService", () => {
       () => new Subject<SignalRNotification>(),
     );
 
-    sut = new DefaultNotificationsService(
+    sut = new DefaultServerNotificationsService(
       mock<LogService>(),
       syncService,
       appIdService,
