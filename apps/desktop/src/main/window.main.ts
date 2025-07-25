@@ -86,6 +86,12 @@ export class WindowMain {
       }
     });
 
+    ipcMain.on("window-minimize", () => {
+      if (this.win != null) {
+        this.win.minimize();
+      }
+    });
+
     this.desktopSettingsService.modalMode$
       .pipe(
         pairwise(),
