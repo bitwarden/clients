@@ -13,6 +13,7 @@ import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { StateProvider } from "../platform/state";
 
 import { ApiService, HttpOperations } from "./api.service";
 
@@ -26,6 +27,7 @@ describe("ApiService", () => {
   let logoutCallback: jest.Mock<Promise<void>, [reason: LogoutReason]>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let httpOperations: MockProxy<HttpOperations>;
+  let stateProvider: MockProxy<StateProvider>;
 
   let sut: ApiService;
 
@@ -41,6 +43,7 @@ describe("ApiService", () => {
     logoutCallback = jest.fn();
     vaultTimeoutSettingsService = mock();
     httpOperations = mock();
+    stateProvider = mock();
 
     sut = new ApiService(
       tokenService,
@@ -52,6 +55,7 @@ describe("ApiService", () => {
       logoutCallback,
       vaultTimeoutSettingsService,
       httpOperations,
+      stateProvider,
       "custom-user-agent",
     );
   });
