@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "البحث في الخزانة"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "إضافة عنصر"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "فتح مع Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "إعدادات Windows Hello إضافية"
-  },
   "unlockWithPolkit": {
     "message": "فتح مع مصادقة النظام"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "فتح خزانتك"
   },
-  "autoPromptWindowsHello": {
-    "message": "اسأل عن Windows Hello عند التشغيل"
-  },
-  "autoPromptPolkit": {
-    "message": "طلب مصادقة النظام عند التشغيل"
-  },
   "autoPromptTouchId": {
     "message": "اطلب معرف اللمس عند التشغيل"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "موصى به للأمان."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "قفل مع كلمة المرور الرئيسية عند إعادة تشغيل"
@@ -4015,8 +4006,8 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

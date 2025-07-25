@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Bilatu kutxa gotorrean"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Editatu"
   },

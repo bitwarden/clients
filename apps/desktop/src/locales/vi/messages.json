@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Tìm kiếm trong Kho"
   },
+  "resetSearch": {
+    "message": "Đặt lại tìm kiếm"
+  },
   "addItem": {
     "message": "Thêm mục"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Mở khóa với Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Cài đặt bổ sung cho Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Mở khóa bằng bảo mật hệ thống"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "mở khoá kho của bạn"
   },
-  "autoPromptWindowsHello": {
-    "message": "Yêu cầu xác minh Windows Hello khi mở ứng dụng"
-  },
-  "autoPromptPolkit": {
-    "message": "Yêu cầu xác thực hệ thống khi khởi động"
-  },
   "autoPromptTouchId": {
     "message": "Yêu cầu xác minh Touch ID khi mở ứng dụng"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Yêu cầu mật khẩu khi khởi động ứng dụng"
-  },
-  "recommendedForSecurity": {
-    "message": "Khuyến nghị để bảo mật."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"
@@ -3180,7 +3171,7 @@
     "message": "Khu vực"
   },
   "ssoIdentifierRequired": {
-    "message": "Cần có mã định danh Đăng nhập một lần của tổ chức."
+    "message": "Cần có mã định danh SSO của tổ chức."
   },
   "eu": {
     "message": "Châu Âu",
@@ -3539,7 +3530,7 @@
     "message": "Yêu cầu xác thực LastPass"
   },
   "awaitingSSO": {
-    "message": "Đang chờ xác thực Đăng nhập một lần"
+    "message": "Đang chờ xác thực SSO"
   },
   "awaitingSSODesc": {
     "message": "Vui lòng tiếp tục đăng nhập bằng thông tin đăng nhập của công ty bạn."
@@ -4015,8 +4006,8 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Bật phím tắt tự động điền"
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."

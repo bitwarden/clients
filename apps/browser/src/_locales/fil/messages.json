@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Hanapin ang vault"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "I-edit"
   },

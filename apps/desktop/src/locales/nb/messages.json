@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Søk i hvelvet"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Legg til element"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Lås opp med Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Ytterligere Windows Hello-innstillinger"
-  },
   "unlockWithPolkit": {
     "message": "Lås opp med systemautentisering"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "lås opp hvelvet ditt"
   },
-  "autoPromptWindowsHello": {
-    "message": "Spør etter Windows Hello ved oppstart"
-  },
-  "autoPromptPolkit": {
-    "message": "Ask for system authentication on launch"
-  },
   "autoPromptTouchId": {
     "message": "Spør om Touch ID ved oppstart"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "Anbefalt for sikkerhet."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
@@ -4015,8 +4006,8 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

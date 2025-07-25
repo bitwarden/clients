@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Kluis doorzoeken"
   },
+  "resetSearch": {
+    "message": "Zoekopdracht resetten"
+  },
   "edit": {
     "message": "Bewerken"
   },

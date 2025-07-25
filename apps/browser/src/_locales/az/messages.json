@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Seyfdə axtar"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Düzəliş et"
   },
