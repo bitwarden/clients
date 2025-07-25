@@ -872,8 +872,15 @@ pub mod autotype {
     pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
         autotype::get_foreground_window_title().map_err(|_| {
             napi::Error::from_reason(
-                "Autotype Error: faild to get foreground window title".to_string(),
+                "Autotype Error: failed to get foreground window title".to_string(),
             )
+        })
+    }
+
+    #[napi]
+    pub fn type_input(input: Vec<u16>) -> napi::Result<(), napi::Status> {
+        autotype::type_input(input).map_err(|_| {
+            napi::Error::from_reason("Autotype Error: failed to type input".to_string())
         })
     }
 }
