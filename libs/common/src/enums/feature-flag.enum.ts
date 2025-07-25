@@ -43,6 +43,7 @@ export enum FeatureFlag {
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
+  UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
 
   /* DIRT */
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
@@ -89,6 +90,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
+  [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
