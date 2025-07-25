@@ -128,13 +128,20 @@ export class PolicyEditComponent implements AfterViewInit {
   }
 
   submit = async () => {
+    if ((await this.policyComponent.confirm()) == false) {
+      this.dialogRef.close();
+      return;
+    }
+
     let request: PolicyRequest;
+
     try {
       request = await this.policyComponent.buildRequest();
     } catch (e) {
       this.toastService.showToast({ variant: "error", title: null, message: e.message });
       return;
     }
+
     await this.policyApiService.putPolicy(this.data.organizationId, this.data.policy.type, request);
     this.toastService.showToast({
       variant: "success",
