@@ -8,11 +8,6 @@ import { BitIconButtonComponent } from "./icon-button.component";
 export default {
   title: "Component Library/Icon Button",
   component: BitIconButtonComponent,
-  // decorators: [
-  //   moduleMetadata({
-  //     imports: [A11yTitleDirective],
-  //   }),
-  // ],
   args: {
     bitIconButton: "bwi-plus",
     label: "Your button label here",
