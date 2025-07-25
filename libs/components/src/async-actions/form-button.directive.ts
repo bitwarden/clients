@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, OnDestroy, Optional, input } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { Directive, Optional, input } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 
@@ -26,9 +26,7 @@ import { BitSubmitDirective } from "./bit-submit.directive";
 @Directive({
   selector: "button[bitFormButton]",
 })
-export class BitFormButtonDirective implements OnDestroy {
-  private destroy$ = new Subject<void>();
-
+export class BitFormButtonDirective {
   readonly type = input<string>();
   readonly disabled = input<boolean>();
 
@@ -38,7 +36,7 @@ export class BitFormButtonDirective implements OnDestroy {
     @Optional() actionDirective?: BitActionDirective,
   ) {
     if (submitDirective && buttonComponent) {
-      submitDirective.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+      submitDirective.loading$.pipe(takeUntilDestroyed()).subscribe((loading) => {
         if (this.type() === "submit") {
           buttonComponent.loading.set(loading);
         } else {
@@ -46,7 +44,7 @@ export class BitFormButtonDirective implements OnDestroy {
         }
       });
 
-      submitDirective.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
+      submitDirective.disabled$.pipe(takeUntilDestroyed()).subscribe((disabled) => {
         const disabledValue = this.disabled();
         if (disabledValue !== false) {
           buttonComponent.disabled.set(disabledValue || disabled);
@@ -55,18 +53,13 @@ export class BitFormButtonDirective implements OnDestroy {
     }
 
     if (submitDirective && actionDirective) {
-      actionDirective.loading$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
+      actionDirective.loading$.pipe(takeUntilDestroyed()).subscribe((disabled) => {
         submitDirective.disabled = disabled;
       });
 
-      submitDirective.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
+      submitDirective.disabled$.pipe(takeUntilDestroyed()).subscribe((disabled) => {
         actionDirective.disabled = disabled;
       });
     }
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
