@@ -7,22 +7,17 @@
   align-items: center;
 
   * {
-    @include themify($themes) {
-      color: themed("headingColor");
-    }
-    font-size: $font-size-base;
+    font-size: 1rem;
   }
 
   button {
-    @extend .no-btn;
+    // @extend .no-btn;
   }
 
   h3,
   button.filter-button {
     margin: 0;
-    @include themify($themes) {
-      color: themed("textMuted");
-    }
+    color: rgb(var(--color-text-muted));
   }
 
   .filter-button {
@@ -31,9 +26,7 @@
       &:hover,
       &:focus,
       &.active {
-        @include themify($themes) {
-          color: themed("linkColor") !important;
-        }
+        color: rgb(var(--color-primary-600));
       }
       &.active {
         font-weight: bold;
@@ -44,12 +37,6 @@
   button.toggle-button,
   button.add-button {
     margin-right: 0.25rem;
-    &:hover,
-    &:focus {
-      @include themify($themes) {
-        color: themed("iconHover") !important;
-      }
-    }
   }
 }
 
@@ -65,16 +52,12 @@
 }
 
 .filter-option {
-  @include themify($themes) {
-    color: themed("textColor");
-  }
+  color: rgb(var(--color-text-main));
 
   &.active {
     > .filter-buttons {
       .filter-button {
-        @include themify($themes) {
-          color: themed("linkColor") !important;
-        }
+        color: rgb(var(--color-primary-600));
         font-weight: bold;
       }
 
@@ -91,7 +74,7 @@
 
   button,
   a {
-    @extend .no-btn;
+    // @extend .no-btn;
   }
 
   .contents {
@@ -100,12 +83,6 @@
 
   .toggle-button {
     margin-right: 0.25rem;
-    &:hover,
-    &:focus {
-      @include themify($themes) {
-        color: themed("iconHover") !important;
-      }
-    }
   }
 
   .filter-button {
@@ -115,9 +92,7 @@
     &:hover,
     &:focus,
     &:active {
-      @include themify($themes) {
-        color: themed("linkColor") !important;
-      }
+      color: rgb(var(--color-primary-600));
       text-decoration: none;
     }
 
@@ -130,15 +105,11 @@
     visibility: hidden;
     margin-left: auto;
 
-    @include themify($themes) {
-      color: themed("headingButtonColor");
-    }
+    color: rgb(var(--color-primary-600));
 
     &:hover,
     &:focus {
-      @include themify($themes) {
-        color: themed("iconHover") !important;
-      }
+      color: rgb(var(--color-text-main));
     }
   }
 
@@ -153,9 +124,6 @@
   }
 
   a {
-    @include themify($themes) {
-      color: themed("textHeadingColor");
-    }
   }
   .show-active {
     display: none;
@@ -169,16 +137,12 @@
   li.active {
     > button:first-of-type,
     > div button:first-of-type {
-      @include themify($themes) {
-        color: themed("linkColor");
-      }
+      color: rgb(var(--color-primary-600));
     }
 
     > .bwi,
     > div > .bwi {
-      @include themify($themes) {
-        color: themed("linkColor");
-      }
+      color: rgb(var(--color-primary-600));
     }
   }
 }
