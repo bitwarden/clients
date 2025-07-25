@@ -39,6 +39,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -393,7 +394,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     }
 
     const collectionView = new CollectionAdminView();
-    collectionView.id = this.params.collectionId;
+    collectionView.id = this.params.collectionId as CollectionId;
     collectionView.organizationId = this.formGroup.controls.selectedOrg.value;
     collectionView.externalId = this.formGroup.controls.externalId.value;
     collectionView.groups = this.formGroup.controls.access.value

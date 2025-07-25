@@ -14,7 +14,7 @@ export type DecryptedObject<
 > = Record<TDecryptedKeys, string> & Omit<TEncryptedObject, TDecryptedKeys>;
 
 // extracts shared keys from the domain and view types
-export type EncryptableKeys<D extends Domain, V extends View> = (keyof D &
+type EncryptableKeys<D extends Domain, V extends View> = (keyof D &
   ConditionalKeys<D, EncString | null>) &
   (keyof V & ConditionalKeys<V, string | null>);
 

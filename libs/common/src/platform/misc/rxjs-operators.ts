@@ -13,8 +13,11 @@ export const getById = <TId, T extends { id: TId }>(id: TId) =>
  * @param id The IDs of the objects to return.
  * @returns An array containing objects with matching IDs, or an empty array if there are no matching objects.
  */
-export const getByIds = <TId, T extends { id: TId | undefined }>(ids: TId[]) => {
-  const idSet = new Set(ids.filter((id) => id != null));
+export const getByIds = <TId, T extends { id: TId }>(ids: TId[]) => {
+  if (ids.find((id) => id == null)) {
+    throw new Error("Cannot get null Id.");
+  }
+  const idSet = new Set(ids);
   return map<T[], T[]>((objects) => {
     return objects.filter((o) => o.id && idSet.has(o.id));
   });

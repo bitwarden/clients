@@ -62,7 +62,12 @@ export class DefaultCollectionService implements CollectionService {
           return null;
         }
 
-        return Object.values(collections).map((c) => new Collection(c));
+        return Object.values(collections).map((c) => {
+          if (c == null) {
+            throw new Error("No collection data was found.");
+          }
+          return new Collection(c);
+        });
       }),
     );
   }
@@ -177,8 +182,8 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   async encrypt(model: CollectionView, userId: UserId): Promise<Collection> {
-    if (model.organizationId == null) {
-      throw new Error("Collection has no organization id.");
+    if (model.organizationId == null || model.name == null) {
+      throw new Error("Collection has no organization id or name.");
     }
 
     const key = await firstValueFrom(
@@ -188,12 +193,17 @@ export class DefaultCollectionService implements CollectionService {
       ),
     );
 
-    const collection = new Collection();
-    collection.id = model.id;
-    collection.organizationId = model.organizationId;
-    collection.readOnly = model.readOnly;
-    collection.externalId = model.externalId;
-    collection.name = await this.encryptService.encryptString(model.name, key);
+    const collection = new Collection({
+      id: model.id,
+      organizationId: model.organizationId as OrganizationId,
+      readOnly: model.readOnly,
+      externalId: model.externalId,
+      name: model.name,
+    });
+
+    const encryptedName = await this.encryptService.encryptString(model.name, key);
+    collection.name = encryptedName;
+
     return collection;
   }
 

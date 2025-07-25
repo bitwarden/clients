@@ -1,10 +1,11 @@
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { CollectionId } from "@bitwarden/common/types/guid";
 
 import { CollectionAccessSelectionView } from "./collection-access-selection.view";
 import { CollectionAccessDetailsResponse } from "./collection.response";
 import { CollectionView } from "./collection.view";
 
-export const Unassigned = "unassigned";
+export const Unassigned = "unassigned" as CollectionId;
 
 export class CollectionAdminView extends CollectionView {
   groups: CollectionAccessSelectionView[] = [];
