@@ -221,11 +221,24 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe((value) => {
         this.organizationId = value !== "myVault" ? value : undefined;
 
-        this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
-        this.exportForm.get("format").setValue("json");
+        // this.formatOptions = this.formatOptions.filter((option) => option.value !== "zip");
+
+        // recreated the formatOption for angular change detection UI
+        this.formatOptions = [
+          { name: ".json", value: "json" },
+          { name: ".csv", value: "csv" },
+          { name: ".json (Encrypted)", value: "encrypted_json" },
+        ];
+
         if (value === "myVault") {
-          this.formatOptions.push({ name: ".zip (with attachments)", value: "zip" });
+          this.formatOptions = [
+            ...this.formatOptions,
+            { name: ".zip (with attachments)", value: "zip" },
+          ];
         }
+
+        if (value !== "myVault" && this.exportForm.get("format").value == "zip")
+          {this.exportForm.get("format").setValue("json");}
       });
 
     merge(
