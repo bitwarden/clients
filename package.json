@@ -91,7 +91,7 @@
     "base64-loader": "1.0.0",
     "browserslist": "4.23.2",
     "chromatic": "13.1.2",
-    "concurrently": "9.1.2",
+    "concurrently": "9.2.0",
     "copy-webpack-plugin": "13.0.0",
     "cross-env": "7.0.3",
     "css-loader": "7.1.2",
