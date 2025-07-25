@@ -14,6 +14,8 @@ export class EventView {
   installationId: string;
   systemUser: EventSystemUser;
   serviceAccountId: string;
+  eventName: string;
+  eventLink: string;
 
   constructor(data: Required<EventView>) {
     this.message = data.message;
@@ -29,5 +31,7 @@ export class EventView {
     this.installationId = data.installationId;
     this.systemUser = data.systemUser;
     this.serviceAccountId = data.serviceAccountId;
+    this.eventName = data.eventName;
+    this.eventLink = data.eventLink;
   }
 }
