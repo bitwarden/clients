@@ -305,14 +305,16 @@ export class Main {
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
 
-    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
-      new DesktopAutotypeService(
-        new SlimConfigService(this.environmentService, globalStateProvider),
-        globalStateProvider,
-        process.platform === "win32",
-      ),
-    );
-    this.mainDesktopAutotypeService.init();
+    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(this.logService, this.windowMain);
+
+    app
+      .whenReady()
+      .then(() => {
+        this.mainDesktopAutotypeService.init();
+      })
+      .catch((reason) => {
+        this.logService.error("Error initializing autotype", reason);
+      });
   }
 
   bootstrap() {

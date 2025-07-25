@@ -89,6 +89,7 @@ export default {
       },
     );
   },
+
   listenPasskeyAssertionWithoutUserInterface: (
     fn: (
       clientId: number,
@@ -121,6 +122,75 @@ export default {
           ipcRenderer.send("autofill.completePasskeyAssertion", {
             clientId,
             sequenceNumber,
+            response,
+          });
+        });
+      },
+    );
+  },
+
+  configureAutotype: (
+    enabled: boolean,
+  ) => {
+    ipcRenderer.send("autofill.configureAutotype", { enabled });
+  },
+
+  // listenAutotypeRequestOld: (
+  //   fn: (
+  //     windowTitle: string,
+  //   ) => Promise<{ username?: string, password?: string }>,
+  // ) => {
+  //   console.log("listenAutotypeRequest (preload.ts)");
+  //   ipcRenderer.on(
+  //     "autofill.listenAutotypeRequest",
+  //     async (
+  //       event,
+  //       data: {
+  //         windowTitle: string;
+  //       },
+  //     ) => {
+  //       ipcRenderer.send("autofill.completeAutotypeRequest", fn);
+
+  //       // console.log("autofill.listenAutotypeRequest (preload.ts)");
+  //       // console.log("    receiving windowTitle: " + data.windowTitle);
+  //       // console.log("    calling fn(" + data.windowTitle + ")");
+  //       // const result = await fn(data.windowTitle);
+  //       // console.log("    result from await: " + JSON.stringify(result));
+  //       // console.log("autofill.completeAutotypeRequest, sending fake data");
+
+  //       // //ipcRenderer.send("autofill.completeAutotypeRequest", { username: "fake username", password: "fake password "});
+  //       //ipcRenderer.send("autofill.completeAutotypeRequest", result);
+  //     },
+  //   );
+  // },
+
+  listenAutotypeRequest: (
+    fn: (
+      windowTitle: string,
+      completeCallback: (error: Error | null, response: { username?: string, password?: string }) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.listenAutotypeRequest",
+      (
+        event,
+        data: {
+          windowTitle: string;
+        },
+      ) => {
+        const { windowTitle } = data;
+
+        fn(windowTitle, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              windowTitle,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completeAutotypeRequest", {
+            windowTitle,
             response,
           });
         });
