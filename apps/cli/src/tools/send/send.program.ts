@@ -149,11 +149,11 @@ export class SendProgram extends BaseProgram {
 
   private templateCommand(): Command {
     return new Command("template")
-      .argument("<object>", "Valid objects are: send.text, send.file")
+      .argument("<object>", "Valid objects are: send.text, text, send.file, file")
       .description("Get json templates for send objects")
-      .action((options: OptionValues) =>
-        this.processResponse(new SendTemplateCommand().run(options.object)),
-      );
+      .action((object: string) => {
+        this.processResponse(new SendTemplateCommand().run(object));
+      });
   }
 
   private getCommand(): Command {
