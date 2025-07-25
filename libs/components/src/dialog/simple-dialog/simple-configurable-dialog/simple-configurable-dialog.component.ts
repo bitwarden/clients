@@ -68,7 +68,9 @@ export class SimpleConfigurableDialogComponent {
       await this.simpleDialogOpts.acceptAction();
     }
 
-    this.dialogRef.close(true);
+    if (!this.simpleDialogOpts.disableCloseOnAccept) {
+      this.dialogRef.close(true);
+    }
   };
 
   private localizeText() {

@@ -2,7 +2,13 @@ import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  CalloutTypes,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 import { BillingClient } from "../../services";
@@ -16,6 +22,11 @@ import {
 
 type DialogParams = {
   owner: BillableEntity;
+  callout: {
+    type: CalloutTypes;
+    title: string;
+    message: string;
+  };
 };
 
 @Component({
@@ -23,27 +34,18 @@ type DialogParams = {
     <form [formGroup]="formGroup" [bitSubmit]="submit">
       <bit-dialog>
         <span bitDialogTitle class="tw-font-semibold">
-          {{ "changePaymentMethod" | i18n }}
+          {{ "addPaymentMethod" | i18n }}
         </span>
         <div bitDialogContent>
-          <app-enter-payment-method
-            [group]="formGroup"
-            [showBankAccount]="dialogParams.owner.type !== 'account'"
-            [includeBillingAddress]="true"
-          >
+          <bit-callout [type]="dialogParams.callout.type" [title]="dialogParams.callout.title">
+            {{ dialogParams.callout.message }}
+          </bit-callout>
+          <app-enter-payment-method [group]="formGroup" [includeBillingAddress]="true">
           </app-enter-payment-method>
         </div>
         <ng-container bitDialogFooter>
           <button bitButton bitFormButton buttonType="primary" type="submit">
             {{ "save" | i18n }}
-          </button>
-          <button
-            bitButton
-            buttonType="secondary"
-            type="button"
-            [bitDialogClose]="{ type: 'cancelled' }"
-          >
-            {{ "cancel" | i18n }}
           </button>
         </ng-container>
       </bit-dialog>
@@ -53,7 +55,7 @@ type DialogParams = {
   imports: [EnterPaymentMethodComponent, SharedModule],
   providers: [BillingClient],
 })
-export class ChangePaymentMethodDialogComponent extends SubmitPaymentMethodDialogComponent {
+export class RequirePaymentMethodDialogComponent extends SubmitPaymentMethodDialogComponent {
   protected override owner: BillableEntity;
 
   constructor(
@@ -68,8 +70,8 @@ export class ChangePaymentMethodDialogComponent extends SubmitPaymentMethodDialo
   }
 
   static open = (dialogService: DialogService, dialogConfig: DialogConfig<DialogParams>) =>
-    dialogService.open<SubmitPaymentMethodDialogResult>(
-      ChangePaymentMethodDialogComponent,
-      dialogConfig,
-    );
+    dialogService.open<SubmitPaymentMethodDialogResult>(RequirePaymentMethodDialogComponent, {
+      ...dialogConfig,
+      disableClose: true,
+    });
 }
