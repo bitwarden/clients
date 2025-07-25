@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -15,7 +13,7 @@ const IdleInterval = 60 * 5; // 5 minutes
 
 export default class IdleBackground {
   private idle: typeof chrome.idle | typeof browser.idle | null;
-  private idleTimer: number | NodeJS.Timeout = null;
+  private idleTimer: null | number | NodeJS.Timeout = null;
   private idleState = "active";
 
   constructor(
@@ -80,9 +78,8 @@ export default class IdleBackground {
       globalThis.clearTimeout(this.idleTimer);
       this.idleTimer = null;
     }
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.idle.queryState(IdleInterval, (state: string) => {
+
+    void this.idle?.queryState(IdleInterval, (state: string) => {
       if (state !== this.idleState) {
         this.idleState = state;
         handler(state);
