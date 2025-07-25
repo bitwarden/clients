@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Cancelar"
   },
+  "later": {
+    "message": "Mais tarde"
+  },
   "canceled": {
     "message": "Cancelado"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Procurar grupos"
+  },
+  "resetSearch": {
+    "message": "Repor pesquisa"
   },
   "allItems": {
     "message": "Todos os itens"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Receba conselhos, anúncios e oportunidades de investigação do Bitwarden na sua caixa de entrada."
+  },
+  "subscribe": {
+    "message": "Subscrever"
   },
   "unsubscribe": {
     "message": "Anular subscrição"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Configure a gestão de dispositivos do Bitwarden utilizando o guia de implementação da sua plataforma."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Enviar dados de eventos para a sua instância Logscale"
+  },
   "deviceIdMissing": {
     "message": "ID do dispositivo em falta"
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Reabra este link a partir do seu e-mail num computador."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Estabelecer ligação com o $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Lançar o guia de implementação da $INTEGRATION$.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "O utilizador foi removido da organização e todos os dados de utilizador associados foram eliminados."
   },
-  "deletedUserId": {
-    "message": "Utilizador $ID$ eliminado - um proprietário/administrador eliminou a conta de utilizador",
+  "deletedUserIdEventMessage": {
+    "message": "Eliminar utilizador $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "Sob verificação"
   },
-  "claimedDomainsDesc": {
-    "message": "Reivindique um domínio para possuir todas as contas de membros cujo endereço de e-mail corresponda ao domínio. Os membros poderão ignorar o identificador SSO quando iniciarem sessão. Os administradores também poderão eliminar contas de membros."
+  "claimedDomainsDescription": {
+    "message": "Reivindique um domínio para possuir contas de membros. A página do identificador SSO será ignorada durante o início de sessão para membros com domínios reivindicados e os administradores poderão eliminar contas reivindicadas."
   },
   "invalidDomainNameClaimMessage": {
     "message": "O campo não é um formato válido. Formato: omeudominio.com. Os subdomínios requerem campos separados para serem reivindicado."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscrever o plano $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "O seu período experimental de 7 dias do plano $PLAN$ começa hoje. Adicione um método de pagamento agora para continuar a utilizar estas funcionalidades após o fim do período experimental: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Segredos e projetos ilimitados"
   }
 }

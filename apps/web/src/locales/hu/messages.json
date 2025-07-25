@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Mégsem"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Megszakítva"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Csoportok keresése"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "allItems": {
     "message": "Összes elem"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Kapj tanácsokat, bejelentéseket és közvélemény-kutatásokat a Bitwardentől a postaládádba."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Az eszközkezelés konfigurálása a Bitwarden számára a platform megvalósítási útmutatója segítségével."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
   "deviceIdMissing": {
     "message": "Az eszköz AZ hiányzik."
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Nyissuk meg újra ezt a hivatkozást az emailből az asztali gépen."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$ megvalósítási útmutató elindítása.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "A felhasználó eltávolításra került a szervezetből és az összes kapcsolódó felhasználói adat törlésre került."
   },
-  "deletedUserId": {
-    "message": "$ID$ felhasználó törlésre került – egy tulajdonos/adminisztrátor törölte a felhasználói fiókot.",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "Ellenőrzés alatt"
   },
-  "claimedDomainsDesc": {
-    "message": "Igényeljünk egy tartományt az összes olyan tagfiók birtoklásához, amelynek email címe megegyezik a tartománnyal A tagok bejelentkezéskor kihagyhatják az egyszeri bejelentkezési azonosítót. Az adminisztrátorok törölhetik a tagfiókokat is."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "A bemeneti formátum nem érvényes. Formátum: valami.hu Az altartományokhoz külön bejegyzések szükségesek az igényléshez."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
   }
 }
