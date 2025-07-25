@@ -1,5 +1,5 @@
 <div
-  class="tw-flex tw-items-center tw-gap-2 tw-p-2 tw-ps-4 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
+  class="tw-flex tw-items-center tw-gap-4 tw-p-2 tw-ps-4 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
   [ngClass]="bannerClass"
   [attr.role]="useAlertRole() ? 'status' : null"
   [attr.aria-live]="useAlertRole() ? 'polite' : null"
@@ -14,11 +14,10 @@
   <!-- Overriding hover and focus-visible colors for a11y against colored background -->
   @if (showClose()) {
     <button
-      class="hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
       type="button"
       bitIconButton="bwi-close"
       buttonType="main"
-      size="default"
+      size="small"
       (click)="onClose.emit()"
       [attr.title]="'close' | i18n"
       [attr.aria-label]="'close' | i18n"
