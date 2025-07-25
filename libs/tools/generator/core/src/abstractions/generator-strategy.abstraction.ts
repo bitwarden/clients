@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -17,13 +15,13 @@ export abstract class GeneratorStrategy<Options, Policy> {
    *  @param userId: identifies the user state to retrieve
    *  @returns the strategy's durable user state
    */
-  durableState: (userId: UserId) => SingleUserState<Options>;
+  abstract durableState(userId: UserId): SingleUserState<Options>;
 
   /** Gets the default options. */
-  defaults$: (userId: UserId) => Observable<Options>;
+  abstract defaults$(userId: UserId): Observable<Options>;
 
   /** Identifies the policy enforced by the generator. */
-  policy: PolicyType;
+  abstract get policy(): PolicyType;
 
   /** Operator function that converts a policy collection observable to a single
    *   policy evaluator observable.
@@ -32,7 +30,7 @@ export abstract class GeneratorStrategy<Options, Policy> {
    * then the evaluator defaults to the application's limits.
    * @throws when the policy's type does not match the generator's policy type.
    */
-  toEvaluator: () => (
+  abstract toEvaluator(): (
     source: Observable<AdminPolicy[]>,
   ) => Observable<PolicyEvaluator<Policy, Options>>;
 
@@ -40,5 +38,5 @@ export abstract class GeneratorStrategy<Options, Policy> {
    * @param options The options used to generate the credentials.
    * @returns a promise that resolves to the generated credentials.
    */
-  generate: (options: Options) => Promise<string>;
+  abstract generate(options: Options): Promise<string>;
 }
