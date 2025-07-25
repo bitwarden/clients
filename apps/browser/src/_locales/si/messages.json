@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "සුරක්ෂිතාගාරය සොයන්න"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "සංස්කරණය"
   },

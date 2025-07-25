@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Ieškoti saugykloje"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Keisti"
   },

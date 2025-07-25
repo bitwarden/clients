@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Търсене в трезора"
   },
+  "resetSearch": {
+    "message": "Нулиране на търсенето"
+  },
   "edit": {
     "message": "Редактиране"
   },
