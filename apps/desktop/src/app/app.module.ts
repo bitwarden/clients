@@ -19,8 +19,6 @@ import { RemovePasswordComponent } from "../key-management/key-connector/remove-
 import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 
-import { SettingsComponent } from "./accounts/settings.component";
-import { VaultTimeoutInputComponent } from "./accounts/vault-timeout-input.component";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { UserVerificationComponent } from "./components/user-verification.component";
@@ -55,8 +53,6 @@ import { SharedModule } from "./shared/shared.module";
     PremiumComponent,
     RemovePasswordComponent,
     SearchComponent,
-    SettingsComponent,
-    VaultTimeoutInputComponent,
   ],
   providers: [SshAgentService],
   bootstrap: [AppComponent],

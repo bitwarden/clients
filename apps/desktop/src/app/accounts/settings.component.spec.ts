@@ -4,7 +4,6 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -33,7 +32,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -92,7 +91,7 @@ describe("SettingsComponent", () => {
     i18nService.supportedTranslationLocales = [];
 
     await TestBed.configureTestingModule({
-      declarations: [SettingsComponent, I18nPipe],
+      imports: [],
       providers: [
         {
           provide: AutofillSettingsServiceAbstraction,
@@ -126,10 +125,25 @@ describe("SettingsComponent", () => {
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: ValidationService, useValue: validationService },
         { provide: MessagingService, useValue: messagingService },
+        { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
+
+    TestBed.overrideComponent(SettingsComponent, {
+      add: {
+        providers: [
+          {
+            provide: DialogService,
+            useValue: dialogService,
+          },
+        ],
+      },
+      remove: {
+        providers: [DialogService],
+      },
+    });
 
     fixture = TestBed.createComponent(SettingsComponent);
     component = fixture.componentInstance;
@@ -163,6 +177,7 @@ describe("SettingsComponent", () => {
     themeStateService.selectedTheme$ = of(ThemeType.System);
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+    policyService.policiesByType$.mockReturnValue(of([null]));
     desktopAutotypeService.autotypeEnabled$ = of(false);
   });
 
@@ -580,7 +595,6 @@ describe("SettingsComponent", () => {
       component["form"].controls.vaultTimeoutAction.setValue(DEFAULT_VAULT_TIMEOUT_ACTION, {
         emitEvent: false,
       });
-      component["previousVaultTimeout"] = DEFAULT_VAULT_TIMEOUT;
     });
 
     it.each([
@@ -594,14 +608,13 @@ describe("SettingsComponent", () => {
     ])("should save vault timeout", async (vaultTimeout: VaultTimeout) => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
-      await component.saveVaultTimeout(vaultTimeout);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, vaultTimeout);
 
       expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
         mockUserId,
         vaultTimeout,
         DEFAULT_VAULT_TIMEOUT_ACTION,
       );
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
     });
 
     it("should save vault timeout when vault timeout action is disabled", async () => {
@@ -610,24 +623,25 @@ describe("SettingsComponent", () => {
       });
       component["form"].controls.vaultTimeoutAction.disable({ emitEvent: false });
 
-      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, DEFAULT_VAULT_TIMEOUT);
 
       expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
         mockUserId,
         DEFAULT_VAULT_TIMEOUT,
         VaultTimeoutAction.LogOut,
       );
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
     });
 
     it("should not save vault timeout when vault timeout is 'never' and dialog is cancelled", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await component.saveVaultTimeout(VaultTimeoutStringType.Never);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, VaultTimeoutStringType.Never);
 
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
-      expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
+        mockUserId,
+        VaultTimeoutStringType.Never,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
         title: { key: "warning" },
         content: { key: "neverLockWarning" },
@@ -637,21 +651,27 @@ describe("SettingsComponent", () => {
 
     it("should not save vault timeout when vault timeout is 0", async () => {
       component["form"].controls.vaultTimeout.setValue(0, { emitEvent: false });
-      await component.saveVaultTimeout(0);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 0);
 
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
+        mockUserId,
+        0,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
       expect(component["form"].getRawValue().vaultTimeout).toEqual(0);
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
     });
 
     it("should not save vault timeout when vault timeout is invalid", async () => {
       i18nService.t.mockReturnValue("Number too large test error");
       component["form"].controls.vaultTimeout.setErrors({}, { emitEvent: false });
-      await component.saveVaultTimeout(999_999_999);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 999_999_999);
 
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
+        mockUserId,
+        999_999_999,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
       expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
       expect(platformUtilsService.showToast).toHaveBeenCalledWith(
         "error",
         null,
