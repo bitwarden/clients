@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { MockProxy } from "jest-mock-extended";
 import mock from "jest-mock-extended/lib/Mock";
+import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
@@ -16,7 +17,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { UserKey, MasterKey, UserPrivateKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KdfType, KeyService } from "@bitwarden/key-management";
 
@@ -163,7 +164,7 @@ describe("EmergencyAccessService", () => {
       } as EmergencyAccessTakeoverResponse);
 
       const mockDecryptedGrantorUserKey = new Uint8Array(64);
-      keyService.getPrivateKey.mockResolvedValue(new Uint8Array(64));
+      keyService.userPrivateKey$.mockReturnValue(of(new Uint8Array(64) as UserPrivateKey));
       encryptService.decapsulateKeyUnsigned.mockResolvedValueOnce(
         new SymmetricCryptoKey(mockDecryptedGrantorUserKey),
       );
@@ -210,7 +211,7 @@ describe("EmergencyAccessService", () => {
         kdf: KdfType.PBKDF2_SHA256,
         kdfIterations: 500,
       } as EmergencyAccessTakeoverResponse);
-      keyService.getPrivateKey.mockResolvedValue(new Uint8Array(64));
+      keyService.userPrivateKey$.mockReturnValue(of(new Uint8Array(64) as UserPrivateKey));
 
       await expect(
         emergencyAccessService.takeover(mockId, mockEmail, mockName),
@@ -225,7 +226,7 @@ describe("EmergencyAccessService", () => {
         kdf: KdfType.PBKDF2_SHA256,
         kdfIterations: 500,
       } as EmergencyAccessTakeoverResponse);
-      keyService.getPrivateKey.mockResolvedValue(null);
+      keyService.userPrivateKey$.mockReturnValue(of(null));
 
       await expect(emergencyAccessService.takeover(mockId, mockEmail, mockName)).rejects.toThrow(
         "user does not have a private key",
