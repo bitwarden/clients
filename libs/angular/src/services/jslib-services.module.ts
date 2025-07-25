@@ -93,6 +93,7 @@ import {
   InternalAccountService,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AnonymousHubService as AnonymousHubServiceAbstraction } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
@@ -110,6 +111,7 @@ import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstract
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
@@ -217,6 +219,8 @@ import {
   WebPushConnectionService,
   WebPushNotificationsApiService,
 } from "@bitwarden/common/platform/notifications/internal";
+import { SystemNotificationsService } from "@bitwarden/common/platform/notifications/system-notifications-service";
+import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/notifications/unsupported-system-notifications.service";
 import {
   DefaultTaskSchedulerService,
   TaskSchedulerService,
@@ -952,6 +956,28 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: ActionsService,
+    useClass: UnsupportedActionsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: SystemNotificationsService,
+    useClass: UnsupportedSystemNotificationsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: AuthRequestAnsweringServiceAbstraction,
+    useClass: AuthRequestAnsweringService,
+    deps: [
+      AccountServiceAbstraction,
+      ActionsService,
+      AuthServiceAbstraction,
+      MasterPasswordServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      SystemNotificationsService,
+    ],
+  }),
+  safeProvider({
     provide: ServerNotificationsService,
     useClass: devFlagEnabled("noopNotifications")
       ? UnsupportedServerNotificationsService
@@ -967,6 +993,7 @@ const safeProviders: SafeProvider[] = [
       SignalRConnectionService,
       AuthServiceAbstraction,
       WebPushConnectionService,
+      AuthRequestAnsweringServiceAbstraction,
     ],
   }),
   safeProvider({

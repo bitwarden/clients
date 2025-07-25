@@ -31,6 +31,7 @@ import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/p
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
@@ -41,6 +42,7 @@ import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/ab
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
@@ -349,6 +351,7 @@ export default class MainBackground {
   serverNotificationsService: ServerNotificationsService;
   systemNotificationService: SystemNotificationsService;
   actionsService: ActionsService;
+  authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -1145,6 +1148,27 @@ export default class MainBackground {
       this.systemNotificationService = new UnsupportedSystemNotificationsService();
     }
 
+    // void Promise.all([this.configService.getFeatureFlag(FeatureFlag.PM14938_BrowserExtensionLoginApproval)])
+    //   .then((isBrowserExtensionLoginApprovalFFOn) => {
+    //     if (isBrowserExtensionLoginApprovalFFOn) {
+    //       this.authRequestAnsweringService = new AuthRequestAnsweringService(
+    //         this.systemNotificationService,
+    //         this.actionsService,
+    //       );
+    //     } else {
+    //       this.authRequestAnsweringService = new UnsupportedAuthRequestAnsweringService();
+    //     }
+    //   });
+
+    this.authRequestAnsweringService = new AuthRequestAnsweringService(
+      this.accountService,
+      this.actionsService,
+      this.authService,
+      this.masterPasswordService,
+      this.platformUtilsService,
+      this.systemNotificationService,
+    );
+
     this.serverNotificationsService = new DefaultServerNotificationsService(
       this.logService,
       this.syncService,
@@ -1156,6 +1180,7 @@ export default class MainBackground {
       new SignalRConnectionService(this.apiService, this.logService),
       this.authService,
       this.webPushConnectionService,
+      this.authRequestAnsweringService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
