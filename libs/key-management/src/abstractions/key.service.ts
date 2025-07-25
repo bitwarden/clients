@@ -4,8 +4,11 @@ import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/mo
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -383,11 +386,12 @@ export abstract class KeyService {
   /**
    * Initialize all necessary crypto keys needed for a new account.
    * Warning! This completely replaces any existing keys!
+   * @param userId The user id of the target user.
    * @returns The user's newly created  public key, private key, and encrypted private key
-   *
-   * @throws An error if there is no user currently active.
+   * @throws An error if the userId is null or undefined.
+   * @throws An error if the user already has a user key.
    */
-  abstract initAccount(): Promise<{
+  abstract initAccount(userId: UserId): Promise<{
     userKey: UserKey;
     publicKey: string;
     privateKey: EncString;

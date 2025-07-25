@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Güvənli qeyd"
   },
+  "typeNote": {
+    "message": "Not"
+  },
   "typeSshKey": {
     "message": "SSH açarı"
   },
@@ -861,8 +864,28 @@
   "copyName": {
     "message": "Adı kopyala"
   },
+  "cardNumber": {
+    "message": "kart nömrəsi"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Mən"
+  },
+  "myItems": {
+    "message": "Elementlərim"
   },
   "myVault": {
     "message": "Seyfim"
@@ -1780,6 +1803,9 @@
   },
   "loggedOutWarning": {
     "message": "Davam etsəniz, hazırkı seansınız bitəcək, təkrar giriş etməyiniz tələb olunacaq. Digər cihazlardakı aktiv seanslar, bir saata qədər aktiv qalmağa davam edə bilər."
+  },
+  "changePasswordWarning": {
+    "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saat ərzində çıxış sonlandırılacaq."
   },
   "emailChanged": {
     "message": "E-poçt dəyişdirildi"
@@ -3275,9 +3301,6 @@
   "defaultCollection": {
     "message": "İlkin kolleksiya"
   },
-  "myItems": {
-    "message": "Elementlərim"
-  },
   "getHelp": {
     "message": "Kömək alın"
   },
@@ -3478,6 +3501,9 @@
   },
   "webVault": {
     "message": "Veb seyf"
+  },
+  "webApp": {
+    "message": "Veb tətbiq"
   },
   "cli": {
     "message": "CLI"
@@ -3961,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu həqiqətən siz idinizsə, cihazla yenidən giriş etməyə çalışın."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş tələbi təsdiqləndi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu siz idinizsə, cihazla yenidən giriş etməyə çalışın."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Giriş tələbinin müddəti artıq bitib."
   },
@@ -4104,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Giriş tələbini incələ"
+  },
+  "loginRequest": {
+    "message": "Giriş tələbi"
   },
   "freeTrialEndPromptCount": {
     "message": "Ödənişsiz sınaq müddətiniz $COUNT$ günə bitir.",
@@ -6065,13 +6110,19 @@
     "message": "Əlavə et"
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Ana parol uğurla təyin edildi"
   },
   "updatedMasterPassword": {
     "message": "Güncəllənmiş ana parol"
   },
   "updateMasterPassword": {
     "message": "Ana parolu güncəllə"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Hesabın geri qaytarılması prosesini tamamlamaq üçün ana parolunuzu dəyişdirin."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Ana parolunuz bu təşkilatın tələblərinə cavab vermir. Davam etmək üçün ana parolunuzu dəyişdirin."
   },
   "updateMasterPasswordWarning": {
     "message": "Ana parolunuz təzəlikcə təşkilatınızdakı bir administrator tərəfindən dəyişdirildi. Seyfə müraciət üçün Ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
@@ -8237,7 +8288,7 @@
     "message": "Daxilə köçürmə faylını oxumağa çalışarkən xəta baş verdi"
   },
   "accessedSecretWithId": {
-    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "message": "$SECRET_ID$ identifikatoruna sahib bir sirrə müraciət edildi.",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8255,7 +8306,7 @@
     }
   },
   "editedSecretWithId": {
-    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "message": "$SECRET_ID$ identifikatoruna sahib bir sirrə düzəliş edildi.",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8264,7 +8315,7 @@
     }
   },
   "deletedSecretWithId": {
-    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "message": "$SECRET_ID$ identifikatoruna sahib bir sirr silindi.",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8273,7 +8324,7 @@
     }
   },
   "createdSecretWithId": {
-    "message": "Created a new secret with identifier: $SECRET_ID$",
+    "message": "$SECRET_ID$ identifikatoruna sahib yeni bir sirr yaradıldı.",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8452,6 +8503,12 @@
   },
   "requestAdminApproval": {
     "message": "Admin təsdiqini tələb et"
+  },
+  "unableToCompleteLogin": {
+    "message": "Giriş prosesi tamamlana bilmir"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Güvəndiyiniz bir cihazda giriş etməli və ya inzibatçınızdan sizə bir parol təyin etməsini xahiş etməlisiniz."
   },
   "trustedDeviceEncryption": {
     "message": "Güvənli cihaz şifrələməsi"
@@ -8908,20 +8965,28 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "URI uyuşma aşkarlaması, Bitwarden-in avto-doldurma təkliflərini necə müəyyən etdiyini göstərir.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Müntəzəm ifadə\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"İlə başlayır\", kimlik məlumatlarının ifşa olunma riskini artıran qabaqcıl bir seçimdir.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Uyuşma aşkarlaması barədə daha çox",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Qabaqcıl seçimlər",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Xəbərdarlıq",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "$ORG$ abunəliyinizi davam etdirmək üçün, ",
@@ -10714,49 +10779,49 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "setupExtensionPageTitle": {
-    "message": "Autofill your passwords securely with one click"
+    "message": "Parollarınızı tək bir kliklə güvənli şəkildə avto-doldurun"
   },
   "setupExtensionPageDescription": {
-    "message": "Get the Bitwarden browser extension and start autofilling today"
+    "message": "Bitwarden brauzer uzantısını əldə edin və bugün avto-doldurmağa başlayın"
   },
   "getTheExtension": {
-    "message": "Get the extension"
+    "message": "Uzantını əldə et"
   },
   "addItLater": {
-    "message": "Add it later"
+    "message": "Daha sonra əlavə et"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "You can't autofill passwords without the browser extension"
+    "message": "Brauzer uzantısı olmadan parolları avto-doldura bilməzsiniz"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
-    "message": "Are you sure you don't want to add the extension now?"
+    "message": "Uzantını indi əlavə etmək istəmədiyinizə əminsiniz?"
   },
   "skipToWebApp": {
-    "message": "Skip to web app"
+    "message": "Veb tətbiqinə keç"
   },
   "bitwardenExtensionInstalled": {
-    "message": "Bitwarden extension installed!"
+    "message": "Bitwarden uzantısı quraşdırıldı!"
   },
   "openExtensionToAutofill": {
-    "message": "Open the extension to log in and start autofilling."
+    "message": "Giriş etmək üçün uzantını aç və avto-doldurmağa başla."
   },
   "openBitwardenExtension": {
-    "message": "Open Bitwarden extension"
+    "message": "Bitwarden uzantısını aç"
   },
   "gettingStartedWithBitwardenPart1": {
-    "message": "For tips on getting started with Bitwarden visit the",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "message": "Bitwarden-i öyrənmək üçün ziyarət edin:",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
-    "message": "Learning Center",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "message": "Öyrənmə Mərkəzi",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
-    "message": "Help Center",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "message": "Kömək Mərkəzi",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
-    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+    "message": "Bitwarden brauzer uzantısı ilə, asanlıqla yeni giriş məlumatlarını yarada, saxlanılmış giriş məlumatlarınıza birbaşa brauzerin alət çubuğundan müraciət edə və Bitwarden avto-doldurmanı istifadə edərək hesablarınıza cəld şəkildə daxil ola bilərsiniz."
   },
   "restart": {
     "message": "Yenidən başlat"
@@ -10783,5 +10848,53 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Kredit əlavə etmək üçün faktura ünvanı tələb olunur.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Faktura ünvanı"
+  },
+  "addBillingAddress": {
+    "message": "Faktura ünvanı əlavə et"
+  },
+  "editBillingAddress": {
+    "message": "Faktura ünvanına düzəliş et"
+  },
+  "noBillingAddress": {
+    "message": "Faylda faktura ünvanı yoxdur."
+  },
+  "billingAddressUpdated": {
+    "message": "Faktura ünvanınız güncəllənib."
+  },
+  "paymentDetails": {
+    "message": "Ödəniş detalları"
+  },
+  "paymentMethodUpdated": {
+    "message": "Ödəniş üsulunuz güncəllənib."
+  },
+  "bankAccountVerified": {
+    "message": "Bank hesabınız doğrulanıb."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Mövcud olan bütün kredit, avtomatik olaraq bu hesab üçün yaradılmış fakturalara tətbiq olunacaq."
+  },
+  "mustBePositiveNumber": {
+    "message": "Müsbət bir ədəd olmalıdır"
+  },
+  "cardSecurityCode": {
+    "message": "Kart təhlükəsizlik kodu"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Kart təhlükəsizlik kodu, CVV və ya CVC kimi bilinən və adətən kredit kartınızın arxasına yazılmış 3 rəqəmli bir ədəd və ya ön tərəfdə kart nömrəsinin üzərində yazılan 4 rəqəmli ədəddir."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Bank hesabı ilə ödəniş, yalnız Amerika Birləşmiş Ştatlarındakı müştərilər üçün əlçatandır. Bank hesabınızı doğrulamağınız tələb olunacaq. Növbəti 1-2 iş günü ərzində mikro depozit qoyacağıq. Bank hesabını doğrulamaq üçün bu depozitdəki çıxarış deskriptor kodunu Ödəniş Detalları səhifəsində daxil edin. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
+  },
+  "taxId": {
+    "message": "Vergi kimliyi: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
   }
 }

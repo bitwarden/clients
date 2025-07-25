@@ -39,6 +39,9 @@ export class MenuItemDirective implements FocusableOption {
     return this.disabled || null; // native disabled attr must be null when false
   }
 
+  // TODO: Skipped for signal migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
   constructor(public elementRef: ElementRef<HTMLButtonElement>) {}

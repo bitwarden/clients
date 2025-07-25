@@ -1,4 +1,4 @@
-import { AsyncPipe, NgIf } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import { Component, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, firstValueFrom, map, of, switchMap } from "rxjs";
@@ -14,7 +14,7 @@ import { CipherType } from "@bitwarden/sdk-internal";
 @Component({
   selector: "vault-new-item-nudge",
   templateUrl: "./new-item-nudge.component.html",
-  imports: [NgIf, SpotlightComponent, AsyncPipe],
+  imports: [SpotlightComponent, AsyncPipe],
 })
 export class NewItemNudgeComponent {
   configType = input.required<CipherType | null>();

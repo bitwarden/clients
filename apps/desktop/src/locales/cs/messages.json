@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Prohledat trezor"
   },
+  "resetSearch": {
+    "message": "Resetovat hledání"
+  },
   "addItem": {
     "message": "Přidat položku"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Kopírovat ověřovací kód (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Délka"
@@ -1425,6 +1442,9 @@
     "message": "Kopírovat bezpečnostní kód",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "číslo karty"
+  },
   "premiumMembership": {
     "message": "Prémiové členství"
   },
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Odemknout pomocí Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Další nastavení Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Odemknout pomocí systémového ověření"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "Odemknout Váš trezor"
   },
-  "autoPromptWindowsHello": {
-    "message": "Požádat o Windows Hello při spuštění aplikace"
-  },
-  "autoPromptPolkit": {
-    "message": "Požádat o systémové ověření při spuštění"
-  },
   "autoPromptTouchId": {
     "message": "Požádat o Touch ID při spuštění aplikace"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Vyžadovat heslo při spuštění aplikace"
-  },
-  "recommendedForSecurity": {
-    "message": "Doporučeno pro bezpečnost."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zamknout trezor při restartu pomocí hlavního hesla"
@@ -2406,6 +2414,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
+  },
+  "changePasswordWarning": {
+    "message": "Po změně hesla se budete muset přihlásit pomocí svého nového hesla. Aktivní relace na jiných zařízeních budou odhlášeny do jedné hodiny."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Pro dokončení obnovy účtu změňte hlavní heslo."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Hlavní heslo nesplňuje požadavky této organizace. Chcete-li pokračovat, změňte hlavní heslo."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Vaše organizace zakázala šifrování pomocí důvěryhodného zařízení. Nastavte hlavní heslo pro přístup k trezoru."
@@ -3144,6 +3161,12 @@
   "requestAdminApproval": {
     "message": "Žádost o schválení správcem"
   },
+  "unableToCompleteLogin": {
+    "message": "Nelze dokončit přihlášení"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Musíte se přihlásit na důvěryhodném zařízení nebo požádat správce, aby Vám přiřadil heslo."
+  },
   "region": {
     "message": "Oblast"
   },
@@ -3550,6 +3573,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Další informace o detekci shody",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Rozšířené volby",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Varování",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Úspěch"
@@ -3974,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden neověřuje umístění vstupu. Před použitím zkratky se ujistěte, že jste ve správném okně a poli."
   }
 }

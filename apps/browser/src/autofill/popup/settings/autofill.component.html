@@ -262,10 +262,15 @@
                 *ngFor="let option of uriMatchOptions"
                 [label]="option.name"
                 [value]="option.value"
+                [disabled]="option.disabled"
               ></bit-option>
             </bit-select>
-            <bit-hint class="tw-text-sm" id="defaultUriMatchHelp">
-              {{ "defaultUriMatchDetectionDesc" | i18n }}
+            <bit-hint *ngIf="getMatchHints() as hints">
+              {{ hints[0] | i18n }}
+              <ng-container *ngIf="hints.length > 1">
+                <b>{{ "warningCapitalized" | i18n }}:</b>
+                {{ hints[1] | i18n }}
+              </ng-container>
             </bit-hint>
           </bit-form-field>
         </bit-card>

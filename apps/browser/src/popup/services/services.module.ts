@@ -4,6 +4,8 @@ import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
+import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -24,7 +26,6 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   LoginComponentService,
   TwoFactorAuthComponentService,
-  TwoFactorAuthEmailComponentService,
   TwoFactorAuthDuoComponentService,
   TwoFactorAuthWebAuthnComponentService,
   SsoComponentService,
@@ -45,6 +46,7 @@ import {
   AccountService as AccountServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import {
@@ -119,6 +121,7 @@ import {
   InternalFolderService,
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
   AnonLayoutWrapperDataService,
@@ -142,12 +145,13 @@ import {
 
 import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
+import { ExtensionChangePasswordService } from "../../auth/popup/change-password/extension-change-password.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
+import { ExtensionDeviceManagementComponentService } from "../../auth/services/extension-device-management-component.service";
 import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
-import { ExtensionTwoFactorAuthEmailComponentService } from "../../auth/services/extension-two-factor-auth-email-component.service";
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
@@ -488,7 +492,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyService, AccountService],
+    deps: [StateProvider, PolicyService, AccountService, RestrictedItemTypesService],
   }),
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
@@ -559,11 +563,6 @@ const safeProviders: SafeProvider[] = [
     provide: TwoFactorAuthComponentService,
     useClass: ExtensionTwoFactorAuthComponentService,
     deps: [WINDOW],
-  }),
-  safeProvider({
-    provide: TwoFactorAuthEmailComponentService,
-    useClass: ExtensionTwoFactorAuthEmailComponentService,
-    deps: [DialogService, WINDOW, ConfigService],
   }),
   safeProvider({
     provide: TwoFactorAuthWebAuthnComponentService,
@@ -669,9 +668,19 @@ const safeProviders: SafeProvider[] = [
     deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
   }),
   safeProvider({
+    provide: ChangePasswordService,
+    useClass: ExtensionChangePasswordService,
+    deps: [KeyService, MasterPasswordApiService, InternalMasterPasswordServiceAbstraction, WINDOW],
+  }),
+  safeProvider({
     provide: NotificationsService,
     useClass: ForegroundNotificationsService,
     deps: [LogService],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: ExtensionDeviceManagementComponentService,
+    deps: [],
   }),
 ];
 

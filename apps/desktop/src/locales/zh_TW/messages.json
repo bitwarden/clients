@@ -24,7 +24,7 @@
     "message": "身分"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "備註"
   },
   "typeSecureNote": {
     "message": "安全筆記"
@@ -40,6 +40,9 @@
   },
   "searchVault": {
     "message": "搜尋密碼庫"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "addItem": {
     "message": "新增項目"
@@ -241,22 +244,22 @@
     "message": "SSH代理是一個針對開發者的服務，它能夠直接從 Bitwarden 密碼庫簽發SSH請求。"
   },
   "sshAgentPromptBehavior": {
-    "message": "Ask for authorization when using SSH agent"
+    "message": "使用 SSH 代理程式時要求授權"
   },
   "sshAgentPromptBehaviorDesc": {
-    "message": "Choose how to handle SSH-agent authorization requests."
+    "message": "選擇如何處理 SSH 代理程式的授權要求。"
   },
   "sshAgentPromptBehaviorHelp": {
-    "message": "Remember SSH authorizations"
+    "message": "記住 SSH 授權"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "Always"
+    "message": "總是"
   },
   "sshAgentPromptBehaviorNever": {
-    "message": "Never"
+    "message": "永不"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
-    "message": "Remember until vault is locked"
+    "message": "記住直到密碼庫鎖定為止"
   },
   "premiumRequired": {
     "message": "需要進階會員資格"
@@ -409,16 +412,16 @@
     "message": "驗證器金鑰 (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "驗證器金鑰"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "自動填入選項"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "網站 (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "網站 (URI) $COUNT$ 個",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -428,43 +431,43 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "已新增網站"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "新增網站"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "刪除網站"
   },
   "owner": {
-    "message": "Owner"
+    "message": "擁有者"
   },
   "addField": {
-    "message": "Add field"
+    "message": "新增欄位"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "編輯欄位"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "你確定要永久刪除此附件嗎？"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "欄位類別"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "欄位標籤"
   },
   "add": {
-    "message": "Add"
+    "message": "新增"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "像安全問題之類的資料 請使用文本框"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "敏感資料 如同密碼 使用隱藏字段"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "如果您想自動填充表單的復選框，例如「記住電子郵件」，請使用復選框"
   },
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "複製驗證碼 (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "長度"
@@ -734,10 +751,10 @@
     "message": "Enter the code sent to your email"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "請輸入您驗證器應用程式中的代碼"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "請輕觸您的 YubiKey 以進行驗證"
   },
   "logInWithPasskey": {
     "message": "以通行密鑰 (passkey) 登入"
@@ -792,7 +809,7 @@
     "message": "主密碼提示"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "密碼強度分數 $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -907,7 +924,7 @@
     "message": "驗證已被取消或時間過長。請再試一次。"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "在新分頁開啟"
   },
   "invalidVerificationCode": {
     "message": "無效的驗證碼"
@@ -925,14 +942,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "30 天內不要再於這部裝置上詢問"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "選擇其他方法",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "使用您的復原碼"
   },
   "insertU2f": {
     "message": "將您的安全鑰匙插入電腦的 USB 連接埠，然後觸摸其按鈕（如有的話）。"
@@ -965,13 +982,13 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "驗證您的身分"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "我們無法辨識這部裝置。請輸入傳送到您電子郵件的驗證碼，以驗證您的身分。"
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "繼續登入"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -998,7 +1015,7 @@
     "message": "兩步驟登入選項"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "選取兩步驟登入方式"
   },
   "selfHostedEnvironment": {
     "message": "自我裝載環境"
@@ -1056,7 +1073,7 @@
     "message": "否"
   },
   "location": {
-    "message": "Location"
+    "message": "位置"
   },
   "overwritePassword": {
     "message": "覆寫密碼"
@@ -1425,6 +1442,9 @@
     "message": "複製安全代碼",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "信用卡號碼"
+  },
   "premiumMembership": {
     "message": "進階會員"
   },
@@ -1717,10 +1737,10 @@
     "message": "帳戶已限制"
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "無法匯入卡片項目類別"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "由於一或多個組織設有政策，您無法匯入卡片至您的保險庫。"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「檔案密碼」與「確認檔案密碼」不一致。"
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "使用 Windows Hello 解鎖"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "額外的 Windows Hello 設定"
-  },
   "unlockWithPolkit": {
     "message": "使用系統驗證解鎖"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "解鎖您的密碼庫"
   },
-  "autoPromptWindowsHello": {
-    "message": "啟動應用程式時詢問 Windows Hello"
-  },
-  "autoPromptPolkit": {
-    "message": "在啟動時詢問系統驗證"
-  },
   "autoPromptTouchId": {
     "message": "啟動應用程式時要求 Touch ID"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "為提升安全，建議使用。"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "重啟後使用主密碼鎖定"
@@ -2406,6 +2414,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密碼不符合一個或多個組織政策規定。您必須立即更新您的主密碼才能存取密碼庫。進行此動作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。"
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
@@ -3144,6 +3161,12 @@
   "requestAdminApproval": {
     "message": "要求管理員核准"
   },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+  },
   "region": {
     "message": "區域"
   },
@@ -3550,6 +3573,14 @@
   "uriMatchWarningDialogLink": {
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "成功"
@@ -3974,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

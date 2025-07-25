@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Шукати у сховищі"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Додати запис"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Копіювати код підтвердження (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Довжина"
@@ -1425,6 +1442,9 @@
     "message": "Копіювати код безпеки",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "Преміум статус"
   },
@@ -1636,7 +1656,7 @@
     "message": "Починається з"
   },
   "regEx": {
-    "message": "Звичайний вираз",
+    "message": "Регулярний вираз",
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
@@ -1717,10 +1737,10 @@
     "message": "Обмежено обліковим записом"
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "Не вдається імпортувати записи карток"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "Політика принаймні однієї організації не дозволяє вам імпортувати записи карток до сховища."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Пароль файлу та підтвердження пароля відрізняються."
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Розблокувати з Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Додаткові налаштування Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Розблокувати за допомогою системної автентифікації"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "розблокувати сховище"
   },
-  "autoPromptWindowsHello": {
-    "message": "Запитувати Windows Hello під час запуску"
-  },
-  "autoPromptPolkit": {
-    "message": "Запитувати системну автентифікацію під час запуску"
-  },
   "autoPromptTouchId": {
     "message": "Запитувати Touch ID під час запуску"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Вимагати пароль під час запуску"
-  },
-  "recommendedForSecurity": {
-    "message": "Рекомендовано для безпеки."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокувати головним паролем при перезапуску"
@@ -2393,7 +2401,7 @@
     "message": "Ця дія захищена. Щоб продовжити, повторно введіть головний пароль."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Головний пароль успішно встановлено"
   },
   "updatedMasterPassword": {
     "message": "Головний пароль оновлено"
@@ -2406,6 +2414,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
+  },
+  "changePasswordWarning": {
+    "message": "Після зміни пароля потрібно буде ввійти в систему з новим паролем. Активні сеанси на інших пристроях буде завершено протягом години."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Змініть свій головний пароль, щоб завершити відновлення облікового запису."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Ваш головний пароль не відповідає вимогам цієї організації. Змініть свій головний пароль, щоб продовжити."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Ваша організація вимкнула шифрування довірених пристроїв. Встановіть головний пароль для доступу до сховища."
@@ -3144,6 +3161,12 @@
   "requestAdminApproval": {
     "message": "Запит підтвердження адміністратора"
   },
+  "unableToCompleteLogin": {
+    "message": "Не вдалося завершити вхід"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Ви повинні ввійти до системи на довіреному пристрої або попросити адміністратора призначити вам пароль."
+  },
   "region": {
     "message": "Регіон"
   },
@@ -3536,20 +3559,28 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Виявлення збігів URI – це спосіб ідентифікації пропозицій автозаповнення Bitwarden.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "Регулярний вираз – це функція, що має підвищений ризик розкриття облікових даних, призначена для досвідчених користувачів.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Починається з\" – це функція, що має підвищений ризик розкриття облікових даних, призначена для досвідчених користувачів.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Докладніше про виявлення збігів",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Додаткові налаштування",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Попередження",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Успішно"
@@ -3974,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Търсене в трезора"
   },
+  "resetSearch": {
+    "message": "Нулиране на търсенето"
+  },
   "addItem": {
     "message": "Добавяне на елемент"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Код за потвърждаване (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Копиране на $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Дължина"
@@ -1425,6 +1442,9 @@
     "message": "Копиране на кода за сигурност",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "номер на карта"
+  },
   "premiumMembership": {
     "message": "Платен абонамент"
   },
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Отключване с Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Допълнителни настройки на Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Отключване чрез системно удостоверяване"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "отключете трезора си"
   },
-  "autoPromptWindowsHello": {
-    "message": "Питане за Windows Hello при пускане"
-  },
-  "autoPromptPolkit": {
-    "message": "Питане за системно удостоверяване при стартиране"
-  },
   "autoPromptTouchId": {
     "message": "Питане за Touch ID при пускане"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Изискване на парола при стартиране на приложението"
-  },
-  "recommendedForSecurity": {
-    "message": "Препоръчително от гледна точка на сигурността."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"
@@ -2406,6 +2414,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Вашата главна парола не отговаря на една или повече политики на организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час."
+  },
+  "changePasswordWarning": {
+    "message": "След като промените паролата си, ще трябва да се впишете отново с новата си парола. Сесиите на други устройства също ще бъдат прекратени в рамките на един час."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Променете главната си парола, за да завършите възстановяването на акаунта."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Главната парола не отговаря на изискванията на тази организация. Променете главната си парола, за да продължите."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Вашата организация е деактивирала шифроването чрез доверени устройства. Задайте главна парола, за да получите достъп до трезора си."
@@ -3144,6 +3161,12 @@
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
   },
+  "unableToCompleteLogin": {
+    "message": "Вписването не може да бъде завършено"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Трябва да се впишете на доверено устройство или да помолите администратора си да Ви зададе парола."
+  },
   "region": {
     "message": "Регион"
   },
@@ -3550,6 +3573,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Повече относно разпознаването на съвпадения",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Разширени настройки",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Внимание",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Успех"
@@ -3974,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Битуорден не проверява местата за въвеждане, така че се уверете, че сте в правилния прозорец, преди да ползвате клавишната комбинация."
   }
 }

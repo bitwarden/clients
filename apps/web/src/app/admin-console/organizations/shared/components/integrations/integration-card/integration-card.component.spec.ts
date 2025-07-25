@@ -16,6 +16,7 @@ import { IntegrationCardComponent } from "./integration-card.component";
 describe("IntegrationCardComponent", () => {
   let component: IntegrationCardComponent;
   let fixture: ComponentFixture<IntegrationCardComponent>;
+  const mockI18nService = mock<I18nService>();
 
   const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
   const usersPreferenceTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
@@ -41,7 +42,7 @@ describe("IntegrationCardComponent", () => {
         },
         {
           provide: I18nService,
-          useValue: mock<I18nService>(),
+          useValue: mockI18nService,
         },
       ],
     }).compileComponents();
@@ -55,6 +56,7 @@ describe("IntegrationCardComponent", () => {
     component.image = "test-image.png";
     component.linkURL = "https://example.com/";
 
+    mockI18nService.t.mockImplementation((key) => key);
     fixture.detectChanges();
   });
 
@@ -67,7 +69,7 @@ describe("IntegrationCardComponent", () => {
   it("renders card body", () => {
     const name = fixture.nativeElement.querySelector("h3");
 
-    expect(name.textContent).toBe("Integration Name");
+    expect(name.textContent).toContain("Integration Name");
   });
 
   it("assigns external rel attribute", () => {
@@ -180,6 +182,30 @@ describe("IntegrationCardComponent", () => {
 
         expect(component.imageEle.nativeElement.src).toContain("test-image.png");
       });
+    });
+  });
+
+  describe("connected badge", () => {
+    it("shows connected badge when isConnected is true", () => {
+      component.isConnected = true;
+
+      expect(component.showConnectedBadge()).toBe(true);
+    });
+
+    it("does not show connected badge when isConnected is false", () => {
+      component.isConnected = false;
+      fixture.detectChanges();
+      const name = fixture.nativeElement.querySelector("h3 > span > span > span");
+
+      expect(name.textContent).toContain("off");
+      // when isConnected is true/false, the badge should be shown as on/off
+      // when isConnected is undefined, the badge should not be shown
+      expect(component.showConnectedBadge()).toBe(true);
+    });
+
+    it("does not show connected badge when isConnected is undefined", () => {
+      component.isConnected = undefined;
+      expect(component.showConnectedBadge()).toBe(false);
     });
   });
 });

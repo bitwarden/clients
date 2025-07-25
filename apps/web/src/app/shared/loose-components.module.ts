@@ -14,16 +14,12 @@ import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/
 import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
-import { SetPasswordComponent } from "../auth/set-password.component";
 import { DangerZoneComponent } from "../auth/settings/account/danger-zone.component";
 import { EmergencyAccessConfirmComponent } from "../auth/settings/emergency-access/confirm/emergency-access-confirm.component";
 import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
 import { EmergencyAccessComponent } from "../auth/settings/emergency-access/emergency-access.component";
-import { EmergencyAccessTakeoverComponent } from "../auth/settings/emergency-access/takeover/emergency-access-takeover.component";
 import { EmergencyAccessViewComponent } from "../auth/settings/emergency-access/view/emergency-access-view.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
-import { UpdatePasswordComponent } from "../auth/update-password.component";
-import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
 import { FreeBitwardenFamiliesComponent } from "../billing/members/free-bitwarden-families.component";
@@ -42,10 +38,8 @@ import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from 
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { HeaderModule } from "../layouts/header/header.module";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
-import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
-import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
 import { SharedModule } from "./shared.module";
@@ -68,15 +62,14 @@ import { SharedModule } from "./shared.module";
     OrganizationLayoutComponent,
     VerifyRecoverDeleteOrgComponent,
     VaultTimeoutInputComponent,
+    PremiumBadgeComponent,
   ],
   declarations: [
     AcceptFamilySponsorshipComponent,
     EmergencyAccessAddEditComponent,
     EmergencyAccessComponent,
     EmergencyAccessConfirmComponent,
-    EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
-    FolderAddEditComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
@@ -84,17 +77,12 @@ import { SharedModule } from "./shared.module";
     OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
-    PremiumBadgeComponent,
-    PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
-    SetPasswordComponent,
     SponsoredFamiliesComponent,
     FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    UpdatePasswordComponent,
-    UpdateTempPasswordComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
   ],
@@ -104,9 +92,7 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessAddEditComponent,
     EmergencyAccessComponent,
     EmergencyAccessConfirmComponent,
-    EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
-    FolderAddEditComponent,
     OrganizationLayoutComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
@@ -116,16 +102,12 @@ import { SharedModule } from "./shared.module";
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
     PremiumBadgeComponent,
-    PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
-    SetPasswordComponent,
     SponsoredFamiliesComponent,
     FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
-    UpdateTempPasswordComponent,
-    UpdatePasswordComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
     HeaderModule,

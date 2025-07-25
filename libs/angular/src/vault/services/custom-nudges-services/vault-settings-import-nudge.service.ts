@@ -27,7 +27,7 @@ export class VaultSettingsImportNudgeService extends DefaultSingleNudgeService {
       this.getNudgeStatus$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),
       this.organizationService.organizations$(userId),
-      this.collectionService.decryptedCollections$,
+      this.collectionService.decryptedCollections$(userId),
     ]).pipe(
       switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
         const vaultHasMoreThanOneItem = (ciphers?.length ?? 0) > 1;
@@ -46,7 +46,7 @@ export class VaultSettingsImportNudgeService extends DefaultSingleNudgeService {
         const orgIds = new Set(orgs.map((org) => org.id));
         const canCreateCollections = orgs.some((org) => org.canCreateNewCollections);
         const hasManageCollections = collections.some(
-          (c) => c.manage && orgIds.has(c.organizationId),
+          (c) => c.manage && orgIds.has(c.organizationId!),
         );
 
         // When the user has dismissed the nudge or spotlight, return the nudge status directly

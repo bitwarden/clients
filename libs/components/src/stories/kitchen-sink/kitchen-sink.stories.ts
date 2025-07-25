@@ -14,6 +14,7 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { PasswordManagerLogo } from "../../icon";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
@@ -77,9 +78,13 @@ type Story = StoryObj<LayoutComponent>;
 export const Default: Story = {
   render: (args) => {
     return {
-      props: args,
+      props: {
+        ...args,
+        logo: PasswordManagerLogo,
+      },
       template: /* HTML */ `<bit-layout>
         <bit-side-nav>
+          <bit-nav-logo [openIcon]="logo" route="." [label]="Logo"></bit-nav-logo>
           <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
             <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
             <bit-nav-item text="Child B" route="b"></bit-nav-item>
@@ -99,10 +104,15 @@ export const Default: Story = {
       </bit-layout>`,
     };
   },
+  parameters: {
+    chromatic: {
+      viewports: [640, 1280],
+    },
+  },
 };
 
 export const MenuOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const table = getByRole(canvas, "table");
@@ -116,7 +126,7 @@ export const MenuOpen: Story = {
 };
 
 export const DialogOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const dialogButton = getByRole(canvas, "button", {
@@ -129,7 +139,7 @@ export const DialogOpen: Story = {
 };
 
 export const DrawerOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const drawerButton = getByRole(canvas, "button", {
@@ -142,7 +152,7 @@ export const DrawerOpen: Story = {
 };
 
 export const PopoverOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const passwordLabelIcon = getByLabelText(canvas, "A random password (required)", {
@@ -151,10 +161,15 @@ export const PopoverOpen: Story = {
 
     await userEvent.click(passwordLabelIcon);
   },
+  parameters: {
+    chromatic: {
+      disableSnapshot: true,
+    },
+  },
 };
 
 export const SimpleDialogOpen: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const submitButton = getByRole(canvas, "button", {
@@ -167,7 +182,7 @@ export const SimpleDialogOpen: Story = {
 };
 
 export const EmptyTab: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const emptyTab = getByRole(canvas, "tab", { name: "Empty tab" });
@@ -176,7 +191,7 @@ export const EmptyTab: Story = {
 };
 
 export const VirtualScrollBlockingDialog: Story = {
-  ...Default,
+  render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
     const navItem = getByText(canvas, "Virtual Scroll");

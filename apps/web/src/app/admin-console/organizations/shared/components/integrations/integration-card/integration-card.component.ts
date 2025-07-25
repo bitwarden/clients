@@ -41,6 +41,9 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
    * @example "2024-12-31"
    */
   @Input() newBadgeExpiration?: string;
+  @Input() description?: string;
+  @Input() isConnected?: boolean;
+  @Input() canSetupConnection?: boolean;
 
   constructor(
     private themeStateService: ThemeStateService,
@@ -92,5 +95,15 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     }
 
     return expirationDate > new Date();
+  }
+
+  showConnectedBadge(): boolean {
+    return this.isConnected !== undefined;
+  }
+
+  setupConnection(app: string) {
+    // This method can be used to handle the connection logic for the integration
+    // For example, it could open a modal or redirect to a setup page
+    this.isConnected = !this.isConnected; // Toggle connection state for demonstration
   }
 }

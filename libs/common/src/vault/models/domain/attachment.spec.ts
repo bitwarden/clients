@@ -6,7 +6,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
 import { OrgKey, UserKey } from "../../../types/key";
@@ -93,6 +93,7 @@ describe("Attachment", () => {
         sizeName: "1.1 KB",
         fileName: "fileName",
         key: expect.any(SymmetricCryptoKey),
+        encryptedKey: attachment.key,
       });
     });
 

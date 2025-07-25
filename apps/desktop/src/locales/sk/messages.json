@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Prehľadávať trezor"
   },
+  "resetSearch": {
+    "message": "Resetovať vyhľadávanie"
+  },
   "addItem": {
     "message": "Pridať položku"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Kopírovať overovací kód (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopírovať $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Dĺžka"
@@ -1425,6 +1442,9 @@
     "message": "Kopírovať bezpečnostný kód",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "číslo karty"
+  },
   "premiumMembership": {
     "message": "Prémiové členstvo"
   },
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Odomknúť pomocou Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Ďalšie nastavenia Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Odomknúť systémovým overením"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "odomknúť svoj trezor"
   },
-  "autoPromptWindowsHello": {
-    "message": "Pri spustení požiadať o Windows Hello"
-  },
-  "autoPromptPolkit": {
-    "message": "Pri spustení požiadať o systémové overenie"
-  },
   "autoPromptTouchId": {
     "message": "Pri spustení požiadať o Touch ID"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Pri spustení aplikácie vyžadovať heslo"
-  },
-  "recommendedForSecurity": {
-    "message": "Odporúča sa z hľadiska bezpečnosti."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Pri reštarte zamknúť hlavným heslom"
@@ -2406,6 +2414,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu."
+  },
+  "changePasswordWarning": {
+    "message": "Po zmene hesla sa musíte prihlásiť pomocou nového hesla. Aktívne relácie na iných zariadeniach budú do jednej hodiny odhlásené."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Zmeňte hlavné heslo, aby ste dokončili obnovenie účtu."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Vaše hlavné heslo nespĺňa požiadavky tejto organizácie. Ak chcete pokračovať, zmeňte hlavné heslo."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Vaša organizácia zakázala šifrovanie dôveryhodného zariadenia. Na prístup k trezoru nastavte hlavné heslo."
@@ -3144,6 +3161,12 @@
   "requestAdminApproval": {
     "message": "Žiadosť o schválenie správcom"
   },
+  "unableToCompleteLogin": {
+    "message": "Nepodarilo sa dokončiť prihlásenie"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Musíte sa prihlásiť na dôveryhodnom zariadení alebo požiadať správcu o priradenie hesla."
+  },
   "region": {
     "message": "Región"
   },
@@ -3550,6 +3573,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Viac informácií o zisťovaní zhody",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Rozšírené možnosti",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Upozornenie",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Úspech"
@@ -3974,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden neoveruje miesto stupu, pred použitím skratky sa uistite, že ste v správnom okne a poli."
   }
 }

@@ -1030,18 +1030,23 @@ export default class NotificationBackground {
   private async getCollectionData(
     message: NotificationBackgroundExtensionMessage,
   ): Promise<CollectionView[]> {
-    const collections = (await this.collectionService.getAllDecrypted()).reduce<CollectionView[]>(
-      (acc, collection) => {
-        if (collection.organizationId === message?.orgId) {
-          acc.push({
-            id: collection.id,
-            name: collection.name,
-            organizationId: collection.organizationId,
-          });
-        }
-        return acc;
-      },
-      [],
+    const collections = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+        map((collections) =>
+          collections.reduce<CollectionView[]>((acc, collection) => {
+            if (collection.organizationId === message?.orgId) {
+              acc.push({
+                id: collection.id,
+                name: collection.name,
+                organizationId: collection.organizationId,
+              });
+            }
+            return acc;
+          }, []),
+        ),
+      ),
     );
     return collections;
   }

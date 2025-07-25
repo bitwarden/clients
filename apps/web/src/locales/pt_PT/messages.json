@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Nota segura"
   },
+  "typeNote": {
+    "message": "Nota"
+  },
   "typeSshKey": {
     "message": "Chave SSH"
   },
@@ -861,8 +864,28 @@
   "copyName": {
     "message": "Copiar nome"
   },
+  "cardNumber": {
+    "message": "número do cartão"
+  },
+  "copyFieldCipherName": {
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Eu"
+  },
+  "myItems": {
+    "message": "Os meus itens"
   },
   "myVault": {
     "message": "O meu cofre"
@@ -1780,6 +1803,9 @@
   },
   "loggedOutWarning": {
     "message": "Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora."
+  },
+  "changePasswordWarning": {
+    "message": "Depois de ter alterado a sua palavra-passe, é necessário iniciar sessão com a sua nova palavra-passe. As sessões ativas noutros dispositivos serão interrompidas dentro de uma hora."
   },
   "emailChanged": {
     "message": "E-mail alterado"
@@ -3275,9 +3301,6 @@
   "defaultCollection": {
     "message": "Coleção predefinida"
   },
-  "myItems": {
-    "message": "Os meus itens"
-  },
   "getHelp": {
     "message": "Obter ajuda"
   },
@@ -3478,6 +3501,9 @@
   },
   "webVault": {
     "message": "Cofre web"
+  },
+  "webApp": {
+    "message": "Web app"
   },
   "cli": {
     "message": "CLI"
@@ -3961,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Pedido de início de sessão aprovado para $EMAIL$ no $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "O pedido de início de sessão já expirou."
   },
@@ -4104,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Rever pedido de início de sessão"
+  },
+  "loginRequest": {
+    "message": "Pedido de início de sessão"
   },
   "freeTrialEndPromptCount": {
     "message": "O seu período experimental gratuito termina dentro de $COUNT$ dias.",
@@ -6073,6 +6118,12 @@
   "updateMasterPassword": {
     "message": "Atualizar a palavra-passe mestra"
   },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Altere a sua palavra-passe mestra para concluir a recuperação da conta."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "A sua palavra-passe mestra não cumpre os requisitos desta organização. Altere a sua palavra-passe mestra para continuar."
+  },
   "updateMasterPasswordWarning": {
     "message": "A sua palavra-passe mestra foi recentemente alterada por um administrador da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora."
   },
@@ -6651,7 +6702,7 @@
     "message": "URL do servidor da API"
   },
   "webVaultUrl": {
-    "message": "URL do servidor do cofre Web"
+    "message": "URL do servidor do cofre web"
   },
   "identityUrl": {
     "message": "URL do servidor de identidade"
@@ -8453,6 +8504,12 @@
   "requestAdminApproval": {
     "message": "Pedir aprovação do administrador"
   },
+  "unableToCompleteLogin": {
+    "message": "Não é possível concluir o início de sessão"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Tem de iniciar sessão num dispositivo de confiança ou pedir ao seu administrador que lhe atribua uma palavra-passe."
+  },
   "trustedDeviceEncryption": {
     "message": "Encriptação de dispositivo de confiança"
   },
@@ -8862,7 +8919,7 @@
     "message": "Instalar a extensão do navegador"
   },
   "installBrowserExtensionDetails": {
-    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação Web."
+    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação web."
   },
   "projectAccessUpdated": {
     "message": "Acesso ao projeto atualizado"
@@ -8922,6 +8979,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Mais informações sobre a deteção de correspondências",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Opções avançadas",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Aviso",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Para manter a sua subscrição para a $ORG$, ",
@@ -8985,7 +9050,7 @@
     "message": "Gratuito durante 1 ano"
   },
   "newWebApp": {
-    "message": "Bem-vindo à nova e melhorada aplicação Web. Saiba mais sobre o que mudou."
+    "message": "Bem-vindo à nova e melhorada aplicação web. Saiba mais sobre o que mudou."
   },
   "releaseBlog": {
     "message": "Ler o blogue de lançamento"
@@ -10714,49 +10779,49 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "setupExtensionPageTitle": {
-    "message": "Autofill your passwords securely with one click"
+    "message": "Preenchimento automático das suas palavras-passe de forma segura com um só clique"
   },
   "setupExtensionPageDescription": {
-    "message": "Get the Bitwarden browser extension and start autofilling today"
+    "message": "Obtenha a extensão do navegador Bitwarden e comece a preencher automaticamente hoje mesmo"
   },
   "getTheExtension": {
-    "message": "Get the extension"
+    "message": "Obter a extensão"
   },
   "addItLater": {
-    "message": "Add it later"
+    "message": "Adicioná-la mais tarde"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "You can't autofill passwords without the browser extension"
+    "message": "Não é possível preencher automaticamente as palavras-passe sem a extensão do navegador"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
-    "message": "Are you sure you don't want to add the extension now?"
+    "message": "Tem a certeza de que não pretende adicionar a extensão agora?"
   },
   "skipToWebApp": {
-    "message": "Skip to web app"
+    "message": "Saltar para a aplicação web"
   },
   "bitwardenExtensionInstalled": {
-    "message": "Bitwarden extension installed!"
+    "message": "Extensão Bitwarden instalada!"
   },
   "openExtensionToAutofill": {
-    "message": "Open the extension to log in and start autofilling."
+    "message": "Abra a extensão para iniciar sessão e começar o preenchimento automático."
   },
   "openBitwardenExtension": {
-    "message": "Open Bitwarden extension"
+    "message": "Abrir a extensão Bitwarden"
   },
   "gettingStartedWithBitwardenPart1": {
-    "message": "For tips on getting started with Bitwarden visit the",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "message": "Para obter dicas sobre como começar a utilizar o Bitwarden, visite a página",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
-    "message": "Learning Center",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "message": "Centro de aprendizagem",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
-    "message": "Help Center",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "message": "Centro de ajuda",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
-    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+    "message": "Com a extensão do navegador Bitwarden, pode criar facilmente novas credenciais, aceder às credenciais guardadas diretamente a partir da barra de ferramentas do navegador e iniciar sessão em contas rapidamente utilizando o preenchimento automático do Bitwarden."
   },
   "restart": {
     "message": "Reiniciar"
@@ -10783,5 +10848,53 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Endereço de faturação necessário para adicionar crédito.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Endereço de faturação"
+  },
+  "addBillingAddress": {
+    "message": "Adicionar endereço de faturação"
+  },
+  "editBillingAddress": {
+    "message": "Editar endereço de faturação"
+  },
+  "noBillingAddress": {
+    "message": "Não existe endereço no ficheiro."
+  },
+  "billingAddressUpdated": {
+    "message": "O seu endereço de faturação foi atualizado."
+  },
+  "paymentDetails": {
+    "message": "Detalhes do pagamento"
+  },
+  "paymentMethodUpdated": {
+    "message": "O seu método de pagamento foi atualizado."
+  },
+  "bankAccountVerified": {
+    "message": "A sua conta bancária foi verificada."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Qualquer crédito disponível será automaticamente aplicado às faturas geradas para esta conta."
+  },
+  "mustBePositiveNumber": {
+    "message": "Tem de ser um número positivo"
+  },
+  "cardSecurityCode": {
+    "message": "Código de segurança do cartão"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "O código de segurança do cartão, também conhecido como CVV ou CVC, é normalmente um número de 3 dígitos impresso no verso do seu cartão de crédito ou um número de 4 dígitos impresso na parte da frente, por cima do número do seu cartão."
+  },
+  "verifyBankAccountWarning": {
+    "message": "O pagamento com uma conta bancária só está disponível para clientes nos Estados Unidos. Ser-lhe-á pedido que verifique a sua conta bancária. Efetuaremos um micro-depósito nos próximos 1-2 dias úteis. Introduza o código descritor do extrato deste depósito na página Detalhes do pagamento para verificar a conta bancária. A não verificação da conta bancária resultará na perda de um pagamento e na suspensão da subscrição."
+  },
+  "taxId": {
+    "message": "NIF: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
   }
 }

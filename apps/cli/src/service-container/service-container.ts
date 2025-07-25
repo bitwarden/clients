@@ -685,11 +685,23 @@ export class ServiceContainer {
       this.configService,
     );
 
+    this.restrictedItemTypesService = new RestrictedItemTypesService(
+      this.configService,
+      this.accountService,
+      this.organizationService,
+      this.policyService,
+    );
+
+    this.cliRestrictedItemTypesService = new CliRestrictedItemTypesService(
+      this.restrictedItemTypesService,
+    );
+
     // FIXME: CLI does not support autofill
     this.autofillSettingsService = new AutofillSettingsService(
       this.stateProvider,
       this.policyService,
       this.accountService,
+      this.restrictedItemTypesService,
     );
 
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
@@ -796,17 +808,6 @@ export class ServiceContainer {
 
     this.totpService = new TotpService(this.sdkService);
 
-    this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
-      this.accountService,
-      this.organizationService,
-      this.policyService,
-    );
-
-    this.cliRestrictedItemTypesService = new CliRestrictedItemTypesService(
-      this.restrictedItemTypesService,
-    );
-
     this.importApiService = new ImportApiService(this.apiService);
 
     this.importService = new ImportService(
@@ -820,6 +821,7 @@ export class ServiceContainer {
       this.pinService,
       this.accountService,
       this.sdkService,
+      this.restrictedItemTypesService,
     );
 
     this.individualExportService = new IndividualVaultExportService(
@@ -899,7 +901,6 @@ export class ServiceContainer {
       this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
-      this.collectionService.clear(userId),
     ]);
 
     await this.stateEventRunnerService.handleEvent("logout", userId as UserId);

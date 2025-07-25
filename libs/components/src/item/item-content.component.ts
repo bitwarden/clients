@@ -7,9 +7,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  Input,
   signal,
   ViewChild,
+  input,
 } from "@angular/core";
 
 import { TypographyModule } from "../typography";
@@ -39,7 +39,7 @@ export class ItemContentComponent implements AfterContentChecked {
    *
    * Default behavior is truncation.
    */
-  @Input() truncate = true;
+  readonly truncate = input(true);
 
   ngAfterContentChecked(): void {
     this.endSlotHasChildren.set(this.endSlot?.nativeElement.childElementCount > 0);
