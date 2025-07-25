@@ -6,12 +6,13 @@ import {
   Component,
   HostListener,
   Input,
-  OnDestroy,
   ViewChild,
   input,
+  inject,
+  DestroyRef,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IsActiveMatchOptions, RouterLinkActive, RouterModule } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
 
 import { TabListItemDirective } from "../shared/tab-list-item.directive";
 
@@ -22,9 +23,8 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
   templateUrl: "tab-link.component.html",
   imports: [TabListItemDirective, RouterModule],
 })
-export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-
+export class TabLinkComponent implements FocusableOption, AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
   @ViewChild(TabListItemDirective) tabItem: TabListItemDirective;
   @ViewChild("rla") routerLinkActive: RouterLinkActive;
 
@@ -61,12 +61,7 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestr
     // The active state of tab links are tracked via the routerLinkActive directive
     // We need to watch for changes to tell the parent nav group when the tab is active
     this.routerLinkActive.isActiveChange
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((_) => this._tabNavBar.updateActiveLink());
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
