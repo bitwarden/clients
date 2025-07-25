@@ -10942,5 +10942,11 @@
   },
    "unlimitedSecretsAndProjects": {
     "message": "Unlimited secrets and projects"
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }
