@@ -16,8 +16,6 @@ pub fn get_foreground_window_title() -> std::result::Result<String, ()> {
 /// `input` must be an array of utf-16 encoded characters to insert.
 ///
 /// TODO: The error handling will be improved in a future PR: PM-23615
-///
-/// https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 #[allow(clippy::result_unit_err)]
 pub fn type_input(input: Vec<u16>) -> std::result::Result<(), ()> {
     windowing::type_input(input)
