@@ -47,11 +47,11 @@ export class Folder extends Domain {
     key: SymmetricCryptoKey,
     encryptService: EncryptService,
   ): Promise<FolderView> {
-    const decrypted = await this.decryptObjWithKey(["name"], key, encryptService, Folder);
-
-    const view = new FolderView(decrypted);
-    view.name = decrypted.name;
-    return view;
+    const folderView = new FolderView();
+    folderView.id = this.id;
+    folderView.revisionDate = this.revisionDate;
+    folderView.name = await encryptService.decryptString(this.name, key);
+    return folderView;
   }
 
   static fromJSON(obj: Jsonify<Folder>) {

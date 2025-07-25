@@ -6,7 +6,6 @@ import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../
 import { Encrypted } from "../../../platform/interfaces/encrypted";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { EncryptService } from "../abstractions/encrypt.service";
 
 export const DECRYPT_ERROR = "[error: cannot decrypt]";
 
@@ -184,25 +183,6 @@ export class EncString implements Encrypted {
     return this.decryptedValue;
   }
 
-  async decryptWithKey(
-    key: SymmetricCryptoKey,
-    encryptService: EncryptService,
-    decryptTrace: string = "domain-withkey",
-  ): Promise<string> {
-    try {
-      if (key == null) {
-        throw new Error("No key to decrypt EncString");
-      }
-
-      this.decryptedValue = await encryptService.decryptString(this, key);
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      this.decryptedValue = DECRYPT_ERROR;
-    }
-
-    return this.decryptedValue;
-  }
   private async getKeyForDecryption(orgId: string) {
     const keyService = Utils.getContainerService().getKeyService();
     return orgId != null
