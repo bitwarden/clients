@@ -28,7 +28,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -209,7 +209,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected getOrganizationFilterMyVault(): TreeNode<OrganizationFilter> {
     const myVault = new Organization() as OrganizationFilter;
-    myVault.id = "MyVault";
+    myVault.id = "MyVault" as OrganizationId;
     myVault.icon = "bwi-user";
     myVault.enabled = true;
     myVault.hideOptions = true;

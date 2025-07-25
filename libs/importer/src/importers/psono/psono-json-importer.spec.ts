@@ -1,3 +1,4 @@
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
@@ -236,7 +237,7 @@ describe("PSONO JSON Importer", () => {
 
   it("should create collections if part of an organization", async () => {
     const importer = new PsonoJsonImporter();
-    importer.organizationId = "someOrg";
+    importer.organizationId = "someOrg" as OrganizationId;
     const result = await importer.parse(FoldersTestDataJson);
     expect(result != null).toBe(true);
 

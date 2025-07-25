@@ -31,7 +31,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -918,7 +918,7 @@ export default class NotificationBackground {
 
     if (queueItem?.type === NotificationQueueMessageType.AddLogin) {
       const cipherView = this.convertAddLoginQueueMessageToCipherView(queueItem);
-      cipherView.organizationId = organizationId;
+      cipherView.organizationId = organizationId as OrganizationId;
       cipherView.folderId = folder;
 
       if (userId) {

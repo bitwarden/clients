@@ -1,5 +1,6 @@
 import { CipherListView } from "@bitwarden/sdk-internal";
 
+import { OrganizationId } from "../../types/guid";
 import { CipherType } from "../enums";
 import { Attachment } from "../models/domain/attachment";
 import { AttachmentView } from "../models/view/attachment.view";
@@ -142,7 +143,7 @@ describe("CipherViewLikeUtils", () => {
       });
 
       it("returns false when the cipher is assigned to an organization and cannot be edited", () => {
-        cipherView.organizationId = "org-id";
+        cipherView.organizationId = "org-id" as OrganizationId;
         cipherView.edit = false;
         cipherView.viewPassword = false;
 
@@ -150,7 +151,7 @@ describe("CipherViewLikeUtils", () => {
       });
 
       it("returns true when the cipher is assigned to an organization and can be edited", () => {
-        cipherView.organizationId = "org-id";
+        cipherView.organizationId = "org-id" as OrganizationId;
         cipherView.edit = true;
         cipherView.viewPassword = true;
 

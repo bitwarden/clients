@@ -2,14 +2,14 @@
 // @ts-strict-ignore
 import { ListResponse } from "../../../models/response/list.response";
 import Domain from "../../../platform/models/domain/domain-base";
-import { PolicyId } from "../../../types/guid";
+import { OrganizationId, PolicyId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../data/policy.data";
 import { PolicyResponse } from "../response/policy.response";
 
 export class Policy extends Domain {
   id: PolicyId;
-  organizationId: string;
+  organizationId: OrganizationId;
   type: PolicyType;
   data: any;
 
@@ -26,7 +26,7 @@ export class Policy extends Domain {
     }
 
     this.id = obj.id;
-    this.organizationId = obj.organizationId;
+    this.organizationId = obj.organizationId as OrganizationId;
     this.type = obj.type;
     this.data = obj.data;
     this.enabled = obj.enabled;

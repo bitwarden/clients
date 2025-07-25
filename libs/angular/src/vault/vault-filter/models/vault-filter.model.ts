@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
@@ -13,7 +14,7 @@ export type VaultFilterFunction = (cipher: CipherViewLike) => boolean;
 export class VaultFilter {
   cipherType?: CipherType;
   selectedCollection = false; // This is needed because of how the "Unassigned" collection works. It has a null id.
-  selectedCollectionId?: string;
+  selectedCollectionId?: CollectionId;
   status?: CipherStatus;
   selectedFolder = false; // This is needed because of how the "No Folder" folder works. It has a null id.
   selectedFolderId?: string;

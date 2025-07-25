@@ -195,7 +195,7 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipherCreate if collectionsIds != null", async () => {
-      encryptionContext.cipher.collectionIds = ["123"];
+      encryptionContext.cipher.collectionIds = ["123"] as CollectionId[];
       const spy = jest
         .spyOn(apiService, "postCipherCreate")
         .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));

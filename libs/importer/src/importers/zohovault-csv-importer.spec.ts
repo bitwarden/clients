@@ -1,3 +1,4 @@
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -73,7 +74,7 @@ describe("Zoho Vault CSV Importer", () => {
 
   it("should create collection and assign ciphers when importing into an organization", async () => {
     const importer = new ZohoVaultCsvImporter();
-    importer.organizationId = "someOrgId";
+    importer.organizationId = "someOrgId" as OrganizationId;
     const result = await importer.parse(samplezohovaultcsvdata);
     expect(result != null).toBe(true);
     expect(result.success).toBe(true);

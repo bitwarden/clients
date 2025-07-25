@@ -8,6 +8,7 @@ import { View } from "../../../models/view/view";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { DeepJsonify } from "../../../types/deep-jsonify";
+import { CollectionId, OrganizationId } from "../../../types/guid";
 import { CipherType, LinkedIdType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
@@ -27,7 +28,7 @@ export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
 
   id: string = null;
-  organizationId: string | undefined = null;
+  organizationId: OrganizationId | undefined = null;
   folderId: string = null;
   name: string = null;
   notes: string = null;
@@ -46,7 +47,7 @@ export class CipherView implements View, InitializerMetadata {
   attachments: AttachmentView[] = [];
   fields: FieldView[] = [];
   passwordHistory: PasswordHistoryView[] = [];
-  collectionIds: string[] = null;
+  collectionIds: CollectionId[] = null;
   revisionDate: Date = null;
   creationDate: Date = null;
   deletedDate: Date = null;
@@ -257,7 +258,7 @@ export class CipherView implements View, InitializerMetadata {
 
     const cipherView = new CipherView();
     cipherView.id = uuidToString(obj.id) ?? null;
-    cipherView.organizationId = uuidToString(obj.organizationId) ?? null;
+    cipherView.organizationId = (uuidToString(obj.organizationId) as OrganizationId) ?? null;
     cipherView.folderId = uuidToString(obj.folderId) ?? null;
     cipherView.name = obj.name;
     cipherView.notes = obj.notes ?? null;
@@ -273,7 +274,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)) ?? [];
     cipherView.passwordHistory =
       obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)) ?? [];
-    cipherView.collectionIds = obj.collectionIds?.map((i) => uuidToString(i)) ?? [];
+    cipherView.collectionIds = obj.collectionIds?.map((i) => uuidToString(i) as CollectionId) ?? [];
     cipherView.revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     cipherView.creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);

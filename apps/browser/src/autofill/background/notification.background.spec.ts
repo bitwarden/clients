@@ -16,7 +16,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -919,7 +919,7 @@ describe("NotificationBackground", () => {
 
         it("completes password update notification with a security task notice if any are present for the cipher, and dismisses tasks for the updated cipher", async () => {
           const mockCipherId = "testId";
-          const mockOrgId = "testOrgId";
+          const mockOrgId = "testOrgId" as OrganizationId;
           const mockSecurityTask = {
             id: "testTaskId",
             organizationId: mockOrgId,

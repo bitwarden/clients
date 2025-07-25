@@ -54,7 +54,7 @@ describe("Collection", () => {
 
   it("Decrypt", async () => {
     const collection = new Collection();
-    collection.id = "id";
+    collection.id = "id" as CollectionId;
     collection.organizationId = "orgId" as OrganizationId;
     collection.name = mockEnc("encName");
     collection.externalId = "extId";

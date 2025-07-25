@@ -5,7 +5,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { mockAccountServiceWith } from "../../../../spec";
 import { Account } from "../../../auth/abstractions/account.service";
-import { CipherId, UserId } from "../../../types/guid";
+import { CipherId, OrganizationId, UserId } from "../../../types/guid";
 import { CipherService, EncryptionContext } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
@@ -184,7 +184,7 @@ describe("FidoAuthenticatorService", () => {
       /** Devation: Organization ciphers are not checked against excluded credentials, even if the user has access to them. */
       it("should not inform user of duplication when the excluded credential belongs to an organization", async () => {
         userInterfaceSession.informExcludedCredential.mockResolvedValue();
-        excludedCipher.organizationId = "someOrganizationId";
+        excludedCipher.organizationId = "someOrganizationId" as OrganizationId;
 
         try {
           await authenticator.makeCredential(params, windowReference);

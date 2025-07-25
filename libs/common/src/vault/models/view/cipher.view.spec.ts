@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { mockFromJson, mockFromSdk } from "../../../../spec";
+import { CollectionId, OrganizationId } from "../../../types/guid";
 import { CipherRepromptType } from "../../enums";
 import { CipherType } from "../../enums/cipher-type";
 
@@ -231,9 +232,9 @@ describe("CipherView", () => {
     it("maps properties correctly", () => {
       const cipherView = new CipherView();
       cipherView.id = "0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602";
-      cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c";
+      cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c" as OrganizationId;
       cipherView.folderId = "41b22db4-8e2a-4ed2-b568-f1186c72922f";
-      cipherView.collectionIds = ["b0473506-3c3c-4260-a734-dfaaf833ab6f"];
+      cipherView.collectionIds = ["b0473506-3c3c-4260-a734-dfaaf833ab6f"] as CollectionId[];
       cipherView.key = new EncString("some-key");
       cipherView.name = "name";
       cipherView.notes = "notes";

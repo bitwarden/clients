@@ -19,7 +19,7 @@ import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
-import { UserId } from "../../../types/guid";
+import { OrganizationId, UserId } from "../../../types/guid";
 import { CipherService } from "../../abstractions/cipher.service";
 import { FieldType, LoginLinkedId, SecureNoteType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
@@ -72,7 +72,7 @@ describe("Cipher DTO", () => {
   it("Decrypt should handle cipher key error", async () => {
     const cipher = new Cipher();
     cipher.id = "id";
-    cipher.organizationId = "orgId";
+    cipher.organizationId = "orgId" as OrganizationId;
     cipher.folderId = "folderId";
     cipher.edit = true;
     cipher.viewPassword = true;
@@ -110,7 +110,7 @@ describe("Cipher DTO", () => {
 
     expect(cipherView).toMatchObject({
       id: "id",
-      organizationId: "orgId",
+      organizationId: "orgId" as OrganizationId,
       folderId: "folderId",
       name: "[error: cannot decrypt]",
       type: 1,
@@ -137,7 +137,7 @@ describe("Cipher DTO", () => {
     beforeEach(() => {
       cipherData = {
         id: "id",
-        organizationId: "orgId",
+        organizationId: "orgId" as OrganizationId,
         folderId: "folderId",
         edit: true,
         viewPassword: true,
@@ -210,7 +210,7 @@ describe("Cipher DTO", () => {
       expect(cipher).toMatchObject({
         initializerKey: InitializerKey.Cipher,
         id: "id",
-        organizationId: "orgId",
+        organizationId: "orgId" as OrganizationId,
         folderId: "folderId",
         name: { encryptedString: "EncryptedString", encryptionType: 0 },
         notes: { encryptedString: "EncryptedString", encryptionType: 0 },
@@ -290,7 +290,7 @@ describe("Cipher DTO", () => {
     it("Decrypt", async () => {
       const cipher = new Cipher();
       cipher.id = "id";
-      cipher.organizationId = "orgId";
+      cipher.organizationId = "orgId" as OrganizationId;
       cipher.folderId = "folderId";
       cipher.edit = true;
       cipher.viewPassword = true;
@@ -419,7 +419,7 @@ describe("Cipher DTO", () => {
     it("Decrypt", async () => {
       const cipher = new Cipher();
       cipher.id = "id";
-      cipher.organizationId = "orgId";
+      cipher.organizationId = "orgId" as OrganizationId;
       cipher.folderId = "folderId";
       cipher.edit = true;
       cipher.viewPassword = true;
@@ -554,7 +554,7 @@ describe("Cipher DTO", () => {
     it("Decrypt", async () => {
       const cipher = new Cipher();
       cipher.id = "id";
-      cipher.organizationId = "orgId";
+      cipher.organizationId = "orgId" as OrganizationId;
       cipher.folderId = "folderId";
       cipher.edit = true;
       cipher.viewPassword = true;
@@ -719,7 +719,7 @@ describe("Cipher DTO", () => {
     it("Decrypt", async () => {
       const cipher = new Cipher();
       cipher.id = "id";
-      cipher.organizationId = "orgId";
+      cipher.organizationId = "orgId" as OrganizationId;
       cipher.folderId = "folderId";
       cipher.edit = true;
       cipher.viewPassword = true;

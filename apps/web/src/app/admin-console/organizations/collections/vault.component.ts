@@ -375,7 +375,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       map(([organizationId, allCollections]) => {
         const noneCollection = new CollectionAdminView();
         noneCollection.name = this.i18nService.t("unassigned");
-        noneCollection.id = Unassigned;
+        noneCollection.id = Unassigned as CollectionId;
         noneCollection.organizationId = organizationId;
         return allCollections.concat(noneCollection);
       }),

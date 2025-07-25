@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherType, isCipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -94,7 +95,7 @@ export class VaultFilter {
     return this.selectedFolderNode?.node.id;
   }
 
-  get collectionId(): string {
+  get collectionId(): CollectionId {
     return this.selectedCollectionNode?.node.id;
   }
 

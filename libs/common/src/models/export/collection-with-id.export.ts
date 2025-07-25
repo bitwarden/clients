@@ -4,18 +4,20 @@
 // eslint-disable-next-line no-restricted-imports
 import { Collection as CollectionDomain, CollectionView } from "@bitwarden/admin-console/common";
 
+import { CollectionId } from "../../types/guid";
+
 import { CollectionExport } from "./collection.export";
 
 export class CollectionWithIdExport extends CollectionExport {
   id: string;
 
   static toView(req: CollectionWithIdExport, view = new CollectionView()) {
-    view.id = req.id;
+    view.id = req.id as CollectionId;
     return super.toView(req, view);
   }
 
   static toDomain(req: CollectionWithIdExport, domain = new CollectionDomain()) {
-    domain.id = req.id;
+    domain.id = req.id as CollectionId;
     return super.toDomain(req, domain);
   }
 
