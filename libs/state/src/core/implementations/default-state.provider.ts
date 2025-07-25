@@ -3,6 +3,7 @@
 import { Observable, filter, of, switchMap, take } from "rxjs";
 
 import { UserId } from "@bitwarden/user-core";
+
 import { DerivedStateDependencies } from "../../types/state";
 import { DeriveDefinition } from "../derive-definition";
 import { DerivedState } from "../derived-state";

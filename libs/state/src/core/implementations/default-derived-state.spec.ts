@@ -5,6 +5,7 @@
 import { Subject, firstValueFrom } from "rxjs";
 
 import { awaitAsync, trackEmissions } from "@bitwarden/common/spec";
+
 import { DeriveDefinition } from "../derive-definition";
 import { StateDefinition } from "../state-definition";
 

@@ -1,8 +1,9 @@
 import { mock } from "jest-mock-extended";
 
+import { MigrationHelper } from "@bitwarden/state";
+
 import { FakeStorageService } from "../../../spec/fake-storage.service";
 import { ClientType } from "../../enums";
-import { MigrationHelper } from "../../state-migrations/migration-helper";
 
 import { MigrationBuilderService } from "./migration-builder.service";
 

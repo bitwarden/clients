@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { StorageServiceProvider } from "@bitwarden/storage-core";
-
-import { UserId } from "@bitwarden/user-core";
 import { LogService } from "@bitwarden/logging";
+import { StorageServiceProvider } from "@bitwarden/storage-core";
+import { UserId } from "@bitwarden/user-core";
+
 import { StateEventRegistrarService } from "../state-event-registrar.service";
 import { UserKeyDefinition } from "../user-key-definition";
 import { SingleUserState } from "../user-state";

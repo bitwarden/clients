@@ -2,13 +2,12 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
-import { StorageServiceProvider } from "@bitwarden/storage-core";
-
+import { StorageServiceProvider, StorageLocation } from "@bitwarden/storage-core";
 import { UserId } from "@bitwarden/user-core";
 
 import { GlobalState } from "./global-state";
 import { GlobalStateProvider } from "./global-state.provider";
-import { StateDefinition, StorageLocation } from "./state-definition";
+import { StateDefinition } from "./state-definition";
 import {
   STATE_LOCK_EVENT,
   STATE_LOGOUT_EVENT,

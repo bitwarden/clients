@@ -4,6 +4,7 @@
  */
 import { Observable, of } from "rxjs";
 
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { awaitAsync, trackEmissions } from "@bitwarden/common/spec";
 import {
   FakeAccountService,
@@ -15,8 +16,8 @@ import {
   FakeGlobalStateProvider,
   FakeSingleUserStateProvider,
 } from "@bitwarden/common/spec/fake-state-provider";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserId } from "@bitwarden/user-core";
+
 import { DeriveDefinition } from "../derive-definition";
 import { KeyDefinition } from "../key-definition";
 import { StateDefinition } from "../state-definition";

@@ -1,6 +1,5 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-
 import { ClientType } from "@bitwarden/common/enums";
 // eslint-disable-next-line no-restricted-imports
 import { Utils } from "@bitwarden/common/src/platform/misc/utils";

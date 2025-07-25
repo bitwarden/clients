@@ -15,3 +15,4 @@ export { StateDefinition } from "./state-definition";
 
 export * from "./state-definitions";
 export * from "./implementations";
+export * from "./state-event-registrar.service";

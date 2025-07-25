@@ -1,4 +1,4 @@
-import { CURRENT_VERSION, currentVersion , MigrationHelper } from "@bitwarden/state";
+import { CURRENT_VERSION, currentVersion, MigrationHelper } from "@bitwarden/state";
 
 import { ClientType } from "../../enums";
 import { waitForMigrations } from "../../state-migrations";

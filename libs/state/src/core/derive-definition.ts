@@ -3,6 +3,7 @@
 import { Jsonify } from "type-fest";
 
 import { UserId } from "@bitwarden/user-core";
+
 import { DerivedStateDependencies, StorageKey } from "../types/state";
 
 import { KeyDefinition } from "./key-definition";

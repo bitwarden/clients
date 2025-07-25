@@ -10,9 +10,11 @@ import {
   KeyDefinition,
   DeriveDefinition,
   UserKeyDefinition,
- DerivedStateDependencies , StateUpdateOptions , CombinedState, activeMarker } from "@bitwarden/state";
- 
- 
+  DerivedStateDependencies,
+  StateUpdateOptions,
+  CombinedState,
+  activeMarker,
+} from "@bitwarden/state";
 
 import { UserId } from "../src/types/guid";
 

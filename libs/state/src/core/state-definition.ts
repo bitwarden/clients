@@ -1,8 +1,5 @@
 import { StorageLocation, ClientLocations } from "@bitwarden/storage-core";
 
-// To be removed once references are updated to point to @bitwarden/storage-core
-export { StorageLocation, ClientLocations };
-
 /**
  * Defines the base location and instruction of where this state is expected to be located.
  */
