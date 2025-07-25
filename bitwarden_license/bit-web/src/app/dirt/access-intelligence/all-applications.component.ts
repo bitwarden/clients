@@ -86,24 +86,25 @@ export class AllApplicationsComponent implements OnInit {
 
       combineLatest([
         this.dataService.applications$,
+        this.dataService.memberDetails$,
         this.criticalAppsService.getAppsListForOrg(organizationId),
         organization$,
       ])
         .pipe(
           takeUntilDestroyed(this.destroyRef),
-          map(([applications, criticalApps, organization]) => {
+          map(([applications, memberDetails, criticalApps, organization]) => {
             if (applications && applications.length === 0 && criticalApps && criticalApps) {
               const criticalUrls = criticalApps.map((ca) => ca.uri);
               const data = applications?.map((app) => ({
                 ...app,
                 isMarkedAsCritical: criticalUrls.includes(app.applicationName),
               })) as ApplicationHealthReportDetailWithCriticalFlag[];
-              return { data, organization };
+              return { data, organization, memberDetails };
             }
 
-            return { data: applications, organization };
+            return { data: applications, organization, memberDetails };
           }),
-          switchMap(async ({ data, organization }) => {
+          switchMap(async ({ data, organization, memberDetails }) => {
             if (data && organization) {
               const dataWithCiphers = await this.reportService.identifyCiphers(
                 data,
@@ -113,16 +114,20 @@ export class AllApplicationsComponent implements OnInit {
               return {
                 data: dataWithCiphers,
                 organization,
+                memberDetails,
               };
             }
 
-            return { data: [], organization };
+            return { data: [], organization, memberDetails: [] };
           }),
         )
-        .subscribe(({ data, organization }) => {
+        .subscribe(({ data, organization, memberDetails }) => {
           if (data) {
             this.dataSource.data = data;
-            this.applicationSummary = this.reportService.generateApplicationsSummary(data);
+            this.applicationSummary = this.reportService.generateApplicationsSummary(
+              data,
+              memberDetails,
+            );
           }
           if (organization) {
             this.organization = organization;
