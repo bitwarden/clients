@@ -35,6 +35,7 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
 
   protected clientsTranslationKey$: Observable<string>;
   protected managePaymentDetailsOutsideCheckout$: Observable<boolean>;
+  protected providerPortalTakeover$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -76,6 +77,10 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
 
     this.managePaymentDetailsOutsideCheckout$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    );
+
+    this.providerPortalTakeover$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM21821_ProviderPortalTakeover,
     );
   }
 

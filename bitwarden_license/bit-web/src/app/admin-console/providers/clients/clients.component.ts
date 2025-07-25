@@ -3,8 +3,8 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, from, map } from "rxjs";
-import { debounceTime, first, switchMap } from "rxjs/operators";
+import { firstValueFrom, from, map, Observable, switchMap, tap } from "rxjs";
+import { debounceTime, first } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -57,11 +57,28 @@ export class ClientsComponent {
   providerId: string = "";
   addableOrganizations: Organization[] = [];
   loading = true;
-  manageOrganizations = false;
   showAddExisting = false;
   dataSource: TableDataSource<ProviderOrganizationOrganizationDetailsResponse> =
     new TableDataSource();
   protected searchControl = new FormControl("", { nonNullable: true });
+
+  protected providerId$: Observable<string> =
+    this.activatedRoute.parent?.params.pipe(
+      map((params) => params.providerId as string),
+      tap((providerId) => (this.providerId = providerId)),
+    ) ?? new Observable();
+
+  protected provider$ = this.providerId$.pipe(
+    switchMap((providerId) => this.providerService.get$(providerId)),
+  );
+
+  protected isAdminOrServiceUser$ = this.provider$.pipe(
+    map(
+      (provider) =>
+        provider?.type === ProviderUserType.ProviderAdmin ||
+        provider?.type === ProviderUserType.ServiceUser,
+    ),
+  );
 
   constructor(
     private router: Router,
@@ -81,24 +98,17 @@ export class ClientsComponent {
       this.searchControl.setValue(queryParams.search);
     });
 
-    this.activatedRoute.parent?.params
-      ?.pipe(
-        switchMap((params) => {
-          this.providerId = params.providerId;
-          return this.providerService.get$(this.providerId).pipe(
-            map((provider) => provider?.providerStatus === ProviderStatusType.Billable),
-            map((isBillable) => {
-              if (isBillable) {
-                return from(
-                  this.router.navigate(["../manage-client-organizations"], {
-                    relativeTo: this.activatedRoute,
-                  }),
-                );
-              } else {
-                return from(this.load());
-              }
-            }),
-          );
+    this.provider$
+      .pipe(
+        map((provider) => {
+          if (provider?.providerStatus === ProviderStatusType.Billable) {
+            return from(
+              this.router.navigate(["../manage-client-organizations"], {
+                relativeTo: this.activatedRoute,
+              }),
+            );
+          }
+          return from(this.load());
         }),
         takeUntilDestroyed(),
       )
@@ -141,8 +151,6 @@ export class ClientsComponent {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const clients = response.data != null && response.data.length > 0 ? response.data : [];
     this.dataSource.data = clients;
-    this.manageOrganizations =
-      (await this.providerService.get(this.providerId)).type === ProviderUserType.ProviderAdmin;
     const candidateOrgs = (
       await firstValueFrom(this.organizationService.organizations$(userId))
     ).filter((o) => o.isOwner && o.providerId == null);

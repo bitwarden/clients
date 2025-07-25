@@ -30,6 +30,7 @@ const gearIcon = svgIcon`
     <p class="tw-mt-4">{{ "noClients" | i18n }}</p>
     <a
       *ngIf="showAddOrganizationButton"
+      [disabled]="disableAddOrganizationButton"
       type="button"
       bitButton
       buttonType="primary"
@@ -43,6 +44,7 @@ const gearIcon = svgIcon`
 export class NoClientsComponent {
   icon = gearIcon;
   @Input() showAddOrganizationButton = true;
+  @Input() disableAddOrganizationButton = false;
   @Output() addNewOrganizationClicked = new EventEmitter();
 
   addNewOrganization = () => this.addNewOrganizationClicked.emit();
