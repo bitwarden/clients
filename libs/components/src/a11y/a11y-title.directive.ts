@@ -1,21 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
+import { Directive, ElementRef, input, OnInit, Renderer2 } from "@angular/core";
 
 @Directive({
   selector: "[appA11yTitle]",
 })
 export class A11yTitleDirective implements OnInit {
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input() set appA11yTitle(title: string) {
-    this.title = title;
-    this.setAttributes();
-  }
+  title = input.required<string>({ alias: "appA11yTitle" });
 
-  private title: string;
-  private originalTitle: string | null;
-  private originalAriaLabel: string | null;
+  private originalTitle: string | null = null;
+  private originalAriaLabel: string | null = null;
 
   constructor(
     private el: ElementRef,
@@ -30,10 +22,10 @@ export class A11yTitleDirective implements OnInit {
 
   private setAttributes() {
     if (this.originalTitle === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "title", this.title);
+      this.renderer.setAttribute(this.el.nativeElement, "title", this.title());
     }
     if (this.originalAriaLabel === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "aria-label", this.title);
+      this.renderer.setAttribute(this.el.nativeElement, "aria-label", this.title());
     }
   }
 }

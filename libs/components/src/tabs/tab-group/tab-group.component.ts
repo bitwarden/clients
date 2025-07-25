@@ -14,8 +14,8 @@ import {
   OnDestroy,
   Output,
   QueryList,
-  ViewChildren,
   input,
+  viewChildren,
 } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 
@@ -60,7 +60,7 @@ export class TabGroupComponent
   readonly preserveContent = input(false);
 
   @ContentChildren(TabComponent) tabs: QueryList<TabComponent>;
-  @ViewChildren(TabListItemDirective) tabLabels: QueryList<TabListItemDirective>;
+  readonly tabLabels = viewChildren(TabListItemDirective);
 
   /** The index of the active tab. */
   // TODO: Skipped for signal migration because:
@@ -141,7 +141,7 @@ export class TabGroupComponent
   }
 
   ngAfterViewInit(): void {
-    this.keyManager = new FocusKeyManager(this.tabLabels)
+    this.keyManager = new FocusKeyManager(this.tabLabels())
       .withHorizontalOrientation("ltr")
       .withWrap()
       .withHomeAndEnd();

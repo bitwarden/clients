@@ -9,12 +9,12 @@ import {
   HostListener,
   Input,
   QueryList,
-  ViewChild,
   ViewChildren,
   booleanAttribute,
   inject,
   signal,
   input,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
@@ -50,9 +50,9 @@ export type ChipSelectOption<T> = Option<T> & {
   ],
 })
 export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, AfterViewInit {
-  @ViewChild(MenuComponent) menu: MenuComponent;
+  readonly menu = viewChild(MenuComponent);
   @ViewChildren(MenuItemDirective) menuItems: QueryList<MenuItemDirective>;
-  @ViewChild("chipSelectButton") chipSelectButton: ElementRef<HTMLButtonElement>;
+  readonly chipSelectButton = viewChild<ElementRef<HTMLButtonElement>>("chipSelectButton");
 
   /** Text to show when there is no selected option */
   readonly placeholderText = input.required<string>();
@@ -218,7 +218,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
      * direct their focus to the first item in the new menu
      */
     this.menuItems.changes.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.menu.keyManager.setFirstItemActive();
+      this.menu().keyManager.setFirstItemActive();
     });
   }
 
@@ -227,10 +227,12 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
    * the initially rendered options
    */
   protected setMenuWidth() {
-    const chipWidth = this.chipSelectButton.nativeElement.getBoundingClientRect().width;
+    const chipWidth = this.chipSelectButton().nativeElement.getBoundingClientRect().width;
 
-    const firstMenuItemWidth =
-      this.menu.menuItems.first.elementRef.nativeElement.getBoundingClientRect().width;
+    const firstMenuItemWidth = this.menu()
+      .menuItems()
+      .at(0)!
+      .elementRef.nativeElement.getBoundingClientRect().width;
 
     this.menuWidth = Math.max(chipWidth, firstMenuItemWidth);
   }

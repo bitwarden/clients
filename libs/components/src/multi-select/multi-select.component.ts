@@ -6,7 +6,6 @@ import {
   Input,
   OnInit,
   Output,
-  ViewChild,
   EventEmitter,
   HostBinding,
   Optional,
@@ -14,6 +13,7 @@ import {
   input,
   model,
   booleanAttribute,
+  viewChild,
 } from "@angular/core";
 import {
   ControlValueAccessor,
@@ -48,7 +48,7 @@ let nextId = 0;
  * This component has been implemented to only support Multi-select list events
  */
 export class MultiSelectComponent implements OnInit, BitFormFieldControl, ControlValueAccessor {
-  @ViewChild(NgSelectComponent) select: NgSelectComponent;
+  readonly select = viewChild(NgSelectComponent);
 
   // Parent component should only pass selectable items (complete list - selected items = baseItems)
   readonly baseItems = model<SelectItemView[]>();
@@ -95,13 +95,14 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   /** Function for customizing keyboard navigation */
   /** Needs to be arrow function to retain `this` scope. */
   keyDown = (event: KeyboardEvent) => {
-    if (!this.select.isOpen && event.key === "Enter" && !hasModifierKey(event)) {
+    const select = this.select();
+    if (!select.isOpen && event.key === "Enter" && !hasModifierKey(event)) {
       return false;
     }
 
-    if (this.select.isOpen && event.key === "Escape" && !hasModifierKey(event)) {
+    if (select.isOpen && event.key === "Escape" && !hasModifierKey(event)) {
       this.selectedItems = [];
-      this.select.close();
+      select.close();
       event.stopPropagation();
       return false;
     }
@@ -185,7 +186,7 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   }
   set ariaDescribedBy(value: string) {
     this._ariaDescribedBy = value;
-    this.select?.searchInput.nativeElement.setAttribute("aria-describedby", value);
+    this.select()?.searchInput.nativeElement.setAttribute("aria-describedby", value);
   }
   private _ariaDescribedBy: string;
 

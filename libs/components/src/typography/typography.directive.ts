@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { booleanAttribute, Directive, HostBinding, input } from "@angular/core";
 
 type TypographyType = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "body1" | "body2" | "helper";
@@ -32,7 +30,7 @@ const margins: Record<TypographyType, string[]> = {
   selector: "[bitTypography]",
 })
 export class TypographyDirective {
-  readonly bitTypography = input<TypographyType>();
+  readonly bitTypography = input.required<TypographyType>();
 
   readonly noMargin = input(false, { transform: booleanAttribute });
 

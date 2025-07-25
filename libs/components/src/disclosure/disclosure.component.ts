@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -40,7 +38,7 @@ let nextId = 0;
   template: `<ng-content></ng-content>`,
 })
 export class DisclosureComponent {
-  private _open: boolean;
+  private _open = false;
 
   /** Emits the visibility of the disclosure content */
   @Output() openChange = new EventEmitter<boolean>();

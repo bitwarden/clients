@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FocusableOption } from "@angular/cdk/a11y";
 import {
   AfterViewInit,
@@ -7,8 +5,8 @@ import {
   HostListener,
   Input,
   OnDestroy,
-  ViewChild,
   input,
+  viewChild,
 } from "@angular/core";
 import { IsActiveMatchOptions, RouterLinkActive, RouterModule } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
@@ -25,8 +23,8 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
 export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  @ViewChild(TabListItemDirective) tabItem: TabListItemDirective;
-  @ViewChild("rla") routerLinkActive: RouterLinkActive;
+  readonly tabItem = viewChild.required(TabListItemDirective);
+  readonly routerLinkActive = viewChild.required<RouterLinkActive>("rla");
 
   readonly routerLinkMatchOptions: IsActiveMatchOptions = {
     queryParams: "ignored",
@@ -43,25 +41,25 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestr
 
   @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {
     if (event.code === "Space") {
-      this.tabItem.click();
+      this.tabItem().click();
     }
   }
 
   get active() {
-    return this.routerLinkActive?.isActive ?? false;
+    return this.routerLinkActive()?.isActive ?? false;
   }
 
   constructor(private _tabNavBar: TabNavBarComponent) {}
 
   focus(): void {
-    this.tabItem.focus();
+    this.tabItem().focus();
   }
 
   ngAfterViewInit() {
     // The active state of tab links are tracked via the routerLinkActive directive
     // We need to watch for changes to tell the parent nav group when the tab is active
-    this.routerLinkActive.isActiveChange
-      .pipe(takeUntil(this.destroy$))
+    this.routerLinkActive()
+      .isActiveChange.pipe(takeUntil(this.destroy$))
       .subscribe((_) => this._tabNavBar.updateActiveLink());
   }
 

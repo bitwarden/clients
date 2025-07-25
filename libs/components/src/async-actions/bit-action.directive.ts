@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, HostListener, model, OnDestroy, Optional } from "@angular/core";
 import { BehaviorSubject, finalize, Subject, takeUntil, tap } from "rxjs";
 
@@ -38,7 +36,7 @@ export class BitActionDirective implements OnDestroy {
 
   disabled = false;
 
-  readonly handler = model<FunctionReturningAwaitable>(undefined, { alias: "bitAction" });
+  readonly handler = model.required<FunctionReturningAwaitable>({ alias: "bitAction" });
 
   constructor(
     private buttonComponent: ButtonLikeAbstraction,

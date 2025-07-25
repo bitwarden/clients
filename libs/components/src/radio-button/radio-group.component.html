@@ -1,4 +1,4 @@
-@if (label) {
+@if (label()) {
   <fieldset>
     <legend class="tw-mb-1 tw-block tw-text-sm tw-font-semibold tw-text-main">
       <ng-content select="bit-label"></ng-content>
@@ -10,7 +10,7 @@
   </fieldset>
 }
 
-@if (!label) {
+@if (!label()) {
   <ng-container *ngTemplateOutlet="content"></ng-container>
 }
 

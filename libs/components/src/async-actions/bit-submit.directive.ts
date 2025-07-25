@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, OnDestroy, OnInit, Optional, input } from "@angular/core";
 import { FormGroupDirective } from "@angular/forms";
 import { BehaviorSubject, catchError, filter, of, Subject, switchMap, takeUntil } from "rxjs";
@@ -20,7 +18,7 @@ export class BitSubmitDirective implements OnInit, OnDestroy {
   private _loading$ = new BehaviorSubject<boolean>(false);
   private _disabled$ = new BehaviorSubject<boolean>(false);
 
-  readonly handler = input<FunctionReturningAwaitable>(undefined, { alias: "bitSubmit" });
+  readonly handler = input.required<FunctionReturningAwaitable>({ alias: "bitSubmit" });
 
   readonly allowDisabledFormSubmit = input<boolean>(false);
 
@@ -60,7 +58,7 @@ export class BitSubmitDirective implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.formGroupDirective.statusChanges.pipe(takeUntil(this.destroy$)).subscribe((c) => {
+    this.formGroupDirective.statusChanges?.pipe(takeUntil(this.destroy$)).subscribe((c) => {
       if (this.allowDisabledFormSubmit()) {
         this._disabled$.next(false);
       } else {

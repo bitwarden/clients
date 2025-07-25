@@ -10,7 +10,6 @@ import {
   Optional,
   QueryList,
   Self,
-  ViewChild,
   Output,
   EventEmitter,
   input,
@@ -18,6 +17,7 @@ import {
   computed,
   model,
   signal,
+  viewChild,
 } from "@angular/core";
 import {
   ControlValueAccessor,
@@ -47,7 +47,7 @@ let nextId = 0;
   },
 })
 export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {
-  @ViewChild(NgSelectComponent) select: NgSelectComponent;
+  readonly select = viewChild(NgSelectComponent);
 
   /** Optional: Options can be provided using an array input or using `bit-option` */
   readonly items = model<Option<T>[] | undefined>();
@@ -153,7 +153,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
   set ariaDescribedBy(value: string) {
     this._ariaDescribedBy = value;
-    this.select?.searchInput.nativeElement.setAttribute("aria-describedby", value);
+    this.select()?.searchInput.nativeElement.setAttribute("aria-describedby", value);
   }
   private _ariaDescribedBy: string;
 
@@ -207,7 +207,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
    * Needs to be arrow function to retain `this` scope.
    */
   protected onKeyDown = (event: KeyboardEvent) => {
-    if (this.select.isOpen && event.key === "Escape" && !hasModifierKey(event)) {
+    if (this.select().isOpen && event.key === "Escape" && !hasModifierKey(event)) {
       event.stopPropagation();
     }
 
