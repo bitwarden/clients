@@ -9,13 +9,16 @@ import {
   OnDestroy,
   ViewChild,
 } from "@angular/core";
-import { Observable, Subject, combineLatest, takeUntil } from "rxjs";
+import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { DialogService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../../../shared/shared.module";
+import { openCrowdstrikeConnectDialog } from "../integration-dialog/index";
+import { Integration } from "../models";
 
 @Component({
   selector: "app-integration-card",
@@ -30,6 +33,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   @Input() image: string;
   @Input() imageDarkMode?: string;
   @Input() linkURL: string;
+  @Input() integrationSettings: Integration;
 
   /** Adds relevant `rel` attribute to external links */
   @Input() externalURL?: boolean;
@@ -49,6 +53,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     private themeStateService: ThemeStateService,
     @Inject(SYSTEM_THEME_OBSERVABLE)
     private systemTheme$: Observable<ThemeType>,
+    private dialogService: DialogService,
   ) {}
 
   ngAfterViewInit() {
@@ -101,9 +106,19 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     return this.isConnected !== undefined;
   }
 
-  setupConnection(app: string) {
-    // This method can be used to handle the connection logic for the integration
-    // For example, it could open a modal or redirect to a setup page
-    this.isConnected = !this.isConnected; // Toggle connection state for demonstration
+  async setupConnection() {
+    // invoke the dialog to connect the integration
+    const dialog = openCrowdstrikeConnectDialog(this.dialogService, {
+      data: {
+        settings: this.integrationSettings,
+      },
+    });
+
+    const result = await lastValueFrom(dialog.closed);
+    this.isConnected = result.success ? true : false;
+
+    // for now we just log the result
+    // eslint-disable-next-line no-console
+    console.log(`Dialog closed with result: ${JSON.stringify(result)}`);
   }
 }
