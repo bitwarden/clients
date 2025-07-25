@@ -1,9 +1,6 @@
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { SecurityTask } from "@bitwarden/common/vault/tasks";
 
 import { CollectionView } from "../../content/components/common-types";
 import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
@@ -60,21 +57,8 @@ type LockedVaultPendingNotificationsData = {
   target: string;
 };
 
-type AtRiskPasswordNotificationsData = {
-  activeUserId: UserId;
-  cipher: CipherView;
-  securityTask: SecurityTask;
-  uri: string;
-};
-
 type AdjustNotificationBarMessageData = {
   height: number;
-};
-
-type ChangePasswordMessageData = {
-  currentPassword: string;
-  newPassword: string;
-  url: string;
 };
 
 type AddLoginMessageData = {
@@ -92,10 +76,7 @@ type NotificationBackgroundExtensionMessage = {
   command: string;
   data?: Partial<LockedVaultPendingNotificationsData> &
     Partial<AdjustNotificationBarMessageData> &
-    Partial<ChangePasswordMessageData> &
-    Partial<UnlockVaultMessageData> &
-    Partial<AtRiskPasswordNotificationsData>;
-  login?: AddLoginMessageData;
+    Partial<UnlockVaultMessageData>;
   folder?: string;
   edit?: boolean;
   details?: AutofillPageDetails;
@@ -121,18 +102,6 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgCloseNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgOpenAtRiskPasswords: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
-  bgTriggerAddLoginNotification: ({
-    message,
-    sender,
-  }: BackgroundOnMessageHandlerParams) => Promise<boolean>;
-  bgTriggerChangedPasswordNotification: ({
-    message,
-    sender,
-  }: BackgroundOnMessageHandlerParams) => Promise<boolean>;
-  bgTriggerAtRiskPasswordNotification: ({
-    message,
-    sender,
-  }: BackgroundOnMessageHandlerParams) => Promise<boolean>;
   bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => void;
   bgSaveCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   bgOpenAddEditVaultItemPopout: ({
@@ -162,7 +131,6 @@ export {
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
   AdjustNotificationBarMessageData,
-  ChangePasswordMessageData,
   UnlockVaultMessageData,
   AddLoginMessageData,
   NotificationBackgroundExtensionMessage,

@@ -1,3 +1,6 @@
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { SecurityTask } from "@bitwarden/common/vault/tasks";
+
 import AutofillPageDetails from "../../models/autofill-page-details";
 
 export type NotificationTypeData = {
@@ -6,6 +9,12 @@ export type NotificationTypeData = {
   removeIndividualVault?: boolean;
   importType?: string;
   launchTimestamp?: number;
+};
+
+export type LoginSecurityTaskInfo = {
+  securityTask: SecurityTask;
+  cipher: CipherView;
+  uri: ModifyLoginCipherFormData["uri"];
 };
 
 export type WebsiteOriginsWithFields = Map<chrome.tabs.Tab["id"], Set<string>>;
