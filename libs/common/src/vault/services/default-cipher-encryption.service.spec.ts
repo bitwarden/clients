@@ -94,7 +94,7 @@ describe("DefaultCipherEncryptionService", () => {
     vault: jest.fn().mockReturnValue({
       ciphers: jest.fn().mockReturnValue({
         encrypt: jest.fn(),
-        encrypt_with_key: jest.fn(),
+        encrypt_cipher_for_rotation: jest.fn(),
         set_fido2_credentials: jest.fn(),
         decrypt: jest.fn(),
         decrypt_list: jest.fn(),
@@ -253,7 +253,7 @@ describe("DefaultCipherEncryptionService", () => {
 
   describe("encryptCipherForRotation", () => {
     it("should call the sdk method to encrypt the cipher with a new key for rotation", async () => {
-      mockSdkClient.vault().ciphers().encrypt_with_key.mockReturnValue({
+      mockSdkClient.vault().ciphers().encrypt_cipher_for_rotation.mockReturnValue({
         cipher: sdkCipher,
         encryptedFor: userId,
       });
@@ -269,7 +269,7 @@ describe("DefaultCipherEncryptionService", () => {
       );
 
       expect(result).toBeDefined();
-      expect(mockSdkClient.vault().ciphers().encrypt_with_key).toHaveBeenCalledWith(
+      expect(mockSdkClient.vault().ciphers().encrypt_cipher_for_rotation).toHaveBeenCalledWith(
         expect.objectContaining({ id: cipherId }),
         newUserKey.toBase64(),
       );
