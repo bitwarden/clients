@@ -397,7 +397,7 @@ describe("Cipher Service", () => {
       });
     });
 
-    describe("encryptWithCipherKey", () => {
+    describe("encryptCipherForRotation", () => {
       beforeEach(() => {
         jest.spyOn<any, string>(cipherService, "encryptCipherWithCipherKey");
         keyService.getOrgKey.mockReturnValue(
@@ -533,6 +533,26 @@ describe("Cipher Service", () => {
       await expect(
         cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId),
       ).rejects.toThrow("Cannot rotate ciphers when decryption failures are present");
+    });
+
+    it("uses the sdk to re-encrypt ciphers when feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM22136_SdkCipherEncryption)
+        .mockResolvedValue(true);
+
+      cipherEncryptionService.encryptCipherForRotation.mockResolvedValue({
+        cipher: encryptionContext.cipher,
+        encryptedFor: mockUserId,
+      });
+
+      const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+      expect(result).toHaveLength(2);
+      expect(cipherEncryptionService.encryptCipherForRotation).toHaveBeenCalledWith(
+        expect.any(CipherView),
+        mockUserId,
+        newUserKey,
+      );
     });
   });
 
