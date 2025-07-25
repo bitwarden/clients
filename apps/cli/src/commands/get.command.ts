@@ -24,6 +24,7 @@ import { LoginUriExport } from "@bitwarden/common/models/export/login-uri.export
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -442,8 +443,11 @@ export class GetCommand extends DownloadCommand {
 
   private async getCollection(id: string) {
     let decCollection: CollectionView = null;
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (Utils.isGuid(id)) {
-      const collection = await this.collectionService.get(id);
+      const collection = await firstValueFrom(
+        this.collectionService.encryptedCollections$(activeUserId).pipe(getById(id)),
+      );
       if (collection != null) {
         const orgKeys = await firstValueFrom(this.keyService.activeUserOrgKeys$);
         decCollection = await collection.decrypt(
@@ -451,7 +455,9 @@ export class GetCommand extends DownloadCommand {
         );
       }
     } else if (id.trim() !== "") {
-      let collections = await this.collectionService.getAllDecrypted();
+      let collections = await firstValueFrom(
+        this.collectionService.decryptedCollections$(activeUserId),
+      );
       collections = CliUtils.searchCollections(collections, id);
       if (collections.length > 1) {
         return Response.multipleResults(collections.map((c) => c.id));

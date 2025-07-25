@@ -269,19 +269,19 @@ jobs:
           # Declare variable as indexed array
           declare -a FILES
 
-          # Search for source files that are greater than 4M
+          # Search for source files that are greater than 5M
           TARGET_DIR='./browser-source/apps/browser'
           while IFS=' ' read -r RESULT; do
               FILES+=("$RESULT")
-          done < <(find $TARGET_DIR -size +4M)
+          done < <(find $TARGET_DIR -size +5M)
 
           # Validate results and provide messaging
           if [[ ${#FILES[@]} -ne 0 ]]; then
-              echo "File(s) exceeds size limit: 4MB"
+              echo "File(s) exceeds size limit: 5MB"
               for FILE in ${FILES[@]}; do
                   echo "- $(du --si $FILE)"
               done
-              echo "ERROR Firefox rejects extension uploads that contain files larger than 4MB"
+              echo "ERROR Firefox rejects extension uploads that contain files larger than 5MB"
               # Invoke failure
               exit 1
           fi

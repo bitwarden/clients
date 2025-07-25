@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Søg i boks"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Redigér"
   },

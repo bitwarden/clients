@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Keresés a széfben"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Szerkesztés"
   },

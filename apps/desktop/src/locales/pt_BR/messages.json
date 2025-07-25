@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Pesquisar no Cofre"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Adicionar Item"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Desbloquear com o Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Configurações adicionais do Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Desbloquear com autenticação de sistema"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "desbloquear o seu cofre"
   },
-  "autoPromptWindowsHello": {
-    "message": "Perguntar para iniciar o Hello do Windows"
-  },
-  "autoPromptPolkit": {
-    "message": "Pedir autenticação do sistema na inicialização"
-  },
   "autoPromptTouchId": {
     "message": "Pedir pelo Touch ID ao iniciar"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Exigir senha ao iniciar o app"
-  },
-  "recommendedForSecurity": {
-    "message": "Recomendado para segurança."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com senha mestra ao reiniciar"
@@ -4015,8 +4006,8 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

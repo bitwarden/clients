@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Kluis doorzoeken"
   },
+  "resetSearch": {
+    "message": "Zoekopdracht resetten"
+  },
   "addItem": {
     "message": "Item toevoegen"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Ontgrendelen met Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Extra Windows Hello-instellingen"
-  },
   "unlockWithPolkit": {
     "message": "Ontgrendel met systeemauthenticatie"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "ontgrendel je kluis"
   },
-  "autoPromptWindowsHello": {
-    "message": "Vraag om Windows Hello bij opstarten"
-  },
-  "autoPromptPolkit": {
-    "message": "Vraag naar systeemverificatie bij het opstarten"
-  },
   "autoPromptTouchId": {
     "message": "Vraag om Touch ID bij opstarten"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Wachtwoord vereisen bij starten van de app"
-  },
-  "recommendedForSecurity": {
-    "message": "Aanbevolen voor veiligheid."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bij herstart vergrendelen met hoofdwachtwoord"
@@ -4015,8 +4006,8 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Snelkoppeling autotype inschakelen"
+  "enableAutotypeTransitionKey": {
+    "message": "Autotypen inschakelen"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden valideert de invoerlocaties niet, zorg ervoor dat je je in het juiste venster en veld bevindt voordat je de snelkoppeling gebruikt."

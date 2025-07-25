@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "البحث في الخزانة"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "تعديل"
   },

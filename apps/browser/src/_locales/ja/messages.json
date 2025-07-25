@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "保管庫を検索"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "編集"
   },

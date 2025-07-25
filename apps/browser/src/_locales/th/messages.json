@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "ค้นหาในตู้นิรภัย"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "แก้ไข"
   },
