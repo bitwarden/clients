@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+// import { A11yTitleDirective } from "../a11y/a11y-title.directive";
 
 import { BitIconButtonComponent } from "./icon-button.component";
 
@@ -9,6 +10,7 @@ export default {
   component: BitIconButtonComponent,
   args: {
     bitIconButton: "bwi-plus",
+    label: "Your button label here",
   },
   argTypes: {
     buttonType: {

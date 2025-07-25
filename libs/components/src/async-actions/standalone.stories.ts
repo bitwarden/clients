@@ -16,7 +16,7 @@ const template = /*html*/ `
   <button bitButton buttonType="primary" [bitAction]="action" class="tw-me-2">
     Perform action {{ statusEmoji }}
   </button>
-  <button bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
+  <button bitIconButton="bwi-trash" buttonType="danger" label="Delete" [bitAction]="action"></button>`;
 
 @Component({
   template,

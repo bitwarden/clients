@@ -35,6 +35,7 @@
     bitIconButton="bwi-ellipsis-h"
     [bitMenuTriggerFor]="overflowMenu"
     size="small"
+    [label]="'close' | i18n"
   ></button>
   <bit-menu #overflowMenu>
     @for (breadcrumb of overflow; track breadcrumb) {

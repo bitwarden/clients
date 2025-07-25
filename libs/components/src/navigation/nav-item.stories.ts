@@ -94,7 +94,7 @@ export const WithChildButtons: Story = {
           [bitIconButton]="'bwi-pencil-square'"
           [buttonType]="'light'"
           size="small"
-          aria-label="option 2"
+          label="Edit"
         ></button>
         <button
           slot="end"
@@ -102,7 +102,7 @@ export const WithChildButtons: Story = {
           [bitIconButton]="'bwi-check'"
           [buttonType]="'light'"
           size="small"
-          aria-label="option 3"
+          label="Confirm"
         ></button>
       </bit-nav-item>
     `,
