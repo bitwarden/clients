@@ -31,10 +31,6 @@
         class="tw-text-[1.25rem] tw-mt-[6px] tw-font-bold tw-mb-0 tw-leading-[2rem] tw-flex tw-items-center"
       >
         <span class="tw-capitalize tw-whitespace-nowrap">{{ plan().title }}</span>
-        <!-- Discount Badge -->
-        <span class="tw-mr-1 tw-ml-2" *ngIf="isRecommended" bitBadge variant="success">
-          {{ "upgradeDiscount" | i18n: plan().discount }}</span
-        >
       </h3>
       <span>
         <b class="tw-text-lg tw-font-semibold">{{ plan().costPerMember | currency: "$" }} </b>
