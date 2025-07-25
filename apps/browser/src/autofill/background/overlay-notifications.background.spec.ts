@@ -397,7 +397,7 @@ describe("OverlayNotificationsBackground", () => {
 
       it("ignores requests that are not part of an active form submission", async () => {
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             requestId: "123345",
@@ -421,7 +421,7 @@ describe("OverlayNotificationsBackground", () => {
         await flushPromises();
 
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             requestId,
@@ -450,7 +450,7 @@ describe("OverlayNotificationsBackground", () => {
         await flushPromises();
 
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             statusCode: 404,
@@ -504,7 +504,7 @@ describe("OverlayNotificationsBackground", () => {
           );
         });
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             requestId,
@@ -553,7 +553,7 @@ describe("OverlayNotificationsBackground", () => {
         });
 
         triggerWebRequestOnCompletedEvent(
-          mock<chrome.webRequest.WebResponseDetails>({
+          mock<chrome.webRequest.OnCompletedDetails>({
             url: sender.url,
             tabId: sender.tab.id,
             requestId,
@@ -655,7 +655,7 @@ describe("OverlayNotificationsBackground", () => {
     });
 
     it("clears all associated data with a removed tab", () => {
-      triggerTabOnRemovedEvent(sender.tab.id, mock<chrome.tabs.TabRemoveInfo>());
+      triggerTabOnRemovedEvent(sender.tab.id, mock<chrome.tabs.OnRemovedInfo>());
 
       expect(overlayNotificationsBackground["websiteOriginsWithFields"].size).toBe(0);
     });
@@ -664,7 +664,7 @@ describe("OverlayNotificationsBackground", () => {
       it("skips clearing the website origins if the changeInfo does not contain a `loading` status", () => {
         triggerTabOnUpdatedEvent(
           sender.tab.id,
-          mock<chrome.tabs.TabChangeInfo>({ status: "complete" }),
+          mock<chrome.tabs.OnUpdatedInfo>({ status: "complete" }),
           mock<chrome.tabs.Tab>({ status: "complete" }),
         );
 
@@ -674,7 +674,7 @@ describe("OverlayNotificationsBackground", () => {
       it("skips clearing the website origins if the changeInfo does not contain a url", () => {
         triggerTabOnUpdatedEvent(
           sender.tab.id,
-          mock<chrome.tabs.TabChangeInfo>({ status: "loading", url: "" }),
+          mock<chrome.tabs.OnUpdatedInfo>({ status: "loading", url: "" }),
           mock<chrome.tabs.Tab>({ status: "loading" }),
         );
 
@@ -684,7 +684,7 @@ describe("OverlayNotificationsBackground", () => {
       it("skips clearing the website origins if the tab does not contain known website origins", () => {
         triggerTabOnUpdatedEvent(
           199,
-          mock<chrome.tabs.TabChangeInfo>({ status: "loading", url: "https://example.com" }),
+          mock<chrome.tabs.OnUpdatedInfo>({ status: "loading", url: "https://example.com" }),
           mock<chrome.tabs.Tab>({ status: "loading", id: 199 }),
         );
 
@@ -694,7 +694,7 @@ describe("OverlayNotificationsBackground", () => {
       it("skips clearing the website origins if the changeInfo's url is present as part of the know website origin match patterns", () => {
         triggerTabOnUpdatedEvent(
           sender.tab.id,
-          mock<chrome.tabs.TabChangeInfo>({
+          mock<chrome.tabs.OnUpdatedInfo>({
             status: "loading",
             url: "https://subdomain.example.com",
           }),
@@ -707,7 +707,7 @@ describe("OverlayNotificationsBackground", () => {
       it("clears all associated data with a tab that is entering a `loading` state", () => {
         triggerTabOnUpdatedEvent(
           sender.tab.id,
-          mock<chrome.tabs.TabChangeInfo>({ status: "loading" }),
+          mock<chrome.tabs.OnUpdatedInfo>({ status: "loading" }),
           mock<chrome.tabs.Tab>({ status: "loading" }),
         );
 
