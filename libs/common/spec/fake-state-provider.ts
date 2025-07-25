@@ -16,9 +16,10 @@ import {
   DeriveDefinition,
   DerivedStateProvider,
   UserKeyDefinition,
-} from "../src/platform/state";
+  DerivedStateDependencies,
+} from "@bitwarden/state";
+
 import { UserId } from "../src/types/guid";
-import { DerivedStateDependencies } from "../src/types/state";
 
 import { FakeAccountService } from "./fake-account-service";
 import {
