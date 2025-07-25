@@ -152,11 +152,9 @@ import { OrganizationBillingApiService } from "@bitwarden/common/billing/service
 import { OrganizationSponsorshipApiService } from "@bitwarden/common/billing/services/organization/organization-sponsorship-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
 import { TaxService } from "@bitwarden/common/billing/services/tax.service";
-import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { BulkEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/bulk-encrypt.service.implementation";
-import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/multithread-encrypt.service.implementation";
+import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
@@ -531,7 +529,6 @@ const safeProviders: SafeProvider[] = [
       stateService: StateServiceAbstraction,
       autofillSettingsService: AutofillSettingsServiceAbstraction,
       encryptService: EncryptService,
-      bulkEncryptService: BulkEncryptService,
       fileUploadService: CipherFileUploadServiceAbstraction,
       configService: ConfigService,
       stateProvider: StateProvider,
@@ -548,7 +545,6 @@ const safeProviders: SafeProvider[] = [
         stateService,
         autofillSettingsService,
         encryptService,
-        bulkEncryptService,
         fileUploadService,
         configService,
         stateProvider,
@@ -565,7 +561,6 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       AutofillSettingsServiceAbstraction,
       EncryptService,
-      BulkEncryptService,
       CipherFileUploadServiceAbstraction,
       ConfigService,
       StateProvider,
@@ -967,13 +962,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: EncryptService,
-    useClass: MultithreadEncryptServiceImplementation,
+    useClass: EncryptServiceImplementation,
     deps: [CryptoFunctionServiceAbstraction, LogService, LOG_MAC_FAILURES],
-  }),
-  safeProvider({
-    provide: BulkEncryptService,
-    useClass: BulkEncryptServiceImplementation,
-    deps: [CryptoFunctionServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: EventUploadServiceAbstraction,

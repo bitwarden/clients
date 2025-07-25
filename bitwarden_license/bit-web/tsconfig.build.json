@@ -7,8 +7,5 @@
 
     "../../bitwarden_license/bit-web/src/main.ts"
   ],
-  "include": [
-    "../../apps/web/src/connectors/*.ts",
-    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"
-  ]
+  "include": ["../../apps/web/src/connectors/*.ts"]
 }

@@ -5,15 +5,11 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
-import { Decryptable } from "@bitwarden/common/platform/interfaces/decryptable.interface";
-import { Encrypted } from "@bitwarden/common/platform/interfaces/encrypted";
-import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
-import { ServerConfig } from "../../../platform/abstractions/config/server-config";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
@@ -23,7 +19,6 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logMacFailures: boolean,
   ) {}
 
-  // Proxy functions; Their implementation are temporary before moving at this level to the SDK
   async encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString> {
     if (plainValue == null) {
       this.logService.warning(
@@ -171,36 +166,6 @@ export class EncryptServiceImplementation implements EncryptService {
     return Utils.fromBufferToB64(hashArray);
   }
 
-  // Handle updating private properties to turn on/off feature flags.
-  onServerConfigChange(newConfig: ServerConfig): void {}
-
-  async decryptToUtf8(
-    encString: EncString,
-    key: SymmetricCryptoKey,
-    _decryptContext: string = "no context",
-  ): Promise<string> {
-    await SdkLoadService.Ready;
-    return PureCrypto.symmetric_decrypt(encString.encryptedString, key.toEncoded());
-  }
-
-  async decryptToBytes(
-    encThing: Encrypted,
-    key: SymmetricCryptoKey,
-    _decryptContext: string = "no context",
-  ): Promise<Uint8Array | null> {
-    if (encThing.encryptionType == null || encThing.ivBytes == null || encThing.dataBytes == null) {
-      throw new Error("Cannot decrypt, missing type, IV, or data bytes.");
-    }
-    const buffer = EncArrayBuffer.fromParts(
-      encThing.encryptionType,
-      encThing.ivBytes,
-      encThing.dataBytes,
-      encThing.macBytes,
-    ).buffer;
-    await SdkLoadService.Ready;
-    return PureCrypto.symmetric_decrypt_array_buffer(buffer, key.toEncoded());
-  }
-
   async encapsulateKeyUnsigned(
     sharedKey: SymmetricCryptoKey,
     encapsulationKey: Uint8Array,
@@ -228,43 +193,12 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No decapsulationKey provided for decapsulation");
     }
 
+    await SdkLoadService.Ready;
     const keyBytes = PureCrypto.decapsulate_key_unsigned(
       encryptedSharedKey.encryptedString,
       decapsulationKey,
     );
-    await SdkLoadService.Ready;
     return new SymmetricCryptoKey(keyBytes);
-  }
-
-  /**
-   * @deprecated Replaced by BulkEncryptService (PM-4154)
-   */
-  async decryptItems<T extends InitializerMetadata>(
-    items: Decryptable<T>[],
-    key: SymmetricCryptoKey,
-  ): Promise<T[]> {
-    if (items == null || items.length < 1) {
-      return [];
-    }
-
-    // don't use promise.all because this task is not io bound
-    const results = [];
-    for (let i = 0; i < items.length; i++) {
-      results.push(await items[i].decrypt(key));
-    }
-    return results;
-  }
-
-  async rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString> {
-    if (data == null) {
-      throw new Error("No data provided for encryption.");
-    }
-
-    if (publicKey == null) {
-      throw new Error("No public key provided for encryption.");
-    }
-    const encrypted = await this.cryptoFunctionService.rsaEncrypt(data, publicKey, "sha1");
-    return new EncString(EncryptionType.Rsa2048_OaepSha1_B64, Utils.fromBufferToB64(encrypted));
   }
 
   async rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array> {

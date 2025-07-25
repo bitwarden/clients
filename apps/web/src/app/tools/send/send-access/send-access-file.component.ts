@@ -63,7 +63,7 @@ export class SendAccessFileComponent {
 
     try {
       const encBuf = await EncArrayBuffer.fromResponse(response);
-      const decBuf = await this.encryptService.decryptToBytes(encBuf, this.decKey);
+      const decBuf = await this.encryptService.decryptFileData(encBuf, this.decKey);
       this.fileDownloadService.download({
         fileName: this.send.file.fileName,
         blobData: decBuf,
