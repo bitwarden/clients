@@ -1,20 +1,21 @@
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
-import { A11yTitleDirective } from "../a11y/a11y-title.directive";
+// import { A11yTitleDirective } from "../a11y/a11y-title.directive";
 
 import { BitIconButtonComponent } from "./icon-button.component";
 
 export default {
   title: "Component Library/Icon Button",
   component: BitIconButtonComponent,
-  decorators: [
-    moduleMetadata({
-      imports: [A11yTitleDirective],
-    }),
-  ],
+  // decorators: [
+  //   moduleMetadata({
+  //     imports: [A11yTitleDirective],
+  //   }),
+  // ],
   args: {
     bitIconButton: "bwi-plus",
+    label: "Your button label here",
   },
   argTypes: {
     buttonType: {
