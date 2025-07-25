@@ -80,6 +80,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   clientType: ClientType;
   ClientType = ClientType;
+  email?: string;
   LoginUiState = LoginUiState;
   isKnownDevice = false;
   loginUiState: LoginUiState = LoginUiState.EMAIL_ENTRY;
@@ -217,14 +218,15 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
     }
 
-    const { email, masterPassword } = this.formGroup.value;
+    this.email = this.formGroup.controls.email.value;
+    const masterPassword = this.formGroup.controls.masterPassword.value;
 
     this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
     }
 
-    if (!email || !masterPassword) {
+    if (!this.email || !masterPassword) {
       this.logService.error("Email and master password are required");
       return;
     }
@@ -233,13 +235,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     // login strategies. Since it is optional and we only want to be doing this on the
     // web we will only send in content in the right context.
     const orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
-      ? await this.loginComponentService.getOrgPoliciesFromOrgInvite()
+      ? await this.loginComponentService.getOrgPoliciesFromOrgInvite(this.email)
       : null;
 
     const orgMasterPasswordPolicyOptions = orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
 
     const credentials = new PasswordLoginCredentials(
-      email,
+      this.email,
       masterPassword,
       undefined,
       orgMasterPasswordPolicyOptions,
@@ -331,7 +333,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // so we can evaluate the MP against the org policies
     if (this.loginComponentService.getOrgPoliciesFromOrgInvite) {
       const orgPolicies: PasswordPolicies | null =
-        await this.loginComponentService.getOrgPoliciesFromOrgInvite();
+        await this.loginComponentService.getOrgPoliciesFromOrgInvite(this.email);
 
       if (orgPolicies) {
         // Since we have retrieved the policies, we can go ahead and set them into state for future use
