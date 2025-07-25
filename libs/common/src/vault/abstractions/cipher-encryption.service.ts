@@ -34,8 +34,8 @@ export abstract class CipherEncryptionService {
   ): Promise<EncryptionContext | undefined>;
 
   /**
-   * Encrypts cipher for a given userId with a new key for key rotation.
-   * @param model The cipher view encrypt
+   * Encrypts a cipher for a given userId with a new key for key rotation.
+   * @param model The cipher view to encrypt
    * @param userId The user ID to initialize the SDK client with
    * @param newKey The new key to use for re-encryption
    */
