@@ -261,6 +261,17 @@
           "action-prefix": "com.bitwarden.Bitwarden"
         }
       },
+      {
+        "personal-files": {
+          "read": [],
+          "write": [
+            "$HOME/.config/chromium/NativeMessagingHosts",
+            "$HOME/.config/microsoft-edge/NativeMessagingHosts",
+            "$HOME/.config/google-chrome/NativeMessagingHosts",
+            "$HOME/.mozilla"
+          ]
+        }
+      },
       "u2f-devices"
     ],
     "stagePackages": ["default"],
