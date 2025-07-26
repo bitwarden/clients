@@ -9,6 +9,7 @@ import { Decryptable } from "@bitwarden/common/platform/interfaces/decryptable.i
 import { Encrypted } from "@bitwarden/common/platform/interfaces/encrypted";
 import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { required, validate } from "@bitwarden/common/platform/misc/validate";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PureCrypto } from "@bitwarden/sdk-internal";
@@ -61,36 +62,22 @@ export class EncryptServiceImplementation implements EncryptService {
     return PureCrypto.symmetric_decrypt_filedata(encBuffer.buffer, key.toEncoded());
   }
 
+  @validate
   async wrapDecapsulationKey(
-    decapsulationKeyPkcs8: Uint8Array,
-    wrappingKey: SymmetricCryptoKey,
+    @required decapsulationKeyPkcs8: Uint8Array,
+    @required wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
-    if (decapsulationKeyPkcs8 == null) {
-      throw new Error("No decapsulation key provided for wrapping.");
-    }
-
-    if (wrappingKey == null) {
-      throw new Error("No wrappingKey provided for wrapping.");
-    }
-
     await SdkLoadService.Ready;
     return new EncString(
       PureCrypto.wrap_decapsulation_key(decapsulationKeyPkcs8, wrappingKey.toEncoded()),
     );
   }
 
+  @validate
   async wrapEncapsulationKey(
-    encapsulationKeySpki: Uint8Array,
-    wrappingKey: SymmetricCryptoKey,
+    @required encapsulationKeySpki: Uint8Array,
+    @required wrappingKey: SymmetricCryptoKey,
   ): Promise<EncString> {
-    if (encapsulationKeySpki == null) {
-      throw new Error("No encapsulation key provided for wrapping.");
-    }
-
-    if (wrappingKey == null) {
-      throw new Error("No wrappingKey provided for wrapping.");
-    }
-
     await SdkLoadService.Ready;
     return new EncString(
       PureCrypto.wrap_encapsulation_key(encapsulationKeySpki, wrappingKey.toEncoded()),
