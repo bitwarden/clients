@@ -100,7 +100,11 @@
         <td bitCell>
           <span title="{{ e.userEmail }}">{{ e.userName }}</span>
         </td>
-        <td bitCell [innerHTML]="e.message"></td>
+        <td bitCell *ngIf="e.eventName && e.eventLink">
+          <span>{{ e.eventName }}</span
+          ><br /><span [innerHtml]="e.eventLink"></span>
+        </td>
+        <td bitCell *ngIf="!(e.eventName && e.eventLink)" [innerHTML]="e.message"></td>
       </tr>
     </ng-template>
   </bit-table>
