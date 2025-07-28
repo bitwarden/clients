@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Cerca en la caixa forta"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Edita"
   },

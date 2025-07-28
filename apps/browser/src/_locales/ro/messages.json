@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Căutare în seif"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Editare"
   },

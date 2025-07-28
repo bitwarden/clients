@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Kasada ara"
   },
+  "resetSearch": {
+    "message": "Aramayı sıfırla"
+  },
   "edit": {
     "message": "Düzenle"
   },

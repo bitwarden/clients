@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "搜尋密碼庫"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "編輯"
   },

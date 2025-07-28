@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "جستجوی گاوصندوق"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "ویرایش"
   },

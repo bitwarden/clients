@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Søk i hvelvet"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Rediger"
   },

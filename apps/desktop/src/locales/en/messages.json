@@ -4042,7 +4042,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

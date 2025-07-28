@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Anuluj"
   },
+  "later": {
+    "message": "Później"
+  },
   "canceled": {
     "message": "Anulowane"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Szukaj w grupach"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "allItems": {
     "message": "Wszystkie elementy"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Uzyskaj poradę, ogłoszenia i możliwości badawcze od Bitwarden w swojej skrzynce odbiorczej."
+  },
+  "subscribe": {
+    "message": "Subskrybuj"
   },
   "unsubscribe": {
     "message": "Anuluj subskrypcję"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Skonfiguruj zarządzanie urządzeniem Bitwarden za pomocą instrukcji implementacyjnych dla Twojej platformy."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
   "deviceIdMissing": {
     "message": "Brakuje identyfikatora urządzenia"
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Otwórz ponownie ten link z adresu e-mail na komputerze."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Uruchom przewodnik implementacyjny $INTEGRATION$.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "Użytkownik został usunięty z organizacji i wszystkie powiązane dane użytkownika zostały usunięte."
   },
-  "deletedUserId": {
-    "message": "Usunięto użytkownika $ID$ - właściciel / administrator usunął konto użytkownika",
+  "deletedUserIdEventMessage": {
+    "message": "Usunięto użytkownika $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "W trakcie weryfikacji"
   },
-  "claimedDomainsDesc": {
-    "message": "Zgłoś domenę, aby przejąć własność wszystkich kont członków, których adres e-mail pasuje do domeny. Członkowie będą mogli pominąć identyfikator SSO podczas logowania. Administratorzy będą również mogli usuwać konta członków."
+  "claimedDomainsDescription": {
+    "message": "Zgłoś domenę, aby posiadać konta członków. Strona identyfikatora SSO zostanie pominięta podczas logowania dla członków z zadeklarowanymi domenami, a administratorzy będą mogli usuwać zadeklarowane konta."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Nieprawidłowy format. Format: mojadomena.com. Subdomeny wymagają osobnego zgłoszenia."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Subskrybuj $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Twój 7-dniowy okres próbny $PLAN$ rozpoczyna się dzisiaj. Dodaj metodę płatności, aby kontynuować korzystanie z tych funkcji po zakończeniu okresu próbnego: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Nieograniczone sekrety i projekty"
   }
 }

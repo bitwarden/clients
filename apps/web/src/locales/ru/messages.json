@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Отмена"
   },
+  "later": {
+    "message": "Позже"
+  },
   "canceled": {
     "message": "Отменено"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Поиск групп"
+  },
+  "resetSearch": {
+    "message": "Сбросить поиск"
   },
   "allItems": {
     "message": "Все элементы"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
+  },
+  "subscribe": {
+    "message": "Подписаться"
   },
   "unsubscribe": {
     "message": "Отписаться"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Настройте управление устройствами для Bitwarden, используя руководство по внедрению для вашей платформы."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Отправлять данные о событиях в ваш инстанс Logscale"
+  },
   "deviceIdMissing": {
     "message": "ID устройства отсутствует"
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Откройте эту ссылку из email на вашем компьютере."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Подключить $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Запустить руководство по внедрению $INTEGRATION$.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "Пользователь был удален из организации, и все связанные с ним данные были удалены."
   },
-  "deletedUserId": {
-    "message": "Владелец - удаленный пользователь $ID$ / администратор удалил аккаунт пользователя",
+  "deletedUserIdEventMessage": {
+    "message": "Удален пользователь $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "Проверяется"
   },
-  "claimedDomainsDesc": {
-    "message": "Укажите домен, чтобы все аккаунты пользователей, чей адрес email совпадает с доменом, принадлежали ему. Пользователи смогут пропускать идентификатор SSO при авторизации. Администраторы также смогут удалять аккаунты пользователей."
+  "claimedDomainsDescription": {
+    "message": "Укажите домен для собственных аккаунтов участников. Страница с SSO будет пропущена при авторизации пользователей с указанными доменами, и администраторы смогут удалить указанные аккаунты."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Введенные данные не соответствуют формату. Формат: mydomain.com. Для регистрации поддоменов необходимы отдельные записи."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Подписаться на $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Ваша 7-дневная пробная версия $PLAN$ начинается сегодня. Укажите способ оплаты прямо сейчас, чтобы продолжить пользоваться этими функциями после окончания пробной версии: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Неограниченные секреты и проекты"
   }
 }

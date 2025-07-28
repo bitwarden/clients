@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Procurar no cofre"
   },
+  "resetSearch": {
+    "message": "Repor pesquisa"
+  },
   "edit": {
     "message": "Editar"
   },

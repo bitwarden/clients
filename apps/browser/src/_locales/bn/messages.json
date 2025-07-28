@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "ভল্ট খুঁজুন"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "সম্পাদনা"
   },
