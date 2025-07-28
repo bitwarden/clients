@@ -1571,6 +1571,18 @@
   "collectionsDesc": {
     "message": "Edit the collections that this item is being shared with. Only organization users with access to these collections will be able to see this item."
   },
+  "shareItem": {
+    "message": "Share Item"
+  },
+  "shareItemDescription": {
+    "message": "Share this item with members of your organization by adding it to collections."
+  },
+  "shareModalPlaceholder": {
+    "message": "Collection selection and sharing functionality will be implemented here."
+  },
+  "itemShared": {
+    "message": "Item has been shared successfully"
+  },
   "deleteSelectedItemsDesc": {
     "message": "$COUNT$ item(s) will be sent to trash.",
     "placeholders": {

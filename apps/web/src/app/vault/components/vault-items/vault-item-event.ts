@@ -10,6 +10,7 @@ export type VaultItemEvent<C extends CipherViewLike> =
   | { type: "viewEvents"; item: C }
   | { type: "editCollection"; item: CollectionView; readonly: boolean }
   | { type: "clone"; item: C }
+  | { type: "share"; item: C }
   | { type: "restore"; items: C[] }
   | { type: "delete"; items: VaultItem<C>[] }
   | { type: "copyField"; item: C; field: "username" | "password" | "totp" }

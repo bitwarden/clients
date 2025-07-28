@@ -138,6 +138,10 @@
       <i class="bwi bwi-fw bwi-files" aria-hidden="true"></i>
       {{ "clone" | i18n }}
     </button>
+    <button bitMenuItem *ngIf="showShare" type="button" (click)="share()">
+      <i class="bwi bwi-fw bwi-share" aria-hidden="true"></i>
+      {{ "share" | i18n }}
+    </button>
     <button
       bitMenuItem
       *ngIf="showAssignToCollections"
