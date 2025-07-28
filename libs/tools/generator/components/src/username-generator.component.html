@@ -18,7 +18,7 @@
       bitIconButton="bwi-clone"
       buttonType="main"
       showToast
-      [appA11yTitle]="credentialTypeCopyLabel$ | async"
+      [label]="credentialTypeCopyLabel$ | async"
       [appCopyClick]="value$ | async"
       [valueLabel]="credentialTypeLabel$ | async"
       [disabled]="!(algorithm$ | async)"
