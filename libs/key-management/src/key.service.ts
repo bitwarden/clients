@@ -233,8 +233,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   async makeUserKeyV1(): Promise<UserKey> {
-    const newUserKey = await this.keyGenerationService.createKey(512);
-    return newUserKey as UserKey;
+    const key = await this.keyGenerationService.createKey(512);
+    return key as UserKey;
   }
 
   /**

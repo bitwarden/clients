@@ -12,8 +12,8 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
-  EncryptedString,
   EncString,
+  UnsignedSharedKey,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -60,7 +60,7 @@ export class OrganizationUserResetPasswordService
     orgId: string,
     userKey: UserKey,
     trustedPublicKeys: Uint8Array[],
-  ): Promise<EncryptedString> {
+  ): Promise<UnsignedSharedKey> {
     if (userKey == null) {
       throw new Error("User key is required for recovery.");
     }
@@ -84,7 +84,7 @@ export class OrganizationUserResetPasswordService
     // RSA Encrypt user key with organization's public key
     const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
-    return encryptedKey.encryptedString;
+    return encryptedKey.toUnsignedSharedKey();
   }
 
   /**
@@ -208,9 +208,8 @@ export class OrganizationUserResetPasswordService
       const encryptedKey = await this.buildRecoveryKey(org.id, newUserKey, trustedPublicKeys);
 
       // Create/Execute request
-      const request = new OrganizationUserResetPasswordWithIdRequest();
+      const request = new OrganizationUserResetPasswordWithIdRequest(encryptedKey);
       request.organizationId = org.id;
-      request.resetPasswordKey = encryptedKey;
       request.masterPasswordHash = "ignored";
 
       requests.push(request);

@@ -15,14 +15,20 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import {
+  EncString,
+  UnsignedSharedKey,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordAuthenticationData } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { firstValueFromOrThrow } from "@bitwarden/common/key-management/utils";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
 
 import {
@@ -52,11 +58,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userId: UserId,
   ): Promise<void> {
     const {
-      newMasterKey,
-      newServerMasterKeyHash,
-      newLocalMasterKeyHash,
+      newPassword,
       newPasswordHint,
       kdfConfig,
+      salt,
       orgSsoIdentifier,
       orgId,
       resetPasswordAutoEnroll,
@@ -67,20 +72,21 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         throw new Error(`${key} not found. Could not set password.`);
       }
     }
-    if (userId == null) {
-      throw new Error("userId not found. Could not set password.");
-    }
-    if (userType == null) {
-      throw new Error("userType not found. Could not set password.");
-    }
-
-    const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(
-      newMasterKey,
-      userId,
+    assertNonNullish(userId, "userId", "setInitialPassword");
+    assertNonNullish(userType, "userType", "setInitialPassword");
+    const userKey = await this.keyService.makeUserKeyV1();
+    const authenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        newPassword,
+        kdfConfig,
+        salt,
+      );
+    const unlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
+      newPassword,
+      kdfConfig,
+      salt,
+      userKey,
     );
-    if (masterKeyEncryptedUserKey == null || !masterKeyEncryptedUserKey[1].encryptedString) {
-      throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
-    }
 
     let keyPair: [string, EncString] | null = null;
     let keysRequest: KeysRequest | null = null;
@@ -111,14 +117,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         // Existing key pair
         keyPair = [
           existingUserPublicKeyB64,
-          await this.encryptService.wrapDecapsulationKey(
-            existingUserPrivateKey,
-            masterKeyEncryptedUserKey[0],
-          ),
+          await this.encryptService.wrapDecapsulationKey(existingUserPrivateKey, userKey),
         ];
       } else {
         // New key pair
-        keyPair = await this.keyService.makeKeyPair(masterKeyEncryptedUserKey[0]);
+        keyPair = await this.keyService.makeKeyPair(userKey);
       }
 
       if (keyPair == null) {
@@ -131,14 +134,12 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
     }
 
-    const request = new SetPasswordRequest(
-      newServerMasterKeyHash,
-      masterKeyEncryptedUserKey[1].encryptedString,
+    const request = SetPasswordRequest.newConstructor(
+      authenticationData,
+      unlockData,
       newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
-      kdfConfig.kdfType,
-      kdfConfig.iterations,
     );
 
     await this.masterPasswordApiService.setPassword(request);
@@ -147,12 +148,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionProperties(
-      newMasterKey,
-      kdfConfig,
-      masterKeyEncryptedUserKey,
-      userId,
-    );
+    await this.updateAccountDecryptionProperties(kdfConfig, userKey, userId);
 
     /**
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
@@ -165,34 +161,14 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
     }
 
-    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
-
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnroll(authenticationData, orgId as OrganizationId, userId);
     }
-  }
-
-  private async makeMasterKeyEncryptedUserKey(
-    masterKey: MasterKey,
-    userId: UserId,
-  ): Promise<[UserKey, EncString]> {
-    let masterKeyEncryptedUserKey: [UserKey, EncString] | null = null;
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-
-    if (userKey == null) {
-      masterKeyEncryptedUserKey = await this.keyService.makeUserKey(masterKey);
-    } else {
-      masterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey);
-    }
-
-    return masterKeyEncryptedUserKey;
   }
 
   private async updateAccountDecryptionProperties(
-    masterKey: MasterKey,
     kdfConfig: KdfConfig,
-    masterKeyEncryptedUserKey: [UserKey, EncString],
+    userKey: UserKey,
     userId: UserId,
   ) {
     const userDecryptionOpts = await firstValueFrom(
@@ -201,13 +177,12 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userDecryptionOpts.hasMasterPassword = true;
     await this.userDecryptionOptionsService.setUserDecryptionOptions(userDecryptionOpts);
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-    await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
+    await this.keyService.setUserKey(userKey, userId);
   }
 
   private async handleResetPasswordAutoEnroll(
-    masterKeyHash: string,
-    orgId: string,
+    authenticationData: MasterPasswordAuthenticationData,
+    orgId: OrganizationId,
     userId: UserId,
   ) {
     const organizationKeys = await this.organizationApiService.getKeys(orgId);
@@ -219,27 +194,23 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     const orgPublicKey = Utils.fromB64ToArray(organizationKeys.publicKey);
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-
-    if (userKey == null) {
-      throw new Error("userKey not found. Could not handle reset password auto enroll.");
-    }
+    const userKey = await firstValueFromOrThrow(this.keyService.userKey$(userId), "userKey");
 
     // RSA encrypt user key with organization public key
-    const orgPublicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
-      userKey,
-      orgPublicKey,
-    );
+    const orgPublicKeyEncryptedUserKey: UnsignedSharedKey = (
+      await this.encryptService.encapsulateKeyUnsigned(userKey, orgPublicKey)
+    )?.toUnsignedSharedKey();
 
-    if (orgPublicKeyEncryptedUserKey == null || !orgPublicKeyEncryptedUserKey.encryptedString) {
+    if (orgPublicKeyEncryptedUserKey == null || !orgPublicKeyEncryptedUserKey) {
       throw new Error(
         "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
       );
     }
 
-    const enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
-    enrollmentRequest.masterPasswordHash = masterKeyHash;
-    enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
+    const enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest(
+      orgPublicKeyEncryptedUserKey,
+    );
+    enrollmentRequest.authenticateWith(authenticationData);
 
     await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
       orgId,

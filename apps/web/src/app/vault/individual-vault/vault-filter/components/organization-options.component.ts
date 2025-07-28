@@ -16,6 +16,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { UnsignedSharedKey } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -214,9 +215,9 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       );
     } else {
       // Remove reset password
-      const request = new OrganizationUserResetPasswordEnrollmentRequest();
+      // Note: This seems wrong, and should be replaced by null or undefined, since "" is not a valid UnsignedSharedKey.
+      const request = new OrganizationUserResetPasswordEnrollmentRequest("" as UnsignedSharedKey);
       request.masterPasswordHash = "ignored";
-      request.resetPasswordKey = "";
       this.actionPromise =
         this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
           this.organization.id,

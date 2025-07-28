@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify, Opaque } from "type-fest";
 
+import { UnsignedSharedKey as SdkUnsignedSharedkey } from "@bitwarden/sdk-internal";
+
 import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../platform/enums";
 import { Encrypted } from "../../../platform/interfaces/encrypted";
 import { Utils } from "../../../platform/misc/utils";
@@ -45,6 +47,11 @@ export class EncString implements Encrypted {
 
   toEncryptedString(): EncryptedString {
     return this.encryptedString;
+  }
+
+  // Note: Unsigned shared key should be split out of EncString completely. This currently lacks type-safety.
+  toUnsignedSharedKey(): UnsignedSharedKey {
+    return this.encryptedString as unknown as UnsignedSharedKey;
   }
 
   toJSON() {
@@ -215,4 +222,14 @@ export class EncString implements Encrypted {
   }
 }
 
+/**
+ * EncryptedString is symmetrically encrypted
+ * Note: This will eventually be replaced by the SDK version of EncryptedString.
+ */
 export type EncryptedString = Opaque<string, "EncString">;
+
+/**
+ * UnsignedSharedKey is a key, encrypted with a public key, but not signed. The sender cannot be authenticated.
+ * Note: This will eventually be replaced by the SDK version of UnsignedSharedKey.
+ */
+export type UnsignedSharedKey = Opaque<SdkUnsignedSharedkey, "UnsignedSharedKey">;

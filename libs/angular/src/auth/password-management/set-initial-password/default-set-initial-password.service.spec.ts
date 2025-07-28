@@ -26,6 +26,13 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -75,7 +82,7 @@ describe("DefaultSetInitialPasswordService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
 
     userId = "userId" as UserId;
-    userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+    userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
     userKeyEncString = new EncString("masterKeyEncryptedUserKey");
     masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 
@@ -122,11 +129,10 @@ describe("DefaultSetInitialPasswordService", () => {
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
-        newServerMasterKeyHash: "newServerMasterKeyHash",
-        newLocalMasterKeyHash: "newLocalMasterKeyHash",
+        newPassword: "newPassword",
         newPasswordHint: "newPasswordHint",
         kdfConfig: DEFAULT_KDF_CONFIG,
+        salt: "masterPasswordSalt" as MasterPasswordSalt,
         orgSsoIdentifier: "orgSsoIdentifier",
         orgId: "orgId",
         resetPasswordAutoEnroll: false,
@@ -151,19 +157,31 @@ describe("DefaultSetInitialPasswordService", () => {
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
       userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
 
-      setPasswordRequest = new SetPasswordRequest(
-        credentials.newServerMasterKeyHash,
-        masterKeyEncryptedUserKey[1].encryptedString,
+      setPasswordRequest = SetPasswordRequest.newConstructor(
+        {
+          kdf: credentials.kdfConfig,
+          masterPasswordAuthenticationHash: "newServerMasterKeyHash",
+          salt: credentials.salt,
+        } as MasterPasswordAuthenticationData,
+        {
+          kdf: credentials.kdfConfig,
+          masterKeyWrappedUserKey: masterKeyEncryptedUserKey[1],
+          salt: credentials.salt,
+        } as MasterPasswordUnlockData,
         credentials.newPasswordHint,
         credentials.orgSsoIdentifier,
         keysRequest,
-        credentials.kdfConfig.kdfType,
-        credentials.kdfConfig.iterations,
       );
 
-      enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
-      enrollmentRequest.masterPasswordHash = credentials.newServerMasterKeyHash;
-      enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
+      enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest(
+        orgPublicKeyEncryptedUserKey.toUnsignedSharedKey(),
+      );
+      enrollmentRequest.authenticateWith({
+        kdf: credentials.kdfConfig,
+        masterPasswordAuthenticationHash:
+          "newServerMasterKeyHash" as MasterPasswordAuthenticationHash,
+        salt: credentials.salt,
+      });
     });
 
     interface MockConfig {
@@ -182,6 +200,23 @@ describe("DefaultSetInitialPasswordService", () => {
 
     function setupMocks(config: MockConfig = defaultMockConfig) {
       // Mock makeMasterKeyEncryptedUserKey() values
+      masterPasswordService.saltForAccount$.mockReturnValue(
+        of("masterPasswordSalt" as MasterPasswordSalt),
+      );
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue({
+        kdf: DEFAULT_KDF_CONFIG,
+        masterPasswordAuthenticationHash: "newServerMasterKeyHash",
+        salt: "masterPasswordSalt" as MasterPasswordSalt,
+      } as MasterPasswordAuthenticationData);
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue({
+        kdf: DEFAULT_KDF_CONFIG,
+        masterKeyWrappedUserKey: userKeyEncString as MasterKeyWrappedUserKey,
+        salt: "masterPasswordSalt" as MasterPasswordSalt,
+      } as MasterPasswordUnlockData);
+      keyService.makeUserKeyV1.mockResolvedValue(
+        new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+      );
+
       if (config.userHasUserKey) {
         keyService.userKey$.mockReturnValue(of(userKey));
         keyService.encryptUserKeyWithMasterKey.mockResolvedValue(masterKeyEncryptedUserKey);
@@ -213,11 +248,10 @@ describe("DefaultSetInitialPasswordService", () => {
 
     describe("general error handling", () => {
       [
-        "newMasterKey",
-        "newServerMasterKeyHash",
-        "newLocalMasterKeyHash",
+        "newPassword",
         "newPasswordHint",
         "kdfConfig",
+        "salt",
         "orgSsoIdentifier",
         "orgId",
         "resetPasswordAutoEnroll",
@@ -247,7 +281,9 @@ describe("DefaultSetInitialPasswordService", () => {
           );
 
           // Assert
-          await expect(promise).rejects.toThrow(`${param} not found. Could not set password.`);
+          await expect(promise).rejects.toThrow(
+            `${param} is null or undefined. setInitialPassword`,
+          );
         });
       });
     });
@@ -367,10 +403,6 @@ describe("DefaultSetInitialPasswordService", () => {
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-            credentials.newMasterKey,
-            userId,
-          );
           expect(keyService.setUserKey).toHaveBeenCalledWith(masterKeyEncryptedUserKey[0], userId);
         });
 
@@ -384,21 +416,6 @@ describe("DefaultSetInitialPasswordService", () => {
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
           expect(keyService.setPrivateKey).toHaveBeenCalledWith(keyPair[1].encryptedString, userId);
-        });
-
-        it("should set the local master key hash to state", async () => {
-          // Arrange
-          setupMocks();
-
-          // Act
-          await sut.setInitialPassword(credentials, userType, userId);
-
-          // Assert
-          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-            credentials.newLocalMasterKeyHash,
-            userId,
-          );
         });
 
         describe("given resetPasswordAutoEnroll is true", () => {
@@ -565,10 +582,6 @@ describe("DefaultSetInitialPasswordService", () => {
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-            credentials.newMasterKey,
-            userId,
-          );
           expect(keyService.setUserKey).toHaveBeenCalledWith(masterKeyEncryptedUserKey[0], userId);
         });
 
@@ -593,10 +606,6 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-            credentials.newLocalMasterKeyHash,
-            userId,
-          );
         });
 
         describe("given resetPasswordAutoEnroll is true", () => {
