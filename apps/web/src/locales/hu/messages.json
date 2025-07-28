@@ -569,7 +569,7 @@
     "message": "Mégsem"
   },
   "later": {
-    "message": "Later"
+    "message": "Később"
   },
   "canceled": {
     "message": "Megszakítva"
@@ -630,7 +630,7 @@
     "message": "Csoportok keresése"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Keresés visszaállítása"
   },
   "allItems": {
     "message": "Összes elem"
@@ -4633,7 +4633,7 @@
     "message": "Kapj tanácsokat, bejelentéseket és közvélemény-kutatásokat a Bitwardentől a postaládádba."
   },
   "subscribe": {
-    "message": "Subscribe"
+    "message": "Feliratkozás"
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -9475,7 +9475,7 @@
     "message": "Az eszközkezelés konfigurálása a Bitwarden számára a platform megvalósítási útmutatója segítségével."
   },
   "crowdstrikeEventIntegrationDesc": {
-    "message": "Send event data to your Logscale instance"
+    "message": "Eseményadatok küldése a Logscale példánynak"
   },
   "deviceIdMissing": {
     "message": "Az eszköz AZ hiányzik."
@@ -9493,7 +9493,7 @@
     "message": "Nyissuk meg újra ezt a hivatkozást az emailből az asztali gépen."
   },
   "connectIntegrationButtonDesc": {
-    "message": "Connect $INTEGRATION$",
+    "message": "$INTEGRATION$ csatlakozás",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10307,7 +10307,7 @@
     "message": "A felhasználó eltávolításra került a szervezetből és az összes kapcsolódó felhasználói adat törlésre került."
   },
   "deletedUserIdEventMessage": {
-    "message": "Deleted user $ID$",
+    "message": "$ID$ felhasználó törlésre került.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10418,7 +10418,7 @@
     "message": "Ellenőrzés alatt"
   },
   "claimedDomainsDescription": {
-    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
+    "message": "Tartomány igénylése tagfiókok birtoklására. Az igényelt tartományokkal  rendelkező tagok bejelentkezése során az SSO azonosító oldal kihagyásra kerül és az adminisztrátorok törölhetik az igényelt fiókokat."
   },
   "invalidDomainNameClaimMessage": {
     "message": "A bemeneti formátum nem érvényes. Formátum: valami.hu Az altartományokhoz külön bejegyzések szükségesek az igényléshez."
@@ -10919,7 +10919,7 @@
     }
   },
   "subscribetoEnterprise": {
-    "message": "Subscribe to $PLAN$",
+    "message": "Feliratkozás: $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -10928,7 +10928,7 @@
     }
   },
   "subscribeEnterpriseSubtitle": {
-    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "message": "A 7 napos $PLAN$ próbaverzió ma kezdődik. Adjunk hozzá most egy fizetési módot, hogy továbbra is használhassuk ezeket a funkciókat a próba befejezése után:",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -10937,6 +10937,6 @@
     }
   },
   "unlimitedSecretsAndProjects": {
-    "message": "Unlimited secrets and projects"
+    "message": "Korlátlan titkos elem és projekt"
   }
 }

@@ -9475,7 +9475,7 @@
     "message": "Konfigurera enhetshanteringen för Bitwarden med hjälp av implementeringsguiden för din plattform."
   },
   "crowdstrikeEventIntegrationDesc": {
-    "message": "Send event data to your Logscale instance"
+    "message": "Skicka händelsedata till din Logscale-instans"
   },
   "deviceIdMissing": {
     "message": "Enhetens ID saknas"
@@ -9493,7 +9493,7 @@
     "message": "Öppna den här länken igen från ditt e-postmeddelande på ett skrivbord."
   },
   "connectIntegrationButtonDesc": {
-    "message": "Connect $INTEGRATION$",
+    "message": "Anslut $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
