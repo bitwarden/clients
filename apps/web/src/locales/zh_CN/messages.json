@@ -8517,7 +8517,7 @@
     "message": "无法完成登录"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "您需要在某个受信任的设备上登录或要求您的管理员为您分配一个密码。"
+    "message": "您需要在某个受信任的设备上登录，或要求管理员为您分配一个密码。"
   },
   "trustedDeviceEncryption": {
     "message": "受信任设备加密"
@@ -9493,7 +9493,7 @@
     "message": "请在桌面端从您的电子邮件中重新打开此链接。"
   },
   "connectIntegrationButtonDesc": {
-    "message": "Connect $INTEGRATION$",
+    "message": "连接 $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10307,7 +10307,7 @@
     "message": "该用户已从组织中删除，所有关联的用户数据也已删除。"
   },
   "deletedUserIdEventMessage": {
-    "message": "Deleted user $ID$",
+    "message": "删除了用户 $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10806,16 +10806,16 @@
     "message": "Get the Bitwarden browser extension and start autofilling today"
   },
   "getTheExtension": {
-    "message": "Get the extension"
+    "message": "获取扩展"
   },
   "addItLater": {
-    "message": "Add it later"
+    "message": "稍后添加"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "You can't autofill passwords without the browser extension"
+    "message": "您无法在没有浏览器扩展的情况下自动填充密码"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
-    "message": "Are you sure you don't want to add the extension now?"
+    "message": "您确定现在不添加该扩展吗？"
   },
   "skipToWebApp": {
     "message": "跳转到网页 App"
@@ -10824,10 +10824,10 @@
     "message": "Bitwarden 扩展已安装！"
   },
   "openExtensionToAutofill": {
-    "message": "Open the extension to log in and start autofilling."
+    "message": "打开此扩展以登录并开始自动填充。"
   },
   "openBitwardenExtension": {
-    "message": "Open Bitwarden extension"
+    "message": "打开 Bitwarden 扩展"
   },
   "gettingStartedWithBitwardenPart1": {
     "message": "有关开始使用 Bitwarden 的提示，请访问",
@@ -10871,19 +10871,19 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "billingAddress": {
-    "message": "Billing address"
+    "message": "计费地址"
   },
   "addBillingAddress": {
-    "message": "Add billing address"
+    "message": "添加计费地址"
   },
   "editBillingAddress": {
-    "message": "Edit billing address"
+    "message": "编辑计费地址"
   },
   "noBillingAddress": {
     "message": "没有存档的地址。"
   },
   "billingAddressUpdated": {
-    "message": "Your billing address has been updated."
+    "message": "您的计费地址已更新。"
   },
   "paymentDetails": {
     "message": "Payment details"
@@ -10937,6 +10937,6 @@
     }
   },
   "unlimitedSecretsAndProjects": {
-    "message": "Unlimited secrets and projects"
+    "message": "不限数量的机密和工程"
   }
 }

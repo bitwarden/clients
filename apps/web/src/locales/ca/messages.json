@@ -1811,7 +1811,7 @@
     "message": "Si es procedeix, es tancarà la vostra sessió actual i l'haureu de tornar a iniciar. Les sessions d'altres dispositius poden mantenir-se actives fins a una hora."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "En canviar la teva contrasenya, cal iniciar la sessió amb la nova contrasenya. Les sessions actives en altres dispositius es tancaran en una hora."
   },
   "emailChanged": {
     "message": "El correu electrònic s'ha guardat"
@@ -2198,7 +2198,7 @@
     "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "yourSingleUseRecoveryCode": {
-    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+    "message": "El vostre codi de recuperació d'un sol ús es pot utilitzar per desactivar l'inici de sessió en dos passos en cas que perdeu l'accés al vostre proveïdor d'inici de sessió en dos passos. Bitwarden us recomana que anoteu el codi de recuperació i el guardeu en un lloc segur."
   },
   "viewRecoveryCode": {
     "message": "Mostra el codi de recuperació"
@@ -8257,7 +8257,7 @@
     "message": "Actualitzeu la configuració d'encriptació per complir les noves recomanacions de seguretat i millorar la protecció del compte."
   },
   "kdfSettingsChangeLogoutWarning": {
-    "message": "Si continueu, totes les sessions actives. Haureu de tornar a iniciar la sessió i completar l'inici de sessió en dos passos. Recomanem que exporteu la caixa forta abans de canviar la configuració de xifratge per evitar la pèrdua de dades."
+    "message": "Si continueu, tancareu totes les sessions actives. Haureu de tornar a iniciar la sessió i completar l'inici de sessió en dos passos. Recomanem que exporteu la caixa forta abans de canviar la configuració de xifratge per evitar la pèrdua de dades."
   },
   "secretsManager": {
     "message": "Administrador de secrets"

@@ -247,7 +247,7 @@
     "message": "Thông tin thẻ"
   },
   "cardBrandDetails": {
-    "message": "Chi tiết của $BRAND$",
+    "message": "Chi tiết thẻ $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -405,7 +405,7 @@
     "message": "Mx"
   },
   "dr": {
-    "message": "Dr"
+    "message": "Tiến sĩ/Bác sĩ"
   },
   "cardExpiredTitle": {
     "message": "Thẻ hết hạn"
@@ -5260,7 +5260,7 @@
     "message": "Đang chờ xóa"
   },
   "hideTextByDefault": {
-    "message": "Mặc định ẩn văn bản"
+    "message": "Ẩn văn bản theo mặc định"
   },
   "expired": {
     "message": "Đã hết hạn"

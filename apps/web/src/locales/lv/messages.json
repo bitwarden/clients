@@ -9475,7 +9475,7 @@
     "message": "Konfigurēt ierīču pārvaldību Bitwarden, izmantojot operētājsistēmai atbilstošas ieviešanas norādes."
   },
   "crowdstrikeEventIntegrationDesc": {
-    "message": "Send event data to your Logscale instance"
+    "message": "Nosūtīt notikum udatus uz savu Logscale instanci"
   },
   "deviceIdMissing": {
     "message": "Trūkst ierīces Id"
@@ -9493,7 +9493,7 @@
     "message": "Šī saite e-pastā atkārtoti jāatver datorā."
   },
   "connectIntegrationButtonDesc": {
-    "message": "Connect $INTEGRATION$",
+    "message": "Pieslēgt $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
