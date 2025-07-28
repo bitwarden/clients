@@ -566,7 +566,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   private hasPersonalItems(): boolean {
-    return this.selection.selected.some(({ cipher }) => cipher?.organizationId === null);
+    return this.selection.selected.some(({ cipher }) => !cipher?.organizationId);
   }
 
   private allCiphersHaveEditAccess(): boolean {
