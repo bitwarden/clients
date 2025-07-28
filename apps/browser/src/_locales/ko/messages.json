@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwarden 로고"
   },
   "extName": {
     "message": "Bitwarden 비밀번호 관리자",
@@ -465,10 +465,10 @@
     "message": "암호 생성"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "비밀번호 생성됨"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "패스프레이즈 생성됨"
   },
   "usernameGenerated": {
     "message": "Username generated"
@@ -546,6 +546,9 @@
   },
   "searchVault": {
     "message": "보관함 검색"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "edit": {
     "message": "편집"
@@ -1483,17 +1486,17 @@
     "message": "Don't ask again on this device for 30 days"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "다른 방법 시도",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "복구 코드 사용"
   },
   "insertU2f": {
     "message": "보안 키를 컴퓨터의 USB 포트에 삽입하고 버튼이 있는 경우 누르세요."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "새 탭에서 열기"
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn 인증"

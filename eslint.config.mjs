@@ -310,6 +310,26 @@ export default tseslint.config(
       "no-console": "off",
     },
   },
+  // Tailwind migrated clients & libs
+  {
+    files: ["apps/web/**/*.html", "bitwarden_license/bit-web/**/*.html", "libs/**/*.html"],
+    rules: {
+      "tailwindcss/no-custom-classname": [
+        "error",
+        {
+          // In migrated clients we only allow tailwind classes plus the following exceptions
+          whitelist: [
+            "((bwi)\\-?).*", // Font icons
+            "logo",
+            "logo-themed",
+            "file-selector",
+            "mfaType.*",
+            "filter.*", // Temporary until filters are migrated
+          ],
+        },
+      ],
+    },
+  },
   /// Bandaids for keeping existing circular dependencies from getting worse and new ones from being created
   /// Will be removed after Nx is implemented and existing circular dependencies are removed.
   {

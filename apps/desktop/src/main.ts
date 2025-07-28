@@ -201,6 +201,16 @@ export class Main {
       this.logService,
       true,
     );
+
+    this.windowMain = new WindowMain(
+      biometricStateService,
+      this.logService,
+      this.storageService,
+      this.desktopSettingsService,
+      (arg) => this.processDeepLink(arg),
+      (win) => this.trayMain.setupWindowListeners(win),
+    );
+
     this.biometricsService = new MainBiometricsService(
       this.i18nService,
       this.windowMain,
@@ -211,14 +221,6 @@ export class Main {
       this.mainCryptoFunctionService,
     );
 
-    this.windowMain = new WindowMain(
-      biometricStateService,
-      this.logService,
-      this.storageService,
-      this.desktopSettingsService,
-      (arg) => this.processDeepLink(arg),
-      (win) => this.trayMain.setupWindowListeners(win),
-    );
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
     this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
 

@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Annuler"
   },
+  "later": {
+    "message": "Plus tard"
+  },
   "canceled": {
     "message": "Annulé"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Rechercher des groupes"
+  },
+  "resetSearch": {
+    "message": "Réinitialiser la recherche"
   },
   "allItems": {
     "message": "Tous les éléments"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Obtenez des conseils, des annonces et des opportunités de recherche de la part de Bitwarden dans votre boîte de réception."
+  },
+  "subscribe": {
+    "message": "Abonnez-vous"
   },
   "unsubscribe": {
     "message": "Désabonnez-vous"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Configurez la gestion des appareils pour Bitwarden en utilisant le guide d'implémentation pour votre plateforme."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Envoyer les données de l'événement à votre instance Logscale"
+  },
   "deviceIdMissing": {
     "message": "L'identification de l'appareil est manquante"
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Réouvrez ce lien à partir de votre courriel sur un bureau."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connecter $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Lancez le guide d'implémentation $INTEGRATION$.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "L'utilisateur a été retiré de l'organisation et toutes ses données utilisateur associées ont été supprimées."
   },
-  "deletedUserId": {
-    "message": "Utilisateur supprimé $ID$ - un propriétaire / administrateur a supprimé le compte utilisateur",
+  "deletedUserIdEventMessage": {
+    "message": "Utilisateur $ID$ supprimé",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "En cours de vérification"
   },
-  "claimedDomainsDesc": {
-    "message": "Réclamez un domaine pour posséder tous les comptes membres dont l'adresse courriel correspond au domaine. Les membres pourront éviter l'identifiant SSO lors de la connexion. Les administrateurs seront également en mesure de supprimer les comptes de membre."
+  "claimedDomainsDescription": {
+    "message": "Réclamer un domaine pour réclamer les comptes des membres. La page d'identification SSO sera ignorée lors de la connexion pour les membres ayant des domaines réclamés et les administrateurs pourront supprimer les comptes réclamés."
   },
   "invalidDomainNameClaimMessage": {
     "message": "L'entrée n'est pas un format valide. Format: mondomaine.com. Les sous-domaines nécessitent des entrées séparées pour être réclamés."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Abonnez-vous au plan $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Votre période d'essai $PLAN$ de 7 jours commence aujourd'hui. Ajoutez un moyen de paiement maintenant pour continuer à utiliser ces fonctionnalités après la fin de votre période d'essai: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Projets et Secrets illimités"
   }
 }

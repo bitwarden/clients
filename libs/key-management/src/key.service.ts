@@ -259,28 +259,28 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
   }
 
-  // TODO: Move to MasterPasswordService
-  async getOrDeriveMasterKey(password: string, userId?: UserId) {
-    const [resolvedUserId, email] = await firstValueFrom(
-      combineLatest([this.accountService.activeAccount$, this.accountService.accounts$]).pipe(
-        map(([activeAccount, accounts]) => {
-          userId ??= activeAccount?.id;
-          if (userId == null || accounts[userId] == null) {
-            throw new Error("No user found");
-          }
-          return [userId, accounts[userId].email];
-        }),
-      ),
-    );
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(resolvedUserId));
+  async getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey> {
+    if (userId == null) {
+      throw new Error("User ID is required.");
+    }
+
+    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey != null) {
       return masterKey;
     }
 
-    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(resolvedUserId));
-    if (kdf == null) {
-      throw new Error("No kdf found for user");
+    const email = await firstValueFrom(
+      this.accountService.accounts$.pipe(map((accounts) => accounts[userId]?.email)),
+    );
+    if (email == null) {
+      throw new Error("No email found for user " + userId);
     }
+
+    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
+    if (kdf == null) {
+      throw new Error("No kdf found for user " + userId);
+    }
+
     return await this.makeMasterKey(password, email, kdf);
   }
 
@@ -289,14 +289,14 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    *
    * @remarks
    * Does not validate the kdf config to ensure it satisfies the minimum requirements for the given kdf type.
-   * TODO: Move to MasterPasswordService
    */
-  async makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey> {
+  async makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey> {
     const start = new Date().getTime();
+    email = email.trim().toLowerCase();
     const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
       password,
       email,
-      KdfConfig,
+      kdfConfig,
     )) as MasterKey;
     const end = new Date().getTime();
     this.logService.info(`[KeyService] Deriving master key took ${end - start}ms`);
@@ -312,23 +312,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return await this.buildProtectedSymmetricKey(masterKey, userKey);
   }
 
-  // TODO: move to MasterPasswordService
   async hashMasterKey(
     password: string,
-    key: MasterKey | null,
+    key: MasterKey,
     hashPurpose?: HashPurpose,
   ): Promise<string> {
-    if (key == null) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (userId == null) {
-        throw new Error("No active user found.");
-      }
-
-      key = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
+    if (password == null) {
+      throw new Error("password is required.");
     }
-
-    if (password == null || key == null) {
-      throw new Error("Invalid parameters.");
+    if (key == null) {
+      throw new Error("key is required.");
     }
 
     const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
@@ -341,9 +334,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return Utils.fromBufferToB64(hash);
   }
 
-  // TODO: move to MasterPasswordService
   async compareKeyHash(
-    masterPassword: string | null,
+    masterPassword: string,
     masterKey: MasterKey,
     userId: UserId,
   ): Promise<boolean> {
@@ -661,19 +653,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    * Initialize all necessary crypto keys needed for a new account.
    * Warning! This completely replaces any existing keys!
    */
-  async initAccount(): Promise<{
+  async initAccount(userId: UserId): Promise<{
     userKey: UserKey;
     publicKey: string;
     privateKey: EncString;
   }> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-
-    if (activeUserId == null) {
-      throw new Error("Cannot initilize an account if one is not active.");
+    if (userId == null) {
+      throw new Error("UserId is required.");
     }
 
     // Verify user key doesn't exist
-    const existingUserKey = await this.getUserKey(activeUserId);
+    const existingUserKey = await this.getUserKey(userId);
 
     if (existingUserKey != null) {
       this.logService.error("Tried to initialize account with existing user key.");
@@ -686,9 +676,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("Failed to create valid private key.");
     }
 
-    await this.setUserKey(userKey, activeUserId);
+    await this.setUserKey(userKey, userId);
     await this.stateProvider
-      .getUser(activeUserId, USER_ENCRYPTED_PRIVATE_KEY)
+      .getUser(userId, USER_ENCRYPTED_PRIVATE_KEY)
       .update(() => privateKey.encryptedString!);
 
     return {

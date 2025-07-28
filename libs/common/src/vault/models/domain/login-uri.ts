@@ -102,4 +102,17 @@ export class LoginUri extends Domain {
       match: this.match,
     };
   }
+
+  static fromSdkLoginUri(obj: SdkLoginUri): LoginUri | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const view = new LoginUri();
+    view.uri = EncString.fromJSON(obj.uri);
+    view.uriChecksum = obj.uriChecksum ? EncString.fromJSON(obj.uriChecksum) : undefined;
+    view.match = obj.match;
+
+    return view;
+  }
 }

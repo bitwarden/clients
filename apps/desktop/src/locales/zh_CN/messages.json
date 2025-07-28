@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "搜索密码库"
   },
+  "resetSearch": {
+    "message": "重置搜索"
+  },
   "addItem": {
     "message": "添加项目"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "使用 Windows Hello 解锁"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "额外的 Windows Hello 设置"
-  },
   "unlockWithPolkit": {
     "message": "使用系统身份验证解锁"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "解锁您的密码库"
   },
-  "autoPromptWindowsHello": {
-    "message": "应用程序启动时提示 Windows Hello"
-  },
-  "autoPromptPolkit": {
-    "message": "启动时提示系统身份验证"
-  },
   "autoPromptTouchId": {
     "message": "应用程序启动时提示触控 ID"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "应用程序启动时要求密码"
-  },
-  "recommendedForSecurity": {
-    "message": "安全起见，推荐设置。"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "重启后使用主密码锁定"
@@ -3048,7 +3039,7 @@
     "message": "刚刚"
   },
   "requestedXMinutesAgo": {
-    "message": "$MINUTES$ 分钟前已发出请求",
+    "message": "请求于 $MINUTES$ 分钟前",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -3568,15 +3559,15 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Bitwarden 根据 URI 匹配检测来识别自动填充建议。",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「正则表达方式」是一种高级选项，会增加暴露凭据的风险。",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「开始于」是一种高级选项，会增加暴露凭据的风险。",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -4016,9 +4007,9 @@
     }
   },
   "enableAutotype": {
-    "message": "启用自动类型快捷方式"
+    "message": "启用自动类型"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden 不验证输入位置，请确保您在使用快捷键之前在正确的窗口和字段中。"
+    "message": "Bitwarden 不会验证输入位置，在使用快捷键之前，请确保您位于正确的窗口和字段中。"
   }
 }
