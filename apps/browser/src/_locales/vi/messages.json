@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Tìm kiếm trong kho lưu trữ"
   },
+  "resetSearch": {
+    "message": "Đặt lại tìm kiếm"
+  },
   "edit": {
     "message": "Sửa"
   },
@@ -4312,7 +4315,7 @@
     "message": "Yêu cầu xác thực LastPass"
   },
   "awaitingSSO": {
-    "message": "Đang chờ xác thực Đăng nhập một lần"
+    "message": "Đang chờ xác thực SSO"
   },
   "awaitingSSODesc": {
     "message": "Vui lòng tiếp tục đăng nhập bằng thông tin đăng nhập của công ty bạn."

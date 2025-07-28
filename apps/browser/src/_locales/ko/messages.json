@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "보관함 검색"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "편집"
   },

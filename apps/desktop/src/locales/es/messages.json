@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Buscar en caja fuerte"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Añadir elemento"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Desbloquear con Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Ajustes adicionales de Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Desbloquear con la autenticación del sistema"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "Verificar para Bitwarden."
   },
-  "autoPromptWindowsHello": {
-    "message": "Solicitar Windows Hello al iniciar"
-  },
-  "autoPromptPolkit": {
-    "message": "Solicitar autenticación de sistema al iniciar"
-  },
   "autoPromptTouchId": {
     "message": "Solicitar Touch ID al iniciar"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Solicitar contraseña al iniciar la aplicación"
-  },
-  "recommendedForSecurity": {
-    "message": "Recomendado por seguridad."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear con contraseña maestra al reiniciar"
@@ -4015,8 +4006,8 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Activar atajo de autoescritura"
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden no valida las ubicaciones de entrada, asegúrate de que estás en la ventana y en el capo correctos antes de usar el atajo."

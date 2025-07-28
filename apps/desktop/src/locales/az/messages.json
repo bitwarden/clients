@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Seyfdə axtar"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Element əlavə et"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Windows Hello ilə kilidi aç"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Əlavə Windows Hello ayarları"
-  },
   "unlockWithPolkit": {
     "message": "Sistem kimlik doğrulaması ilə kilidi aç"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "seyfinizin kilidini açın"
   },
-  "autoPromptWindowsHello": {
-    "message": "Açılışda Windows Hello-nu soruşun"
-  },
-  "autoPromptPolkit": {
-    "message": "Açılışda sistem kimlik doğrulamasını tələb et"
-  },
   "autoPromptTouchId": {
     "message": "Açılışda Touch ID-ni soruşun"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Tətbiq başladılanda parolu tələb et"
-  },
-  "recommendedForSecurity": {
-    "message": "Güvənlik üçün tövsiyə olunur."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Yenidən başladılanda ana parol ilə kilidlə"
@@ -4015,8 +4006,8 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Avto-yazma qısayolunu fəallaşdır"
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."

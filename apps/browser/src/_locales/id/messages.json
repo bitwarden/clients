@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Cari brankas"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Edit"
   },

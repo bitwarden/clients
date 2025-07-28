@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Пошук у сховішчы"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Рэдагаваць"
   },

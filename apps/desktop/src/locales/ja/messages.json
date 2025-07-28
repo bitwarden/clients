@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "保管庫を検索"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "アイテムの追加"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Windows Hello でロック解除"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "追加の Windows Hello 設定"
-  },
   "unlockWithPolkit": {
     "message": "システム認証でロック解除"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "Bitwarden の認証を行います。"
   },
-  "autoPromptWindowsHello": {
-    "message": "起動時に Windows Hello を要求する"
-  },
-  "autoPromptPolkit": {
-    "message": "起動時にシステム認証を要求する"
-  },
   "autoPromptTouchId": {
     "message": "起動時に Touch ID を要求する"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "アプリ起動時にパスワードを要求"
-  },
-  "recommendedForSecurity": {
-    "message": "セキュリティ向上のためおすすめします。"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "再起動時にマスターパスワードでロック"
@@ -4015,8 +4006,8 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Enable autotype shortcut"
+  "enableAutotypeTransitionKey": {
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

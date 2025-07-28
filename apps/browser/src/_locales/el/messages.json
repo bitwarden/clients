@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Αναζήτηση στο vault"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Επεξεργασία"
   },

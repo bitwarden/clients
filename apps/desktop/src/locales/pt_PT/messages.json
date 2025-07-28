@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Procurar no cofre"
   },
+  "resetSearch": {
+    "message": "Repor pesquisa"
+  },
   "addItem": {
     "message": "Adicionar item"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Desbloquear com o Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Definições adicionais do Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Desbloqueio com autenticação do sistema"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "desbloquear o cofre"
   },
-  "autoPromptWindowsHello": {
-    "message": "Pedir o Windows Hello ao iniciar a app"
-  },
-  "autoPromptPolkit": {
-    "message": "Pedir a autenticação do sistema no arranque"
-  },
   "autoPromptTouchId": {
     "message": "Pedir o Touch ID ao iniciar a app"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Exigir palavra-passe ao iniciar a app"
-  },
-  "recommendedForSecurity": {
-    "message": "Recomendado por segurança."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com a palavra-passe mestra ao reiniciar"
@@ -4015,8 +4006,8 @@
       }
     }
   },
-  "enableAutotype": {
-    "message": "Ativar o atalho de introdução automática"
+  "enableAutotypeTransitionKey": {
+    "message": "Ativar introdução automática"
   },
   "enableAutotypeDescription": {
     "message": "O Bitwarden não valida a introdução de localizações. Certifique-se de que está na janela e no campo corretos antes de utilizar o atalho."

@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Tresor durchsuchen"
   },
+  "resetSearch": {
+    "message": "Suche zurücksetzen"
+  },
   "edit": {
     "message": "Bearbeiten"
   },

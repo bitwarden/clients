@@ -568,6 +568,9 @@
   "cancel": {
     "message": "İmtina"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Ləğv edildi"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Qrupları axtar"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "allItems": {
     "message": "Bütün elementlər"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Bitwarden-in tövsiyə, elan və araşdırma imkanlarını gələn qutunuzda əldə edin."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "Abunəlikdən çıx"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Platformanız üçün icra bələdçisini istifadə edərək Bitwarden üçün cihaz idarəetməsini konfiqurasiya edin."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
   "deviceIdMissing": {
     "message": "Cihaz kimliyi əskikdir"
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Bu keçidi e-poçtunuzdan masaüstündə yenidən açın."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$ icra bələdçisini başlat.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "İstifadəçi təşkilatdan çıxarıldı və əlaqələndirilmiş bütün istifadəçi dataları silindi."
   },
-  "deletedUserId": {
-    "message": "$ID$ istifadəçisi silindi - bir sahib/admin, istifadəçi hesabını sildi",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "Doğrulama altında"
   },
-  "claimedDomainsDesc": {
-    "message": "Domenlə uyuşan e-poçt ünvanına sahib bütün üzvlərin hesablarına sahib olmaq üçün bir domen götürün. Üzvlər giriş edərkən SSO identifikatorunu ötürə biləcək. Həmçinin inzibatçılar, üzv hesablarını silə biləcək."
+  "claimedDomainsDescription": {
+    "message": "Üzv hesablarına sahiblik etmək üçün bir domen götürün. Domen götürmüş üzvlər üçün giriş zamanı SSO identifikatoru səhifəsi ötürüləcək və inzibatçılar bu domenə aid hesabları silə biləcək."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Giriş, yararlı bir format deyil. Format: mydomain.com. Alt domenlərin götürülməsi üçün ayrıca girişlər tələb olunur."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
   }
 }

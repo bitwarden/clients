@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Cancelar"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Cancelado"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Buscar grupos"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "allItems": {
     "message": "Todos os Itens"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Obtenha conselhos, novidades, e oportunidades de pesquisa do Bitwarden em sua caixa de entrada."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "Cancelar subscrição"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Configure o gerenciamento de dispositivos para o Bitwarden usando o guia de implementação da sua plataforma."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
   "deviceIdMissing": {
     "message": "ID do dispositivo está faltando"
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Reabra este link a partir do seu e-mail em um desktop."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Inicie o guia de implementação $INTEGRATION$.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "O usuário foi removido da organização e todos os dados de usuários associados foram excluídos."
   },
-  "deletedUserId": {
-    "message": "Usuário excluído $ID$ - um proprietário / administrador excluiu a conta do usuário",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "Em verificação"
   },
-  "claimedDomainsDesc": {
-    "message": "Reivindique um domínio para se apropriar de todas as contas de membros cujo endereço de e-mail corresponde ao domínio. Os membros serão capazes de pular o identificador SSO ao fazer o login. Administradores também serão capazes de excluir contas de membros."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Entrada não é um formato válido. Formato: meudominio.com. Subdomínios requerem entradas separadas para serem reivindicados."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
   }
 }
