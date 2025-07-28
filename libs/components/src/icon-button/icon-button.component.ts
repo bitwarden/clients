@@ -105,11 +105,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   readonly size = model<IconButtonSize>("default");
 
-  // private readonly appA11yTitleDirective: A11yTitleDirective = inject(A11yTitleDirective, {
-  //   self: true,
-  //   optional: true,
-  // });
-
   readonly label = input.required<string>();
 
   @HostBinding("class") get classList() {
