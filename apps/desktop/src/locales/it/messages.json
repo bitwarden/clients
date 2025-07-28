@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Cerca nella cassaforte"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Aggiungi elemento"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Sblocca con Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Impostazioni aggiuntive di Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Sblocca con l'autenticazione di sistema"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "sblocca la tua cassaforte"
   },
-  "autoPromptWindowsHello": {
-    "message": "Richiedi Windows Hello all'avvio"
-  },
-  "autoPromptPolkit": {
-    "message": "Chiedi autenticazione di sistema all'avvio"
-  },
   "autoPromptTouchId": {
     "message": "Richiedi Touch ID all'avvio"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Richiedi parola d'accesso all'avvio dell'app"
-  },
-  "recommendedForSecurity": {
-    "message": "Consigliato per la sicurezza."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Blocca con password principale al riavvio"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

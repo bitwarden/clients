@@ -14,8 +14,6 @@ export enum FeatureFlag {
   CreateDefaultLocation = "pm-19467-create-default-location",
 
   /* Auth */
-  PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
-  PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
@@ -34,6 +32,7 @@ export enum FeatureFlag {
   UseOrganizationWarningsService = "use-organization-warnings-service",
   AllowTrialLengthZero = "pm-20322-allow-trial-length-0",
   PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
+  PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -109,8 +108,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
-  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
 
   /* Billing */
@@ -121,6 +118,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,
   [FeatureFlag.AllowTrialLengthZero]: FALSE,
   [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
+  [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,

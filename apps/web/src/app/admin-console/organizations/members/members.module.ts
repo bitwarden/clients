@@ -16,7 +16,6 @@ import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
 import { UserDialogModule } from "./components/member-dialog";
-import { ResetPasswordComponent } from "./components/reset-password.component";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
 
@@ -39,7 +38,6 @@ import { MembersComponent } from "./members.component";
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
     MembersComponent,
-    ResetPasswordComponent,
     BulkDeleteDialogComponent,
   ],
 })

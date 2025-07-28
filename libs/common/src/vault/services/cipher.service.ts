@@ -1512,9 +1512,16 @@ export class CipherService implements CipherServiceAbstraction {
     if (userCiphers.length === 0) {
       return encryptedCiphers;
     }
+
+    const useSdkEncryption = await this.configService.getFeatureFlag(
+      FeatureFlag.PM22136_SdkCipherEncryption,
+    );
+
     encryptedCiphers = await Promise.all(
       userCiphers.map(async (cipher) => {
-        const encryptedCipher = await this.encrypt(cipher, userId, newUserKey, originalUserKey);
+        const encryptedCipher = useSdkEncryption
+          ? await this.cipherEncryptionService.encryptCipherForRotation(cipher, userId, newUserKey)
+          : await this.encrypt(cipher, userId, newUserKey, originalUserKey);
         return new CipherWithIdRequest(encryptedCipher);
       }),
     );

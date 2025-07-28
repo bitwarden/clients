@@ -15,3 +15,8 @@ export type IndexedEntityId = Opaque<string, "IndexedEntityId">;
 export type SecurityTaskId = Opaque<string, "SecurityTaskId">;
 export type NotificationId = Opaque<string, "NotificationId">;
 export type EmergencyAccessId = Opaque<string, "EmergencyAccessId">;
+export type OrganizationIntegrationId = Opaque<string, "OrganizationIntegrationId">;
+export type OrganizationIntegrationConfigurationId = Opaque<
+  string,
+  "OrganizationIntegrationConfigurationId"
+>;

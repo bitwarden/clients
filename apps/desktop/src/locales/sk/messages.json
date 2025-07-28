@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Prehľadávať trezor"
   },
+  "resetSearch": {
+    "message": "Resetovať vyhľadávanie"
+  },
   "addItem": {
     "message": "Pridať položku"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Odomknúť pomocou Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Ďalšie nastavenia Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Odomknúť systémovým overením"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "odomknúť svoj trezor"
   },
-  "autoPromptWindowsHello": {
-    "message": "Pri spustení požiadať o Windows Hello"
-  },
-  "autoPromptPolkit": {
-    "message": "Pri spustení požiadať o systémové overenie"
-  },
   "autoPromptTouchId": {
     "message": "Pri spustení požiadať o Touch ID"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Pri spustení aplikácie vyžadovať heslo"
-  },
-  "recommendedForSecurity": {
-    "message": "Odporúča sa z hľadiska bezpečnosti."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Pri reštarte zamknúť hlavným heslom"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Povoliť skratku automatického písania"
+    "message": "Povoliť automatické vpisovanie"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden neoveruje miesto stupu, pred použitím skratky sa uistite, že ste v správnom okne a poli."
