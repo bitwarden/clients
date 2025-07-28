@@ -10,6 +10,7 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import {
   RequirePaymentMethodDialogComponent,
@@ -26,25 +27,28 @@ describe("ProviderWarningsService", () => {
   let billingApiService: MockProxy<BillingApiServiceAbstraction>;
   let i18nService: MockProxy<I18nService>;
   let router: MockProxy<Router>;
+  let syncService: MockProxy<SyncService>;
 
   beforeEach(() => {
+    billingApiService = mock<BillingApiServiceAbstraction>();
     configService = mock<ConfigService>();
     dialogService = mock<DialogService>();
-    providerService = mock<ProviderService>();
-    billingApiService = mock<BillingApiServiceAbstraction>();
     i18nService = mock<I18nService>();
+    providerService = mock<ProviderService>();
     router = mock<Router>();
+    syncService = mock<SyncService>();
 
     TestBed.configureTestingModule({
       providers: [
         ProviderWarningsService,
+        { provide: ActivatedRoute, useValue: {} },
+        { provide: BillingApiServiceAbstraction, useValue: billingApiService },
         { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: dialogService },
-        { provide: ProviderService, useValue: providerService },
-        { provide: BillingApiServiceAbstraction, useValue: billingApiService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ProviderService, useValue: providerService },
         { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: {} },
+        { provide: SyncService, useValue: syncService },
       ],
     });
 
@@ -120,6 +124,7 @@ describe("ProviderWarningsService", () => {
 
       service.showProviderSuspendedDialog$(providerId).subscribe(() => {
         expect(RequirePaymentMethodDialogComponent.open).toHaveBeenCalled();
+        expect(syncService.fullSync).toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalled();
         done();
       });
@@ -174,7 +179,6 @@ describe("ProviderWarningsService", () => {
           acceptButtonText: "contactSupportShort",
           cancelButtonText: null,
           acceptAction: expect.any(Function),
-          disableCloseOnAccept: true,
         });
         done();
       });

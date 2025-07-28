@@ -8,6 +8,7 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService } from "@bitwarden/components";
 import { RequirePaymentMethodDialogComponent } from "@bitwarden/web-vault/app/billing/payment/components";
 
@@ -21,6 +22,7 @@ export class ProviderWarningsService {
     private i18nService: I18nService,
     private providerService: ProviderService,
     private router: Router,
+    private syncService: SyncService,
   ) {}
 
   showProviderSuspendedDialog$ = (providerId: string): Observable<void> =>
@@ -65,6 +67,7 @@ export class ProviderWarningsService {
               const result = await lastValueFrom(dialogRef.closed);
 
               if (result?.type === "success") {
+                await this.syncService.fullSync(true);
                 await this.router.navigate(["."], {
                   relativeTo: this.activatedRoute,
                   onSameUrlNavigation: "reload",
@@ -94,7 +97,6 @@ export class ProviderWarningsService {
               window.open("https://bitwarden.com/contact/", "_blank");
               return Promise.resolve();
             },
-            disableCloseOnAccept: true,
           });
         }
       }),

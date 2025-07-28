@@ -56,11 +56,6 @@ export type SimpleDialogOptions = {
    * is resolved.
    */
   acceptAction?: () => Promise<void>;
-
-  /**
-   * Whether the user can escape the dialog via the accept button.
-   * */
-  disableCloseOnAccept?: boolean;
 };
 
 export type SimpleDialogType = "primary" | "success" | "info" | "warning" | "danger";

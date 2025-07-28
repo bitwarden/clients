@@ -68,7 +68,7 @@ export class SimpleConfigurableDialogComponent {
       await this.simpleDialogOpts.acceptAction();
     }
 
-    if (!this.simpleDialogOpts.disableCloseOnAccept) {
+    if (!this.simpleDialogOpts.disableClose) {
       this.dialogRef.close(true);
     }
   };
