@@ -3,7 +3,7 @@
 /**
  * Interface for implementing focusable components.
  *
- * Used by the `AutofocusDirective` and `A11yGridDirective`.
+ * Used by the `AutofocusDirective`.
  */
 export abstract class FocusableElement {
   getFocusTarget: () => HTMLElement | undefined;
