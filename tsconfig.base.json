@@ -25,6 +25,7 @@
       "@bitwarden/billing": ["./libs/billing/src"],
       "@bitwarden/bit-common/*": ["./bitwarden_license/bit-common/src/*"],
       "@bitwarden/cli/*": ["./apps/cli/src/*"],
+      "@bitwarden/client-type": ["libs/client-type/src/index.ts"],
       "@bitwarden/common/*": ["./libs/common/src/*"],
       "@bitwarden/components": ["./libs/components/src"],
       "@bitwarden/dirt-card": ["./libs/dirt/card/src"],
