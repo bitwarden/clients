@@ -4006,8 +4006,8 @@
       }
     }
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable Autotype"
+  "enableAutotype": {
+    "message": "启用自动类型"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden 不会验证输入位置，在使用快捷键之前，请确保您位于正确的窗口和字段中。"

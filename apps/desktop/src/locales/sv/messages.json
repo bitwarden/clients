@@ -4006,8 +4006,8 @@
       }
     }
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable Autotype"
+  "enableAutotype": {
+    "message": "Aktivera automatisk inmatning"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."

@@ -337,13 +337,13 @@
     "message": "Bà"
   },
   "ms": {
-    "message": "Chị"
+    "message": "Cô"
   },
   "mx": {
     "message": "Mx"
   },
   "dr": {
-    "message": "Tiến sĩ"
+    "message": "Tiến sĩ/Bác sĩ"
   },
   "expirationMonth": {
     "message": "Tháng hết hạn"
@@ -491,7 +491,7 @@
     "message": "Văn bản"
   },
   "cfTypeHidden": {
-    "message": "Ẩn"
+    "message": "Bí ẩn"
   },
   "cfTypeBoolean": {
     "message": "Đúng/Sai"
@@ -703,7 +703,7 @@
     "message": "Đã lưu tệp đính kèm"
   },
   "file": {
-    "message": "Tập tin"
+    "message": "Tệp"
   },
   "selectFile": {
     "message": "Chọn tập tin"
@@ -1174,7 +1174,7 @@
     "message": "Đi đến Bitwarden bản web"
   },
   "getMobileApp": {
-    "message": "Tải ứng dụng điện thoại"
+    "message": "Tải ứng dụng di động"
   },
   "getBrowserExtension": {
     "message": "Cài tiện ích mở rộng cho trình duyệt"
@@ -1363,7 +1363,7 @@
     "message": "Ngôn ngữ"
   },
   "languageDesc": {
-    "message": "Thay đổi ngôn ngữ được ứng dụng sử dụng. Cần khởi động lại."
+    "message": "Thay đổi ngôn ngữ hiển thị của ứng dụng. Cần khởi động lại."
   },
   "theme": {
     "message": "Chủ đề"
@@ -1696,7 +1696,7 @@
     "description": "ex. Date this item was updated"
   },
   "dateCreated": {
-    "message": "Ngày tạo",
+    "message": "Tạo lúc",
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
@@ -1981,7 +1981,7 @@
     "message": "Thông tin thẻ"
   },
   "cardBrandDetails": {
-    "message": "Chi tiết của $BRAND$",
+    "message": "Chi tiết thẻ $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -2212,7 +2212,7 @@
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeFile": {
-    "message": "Tập tin"
+    "message": "Tệp"
   },
   "sendTypeText": {
     "message": "Văn bản"
@@ -2232,7 +2232,7 @@
     "message": "Văn bản"
   },
   "deletionDate": {
-    "message": "Ngày xóa"
+    "message": "Xóa sau"
   },
   "deletionDateDesc": {
     "message": "Send sẽ được xóa vĩnh viễn vào ngày và giờ chỉ định.",
@@ -4006,8 +4006,8 @@
       }
     }
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable Autotype"
+  "enableAutotype": {
+    "message": "Bật tính năng Tự động nhập liệu"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."

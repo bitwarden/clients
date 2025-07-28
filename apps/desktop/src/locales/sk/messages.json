@@ -4006,8 +4006,8 @@
       }
     }
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable Autotype"
+  "enableAutotype": {
+    "message": "Povoliť automatické vpisovanie"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden neoveruje miesto stupu, pred použitím skratky sa uistite, že ste v správnom okne a poli."
