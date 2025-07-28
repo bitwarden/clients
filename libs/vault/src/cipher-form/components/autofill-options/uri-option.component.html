@@ -8,7 +8,7 @@
           type="button"
           [bitIconButton]="showMatchDetection ? 'bwi-cog-f' : 'bwi-cog'"
           bitSuffix
-          [appA11yTitle]="toggleTitle"
+          [label]="toggleTitle"
           (click)="toggleMatchDetection()"
           data-testid="toggle-match-detection-button"
         ></button>
@@ -29,7 +29,7 @@
           bitIconButton="bwi-drag-and-drop"
           class="!tw-py-0 !tw-px-1"
           cdkDragHandle
-          [appA11yTitle]="'reorderToggleButton' | i18n: uriLabel"
+          [label]="'reorderToggleButton' | i18n: uriLabel"
           (keydown)="handleKeydown($event)"
           data-testid="reorder-toggle-button"
           *ngIf="canReorder"
