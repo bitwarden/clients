@@ -125,6 +125,11 @@ export const ContentTypes: Story = {
         </button>
       </bit-item>
       <bit-item>
+        <button bit-item-content disabled>
+          And I am a disabled button.
+        </button>
+      </bit-item>
+      <bit-item>
         <bit-item-content>
           I'm just static :(
         </bit-item-content>
