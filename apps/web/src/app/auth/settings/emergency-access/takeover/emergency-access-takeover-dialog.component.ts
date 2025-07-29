@@ -49,7 +49,6 @@ export type EmergencyAccessTakeoverDialogResultType =
  * @link https://bitwarden.com/help/emergency-access/
  */
 @Component({
-  standalone: true,
   selector: "auth-emergency-access-takeover-dialog",
   templateUrl: "./emergency-access-takeover-dialog.component.html",
   imports: [

@@ -6,8 +6,6 @@ import {
   signal,
 } from "@angular/core";
 
-import { A11yRowDirective } from "../a11y/a11y-row.directive";
-
 import { ItemActionComponent } from "./item-action.component";
 
 @Component({
@@ -15,13 +13,12 @@ import { ItemActionComponent } from "./item-action.component";
   imports: [ItemActionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "item.component.html",
-  providers: [{ provide: A11yRowDirective, useExisting: ItemComponent }],
   host: {
     class:
       "tw-block tw-box-border tw-overflow-hidden tw-flex tw-bg-background [&:has([data-item-main-content]_button:hover,[data-item-main-content]_a:hover)]:tw-cursor-pointer [&:has([data-item-main-content]_button:enabled:hover,[data-item-main-content]_a:hover)]:tw-bg-hover-default tw-text-main tw-border-solid tw-border-b tw-border-0 [&:not(bit-layout_*)]:tw-rounded-lg bit-compact:[&:not(bit-layout_*)]:tw-rounded-none bit-compact:[&:not(bit-layout_*)]:last-of-type:tw-rounded-b-lg bit-compact:[&:not(bit-layout_*)]:first-of-type:tw-rounded-t-lg tw-min-h-9 tw-mb-1.5 bit-compact:tw-mb-0",
   },
 })
-export class ItemComponent extends A11yRowDirective {
+export class ItemComponent {
   /**
    * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`
    */

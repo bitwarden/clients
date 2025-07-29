@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Otsi hoidlast"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Lisa kirje"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Lukusta lahti Windows Helloga"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Windows Hello lisaseaded"
-  },
   "unlockWithPolkit": {
     "message": "Ava arvuti autentimissüsteemiga"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "Kinnita Bitwardenisse sisselogimine."
   },
-  "autoPromptWindowsHello": {
-    "message": "Küsi avamisel Windows Hello tuvastust"
-  },
-  "autoPromptPolkit": {
-    "message": "Kasuta käivitamisel arvuti autentimissüsteemi"
-  },
   "autoPromptTouchId": {
     "message": "Küsi avamisel Touch ID tuvastust"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Nõua parooli rakenduse käivitamisel"
-  },
-  "recommendedForSecurity": {
-    "message": "Soovitatud turvalisuse huvides."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lukusta ülemparooliga, kui rakendus taaskäivitatakse"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

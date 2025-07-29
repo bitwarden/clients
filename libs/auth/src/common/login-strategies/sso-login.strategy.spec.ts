@@ -10,7 +10,6 @@ import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -83,6 +82,7 @@ describe("SsoLoginStrategy", () => {
   const ssoCodeVerifier = "SSO_CODE_VERIFIER";
   const ssoRedirectUrl = "SSO_REDIRECT_URL";
   const ssoOrgId = "SSO_ORG_ID";
+  const privateKey = "userKeyEncryptedPrivateKey";
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
@@ -114,6 +114,9 @@ describe("SsoLoginStrategy", () => {
     tokenService.decodeAccessToken.mockResolvedValue({
       sub: userId,
     });
+    keyService.userEncryptedPrivateKey$
+      .calledWith(userId)
+      .mockReturnValue(of(privateKey as EncryptedString));
 
     const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
     const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
@@ -163,6 +166,7 @@ describe("SsoLoginStrategy", () => {
 
   it("sends SSO information to server", async () => {
     apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
+    keyService.hasUserKey.mockResolvedValue(true);
 
     await ssoLoginStrategy.logIn(credentials);
 
@@ -185,6 +189,7 @@ describe("SsoLoginStrategy", () => {
   it("does not set keys for new SSO user flow", async () => {
     const tokenResponse = identityTokenResponseFactory();
     tokenResponse.key = null;
+    tokenResponse.privateKey = null;
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
     await ssoLoginStrategy.logIn(credentials);
@@ -210,42 +215,28 @@ describe("SsoLoginStrategy", () => {
     );
   });
 
-  describe("given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
-    beforeEach(() => {
-      configService.getFeatureFlag.mockImplementation(async (flag) => {
-        if (flag === FeatureFlag.PM16117_SetInitialPasswordRefactor) {
-          return true;
-        }
-        return false;
-      });
-    });
+  describe("given the user does not have the `trustedDeviceOption`, does not have a master password, is not using key connector, does not have a user key, but they DO have a `userKeyEncryptedPrivateKey`", () => {
+    it("should set the forceSetPasswordReason to TdeOffboardingUntrustedDevice", async () => {
+      // Arrange
+      const mockUserDecryptionOptions: IUserDecryptionOptionsServerResponse = {
+        HasMasterPassword: false,
+        TrustedDeviceOption: null,
+        KeyConnectorOption: null,
+      };
+      const tokenResponse = identityTokenResponseFactory(null, mockUserDecryptionOptions);
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
-    describe("given the user does not have the `trustedDeviceOption`, does not have a master password, is not using key connector, does not have a user key, but they DO have a `userKeyEncryptedPrivateKey`", () => {
-      it("should set the forceSetPasswordReason to TdeOffboardingUntrustedDevice", async () => {
-        // Arrange
-        const mockUserDecryptionOptions: IUserDecryptionOptionsServerResponse = {
-          HasMasterPassword: false,
-          TrustedDeviceOption: null,
-          KeyConnectorOption: null,
-        };
-        const tokenResponse = identityTokenResponseFactory(null, mockUserDecryptionOptions);
-        apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+      keyService.hasUserKey.mockResolvedValue(false);
 
-        keyService.userEncryptedPrivateKey$.mockReturnValue(
-          of("userKeyEncryptedPrivateKey" as EncryptedString),
-        );
-        keyService.hasUserKey.mockResolvedValue(false);
+      // Act
+      await ssoLoginStrategy.logIn(credentials);
 
-        // Act
-        await ssoLoginStrategy.logIn(credentials);
-
-        // Assert
-        expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledTimes(1);
-        expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
-          ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
-          userId,
-        );
-      });
+      // Assert
+      expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledTimes(1);
+      expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
+        ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
+        userId,
+      );
     });
   });
 

@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "חיפוש בכספת"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "הוסף פריט"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "שחרור נעילה עם Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "הגדרות Windows Hello נוספות"
-  },
   "unlockWithPolkit": {
     "message": "בטל נעילה עם אימות מערכת"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "פתח את הכספת שלך"
   },
-  "autoPromptWindowsHello": {
-    "message": "הצג את Windows Hello בפתיחת האפליקציה"
-  },
-  "autoPromptPolkit": {
-    "message": "בקש אימות מערכת בפתיחה"
-  },
   "autoPromptTouchId": {
     "message": "הצג בקשה של Touch ID בפתיחת האפליקציה"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "דרוש סיסמה בפתיחת היישום"
-  },
-  "recommendedForSecurity": {
-    "message": "מומלץ לאבטחה."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "נעל בעזרת הסיסמה הראשית בהפעלה מחדש"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "הפעלת קיצור הקלדה אוטומטית"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden לא מאמת את מקומות הקלט, נא לוודא שזה החלון והשדה הנכונים בטרם שימוש בקיצור הדרך."

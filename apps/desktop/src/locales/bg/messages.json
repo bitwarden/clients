@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Търсене в трезора"
   },
+  "resetSearch": {
+    "message": "Нулиране на търсенето"
+  },
   "addItem": {
     "message": "Добавяне на елемент"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Отключване с Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Допълнителни настройки на Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Отключване чрез системно удостоверяване"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "отключете трезора си"
   },
-  "autoPromptWindowsHello": {
-    "message": "Питане за Windows Hello при пускане"
-  },
-  "autoPromptPolkit": {
-    "message": "Питане за системно удостоверяване при стартиране"
-  },
   "autoPromptTouchId": {
     "message": "Питане за Touch ID при пускане"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Изискване на парола при стартиране на приложението"
-  },
-  "recommendedForSecurity": {
-    "message": "Препоръчително от гледна точка на сигурността."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Включване на клавишната комбинация за автоматично попълване"
+    "message": "Включване на автоматичното въвеждане"
   },
   "enableAutotypeDescription": {
     "message": "Битуорден не проверява местата за въвеждане, така че се уверете, че сте в правилния прозорец, преди да ползвате клавишната комбинация."

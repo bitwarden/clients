@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "तिजोरीत शोधा"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Edit"
   },

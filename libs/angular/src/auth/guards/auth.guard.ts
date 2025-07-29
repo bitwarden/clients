@@ -14,10 +14,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 export const authGuard: CanActivateFn = async (
@@ -30,7 +28,6 @@ export const authGuard: CanActivateFn = async (
   const keyConnectorService = inject(KeyConnectorService);
   const accountService = inject(AccountService);
   const masterPasswordService = inject(MasterPasswordServiceAbstraction);
-  const configService = inject(ConfigService);
 
   const authStatus = await authService.getAuthStatus();
 
@@ -44,16 +41,11 @@ export const authGuard: CanActivateFn = async (
     masterPasswordService.forceSetPasswordReason$(userId),
   );
 
-  const isSetInitialPasswordFlagOn = await configService.getFeatureFlag(
-    FeatureFlag.PM16117_SetInitialPasswordRefactor,
-  );
-
   // User JIT provisioned into a master-password-encryption org
   if (
     authStatus === AuthenticationStatus.Locked &&
     forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
-    !routerState.url.includes("set-initial-password") &&
-    isSetInitialPasswordFlagOn
+    !routerState.url.includes("set-initial-password")
   ) {
     return router.createUrlTree(["/set-initial-password"]);
   }
@@ -62,8 +54,7 @@ export const authGuard: CanActivateFn = async (
   if (
     authStatus === AuthenticationStatus.Locked &&
     forceSetPasswordReason === ForceSetPasswordReason.TdeOffboardingUntrustedDevice &&
-    !routerState.url.includes("set-initial-password") &&
-    isSetInitialPasswordFlagOn
+    !routerState.url.includes("set-initial-password")
   ) {
     return router.createUrlTree(["/set-initial-password"]);
   }
@@ -90,39 +81,28 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree(["/remove-password"]);
   }
 
-  // TDE org user has "manage account recovery" permission
+  // Handle cases where a user needs to set a password when they don't already have one:
+  // - TDE org user has been given "manage account recovery" permission
+  // - TDE offboarding on a trusted device, where we have access to their encryption key wrap with their new password
   if (
-    forceSetPasswordReason ===
-      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission &&
-    !routerState.url.includes("set-password") &&
+    (forceSetPasswordReason ===
+      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission ||
+      forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding) &&
     !routerState.url.includes("set-initial-password")
   ) {
-    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password";
+    const route = "/set-initial-password";
     return router.createUrlTree([route]);
   }
 
-  // TDE Offboarding on trusted device
-  if (
-    forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding &&
-    !routerState.url.includes("update-temp-password") &&
-    !routerState.url.includes("set-initial-password")
-  ) {
-    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/update-temp-password";
-    return router.createUrlTree([route]);
-  }
-
-  const isChangePasswordFlagOn = await configService.getFeatureFlag(
-    FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
-  );
-
-  // Post- Account Recovery or Weak Password on login
+  // Handle cases where a user has a password but needs to set a new one:
+  // - Account recovery
+  // - Weak Password on login
   if (
     (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
       forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
-    !routerState.url.includes("update-temp-password") &&
     !routerState.url.includes("change-password")
   ) {
-    const route = isChangePasswordFlagOn ? "/change-password" : "/update-temp-password";
+    const route = "/change-password";
     return router.createUrlTree([route]);
   }
 

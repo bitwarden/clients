@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "搜尋密碼庫"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "新增項目"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "使用 Windows Hello 解鎖"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "額外的 Windows Hello 設定"
-  },
   "unlockWithPolkit": {
     "message": "使用系統驗證解鎖"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "解鎖您的密碼庫"
   },
-  "autoPromptWindowsHello": {
-    "message": "啟動應用程式時詢問 Windows Hello"
-  },
-  "autoPromptPolkit": {
-    "message": "在啟動時詢問系統驗證"
-  },
   "autoPromptTouchId": {
     "message": "啟動應用程式時要求 Touch ID"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "為提升安全，建議使用。"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "重啟後使用主密碼鎖定"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
