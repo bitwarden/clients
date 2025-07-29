@@ -156,6 +156,11 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
   enableFormFields(): void {
     this.cipherForm.enable({ emitEvent: false });
+    //  disable the SSH key section as they should never be editable
+    const sshKeyGroup = this.cipherForm.get("sshKeyDetails");
+    if (sshKeyGroup) {
+      sshKeyGroup.disable({ emitEvent: false });
+    }
   }
 
   /**
