@@ -227,12 +227,11 @@ export class EncryptServiceImplementation implements EncryptService {
     if (decapsulationKey == null) {
       throw new Error("No decapsulationKey provided for decapsulation");
     }
-
+    await SdkLoadService.Ready;
     const keyBytes = PureCrypto.decapsulate_key_unsigned(
       encryptedSharedKey.encryptedString,
       decapsulationKey,
     );
-    await SdkLoadService.Ready;
     return new SymmetricCryptoKey(keyBytes);
   }
 
