@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Directive, ElementRef, Input, OnInit } from "@angular/core";
 
-import { setA11yTitleAndAriaLabel } from "./setA11yTitleAndAriaLabel";
+import { setA11yTitleAndAriaLabel } from "./set-a11y-title-and-aria-label";
 
 @Directive({
   selector: "[appA11yTitle]",
