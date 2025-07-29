@@ -1,8 +1,16 @@
-export function setA11yTitleAndAriaLabel(element: HTMLElement, title: string): void {
-  if (!element.hasAttribute("title")) {
+export function setA11yTitleAndAriaLabel({
+  element,
+  title,
+  label,
+}: {
+  element: HTMLElement;
+  title?: string;
+  label?: string;
+}): void {
+  if (title) {
     element.setAttribute("title", title);
   }
-  if (!element.hasAttribute("aria-label")) {
-    element.setAttribute("aria-label", title);
+  if (label) {
+    element.setAttribute("aria-label", label);
   }
 }

@@ -4,6 +4,7 @@ import { NgClass } from "@angular/common";
 import {
   Component,
   computed,
+  effect,
   ElementRef,
   HostBinding,
   // inject,
@@ -107,6 +108,9 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   readonly label = input<string>();
 
+  private originalTitle: string | null;
+  private originalAriaLabel: string | null;
+
   @HostBinding("class") get classList() {
     return [
       "tw-font-semibold",
@@ -172,9 +176,24 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return this.elementRef.nativeElement;
   }
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) {
+    effect(() => {
+      setA11yTitleAndAriaLabel({
+        element: this.elementRef.nativeElement,
+        title: this.originalTitle ?? this.label(),
+        label: this.originalAriaLabel ?? this.label(),
+      });
+    });
+  }
 
   ngOnInit() {
-    setA11yTitleAndAriaLabel(this.elementRef.nativeElement, this.label());
+    this.originalTitle = this.elementRef.nativeElement.getAttribute("title");
+    this.originalAriaLabel = this.elementRef.nativeElement.getAttribute("aria-label");
+
+    setA11yTitleAndAriaLabel({
+      element: this.elementRef.nativeElement,
+      title: this.originalTitle ?? this.label(),
+      label: this.originalAriaLabel ?? this.label(),
+    });
   }
 }
