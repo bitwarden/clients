@@ -17,7 +17,7 @@
           bitIconButton="bwi-minus-circle"
           buttonType="danger"
           bitSuffix
-          [appA11yTitle]="'deleteWebsite' | i18n"
+          [label]="'deleteWebsite' | i18n"
           *ngIf="canRemove"
           (click)="removeUri()"
           data-testid="remove-uri-button"

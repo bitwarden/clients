@@ -8,7 +8,7 @@
       bitIconButton="bwi-generate"
       buttonType="main"
       (click)="generate(USER_REQUEST)"
-      [appA11yTitle]="credentialTypeGenerateLabel$ | async"
+      [label]="credentialTypeGenerateLabel$ | async"
       [disabled]="!(algorithm$ | async)"
     >
       {{ credentialTypeGenerateLabel$ | async }}
