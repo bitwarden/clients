@@ -105,7 +105,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   readonly size = model<IconButtonSize>("default");
 
-  readonly label = input.required<string>();
+  readonly label = input<string>();
 
   @HostBinding("class") get classList() {
     return [

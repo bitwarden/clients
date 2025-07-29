@@ -12,6 +12,7 @@ import angularRxjs from "eslint-plugin-rxjs-angular";
 import storybook from "eslint-plugin-storybook";
 
 import platformPlugins from "./libs/eslint/platform/index.mjs";
+import requireLabelOnBiticonbutton from "./libs/eslint/require-label-on-biticonbutton.mjs";
 
 export default tseslint.config(
   ...storybook.configs["flat/recommended"],
@@ -174,6 +175,7 @@ export default tseslint.config(
     plugins: {
       "@angular-eslint/template": angular.templatePlugin,
       tailwindcss: eslintPluginTailwindCSS,
+      "require-label-on-biticonbutton": requireLabelOnBiticonbutton,
     },
     rules: {
       "@angular-eslint/template/button-has-type": "error",
@@ -188,6 +190,7 @@ export default tseslint.config(
       "tailwindcss/enforces-negative-arbitrary-values": "error",
       "tailwindcss/enforces-shorthand": "error",
       "tailwindcss/no-contradicting-classname": "error",
+      "require-label-on-biticonbutton/require-label-on-biticonbutton": "error",
     },
   },
 
