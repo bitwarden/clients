@@ -125,7 +125,7 @@ export const ContentTypes: Story = {
         </button>
       </bit-item>
       <bit-item>
-        <button bit-item-content disabled>
+        <button bit-item-content disabled title="I'm a disabled button">
           And I am a disabled button.
         </button>
       </bit-item>
