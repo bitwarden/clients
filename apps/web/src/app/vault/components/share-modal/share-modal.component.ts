@@ -38,7 +38,8 @@ import { AccessSelectorModule } from "../../../admin-console/organizations/share
 import { SharedModule } from "../../../shared";
 
 export interface ShareModalParams {
-  cipher: CipherViewLike;
+  cipher?: CipherViewLike; // Keep for backward compatibility
+  ciphers?: CipherViewLike[]; // New bulk support
 }
 
 export interface ShareModalResult {
@@ -59,7 +60,9 @@ interface PermissionSet {
 export class ShareModalComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  cipher: CipherViewLike;
+  cipher!: CipherViewLike;
+  ciphers: CipherViewLike[] = [];
+  isBulkShare = false;
   organization?: Organization;
   accessItems: AccessItemView[] = [];
   currentUser?: OrganizationUserUserMiniResponse;
@@ -94,9 +97,23 @@ export class ShareModalComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private dialogService: DialogService,
   ) {
-    this.cipher = params?.cipher;
-    if (!this.cipher) {
-      // No cipher provided
+    // Validate input parameters - must have either cipher OR ciphers, but not both
+    if (params?.cipher && params?.ciphers) {
+      // Both provided - invalid
+      this.dialogRef.close({ action: "canceled" });
+      return;
+    } else if (params?.ciphers && params.ciphers.length > 0) {
+      // Bulk sharing mode
+      this.ciphers = params.ciphers;
+      this.cipher = params.ciphers[0]; // Use first cipher for organization detection
+      this.isBulkShare = true;
+    } else if (params?.cipher) {
+      // Single sharing mode (backward compatibility)
+      this.cipher = params.cipher;
+      this.ciphers = [params.cipher];
+      this.isBulkShare = false;
+    } else {
+      // Neither provided - invalid
       this.dialogRef.close({ action: "canceled" });
       return;
     }
@@ -212,28 +229,8 @@ export class ShareModalComponent implements OnInit, OnDestroy {
     this.submitting = true;
 
     try {
-      // Convert cipher to CipherView if needed
-      let cipherView: CipherView;
-      if ("id" in this.cipher) {
-        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-        const cipher = await this.cipherService.get(this.cipher.id!, userId);
-        if (!cipher) {
-          // Could not fetch cipher for assignment
-          return;
-        }
-        cipherView = await this.cipherService.decrypt(cipher, userId);
-      } else {
-        cipherView = this.cipher as CipherView;
-      }
-
-      // Check if the cipher is in individual vault or organization vault
-      const isIndividualVaultItem = !cipherView.organizationId;
-
-      if (isIndividualVaultItem) {
-        await this.shareToOrganizationAndAssign(cipherView, [this.existingCollection!.id!]);
-      } else {
-        await this.assignOrganizationItemToCollection(cipherView, this.existingCollection!);
-      }
+      // Assign all ciphers to the existing collection
+      await this.assignCiphersToCollection(this.existingCollection!.id!);
 
       // Assignment was successful
       this.createdCollectionId = this.existingCollection!.id!;
@@ -389,8 +386,8 @@ export class ShareModalComponent implements OnInit, OnDestroy {
       const collectionView = await this.createCollection();
 
       try {
-        // Assign the cipher to the newly created collection
-        await this.assignCipherToCollection(collectionView.id);
+        // Assign the ciphers to the newly created collection
+        await this.assignCiphersToCollection(collectionView.id);
 
         // Store collection ID and generate shareable link
         this.createdCollectionId = collectionView.id;
@@ -627,47 +624,61 @@ export class ShareModalComponent implements OnInit, OnDestroy {
     };
   }
 
-  private async assignCipherToCollection(collectionId: string): Promise<void> {
+  private async assignCiphersToCollection(collectionId: string): Promise<void> {
     if (!this.organization) {
       throw new Error("No organization available for assignment");
     }
 
-    // Convert cipher to CipherView if needed
-    let cipherView: CipherView;
-    if ("id" in this.cipher) {
-      // Convert CipherListView to CipherView
-      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-      const cipher = await this.cipherService.get(this.cipher.id!, userId);
-      if (!cipher) {
-        throw new Error("Could not fetch cipher for assignment");
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const targetCollection = this.existingCollections.find((c) => c.id === collectionId);
+
+    // Convert all ciphers to CipherView and group by vault type
+    const individualVaultItems: CipherView[] = [];
+    const organizationVaultItems: CipherView[] = [];
+
+    for (const cipher of this.ciphers) {
+      let cipherView: CipherView;
+      if ("id" in cipher) {
+        // Convert CipherListView to CipherView
+        const cipherDomain = await this.cipherService.get(cipher.id!, userId);
+        if (!cipherDomain) {
+          throw new Error(`Could not fetch cipher ${cipher.id} for assignment`);
+        }
+        cipherView = await this.cipherService.decrypt(cipherDomain, userId);
+      } else {
+        cipherView = cipher as CipherView;
       }
-      cipherView = await this.cipherService.decrypt(cipher, userId);
-    } else {
-      cipherView = this.cipher as CipherView;
+
+      // Group by vault type
+      if (!cipherView.organizationId) {
+        individualVaultItems.push(cipherView);
+      } else {
+        organizationVaultItems.push(cipherView);
+      }
     }
 
-    // Check if the cipher is in individual vault or organization vault
-    const isIndividualVaultItem = !cipherView.organizationId;
-
-    if (isIndividualVaultItem) {
-      // For individual vault items, use shareWithServer to move to organization
+    // Process individual vault items (share to organization)
+    for (const cipherView of individualVaultItems) {
       await this.shareToOrganizationAndAssign(cipherView, [collectionId]);
-    } else {
-      // For organization vault items, find the target collection and assign
-      const targetCollection = this.existingCollections.find((c) => c.id === collectionId);
-      if (!targetCollection) {
-        throw new Error(`Collection with ID ${collectionId} not found`);
-      }
+    }
 
-      await this.assignOrganizationItemToCollection(cipherView, targetCollection);
+    // Process organization vault items (assign to collection)
+    if (organizationVaultItems.length > 0 && targetCollection) {
+      for (const cipherView of organizationVaultItems) {
+        await this.assignOrganizationItemToCollection(cipherView, targetCollection);
+      }
     }
   }
 
   private generateShareableLink(): void {
     // Generate the web vault URL with collection ID and item ID parameters
-    // Format: https://<client>/#/vault?collectionId=[collection-id]&itemId=[item-id]
+    // For bulk sharing, just use collection ID. For single item, include item ID for direct navigation
     const baseUrl = window.location.origin;
-    this.shareableLink = `${baseUrl}/#/vault?collectionId=${this.createdCollectionId}&itemId=${this.cipher.id}`;
+    if (this.isBulkShare) {
+      this.shareableLink = `${baseUrl}/#/vault?collectionId=${this.createdCollectionId}`;
+    } else {
+      this.shareableLink = `${baseUrl}/#/vault?collectionId=${this.createdCollectionId}&itemId=${this.cipher.id}`;
+    }
   }
 
   protected async copyShareLink(inputElement: HTMLInputElement): Promise<void> {

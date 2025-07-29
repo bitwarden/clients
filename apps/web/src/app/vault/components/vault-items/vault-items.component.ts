@@ -219,6 +219,42 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     return this.showBulkAddToCollections && this.ciphers.length > 0;
   }
 
+  get bulkShareAllowed() {
+    // Don't allow bulk sharing in admin console view
+    if (this.showAdminActions) {
+      return false;
+    }
+
+    // Allow bulk sharing if we have selected ciphers and they're not all from different organizations
+    if (this.selection.selected.length === 0) {
+      return false;
+    }
+
+    const selectedCiphers = this.selection.selected
+      .filter((item) => item.cipher !== undefined)
+      .map((item) => item.cipher);
+
+    if (selectedCiphers.length === 0) {
+      return false;
+    }
+
+    // Check if all selected items are from the same organization or individual vault
+    const orgIds = new Set(selectedCiphers.map((c) => c.organizationId));
+
+    // Allow if all items are individual vault items (organizationId is null)
+    if (orgIds.has(null) && orgIds.size === 1) {
+      return true;
+    }
+
+    // Allow if all items are from the same organization (and no individual vault items)
+    if (!orgIds.has(null) && orgIds.size === 1) {
+      return true;
+    }
+
+    // Don't allow mixed organization items or mixed individual/org items
+    return false;
+  }
+
   protected canEditCollection(collection: CollectionView): boolean {
     // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
     if (collection.id === Unassigned) {
@@ -397,6 +433,15 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected assignToCollections() {
     this.event({
       type: "assignToCollections",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
+    });
+  }
+
+  protected bulkShare() {
+    this.event({
+      type: "bulkShare",
       items: this.selection.selected
         .filter((item) => item.cipher !== undefined)
         .map((item) => item.cipher),

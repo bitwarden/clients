@@ -83,6 +83,10 @@
               <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
+            <button *ngIf="bulkShareAllowed" type="button" bitMenuItem (click)="bulkShare()">
+              <i class="bwi bwi-fw bwi-share" aria-hidden="true"></i>
+              {{ "share" | i18n }}
+            </button>
             <button
               *ngIf="canRestoreSelected$ | async"
               type="button"

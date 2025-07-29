@@ -133,6 +133,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get showShare() {
+    // Don't allow sharing in admin console view (organization vault)
+    if (this.viewingOrgVault) {
+      return false;
+    }
+
     return this.organizations?.length && !CipherViewLikeUtils.isDeleted(this.cipher);
   }
 

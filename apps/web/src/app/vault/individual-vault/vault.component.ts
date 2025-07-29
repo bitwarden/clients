@@ -612,6 +612,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         case "share":
           await this.shareCipher(event.item);
           break;
+        case "bulkShare":
+          await this.bulkShareCiphers(event.items);
+          break;
         case "assignToCollections":
           await this.bulkAssignToCollections(event.items);
           break;
@@ -1037,6 +1040,27 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const result = await firstValueFrom(dialogRef.closed);
     if (result?.action === "shared") {
       // Refresh the vault to show the updated cipher with new collection assignment
+      this.refresh();
+    }
+  }
+
+  async bulkShareCiphers(ciphers: C[]) {
+    if (ciphers.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("nothingSelected"),
+      });
+      return;
+    }
+
+    const dialogRef = ShareModalComponent.open(this.dialogService, {
+      data: { ciphers: ciphers },
+    });
+
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result?.action === "shared") {
+      // Refresh the vault to show the updated ciphers with new collection assignments
       this.refresh();
     }
   }

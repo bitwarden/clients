@@ -1,7 +1,10 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="large">
     <span bitDialogTitle>
-      {{ "share" | i18n }}
+      <ng-container *ngIf="!isBulkShare">{{ "share" | i18n }}</ng-container>
+      <ng-container *ngIf="isBulkShare"
+        >{{ "share" | i18n }} {{ ciphers.length }} {{ "items" | i18n }}</ng-container
+      >
     </span>
     <div bitDialogContent>
       <!-- Loading State -->
@@ -11,6 +14,17 @@
 
       <!-- Step 1: Initial Share Form -->
       <div *ngIf="!loading && !showExistingCollectionStep && !sharingComplete">
+        <!-- Show item summary for bulk sharing -->
+        <div *ngIf="isBulkShare" class="tw-mb-4 tw-p-3 tw-bg-secondary-100 tw-rounded">
+          <div class="tw-font-semibold tw-mb-2">Sharing {{ ciphers.length }} items:</div>
+          <div class="tw-text-muted tw-text-sm">
+            {{ cipher.name
+            }}<span *ngIf="ciphers.length > 1">
+              and {{ ciphers.length - 1 }} other{{ ciphers.length > 2 ? "s" : "" }}</span
+            >
+          </div>
+        </div>
+
         <div class="tw-mb-4 tw-text-muted">
           Create a name for the Collection, or leave it blank for Bitwarden to automatically create
           a name
@@ -60,7 +74,12 @@
       <!-- Step 3: Success State with Shareable Link -->
       <div *ngIf="!loading && sharingComplete">
         <div class="tw-mb-4">
-          <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Item shared successfully!</h3>
+          <h3 class="tw-text-lg tw-font-semibold tw-mb-2">
+            <ng-container *ngIf="!isBulkShare">Item shared successfully!</ng-container>
+            <ng-container *ngIf="isBulkShare"
+              >{{ ciphers.length }} items shared successfully!</ng-container
+            >
+          </h3>
         </div>
 
         <!-- Shareable Link Section -->
