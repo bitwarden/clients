@@ -79,6 +79,11 @@ export abstract class MasterPasswordServiceAbstraction {
   /**
    * Creates a MasterPasswordUnlockData bundle that encrypts the user-key with a key derived from the password. The
    * bundle also contains the KDF settings and salt used to derive the key, which are required to decrypt the user-key later.
+   * @param password The master password.
+   * @param kdf The KDF configuration.
+   * @param salt The master password salt to use. See {@link saltForUser$} for current salt.
+   * @param userKey The user's userKey to encrypt.
+   * @throws If password, KDF, salt, or userKey are null or undefined.
    */
   abstract makeMasterPasswordUnlockData: (
     password: string,
