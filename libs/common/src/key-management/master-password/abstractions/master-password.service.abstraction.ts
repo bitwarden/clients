@@ -65,6 +65,10 @@ export abstract class MasterPasswordServiceAbstraction {
 
   /**
    * Makes the authentication hash for authenticating to the server with the master password.
+   * @param password The master password.
+   * @param kdf The KDF configuration.
+   * @param salt The master password salt to use. See {@link saltForUser$} for current salt.
+   * @throws If password, KDF or salt are null or undefined.
    */
   abstract makeMasterPasswordAuthenticationData: (
     password: string,
