@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/common/enums";
@@ -60,7 +60,7 @@ export class SshKeySectionComponent implements OnInit {
   });
 
   showImport = false;
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
@@ -98,8 +98,8 @@ export class SshKeySectionComponent implements OnInit {
 
     // Disable the form if the cipher form container is enabled
     // to prevent user interaction
-    this.cipherFormContainer.formStatusChange$
-      .pipe(takeUntil(this.destroy$))
+    this.cipherFormContainer.formEnabled$
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.sshKeyForm.disable());
   }
 
