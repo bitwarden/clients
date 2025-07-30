@@ -13,7 +13,6 @@ import {
   Observable,
   shareReplay,
   switchMap,
-  withLatestFrom,
   tap,
 } from "rxjs";
 
@@ -310,10 +309,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       ),
     );
 
-    const decryptedCollections$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.keyService.orgKeys$(userId)),
-      withLatestFrom(response),
+    const decryptedCollections$ = combineLatest([
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.keyService.orgKeys$(userId)),
+      ),
+      response,
+    ]).pipe(
       switchMap(([orgKeys, collections]) =>
         this.collectionService.decryptMany$(collections, orgKeys),
       ),
