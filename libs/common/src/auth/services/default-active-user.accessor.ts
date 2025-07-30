@@ -10,8 +10,8 @@ import { AccountService } from "../abstractions/account.service";
  */
 export class DefaultActiveUserAccessor implements ActiveUserAccessor {
   constructor(private readonly accountService: AccountService) {
-    this.activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+    this.activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id ?? null));
   }
 
-  activeUserId$: Observable<UserId>;
+  activeUserId$: Observable<UserId | null>;
 }
