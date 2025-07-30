@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/core-test-utils",
+  "version": "0.0.1",
+  "description": "Async test tools for state and clients",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}
