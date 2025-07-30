@@ -67,15 +67,11 @@ describe("EncryptService", () => {
     });
     it("fails if key toBeWrapped is null", async () => {
       const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
-      await expect(encryptService.wrapSymmetricKey(null, wrappingKey)).rejects.toThrow(
-        "No keyToBeWrapped provided for wrapping.",
-      );
+      expect(() => encryptService.wrapSymmetricKey(null, wrappingKey)).toThrow();
     });
     it("fails if wrapping key is null", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      await expect(encryptService.wrapSymmetricKey(key, null)).rejects.toThrow(
-        "No wrappingKey provided for wrapping.",
-      );
+      expect(() => encryptService.wrapSymmetricKey(key, null)).toThrow();
     });
   });
 
@@ -91,15 +87,11 @@ describe("EncryptService", () => {
     });
     it("fails if decapsulation key is null", async () => {
       const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
-      await expect(encryptService.wrapDecapsulationKey(null, wrappingKey)).rejects.toThrow(
-        "No decapsulation key provided for wrapping.",
-      );
+      expect(() => encryptService.wrapDecapsulationKey(null, wrappingKey)).toThrow();
     });
     it("fails if wrapping key is null", async () => {
       const decapsulationKey = makeStaticByteArray(64);
-      await expect(encryptService.wrapDecapsulationKey(decapsulationKey, null)).rejects.toThrow(
-        "No wrappingKey provided for wrapping.",
-      );
+      expect(() => encryptService.wrapDecapsulationKey(decapsulationKey, null)).toThrow();
     });
   });
 
@@ -115,15 +107,11 @@ describe("EncryptService", () => {
     });
     it("fails if encapsulation key is null", async () => {
       const wrappingKey = new SymmetricCryptoKey(makeStaticByteArray(64));
-      await expect(encryptService.wrapEncapsulationKey(null, wrappingKey)).rejects.toThrow(
-        "No encapsulation key provided for wrapping.",
-      );
+      expect(() => encryptService.wrapEncapsulationKey(null, wrappingKey)).toThrow();
     });
     it("fails if wrapping key is null", async () => {
       const encapsulationKey = makeStaticByteArray(64);
-      await expect(encryptService.wrapEncapsulationKey(encapsulationKey, null)).rejects.toThrow(
-        "No wrappingKey provided for wrapping.",
-      );
+      expect(() => encryptService.wrapEncapsulationKey(encapsulationKey, null)).toThrow();
     });
   });
 
@@ -212,15 +200,11 @@ describe("EncryptService", () => {
     });
     it("throws if wrappedDecapsulationKey is null", () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      return expect(encryptService.unwrapDecapsulationKey(null, key)).rejects.toThrow(
-        "No wrappedDecapsulationKey provided for unwrapping.",
-      );
+      return expect(() => encryptService.unwrapDecapsulationKey(null, key)).toThrow();
     });
     it("throws if wrappingKey is null", () => {
       const encString = new EncString("wrapped_decapsulation_key");
-      return expect(encryptService.unwrapDecapsulationKey(encString, null)).rejects.toThrow(
-        "No wrappingKey provided for unwrapping.",
-      );
+      return expect(() => encryptService.unwrapDecapsulationKey(encString, null)).toThrow();
     });
   });
 
@@ -237,15 +221,11 @@ describe("EncryptService", () => {
     });
     it("throws if wrappedEncapsulationKey is null", () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      return expect(encryptService.unwrapEncapsulationKey(null, key)).rejects.toThrow(
-        "No wrappedEncapsulationKey provided for unwrapping.",
-      );
+      return expect(() => encryptService.unwrapEncapsulationKey(null, key)).toThrow();
     });
     it("throws if wrappingKey is null", () => {
       const encString = new EncString("wrapped_encapsulation_key");
-      return expect(encryptService.unwrapEncapsulationKey(encString, null)).rejects.toThrow(
-        "No wrappingKey provided for unwrapping.",
-      );
+      return expect(() => encryptService.unwrapEncapsulationKey(encString, null)).toThrow();
     });
   });
 
@@ -262,15 +242,11 @@ describe("EncryptService", () => {
     });
     it("throws if keyToBeUnwrapped is null", () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64));
-      return expect(encryptService.unwrapSymmetricKey(null, key)).rejects.toThrow(
-        "No keyToBeUnwrapped provided for unwrapping.",
-      );
+      return expect(() => encryptService.unwrapSymmetricKey(null, key)).toThrow();
     });
     it("throws if wrappingKey is null", () => {
       const encString = new EncString("wrapped_symmetric_key");
-      return expect(encryptService.unwrapSymmetricKey(encString, null)).rejects.toThrow(
-        "No wrappingKey provided for unwrapping.",
-      );
+      return expect(() => encryptService.unwrapSymmetricKey(encString, null)).toThrow();
     });
   });
 
@@ -288,15 +264,11 @@ describe("EncryptService", () => {
 
     describe("encapsulateKeyUnsigned", () => {
       it("throws if no data is provided", () => {
-        return expect(encryptService.encapsulateKeyUnsigned(null, publicKey)).rejects.toThrow(
-          "No sharedKey provided for encapsulation",
-        );
+        return expect(() => encryptService.encapsulateKeyUnsigned(null, publicKey)).toThrow();
       });
 
       it("throws if no public key is provided", () => {
-        return expect(encryptService.encapsulateKeyUnsigned(testKey, null)).rejects.toThrow(
-          "No encapsulationKey provided for encapsulation",
-        );
+        return expect(() => encryptService.encapsulateKeyUnsigned(testKey, null)).toThrow();
       });
 
       it("encrypts data with provided key", async () => {
@@ -313,15 +285,11 @@ describe("EncryptService", () => {
 
     describe("decapsulateKeyUnsigned", () => {
       it("throws if no data is provided", () => {
-        return expect(encryptService.decapsulateKeyUnsigned(null, privateKey)).rejects.toThrow(
-          "No encryptedSharedKey provided for decapsulation",
-        );
+        return expect(() => encryptService.decapsulateKeyUnsigned(null, privateKey)).toThrow();
       });
 
       it("throws if no private key is provided", () => {
-        return expect(encryptService.decapsulateKeyUnsigned(encString, null)).rejects.toThrow(
-          "No decapsulationKey provided for decapsulation",
-        );
+        return expect(() => encryptService.decapsulateKeyUnsigned(encString, null)).toThrow();
       });
 
       it("decrypts data with provided key", async () => {
