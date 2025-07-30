@@ -59,6 +59,7 @@ export class InlineMenuFieldQualificationService
     "pwdcheck",
   ];
   private newEmailFieldKeywords = new Set(AutoFillConstants.NewEmailFieldKeywords);
+  private newsletterFormKeywords = new Set(AutoFillConstants.NewsletterFormNames);
   private updatePasswordFieldKeywords = [
     "update password",
     "change password",
@@ -175,14 +176,37 @@ export class InlineMenuFieldQualificationService
     return false;
   }
 
+  /**
+   * Validates the provided form to indicate if the form is related to newsletter registration.
+   *
+   * @param parentForm - The form to validate
+   */
   private isNewsletterForm(parentForm: any): boolean {
-    return !!(
-      parentForm &&
-      ((typeof parentForm.htmlID === "string" &&
-        parentForm.htmlID.toLowerCase().includes("newsletter")) ||
-        (typeof parentForm.htmlName === "string" &&
-          parentForm.htmlName.toLowerCase().includes("newsletter")))
-    );
+    if (!parentForm) {
+      return false;
+    }
+
+    const matchFieldAttributeValues = [
+      parentForm.type,
+      parentForm.htmlName,
+      parentForm.htmlID,
+      parentForm.placeholder,
+    ];
+
+    for (let attrIndex = 0; attrIndex < matchFieldAttributeValues.length; attrIndex++) {
+      const attrValue = matchFieldAttributeValues[attrIndex];
+      if (!attrValue || typeof attrValue !== "string") {
+        continue;
+      }
+      const attrValueLower = attrValue.toLowerCase();
+      for (const keyword of this.newsletterFormKeywords) {
+        if (attrValueLower.includes(keyword.toLowerCase())) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   constructor() {
