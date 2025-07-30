@@ -2,25 +2,18 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncString,
-  EncryptedString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import {
-  PIN_DISK,
-  PIN_MEMORY,
-  StateProvider,
-  UserKeyDefinition,
-} from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
-import { PinKey, UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig, KdfConfigService } from "@bitwarden/key-management";
+
+import { AccountService } from "../../auth/abstractions/account.service";
+import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
+import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
+import { LogService } from "../../platform/abstractions/log.service";
+import { PIN_DISK, PIN_MEMORY, StateProvider, UserKeyDefinition } from "../../platform/state";
+import { UserId } from "../../types/guid";
+import { PinKey, UserKey } from "../../types/key";
 
 import { PinServiceAbstraction } from "./pin.service.abstraction";
 

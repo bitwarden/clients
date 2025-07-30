@@ -1,21 +1,18 @@
 import { mock } from "jest-mock-extended";
 
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import {
-  FakeAccountService,
-  FakeStateProvider,
-  mockAccountServiceWith,
-} from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
-import { PinKey, UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { DEFAULT_KDF_CONFIG, KdfConfigService } from "@bitwarden/key-management";
+
+import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
+import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
+import { LogService } from "../../platform/abstractions/log.service";
+import { Utils } from "../../platform/misc/utils";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { UserId } from "../../types/guid";
+import { PinKey, UserKey } from "../../types/key";
+import { CryptoFunctionService } from "../crypto/abstractions/crypto-function.service";
+import { EncryptService } from "../crypto/abstractions/encrypt.service";
+import { EncString } from "../crypto/models/enc-string";
 
 import {
   PinService,

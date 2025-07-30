@@ -4,7 +4,6 @@ import { firstValueFrom, map, timeout } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricStateService } from "@bitwarden/key-management";
@@ -20,6 +19,7 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { UserId } from "../../types/guid";
 import { ProcessReloadServiceAbstraction } from "../abstractions/process-reload.service";
+import { PinServiceAbstraction } from "../pin/pin.service.abstraction";
 
 export class DefaultProcessReloadService implements ProcessReloadServiceAbstraction {
   private reloadInterval: any = null;

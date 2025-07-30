@@ -1,8 +1,9 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { UserId } from "@bitwarden/common/types/guid";
-import { PinKey, UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
+
+import { EncString } from "../../key-management/crypto/models/enc-string";
+import { UserId } from "../../types/guid";
+import { PinKey, UserKey } from "../../types/key";
 
 import { PinLockType } from "./pin.service.implementation";
 
