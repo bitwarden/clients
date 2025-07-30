@@ -69,7 +69,6 @@ jobs:
       azure_login_client_key_name: ${{ steps.config.outputs.azure_login_client_key_name }}
       azure_login_subscription_id_key_name: ${{ steps.config.outputs.azure_login_subscription_id_key_name }}
       retrieve_secrets_keyvault: ${{ steps.config.outputs.retrieve_secrets_keyvault }}
-      sync_utility: ${{ steps.config.outputs.sync_utility }}
       sync_delete_destination_files: ${{ steps.config.outputs.sync_delete_destination_files }}
       slack_channel_name: ${{ steps.config.outputs.slack_channel_name }}
     steps:
@@ -127,8 +126,6 @@ jobs:
               echo "slack_channel_name=alerts-deploy-dev"  >> $GITHUB_OUTPUT
               ;;
           esac
-          # Set the sync utility to use for deployment to the environment (az-sync or azcopy)
-          echo "sync_utility=azcopy" >> $GITHUB_OUTPUT
 
       - name: Environment Protection
         env:
@@ -337,32 +334,6 @@ jobs:
           description: 'Deployment from branch/tag: ${{ inputs.branch-or-tag }}'
           ref: ${{ needs.artifact-check.outputs.artifact_build_commit }}
 
-      - name: Login to Azure
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets[needs.setup.outputs.azure_login_subscription_id_key_name] }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets[needs.setup.outputs.azure_login_client_key_name] }}
-
-      - name: Retrieve Storage Account connection string for az sync
-        if: ${{ needs.setup.outputs.sync_utility == 'az-sync' }}
-        id: retrieve-secrets-az-sync
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: ${{ needs.setup.outputs.retrieve_secrets_keyvault }}
-          secrets: "sa-bitwarden-web-vault-dev-key-temp"
-
-      - name: Retrieve Storage Account name and SPN credentials for azcopy
-        if: ${{ needs.setup.outputs.sync_utility == 'azcopy' }}
-        id: retrieve-secrets-azcopy
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: ${{ needs.setup.outputs.retrieve_secrets_keyvault }}
-          secrets: "sa-bitwarden-web-vault-name,sp-bitwarden-web-vault-password,sp-bitwarden-web-vault-appid,sp-bitwarden-web-vault-tenant"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
       - name: 'Download latest cloud asset using GitHub Run ID: ${{ inputs.build-web-run-id }}'
         if: ${{ inputs.build-web-run-id }}
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -389,27 +360,31 @@ jobs:
         working-directory: apps/web
         run: unzip ${{ env._ENVIRONMENT_ARTIFACT }}
 
-      - name: Sync to Azure Storage Account using az storage blob sync
-        if: ${{ needs.setup.outputs.sync_utility == 'az-sync' }}
-        working-directory: apps/web
-        run: |
-          az storage blob sync \
-            --source "./build" \
-            --container '$web' \
-            --connection-string "${{ steps.retrieve-secrets-az-sync.outputs.sa-bitwarden-web-vault-dev-key-temp }}" \
-            --delete-destination=${{ inputs.force-delete-destination }}
+      - name: Login to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets[needs.setup.outputs.azure_login_subscription_id_key_name] }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets[needs.setup.outputs.azure_login_client_key_name] }}
+
+      - name: Retrieve Storage Account name and SPN credentials for azcopy
+        id: retrieve-secrets-azcopy
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: ${{ needs.setup.outputs.retrieve_secrets_keyvault }}
+          secrets: "sa-bitwarden-web-vault-name"
 
       - name: Sync to Azure Storage Account using azcopy
-        if: ${{ needs.setup.outputs.sync_utility == 'azcopy' }}
         working-directory: apps/web
         env:
-          AZCOPY_AUTO_LOGIN_TYPE: SPN
-          AZCOPY_SPA_APPLICATION_ID: ${{ steps.retrieve-secrets-azcopy.outputs.sp-bitwarden-web-vault-appid }}
-          AZCOPY_SPA_CLIENT_SECRET: ${{ steps.retrieve-secrets-azcopy.outputs.sp-bitwarden-web-vault-password }}
-          AZCOPY_TENANT_ID: ${{ steps.retrieve-secrets-azcopy.outputs.sp-bitwarden-web-vault-tenant }}
+          AZCOPY_AUTO_LOGIN_TYPE: AZCLI
+          AZCOPY_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: |
           azcopy sync ./build 'https://${{ steps.retrieve-secrets-azcopy.outputs.sa-bitwarden-web-vault-name }}.blob.core.windows.net/$web/' \
             --delete-destination=${{ inputs.force-delete-destination }} --compare-hash="MD5"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Debug sync logs
         if: ${{ inputs.debug }}
