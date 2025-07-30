@@ -29,11 +29,11 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
     encryptService: EncryptService,
     i18nService: I18nService,
     cipherService: CipherService,
-    pinService: PinServiceAbstraction,
+    private pinService: PinServiceAbstraction,
     accountService: AccountService,
     private promptForPassword_callback: () => Promise<string>,
   ) {
-    super(keyService, encryptService, i18nService, cipherService, pinService, accountService);
+    super(keyService, encryptService, i18nService, cipherService, accountService);
   }
 
   async parse(data: string): Promise<ImportResult> {
