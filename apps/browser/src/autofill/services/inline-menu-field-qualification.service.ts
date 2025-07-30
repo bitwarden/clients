@@ -58,6 +58,7 @@ export class InlineMenuFieldQualificationService
     "neue e-mail",
     "pwdcheck",
   ];
+  private newEmailFieldKeywords = new Set(AutoFillConstants.NewEmailFieldKeywords);
   private updatePasswordFieldKeywords = [
     "update password",
     "change password",
@@ -152,8 +153,26 @@ export class InlineMenuFieldQualificationService
   private totpFieldAutocompleteValue = "one-time-code";
   private premiumEnabled = false;
 
+  /**
+   * Validates the provided field to indicate if the field is a new email field used for account creation/registration.
+   *
+   * @param field - The field to validate
+   */
   private isExplicitIdentityEmailField(field: AutofillField): boolean {
-    return field.htmlID === "new-email";
+    const matchFieldAttributeValues = [field.type, field.htmlName, field.htmlID, field.placeholder];
+    for (let attrIndex = 0; attrIndex < matchFieldAttributeValues.length; attrIndex++) {
+      if (!matchFieldAttributeValues[attrIndex]) {
+        continue;
+      }
+
+      for (let keywordIndex = 0; keywordIndex < matchFieldAttributeValues.length; keywordIndex++) {
+        if (this.newEmailFieldKeywords.has(matchFieldAttributeValues[attrIndex])) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private isNewsletterForm(parentForm: any): boolean {
