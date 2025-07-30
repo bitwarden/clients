@@ -14,7 +14,6 @@ import { makeStaticByteArray, makeSymmetricCryptoKey } from "../../../spec/utils
 import { ApiService } from "../../abstractions/api.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
-import { BulkEncryptService } from "../../key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
@@ -102,7 +101,6 @@ describe("Cipher Service", () => {
   const i18nService = mock<I18nService>();
   const searchService = mock<SearchService>();
   const encryptService = mock<EncryptService>();
-  const bulkEncryptService = mock<BulkEncryptService>();
   const configService = mock<ConfigService>();
   accountService = mockAccountServiceWith(mockUserId);
   const logService = mock<LogService>();
@@ -130,7 +128,6 @@ describe("Cipher Service", () => {
       stateService,
       autofillSettingsService,
       encryptService,
-      bulkEncryptService,
       cipherFileUploadService,
       configService,
       stateProvider,
@@ -578,7 +575,6 @@ describe("Cipher Service", () => {
         .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
         .mockResolvedValue(false);
       cipherService.getKeyForCipherKeyDecryption = jest.fn().mockResolvedValue(mockUserKey);
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
       jest
         .spyOn(encryptionContext.cipher, "decrypt")
         .mockResolvedValue(new CipherView(encryptionContext.cipher));

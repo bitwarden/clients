@@ -5,12 +5,10 @@ import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -19,8 +17,6 @@ import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey, UserPrivateKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Argon2KdfConfig, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
@@ -42,11 +38,9 @@ describe("EmergencyAccessService", () => {
   let apiService: MockProxy<ApiService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let bulkEncryptService: MockProxy<BulkEncryptService>;
   let cipherService: MockProxy<CipherService>;
   let logService: MockProxy<LogService>;
   let emergencyAccessService: EmergencyAccessService;
-  let configService: MockProxy<ConfigService>;
 
   const mockNewUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("trustedPublicKey")];
@@ -56,20 +50,16 @@ describe("EmergencyAccessService", () => {
     apiService = mock<ApiService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    bulkEncryptService = mock<BulkEncryptService>();
     cipherService = mock<CipherService>();
     logService = mock<LogService>();
-    configService = mock<ConfigService>();
 
     emergencyAccessService = new EmergencyAccessService(
       emergencyAccessApiService,
       apiService,
       keyService,
       encryptService,
-      bulkEncryptService,
       cipherService,
       logService,
-      configService,
     );
   });
 
@@ -168,7 +158,7 @@ describe("EmergencyAccessService", () => {
       ).rejects.toThrow("Active user does not have a private key, cannot get view only ciphers.");
     });
 
-    it("should return decrypted and sorted ciphers using encryptService when feature flag is off", async () => {
+    it("should return decrypted and sorted ciphers", async () => {
       const emergencyAccessViewResponse = {
         keyEncrypted: "mockKeyEncrypted",
         ciphers: [
@@ -176,6 +166,21 @@ describe("EmergencyAccessService", () => {
           { id: "cipher2", name: "encryptedName2" },
         ],
       } as EmergencyAccessViewResponse;
+
+      const mockEncryptedCipher1 = {
+        id: "cipher1",
+        decrypt: jest.fn().mockResolvedValue({ id: "cipher1", decrypted: true }),
+      };
+      const mockEncryptedCipher2 = {
+        id: "cipher2",
+        decrypt: jest.fn().mockResolvedValue({ id: "cipher2", decrypted: true }),
+      };
+      emergencyAccessViewResponse.ciphers.map = jest.fn().mockImplementation(() => {
+        return [mockEncryptedCipher1, mockEncryptedCipher2];
+      });
+      cipherService.getLocaleSortingFunction.mockReturnValue((a: any, b: any) =>
+        a.id.localeCompare(b.id),
+      );
       emergencyAccessApiService.postEmergencyAccessView.mockResolvedValue(
         emergencyAccessViewResponse,
       );
@@ -187,31 +192,22 @@ describe("EmergencyAccessService", () => {
       encryptService.decapsulateKeyUnsigned.mockResolvedValueOnce(mockDecryptedGrantorUserKey);
       const mockGrantorUserKey = mockDecryptedGrantorUserKey as UserKey;
 
-      configService.getFeatureFlag.mockResolvedValue(false);
-
-      const mockCipherViews = [{ id: "cipher1" }, { id: "cipher2" }] as unknown as CipherView[];
-      const mockSortedCipherViews = [
-        { id: "cipher2" },
-        { id: "cipher1" },
-      ] as unknown as CipherView[];
-      mockCipherViews.sort = jest.fn().mockReturnValue(mockSortedCipherViews);
-      encryptService.decryptItems.mockResolvedValue(mockCipherViews);
-
       const result = await emergencyAccessService.getViewOnlyCiphers(
         params.id,
         params.activeUserId,
       );
 
-      expect(result).toEqual(mockSortedCipherViews);
+      expect(result).toEqual([
+        { id: "cipher1", decrypted: true },
+        { id: "cipher2", decrypted: true },
+      ]);
+      expect(mockEncryptedCipher1.decrypt).toHaveBeenCalledWith(mockGrantorUserKey);
+      expect(mockEncryptedCipher2.decrypt).toHaveBeenCalledWith(mockGrantorUserKey);
       expect(emergencyAccessApiService.postEmergencyAccessView).toHaveBeenCalledWith(params.id);
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
         new EncString(emergencyAccessViewResponse.keyEncrypted),
         mockPrivateKey,
-      );
-      expect(encryptService.decryptItems).toHaveBeenCalledWith(
-        emergencyAccessViewResponse.ciphers.map((c) => new Cipher(c)),
-        mockGrantorUserKey,
       );
       expect(cipherService.getLocaleSortingFunction).toHaveBeenCalled();
     });

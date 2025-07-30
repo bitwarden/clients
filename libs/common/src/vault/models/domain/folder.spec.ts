@@ -70,7 +70,10 @@ describe("Folder", () => {
 
     beforeEach(() => {
       encryptService = mock<EncryptService>();
-      encryptService.decryptString.mockResolvedValue("encName");
+      // Platform code is not migrated yet
+      encryptService.decryptString.mockImplementation((_value, _key) => {
+        return Promise.resolve("encName");
+      });
     });
 
     it("decrypts the name", async () => {

@@ -4,14 +4,11 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -60,10 +57,8 @@ export class EmergencyAccessService
     private apiService: ApiService,
     private keyService: KeyService,
     private encryptService: EncryptService,
-    private bulkEncryptService: BulkEncryptService,
     private cipherService: CipherService,
     private logService: LogService,
-    private configService: ConfigService,
   ) {}
 
   /**
@@ -262,17 +257,8 @@ export class EmergencyAccessService
     )) as UserKey;
 
     let ciphers: CipherView[] = [];
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
-      ciphers = await this.bulkEncryptService.decryptItems(
-        response.ciphers.map((c) => new Cipher(c)),
-        grantorUserKey,
-      );
-    } else {
-      ciphers = await this.encryptService.decryptItems(
-        response.ciphers.map((c) => new Cipher(c)),
-        grantorUserKey,
-      );
-    }
+    const ciphersEncrypted = response.ciphers.map((c) => new Cipher(c));
+    ciphers = await Promise.all(ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey)));
     return ciphers.sort(this.cipherService.getLocaleSortingFunction());
   }
 
