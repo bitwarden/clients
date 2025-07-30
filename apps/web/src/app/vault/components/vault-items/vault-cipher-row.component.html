@@ -96,6 +96,7 @@
   @if (!decryptionFailure && !hideMenu) {
     <button
       [bitMenuTriggerFor]="cipherOptions"
+      [disabled]="disabled"
       size="small"
       bitIconButton="bwi-ellipsis-v"
       type="button"
