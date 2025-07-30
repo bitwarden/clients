@@ -367,7 +367,7 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets[needs.setup.outputs.azure_login_client_key_name] }}
 
-      - name: Retrieve Storage Account name and SPN credentials for azcopy
+      - name: Retrieve Storage Account name
         id: retrieve-secrets-azcopy
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
