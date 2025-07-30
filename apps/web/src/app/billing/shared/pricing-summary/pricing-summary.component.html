@@ -11,7 +11,9 @@
         type="button"
         [bitIconButton]="summaryData.totalOpened ? 'bwi-angle-down' : 'bwi-angle-up'"
         size="small"
-        [label]="summaryData.totalOpened ? ('hideSummary' | i18n) : ('showSummary' | i18n)"
+        [label]="
+          summaryData.totalOpened ? ('hidePricingSummary' | i18n) : ('showPricingSummary' | i18n)
+        "
       ></button>
     </p>
   </div>

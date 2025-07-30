@@ -2825,11 +2825,11 @@
       }
     }
   },
-  "showSummary": {
-    "message": "Show summary"
+  "showPricingSummary": {
+    "message": "Show pricing summary"
   },
-  "hideSummary": {
-    "message": "Hide summary"
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "Summary"
