@@ -79,6 +79,7 @@ const scripting = {
   executeScript: jest.fn(),
   registerContentScripts: jest.fn(),
   unregisterContentScripts: jest.fn(),
+  ExecutionWorld: { ISOLATED: "ISOLATED", MAIN: "MAIN" },
 };
 
 const windows = {

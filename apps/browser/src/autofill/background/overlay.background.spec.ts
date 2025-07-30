@@ -3371,7 +3371,7 @@ describe("OverlayBackground", () => {
             });
             await flushPromises();
             triggerWebRequestOnCompletedEvent(
-              mock<chrome.webRequest.WebResponseCacheDetails>({
+              mock<chrome.webRequest.OnCompletedDetails>({
                 statusCode: 401,
               }),
             );
@@ -3390,7 +3390,7 @@ describe("OverlayBackground", () => {
               portKey,
             });
             triggerWebRequestOnCompletedEvent(
-              mock<chrome.webRequest.WebResponseCacheDetails>({
+              mock<chrome.webRequest.OnCompletedDetails>({
                 statusCode: 200,
               }),
             );
