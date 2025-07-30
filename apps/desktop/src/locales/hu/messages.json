@@ -42,7 +42,7 @@
     "message": "Keresés a széfben"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Keresés visszaállítása"
   },
   "addItem": {
     "message": "Elem hozzáadása"
@@ -4006,8 +4006,8 @@
       }
     }
   },
-  "enableAutotypeTransitionKey": {
-    "message": "Enable Autotype"
+  "enableAutotype": {
+    "message": "Autotípus engedélyezése"
   },
   "enableAutotypeDescription": {
     "message": "A Bitwarden nem érvényesíti a beviteli helyeket, győződjünk meg róla, hogy a megfelelő ablakban és mezőben vagyunk, mielőtt a parancsikont használnánk."

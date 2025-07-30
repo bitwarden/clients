@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Zrušiť"
   },
+  "later": {
+    "message": "Neskôr"
+  },
   "canceled": {
     "message": "Zrušené"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Search groups"
+  },
+  "resetSearch": {
+    "message": "Resetovať vyhľadávanie"
   },
   "allItems": {
     "message": "Všetky položky"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden."
+  },
+  "subscribe": {
+    "message": "Predplatiť si"
   },
   "unsubscribe": {
     "message": "Odhlásiť sa z odberu"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
   "deviceIdMissing": {
     "message": "Chýba ID zariadenia"
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Otvorte tento odkaz z emailu na desktope."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "Používateľ bol odstránený z organizácie a všetky súvisiace dáta boli vymazané."
   },
-  "deletedUserId": {
-    "message": "Odstránený používateľ $ID$ - vlastnik / správca vymazal používateľský účet",
+  "deletedUserIdEventMessage": {
+    "message": "Používateľ $ID$ vymazaný",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "Overuje sa"
   },
-  "claimedDomainsDesc": {
-    "message": "Privlastnite si doménu, aby ste vlastnili všetky členské účty, ktorých e-mailová adresa sa zhoduje s doménou. Členovia budú môcť pri prihlasovaní preskočiť identifikátor SSO. Správcovia budú môcť tiež vymazávať členské účty."
+  "claimedDomainsDescription": {
+    "message": "Privlastnite si doménu, aby ste mohli vlastniť členské účty. Stránka s identifikátorom SSO bude pri prihlásení členov s privlastnenými doménami preskočená a správcovia budú môcť členské účty odstrániť."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Zadaný neplatný formát. Formát: mydomain.com. Pre privlastnenie subdomén musia byť tieto každá zadaná individuálne."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Predplatiť si $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Vaša 7-dňová skúšobná doba pre $PLAN$ začína dnes. Ak chcete používať nasledujúce funkcie po uplynutí skúšobnej doby, pridajte platobnú metódu: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Neobmedzený počet položiek a projektov"
   }
 }

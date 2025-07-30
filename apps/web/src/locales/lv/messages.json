@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Atcelt"
   },
+  "later": {
+    "message": "Vēlāk"
+  },
   "canceled": {
     "message": "Atcelts"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Meklēt kopas"
+  },
+  "resetSearch": {
+    "message": "Atiestatīt meklēšanu"
   },
   "allItems": {
     "message": "Visi vienumi"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden."
+  },
+  "subscribe": {
+    "message": "Abonēt"
   },
   "unsubscribe": {
     "message": "Atteikt abonēšanu"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Konfigurēt ierīču pārvaldību Bitwarden, izmantojot operētājsistēmai atbilstošas ieviešanas norādes."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Nosūtīt notikum udatus uz savu Logscale instanci"
+  },
   "deviceIdMissing": {
     "message": "Trūkst ierīces Id"
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Šī saite e-pastā atkārtoti jāatver datorā."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Pieslēgt $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Palaist $INTEGRATION$ ieviešanas norādes.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "Lietotājs tika noņemts no apvienības, un visa saistītā lietotāja informācija tika izdzēsta."
   },
-  "deletedUserId": {
-    "message": "Izdzēsts lietotājs $ID$ - īpašnieks/pārvaldītājs izdzēsa lietotāja kontu",
+  "deletedUserIdEventMessage": {
+    "message": "Izdzēsts lietotājs $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "Apliecināšanā"
   },
-  "claimedDomainsDesc": {
-    "message": "Pieteikt domēnu, lai iegūtu visu dalībnieku kontu, kuru e-pasta adrese atbilst domēnam, īpašumtiesības. Dalībnieki piesakoties varēs izlaist SSO identifikatoru. Pārvaldītāji varēs arī izdzēst dalībnieku kontus."
+  "claimedDomainsDescription": {
+    "message": "Iegūsti domēna piederību, lai iegūtu dalībnieku kontu īpašumtiesības. SSO identificētāja lapa tiks izlaista, kad pieteiksies dalībnieki, kuru kontu piederība ir atkarīga no domēna, un pārvaldītāji varēs izdzēst šāda veida kontus."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Ievadītā vērtība ir nederīga. Piemēram: mansdomens.lv. Apakšdomēnu pieteikšanai ir nepieciešami atsevišķi ieraksti."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Abonēt $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Tavs $PLAN$ 7 dienu izmēģinājums sākas šodien. Tagad pievieno maksājumu veidu, lai turpinātu izmantot šīs iespējas pēc izmēģinājuma laika beigām: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Neierobežoti noslēpumi un projekti"
   }
 }

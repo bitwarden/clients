@@ -280,7 +280,7 @@ jobs:
           IMAGE_NAME: ${{ steps.image-name.outputs.name }}
         run: |
           mkdir build
-          docker run --rm --volume $(pwd)/build:/temp --entrypoint bash \
+          docker run --rm --volume $(pwd)/build:/temp --entrypoint sh \
             $IMAGE_NAME -c "cp -r ./ /temp"
 
           zip -r web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip build

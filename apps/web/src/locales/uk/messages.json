@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Скасувати"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Скасовано"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Пошук в групах"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "allItems": {
     "message": "Усі записи"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Отримуйте поради, оголошення та можливості дослідження від Bitwarden у своїй поштовій скриньці."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "Відписатися"
@@ -9465,6 +9474,9 @@
   "deviceManagementDesc": {
     "message": "Налаштуйте керування пристроями для Bitwarden, використовуючи посібник із впровадження для вашої платформи."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
   "deviceIdMissing": {
     "message": "Відсутній ID пристрою"
   },
@@ -9479,6 +9491,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Відкрийте це посилання з електронної пошти на комп'ютері."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Відкрити посібник із впровадження $INTEGRATION$.",
@@ -10285,8 +10306,8 @@
   "organizationUserDeletedDesc": {
     "message": "Користувача вилучено з організації. Всі пов'язані дані користувача видалено."
   },
-  "deletedUserId": {
-    "message": "Видалений користувач $ID$ - власник / адміністратор видалив обліковий запис користувача",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10417,8 @@
   "domainStatusUnderVerification": {
     "message": "Проходить перевірку"
   },
-  "claimedDomainsDesc": {
-    "message": "Заявіть домен, щоб володіти всіма обліковими записами учасників, адреси е-пошти яких відповідають цьому домену. Учасники матимуть змогу пропустити ідентифікацію SSO під час входу в систему. Адміністратори також зможуть видаляти облікові записи учасників."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Неправильний формат введення. Правильний формат: mydomain.com. Для заявлення піддоменів потрібно ввести окремі записи."
@@ -10896,5 +10917,26 @@
         "example": "12-3456789"
       }
     }
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
   }
 }
