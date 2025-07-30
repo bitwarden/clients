@@ -10974,7 +10974,7 @@
     "message": "Unlimited secrets and projects"
   },
    "providersubscriptionCanceled": {
-    "message": "Subscription Canceled."
+    "message": "Subscription canceled"
   },
   "providersubCanceledmessage": {
     "message" : "To resubscribe, contact Bitwarden Customer Support."
