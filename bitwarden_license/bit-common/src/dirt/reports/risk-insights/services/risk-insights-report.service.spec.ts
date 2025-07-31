@@ -43,9 +43,12 @@ describe("RiskInsightsReportService", () => {
   it("should generate the raw data report correctly", async () => {
     const result = await firstValueFrom(service.generateRawDataReport$("orgId"));
 
-    expect(result).toHaveLength(6);
+    expect(result.ciphers).toHaveLength(6);
+    expect(result.members).toHaveLength(9);
 
-    let testCaseResults = result.filter((x) => x.id === "cbea34a8-bde4-46ad-9d19-b05001228ab1");
+    let testCaseResults = result.ciphers.filter(
+      (x) => x.id === "cbea34a8-bde4-46ad-9d19-b05001228ab1",
+    );
     expect(testCaseResults).toHaveLength(1);
     let testCase = testCaseResults[0];
     expect(testCase).toBeTruthy();
@@ -55,7 +58,7 @@ describe("RiskInsightsReportService", () => {
     expect(testCase.exposedPasswordDetail).toBeTruthy();
     expect(testCase.reusedPasswordCount).toEqual(2);
 
-    testCaseResults = result.filter((x) => x.id === "cbea34a8-bde4-46ad-9d19-b05001227tt1");
+    testCaseResults = result.ciphers.filter((x) => x.id === "cbea34a8-bde4-46ad-9d19-b05001227tt1");
     expect(testCaseResults).toHaveLength(1);
     testCase = testCaseResults[0];
     expect(testCase).toBeTruthy();
@@ -66,17 +69,32 @@ describe("RiskInsightsReportService", () => {
     expect(testCase.reusedPasswordCount).toEqual(1);
   });
 
+  it("should generate the raw data for members correctly", async () => {
+    const result = await firstValueFrom(service.generateRawDataReport$("orgId"));
+
+    expect(result.members).toHaveLength(9);
+
+    let testCaseResults = result.members.filter((x) => x.email === "invited.user1@secureco.com");
+    expect(testCaseResults).toHaveLength(1);
+
+    testCaseResults = result.members.filter((x) => x.email === "invited.user2@secureco.com");
+    expect(testCaseResults).toHaveLength(1);
+  });
+
   it("should generate the raw data + uri report correctly", async () => {
     const result = await firstValueFrom(service.generateRawDataUriReport$("orgId"));
 
-    expect(result).toHaveLength(11);
+    expect(result.ciphers).toHaveLength(11);
+    expect(result.members).toHaveLength(9);
 
     // Two ciphers that have google.com as their uri. There should be 2 results
-    const googleResults = result.filter((x) => x.trimmedUri === "google.com");
+    const googleResults = result.ciphers.filter((x) => x.trimmedUri === "google.com");
     expect(googleResults).toHaveLength(2);
 
     // There is an invalid uri and it should not be trimmed
-    const invalidUriResults = result.filter((x) => x.trimmedUri === "this_is-not|a-valid-uri123@+");
+    const invalidUriResults = result.ciphers.filter(
+      (x) => x.trimmedUri === "this_is-not|a-valid-uri123@+",
+    );
     expect(invalidUriResults).toHaveLength(1);
 
     // Verify the details for one of the googles matches the password health info
@@ -92,13 +110,13 @@ describe("RiskInsightsReportService", () => {
   it("should generate applications health report data correctly", async () => {
     const result = await firstValueFrom(service.generateApplicationsReport$("orgId"));
 
-    expect(result).toHaveLength(8);
+    expect(result.healthReport).toHaveLength(8);
 
     // Two ciphers have google.com associated with them. The first cipher
     // has 2 members and the second has 4. However, the 2 members in the first
     // cipher are also associated with the second. The total amount of members
     // should be 4 not 6
-    const googleTestResults = result.filter((x) => x.applicationName === "google.com");
+    const googleTestResults = result.healthReport.filter((x) => x.applicationName === "google.com");
     expect(googleTestResults).toHaveLength(1);
     const googleTest = googleTestResults[0];
     expect(googleTest.memberCount).toEqual(4);
@@ -111,7 +129,9 @@ describe("RiskInsightsReportService", () => {
     expect(googleTest.atRiskPasswordCount).toEqual(2);
 
     // There are 2 ciphers associated with 101domain.com
-    const domain101TestResults = result.filter((x) => x.applicationName === "101domain.com");
+    const domain101TestResults = result.healthReport.filter(
+      (x) => x.applicationName === "101domain.com",
+    );
     expect(domain101TestResults).toHaveLength(1);
     const domain101Test = domain101TestResults[0];
     expect(domain101Test.passwordCount).toEqual(2);
@@ -132,9 +152,12 @@ describe("RiskInsightsReportService", () => {
 
   it("should generate applications summary data correctly", async () => {
     const reportResult = await firstValueFrom(service.generateApplicationsReport$("orgId"));
-    const reportSummary = service.generateApplicationsSummary(reportResult);
+    const reportSummary = service.generateApplicationsSummary(
+      reportResult.healthReport,
+      reportResult.members,
+    );
 
-    expect(reportSummary.totalMemberCount).toEqual(7);
+    expect(reportSummary.totalMemberCount).toEqual(9);
     expect(reportSummary.totalAtRiskMemberCount).toEqual(6);
     expect(reportSummary.totalApplicationCount).toEqual(8);
     expect(reportSummary.totalAtRiskApplicationCount).toEqual(7);

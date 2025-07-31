@@ -75,6 +75,24 @@ export const mockMemberCipherDetails: any = [
     usesKeyConnector: true,
     cipherIds: ["cbea34a8-bde4-46ad-9d19-b05001227tt1"],
   },
+  {
+    userName: "invited User 1",
+    email: "invited.user1@secureco.com",
+    usesKeyConnector: true,
+    cipherIds: [""],
+  },
+  {
+    userName: "invited User 2",
+    email: "invited.user2@secureco.com",
+    usesKeyConnector: true,
+    cipherIds: [""],
+  },
+  {
+    userName: "invited User 2",
+    email: "invited.user2@secureco.com",
+    usesKeyConnector: true,
+    cipherIds: [""],
+  },
 ];
 
 describe("Member Cipher Details API Service", () => {
@@ -97,7 +115,7 @@ describe("Member Cipher Details API Service", () => {
     const orgId = "1234";
     const result = await memberCipherDetailsApiService.getMemberCipherDetails(orgId);
     expect(result).not.toBeNull();
-    expect(result).toHaveLength(7);
+    expect(result).toHaveLength(10);
     expect(apiService.send).toHaveBeenCalledWith(
       "GET",
       "/reports/member-cipher-details/" + orgId,

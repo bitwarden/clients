@@ -21,6 +21,9 @@ import {
   WeakPasswordDetail,
   WeakPasswordScore,
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
+  CipherHealthWithMemberDetails,
+  CipherHealthReportUriDetailWithMemberDetails,
+  HealthReportUriDetailWithMemberDetails,
 } from "../models/password-health";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
@@ -40,7 +43,7 @@ export class RiskInsightsReportService {
    * @param organizationId
    * @returns Cipher health report data with members and trimmed uris
    */
-  generateRawDataReport$(organizationId: string): Observable<CipherHealthReportDetail[]> {
+  generateRawDataReport$(organizationId: string): Observable<CipherHealthWithMemberDetails> {
     const allCiphers$ = from(this.cipherService.getAllFromApiForOrganization(organizationId));
     const memberCiphers$ = from(
       this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
@@ -55,7 +58,14 @@ export class RiskInsightsReportService {
         );
         return [allCiphers, details] as const;
       }),
-      concatMap(([ciphers, flattenedDetails]) => this.getCipherDetails(ciphers, flattenedDetails)),
+      concatMap(async ([ciphers, flattenedDetails]) => {
+        const cipherDetails = await this.getCipherDetails(ciphers, flattenedDetails);
+        const memberDetails = this.getUniqueMembers(flattenedDetails);
+        return {
+          ciphers: cipherDetails,
+          members: memberDetails,
+        };
+      }),
       first(),
     );
 
@@ -68,10 +78,18 @@ export class RiskInsightsReportService {
    * @param organizationId Id of the organization
    * @returns Cipher health report data flattened to the uris
    */
-  generateRawDataUriReport$(organizationId: string): Observable<CipherHealthReportUriDetail[]> {
+  generateRawDataUriReport$(
+    organizationId: string,
+  ): Observable<CipherHealthReportUriDetailWithMemberDetails> {
     const cipherHealthDetails$ = this.generateRawDataReport$(organizationId);
     const results$ = cipherHealthDetails$.pipe(
-      map((healthDetails) => this.getCipherUriDetails(healthDetails)),
+      map((healthDetails) => {
+        const cipherHealthUriDetail = this.getCipherUriDetails(healthDetails.ciphers);
+        return {
+          ciphers: cipherHealthUriDetail,
+          members: healthDetails.members,
+        };
+      }),
       first(),
     );
 
@@ -84,10 +102,18 @@ export class RiskInsightsReportService {
    * @param organizationId Id of the organization
    * @returns The all applications health report data
    */
-  generateApplicationsReport$(organizationId: string): Observable<ApplicationHealthReportDetail[]> {
+  generateApplicationsReport$(
+    organizationId: string,
+  ): Observable<HealthReportUriDetailWithMemberDetails> {
     const cipherHealthUriReport$ = this.generateRawDataUriReport$(organizationId);
     const results$ = cipherHealthUriReport$.pipe(
-      map((uriDetails) => this.getApplicationHealthReport(uriDetails)),
+      map((uriDetails) => {
+        const appHealthReportDetail = this.getApplicationHealthReport(uriDetails.ciphers);
+        return {
+          healthReport: appHealthReportDetail,
+          members: uriDetails.members,
+        };
+      }),
       first(),
     );
 
@@ -150,9 +176,9 @@ export class RiskInsightsReportService {
    */
   generateApplicationsSummary(
     reports: ApplicationHealthReportDetail[],
+    memberDetails: MemberDetailsFlat[],
   ): ApplicationHealthReportSummary {
-    const totalMembers = reports.flatMap((x) => x.memberDetails);
-    const uniqueMembers = this.getUniqueMembers(totalMembers);
+    const uniqueMembers = this.getUniqueMembers(memberDetails);
 
     const atRiskMembers = reports.flatMap((x) => x.atRiskMemberDetails);
     const uniqueAtRiskMembers = this.getUniqueMembers(atRiskMembers);
