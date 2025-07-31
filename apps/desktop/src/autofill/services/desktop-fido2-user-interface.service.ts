@@ -362,6 +362,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         this.logService.warning("Error while waiting for vault to unlock", error);
       }
 
+      if (status2 === AuthenticationStatus.Unlocked) {
+        await this.router.navigate(["/"]);
+      }
+
       if (status2 !== AuthenticationStatus.Unlocked) {
         await this.hideUi();
         throw new Error("Vault is not unlocked");
