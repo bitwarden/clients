@@ -128,8 +128,8 @@ export class Attachment extends Domain {
       url: this.url,
       size: this.size,
       sizeName: this.sizeName,
-      fileName: this.fileName?.toJSON(),
-      key: this.key?.toJSON(),
+      fileName: this.fileName?.toSdk(),
+      key: this.key?.toSdk(),
     };
   }
 

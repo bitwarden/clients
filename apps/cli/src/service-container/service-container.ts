@@ -44,6 +44,7 @@ import {
 } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
+import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
@@ -377,7 +378,7 @@ export class ServiceContainer {
     );
 
     this.activeUserStateProvider = new DefaultActiveUserStateProvider(
-      this.accountService,
+      new DefaultActiveUserAccessor(this.accountService),
       this.singleUserStateProvider,
     );
 

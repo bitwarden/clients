@@ -110,6 +110,7 @@ import { AccountServiceImplementation } from "@bitwarden/common/auth/services/ac
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
+import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
@@ -232,6 +233,7 @@ import { StorageServiceProvider } from "@bitwarden/common/platform/services/stor
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import {
+  ActiveUserAccessor,
   ActiveUserStateProvider,
   DerivedStateProvider,
   GlobalStateProvider,
@@ -1272,9 +1274,14 @@ const safeProviders: SafeProvider[] = [
     deps: [StorageServiceProvider, LogService],
   }),
   safeProvider({
+    provide: ActiveUserAccessor,
+    useClass: DefaultActiveUserAccessor,
+    deps: [AccountServiceAbstraction],
+  }),
+  safeProvider({
     provide: ActiveUserStateProvider,
     useClass: DefaultActiveUserStateProvider,
-    deps: [AccountServiceAbstraction, SingleUserStateProvider],
+    deps: [ActiveUserAccessor, SingleUserStateProvider],
   }),
   safeProvider({
     provide: SingleUserStateProvider,

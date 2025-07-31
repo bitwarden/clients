@@ -158,18 +158,18 @@ export class Fido2Credential extends Domain {
    */
   toSdkFido2Credential(): SdkFido2Credential {
     return {
-      credentialId: this.credentialId?.toJSON(),
-      keyType: this.keyType.toJSON(),
-      keyAlgorithm: this.keyAlgorithm.toJSON(),
-      keyCurve: this.keyCurve.toJSON(),
-      keyValue: this.keyValue.toJSON(),
-      rpId: this.rpId.toJSON(),
-      userHandle: this.userHandle?.toJSON(),
-      userName: this.userName?.toJSON(),
-      counter: this.counter.toJSON(),
-      rpName: this.rpName?.toJSON(),
-      userDisplayName: this.userDisplayName?.toJSON(),
-      discoverable: this.discoverable?.toJSON(),
+      credentialId: this.credentialId?.toSdk(),
+      keyType: this.keyType.toSdk(),
+      keyAlgorithm: this.keyAlgorithm.toSdk(),
+      keyCurve: this.keyCurve.toSdk(),
+      keyValue: this.keyValue.toSdk(),
+      rpId: this.rpId.toSdk(),
+      userHandle: this.userHandle?.toSdk(),
+      userName: this.userName?.toSdk(),
+      counter: this.counter.toSdk(),
+      rpName: this.rpName?.toSdk(),
+      userDisplayName: this.userDisplayName?.toSdk(),
+      discoverable: this.discoverable?.toSdk(),
       creationDate: this.creationDate.toISOString(),
     };
   }
