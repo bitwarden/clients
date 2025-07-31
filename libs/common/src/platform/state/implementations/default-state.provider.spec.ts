@@ -4,16 +4,16 @@
  */
 import { Observable, of } from "rxjs";
 
+import { UserId } from "@bitwarden/user-core";
+
 import { awaitAsync, trackEmissions } from "../../../../spec";
-import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import {
+  FakeActiveUserAccessor,
   FakeActiveUserStateProvider,
   FakeDerivedStateProvider,
   FakeGlobalStateProvider,
   FakeSingleUserStateProvider,
 } from "../../../../spec/fake-state-provider";
-import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { UserId } from "../../../types/guid";
 import { DeriveDefinition } from "../derive-definition";
 import { KeyDefinition } from "../key-definition";
 import { StateDefinition } from "../state-definition";
@@ -27,12 +27,12 @@ describe("DefaultStateProvider", () => {
   let singleUserStateProvider: FakeSingleUserStateProvider;
   let globalStateProvider: FakeGlobalStateProvider;
   let derivedStateProvider: FakeDerivedStateProvider;
-  let accountService: FakeAccountService;
+  let activeAccountAccessor: FakeActiveUserAccessor;
   const userId = "fakeUserId" as UserId;
 
   beforeEach(() => {
-    accountService = mockAccountServiceWith(userId);
-    activeUserStateProvider = new FakeActiveUserStateProvider(accountService);
+    activeAccountAccessor = new FakeActiveUserAccessor(userId);
+    activeUserStateProvider = new FakeActiveUserStateProvider(activeAccountAccessor);
     singleUserStateProvider = new FakeSingleUserStateProvider();
     globalStateProvider = new FakeGlobalStateProvider();
     derivedStateProvider = new FakeDerivedStateProvider();
@@ -70,12 +70,6 @@ describe("DefaultStateProvider", () => {
         userId?: UserId,
       ) => Observable<string>,
     ) => {
-      const accountInfo = {
-        email: "email",
-        emailVerified: false,
-        name: "name",
-        status: AuthenticationStatus.LoggedOut,
-      };
       const keyDefinition = new UserKeyDefinition<string>(
         new StateDefinition("test", "disk"),
         "test",
@@ -97,7 +91,7 @@ describe("DefaultStateProvider", () => {
       });
 
       it("should follow the current active user if no userId is provided", async () => {
-        accountService.activeAccountSubject.next({ id: userId, ...accountInfo });
+        activeAccountAccessor.switch(userId);
         const state = singleUserStateProvider.getFake(userId, keyDefinition);
         state.nextState("value");
         const emissions = trackEmissions(methodUnderTest(keyDefinition));
@@ -113,7 +107,7 @@ describe("DefaultStateProvider", () => {
         state.nextState("value");
         const emissions = trackEmissions(methodUnderTest(keyDefinition));
 
-        accountService.activeAccountSubject.next({ id: "newUserId" as UserId, ...accountInfo });
+        activeAccountAccessor.switch("newUserId" as UserId);
         const newUserEmissions = trackEmissions(sut.getUserState$(keyDefinition));
         state.nextState("value2");
         state.nextState("value3");
@@ -125,12 +119,6 @@ describe("DefaultStateProvider", () => {
   );
 
   describe("getUserState$", () => {
-    const accountInfo = {
-      email: "email",
-      emailVerified: false,
-      name: "name",
-      status: AuthenticationStatus.LoggedOut,
-    };
     const keyDefinition = new UserKeyDefinition<string>(
       new StateDefinition("test", "disk"),
       "test",
@@ -141,7 +129,7 @@ describe("DefaultStateProvider", () => {
     );
 
     it("should not emit any values until a truthy user id is supplied", async () => {
-      accountService.activeAccountSubject.next(null);
+      activeAccountAccessor.switch(null);
       const state = singleUserStateProvider.getFake(userId, keyDefinition);
       state.nextState("value");
 
@@ -151,7 +139,7 @@ describe("DefaultStateProvider", () => {
 
       expect(emissions).toHaveLength(0);
 
-      accountService.activeAccountSubject.next({ id: userId, ...accountInfo });
+      activeAccountAccessor.switch(userId);
 
       await awaitAsync();
 
@@ -170,7 +158,7 @@ describe("DefaultStateProvider", () => {
     );
 
     it("should emit default value if no userId supplied and first active user id emission in falsy", async () => {
-      accountService.activeAccountSubject.next(null);
+      activeAccountAccessor.switch(null);
 
       const emissions = trackEmissions(
         sut.getUserStateOrDefault$(keyDefinition, {

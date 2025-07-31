@@ -3,14 +3,13 @@
  * @jest-environment ../shared/test.environment.ts
  */
 import { any, mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, map, of, timeout } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, timeout } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { awaitAsync, trackEmissions } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
-import { Account } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
 import { StateDefinition } from "../state-definition";
@@ -48,7 +47,7 @@ describe("DefaultActiveUserState", () => {
   const storageServiceProvider = mock<StorageServiceProvider>();
   const stateEventRegistrarService = mock<StateEventRegistrarService>();
   const logService = mock<LogService>();
-  let activeAccountSubject: BehaviorSubject<Account | null>;
+  let activeAccountSubject: BehaviorSubject<UserId | null>;
 
   let singleUserStateProvider: DefaultSingleUserStateProvider;
 
@@ -64,11 +63,11 @@ describe("DefaultActiveUserState", () => {
       logService,
     );
 
-    activeAccountSubject = new BehaviorSubject<Account | null>(null);
+    activeAccountSubject = new BehaviorSubject<UserId | null>(null);
 
     userState = new DefaultActiveUserState(
       testKeyDefinition,
-      activeAccountSubject.asObservable().pipe(map((a) => a?.id)),
+      activeAccountSubject.asObservable(),
       singleUserStateProvider,
     );
   });
@@ -83,12 +82,7 @@ describe("DefaultActiveUserState", () => {
 
   const changeActiveUser = async (id: string) => {
     const userId = makeUserId(id);
-    activeAccountSubject.next({
-      id: userId,
-      email: `test${id}@example.com`,
-      emailVerified: false,
-      name: `Test User ${id}`,
-    });
+    activeAccountSubject.next(userId);
     await awaitAsync();
   };
 
@@ -588,7 +582,7 @@ describe("DefaultActiveUserState", () => {
     });
 
     it("does not await updates if the active user changes", async () => {
-      const initialUserId = (await firstValueFrom(activeAccountSubject)).id;
+      const initialUserId = activeAccountSubject.value;
       expect(initialUserId).toBe(userId);
       trackEmissions(userState.state$);
       await awaitAsync(); // storage updates are behind a promise

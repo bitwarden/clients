@@ -695,7 +695,6 @@ describe("keyService", () => {
     });
 
     it("returns decryption keys when some of the org keys are providers", async () => {
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(64));
       const org2Id = "org2Id" as OrganizationId;
       updateKeys({
         userKey: makeSymmetricCryptoKey<UserKey>(64),

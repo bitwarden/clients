@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { StorageServiceProvider } from "@bitwarden/storage-core";
 
-import { mockAccountServiceWith } from "../../../../spec/fake-account-service";
+import { FakeActiveUserAccessor } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
@@ -39,7 +39,7 @@ describe("Specific State Providers", () => {
       stateEventRegistrarService,
       logService,
     );
-    activeSut = new DefaultActiveUserStateProvider(mockAccountServiceWith(null), singleSut);
+    activeSut = new DefaultActiveUserStateProvider(new FakeActiveUserAccessor(null), singleSut);
     globalSut = new DefaultGlobalStateProvider(storageServiceProvider, logService);
   });
 

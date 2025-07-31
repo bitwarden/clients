@@ -3,9 +3,6 @@ import { inject, Inject, Injectable } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -30,9 +27,6 @@ export class InitService {
     private themingService: AbstractThemingService,
     private sdkLoadService: SdkLoadService,
     private viewCacheService: PopupViewCacheService,
-    private configService: ConfigService,
-    private encryptService: EncryptService,
-    private bulkEncryptService: BulkEncryptService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -40,12 +34,6 @@ export class InitService {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.stateService.init({ runMigrations: false }); // Browser background is responsible for migrations
-      this.configService.serverConfig$.subscribe((newConfig) => {
-        if (newConfig != null) {
-          this.encryptService.onServerConfigChange(newConfig);
-          this.bulkEncryptService.onServerConfigChange(newConfig);
-        }
-      });
       await this.i18nService.init();
       this.twoFactorService.init();
       await this.viewCacheService.init();

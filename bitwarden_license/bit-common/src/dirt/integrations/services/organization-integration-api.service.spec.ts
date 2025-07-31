@@ -11,17 +11,17 @@ import { OrganizationIntegrationApiService } from "./organization-integration-ap
 
 export const mockIntegrationResponse: any = {
   id: "1" as OrganizationIntegrationId,
-  organizationIntegrationType: OrganizationIntegrationType.Hec,
+  type: OrganizationIntegrationType.Hec,
 };
 
 export const mockIntegrationResponses: any[] = [
   {
     id: "1" as OrganizationIntegrationId,
-    OrganizationIntegrationType: OrganizationIntegrationType.Hec,
+    type: OrganizationIntegrationType.Hec,
   },
   {
     id: "2" as OrganizationIntegrationId,
-    OrganizationIntegrationType: OrganizationIntegrationType.Webhook,
+    type: OrganizationIntegrationType.Webhook,
   },
 ];
 
@@ -46,7 +46,7 @@ describe("OrganizationIntegrationApiService", () => {
     expect(result).toEqual(mockIntegrationResponses);
     expect(apiService.send).toHaveBeenCalledWith(
       "GET",
-      `organizations/${orgId}/integrations`,
+      `/organizations/${orgId}/integrations`,
       null,
       true,
       true,
@@ -63,12 +63,10 @@ describe("OrganizationIntegrationApiService", () => {
     apiService.send.mockReturnValue(Promise.resolve(mockIntegrationResponse));
 
     const result = await service.createOrganizationIntegration(orgId, request);
-    expect(result.organizationIntegrationType).toEqual(
-      mockIntegrationResponse.organizationIntegrationType,
-    );
+    expect(result.type).toEqual(mockIntegrationResponse.type);
     expect(apiService.send).toHaveBeenCalledWith(
       "POST",
-      `organizations/${orgId.toString()}/integrations`,
+      `/organizations/${orgId.toString()}/integrations`,
       request,
       true,
       true,
@@ -86,12 +84,10 @@ describe("OrganizationIntegrationApiService", () => {
     apiService.send.mockReturnValue(Promise.resolve(mockIntegrationResponse));
 
     const result = await service.updateOrganizationIntegration(orgId, integrationId, request);
-    expect(result.organizationIntegrationType).toEqual(
-      mockIntegrationResponse.organizationIntegrationType,
-    );
+    expect(result.type).toEqual(mockIntegrationResponse.type);
     expect(apiService.send).toHaveBeenCalledWith(
       "PUT",
-      `organizations/${orgId}/integrations/${integrationId}`,
+      `/organizations/${orgId}/integrations/${integrationId}`,
       request,
       true,
       true,
@@ -106,7 +102,7 @@ describe("OrganizationIntegrationApiService", () => {
 
     expect(apiService.send).toHaveBeenCalledWith(
       "DELETE",
-      `organizations/${orgId}/integrations/${integrationId}`,
+      `/organizations/${orgId}/integrations/${integrationId}`,
       null,
       true,
       false,

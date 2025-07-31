@@ -152,6 +152,7 @@ class KitchenSinkDialog {
 
       <bit-tab label="Empty tab" data-testid="empty-tab">
         <bit-section>
+          <h2 bitTypography="h2" class="tw-mb-6">Tab Number 2</h2>
           <bit-no-items class="tw-text-main">
             <ng-container slot="title">This tab is empty</ng-container>
             <ng-container slot="description">
