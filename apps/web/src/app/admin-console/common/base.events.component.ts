@@ -10,6 +10,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
 import { EventService } from "../../core";
@@ -24,6 +25,8 @@ export abstract class BaseEventsComponent {
   continuationToken: string;
 
   abstract readonly exportFileName: string;
+  abstract organizationId: OrganizationId;
+  abstract userId: UserId;
 
   protected eventsForm = new FormGroup({
     start: new FormControl(null),
@@ -134,6 +137,7 @@ export abstract class BaseEventsComponent {
     endDate: string,
     continuationToken: string,
   ) {
+    await this.eventService.loadAllOrganizationCiphers(this.organizationId, this.userId);
     const response = await this.requestEvents(startDate, endDate, continuationToken);
 
     const events = await Promise.all(
@@ -157,6 +161,8 @@ export abstract class BaseEventsComponent {
           installationId: r.installationId,
           systemUser: r.systemUser,
           serviceAccountId: r.serviceAccountId,
+          eventName: eventInfo.eventName,
+          eventLink: eventInfo.eventLink,
         });
       }),
     );
