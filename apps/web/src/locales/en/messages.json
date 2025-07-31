@@ -2246,13 +2246,13 @@
     "message": "View items"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "View items; passwords hidden"
   },
   "editItems": {
     "message": "Edit items"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Edit items; passwords hidden"
   },
   "disable": {
     "message": "Turn off"
