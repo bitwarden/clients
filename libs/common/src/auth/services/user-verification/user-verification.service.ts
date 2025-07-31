@@ -14,8 +14,6 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
