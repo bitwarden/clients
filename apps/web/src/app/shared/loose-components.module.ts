@@ -21,16 +21,6 @@ import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.comp
 import { FreeBitwardenFamiliesComponent } from "../billing/members/free-bitwarden-families.component";
 import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
-// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until DIRT refactors these out of this module
-import { ExposedPasswordsReportComponent as OrgExposedPasswordsReportComponent } from "../dirt/reports/pages/organizations/exposed-passwords-report.component";
-// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until DIRT refactors these out of this module
-import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent } from "../dirt/reports/pages/organizations/inactive-two-factor-report.component";
-// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until DIRT refactors these out of this module
-import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../dirt/reports/pages/organizations/reused-passwords-report.component";
-// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until DIRT refactors these out of this module
-import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../dirt/reports/pages/organizations/unsecured-websites-report.component";
-// eslint-disable-next-line no-restricted-imports -- Temporarily disabled until DIRT refactors these out of this module
-import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../dirt/reports/pages/organizations/weak-passwords-report.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { HeaderModule } from "../layouts/header/header.module";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
@@ -63,12 +53,7 @@ import { SharedModule } from "./shared.module";
   declarations: [
     AcceptFamilySponsorshipComponent,
     OrgEventsComponent,
-    OrgExposedPasswordsReportComponent,
-    OrgInactiveTwoFactorReportComponent,
-    OrgReusedPasswordsReportComponent,
-    OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
-    OrgWeakPasswordsReportComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
@@ -83,12 +68,7 @@ import { SharedModule } from "./shared.module";
     PremiumBadgeComponent,
     OrganizationLayoutComponent,
     OrgEventsComponent,
-    OrgExposedPasswordsReportComponent,
-    OrgInactiveTwoFactorReportComponent,
-    OrgReusedPasswordsReportComponent,
-    OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
-    OrgWeakPasswordsReportComponent,
     PremiumBadgeComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
