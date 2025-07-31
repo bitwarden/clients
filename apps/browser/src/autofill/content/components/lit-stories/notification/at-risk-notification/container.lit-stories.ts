@@ -23,7 +23,6 @@ export default {
       organizationName: "Acme Co.",
     },
     i18n: mockI18n,
-    type: NotificationTypes.AtRiskPassword,
   },
   parameters: {
     design: {
@@ -34,7 +33,7 @@ export default {
 } as Meta<AtRiskNotificationProps>;
 
 const Template = (args: AtRiskNotificationProps) => {
-  const notificationTestId = getNotificationTestId(args.type);
+  const notificationTestId = getNotificationTestId(NotificationTypes.AtRiskPassword);
   return AtRiskNotification({ ...args, notificationTestId });
 };
 export const Default: StoryObj<AtRiskNotificationProps> = {
