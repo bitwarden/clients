@@ -8,7 +8,6 @@ import { CollectionView } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   CipherWithIdExport,
   CollectionWithIdExport,
@@ -40,7 +39,6 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
     protected cipherService: CipherService,
-    protected pinService: PinServiceAbstraction,
     protected accountService: AccountService,
   ) {
     super();

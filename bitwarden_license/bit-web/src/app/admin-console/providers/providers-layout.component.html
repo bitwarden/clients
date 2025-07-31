@@ -10,7 +10,15 @@
       icon="bwi-provider"
       [text]="clientsTranslationKey$ | async | i18n"
       [route]="(isBillable | async) ? 'manage-client-organizations' : 'clients'"
-    ></bit-nav-item>
+    >
+      <i
+        *ngIf="!provider.enabled && (providerPortalTakeover$ | async)"
+        slot="end"
+        class="bwi bwi-exclamation-triangle tw-text-danger"
+        title="{{ 'providerIsDisabled' | i18n }}"
+        aria-hidden="true"
+      ></i>
+    </bit-nav-item>
     <bit-nav-group
       icon="bwi-sliders"
       [text]="'manage' | i18n"

@@ -5,7 +5,6 @@ import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@stor
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { A11yGridDirective } from "../a11y/a11y-grid.directive";
 import { AvatarModule } from "../avatar";
 import { BadgeModule } from "../badge";
 import { IconButtonModule } from "../icon-button";
@@ -32,7 +31,6 @@ export default {
         TypographyModule,
         ItemActionComponent,
         ItemContentComponent,
-        A11yGridDirective,
         ScrollingModule,
         LayoutComponent,
         RouterTestingModule,

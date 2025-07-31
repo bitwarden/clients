@@ -10,3 +10,13 @@ mod windowing;
 pub fn get_foreground_window_title() -> std::result::Result<String, ()> {
     windowing::get_foreground_window_title()
 }
+
+/// Attempts to type the input text wherever the user's cursor is.
+///
+/// `input` must be an array of utf-16 encoded characters to insert.
+///
+/// TODO: The error handling will be improved in a future PR: PM-23615
+#[allow(clippy::result_unit_err)]
+pub fn type_input(input: Vec<u16>) -> std::result::Result<(), ()> {
+    windowing::type_input(input)
+}
