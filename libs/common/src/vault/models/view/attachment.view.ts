@@ -69,7 +69,7 @@ export class AttachmentView implements View {
       size: this.size,
       sizeName: this.sizeName,
       fileName: this.fileName,
-      key: this.encryptedKey?.toJSON(),
+      key: this.encryptedKey?.toSdk(),
       // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
       decryptedKey: this.key ? this.key.toBase64() : null,
     };

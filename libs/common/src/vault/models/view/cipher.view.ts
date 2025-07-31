@@ -331,7 +331,7 @@ export class CipherView implements View, InitializerMetadata {
       creationDate: (this.creationDate ?? new Date()).toISOString(),
       deletedDate: this.deletedDate?.toISOString(),
       reprompt: this.reprompt ?? CipherRepromptType.None,
-      key: this.key?.toJSON(),
+      key: this.key?.toSdk(),
       // Cipher type specific properties are set in the switch statement below
       // CipherView initializes each with default constructors (undefined values)
       // The SDK does not expect those undefined values and will throw exceptions

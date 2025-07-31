@@ -62,7 +62,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
-import { FallbackBulkEncryptService } from "@bitwarden/common/key-management/crypto/services/fallback-bulk-encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
@@ -290,7 +289,6 @@ export class ServiceContainer {
   cipherAuthorizationService: CipherAuthorizationService;
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
-  bulkEncryptService: FallbackBulkEncryptService;
   cipherEncryptionService: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
@@ -325,7 +323,6 @@ export class ServiceContainer {
       this.logService,
       true,
     );
-    this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
     this.storageService = new LowdbStorageService(this.logService, null, p, false, true);
     this.secureStorageService = new NodeEnvSecureStorageService(
       this.storageService,
@@ -719,7 +716,6 @@ export class ServiceContainer {
       this.stateService,
       this.autofillSettingsService,
       this.encryptService,
-      this.bulkEncryptService,
       this.cipherFileUploadService,
       this.configService,
       this.stateProvider,
@@ -921,12 +917,6 @@ export class ServiceContainer {
     await this.sdkLoadService.loadAndInit();
     await this.storageService.init();
     await this.stateService.init();
-    this.configService.serverConfig$.subscribe((newConfig) => {
-      if (newConfig != null) {
-        this.encryptService.onServerConfigChange(newConfig);
-        this.bulkEncryptService.onServerConfigChange(newConfig);
-      }
-    });
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
