@@ -1,14 +1,18 @@
 <div
   [ngClass]="{
     'tw-sticky tw-top-0 tw-z-50 tw-pb-2': sideNavService.open,
-    'tw-pb-6': !sideNavService.open,
+    'tw-pb-[calc(theme(spacing.6)_+_1px)]': !sideNavService.open,
   }"
   class="tw-px-2 tw-pt-5"
 >
+  <!-- absolutely position the link svg to avoid shifting layout when sidenav is closed -->
   <a
     [routerLink]="route()"
     class="tw-p-3 tw-block tw-rounded-md tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2 hover:tw-bg-hover-contrast [&_path]:tw-fill-text-alt2"
-    [ngClass]="{ '[&_svg]:tw-w-[1.687rem] tw-px-[11px]': !sideNavService.open }"
+    [ngClass]="{
+      'tw-relative tw-h-[56px] [&_svg]:tw-absolute [&_svg]:tw-top-1/2 [&_svg]:tw-left-[12px] [&_svg]:tw-transform [&_svg]:-tw-translate-y-1/2':
+        !sideNavService.open,
+    }"
     [attr.aria-label]="label()"
     [title]="label()"
     routerLinkActive
