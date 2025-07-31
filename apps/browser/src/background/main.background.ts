@@ -43,6 +43,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
+import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
@@ -591,7 +592,7 @@ export default class MainBackground {
       this.singleUserStateProvider,
     );
     this.activeUserStateProvider = new DefaultActiveUserStateProvider(
-      this.accountService,
+      new DefaultActiveUserAccessor(this.accountService),
       this.singleUserStateProvider,
     );
     this.derivedStateProvider = new InlineDerivedStateProvider();
