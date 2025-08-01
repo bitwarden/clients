@@ -1,0 +1,33 @@
+name: E2E Tests (CLI)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  e2e-cli:
+    runs-on: ubuntu-latest
+    services:
+      vaultwarden:
+        image: vaultwarden/server:latest
+        env:
+          I_REALLY_WANT_VOLATILE_STORAGE: 'true'
+        ports:
+          - 8081:80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build CLI app
+        run: |
+          cd apps/cli
+          npm run build:oss:prod
+          cd ../..
+      - name: Run E2E tests
+        run: |
+          APP=cli CLI_COMMAND="node $(pwd)/apps/cli/build/bw.js" npm run test:e2e

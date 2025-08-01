@@ -1,0 +1,33 @@
+name: E2E Tests (Desktop)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  e2e-desktop:
+    runs-on: ubuntu-latest
+    services:
+      vaultwarden:
+        image: vaultwarden/server:latest
+        env:
+          I_REALLY_WANT_VOLATILE_STORAGE: 'true'
+        ports:
+          - 8081:80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build desktop app
+        run: |
+          cd apps/desktop
+          npm run build
+          cd ../..
+      - name: Run E2E tests
+        run: |
+          APP=desktop DESKTOP_PATH=$(pwd)/apps/desktop/build npm run test:e2e
