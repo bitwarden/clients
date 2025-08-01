@@ -3,12 +3,15 @@ import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
 
 import {
   OrganizationUserConfirmRequest,
+  OrganizationUserBulkConfirmRequest,
   OrganizationUserApiService,
+  OrganizationUserBulkResponse,
 } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
@@ -61,6 +64,31 @@ export class OrganizationUserService {
         return this.organizationUserApiService.postOrganizationUserConfirm(
           organization.id,
           user.id,
+          request,
+        );
+      }),
+    );
+  }
+
+  bulkConfirmUsers(
+    organization: Organization,
+    userIdsWithKeys: { id: string; key: string }[],
+  ): Observable<ListResponse<OrganizationUserBulkResponse>> {
+    const encryptedCollectionName$ = this.orgKey$(organization).pipe(
+      switchMap((orgKey) =>
+        this.encryptService.encryptString(this.i18nService.t("myItems"), orgKey),
+      ),
+    );
+
+    return encryptedCollectionName$.pipe(
+      switchMap((collectionName) => {
+        const request = new OrganizationUserBulkConfirmRequest(
+          userIdsWithKeys,
+          collectionName.encryptedString,
+        );
+
+        return this.organizationUserApiService.postOrganizationUserBulkConfirm(
+          organization.id,
           request,
         );
       }),
