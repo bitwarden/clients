@@ -11,6 +11,7 @@ import {
   OrganizationUserBulkResponse,
 } from "@bitwarden/admin-console/common";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -31,7 +32,7 @@ import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";
 import { BulkUserDetails } from "./bulk-status.component";
 
 type BulkConfirmDialogParams = {
-  organizationId: string;
+  organization: Organization;
   users: BulkUserDetails[];
 };
 
@@ -40,7 +41,7 @@ type BulkConfirmDialogParams = {
   standalone: false,
 })
 export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
-  organizationId: string;
+  organization: Organization;
   organizationKey$: Observable<OrgKey>;
   users: BulkUserDetails[];
 
@@ -56,10 +57,10 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
   ) {
     super(keyService, encryptService, i18nService);
 
-    this.organizationId = dialogParams.organizationId;
+    this.organization = dialogParams.organization;
     this.organizationKey$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => this.keyService.orgKeys$(userId)),
-      map((organizationKeysById) => organizationKeysById[this.organizationId as OrganizationId]),
+      map((organizationKeysById) => organizationKeysById[this.organization.id as OrganizationId]),
       takeUntilDestroyed(),
     );
     this.users = dialogParams.users;
@@ -72,7 +73,7 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
     ListResponse<OrganizationUserBulkPublicKeyResponse | ProviderUserBulkPublicKeyResponse>
   > =>
     await this.organizationUserApiService.postOrganizationUsersPublicKey(
-      this.organizationId,
+      this.organization.id,
       this.filteredUsers.map((user) => user.id),
     );
 
@@ -85,14 +86,13 @@ export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
     if (
       await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
     ) {
-      const organization = { id: this.organizationId } as any;
       return await firstValueFrom(
-        this.organizationUserService.bulkConfirmUsers(organization, userIdsWithKeys),
+        this.organizationUserService.bulkConfirmUsers(this.organization, userIdsWithKeys),
       );
     } else {
       const request = new OrganizationUserBulkConfirmRequest(userIdsWithKeys);
       return await this.organizationUserApiService.postOrganizationUserBulkConfirm(
-        this.organizationId,
+        this.organization.id,
         request,
       );
     }
