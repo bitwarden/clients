@@ -12,7 +12,7 @@ import { safeGetString } from "./utils";
 export class CollectionExport {
   static template(): CollectionExport {
     const req = new CollectionExport();
-    req.organizationId = "00000000-0000-0000-0000-000000000000";
+    req.organizationId = "00000000-0000-0000-0000-000000000000" as OrganizationId;
     req.name = "Collection name";
     req.externalId = null;
     return req;
@@ -22,7 +22,7 @@ export class CollectionExport {
     view.name = req.name;
     view.externalId = req.externalId;
     if (view.organizationId == null) {
-      view.organizationId = req.organizationId as OrganizationId;
+      view.organizationId = req.organizationId;
     }
     return view;
   }
@@ -31,12 +31,12 @@ export class CollectionExport {
     domain.name = req.name != null ? new EncString(req.name) : null;
     domain.externalId = req.externalId;
     if (domain.organizationId == null) {
-      domain.organizationId = req.organizationId as OrganizationId;
+      domain.organizationId = req.organizationId;
     }
     return domain;
   }
 
-  organizationId: string;
+  organizationId: OrganizationId;
   name: string;
   externalId: string;
 
