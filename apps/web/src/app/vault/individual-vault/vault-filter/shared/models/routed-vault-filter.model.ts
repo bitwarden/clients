@@ -1,9 +1,10 @@
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 
 /**
- * Represents viewing all collections for an organization
+ * A constant used to represent viewing "all" of a particular filter.
  */
-export const All = "all" as CollectionId;
+export const All = "all";
+export type All = typeof All;
 
 // TODO: Remove `All` when moving to vertical navigation.
 const itemTypes = [
@@ -24,7 +25,7 @@ export function isRoutedVaultFilterItemType(value: unknown): value is RoutedVaul
 }
 
 export interface RoutedVaultFilterModel {
-  collectionId?: CollectionId;
+  collectionId?: CollectionId | All;
   folderId?: string;
   organizationId?: OrganizationId;
   type?: RoutedVaultFilterItemType;

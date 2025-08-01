@@ -100,7 +100,7 @@ export class RoutedVaultFilterBridge implements VaultFilter {
     return this.legacyFilter.selectedCollectionNode;
   }
   set selectedCollectionNode(value: TreeNode<CollectionFilter>) {
-    let collectionId: CollectionId | undefined;
+    let collectionId: CollectionId | All | undefined;
 
     if (value != null && value.node.id === null) {
       collectionId = Unassigned as CollectionId;
