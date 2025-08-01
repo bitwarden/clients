@@ -111,8 +111,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected showUserManagementControls$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
-  protected rowHeight = 69;
-  protected rowHeightClass = `tw-h-[69px]`;
+  protected rowHeight = 66;
+  protected rowHeightClass = `tw-h-[66px]`;
 
   private organizationUsersCount = 0;
 

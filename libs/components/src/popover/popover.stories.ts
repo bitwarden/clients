@@ -68,7 +68,7 @@ const popoverContent = /*html*/ `
       <li>Esse labore veniam tempora</li>
       <li>Adipisicing elit ipsum <a href="#" bitLink>iustolaborum</a></li>
     </ul>
-    <button bitButton class="tw-mt-3" (click)="triggerRef.closePopover()">Close</button>
+    <button bitButton class="tw-mt-4" (click)="triggerRef.closePopover()">Close</button>
   </bit-popover>
 `;
 
