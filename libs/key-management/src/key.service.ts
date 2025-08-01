@@ -29,6 +29,7 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -46,6 +47,7 @@ import {
   USER_ENCRYPTED_PRIVATE_KEY,
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
+  USER_KEY_ENCRYPTED_SIGNING_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -555,6 +557,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_ENCRYPTED_PRIVATE_KEY, null, userId);
   }
 
+  private async clearSigningKey(userId: UserId): Promise<void> {
+    await this.stateProvider.setUserState(USER_KEY_ENCRYPTED_SIGNING_KEY, null, userId);
+  }
+
   async clearPinKeys(userId: UserId): Promise<void> {
     if (userId == null) {
       throw new Error("UserId is required");
@@ -587,6 +593,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearOrgKeys(userId);
     await this.clearProviderKeys(userId);
     await this.clearKeyPair(userId);
+    await this.clearSigningKey(userId);
     await this.clearPinKeys(userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, null, userId);
   }
@@ -865,7 +872,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       return null;
     }
 
-    return (await this.cryptoFunctionService.rsaExtractPublicKey(privateKey)) as UserPublicKey;
+    return await this.cryptoFunctionService.rsaExtractPublicKey(privateKey);
   }
 
   userPrivateKey$(userId: UserId): Observable<UserPrivateKey | null> {
@@ -883,7 +890,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
           return null;
         }
 
-        const publicKey = (await this.derivePublicKey(privateKey))!;
+        const publicKey = (await this.derivePublicKey(privateKey))! as UserPublicKey;
         return { privateKey, publicKey };
       }),
     );
@@ -978,6 +985,27 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
 
         return forkJoin(encryptedProviderKeys);
+      }),
+    );
+  }
+
+  async setUserSigningKey(userSigningKey: WrappedSigningKey, userId: UserId): Promise<void> {
+    if (userSigningKey == null) {
+      throw new Error("No user signing key provided.");
+    }
+    if (userId == null) {
+      throw new Error("No userId provided.");
+    }
+    await this.stateProvider.setUserState(USER_KEY_ENCRYPTED_SIGNING_KEY, userSigningKey, userId);
+  }
+
+  userSigningKey$(userId: UserId): Observable<WrappedSigningKey | null> {
+    return this.stateProvider.getUser(userId, USER_KEY_ENCRYPTED_SIGNING_KEY).state$.pipe(
+      map((encryptedSigningKey) => {
+        if (encryptedSigningKey == null) {
+          return null;
+        }
+        return encryptedSigningKey as WrappedSigningKey;
       }),
     );
   }
