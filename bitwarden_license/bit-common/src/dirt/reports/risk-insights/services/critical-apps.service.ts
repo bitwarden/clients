@@ -13,6 +13,7 @@ import {
   zip,
 } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -31,6 +32,7 @@ import { CriticalAppsApiService } from "./critical-apps-api.service";
  */
 export class CriticalAppsService {
   private orgId = new BehaviorSubject<OrganizationId | null>(null);
+  private orgKey$ = new Observable<OrgKey>();
   private criticalAppsList = new BehaviorSubject<PasswordHealthReportApplicationsResponse[]>([]);
   private teardown = new Subject<void>();
 
@@ -45,6 +47,7 @@ export class CriticalAppsService {
     private keyService: KeyService,
     private encryptService: EncryptService,
     private criticalAppsApiService: CriticalAppsApiService,
+    private accountService: AccountService,
   ) {}
 
   // Get a list of critical apps for a given organization
@@ -61,8 +64,9 @@ export class CriticalAppsService {
 
   // Save the selected critical apps for a given organization
   async setCriticalApps(orgId: string, selectedUrls: string[]) {
-    const key = await this.keyService.getOrgKey(orgId);
-    if (key == null) {
+    const orgKey = await firstValueFrom(this.orgKey$);
+
+    if (orgKey == null) {
       throw new Error("Organization key not found");
     }
 
@@ -70,7 +74,7 @@ export class CriticalAppsService {
     const newEntries = await this.filterNewEntries(orgId as OrganizationId, selectedUrls);
     const criticalAppsRequests = await this.encryptNewEntries(
       orgId as OrganizationId,
-      key,
+      orgKey,
       newEntries,
     );
 
@@ -83,7 +87,7 @@ export class CriticalAppsService {
     for (const responseItem of dbResponse) {
       const decryptedUrl = await this.encryptService.decryptString(
         new EncString(responseItem.uri),
-        key,
+        orgKey,
       );
       if (!updatedList.some((f) => f.uri === decryptedUrl)) {
         updatedList.push({
@@ -99,6 +103,10 @@ export class CriticalAppsService {
   // Get the critical apps for a given organization
   setOrganizationId(orgId: OrganizationId) {
     this.orgId.next(orgId);
+    this.orgKey$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) => this.keyService.orgKeys$(account.id)),
+      map((organizationKeysById) => organizationKeysById[orgId as OrganizationId]),
+    );
   }
 
   // Drop a critical app for a given organization
