@@ -9,15 +9,15 @@ import { CollectionId } from "../../types/guid";
 import { CollectionExport } from "./collection.export";
 
 export class CollectionWithIdExport extends CollectionExport {
-  id: string;
+  id: CollectionId;
 
   static toView(req: CollectionWithIdExport, view = new CollectionView()) {
-    view.id = req.id as CollectionId;
+    view.id = req.id;
     return super.toView(req, view);
   }
 
   static toDomain(req: CollectionWithIdExport, domain = new CollectionDomain()) {
-    domain.id = req.id as CollectionId;
+    domain.id = req.id;
     return super.toDomain(req, domain);
   }
 
