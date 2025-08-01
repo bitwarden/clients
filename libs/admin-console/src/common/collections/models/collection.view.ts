@@ -12,7 +12,6 @@ export const NestingDelimiter = "/";
 export class CollectionView implements View, ITreeNodeObject {
   id: string | undefined;
   organizationId: string | undefined;
-  name: string = "";
   externalId: string | undefined;
   // readOnly applies to the items within a collection
   readOnly: boolean = false;
@@ -20,6 +19,9 @@ export class CollectionView implements View, ITreeNodeObject {
   manage: boolean = false;
   assigned: boolean = false;
   type: CollectionType = CollectionTypes.SharedCollection;
+  userDefaultCollectionEmail: string | undefined;
+
+  private _name: string | undefined;
 
   constructor(c?: Collection | CollectionAccessDetailsResponse) {
     if (!c) {
@@ -39,6 +41,15 @@ export class CollectionView implements View, ITreeNodeObject {
       this.assigned = c.assigned;
     }
     this.type = c.type;
+    this.userDefaultCollectionEmail = c.userDefaultCollectionEmail;
+  }
+
+  set name(name: string) {
+    this._name = name;
+  }
+
+  get name(): string {
+    return this.userDefaultCollectionEmail ?? this._name;
   }
 
   canEditItems(org: Organization): boolean {
@@ -91,6 +102,18 @@ export class CollectionView implements View, ITreeNodeObject {
    */
   canViewCollectionInfo(org: Organization | undefined): boolean {
     return false;
+  }
+
+  /**
+   * Returns true if the collection can be edited and does not have a {@link userDefaultCollectionEmail}.
+   * When an organization user is offboarded with the Enforce Organization Data Ownership policy enabled,
+   * their "My items" collection will transfer ownership to the organization and the collection name becomes
+   * read only, replaced by the new {@link userDefaultCollectionEmail} to be able to identify the offboarded user's
+   * data moving forward. To enforce this rule, this function will be used to prevent encrypting and
+   * saving a new name when editing a collection.
+   */
+  canEditName(org: Organization): boolean {
+    return this.canEdit(org) && !this.userDefaultCollectionEmail;
   }
 
   static fromJSON(obj: Jsonify<CollectionView>) {
