@@ -1,4 +1,3 @@
-import { Location } from "@angular/common";
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { filter, from, lastValueFrom, map, Observable, Subject, switchMap, takeWhile } from "rxjs";
@@ -6,21 +5,24 @@ import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
-import { OrganizationWarningsResponse } from "@bitwarden/common/billing/models/response/organization-warnings.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
+import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import {
   TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
   TrialPaymentDialogComponent,
 } from "../../../shared/trial-payment-dialog/trial-payment-dialog.component";
 import { openChangePlanDialog } from "../../change-plan-dialog.component";
-import { OrganizationFreeTrialWarning, OrganizationResellerRenewalWarning } from "../types";
+import {
+  OrganizationFreeTrialWarning,
+  OrganizationResellerRenewalWarning,
+  OrganizationWarningsResponse,
+} from "../types";
 
 const format = (date: Date) =>
   date.toLocaleDateString("en-US", {
@@ -39,9 +41,8 @@ export class OrganizationWarningsService {
     private dialogService: DialogService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private organizationBillingApiService: OrganizationBillingApiServiceAbstraction,
+    private organizationBillingClient: OrganizationBillingClient,
     private router: Router,
-    private location: Location,
     protected syncService: SyncService,
   ) {}
 
@@ -218,7 +219,9 @@ export class OrganizationWarningsService {
     if (existing && !bypassCache) {
       return existing;
     }
-    const response$ = from(this.organizationBillingApiService.getWarnings(organization.id));
+    const response$ = from(
+      this.organizationBillingClient.getWarnings(organization.id as OrganizationId),
+    );
     this.cache$.set(organization.id as OrganizationId, response$);
     return response$;
   };
