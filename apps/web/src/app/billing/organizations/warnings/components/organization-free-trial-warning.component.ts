@@ -1,15 +1,14 @@
-import { AsyncPipe } from "@angular/common";
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { Observable, Subject } from "rxjs";
+import { filter, Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationId } from "@bitwarden/common/types/guid";
-import { AnchorLinkDirective, BannerComponent } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
+import { BannerModule } from "@bitwarden/components";
 
 import { OrganizationWarningsService } from "../services";
 import { OrganizationFreeTrialWarning } from "../types";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
+import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 
 @Component({
   selector: "app-organization-free-trial-warning",
@@ -37,7 +36,7 @@ import { OrganizationFreeTrialWarning } from "../types";
       </bit-banner>
     }
   `,
-  imports: [AnchorLinkDirective, AsyncPipe, BannerComponent, I18nPipe],
+  imports: [BannerModule, OrganizationWarningsModule, SharedModule],
 })
 export class OrganizationFreeTrialWarningComponent implements OnInit, OnDestroy {
   @Input({ required: true }) organization!: Organization;
@@ -50,9 +49,11 @@ export class OrganizationFreeTrialWarningComponent implements OnInit, OnDestroy 
 
   ngOnInit() {
     this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization);
-    this.organizationWarningsService
-      .refreshWarningsForOrganization$(this.organization.id as OrganizationId)
-      .pipe(takeUntil(this.destroy$))
+    this.organizationWarningsService.freeTrialWarningRefreshed$
+      .pipe(
+        filter((organizationId) => organizationId === this.organization.id),
+        takeUntil(this.destroy$),
+      )
       .subscribe(() => {
         this.refresh();
       });
@@ -63,7 +64,9 @@ export class OrganizationFreeTrialWarningComponent implements OnInit, OnDestroy 
     this.destroy$.complete();
   }
 
-  refresh = () => {
-    this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization, true);
-  };
+  refresh = () =>
+    (this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(
+      this.organization,
+      true,
+    ));
 }

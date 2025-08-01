@@ -10,10 +10,10 @@ import {
   from,
   lastValueFrom,
   map,
+  merge,
   Observable,
   shareReplay,
   switchMap,
-  tap,
 } from "rxjs";
 
 import {
@@ -246,12 +246,20 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     this.showUserManagementControls$ = organization$.pipe(
       map((organization) => organization.canManageUsers),
     );
-    organization$
-      .pipe(
-        takeUntilDestroyed(),
-        tap((org) => (this.organization = org)),
-        switchMap((org) => this.organizationWarningsService.showInactiveSubscriptionDialog$(org)),
-      )
+
+    merge(
+      organization$.pipe(
+        switchMap((organization) =>
+          this.organizationWarningsService.showInactiveSubscriptionDialog$(organization),
+        ),
+      ),
+      organization$.pipe(
+        switchMap((organization) =>
+          this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+        ),
+      ),
+    )
+      .pipe(takeUntilDestroyed())
       .subscribe();
   }
 

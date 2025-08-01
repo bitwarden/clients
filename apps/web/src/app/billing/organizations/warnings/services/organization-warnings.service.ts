@@ -31,10 +31,12 @@ const format = (date: Date) =>
     year: "numeric",
   });
 
-@Injectable({ providedIn: "root" })
+@Injectable()
 export class OrganizationWarningsService {
   private cache$ = new Map<OrganizationId, Observable<OrganizationWarningsResponse>>();
-  private refreshWarnings$ = new Subject<OrganizationId>();
+
+  private refreshFreeTrialWarning$ = new Subject<OrganizationId>();
+  readonly freeTrialWarningRefreshed$ = this.refreshFreeTrialWarning$.asObservable();
 
   constructor(
     private configService: ConfigService,
@@ -184,45 +186,45 @@ export class OrganizationWarningsService {
             });
             break;
           }
-          case "add_payment_method_optional_trial": {
-            const organizationSubscriptionResponse =
-              await this.organizationApiService.getSubscription(organization.id);
-
-            const dialogRef = TrialPaymentDialogComponent.open(this.dialogService, {
-              data: {
-                organizationId: organization.id,
-                subscription: organizationSubscriptionResponse,
-                productTierType: organization?.productTierType,
-              },
-            });
-            const result = await lastValueFrom(dialogRef.closed);
-            if (result === TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED) {
-              this.refreshWarnings$.next(organization.id as OrganizationId);
-            }
-          }
         }
       }),
     );
 
-  refreshWarningsForOrganization$(organizationId: OrganizationId): Observable<void> {
-    return this.refreshWarnings$.pipe(
-      filter((id) => id === organizationId),
-      map((): void => void 0),
-    );
-  }
+  showSubscribeBeforeFreeTrialEndsDialog$ = (
+    organization: Organization,
+    bypassCache: boolean = false,
+  ): Observable<void> =>
+    this.getWarning$(organization, (response) => response.freeTrial, bypassCache).pipe(
+      switchMap(async () => {
+        const organizationSubscriptionResponse = await this.organizationApiService.getSubscription(
+          organization.id,
+        );
 
-  private getResponse$ = (
+        const dialogRef = TrialPaymentDialogComponent.open(this.dialogService, {
+          data: {
+            organizationId: organization.id,
+            subscription: organizationSubscriptionResponse,
+            productTierType: organization?.productTierType,
+          },
+        });
+        const result = await lastValueFrom(dialogRef.closed);
+        if (result === TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED) {
+          this.refreshFreeTrialWarning$.next(organization.id as OrganizationId);
+        }
+      }),
+    );
+
+  private readThroughWarnings$ = (
     organization: Organization,
     bypassCache: boolean = false,
   ): Observable<OrganizationWarningsResponse> => {
-    const existing = this.cache$.get(organization.id as OrganizationId);
+    const organizationId = organization.id as OrganizationId;
+    const existing = this.cache$.get(organizationId);
     if (existing && !bypassCache) {
       return existing;
     }
-    const response$ = from(
-      this.organizationBillingClient.getWarnings(organization.id as OrganizationId),
-    );
-    this.cache$.set(organization.id as OrganizationId, response$);
+    const response$ = from(this.organizationBillingClient.getWarnings(organizationId));
+    this.cache$.set(organizationId, response$);
     return response$;
   };
 
@@ -231,7 +233,7 @@ export class OrganizationWarningsService {
     extract: (response: OrganizationWarningsResponse) => T | null | undefined,
     bypassCache: boolean = false,
   ): Observable<T> =>
-    this.getResponse$(organization, bypassCache).pipe(
+    this.readThroughWarnings$(organization, bypassCache).pipe(
       map(extract),
       takeWhile((warning): warning is T => !!warning),
       take(1),

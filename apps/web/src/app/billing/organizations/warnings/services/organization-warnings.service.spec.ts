@@ -1,358 +1,452 @@
+import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, lastValueFrom } from "rxjs";
+import { of, tap } from "rxjs";
+import { concatMap, take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
-import { OrganizationWarningsResponse } from "@bitwarden/common/billing/models/response/organization-warnings.response";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
+import { SyncService } from "@bitwarden/common/platform/sync";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { DialogRef, DialogService } from "@bitwarden/components";
+import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
-import { OrganizationWarningsService } from "./organization-warnings.service";
+import {
+  TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
+  TrialPaymentDialogComponent,
+  TrialPaymentDialogResultType,
+} from "../../../shared/trial-payment-dialog/trial-payment-dialog.component";
+import { openChangePlanDialog } from "../../change-plan-dialog.component";
+import { OrganizationWarningsModule } from "../organization-warnings.module";
+import { OrganizationWarningsService } from "../services";
+import { OrganizationWarningsResponse } from "../types";
 
-// Skipped since Angular complains about `TypeError: Cannot read properties of undefined (reading 'ngModule')`
-// which is typically a sign of circular dependencies. The problem seems to be originating from `ChangePlanDialogComponent`.
-describe.skip("OrganizationWarningsService", () => {
+jest.mock("../../change-plan-dialog.component", () => ({
+  openChangePlanDialog: jest.fn(),
+}));
+
+describe("OrganizationWarningsService", () => {
+  let service: OrganizationWarningsService;
+  let configService: MockProxy<ConfigService>;
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
-  let organizationBillingApiService: MockProxy<OrganizationBillingApiServiceAbstraction>;
+  let organizationBillingClient: MockProxy<OrganizationBillingClient>;
   let router: MockProxy<Router>;
-
-  let organizationWarningsService: OrganizationWarningsService;
-
-  const respond = (responseBody: any) =>
-    Promise.resolve(new OrganizationWarningsResponse(responseBody));
-
-  const empty = () => Promise.resolve(new OrganizationWarningsResponse({}));
+  let syncService: MockProxy<SyncService>;
 
   beforeEach(() => {
+    configService = mock<ConfigService>();
     dialogService = mock<DialogService>();
     i18nService = mock<I18nService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
-    organizationBillingApiService = mock<OrganizationBillingApiServiceAbstraction>();
+    organizationBillingClient = mock<OrganizationBillingClient>();
     router = mock<Router>();
+    syncService = mock<SyncService>();
 
-    organizationWarningsService = new OrganizationWarningsService(
-      dialogService,
-      i18nService,
-      organizationApiService,
-      organizationBillingApiService,
-      router,
-    );
+    TestBed.configureTestingModule({
+      imports: [OrganizationWarningsModule],
+      providers: [
+        { provide: ConfigService, useValue: configService },
+        { provide: DialogService, useValue: dialogService },
+        { provide: I18nService, useValue: i18nService },
+        { provide: OrganizationApiServiceAbstraction, useValue: organizationApiService },
+        { provide: OrganizationBillingClient, useValue: organizationBillingClient },
+        { provide: Router, useValue: router },
+        { provide: SyncService, useValue: syncService },
+      ],
+    });
+
+    service = TestBed.inject(OrganizationWarningsService);
   });
 
-  describe("cache$", () => {
-    it("should only request warnings once for a specific organization and replay the cached result for multiple subscriptions", async () => {
-      const response1 = respond({
-        freeTrial: {
-          remainingTrialDays: 1,
-        },
-      });
-
-      const organization1 = {
-        id: "1",
-        name: "Test",
-      } as Organization;
-
-      const response2 = respond({
-        freeTrial: {
-          remainingTrialDays: 2,
-        },
-      });
-
-      const organization2 = {
-        id: "2",
-        name: "Test",
-      } as Organization;
-
-      organizationBillingApiService.getWarnings.mockImplementation((id) => {
-        if (id === organization1.id) {
-          return response1;
-        }
-
-        if (id === organization2.id) {
-          return response2;
-        }
-
-        return empty();
-      });
-
-      const oneDayRemainingTranslation = "oneDayRemaining";
-      const twoDaysRemainingTranslation = "twoDaysRemaining";
-
-      i18nService.t.mockImplementation((id, p1) => {
-        if (id === "freeTrialEndPromptTomorrowNoOrgName") {
-          return oneDayRemainingTranslation;
-        }
-
-        if (id === "freeTrialEndPromptCount" && p1 === 2) {
-          return twoDaysRemainingTranslation;
-        }
-
-        return "";
-      });
-
-      const organization1Subscription1 = await firstValueFrom(
-        organizationWarningsService.getFreeTrialWarning$(organization1),
-      );
-
-      const organization1Subscription2 = await firstValueFrom(
-        organizationWarningsService.getFreeTrialWarning$(organization1),
-      );
-
-      expect(organization1Subscription1).toEqual({
-        organization: organization1,
-        message: oneDayRemainingTranslation,
-      });
-
-      expect(organization1Subscription2).toEqual(organization1Subscription1);
-
-      const organization2Subscription1 = await firstValueFrom(
-        organizationWarningsService.getFreeTrialWarning$(organization2),
-      );
-
-      const organization2Subscription2 = await firstValueFrom(
-        organizationWarningsService.getFreeTrialWarning$(organization2),
-      );
-
-      expect(organization2Subscription1).toEqual({
-        organization: organization2,
-        message: twoDaysRemainingTranslation,
-      });
-
-      expect(organization2Subscription2).toEqual(organization2Subscription1);
-
-      expect(organizationBillingApiService.getWarnings).toHaveBeenCalledTimes(2);
-    });
+  it("should create the service", () => {
+    expect(service).toBeTruthy();
   });
 
   describe("getFreeTrialWarning$", () => {
-    it("should not emit a free trial warning when none is included in the warnings response", (done) => {
-      const organization = {
-        id: "1",
-        name: "Test",
-      } as Organization;
+    const organization = { id: "1", name: "Test Org" } as Organization;
 
-      organizationBillingApiService.getWarnings.mockReturnValue(empty());
+    it("should return a free trial warning with days remaining message when more than 1 day left", (done) => {
+      const response = {
+        freeTrial: { remainingTrialDays: 5 },
+      } as OrganizationWarningsResponse;
 
-      const warning$ = organizationWarningsService.getFreeTrialWarning$(organization);
-
-      warning$.subscribe({
-        next: () => {
-          fail("Observable should not emit a value.");
-        },
-        complete: () => {
-          done();
-        },
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
+      i18nService.t.mockImplementation((key, ...args) => {
+        if (key === "freeTrialEndPromptCount") {
+          return `Your trial ends in ${args[0]} days`;
+        }
+        return key;
       });
+
+      service
+        .getFreeTrialWarning$(organization)
+        .pipe(take(1))
+        .subscribe((warning) => {
+          expect(warning).toEqual({
+            organization,
+            message: "Your trial ends in 5 days",
+          });
+          done();
+        });
     });
 
-    it("should emit a free trial warning when one is included in the warnings response", async () => {
-      const response = respond({
-        freeTrial: {
-          remainingTrialDays: 1,
-        },
-      });
+    it("should return a free trial warning with tomorrow message when 1 day left", (done) => {
+      const response = {
+        freeTrial: { remainingTrialDays: 1 },
+      } as OrganizationWarningsResponse;
 
-      const organization = {
-        id: "1",
-        name: "Test",
-      } as Organization;
-
-      organizationBillingApiService.getWarnings.mockImplementation((id) => {
-        if (id === organization.id) {
-          return response;
-        } else {
-          return empty();
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
+      i18nService.t.mockImplementation((key) => {
+        if (key === "freeTrialEndPromptTomorrowNoOrgName") {
+          return "Your trial ends tomorrow";
         }
+        return key;
       });
 
-      const translation = "translation";
-      i18nService.t.mockImplementation((id) => {
-        if (id === "freeTrialEndPromptTomorrowNoOrgName") {
-          return translation;
-        } else {
-          return "";
+      service
+        .getFreeTrialWarning$(organization)
+        .pipe(take(1))
+        .subscribe((warning) => {
+          expect(warning).toEqual({
+            organization,
+            message: "Your trial ends tomorrow",
+          });
+          done();
+        });
+    });
+
+    it("should return a free trial warning with today message when 0 days left", (done) => {
+      const response = {
+        freeTrial: { remainingTrialDays: 0 },
+      } as OrganizationWarningsResponse;
+
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
+      i18nService.t.mockImplementation((key) => {
+        if (key === "freeTrialEndingTodayWithoutOrgName") {
+          return "Your trial ends today";
         }
+        return key;
       });
 
-      const warning = await firstValueFrom(
-        organizationWarningsService.getFreeTrialWarning$(organization),
-      );
+      service
+        .getFreeTrialWarning$(organization)
+        .pipe(take(1))
+        .subscribe((warning) => {
+          expect(warning).toEqual({
+            organization,
+            message: "Your trial ends today",
+          });
+          done();
+        });
+    });
 
-      expect(warning).toEqual({
-        organization,
-        message: translation,
-      });
+    it("should bypass cache when bypassCache is true", (done) => {
+      const response = {
+        freeTrial: { remainingTrialDays: 5 },
+      } as OrganizationWarningsResponse;
+
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
+      i18nService.t.mockReturnValue("Your trial ends in 5 days");
+
+      service
+        .getFreeTrialWarning$(organization)
+        .pipe(
+          take(1),
+          tap(() => {
+            organizationBillingClient.getWarnings.mockClear();
+          }),
+          concatMap(() => service.getFreeTrialWarning$(organization, true).pipe(take(1))),
+        )
+        .subscribe(() => {
+          expect(organizationBillingClient.getWarnings).toHaveBeenCalledWith(organization.id);
+          done();
+        });
     });
   });
 
   describe("getResellerRenewalWarning$", () => {
-    it("should not emit a reseller renewal warning when none is included in the warnings response", (done) => {
-      const organization = {
-        id: "1",
-        name: "Test",
-      } as Organization;
+    const organization = {
+      id: "1",
+      name: "Test Org",
+      providerName: "Test Provider",
+    } as Organization;
 
-      organizationBillingApiService.getWarnings.mockReturnValue(empty());
-
-      const warning$ = organizationWarningsService.getResellerRenewalWarning$(organization);
-
-      warning$.subscribe({
-        next: () => {
-          fail("Observable should not emit a value.");
-        },
-        complete: () => {
-          done();
-        },
-      });
-    });
-
-    it("should emit a reseller renewal warning when one is included in the warnings response", async () => {
-      const response = respond({
+    it("should return an info warning for upcoming renewal", (done) => {
+      const renewalDate = new Date(2023, 5, 15);
+      const response = {
         resellerRenewal: {
           type: "upcoming",
-          upcoming: {
-            renewalDate: "2026-01-01T00:00:00.000Z",
-          },
+          upcoming: { renewalDate },
         },
-      });
+      } as OrganizationWarningsResponse;
 
-      const organization = {
-        id: "1",
-        name: "Test",
-        providerName: "Provider",
-      } as Organization;
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
 
-      organizationBillingApiService.getWarnings.mockImplementation((id) => {
-        if (id === organization.id) {
-          return response;
-        } else {
-          return empty();
+      const formattedDate = "Jun 15, 2023";
+      i18nService.t.mockImplementation((key, ...args) => {
+        if (key === "resellerRenewalWarningMsg") {
+          return `${args[0]} will renew on ${args[1]}`;
         }
+        return key;
       });
 
-      const formattedDate = new Date("2026-01-01T00:00:00.000Z").toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-      });
+      service
+        .getResellerRenewalWarning$(organization)
+        .pipe(take(1))
+        .subscribe((warning) => {
+          // Full assertion with exact message
+          expect(warning).toEqual({
+            type: "info",
+            message: `Test Provider will renew on ${formattedDate}`,
+          });
+          done();
+        });
+    });
 
-      const translation = "translation";
-      i18nService.t.mockImplementation((id, p1, p2) => {
-        if (
-          id === "resellerRenewalWarningMsg" &&
-          p1 === organization.providerName &&
-          p2 === formattedDate
-        ) {
-          return translation;
-        } else {
-          return "";
+    it("should return an info warning for issued invoice", (done) => {
+      const issuedDate = new Date(2023, 5, 15);
+      const dueDate = new Date(2023, 5, 30);
+      const response = {
+        resellerRenewal: {
+          type: "issued",
+          issued: { issuedDate, dueDate },
+        },
+      } as OrganizationWarningsResponse;
+
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
+
+      const formattedIssuedDate = "Jun 15, 2023";
+      const formattedDueDate = "Jun 30, 2023";
+
+      i18nService.t.mockImplementation((key, ...args) => {
+        if (key === "resellerOpenInvoiceWarningMgs") {
+          return `${args[0]} issued invoice on ${args[1]}, due on ${args[2]}`;
         }
+        return key;
       });
 
-      const warning = await firstValueFrom(
-        organizationWarningsService.getResellerRenewalWarning$(organization),
-      );
+      service
+        .getResellerRenewalWarning$(organization)
+        .pipe(take(1))
+        .subscribe((warning) => {
+          expect(warning).toEqual({
+            type: "info",
+            message: `Test Provider issued invoice on ${formattedIssuedDate}, due on ${formattedDueDate}`,
+          });
+          done();
+        });
+    });
 
-      expect(warning).toEqual({
-        type: "info",
-        message: translation,
+    it("should return a warning for past due invoice", (done) => {
+      const suspensionDate = new Date(2023, 6, 15);
+      const response = {
+        resellerRenewal: {
+          type: "past_due",
+          pastDue: { suspensionDate },
+        },
+      } as OrganizationWarningsResponse;
+
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
+
+      const formattedSuspensionDate = "Jul 15, 2023";
+
+      i18nService.t.mockImplementation((key, ...args) => {
+        if (key === "resellerPastDueWarningMsg") {
+          return `${args[0]} payment is past due, suspension on ${args[1]}`;
+        }
+        return key;
       });
+
+      service
+        .getResellerRenewalWarning$(organization)
+        .pipe(take(1))
+        .subscribe((warning) => {
+          expect(warning).toEqual({
+            type: "warning",
+            message: `Test Provider payment is past due, suspension on ${formattedSuspensionDate}`,
+          });
+          done();
+        });
     });
   });
 
   describe("showInactiveSubscriptionDialog$", () => {
-    it("should not emit the opening of a dialog for an inactive subscription warning when the warning is not included in the warnings response", (done) => {
-      const organization = {
-        id: "1",
-        name: "Test",
-      } as Organization;
+    const organization = {
+      id: "1",
+      name: "Test Org",
+      providerName: "Test Provider",
+      productTierType: ProductTierType.Enterprise,
+    } as Organization;
 
-      organizationBillingApiService.getWarnings.mockReturnValue(empty());
+    it("should show contact provider dialog when resolution is contact_provider", (done) => {
+      const warning = {
+        inactiveSubscription: { resolution: "contact_provider" },
+      } as OrganizationWarningsResponse;
 
-      const warning$ = organizationWarningsService.showInactiveSubscriptionDialog$(organization);
+      organizationBillingClient.getWarnings.mockResolvedValue(warning);
+      dialogService.openSimpleDialog.mockResolvedValue(true);
 
-      warning$.subscribe({
-        next: () => {
-          fail("Observable should not emit a value.");
-        },
-        complete: () => {
-          done();
-        },
+      const mockedTitle = `The ${organization.name} is suspended`;
+      const mockedAcceptButtonText = "Close";
+
+      i18nService.t.mockImplementation((key, ...args) => {
+        switch (key) {
+          case "suspendedOrganizationTitle":
+            return args[0] === organization.name ? mockedTitle : key;
+          case "close":
+            return mockedAcceptButtonText;
+          default:
+            return key;
+        }
+      });
+
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+          title: mockedTitle,
+          content: expect.objectContaining({
+            key: "suspendedManagedOrgMessage",
+            placeholders: [organization.providerName],
+          }),
+          type: "danger",
+          acceptButtonText: mockedAcceptButtonText,
+          cancelButtonText: null,
+        });
+        done();
       });
     });
 
-    it("should emit the opening of a dialog for an inactive subscription warning when the warning is included in the warnings response", async () => {
-      const response = respond({
-        inactiveSubscription: {
-          resolution: "add_payment_method",
+    it("should show add payment method dialog and navigate when resolution is add_payment_method", (done) => {
+      const organization = { id: "1", name: "Test Org" } as Organization;
+      const response = {
+        inactiveSubscription: { resolution: "add_payment_method" },
+      } as OrganizationWarningsResponse;
+
+      const mockedTitle = "Suspended Test Org";
+
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      i18nService.t.mockImplementation((key, ...args) => {
+        if (key === "suspendedOrganizationTitle" && args[0] === organization.name) {
+          return mockedTitle;
+        } else if (key === "continue") {
+          return "Continue";
+        } else if (key === "close") {
+          return "Close";
+        }
+        return key;
+      });
+
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+          title: mockedTitle,
+          content: { key: "suspendedOwnerOrgMessage" },
+          type: "danger",
+          acceptButtonText: "Continue",
+          cancelButtonText: "Close",
+        });
+
+        expect(router.navigate).toHaveBeenCalledWith(
+          ["organizations", organization.id, "billing", "payment-details"],
+          expect.objectContaining({
+            state: { launchPaymentModalAutomatically: true },
+          }),
+        );
+
+        done();
+      });
+    });
+
+    it("should show resubscribe dialog when resolution is resubscribe", (done) => {
+      const response = {
+        inactiveSubscription: { resolution: "resubscribe" },
+      } as OrganizationWarningsResponse;
+
+      const subscription = {
+        subscription: {
+          status: "canceled",
         },
+      } as OrganizationSubscriptionResponse;
+
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
+      organizationApiService.getSubscription.mockResolvedValue(subscription);
+
+      const mockDialogRef = { closed: of(true) } as DialogRef;
+      (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
+
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(openChangePlanDialog).toHaveBeenCalledWith(dialogService, {
+          data: expect.objectContaining({
+            organizationId: organization.id,
+            subscription,
+            productTierType: organization.productTierType,
+          }),
+        });
+        done();
       });
+    });
+  });
 
-      const organization = {
-        id: "1",
-        name: "Test",
-        providerName: "Provider",
-      } as Organization;
+  describe("showSubscribeBeforeFreeTrialEndsDialog$", () => {
+    const organization = {
+      id: "1",
+      name: "Test Org",
+      productTierType: ProductTierType.Enterprise,
+    } as Organization;
 
-      organizationBillingApiService.getWarnings.mockImplementation((id) => {
-        if (id === organization.id) {
-          return response;
-        } else {
-          return empty();
-        }
-      });
+    it("should show trial payment dialog and refresh when submitted", (done) => {
+      const response = {
+        freeTrial: { remainingTrialDays: 5 },
+      } as OrganizationWarningsResponse;
 
-      const titleTranslation = "title";
-      const continueTranslation = "continue";
-      const closeTranslation = "close";
-
-      i18nService.t.mockImplementation((id, param) => {
-        if (id === "suspendedOrganizationTitle" && param === organization.name) {
-          return titleTranslation;
-        }
-        if (id === "continue") {
-          return continueTranslation;
-        }
-        if (id === "close") {
-          return closeTranslation;
-        }
-        return "";
-      });
-
-      const expectedOptions = {
-        title: titleTranslation,
-        content: {
-          key: "suspendedOwnerOrgMessage",
+      const subscription = {
+        subscription: {
+          status: "trialing",
         },
-        type: "danger",
-        acceptButtonText: continueTranslation,
-        cancelButtonText: closeTranslation,
-      } as SimpleDialogOptions;
+      } as OrganizationSubscriptionResponse;
 
-      dialogService.openSimpleDialog.mockImplementation((options) => {
-        if (JSON.stringify(options) == JSON.stringify(expectedOptions)) {
-          return Promise.resolve(true);
-        } else {
-          return Promise.resolve(false);
-        }
+      organizationBillingClient.getWarnings.mockResolvedValue(response);
+      organizationApiService.getSubscription.mockResolvedValue(subscription);
+
+      const mockDialogRef = {
+        closed: of(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED),
+      } as DialogRef<TrialPaymentDialogResultType>;
+
+      jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue(mockDialogRef);
+
+      const refreshSpy = jest.spyOn(service["refreshFreeTrialWarning$"], "next");
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe(() => {
+        expect(TrialPaymentDialogComponent.open).toHaveBeenCalledWith(dialogService, {
+          data: expect.objectContaining({
+            organizationId: organization.id,
+            subscription,
+            productTierType: organization.productTierType,
+          }),
+        });
+        expect(refreshSpy).toHaveBeenCalledWith(organization.id);
+        done();
+      });
+    });
+  });
+
+  describe("freeTrialWarningRefreshed$", () => {
+    it("should expose an observable for subscription", (done) => {
+      const organizationId = "1" as OrganizationId;
+
+      service.freeTrialWarningRefreshed$.pipe(take(1)).subscribe((id) => {
+        expect(id).toBe(organizationId);
+        done();
       });
 
-      const observable$ = organizationWarningsService.showInactiveSubscriptionDialog$(organization);
-
-      const routerNavigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-      await lastValueFrom(observable$);
-
-      expect(routerNavigateSpy).toHaveBeenCalledWith(
-        ["organizations", `${organization.id}`, "billing", "payment-method"],
-        {
-          state: { launchPaymentModalAutomatically: true },
-        },
-      );
+      service["refreshFreeTrialWarning$"].next(organizationId);
     });
   });
 });

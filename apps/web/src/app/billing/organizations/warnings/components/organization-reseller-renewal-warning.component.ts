@@ -1,9 +1,10 @@
-import { AsyncPipe } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { Observable } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { BannerComponent } from "@bitwarden/components";
+import { BannerModule } from "@bitwarden/components";
+import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { OrganizationWarningsService } from "../services";
 import { OrganizationResellerRenewalWarning } from "../types";
@@ -25,7 +26,7 @@ import { OrganizationResellerRenewalWarning } from "../types";
       </bit-banner>
     }
   `,
-  imports: [AsyncPipe, BannerComponent],
+  imports: [BannerModule, OrganizationWarningsModule, SharedModule],
 })
 export class OrganizationResellerRenewalWarningComponent implements OnInit {
   @Input({ required: true }) organization!: Organization;
