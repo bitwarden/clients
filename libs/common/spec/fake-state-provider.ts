@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock } from "jest-mock-extended";
-import { Observable, map, of, switchMap, take } from "rxjs";
+import { BehaviorSubject, map, Observable, of, switchMap, take } from "rxjs";
 
 import {
   GlobalState,
@@ -16,17 +16,46 @@ import {
   DeriveDefinition,
   DerivedStateProvider,
   UserKeyDefinition,
+  ActiveUserAccessor,
 } from "../src/platform/state";
 import { UserId } from "../src/types/guid";
 import { DerivedStateDependencies } from "../src/types/state";
 
-import { FakeAccountService } from "./fake-account-service";
 import {
   FakeActiveUserState,
   FakeDerivedState,
   FakeGlobalState,
   FakeSingleUserState,
 } from "./fake-state";
+
+export interface MinimalAccountService {
+  activeUserId: UserId | null;
+  activeAccount$: Observable<{ id: UserId } | null>;
+}
+
+export class FakeActiveUserAccessor implements MinimalAccountService, ActiveUserAccessor {
+  private _subject: BehaviorSubject<UserId | null>;
+
+  constructor(startingUser: UserId | null) {
+    this._subject = new BehaviorSubject(startingUser);
+    this.activeAccount$ = this._subject
+      .asObservable()
+      .pipe(map((id) => (id != null ? { id } : null)));
+    this.activeUserId$ = this._subject.asObservable();
+  }
+
+  get activeUserId(): UserId {
+    return this._subject.value;
+  }
+
+  activeUserId$: Observable<UserId>;
+
+  activeAccount$: Observable<{ id: UserId }>;
+
+  switch(user: UserId | null) {
+    this._subject.next(user);
+  }
+}
 
 export class FakeGlobalStateProvider implements GlobalStateProvider {
   mock = mock<GlobalStateProvider>();
@@ -138,18 +167,18 @@ export class FakeSingleUserStateProvider implements SingleUserStateProvider {
 }
 
 export class FakeActiveUserStateProvider implements ActiveUserStateProvider {
-  activeUserId$: Observable<UserId>;
+  activeUserId$: Observable<UserId | null>;
   states: Map<string, FakeActiveUserState<unknown>> = new Map();
 
   constructor(
-    public accountService: FakeAccountService,
+    public accountServiceAccessor: MinimalAccountService,
     readonly updateSyncCallback?: (
       key: UserKeyDefinition<unknown>,
       userId: UserId,
       newValue: unknown,
     ) => Promise<void>,
   ) {
-    this.activeUserId$ = accountService.activeAccountSubject.asObservable().pipe(map((a) => a?.id));
+    this.activeUserId$ = accountServiceAccessor.activeAccount$.pipe(map((a) => a?.id));
   }
 
   get<T>(userKeyDefinition: UserKeyDefinition<T>): ActiveUserState<T> {
@@ -182,9 +211,13 @@ export class FakeActiveUserStateProvider implements ActiveUserStateProvider {
   }
 
   private buildFakeState<T>(userKeyDefinition: UserKeyDefinition<T>, initialValue?: T) {
-    const state = new FakeActiveUserState<T>(this.accountService, initialValue, async (...args) => {
-      await this.updateSyncCallback?.(userKeyDefinition, ...args);
-    });
+    const state = new FakeActiveUserState<T>(
+      this.accountServiceAccessor,
+      initialValue,
+      async (...args) => {
+        await this.updateSyncCallback?.(userKeyDefinition, ...args);
+      },
+    );
     state.keyDefinition = userKeyDefinition;
     return state;
   }
@@ -256,14 +289,14 @@ export class FakeStateProvider implements StateProvider {
     return this.derived.get(parentState$, deriveDefinition, dependencies);
   }
 
-  constructor(public accountService: FakeAccountService) {}
+  constructor(private activeAccountAccessor: MinimalAccountService) {}
 
   private distributeSingleUserUpdate(
     key: UserKeyDefinition<unknown>,
     userId: UserId,
     newState: unknown,
   ) {
-    if (this.activeUser.accountService.activeUserId === userId) {
+    if (this.activeUser.accountServiceAccessor.activeUserId === userId) {
       const state = this.activeUser.getFake(key, { allowInit: false });
       state?.nextState(newState, { syncValue: false });
     }
@@ -284,7 +317,7 @@ export class FakeStateProvider implements StateProvider {
     this.distributeSingleUserUpdate.bind(this),
   );
   activeUser: FakeActiveUserStateProvider = new FakeActiveUserStateProvider(
-    this.accountService,
+    this.activeAccountAccessor,
     this.distributeActiveUserUpdate.bind(this),
   );
   derived: FakeDerivedStateProvider = new FakeDerivedStateProvider();
