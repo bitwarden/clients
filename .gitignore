@@ -54,3 +54,4 @@ apps/**/config/local.json
 
 # Nx
 .nx
+.env

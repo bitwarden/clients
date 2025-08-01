@@ -7,6 +7,13 @@
     ".storybook/format-args-for-code-snippet.ts",
     "apps/browser/src/autofill/content/components/.lit-storybook/main.ts"
   ],
-  "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],
+  "include": [
+    "apps/**/*",
+    "libs/**/*",
+    "bitwarden_license/**/*",
+    "scripts/**/*",
+    "test/**/*",
+    "wdio.conf.ts"
+  ],
   "exclude": ["**/build", "**/dist"]
 }
