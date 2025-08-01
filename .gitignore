@@ -55,3 +55,7 @@ apps/**/config/local.json
 # Nx
 .nx
 .env
+
+# Ignore upstream workflows but keep our own
+.github/workflows/*
+!.github/workflows/e2e.yml

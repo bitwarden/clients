@@ -33,3 +33,7 @@ Interested in contributing in a big way? Consider joining our team! We're hiring
 Code contributions are welcome! Please commit any pull requests against the `main` branch. Learn more about how to contribute by reading the [Contributing Guidelines](https://contributing.bitwarden.com/contributing/). Check out the [Contributing Documentation](https://contributing.bitwarden.com/) for how to get started with your first contribution.
 
 Security audits and feedback are welcome. Please open an issue or email us privately if the report is sensitive in nature. You can read our security policy in the [`SECURITY.md`](SECURITY.md) file.
+
+## Syncing with the parent repository
+
+To update this fork with the latest code from the upstream repository while keeping the removed GitHub Actions workflows absent, run `./scripts/sync-upstream.sh`. The script fetches the upstream `main` branch and deletes any workflow files other than `e2e.yml` before committing, ensuring that only application code is pulled in.
