@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Customer Support
+    url: https://bitwarden.com/contact/
+    about: Please contact our customer support for account issues and general customer support.
   - name: Report failure of prompt to save credentials in browser
     url: https://docs.google.com/forms/d/e/1FAIpQLSeG-Dtpn2xnr9N7oF04NyY6ETUM-JF8pagFfAv8mW7bgcMVxA/viewform
     about: We are aware of many sites' login forms where the Bitwarden browser extension either on a single platform/browser or multiple will not prompt the user to save a new password or update an existing password. This is something the Bitwarden team is actively working on but need your help as a community and active Bitwarden users!
@@ -12,9 +15,6 @@ contact_links:
   - name: Bitwarden Community Forums
     url: https://community.bitwarden.com
     about: Please visit the community forums for general community discussion, support and the development roadmap.
-  - name: Customer Support
-    url: https://bitwarden.com/contact/
-    about: Please contact our customer support for account issues and general customer support.
   - name: Security Issues
     url: https://hackerone.com/bitwarden
     about: We use HackerOne to manage security disclosures.
