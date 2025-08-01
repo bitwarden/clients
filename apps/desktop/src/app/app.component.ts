@@ -24,11 +24,12 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
   DESKTOP_SSO_CALLBACK,
   LogoutReason,
@@ -476,7 +477,7 @@ export class AppComponent implements OnInit, OnDestroy {
           case "openLoginApproval":
             if (message.notificationId != null) {
               this.dialogService.closeAll();
-              const dialogRef = LoginApprovalComponent.open(this.dialogService, {
+              const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
                 notificationId: message.notificationId,
               });
               await firstValueFrom(dialogRef.closed);

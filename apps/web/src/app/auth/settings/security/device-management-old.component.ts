@@ -3,7 +3,7 @@ import { Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { firstValueFrom } from "rxjs";
 
-import { LoginApprovalComponent } from "@bitwarden/auth/angular";
+import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { AuthRequestApiServiceAbstraction } from "@bitwarden/auth/common";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import {
@@ -325,7 +325,7 @@ export class DeviceManagementOldComponent {
       return;
     }
 
-    const dialogRef = LoginApprovalComponent.open(this.dialogService, {
+    const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
       notificationId: device.devicePendingAuthRequest.id,
     });
 

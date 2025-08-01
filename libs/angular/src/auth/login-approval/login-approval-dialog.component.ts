@@ -1,24 +1,18 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
-import { Subject, firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  AuthRequestServiceAbstraction,
-  LoginApprovalComponentServiceAbstraction as LoginApprovalComponentService,
-} from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
+import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   DIALOG_DATA,
   DialogRef,
@@ -28,84 +22,100 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
 
-const RequestTimeOut = 60000 * 15; //15 Minutes
-const RequestTimeUpdate = 60000 * 5; //5 Minutes
+import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
+
+const RequestTimeOut = 60000 * 15; // 15 Minutes
+const RequestTimeUpdate = 60000 * 5; // 5 Minutes
 
 export interface LoginApprovalDialogParams {
   notificationId: string;
 }
 
 @Component({
-  selector: "login-approval",
-  templateUrl: "login-approval.component.html",
-  imports: [CommonModule, AsyncActionsModule, ButtonModule, DialogModule, JslibModule],
+  templateUrl: "login-approval-dialog.component.html",
+  imports: [AsyncActionsModule, ButtonModule, CommonModule, DialogModule, JslibModule],
 })
-export class LoginApprovalComponent implements OnInit, OnDestroy {
+export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
+  authRequestId: string;
+  authRequestResponse?: AuthRequestResponse;
+  email?: string;
+  fingerprintPhrase?: string;
+  interval?: NodeJS.Timeout;
   loading = true;
-
-  notificationId: string;
-
-  private destroy$ = new Subject<void>();
-
-  email: string;
-  fingerprintPhrase: string;
-  authRequestResponse: AuthRequestResponse;
-  interval: NodeJS.Timeout;
-  requestTimeText: string;
+  readableDeviceTypeName?: string;
+  requestTimeText?: string;
 
   constructor(
     @Inject(DIALOG_DATA) private params: LoginApprovalDialogParams,
-    protected authRequestService: AuthRequestServiceAbstraction,
-    protected accountService: AccountService,
-    protected platformUtilsService: PlatformUtilsService,
-    protected i18nService: I18nService,
-    protected apiService: ApiService,
-    protected appIdService: AppIdService,
-    protected keyService: KeyService,
+    private accountService: AccountService,
+    private apiService: ApiService,
+    private authRequestService: AuthRequestServiceAbstraction,
+    private devicesService: DevicesServiceAbstraction,
     private dialogRef: DialogRef,
+    private i18nService: I18nService,
+    private loginApprovalDialogComponentService: LoginApprovalDialogComponentServiceAbstraction,
+    private logService: LogService,
     private toastService: ToastService,
-    private loginApprovalComponentService: LoginApprovalComponentService,
     private validationService: ValidationService,
   ) {
-    this.notificationId = params.notificationId;
+    this.authRequestId = params.notificationId;
   }
 
   async ngOnDestroy(): Promise<void> {
     clearInterval(this.interval);
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async ngOnInit() {
-    if (this.notificationId != null) {
-      try {
-        this.authRequestResponse = await this.apiService.getAuthRequest(this.notificationId);
-      } catch (error) {
-        this.validationService.showError(error);
-      }
-
-      const publicKey = Utils.fromB64ToArray(this.authRequestResponse.publicKey);
-      this.email = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.email)),
-      );
-      this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
-        this.email,
-        publicKey,
-      );
-      this.updateTimeText();
-
-      this.interval = setInterval(() => {
-        this.updateTimeText();
-      }, RequestTimeUpdate);
-
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.loginApprovalComponentService.showLoginRequestedAlertIfWindowNotVisible(this.email);
-
-      this.loading = false;
+    if (this.authRequestId == null) {
+      this.logService.error("LoginApprovalDialogComponent: authRequestId is null");
+      return;
     }
+
+    try {
+      this.authRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
+    } catch (error) {
+      this.validationService.showError(error);
+      this.logService.error("LoginApprovalDialogComponent: getAuthRequest error", error);
+    }
+
+    if (this.authRequestResponse == null) {
+      this.logService.error("LoginApprovalDialogComponent: authRequestResponse not found");
+      return;
+    }
+
+    const publicKey = Utils.fromB64ToArray(this.authRequestResponse.publicKey);
+
+    this.email = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
+    );
+
+    if (!this.email) {
+      this.logService.error("LoginApprovalDialogComponent: email not found");
+      return;
+    }
+
+    this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
+      this.email,
+      publicKey,
+    );
+
+    this.readableDeviceTypeName = this.devicesService.getReadableDeviceTypeName(
+      this.authRequestResponse.requestDeviceTypeValue,
+    );
+
+    this.updateTimeText();
+
+    this.interval = setInterval(() => {
+      this.updateTimeText();
+    }, RequestTimeUpdate);
+
+    await this.loginApprovalDialogComponentService.showLoginRequestedAlertIfWindowNotVisible(
+      this.email,
+    );
+
+    this.loading = false;
   }
 
   /**
@@ -114,7 +124,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
    * @param data Configuration for the dialog
    */
   static open(dialogService: DialogService, data: LoginApprovalDialogParams) {
-    return dialogService.open(LoginApprovalComponent, { data });
+    return dialogService.open(LoginApprovalDialogComponent, { data });
   }
 
   denyLogin = async () => {
@@ -126,11 +136,10 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
   };
 
   private async retrieveAuthRequestAndRespond(approve: boolean) {
-    this.authRequestResponse = await this.apiService.getAuthRequest(this.notificationId);
+    this.authRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
     if (this.authRequestResponse.requestApproved || this.authRequestResponse.responseDate != null) {
       this.toastService.showToast({
         variant: "info",
-        title: null,
         message: this.i18nService.t("thisRequestIsNoLongerValid"),
       });
     } else {
@@ -148,23 +157,26 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     if (loginResponse.requestApproved) {
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t(
-          "logInConfirmedForEmailOnDevice",
+          "loginRequestApprovedForEmailOnDevice",
           this.email,
-          loginResponse.requestDeviceType,
+          this.devicesService.getReadableDeviceTypeName(loginResponse.requestDeviceTypeValue),
         ),
       });
     } else {
       this.toastService.showToast({
         variant: "info",
-        title: null,
-        message: this.i18nService.t("youDeniedALogInAttemptFromAnotherDevice"),
+        message: this.i18nService.t("youDeniedLoginAttemptFromAnotherDevice"),
       });
     }
   }
 
   updateTimeText() {
+    if (this.authRequestResponse == null) {
+      this.logService.error("LoginApprovalDialogComponent: authRequestResponse not found");
+      return;
+    }
+
     const requestDate = new Date(this.authRequestResponse.creationDate);
     const requestDateUTC = Date.UTC(
       requestDate.getUTCFullYear(),
@@ -201,7 +213,6 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
       this.dialogRef.close();
       this.toastService.showToast({
         variant: "info",
-        title: null,
         message: this.i18nService.t("loginRequestHasAlreadyExpired"),
       });
     }
