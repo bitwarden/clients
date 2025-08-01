@@ -15,11 +15,11 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
-import { openChangePlanDialog } from "../../organizations/change-plan-dialog.component";
 import {
   TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
   TrialPaymentDialogComponent,
-} from "../../shared/trial-payment-dialog/trial-payment-dialog.component";
+} from "../../../shared/trial-payment-dialog/trial-payment-dialog.component";
+import { openChangePlanDialog } from "../../change-plan-dialog.component";
 import { OrganizationFreeTrialWarning, OrganizationResellerRenewalWarning } from "../types";
 
 const format = (date: Date) =>

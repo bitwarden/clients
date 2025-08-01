@@ -5,7 +5,7 @@ import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-s
 import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
 import { ScrollLayoutDirective } from "@bitwarden/components";
 
-import { OrganizationFreeTrialWarningComponent } from "../../../billing/warnings/components";
+import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 import { LooseComponentsModule } from "../../../shared";
 import { SharedOrganizationModule } from "../shared";
 

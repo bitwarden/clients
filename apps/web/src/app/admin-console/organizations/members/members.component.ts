@@ -62,7 +62,7 @@ import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "../../../billing/organizations/change-plan-dialog.component";
-import { OrganizationWarningsService } from "../../../billing/warnings/services";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { BaseMembersComponent } from "../../common/base-members.component";
 import { PeopleTableDataSource } from "../../common/people-table-data-source";
 import { GroupApiService } from "../core";

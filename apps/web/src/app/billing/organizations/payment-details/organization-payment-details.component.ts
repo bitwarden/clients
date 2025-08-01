@@ -27,6 +27,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -38,7 +39,6 @@ import {
 } from "../../payment/components";
 import { BillingAddress, MaskedPaymentMethod } from "../../payment/types";
 import { BitwardenSubscriber, mapOrganizationToSubscriber } from "../../types";
-import { OrganizationFreeTrialWarningComponent } from "../../warnings/components";
 
 class RedirectError {
   constructor(

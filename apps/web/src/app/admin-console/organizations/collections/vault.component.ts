@@ -1,17 +1,69 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
+  All,
+  RoutedVaultFilterModel,
+} from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
+import {
+  AttachmentDialogResult,
+  AttachmentsV2Component,
+  CipherFormConfig,
+  CipherFormConfigService,
+  CollectionAssignmentResult,
+  DecryptionFailureDialogComponent,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
+import {
+  BannerModule,
+  DialogRef,
+  DialogService,
+  Icons,
+  NoItemsModule,
+  ToastService,
+} from "@bitwarden/components";
+import {
   BehaviorSubject,
+  Observable,
+  Subject,
   combineLatest,
   firstValueFrom,
   from,
   lastValueFrom,
-  Observable,
   of,
-  Subject,
 } from "rxjs";
+import {
+  BulkCollectionsDialogComponent,
+  BulkCollectionsDialogResult,
+} from "./bulk-collections-dialog";
+import {
+  BulkDeleteDialogResult,
+  openBulkDeleteDialog,
+} from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import {
+  CollectionAdminService,
+  CollectionAdminView,
+  CollectionService,
+  CollectionView,
+  Unassigned,
+} from "@bitwarden/admin-console/common";
+import {
+  CollectionDialogAction,
+  CollectionDialogTabType,
+  openCollectionDialog,
+} from "../shared/components/collection-dialog";
+import { GroupApiService, GroupView } from "../core";
+import {
+  ResellerWarning,
+  ResellerWarningService,
+} from "../../../billing/services/reseller-warning.service";
+import {
+  VaultItemDialogComponent,
+  VaultItemDialogMode,
+  VaultItemDialogResult,
+} from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import {
   catchError,
   concatMap,
@@ -25,111 +77,57 @@ import {
   takeUntil,
   tap,
 } from "rxjs/operators";
+import { getFlatCollectionTree, getNestedCollectionTree } from "./utils";
 
-import {
-  CollectionAdminService,
-  CollectionAdminView,
-  CollectionService,
-  CollectionView,
-  Unassigned,
-} from "@bitwarden/admin-console/common";
-import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
+import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FreeTrial } from "../../../billing/types/free-trial";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components/organization-free-trial-warning.component";
+import { OrganizationResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components/organization-reseller-renewal-warning.component";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services/organization-warnings.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
-import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import {
-  BannerModule,
-  DialogRef,
-  DialogService,
-  Icons,
-  NoItemsModule,
-  ToastService,
-} from "@bitwarden/components";
-import {
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-  CipherFormConfig,
-  CipherFormConfigService,
-  CollectionAssignmentResult,
-  DecryptionFailureDialogComponent,
-  PasswordRepromptService,
-} from "@bitwarden/vault";
-import { OrganizationResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components/organization-reseller-renewal-warning.component";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/warnings/services/organization-warnings.service";
-import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
-
-import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
-import {
-  ResellerWarning,
-  ResellerWarningService,
-} from "../../../billing/services/reseller-warning.service";
-import { TrialFlowService } from "../../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../../billing/types/free-trial";
-import { OrganizationFreeTrialWarningComponent } from "../../../billing/warnings/components/organization-free-trial-warning.component";
-import { SharedModule } from "../../../shared";
-import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
-import {
-  VaultItemDialogComponent,
-  VaultItemDialogMode,
-  VaultItemDialogResult,
-} from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
-import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
-import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
-import {
-  BulkDeleteDialogResult,
-  openBulkDeleteDialog,
-} from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import { VaultFilterService } from "../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import { RoutedVaultFilterBridgeService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
-import { createFilterFunction } from "../../../vault/individual-vault/vault-filter/shared/models/filter-function";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
+import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
+import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { SharedModule } from "../../../shared";
+import { SyncService } from "@bitwarden/common/platform/sync";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { TrialFlowService } from "../../../billing/services/trial-flow.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
-import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
-import { GroupApiService, GroupView } from "../core";
-import { openEntityEventsDialog } from "../manage/entity-events.component";
-import {
-  CollectionDialogAction,
-  CollectionDialogTabType,
-  openCollectionDialog,
-} from "../shared/components/collection-dialog";
-
-import {
-  BulkCollectionsDialogComponent,
-  BulkCollectionsDialogResult,
-} from "./bulk-collections-dialog";
-import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { getFlatCollectionTree, getNestedCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+import { VaultFilterService } from "../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
+import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
+import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
+import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
+import { createFilterFunction } from "../../../vault/individual-vault/vault-filter/shared/models/filter-function";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { openEntityEventsDialog } from "../manage/entity-events.component";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
