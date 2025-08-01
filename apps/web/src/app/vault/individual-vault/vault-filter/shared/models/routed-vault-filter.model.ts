@@ -1,3 +1,4 @@
+import { Unassigned } from "@bitwarden/admin-console/common";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 
 /**
@@ -25,9 +26,9 @@ export function isRoutedVaultFilterItemType(value: unknown): value is RoutedVaul
 }
 
 export interface RoutedVaultFilterModel {
-  collectionId?: CollectionId | All;
+  collectionId?: CollectionId | All | Unassigned;
   folderId?: string;
-  organizationId?: OrganizationId;
+  organizationId?: OrganizationId | Unassigned;
   type?: RoutedVaultFilterItemType;
 
   organizationIdParamType?: "path" | "query";
