@@ -95,6 +95,13 @@ export interface Environment {
  */
 export abstract class EnvironmentService {
   abstract environment$: Observable<Environment>;
+
+  /**
+   * The environment stored in global state, when a user signs in the state stored here will become
+   * their user environment.
+   */
+  abstract globalEnvironment$: Observable<Environment>;
+
   abstract cloudWebVaultUrl$: Observable<string>;
 
   /**
@@ -125,12 +132,12 @@ export abstract class EnvironmentService {
    * @param userId - The user id to set the cloud web vault app URL for. If null or undefined the global environment is set.
    * @param region - The region of the cloud web vault app.
    */
-  abstract setCloudRegion(userId: UserId, region: Region): Promise<void>;
+  abstract setCloudRegion(userId: UserId | null, region: Region): Promise<void>;
 
   /**
    * Get the environment from state. Useful if you need to get the environment for another user.
    */
-  abstract getEnvironment$(userId: UserId): Observable<Environment | undefined>;
+  abstract getEnvironment$(userId: UserId): Observable<Environment>;
 
   /**
    * @deprecated Use {@link getEnvironment$} instead.
