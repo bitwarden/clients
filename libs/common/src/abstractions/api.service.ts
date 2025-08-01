@@ -388,19 +388,23 @@ export abstract class ApiService {
     id: string,
     request: ProviderUserAcceptRequest,
   ): Promise<any>;
+
   abstract postProviderUserConfirm(
     providerId: string,
     id: string,
     request: ProviderUserConfirmRequest,
   ): Promise<any>;
+
   abstract postProviderUsersPublicKey(
     providerId: string,
     request: ProviderUserBulkRequest,
   ): Promise<ListResponse<ProviderUserBulkPublicKeyResponse>>;
+
   abstract postProviderUserBulkConfirm(
     providerId: string,
     request: ProviderUserBulkConfirmRequest,
   ): Promise<ListResponse<ProviderUserBulkResponse>>;
+
   abstract putProviderUser(
     providerId: string,
     id: string,
@@ -430,6 +434,21 @@ export abstract class ApiService {
     token: string,
   ): Promise<ListResponse<EventResponse>>;
   abstract getEventsCipher(
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>>;
+
+  abstract getEventsSecret(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>>;
+  abstract getEventsProject(
+    orgId: string,
     id: string,
     start: string,
     end: string,
