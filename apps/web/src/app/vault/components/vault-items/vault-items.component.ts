@@ -285,7 +285,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected canClone(vaultItem: VaultItem<C>) {
     // This will check for restrictions from org policies before allowing cloning.
     const isItemRestricted = this.restrictedPolicies().some(
-      (rt) => rt.cipherType === vaultItem.cipher.type,
+      (rt) => rt.cipherType === CipherViewLikeUtils.getType(vaultItem.cipher),
     );
     if (isItemRestricted) {
       return false;
@@ -566,7 +566,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   private hasPersonalItems(): boolean {
-    return this.selection.selected.some(({ cipher }) => cipher?.organizationId === null);
+    return this.selection.selected.some(({ cipher }) => !cipher?.organizationId);
   }
 
   private allCiphersHaveEditAccess(): boolean {

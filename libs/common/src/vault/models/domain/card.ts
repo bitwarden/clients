@@ -95,12 +95,12 @@ export class Card extends Domain {
    */
   toSdkCard(): SdkCard {
     return {
-      cardholderName: this.cardholderName?.toJSON(),
-      brand: this.brand?.toJSON(),
-      number: this.number?.toJSON(),
-      expMonth: this.expMonth?.toJSON(),
-      expYear: this.expYear?.toJSON(),
-      code: this.code?.toJSON(),
+      cardholderName: this.cardholderName?.toSdk(),
+      brand: this.brand?.toSdk(),
+      number: this.number?.toSdk(),
+      expMonth: this.expMonth?.toSdk(),
+      expYear: this.expYear?.toSdk(),
+      code: this.code?.toSdk(),
     };
   }
 

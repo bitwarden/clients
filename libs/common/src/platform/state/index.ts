@@ -10,5 +10,6 @@ export { KeyDefinition, KeyDefinitionOptions } from "./key-definition";
 export { StateUpdateOptions } from "./state-update-options";
 export { UserKeyDefinitionOptions, UserKeyDefinition } from "./user-key-definition";
 export { StateEventRunnerService } from "./state-event-runner.service";
+export { ActiveUserAccessor } from "./active-user.accessor";
 
 export * from "./state-definitions";

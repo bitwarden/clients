@@ -3033,7 +3033,7 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте увійти з пристроєм знову."
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте ввійти з пристроєм знову."
   },
   "justNow": {
     "message": "Щойно"
@@ -4006,7 +4006,7 @@
       }
     }
   },
-  "enableAutotypeTransitionKey": {
+  "enableAutotype": {
     "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
