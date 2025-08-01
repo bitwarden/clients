@@ -54,3 +54,7 @@
     </a>
   </p>
 </section>
+
+<section *ngIf="state === SetupExtensionState.ManualOpen" aria-live="polite" class="tw-text-center">
+  <vault-manually-open-extension></vault-manually-open-extension>
+</section>
