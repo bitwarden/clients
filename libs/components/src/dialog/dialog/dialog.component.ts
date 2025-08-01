@@ -1,7 +1,15 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, HostBinding, inject, viewChild, input, booleanAttribute } from "@angular/core";
+import {
+  Component,
+  HostBinding,
+  inject,
+  viewChild,
+  input,
+  booleanAttribute,
+  AfterViewInit,
+} from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -31,10 +39,11 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
     CdkScrollable,
   ],
 })
-export class DialogComponent {
+export class DialogComponent implements AfterViewInit {
   protected dialogRef = inject(DialogRef, { optional: true });
   private scrollableBody = viewChild.required(CdkScrollable);
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
+  protected isScrollable = false;
 
   /** Background color */
   readonly background = input<"default" | "alt">("default");
@@ -95,5 +104,14 @@ export class DialogComponent {
         return "md:tw-max-w-xl";
       }
     }
+  }
+
+  ngAfterViewInit() {
+    this.isScrollable = this.canScroll();
+  }
+
+  canScroll(): boolean {
+    const el = this.scrollableBody().getElementRef().nativeElement as HTMLElement;
+    return el.scrollHeight > el.clientHeight;
   }
 }
