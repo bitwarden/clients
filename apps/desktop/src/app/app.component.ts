@@ -99,6 +99,8 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
     <ng-template #loginApproval></ng-template>
     <app-header></app-header>
 
+    <div class="test-banner">This is a test build, do not use production data.</div>
+
     <div id="container">
       <div class="loading" *ngIf="loading">
         <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
