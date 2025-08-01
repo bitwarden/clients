@@ -3,9 +3,9 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { SubscriberBillingClient } from "../../services";
 import { BitwardenSubscriber } from "../../types";
 import { MaskedPaymentMethod } from "../types";
 

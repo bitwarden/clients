@@ -26,6 +26,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -36,7 +37,6 @@ import {
   DisplayPaymentMethodComponent,
 } from "../../payment/components";
 import { BillingAddress, MaskedPaymentMethod } from "../../payment/types";
-import { SubscriberBillingClient } from "../../services";
 import { BitwardenSubscriber, mapOrganizationToSubscriber } from "../../types";
 import { OrganizationFreeTrialWarningComponent } from "../../warnings/components";
 

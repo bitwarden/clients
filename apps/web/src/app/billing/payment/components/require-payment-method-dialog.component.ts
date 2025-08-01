@@ -9,9 +9,9 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { SubscriberBillingClient } from "../../services";
 import { BitwardenSubscriber } from "../../types";
 
 import { EnterPaymentMethodComponent } from "./enter-payment-method.component";

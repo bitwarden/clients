@@ -3,9 +3,9 @@ import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { SubscriberBillingClient } from "../../services";
 import { BitwardenSubscriber } from "../../types";
 
 import { EnterPaymentMethodComponent } from "./enter-payment-method.component";

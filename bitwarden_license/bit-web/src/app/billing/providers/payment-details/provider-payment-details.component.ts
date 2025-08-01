@@ -17,6 +17,7 @@ import { catchError } from "rxjs/operators";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   DisplayAccountCreditComponent,
   DisplayBillingAddressComponent,
@@ -26,7 +27,6 @@ import {
   BillingAddress,
   MaskedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
-import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/services";
 import {
   BitwardenSubscriber,
   mapProviderToSubscriber,

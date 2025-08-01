@@ -2,8 +2,8 @@ import { Component, ViewChild } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, ToastService } from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
-import { SubscriberBillingClient } from "../../services";
 import { BitwardenSubscriber } from "../../types";
 import { MaskedPaymentMethod } from "../types";
 

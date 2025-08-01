@@ -20,12 +20,12 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
+import { SubscriberBillingClient } from "../../clients";
 import {
   DisplayAccountCreditComponent,
   DisplayPaymentMethodComponent,
 } from "../../payment/components";
 import { MaskedPaymentMethod } from "../../payment/types";
-import { SubscriberBillingClient } from "../../services";
 import { mapAccountToSubscriber, BitwardenSubscriber } from "../../types";
 
 class RedirectError {

@@ -4,9 +4,9 @@ import { Component, Inject } from "@angular/core";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { SubscriberBillingClient } from "../../services";
 import { BitwardenSubscriber } from "../../types";
 import { BillingAddress, getTaxIdTypeForCountry } from "../types";
 
