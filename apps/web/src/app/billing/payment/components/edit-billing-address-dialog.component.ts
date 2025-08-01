@@ -6,14 +6,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
-import { BillingClient } from "../../services";
-import { BillableEntity } from "../../types";
+import { SubscriberBillingClient } from "../../services";
+import { BitwardenSubscriber } from "../../types";
 import { BillingAddress, getTaxIdTypeForCountry } from "../types";
 
 import { EnterBillingAddressComponent } from "./enter-billing-address.component";
 
 type DialogParams = {
-  owner: BillableEntity;
+  subscriber: BitwardenSubscriber;
   billingAddress: BillingAddress | null;
 };
 
@@ -57,13 +57,13 @@ type DialogResult =
   `,
   standalone: true,
   imports: [EnterBillingAddressComponent, SharedModule],
-  providers: [BillingClient],
+  providers: [SubscriberBillingClient],
 })
 export class EditBillingAddressDialogComponent {
   protected formGroup = EnterBillingAddressComponent.getFormGroup();
 
   constructor(
-    private billingClient: BillingClient,
+    private billingClient: SubscriberBillingClient,
     @Inject(DIALOG_DATA) protected dialogParams: DialogParams,
     private dialogRef: DialogRef<DialogResult>,
     private i18nService: I18nService,
@@ -93,7 +93,7 @@ export class EditBillingAddressDialogComponent {
       : { ...addressFields, taxId: null };
 
     const result = await this.billingClient.updateBillingAddress(
-      this.dialogParams.owner,
+      this.dialogParams.subscriber,
       billingAddress,
     );
 
@@ -125,7 +125,7 @@ export class EditBillingAddressDialogComponent {
   };
 
   get supportsTaxId(): boolean {
-    switch (this.dialogParams.owner.type) {
+    switch (this.dialogParams.subscriber.type) {
       case "account": {
         return false;
       }
@@ -134,7 +134,7 @@ export class EditBillingAddressDialogComponent {
           ProductTierType.TeamsStarter,
           ProductTierType.Teams,
           ProductTierType.Enterprise,
-        ].includes(this.dialogParams.owner.data.productTierType);
+        ].includes(this.dialogParams.subscriber.data.productTierType);
       }
       case "provider": {
         return true;

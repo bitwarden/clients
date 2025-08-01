@@ -11,8 +11,8 @@ import {
 } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
-import { BillingClient } from "../../services";
-import { BillableEntity } from "../../types";
+import { SubscriberBillingClient } from "../../services";
+import { BitwardenSubscriber } from "../../types";
 
 import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
 import {
@@ -21,7 +21,7 @@ import {
 } from "./submit-payment-method-dialog.component";
 
 type DialogParams = {
-  owner: BillableEntity;
+  subscriber: BitwardenSubscriber;
   callout: {
     type: CalloutTypes;
     title: string;
@@ -53,20 +53,20 @@ type DialogParams = {
   `,
   standalone: true,
   imports: [EnterPaymentMethodComponent, SharedModule],
-  providers: [BillingClient],
+  providers: [SubscriberBillingClient],
 })
 export class RequirePaymentMethodDialogComponent extends SubmitPaymentMethodDialogComponent {
-  protected override owner: BillableEntity;
+  protected override subscriber: BitwardenSubscriber;
 
   constructor(
-    billingClient: BillingClient,
+    billingClient: SubscriberBillingClient,
     @Inject(DIALOG_DATA) protected dialogParams: DialogParams,
     dialogRef: DialogRef<SubmitPaymentMethodDialogResult>,
     i18nService: I18nService,
     toastService: ToastService,
   ) {
     super(billingClient, dialogRef, i18nService, toastService);
-    this.owner = this.dialogParams.owner;
+    this.subscriber = this.dialogParams.subscriber;
   }
 
   static open = (dialogService: DialogService, dialogConfig: DialogConfig<DialogParams>) =>

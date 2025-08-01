@@ -5,8 +5,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
-import { BillingClient } from "../../services";
-import { BillableEntity } from "../../types";
+import { SubscriberBillingClient } from "../../services";
+import { BitwardenSubscriber } from "../../types";
 
 import { AddAccountCreditDialogComponent } from "./add-account-credit-dialog.component";
 
@@ -23,14 +23,14 @@ import { AddAccountCreditDialogComponent } from "./add-account-credit-dialog.com
   `,
   standalone: true,
   imports: [SharedModule],
-  providers: [BillingClient, CurrencyPipe],
+  providers: [SubscriberBillingClient, CurrencyPipe],
 })
 export class DisplayAccountCreditComponent {
-  @Input({ required: true }) owner!: BillableEntity;
+  @Input({ required: true }) subscriber!: BitwardenSubscriber;
   @Input({ required: true }) credit!: number | null;
 
   constructor(
-    private billingClient: BillingClient,
+    private billingClient: SubscriberBillingClient,
     private currencyPipe: CurrencyPipe,
     private dialogService: DialogService,
     private i18nService: I18nService,
@@ -38,8 +38,8 @@ export class DisplayAccountCreditComponent {
   ) {}
 
   addAccountCredit = async () => {
-    if (this.owner.type !== "account") {
-      const billingAddress = await this.billingClient.getBillingAddress(this.owner);
+    if (this.subscriber.type !== "account") {
+      const billingAddress = await this.billingClient.getBillingAddress(this.subscriber);
       if (!billingAddress) {
         this.toastService.showToast({
           variant: "error",
@@ -51,7 +51,7 @@ export class DisplayAccountCreditComponent {
 
     AddAccountCreditDialogComponent.open(this.dialogService, {
       data: {
-        owner: this.owner,
+        subscriber: this.subscriber,
       },
     });
   };

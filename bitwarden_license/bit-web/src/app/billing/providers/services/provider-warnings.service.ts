@@ -49,7 +49,7 @@ export class ProviderWarningsService {
 
               const dialogRef = RequirePaymentMethodDialogComponent.open(this.dialogService, {
                 data: {
-                  owner: {
+                  subscriber: {
                     type: "provider",
                     data: provider,
                   },

@@ -4,12 +4,12 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 
-export type BillableEntity =
+export type BitwardenSubscriber =
   | { type: "account"; data: Account }
   | { type: "organization"; data: Organization }
   | { type: "provider"; data: Provider };
 
-export const accountToBillableEntity = map<Account | null, BillableEntity>((account) => {
+export const mapAccountToSubscriber = map<Account | null, BitwardenSubscriber>((account) => {
   if (!account) {
     throw new Error("Account not found");
   }
@@ -19,7 +19,7 @@ export const accountToBillableEntity = map<Account | null, BillableEntity>((acco
   };
 });
 
-export const organizationToBillableEntity = map<Organization | undefined, BillableEntity>(
+export const mapOrganizationToSubscriber = map<Organization | undefined, BitwardenSubscriber>(
   (organization) => {
     if (!organization) {
       throw new Error("Organization not found");
@@ -31,7 +31,7 @@ export const organizationToBillableEntity = map<Organization | undefined, Billab
   },
 );
 
-export const providerToBillableEntity = map<Provider | null, BillableEntity>((provider) => {
+export const mapProviderToSubscriber = map<Provider | null, BitwardenSubscriber>((provider) => {
   if (!provider) {
     throw new Error("Organization not found");
   }

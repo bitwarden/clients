@@ -4,7 +4,7 @@ import { lastValueFrom } from "rxjs";
 import { DialogService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
-import { BillableEntity } from "../../types";
+import { BitwardenSubscriber } from "../../types";
 import { AddressPipe } from "../pipes";
 import { BillingAddress } from "../types";
 
@@ -33,7 +33,7 @@ import { EditBillingAddressDialogComponent } from "./edit-billing-address-dialog
   imports: [AddressPipe, SharedModule],
 })
 export class DisplayBillingAddressComponent {
-  @Input({ required: true }) owner!: BillableEntity;
+  @Input({ required: true }) subscriber!: BitwardenSubscriber;
   @Input({ required: true }) billingAddress!: BillingAddress | null;
   @Output() updated = new EventEmitter<BillingAddress>();
 
@@ -42,7 +42,7 @@ export class DisplayBillingAddressComponent {
   editBillingAddress = async (): Promise<void> => {
     const dialogRef = EditBillingAddressDialogComponent.open(this.dialogService, {
       data: {
-        owner: this.owner,
+        subscriber: this.subscriber,
         billingAddress: this.billingAddress,
       },
     });

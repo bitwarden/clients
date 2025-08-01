@@ -26,8 +26,11 @@ import {
   BillingAddress,
   MaskedPaymentMethod,
 } from "@bitwarden/web-vault/app/billing/payment/types";
-import { BillingClient } from "@bitwarden/web-vault/app/billing/services";
-import { BillableEntity, providerToBillableEntity } from "@bitwarden/web-vault/app/billing/types";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/services";
+import {
+  BitwardenSubscriber,
+  mapProviderToSubscriber,
+} from "@bitwarden/web-vault/app/billing/types";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -39,7 +42,7 @@ class RedirectError {
 }
 
 type View = {
-  provider: BillableEntity;
+  provider: BitwardenSubscriber;
   paymentMethod: MaskedPaymentMethod | null;
   billingAddress: BillingAddress | null;
   credit: number | null;
@@ -55,7 +58,7 @@ type View = {
     HeaderModule,
     SharedModule,
   ],
-  providers: [BillingClient],
+  providers: [SubscriberBillingClient],
 })
 export class ProviderPaymentDetailsComponent {
   private viewState$ = new BehaviorSubject<View | null>(null);
@@ -74,7 +77,7 @@ export class ProviderPaymentDetailsComponent {
           }),
         ),
     ),
-    providerToBillableEntity,
+    mapProviderToSubscriber,
     switchMap(async (provider) => {
       const [paymentMethod, billingAddress, credit] = await Promise.all([
         this.billingClient.getPaymentMethod(provider),
@@ -107,7 +110,7 @@ export class ProviderPaymentDetailsComponent {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private billingClient: BillingClient,
+    private billingClient: SubscriberBillingClient,
     private configService: ConfigService,
     private providerService: ProviderService,
     private router: Router,

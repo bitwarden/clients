@@ -36,8 +36,8 @@ import {
   DisplayPaymentMethodComponent,
 } from "../../payment/components";
 import { BillingAddress, MaskedPaymentMethod } from "../../payment/types";
-import { BillingClient } from "../../services";
-import { BillableEntity, organizationToBillableEntity } from "../../types";
+import { SubscriberBillingClient } from "../../services";
+import { BitwardenSubscriber, mapOrganizationToSubscriber } from "../../types";
 import { OrganizationFreeTrialWarningComponent } from "../../warnings/components";
 
 class RedirectError {
@@ -48,7 +48,7 @@ class RedirectError {
 }
 
 type View = {
-  organization: BillableEntity;
+  organization: BitwardenSubscriber;
   paymentMethod: MaskedPaymentMethod | null;
   billingAddress: BillingAddress | null;
   credit: number | null;
@@ -65,7 +65,7 @@ type View = {
     OrganizationFreeTrialWarningComponent,
     SharedModule,
   ],
-  providers: [BillingClient],
+  providers: [SubscriberBillingClient],
 })
 export class OrganizationPaymentDetailsComponent implements OnInit {
   @ViewChild(OrganizationFreeTrialWarningComponent)
@@ -95,7 +95,7 @@ export class OrganizationPaymentDetailsComponent implements OnInit {
             }),
           ),
       ),
-      organizationToBillableEntity,
+      mapOrganizationToSubscriber,
       switchMap(async (organization) => {
         const [paymentMethod, billingAddress, credit] = await Promise.all([
           this.billingClient.getPaymentMethod(organization),
@@ -130,7 +130,7 @@ export class OrganizationPaymentDetailsComponent implements OnInit {
   constructor(
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
-    private billingClient: BillingClient,
+    private billingClient: SubscriberBillingClient,
     private configService: ConfigService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,
@@ -151,7 +151,7 @@ export class OrganizationPaymentDetailsComponent implements OnInit {
     const view = await firstValueFrom(this.view$);
     const dialogRef = ChangePaymentMethodDialogComponent.open(this.dialogService, {
       data: {
-        owner: view.organization,
+        subscriber: view.organization,
       },
     });
     const result = await lastValueFrom(dialogRef.closed);
