@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "@wdio/globals/types"],
+    "module": "commonjs",
+    "target": "es2019"
+  },
+  "include": ["wdio.conf.ts", "test/wdio/**/*.ts"]
+}
