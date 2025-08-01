@@ -9477,6 +9477,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Odeslat data události do Vaší instance Logscale"
   },
+  "failedToSaveIntegration": {
+    "message": "Nepodařilo se uložit integraci. Opakujte akci později."
+  },
   "deviceIdMissing": {
     "message": "Chybí ID zařízení"
   },
@@ -9557,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Vytvořte novou klientskou organizaci pro správu jako poskytovatele. Další uživatelé budou reflektováni v dalším platebním cyklu."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Token na doručitele"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Vyberte plán"
@@ -10917,6 +10929,36 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Nezaplacené faktury"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Vaše předplatné nebylo zaplaceno. Obraťte se na správce poskytovatele, abyste obnovili službu pro Vás a Vaše klienty.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ je pozastaven",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Chcete-li obnovit přístup k portálu poskytovatele, obraťte se na zákaznickou podporu Bitwarden pro obnovení předplatného.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Vaše předplatné nebylo zaplaceno. Chcete-li obnovit službu Vám a Vašim klientům, přidejte platební metodu do $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
     "message": "Předplatné $PLAN$",
