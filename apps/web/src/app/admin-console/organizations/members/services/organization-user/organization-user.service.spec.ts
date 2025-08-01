@@ -33,22 +33,24 @@ describe("OrganizationUserService", () => {
 
   const mockOrganization = new Organization();
   mockOrganization.id = "org-123" as OrganizationId;
-  mockOrganization.name = "Test Organization";
 
   const mockOrganizationUser = new OrganizationUserView();
   mockOrganizationUser.id = "user-123";
-  mockOrganizationUser.email = "test@example.com";
 
   const mockPublicKey = new Uint8Array(64) as CsprngArray;
   const mockRandomBytes = new Uint8Array(64) as CsprngArray;
   const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-  const mockEncryptedKey = {
-    encryptedString: "encrypted-key",
-  } as EncString;
-  const mockEncryptedCollectionName = {
-    encryptedString: "encrypted-collection-name",
-  } as EncString;
+  const mockEncryptedKey = { encryptedString: "encrypted-key" } as EncString;
+  const mockEncryptedCollectionName = { encryptedString: "encrypted-collection-name" } as EncString;
   const mockDefaultCollectionName = "My Items";
+
+  const setupCommonMocks = () => {
+    keyService.orgKeys$.mockReturnValue(
+      of({ [mockOrganization.id]: mockOrgKey } as Record<OrganizationId, OrgKey>),
+    );
+    encryptService.encryptString.mockResolvedValue(mockEncryptedCollectionName);
+    i18nService.t.mockReturnValue(mockDefaultCollectionName);
+  };
 
   beforeEach(() => {
     keyService = {
@@ -89,12 +91,8 @@ describe("OrganizationUserService", () => {
 
   describe("confirmUser", () => {
     beforeEach(() => {
-      keyService.orgKeys$.mockReturnValue(
-        of({ [mockOrganization.id]: mockOrgKey } as Record<OrganizationId, OrgKey>),
-      );
-      encryptService.encryptString.mockResolvedValue(mockEncryptedCollectionName);
+      setupCommonMocks();
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(mockEncryptedKey);
-      i18nService.t.mockReturnValue(mockDefaultCollectionName);
       organizationUserApiService.postOrganizationUserConfirm.mockReturnValue(Promise.resolve());
     });
 
@@ -142,11 +140,7 @@ describe("OrganizationUserService", () => {
     } as ListResponse<OrganizationUserBulkResponse>;
 
     beforeEach(() => {
-      keyService.orgKeys$.mockReturnValue(
-        of({ [mockOrganization.id]: mockOrgKey } as Record<OrganizationId, OrgKey>),
-      );
-      encryptService.encryptString.mockResolvedValue(mockEncryptedCollectionName);
-      i18nService.t.mockReturnValue(mockDefaultCollectionName);
+      setupCommonMocks();
       organizationUserApiService.postOrganizationUserBulkConfirm.mockReturnValue(
         Promise.resolve(mockBulkResponse),
       );
