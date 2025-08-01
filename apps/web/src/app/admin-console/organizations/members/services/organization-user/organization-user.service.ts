@@ -44,11 +44,7 @@ export class OrganizationUserService {
     user: OrganizationUserView,
     publicKey: Uint8Array,
   ): Observable<void> {
-    const encryptedCollectionName$ = this.orgKey$(organization).pipe(
-      switchMap((orgKey) =>
-        this.encryptService.encryptString(this.i18nService.t("myItems"), orgKey),
-      ),
-    );
+    const encryptedCollectionName$ = this.getEncryptedDefaultCollectionName$(organization);
 
     const encryptedKey$ = this.orgKey$(organization).pipe(
       switchMap((orgKey) => this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey)),
@@ -74,11 +70,7 @@ export class OrganizationUserService {
     organization: Organization,
     userIdsWithKeys: { id: string; key: string }[],
   ): Observable<ListResponse<OrganizationUserBulkResponse>> {
-    const encryptedCollectionName$ = this.orgKey$(organization).pipe(
-      switchMap((orgKey) =>
-        this.encryptService.encryptString(this.i18nService.t("myItems"), orgKey),
-      ),
-    );
+    const encryptedCollectionName$ = this.getEncryptedDefaultCollectionName$(organization);
 
     return encryptedCollectionName$.pipe(
       switchMap((collectionName) => {
@@ -92,6 +84,14 @@ export class OrganizationUserService {
           request,
         );
       }),
+    );
+  }
+
+  private getEncryptedDefaultCollectionName$(organization: Organization) {
+    return this.orgKey$(organization).pipe(
+      switchMap((orgKey) =>
+        this.encryptService.encryptString(this.i18nService.t("myItems"), orgKey),
+      ),
     );
   }
 }
