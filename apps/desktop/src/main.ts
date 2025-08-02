@@ -37,7 +37,6 @@ import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
-import { DesktopAutotypeService } from "./autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
@@ -48,7 +47,6 @@ import { PowerMonitorMain } from "./main/power-monitor.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
-import { SlimConfigService } from "./platform/config/slim-config.service";
 import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
@@ -307,13 +305,22 @@ export class Main {
     void this.nativeAutofillMain.init();
 
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
-      new DesktopAutotypeService(
-        new SlimConfigService(this.environmentService, globalStateProvider),
-        globalStateProvider,
-        process.platform === "win32",
-      ),
+      this.logService,
+      this.windowMain,
     );
-    this.mainDesktopAutotypeService.init();
+
+    app
+      .whenReady()
+      .then(() => {
+        this.mainDesktopAutotypeService.init();
+      })
+      .catch((reason) => {
+        this.logService.error("Error initializing Autotype.", reason);
+      });
+
+    app.on("will-quit", () => {
+      this.mainDesktopAutotypeService.disableAutotype();
+    });
   }
 
   bootstrap() {
