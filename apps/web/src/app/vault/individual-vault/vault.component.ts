@@ -108,6 +108,7 @@ import {
 } from "../components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
+import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 
 import {
@@ -156,6 +157,7 @@ const SearchTextDebounceInterval = 200;
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   @ViewChild("vaultFilter", { static: true }) filterComponent: VaultFilterComponent;
+  @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<C>;
 
   trashCleanupWarning: string = null;
   kdfIterations: number;
@@ -1281,6 +1283,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private refresh() {
     this.refresh$.next();
+    this.vaultItemsComponent?.clearSelection();
   }
 
   private async go(queryParams: any = null) {
