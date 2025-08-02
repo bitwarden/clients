@@ -1,20 +1,19 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 
 import { Collection } from "./collection";
 
 export class CollectionRequest {
   name: string;
-  externalId: string;
+  externalId: string | undefined;
   groups: SelectionReadOnlyRequest[] = [];
   users: SelectionReadOnlyRequest[] = [];
 
-  constructor(collection?: Collection) {
-    if (collection == null) {
-      return;
+  constructor(collection: Collection) {
+    if (collection == null || collection.name == null || collection.name.encryptedString == null) {
+      throw new Error("todo");
     }
-    this.name = collection.name ? collection.name.encryptedString : null;
+
+    this.name = collection.name.encryptedString;
     this.externalId = collection.externalId;
   }
 }

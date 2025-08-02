@@ -17,7 +17,7 @@ export class CollectionExport {
     return req;
   }
 
-  static toView(req: CollectionExport, view = new CollectionView()) {
+  static toView(req: CollectionExport, view: CollectionView) {
     view.name = req.name;
     view.externalId = req.externalId;
     if (view.organizationId == null) {
@@ -26,7 +26,7 @@ export class CollectionExport {
     return view;
   }
 
-  static toDomain(req: CollectionExport, domain = new CollectionDomain()) {
+  static toDomain(req: CollectionExport, domain: CollectionDomain) {
     domain.name = req.name != null ? new EncString(req.name) : null;
     domain.externalId = req.externalId;
     if (domain.organizationId == null) {

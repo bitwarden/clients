@@ -491,7 +491,7 @@ export class GetCommand extends DownloadCommand {
       }
 
       const response = await this.apiService.getCollectionAccessDetails(options.organizationId, id);
-      const decCollection = new CollectionView(response);
+      const decCollection = await CollectionView.fromCollectionAccessDetails(response);
       decCollection.name = await this.encryptService.decryptString(
         new EncString(response.name),
         orgKey,
