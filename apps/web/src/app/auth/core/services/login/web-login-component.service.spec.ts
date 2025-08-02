@@ -86,9 +86,11 @@ describe("WebLoginComponentService", () => {
   });
 
   describe("getOrgPoliciesFromOrgInvite", () => {
+    const mockEmail = "test@example.com";
+
     it("returns undefined if organization invite is null", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-      const result = await service.getOrgPoliciesFromOrgInvite();
+      const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
       expect(result).toBeUndefined();
     });
 
@@ -97,7 +99,7 @@ describe("WebLoginComponentService", () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue({
         organizationId: "org-id",
         token: "token",
-        email: "email",
+        email: mockEmail,
         organizationUserId: "org-user-id",
         initOrganization: false,
         orgSsoIdentifier: "sso-id",
@@ -105,7 +107,7 @@ describe("WebLoginComponentService", () => {
         organizationName: "org-name",
       });
       policyApiService.getPoliciesByToken.mockRejectedValue(error);
-      await service.getOrgPoliciesFromOrgInvite();
+      await service.getOrgPoliciesFromOrgInvite(mockEmail);
       expect(logService.error).toHaveBeenCalledWith(error);
     });
 
@@ -123,7 +125,7 @@ describe("WebLoginComponentService", () => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue({
           organizationId: "org-id",
           token: "token",
-          email: "email",
+          email: mockEmail,
           organizationUserId: "org-user-id",
           initOrganization: false,
           orgSsoIdentifier: "sso-id",
@@ -141,7 +143,7 @@ describe("WebLoginComponentService", () => {
           masterPasswordPolicyOptions,
         );
 
-        const result = await service.getOrgPoliciesFromOrgInvite();
+        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
 
         expect(result).toEqual({
           policies: policies,
