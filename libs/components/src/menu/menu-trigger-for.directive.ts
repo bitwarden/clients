@@ -12,8 +12,8 @@ import {
   ViewContainerRef,
   input,
 } from "@angular/core";
-import { Observable, Subscription } from "rxjs";
-import { filter, mergeWith } from "rxjs/operators";
+import { merge, Subscription } from "rxjs";
+import { filter, skip, takeUntil } from "rxjs/operators";
 
 import { MenuComponent } from "./menu.component";
 
@@ -65,42 +65,78 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.isOpen ? this.destroyMenu() : this.openMenu();
   }
 
+  /**
+   * Toggles the menu on right click event.
+   * If the menu is already open, it updates the menu position.
+   * @param event The MouseEvent from the right-click interaction
+   */
+  toggleMenuOnRightClick(event: MouseEvent) {
+    event.preventDefault(); // Prevent default context menu
+    this.isOpen ? this.updateMenuPosition(event) : this.openMenu(event);
+  }
+
   ngOnDestroy() {
     this.disposeAll();
   }
 
-  private openMenu() {
+  private openMenu(event?: MouseEvent) {
     const menu = this.menu();
     if (menu == null) {
       throw new Error("Cannot find bit-menu element");
     }
 
     this.isOpen = true;
-    this.overlayRef = this.overlay.create(this.defaultMenuConfig);
+
+    const positionStrategy = event
+      ? this.overlay
+          .position()
+          .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
+          .withPositions([
+            {
+              originX: "start",
+              originY: "top",
+              overlayX: "start",
+              overlayY: "top",
+            },
+          ])
+      : this.defaultMenuConfig.positionStrategy;
+
+    const config = { ...this.defaultMenuConfig, positionStrategy, hasBackdrop: !event };
+
+    this.overlayRef = this.overlay.create(config);
 
     const templatePortal = new TemplatePortal(menu.templateRef, this.viewContainerRef);
     this.overlayRef.attach(templatePortal);
 
-    this.closedEventsSub = this.getClosedEvents().subscribe((event: KeyboardEvent | undefined) => {
-      // Closing the menu is handled in this.destroyMenu, so we want to prevent the escape key
-      // from doing its normal default action, which would otherwise cause a parent component
-      // (like a dialog) or extension window to close
-      if (event?.key === "Escape" && !hasModifierKey(event)) {
-        event.preventDefault();
-      }
+    this.setupClosingActions();
+    this.setupMenuCloseListener();
 
-      if (["Tab", "Escape"].includes(event?.key)) {
-        // Required to ensure tab order resumes correctly
-        this.elementRef.nativeElement.focus();
-      }
-      this.destroyMenu();
-    });
     if (menu.keyManager) {
       menu.keyManager.setFirstItemActive();
       this.keyDownEventsSub = this.overlayRef
         .keydownEvents()
         .subscribe((event: KeyboardEvent) => this.menu().keyManager.onKeydown(event));
     }
+  }
+
+  private updateMenuPosition(event: MouseEvent) {
+    if (this.overlayRef == null) {
+      return;
+    }
+
+    const positionStrategy = this.overlay
+      .position()
+      .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
+      .withPositions([
+        {
+          originX: "start",
+          originY: "top",
+          overlayX: "start",
+          overlayY: "top",
+        },
+      ]);
+
+    this.overlayRef.updatePositionStrategy(positionStrategy);
   }
 
   private destroyMenu() {
@@ -113,23 +149,52 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.menu().closed.emit();
   }
 
-  private getClosedEvents(): Observable<any> {
-    const detachments = this.overlayRef.detachments();
+  private setupClosingActions() {
     const escKey = this.overlayRef.keydownEvents().pipe(
       filter((event: KeyboardEvent) => {
         const keys = this.menu().ariaRole() === "menu" ? ["Escape", "Tab"] : ["Escape"];
         return keys.includes(event.key);
       }),
     );
+
     const backdrop = this.overlayRef.backdropClick();
     const menuClosed = this.menu().closed;
+    const detachments = this.overlayRef.detachments();
 
-    return detachments.pipe(mergeWith(escKey, backdrop, menuClosed));
+    this.closedEventsSub = merge(detachments, escKey, backdrop, menuClosed)
+      .pipe(takeUntil(this.overlayRef.detachments()))
+      .subscribe((event) => {
+        // Closing the menu is handled in this.destroyMenu, so we want to prevent the escape key
+        // from doing its normal default action, which would otherwise cause a parent component
+        // (like a dialog) or extension window to close
+        if (event instanceof KeyboardEvent && event.key === "Escape" && !hasModifierKey(event)) {
+          event.preventDefault();
+        }
+
+        if (event instanceof KeyboardEvent && (event.key === "Tab" || event.key === "Escape")) {
+          this.elementRef.nativeElement.focus();
+        }
+        this.destroyMenu();
+      });
+  }
+
+  /**
+   * Sets up a listener for clicks outside the menu overlay.
+   * We skip(1) because the initial right-click event that opens the menu is also
+   * considered an outside click event, which would immediately close the menu
+   */
+  private setupMenuCloseListener() {
+    this.overlayRef
+      .outsidePointerEvents()
+      .pipe(skip(1), takeUntil(this.overlayRef.detachments()))
+      .subscribe((event) => {
+        this.destroyMenu();
+      });
   }
 
   private disposeAll() {
     this.closedEventsSub?.unsubscribe();
-    this.overlayRef?.dispose();
     this.keyDownEventsSub?.unsubscribe();
+    this.overlayRef?.dispose();
   }
 }
