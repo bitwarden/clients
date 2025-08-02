@@ -69,7 +69,6 @@ import {
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
-import { InlineMenuFormFieldData } from "../services/abstractions/autofill-overlay-content.service";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
 import {
@@ -82,6 +81,7 @@ import {
 } from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
+import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
   CloseInlineMenuMessage,
@@ -1890,7 +1890,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param tab - The tab to get the form field data from
    */
-  private async getInlineMenuFormFieldData(tab: chrome.tabs.Tab): Promise<InlineMenuFormFieldData> {
+  private async getInlineMenuFormFieldData(
+    tab: chrome.tabs.Tab,
+  ): Promise<ModifyLoginCipherFormData> {
     return await BrowserApi.tabSendMessage(
       tab,
       {

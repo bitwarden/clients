@@ -48,13 +48,13 @@ import {
 import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  InlineMenuFormFieldData,
   SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
+import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
@@ -637,7 +637,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Returns the form field data used for add login and change password notifications.
    */
-  private getFormFieldData = (): InlineMenuFormFieldData => {
+  private getFormFieldData = (): ModifyLoginCipherFormData => {
     return {
       uri: globalThis.document.URL,
       username: this.userFilledFields["username"]?.value || "",

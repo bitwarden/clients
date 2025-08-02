@@ -5,6 +5,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CollectionView } from "../../content/components/common-types";
 import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
 import AutofillPageDetails from "../../models/autofill-page-details";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 interface NotificationQueueMessage {
   type: NotificationQueueMessageTypes;
@@ -17,7 +18,7 @@ interface NotificationQueueMessage {
 
 interface AddChangePasswordQueueMessage extends NotificationQueueMessage {
   type: "change";
-  cipherId: string;
+  cipherId: CipherView["id"];
   newPassword: string;
 }
 
