@@ -294,16 +294,6 @@ export abstract class KeyService {
    * @param encPrivateKey An encrypted private key
    */
   abstract setPrivateKey(encPrivateKey: string, userId: UserId): Promise<void>;
-  /**
-   * Returns the private key from memory. If not available, decrypts it
-   * from storage and stores it in memory
-   * @returns The user's private key
-   *
-   * @throws Error when no active user
-   *
-   * @deprecated Use {@link userPrivateKey$} instead.
-   */
-  abstract getPrivateKey(): Promise<Uint8Array | null>;
 
   /**
    * Gets an observable stream of the given users decrypted private key, will emit null if the user
@@ -311,6 +301,8 @@ export abstract class KeyService {
    * encrypted private key at all.
    *
    * @param userId The user id of the user to get the data for.
+   * @returns An observable stream of the decrypted private key or null.
+   * @throws Error when decryption of the encrypted private key fails.
    */
   abstract userPrivateKey$(userId: UserId): Observable<UserPrivateKey | null>;
 
