@@ -50,6 +50,15 @@ export class AutoFillConstants {
 
   static readonly SearchFieldNames: string[] = ["search", "query", "find", "go"];
 
+  static readonly NewEmailFieldKeywords: string[] = [
+    "new-email",
+    "newemail",
+    "new email",
+    "neue e-mail",
+  ];
+
+  static readonly NewsletterFormNames: string[] = ["newsletter"];
+
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
   static readonly PasswordFieldExcludeList: string[] = [

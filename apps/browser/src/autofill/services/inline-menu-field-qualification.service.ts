@@ -58,6 +58,8 @@ export class InlineMenuFieldQualificationService
     "neue e-mail",
     "pwdcheck",
   ];
+  private newEmailFieldKeywords = new Set(AutoFillConstants.NewEmailFieldKeywords);
+  private newsletterFormKeywords = new Set(AutoFillConstants.NewsletterFormNames);
   private updatePasswordFieldKeywords = [
     "update password",
     "change password",
@@ -151,6 +153,61 @@ export class InlineMenuFieldQualificationService
   ]);
   private totpFieldAutocompleteValue = "one-time-code";
   private premiumEnabled = false;
+
+  /**
+   * Validates the provided field to indicate if the field is a new email field used for account creation/registration.
+   *
+   * @param field - The field to validate
+   */
+  private isExplicitIdentityEmailField(field: AutofillField): boolean {
+    const matchFieldAttributeValues = [field.type, field.htmlName, field.htmlID, field.placeholder];
+    for (let attrIndex = 0; attrIndex < matchFieldAttributeValues.length; attrIndex++) {
+      if (!matchFieldAttributeValues[attrIndex]) {
+        continue;
+      }
+
+      for (let keywordIndex = 0; keywordIndex < matchFieldAttributeValues.length; keywordIndex++) {
+        if (this.newEmailFieldKeywords.has(matchFieldAttributeValues[attrIndex])) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Validates the provided form to indicate if the form is related to newsletter registration.
+   *
+   * @param parentForm - The form to validate
+   */
+  private isNewsletterForm(parentForm: any): boolean {
+    if (!parentForm) {
+      return false;
+    }
+
+    const matchFieldAttributeValues = [
+      parentForm.type,
+      parentForm.htmlName,
+      parentForm.htmlID,
+      parentForm.placeholder,
+    ];
+
+    for (let attrIndex = 0; attrIndex < matchFieldAttributeValues.length; attrIndex++) {
+      const attrValue = matchFieldAttributeValues[attrIndex];
+      if (!attrValue || typeof attrValue !== "string") {
+        continue;
+      }
+      const attrValueLower = attrValue.toLowerCase();
+      for (const keyword of this.newsletterFormKeywords) {
+        if (attrValueLower.includes(keyword.toLowerCase())) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 
   constructor() {
     void Promise.all([
@@ -300,7 +357,11 @@ export class InlineMenuFieldQualificationService
       return false;
     }
 
-    return this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues);
+    return (
+      // Recognize explicit identity email fields (like id="new-email")
+      this.isFieldForIdentityEmail(field) ||
+      this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues)
+    );
   }
 
   /**
@@ -397,6 +458,12 @@ export class InlineMenuFieldQualificationService
   ): boolean {
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
+
+    // Exclude non-login email field from being treated as a login username field
+    if (this.isExplicitIdentityEmailField(field)) {
+      return false;
+    }
+
     if (this.fieldContainsAutocompleteValues(field, this.loginUsernameAutocompleteValues)) {
       const newPasswordFieldsInPageDetails = pageDetails.fields.filter(
         (field) => field.viewable && this.isNewPasswordField(field),
@@ -414,6 +481,10 @@ export class InlineMenuFieldQualificationService
     // the field based on the other fields that are present on the page.
     const parentForm = pageDetails.forms[field.form];
     const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isCurrentPasswordField);
+
+    if (this.isNewsletterForm(parentForm)) {
+      return false;
+    }
 
     // If the field is not structured within a form, we need to identify if the field is used in conjunction
     // with a password field. If that's the case, then we should assume that it is a form field element.
@@ -822,9 +893,14 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isFieldForIdentityEmail = (field: AutofillField): boolean => {
+    if (this.isExplicitIdentityEmailField(field)) {
+      return true;
+    }
+
     if (
       this.fieldContainsAutocompleteValues(field, this.emailAutocompleteValue) ||
-      field.type === "email"
+      field.type === "email" ||
+      field.htmlName === "email"
     ) {
       return true;
     }
