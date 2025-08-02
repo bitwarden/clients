@@ -1,16 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import {
-  combineLatest,
-  combineLatestWith,
-  filter,
-  firstValueFrom,
-  Observable,
-  startWith,
-  switchMap,
-} from "rxjs";
+import { Component, computed, inject, OnInit, Signal } from "@angular/core";
+import { ActivatedRoute, ROUTER_OUTLET_DATA } from "@angular/router";
+import { combineLatestWith, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
 
 import {
   getOrganizationById,
@@ -40,7 +32,6 @@ import {
 } from "../../secrets/dialog/secret-view-dialog.component";
 import { SecretService } from "../../secrets/secret.service";
 import { SecretsListComponent } from "../../shared/secrets-list.component";
-import { ProjectService } from "../project.service";
 
 @Component({
   selector: "sm-project-secrets",
@@ -54,10 +45,12 @@ export class ProjectSecretsComponent implements OnInit {
   private projectId: string;
   protected project$: Observable<ProjectView>;
   private organizationEnabled: boolean;
+  protected project = inject(ROUTER_OUTLET_DATA) as Signal<ProjectView>;
+  readonly writeAccess = computed(() => this.project().write);
+  readonly projectExists = computed(() => !!this.project());
 
   constructor(
     private route: ActivatedRoute,
-    private projectService: ProjectService,
     private secretService: SecretService,
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
@@ -68,21 +61,9 @@ export class ProjectSecretsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Refresh list if project is edited
-    const currentProjectEdited = this.projectService.project$.pipe(
-      filter((p) => p?.id === this.projectId),
-      startWith(null),
-    );
-
-    this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
-      switchMap(([params, _]) => {
-        return this.projectService.getByProjectId(params.projectId);
-      }),
-    );
-
     this.secrets$ = this.secretService.secret$.pipe(
       startWith(null),
-      combineLatestWith(this.route.params, currentProjectEdited),
+      combineLatestWith(this.route.params),
       switchMap(async ([_, params]) => {
         this.organizationId = params.organizationId;
         this.projectId = params.projectId;

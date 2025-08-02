@@ -36,4 +36,4 @@
     {{ "editProject" | i18n }}
   </button>
 </app-header>
-<router-outlet></router-outlet>
+<router-outlet [routerOutletData]="this.project$"></router-outlet>
