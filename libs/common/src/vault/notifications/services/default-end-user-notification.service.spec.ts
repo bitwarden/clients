@@ -4,7 +4,7 @@ import { firstValueFrom, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { NotificationId, UserId } from "@bitwarden/common/types/guid";
 
@@ -20,7 +20,7 @@ import {
 describe("End User Notification Center Service", () => {
   let fakeStateProvider: FakeStateProvider;
   let mockApiService: jest.Mocked<ApiService>;
-  let mockNotificationsService: jest.Mocked<NotificationsService>;
+  let mockNotificationsService: jest.Mocked<ServerNotificationsService>;
   let mockAuthService: jest.Mocked<AuthService>;
   let mockLogService: jest.Mocked<LogService>;
   let service: DefaultEndUserNotificationService;

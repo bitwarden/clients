@@ -32,14 +32,14 @@ import { EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { MessagingService } from "../../abstractions/messaging.service";
 import { supportSwitch } from "../../misc/support-status";
-import { NotificationsService as NotificationsServiceAbstraction } from "../notifications.service";
+import { ServerNotificationsService } from "../server-notifications-service";
 
 import { ReceiveMessage, SignalRConnectionService } from "./signalr-connection.service";
 import { WebPushConnectionService } from "./webpush-connection.service";
 
 export const DISABLED_NOTIFICATIONS_URL = "http://-";
 
-export class DefaultNotificationsService implements NotificationsServiceAbstraction {
+export class DefaultServerNotificationsService implements ServerNotificationsService {
   notifications$: Observable<readonly [NotificationResponse, UserId]>;
 
   private activitySubject = new BehaviorSubject<"active" | "inactive">("active");
@@ -188,7 +188,6 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
       case NotificationType.SyncCiphers:
       case NotificationType.SyncSettings:
         await this.syncService.fullSync(false);
-
         break;
       case NotificationType.SyncOrganizations:
         // An organization update may not have bumped the user's account revision date, so force a sync
@@ -214,11 +213,9 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
       case NotificationType.AuthRequest:
-        {
-          this.messagingService.send("openLoginApproval", {
-            notificationId: notification.payload.id,
-          });
-        }
+        this.messagingService.send("openLoginApproval", {
+          notificationId: notification.payload.id,
+        });
         break;
       case NotificationType.SyncOrganizationStatusChanged:
         await this.syncService.fullSync(true);
