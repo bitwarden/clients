@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SecureNoteType, CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -224,7 +225,7 @@ describe("NordPass CSV Importer", () => {
   });
 
   it("should parse an item and create a collection if organizationId is set", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(secureNoteData);
 
     expect(result).not.toBeNull();

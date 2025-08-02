@@ -1,6 +1,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherType } from "@bitwarden/sdk-internal";
@@ -485,7 +486,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
   it("should parse groups nodes into collections when importing into an organization", async () => {
     const importer = new PasswordDepot17XmlImporter();
-    importer.organizationId = "someOrgId";
+    importer.organizationId = "someOrgId" as OrganizationId;
     const collection = new CollectionView();
     collection.name = "tempDB";
     const actual = [collection];

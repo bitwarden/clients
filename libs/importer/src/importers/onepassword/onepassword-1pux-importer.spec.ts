@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
@@ -691,7 +692,7 @@ describe("1Password 1Pux Importer", () => {
 
   it("should create collections if part of an organization", async () => {
     const importer = new OnePassword1PuxImporter();
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(SanitizedExportJson);
     expect(result != null).toBe(true);
 

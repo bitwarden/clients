@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   credentialsData,
@@ -79,7 +80,7 @@ describe("Netwrix Password Secure CSV Importer", () => {
   });
 
   it("should parse an item and create a collection when importing into an organization", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(credentialsData);
 
     expect(result).not.toBeNull();
@@ -93,7 +94,7 @@ describe("Netwrix Password Secure CSV Importer", () => {
   });
 
   it("should parse multiple collections", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(credentialsDataWithFolders);
 
     expect(result).not.toBeNull();
