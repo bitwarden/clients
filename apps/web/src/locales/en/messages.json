@@ -2828,6 +2828,12 @@
       }
     }
   },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
+  },
   "summary": {
     "message": "Summary"
   },
@@ -10984,5 +10990,9 @@
   },
    "unlimitedSecretsAndProjects": {
     "message": "Unlimited secrets and projects"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

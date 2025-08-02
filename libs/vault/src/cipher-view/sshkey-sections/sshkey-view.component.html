@@ -27,7 +27,7 @@
         type="button"
         [appCopyClick]="sshKey.privateKey"
         showToast
-        [appA11yTitle]="'copyValue' | i18n"
+        [label]="'copyValue' | i18n"
       ></button>
     </bit-form-field>
     <bit-form-field>
@@ -45,7 +45,7 @@
         type="button"
         [appCopyClick]="sshKey.publicKey"
         showToast
-        [appA11yTitle]="'copyValue' | i18n"
+        [label]="'copyValue' | i18n"
       ></button>
     </bit-form-field>
     <bit-form-field>
@@ -63,7 +63,7 @@
         type="button"
         [appCopyClick]="sshKey.keyFingerprint"
         showToast
-        [appA11yTitle]="'copyValue' | i18n"
+        [label]="'copyValue' | i18n"
       ></button>
     </bit-form-field>
   </read-only-cipher-card>

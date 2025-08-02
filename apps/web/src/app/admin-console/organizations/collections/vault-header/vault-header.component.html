@@ -34,6 +34,7 @@
           [bitMenuTriggerFor]="editCollectionMenu"
           size="small"
           type="button"
+          [label]="'editCollection' | i18n"
         ></button>
         <bit-menu #editCollectionMenu>
           <ng-container *ngIf="canEditCollection">

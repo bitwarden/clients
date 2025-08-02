@@ -25,7 +25,7 @@
           [appCopyClick]="field.value"
           showToast
           [valueLabel]="field.name"
-          [appA11yTitle]="'copyCustomField' | i18n: field.name"
+          [label]="'copyCustomField' | i18n: field.name"
           data-testid="copy-custom-field"
         ></button>
       </bit-form-field>
@@ -57,7 +57,7 @@
           bitSuffix
           type="button"
           data-testid="toggle-hidden-field-value-count"
-          [appA11yTitle]="
+          [label]="
             (showHiddenValueCountFields.includes(i) ? 'hideCharacterCount' : 'showCharacterCount')
               | i18n
           "
@@ -81,7 +81,7 @@
           showToast
           [valueLabel]="field.name"
           *ngIf="canViewPassword"
-          [appA11yTitle]="'copyCustomField' | i18n: field.name"
+          [label]="'copyCustomField' | i18n: field.name"
           (click)="logCopyEvent()"
         ></button>
       </bit-form-field>

@@ -82,7 +82,7 @@
     size="small"
     bitIconButton="bwi-ellipsis-v"
     type="button"
-    appA11yTitle="{{ 'options' | i18n }}"
+    label="{{ 'options' | i18n }}"
     appStopProp
   ></button>
   <bit-menu #corruptedCipherOptions>
@@ -100,7 +100,7 @@
     size="small"
     bitIconButton="bwi-ellipsis-v"
     type="button"
-    appA11yTitle="{{ (disableMenu ? 'missingPermissions' : 'options') | i18n }}"
+    label="{{ (disableMenu ? 'missingPermissions' : 'options') | i18n }}"
     appStopProp
   ></button>
   <bit-menu #cipherOptions>
