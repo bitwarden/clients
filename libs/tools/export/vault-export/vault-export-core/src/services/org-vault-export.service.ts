@@ -65,7 +65,7 @@ export class OrganizationVaultExportService
    * @returns The exported vault
    */
   async getPasswordProtectedExport(
-    organizationId: string,
+    organizationId: OrganizationId,
     password: string,
     onlyManagedCollections: boolean,
   ): Promise<ExportedVaultAsString> {
@@ -94,7 +94,7 @@ export class OrganizationVaultExportService
    * @throws Error if the organization policies prevent the export
    */
   async getOrganizationExport(
-    organizationId: string,
+    organizationId: OrganizationId,
     format: ExportFormat = "csv",
     onlyManagedCollections: boolean,
   ): Promise<ExportedVaultAsString> {
@@ -128,7 +128,7 @@ export class OrganizationVaultExportService
 
   private async getOrganizationDecryptedExport(
     activeUserId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     format: "json" | "csv",
   ): Promise<string> {
     const decCollections: CollectionView[] = [];
@@ -146,7 +146,7 @@ export class OrganizationVaultExportService
               const collection = new Collection(new CollectionData(c as CollectionDetailsResponse));
               exportPromises.push(
                 firstValueFrom(this.keyService.activeUserOrgKeys$)
-                  .then((keys) => collection.decrypt(keys[organizationId as OrganizationId]))
+                  .then((keys) => collection.decrypt(keys[organizationId]))
                   .then((decCol) => {
                     decCollections.push(decCol);
                   }),
@@ -182,7 +182,7 @@ export class OrganizationVaultExportService
     return this.buildJsonExport(decCollections, decCiphers);
   }
 
-  private async getOrganizationEncryptedExport(organizationId: string): Promise<string> {
+  private async getOrganizationEncryptedExport(organizationId: OrganizationId): Promise<string> {
     const collections: Collection[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
@@ -220,7 +220,7 @@ export class OrganizationVaultExportService
 
   private async getDecryptedManagedExport(
     activeUserId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
     format: "json" | "csv",
   ): Promise<string> {
     let decCiphers: CipherView[] = [];
@@ -262,7 +262,7 @@ export class OrganizationVaultExportService
 
   private async getEncryptedManagedExport(
     activeUserId: UserId,
-    organizationId: string,
+    organizationId: OrganizationId,
   ): Promise<string> {
     let encCiphers: Cipher[] = [];
     let allCiphers: Cipher[] = [];
@@ -299,7 +299,7 @@ export class OrganizationVaultExportService
   }
 
   private async BuildEncryptedExport(
-    organizationId: string,
+    organizationId: OrganizationId,
     collections: Collection[],
     ciphers: Cipher[],
   ): Promise<string> {
