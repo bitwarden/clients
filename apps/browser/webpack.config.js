@@ -392,7 +392,7 @@ if (manifestVersion == 2) {
       cache: true,
     },
     dependencies: ["main"],
-    plugins: [...requiredPlugins /*new AngularCheckPlugin()*/], // TODO (PM-22630): Re-enable this plugin when angular is removed from the background script.
+    plugins: [...requiredPlugins, new AngularCheckPlugin()],
   };
 
   // Safari's desktop build process requires a background.html and vendor.js file to exist
