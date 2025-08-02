@@ -26,6 +26,7 @@ export function AtRiskNotificationFooter({
         open(passwordChangeUri, "_blank");
       },
       buttonText: AdditionalTasksButtonContent({ buttonText: i18n.changePassword, theme }),
+      dataTestId: "change-password-button",
       theme,
       fullWidth: false,
     })}
