@@ -721,7 +721,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
-        organizationId: this.organization.id,
+        organization: this.organization,
         users: this.dataSource.getCheckedUsers(),
       },
     });
