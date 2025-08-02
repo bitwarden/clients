@@ -281,7 +281,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     // FIXME: The RoutedVaultFilterModel uses `organizationId: Unassigned` to represent the individual vault,
     // but that is never used in Admin Console. This function narrows the type so it doesn't pollute our code here,
-    // but really we should change to using our own vault filter model.
+    // but really we should change to using our own vault filter model that only represents valid states in AC.
     const isOrganizationId = (value: OrganizationId | Unassigned): value is OrganizationId =>
       value !== Unassigned;
     const organizationId$ = filter$.pipe(
