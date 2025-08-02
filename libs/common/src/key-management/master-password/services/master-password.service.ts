@@ -121,7 +121,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     return EncString.fromJSON(key);
   }
 
-  private emailToSalt(email: string): MasterPasswordSalt {
+  emailToSalt(email: string): MasterPasswordSalt {
     return email.toLowerCase().trim() as MasterPasswordSalt;
   }
 
@@ -284,13 +284,11 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     salt = salt.toLowerCase().trim() as MasterPasswordSalt;
 
     await SdkLoadService.Ready;
-    const masterKeyWrappedUserKey = new EncString(
-      PureCrypto.encrypt_user_key_with_master_password(
-        userKey.toEncoded(),
-        password,
-        salt,
-        kdf.toSdkConfig(),
-      ),
+    const masterKeyWrappedUserKey = PureCrypto.encrypt_user_key_with_master_password(
+      userKey.toEncoded(),
+      password,
+      salt,
+      kdf.toSdkConfig(),
     ) as MasterKeyWrappedUserKey;
     return {
       salt,
@@ -309,7 +307,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     await SdkLoadService.Ready;
     const userKey = new SymmetricCryptoKey(
       PureCrypto.decrypt_user_key_with_master_password(
-        masterPasswordUnlockData.masterKeyWrappedUserKey.encryptedString,
+        masterPasswordUnlockData.masterKeyWrappedUserKey,
         password,
         masterPasswordUnlockData.salt,
         masterPasswordUnlockData.kdf.toSdkConfig(),

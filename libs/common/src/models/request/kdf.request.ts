@@ -1,14 +1,20 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { KdfType } from "@bitwarden/key-management";
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 
 import { PasswordRequest } from "../../auth/models/request/password.request";
 
 export class KdfRequest extends PasswordRequest {
-  kdf: KdfType;
-  kdfIterations: number;
-  kdfMemory?: number;
-  kdfParallelism?: number;
+  constructor(
+    authenticationData: MasterPasswordAuthenticationData,
+    unlockData: MasterPasswordUnlockData,
+  ) {
+    super();
+    // Note, this init code should be in the super constructor, once PasswordRequest's constructor is updated.
+    this.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
+    this.key = unlockData.masterKeyWrappedUserKey;
+    this.authenticationData = authenticationData;
+    this.unlockData = unlockData;
+  }
 }
