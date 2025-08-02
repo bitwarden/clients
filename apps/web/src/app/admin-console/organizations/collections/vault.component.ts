@@ -278,9 +278,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     const filter$ = this.routedVaultFilterService.filter$;
+
+    // FIXME: The RoutedVaultFilterModel uses `organizationId: Unassigned` to represent the individual vault,
+    // but that is never used in Admin Console. This function narrows the type so it doesn't pollute our code here,
+    // but really we should change to using our own vault filter model.
+    const isOrganizationId = (value: OrganizationId | Unassigned): value is OrganizationId =>
+      value !== Unassigned;
     const organizationId$ = filter$.pipe(
       map((filter) => filter.organizationId),
       filter((filter) => filter !== undefined),
+      filter(isOrganizationId),
       distinctUntilChanged(),
     );
 
@@ -373,10 +380,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.allCollectionsWithoutUnassigned$,
     ]).pipe(
       map(([organizationId, allCollections]) => {
+        // FIXME: We should not assert that the Unassigned type is a CollectionId.
+        // Instead we should consider representing the Unassigned collection as a different object, given that
+        // it is not actually a collection.
         const noneCollection = new CollectionAdminView();
         noneCollection.name = this.i18nService.t("unassigned");
         noneCollection.id = Unassigned as CollectionId;
-        noneCollection.organizationId = organizationId as OrganizationId;
+        noneCollection.organizationId = organizationId;
         return allCollections.concat(noneCollection);
       }),
     );
