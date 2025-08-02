@@ -1,11 +1,14 @@
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -22,11 +25,25 @@ describe("SecretsManagerPortingApiService", () => {
   const apiService = mock<ApiService>();
   const encryptService = mock<EncryptService>();
   const keyService = mock<KeyService>();
+  let accountService: MockProxy<AccountService>;
+  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
+    id: "testId" as UserId,
+    email: "test@example.com",
+    emailVerified: true,
+    name: "Test User",
+  });
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    sut = new SecretsManagerPortingApiService(apiService, encryptService, keyService);
+    accountService = mock<AccountService>();
+    accountService.activeAccount$ = activeAccountSubject;
+    sut = new SecretsManagerPortingApiService(
+      apiService,
+      encryptService,
+      keyService,
+      accountService,
+    );
 
     encryptService.encryptString.mockResolvedValue(mockEncryptedString);
     encryptService.decryptString.mockResolvedValue(mockUnencryptedString);
@@ -51,7 +68,6 @@ describe("SecretsManagerPortingApiService", () => {
 
     it("emits the import successful", async () => {
       const expectedRequest = toRequest([project1, project2], [secret1, secret2]);
-
       let subscriptionCount = 0;
       sut.imports$.subscribe((request) => {
         expect(request).toBeDefined();
