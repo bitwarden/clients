@@ -9,6 +9,8 @@ import { first, takeUntil } from "rxjs/operators";
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderSetupRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-setup.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -56,6 +58,7 @@ export class SetupComponent implements OnInit, OnDestroy {
     private providerApiService: ProviderApiServiceAbstraction,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
@@ -131,8 +134,8 @@ export class SetupComponent implements OnInit, OnDestroy {
       if (!paymentValid || !taxInformationValid || !this.formGroup.valid) {
         return;
       }
-
-      const providerKey = await this.keyService.makeOrgKey<ProviderKey>();
+      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const providerKey = await this.keyService.makeOrgKey<ProviderKey>(activeUserId);
       const key = providerKey[0].encryptedString;
 
       const request = new ProviderSetupRequest();
