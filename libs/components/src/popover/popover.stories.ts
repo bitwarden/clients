@@ -108,7 +108,7 @@ export const Open: Story = {
 
       <div class="tw-h-40">
         <div class="cdk-overlay-pane bit-popover-right bit-popover-right-start">
-          <ng-container *ngTemplateOutlet="myPopover.templateRef"></ng-container>
+          <ng-container *ngTemplateOutlet="myPopover.templateRef()"></ng-container>
         </div>
       </div>
       `,
@@ -130,7 +130,7 @@ export const OpenLongTitle: Story = {
 
       <div class="tw-h-40">
         <div class="cdk-overlay-pane bit-popover-right bit-popover-right-start">
-          <ng-container *ngTemplateOutlet="myPopover.templateRef"></ng-container>
+          <ng-container *ngTemplateOutlet="myPopover.templateRef()"></ng-container>
         </div>
       </div>
       `,

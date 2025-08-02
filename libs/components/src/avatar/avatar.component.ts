@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgClass } from "@angular/common";
 import { Component, OnChanges, input } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
@@ -41,7 +39,7 @@ export class AvatarComponent implements OnChanges {
   private svgFontSize = 20;
   private svgFontWeight = 300;
   private svgSize = 48;
-  src: SafeResourceUrl;
+  src?: SafeResourceUrl;
 
   constructor(public sanitizer: DomSanitizer) {}
 
@@ -56,8 +54,14 @@ export class AvatarComponent implements OnChanges {
   }
 
   private generate() {
-    let chars: string = null;
-    const upperCaseText = this.text()?.toUpperCase() ?? "";
+    const color = this.color();
+    const text = this.text();
+    const id = this.id();
+    if (!text && !color && !id) {
+      throw new Error("Must supply `text`, `color`, or `id` input.");
+    }
+    let chars: string | null = null;
+    const upperCaseText = text?.toUpperCase() ?? "";
 
     chars = this.getFirstLetters(upperCaseText, this.svgCharCount);
 
@@ -66,18 +70,17 @@ export class AvatarComponent implements OnChanges {
     }
 
     // If the chars contain an emoji, only show it.
-    if (chars.match(Utils.regexpEmojiPresentation)) {
-      chars = chars.match(Utils.regexpEmojiPresentation)[0];
+    const emojiMatch = chars.match(Utils.regexpEmojiPresentation);
+    if (emojiMatch) {
+      chars = emojiMatch[0];
     }
 
     let svg: HTMLElement;
-    let hexColor = this.color();
-
-    const id = this.id();
-    if (!Utils.isNullOrWhitespace(this.color())) {
+    let hexColor = color ?? "";
+    if (!Utils.isNullOrWhitespace(hexColor)) {
       svg = this.createSvgElement(this.svgSize, hexColor);
-    } else if (!Utils.isNullOrWhitespace(id)) {
-      hexColor = Utils.stringToColor(id.toString());
+    } else if (!Utils.isNullOrWhitespace(id ?? "")) {
+      hexColor = Utils.stringToColor(id!.toString());
       svg = this.createSvgElement(this.svgSize, hexColor);
     } else {
       hexColor = Utils.stringToColor(upperCaseText);
@@ -95,7 +98,7 @@ export class AvatarComponent implements OnChanges {
     );
   }
 
-  private getFirstLetters(data: string, count: number): string {
+  private getFirstLetters(data: string, count: number): string | null {
     const parts = data.split(" ");
     if (parts.length > 1) {
       let text = "";

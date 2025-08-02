@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, EventEmitter, Output, input } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 

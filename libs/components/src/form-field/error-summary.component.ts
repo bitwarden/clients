@@ -1,6 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
 import { Component, input } from "@angular/core";
 import { AbstractControl, UntypedFormGroup } from "@angular/forms";
 
@@ -21,7 +18,8 @@ export class BitErrorSummary {
   readonly formGroup = input<UntypedFormGroup>();
 
   get errorCount(): number {
-    return this.getErrorCount(this.formGroup());
+    const form = this.formGroup();
+    return form ? this.getErrorCount(form) : 0;
   }
 
   get errorString() {

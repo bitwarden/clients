@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
@@ -47,10 +45,10 @@ export class SimpleConfigurableDialogComponent {
     ];
   }
 
-  protected title: string;
-  protected content: string;
-  protected acceptButtonText: string;
-  protected cancelButtonText: string;
+  protected title?: string;
+  protected content?: string;
+  protected acceptButtonText?: string;
+  protected cancelButtonText?: string;
   protected formGroup = new FormGroup({});
 
   protected showCancelButton = this.simpleDialogOpts.cancelButtonText !== null;
@@ -58,7 +56,7 @@ export class SimpleConfigurableDialogComponent {
   constructor(
     public dialogRef: DialogRef,
     private i18nService: I18nService,
-    @Inject(DIALOG_DATA) public simpleDialogOpts?: SimpleDialogOptions,
+    @Inject(DIALOG_DATA) public simpleDialogOpts: SimpleDialogOptions,
   ) {
     this.localizeText();
   }
@@ -76,24 +74,27 @@ export class SimpleConfigurableDialogComponent {
   private localizeText() {
     this.title = this.translate(this.simpleDialogOpts.title);
     this.content = this.translate(this.simpleDialogOpts.content);
-    this.acceptButtonText = this.translate(this.simpleDialogOpts.acceptButtonText, "yes");
+    this.acceptButtonText = this.translate(
+      this.simpleDialogOpts.acceptButtonText ?? { key: "yes" },
+    );
 
     if (this.showCancelButton) {
       // If accept text is overridden, use cancel, otherwise no
       this.cancelButtonText = this.translate(
-        this.simpleDialogOpts.cancelButtonText,
-        this.simpleDialogOpts.acceptButtonText !== undefined ? "cancel" : "no",
+        this.simpleDialogOpts.cancelButtonText ??
+          (this.simpleDialogOpts.acceptButtonText !== undefined
+            ? { key: "cancel" }
+            : { key: "no" }),
       );
     }
   }
 
-  private translate(translation: string | Translation, defaultKey?: string): string {
-    // Translation interface use implies we must localize.
+  private translate(translation: string | Translation): string {
+    // Object implies we must localize.
     if (typeof translation === "object") {
       return this.i18nService.t(translation.key, ...(translation.placeholders ?? []));
     }
 
-    // Use string that is already translated or use default key post translate
-    return translation ?? this.i18nService.t(defaultKey);
+    return translation;
   }
 }

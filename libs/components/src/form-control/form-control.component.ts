@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { booleanAttribute, Component, ContentChild, HostBinding, input } from "@angular/core";
+import { booleanAttribute, Component, HostBinding, input, contentChild } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -22,10 +20,10 @@ export class FormControlComponent {
 
   readonly disableMargin = input(false, { transform: booleanAttribute });
 
-  @ContentChild(BitFormControlAbstraction) protected formControl: BitFormControlAbstraction;
+  protected readonly formControl = contentChild.required(BitFormControlAbstraction);
 
   @HostBinding("class") get classes() {
-    return []
+    return ([] as string[])
       .concat(this.inline() ? ["tw-inline-block", "tw-me-4"] : ["tw-block"])
       .concat(this.disableMargin() ? [] : ["tw-mb-4"]);
   }
@@ -33,15 +31,15 @@ export class FormControlComponent {
   constructor(private i18nService: I18nService) {}
 
   get required() {
-    return this.formControl.required;
+    return this.formControl().required;
   }
 
   get hasError() {
-    return this.formControl.hasError;
+    return this.formControl().hasError;
   }
 
   get error() {
-    return this.formControl.error;
+    return this.formControl().error;
   }
 
   get displayError() {

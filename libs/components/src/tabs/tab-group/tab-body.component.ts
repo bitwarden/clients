@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TemplatePortal, CdkPortalOutlet } from "@angular/cdk/portal";
 import { Component, effect, HostBinding, input } from "@angular/core";
 
@@ -9,7 +7,7 @@ import { Component, effect, HostBinding, input } from "@angular/core";
   imports: [CdkPortalOutlet],
 })
 export class TabBodyComponent {
-  private _firstRender: boolean;
+  private _firstRender = false;
 
   readonly content = input<TemplatePortal>();
   readonly preserveContent = input(false);

@@ -1,7 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TextFieldModule } from "@angular/cdk/text-field";
-import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
 import {
   AbstractControl,
   UntypedFormBuilder,
@@ -15,6 +12,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { A11yTitleDirective } from "../a11y/a11y-title.directive";
 import { AsyncActionsModule } from "../async-actions";
 import { BadgeModule } from "../badge";
 import { ButtonModule } from "../button";
@@ -30,41 +28,6 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BitFormFieldComponent } from "./form-field.component";
 import { FormFieldModule } from "./form-field.module";
-
-// TOOD: This solves a circular dependency between components and angular.
-@Directive({
-  selector: "[appA11yTitle]",
-})
-export class A11yTitleDirective implements OnInit {
-  @Input() set appA11yTitle(title: string) {
-    this.title = title;
-    this.setAttributes();
-  }
-
-  private title: string;
-  private originalTitle: string | null;
-  private originalAriaLabel: string | null;
-
-  constructor(
-    private el: ElementRef,
-    private renderer: Renderer2,
-  ) {}
-
-  ngOnInit() {
-    this.originalTitle = this.el.nativeElement.getAttribute("title");
-    this.originalAriaLabel = this.el.nativeElement.getAttribute("aria-label");
-    this.setAttributes();
-  }
-
-  private setAttributes() {
-    if (this.originalTitle === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "title", this.title);
-    }
-    if (this.originalAriaLabel === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "aria-label", this.title);
-    }
-  }
-}
 
 export default {
   title: "Component Library/Form/Field",
