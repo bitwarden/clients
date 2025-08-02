@@ -191,9 +191,7 @@ export class EncString implements Encrypted {
 
   private async getKeyForDecryption(orgId: string) {
     const keyService = Utils.getContainerService().getKeyService();
-    return orgId != null
-      ? await keyService.getOrgKey(orgId)
-      : await keyService.getUserKeyWithLegacySupport();
+    return orgId != null ? await keyService.getOrgKey(orgId) : await keyService.getUserKey();
   }
 }
 

@@ -9475,7 +9475,10 @@
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
   "crowdstrikeEventIntegrationDesc": {
-    "message": "Send event data to your Logscale instance"
+    "message": "Pošlite dáta z denníka udalostí do vašej inštancie Logscale"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
   },
   "deviceIdMissing": {
     "message": "Chýba ID zariadenia"
@@ -9493,7 +9496,7 @@
     "message": "Otvorte tento odkaz z emailu na desktope."
   },
   "connectIntegrationButtonDesc": {
-    "message": "Connect $INTEGRATION$",
+    "message": "Prepojiť $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9557,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Vytvoriť novú klientskú organizáciu ktorú môžete spravovať ako Poskytovateľ. Dodatočné sedenia sa prejavia v najbližšom fakturačnom období."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Vyberte plán"
@@ -10917,6 +10929,36 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Neuhradené faktúry"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Predplatné nebolo uhradené. Pre obnovu služby pre vás a vašich klientov, kontaktujte správcu vášho poskytovateľa.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ je pozastavený",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Pre obnovu prístupu k portálu poskytovateľa, kontaktujte zákaznícku podporu Bitwarden a obnovte vaše predplatné.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Predplatné nebolo uhradené. Pre obnovu služby pre vás a vašich klientov, pridajte platobnú metódu do $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
     "message": "Predplatiť si $PLAN$",

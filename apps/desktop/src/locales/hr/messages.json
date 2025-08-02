@@ -4007,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "Omogući automatski unos"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
