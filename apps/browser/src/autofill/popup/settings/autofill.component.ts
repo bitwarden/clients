@@ -585,4 +585,16 @@ export class AutofillComponent implements OnInit {
     }
     return hints;
   }
+
+  /** Navigates the user from the Autofill Nudge to the proper destination based on their browser. */
+  async disableBrowserAutofillSettingsFromNudge(event: Event) {
+    // When we can programmatically disable the autofill setting, do that first
+    // otherwise open the appropriate URI for the browser
+    if (this.canOverrideBrowserAutofillSetting) {
+      this.defaultBrowserAutofillDisabled = true;
+      await this.updateDefaultBrowserAutofillDisabled();
+    } else {
+      await this.openURI(event, this.disablePasswordManagerURI);
+    }
+  }
 }
