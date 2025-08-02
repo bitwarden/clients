@@ -3,7 +3,6 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
@@ -156,6 +155,8 @@ function expectEqualFolders(folders: Folder[], jsonResult: string) {
 }
 
 describe("VaultExportService", () => {
+  const userId = "" as UserId;
+
   let exportService: IndividualVaultExportService;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let cipherService: MockProxy<CipherService>;
@@ -163,7 +164,6 @@ describe("VaultExportService", () => {
   let folderService: MockProxy<FolderService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let accountService: MockProxy<AccountService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let apiService: MockProxy<ApiService>;
   let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
@@ -175,7 +175,6 @@ describe("VaultExportService", () => {
     folderService = mock<FolderService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    accountService = mock<AccountService>();
     apiService = mock<ApiService>();
 
     kdfConfigService = mock<KdfConfigService>();
@@ -185,14 +184,6 @@ describe("VaultExportService", () => {
     kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
     encryptService.encryptString.mockResolvedValue(new EncString("encrypted"));
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
-    const userId = "" as UserId;
-    const accountInfo: AccountInfo = {
-      email: "",
-      emailVerified: true,
-      name: undefined,
-    };
-    const activeAccount = { id: userId, ...accountInfo };
-    accountService.activeAccount$ = new BehaviorSubject(activeAccount);
 
     restrictedItemTypesService = {
       restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
@@ -208,7 +199,6 @@ describe("VaultExportService", () => {
       encryptService,
       cryptoFunctionService,
       kdfConfigService,
-      accountService,
       apiService,
       restrictedItemTypesService as RestrictedItemTypesService,
     );
@@ -217,7 +207,7 @@ describe("VaultExportService", () => {
   it("exports unencrypted user ciphers", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
 
-    const actual = await exportService.getExport("json");
+    const actual = await exportService.getExport(userId, "json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherViews.slice(0, 1), exportedData.data);
@@ -226,7 +216,7 @@ describe("VaultExportService", () => {
   it("exports encrypted json user ciphers", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
 
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = await exportService.getExport(userId, "encrypted_json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherDomains.slice(0, 1), exportedData.data);
@@ -235,7 +225,7 @@ describe("VaultExportService", () => {
   it("does not unencrypted export trashed user items", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews);
 
-    const actual = await exportService.getExport("json");
+    const actual = await exportService.getExport(userId, "json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherViews.slice(0, 2), exportedData.data);
@@ -244,7 +234,7 @@ describe("VaultExportService", () => {
   it("does not encrypted export trashed user items", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains);
 
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = await exportService.getExport(userId, "encrypted_json");
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherDomains.slice(0, 2), exportedData.data);
@@ -270,7 +260,7 @@ describe("VaultExportService", () => {
         jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(salt);
         cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
 
-        exportedVault = await exportService.getPasswordProtectedExport(password);
+        exportedVault = await exportService.getPasswordProtectedExport(userId, password);
         expect(typeof exportedVault.data).toBe("string");
         exportString = (exportedVault as ExportedVaultAsString).data;
         exportObject = JSON.parse(exportString);
@@ -299,7 +289,7 @@ describe("VaultExportService", () => {
       it("has a mac property", async () => {
         encryptService.encryptString.mockResolvedValue(mac);
 
-        exportedVault = await exportService.getPasswordProtectedExport(password);
+        exportedVault = await exportService.getPasswordProtectedExport(userId, password);
 
         expect(typeof exportedVault.data).toBe("string");
         exportString = (exportedVault as ExportedVaultAsString).data;
@@ -310,7 +300,7 @@ describe("VaultExportService", () => {
       it("has data property", async () => {
         encryptService.encryptString.mockResolvedValue(data);
 
-        exportedVault = await exportService.getPasswordProtectedExport(password);
+        exportedVault = await exportService.getPasswordProtectedExport(userId, password);
 
         expect(typeof exportedVault.data).toBe("string");
         exportString = (exportedVault as ExportedVaultAsString).data;
@@ -319,7 +309,7 @@ describe("VaultExportService", () => {
       });
 
       it("encrypts the data property", async () => {
-        const unEncryptedExportVault = await exportService.getExport();
+        const unEncryptedExportVault = await exportService.getExport(userId);
 
         expect(typeof unEncryptedExportVault.data).toBe("string");
         const unEncryptedExportString = (unEncryptedExportVault as ExportedVaultAsString).data;
@@ -331,7 +321,7 @@ describe("VaultExportService", () => {
   it("exported unencrypted object contains folders", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
 
-    const actual = await exportService.getExport("json");
+    const actual = await exportService.getExport(userId, "json");
 
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
@@ -341,7 +331,7 @@ describe("VaultExportService", () => {
   it("exported encrypted json contains folders", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
 
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = await exportService.getExport(userId, "encrypted_json");
 
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
