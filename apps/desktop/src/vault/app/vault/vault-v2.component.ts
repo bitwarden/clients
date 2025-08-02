@@ -466,14 +466,23 @@ export class VaultV2Component<C extends CipherViewLike>
         return;
       }
 
-      const updatedCipher = await this.cipherService.get(
-        this.cipherId as CipherId,
-        this.activeUserId as UserId,
+      // The encrypted state of ciphers is updated when an attachment is added,
+      // but the cache is also cleared. Depending on timing, `cipherService.get` can return the
+      // old cipher. Retrieve the updated cipher from `cipherViews$`,
+      // which refreshes after the cached is cleared.
+      const updatedCipherView = await firstValueFrom(
+        this.cipherService.cipherViews$(this.activeUserId!).pipe(
+          filter((c) => !!c),
+          map((ciphers) => ciphers.find((c) => c.id === this.cipherId)),
+        ),
       );
-      const updatedCipherView = await this.cipherService.decrypt(
-        updatedCipher,
-        this.activeUserId as UserId,
-      );
+
+      // `find` can return undefined but that shouldn't happen as
+      // this would mean that the cipher was deleted.
+      // To make TypeScript happy, exit early if it isn't found.
+      if (!updatedCipherView) {
+        return;
+      }
 
       this.cipherFormComponent.patchCipher((currentCipher) => {
         currentCipher.attachments = updatedCipherView.attachments;
@@ -499,7 +508,6 @@ export class VaultV2Component<C extends CipherViewLike>
 
     if (cipher.decryptionFailure) {
       invokeMenu(menu);
-      return;
     }
 
     if (!cipher.isDeleted) {
