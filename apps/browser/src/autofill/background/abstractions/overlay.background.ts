@@ -245,6 +245,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   editedCipher: () => void;
   deletedCipher: () => void;
   bgSaveCipher: () => void;
+  updateOverlayCiphers: () => void;
   fido2AbortRequest: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
 };
 
