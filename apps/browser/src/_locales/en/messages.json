@@ -1983,13 +1983,7 @@
     "message": "Collections"
   },
   "nCollections": {
-    "message": "$COUNT$ collections",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
+    "message": "{count, plural, one {{count} collection} other {{count} collections}}"
   },
   "favorites": {
     "message": "Favorites"
@@ -2023,13 +2017,7 @@
     "message": "Check if password has been exposed."
   },
   "passwordExposed": {
-    "message": "This password has been exposed $VALUE$ time(s) in data breaches. You should change it.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
+    "message": "This password has been exposed {count, plural, one {{count} time} other {{count} times}} in data breaches. You should change it."
   },
   "passwordSafe": {
     "message": "This password was not found in any known data breaches. It should be safe to use."
@@ -3513,13 +3501,7 @@
     "message": "Your master password cannot be recovered if you forget it!"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ character minimum",
-    "placeholders": {
-      "length": {
-        "content": "$1",
-        "example": "14"
-      }
-    }
+    "message": "{count, plural, one {{count} character} other {{count} characters}} minimum"
   },
   "autofillPageLoadPolicyActivated": {
     "message": "Your organization policies have turned on autofill on page load."
@@ -3821,22 +3803,10 @@
     "message": "Search"
   },
   "inputMinLength": {
-    "message": "Input must be at least $COUNT$ characters long.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+    "message": "Input must be at least {count, plural, one {{count} character} other {{count} characters}} long."
   },
   "inputMaxLength": {
-    "message": "Input must not exceed $COUNT$ characters in length.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "20"
-      }
-    }
+    "message": "Input must not exceed {count, plural, one {{count} character} other {{count} characters}} in length."
   },
   "inputForbiddenCharacters": {
     "message": "The following characters are not allowed: $CHARACTERS$",
@@ -3888,13 +3858,7 @@
     "message": "1 field needs your attention."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
+    "message": "{count, plural, one {{count} field} other {{count} fields}} needs your attention."
   },
   "selectPlaceholder": {
     "message": "-- Select --"
@@ -4793,13 +4757,7 @@
     "message": "One filter applied"
   },
   "filterAppliedPlural": {
-    "message": "$COUNT$ filters applied",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+    "message": "{count, plural, one {{count} filter} other {{count} filters}} applied"
   },
   "personalDetails": {
     "message": "Personal details"
@@ -5044,13 +5002,8 @@
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
-    "placeholders": {
-      "personal_items_count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
+    "message": "{count, plural, one {{count} item} other {{count} items}} will be permanently transferred to the selected organization. You will no longer own these items.",
+    "description": "Used only with count > 1"
   },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
@@ -5062,7 +5015,8 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "{count, plural, one {{count} item} other {{count} items}} will be permanently transferred to $ORG$. You will no longer own these items.",
+    "description": "Used only with count > 1",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",

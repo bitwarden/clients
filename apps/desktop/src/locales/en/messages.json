@@ -1632,13 +1632,7 @@
     "message": "Check if password has been exposed."
   },
   "passwordExposed": {
-    "message": "This password has been exposed $VALUE$ time(s) in data breaches. You should change it.",
-    "placeholders": {
-      "value": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
+    "message": "This password has been exposed {count, plural, one {{count} time} other {{count} times}} in data breaches. You should change it."
   },
   "passwordSafe": {
     "message": "This password was not found in any known data breaches. It should be safe to use."
@@ -2021,13 +2015,7 @@
     "message": "1 field needs your attention."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
+    "message": "{count, plural, one {{count} field} other {{count} fields}} needs your attention."
   },
   "cardExpiredTitle": {
     "message": "Expired card"
@@ -3158,13 +3146,7 @@
     "message": "Your master password cannot be recovered if you forget it!"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ character minimum",
-    "placeholders": {
-      "length": {
-        "content": "$1",
-        "example": "14"
-      }
-    }
+    "message": "{count, plural, one {{count} character} other {{count} characters}} minimum"
   },
   "windowsBiometricUpdateWarning": {
     "message": "Bitwarden recommends updating your biometric settings to require your master password (or PIN) on the first unlock. Would you like to update your settings now?"
@@ -3276,22 +3258,10 @@
     "message": "Search"
   },
   "inputMinLength": {
-    "message": "Input must be at least $COUNT$ characters long.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+    "message": "Input must be at least {count, plural, one {{count} character} other {{count} characters}} long."
   },
   "inputMaxLength": {
-    "message": "Input must not exceed $COUNT$ characters in length.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "20"
-      }
-    }
+    "message": "Input must not exceed {count, plural, one {{count} character} other {{count} characters}} in length."
   },
   "inputForbiddenCharacters": {
     "message": "The following characters are not allowed: $CHARACTERS$",
@@ -4010,13 +3980,8 @@
       }
     },
     "personalItemsTransferWarningPlural": {
-      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
-      "placeholders": {
-        "personal_items_count": {
-          "content": "$1",
-          "example": "2"
-        }
-      }
+      "message": "{count, plural, one {{count} item} other {{count} items}} will be permanently transferred to the selected organization. You will no longer own these items.",
+      "description": "Used only with count > 1"
     },
     "personalItemWithOrgTransferWarningSingular": {
       "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
@@ -4027,6 +3992,20 @@
         }
       }
     },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "{count, plural, one {{count} item} other {{count} items}} will be permanently transferred to $ORG$. You will no longer own these items.",
+      "description": "Used only with count > 1",
+      "placeholders": {
+        "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
     "personalItemsWithOrgTransferWarningPlural": {
       "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
       "placeholders": {
