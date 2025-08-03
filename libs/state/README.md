@@ -556,7 +556,7 @@ time and the info will be always for the same account.
 
 ## Structure
 
-![State Diagram](State_Diagram.svg)
+![State Diagram](state_diagram.svg)
 
 ## Derived State
 
