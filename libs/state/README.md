@@ -25,25 +25,19 @@ This includes a storage medium (disk or memory) and a unique key. `StateDefiniti
 expansion to precise keys. They exist to help minimize the potential of overlaps in a distributed
 storage framework.
 
-:::warning
-
-Once you have created the definitions you need to take extreme caution when changing any part of the
-namespace. If you change the name of a `StateDefinition` pointing at `"disk"` without also migrating
-data from the old name to the new name you will lose data. Data pointing at `"memory"` can have its
-name changed.
-
-:::
+> [!WARNING]
+> Once you have created the definitions you need to take extreme caution when changing any part of the
+> namespace. If you change the name of a `StateDefinition` pointing at `"disk"` without also migrating
+> data from the old name to the new name you will lose data. Data pointing at `"memory"` can have its
+> name changed.
 
 #### `StateDefinition`
 
-:::note
-
-Secure storage is not currently supported as a storage location in the State Provider Framework. For
-now, don't migrate data that is stored in secure storage but please contact the Platform team when
-you have data you wanted to migrate so we can prioritize a long-term solution. If you need new data
-in secure storage, use `StateService` for now.
-
-:::
+> [!NOTE]
+> Secure storage is not currently supported as a storage location in the State Provider Framework. For
+> now, don't migrate data that is stored in secure storage but please contact the Platform team when
+> you have data you wanted to migrate so we can prioritize a long-term solution. If you need new data
+> in secure storage, use `StateService` for now.
 
 `StateDefinition` is a simple API but a very core part of making the State Provider Framework work
 smoothly. It defines a storage location and top-level namespace for storage. Teams will interact
@@ -132,13 +126,10 @@ The arguments for defining a `KeyDefinition` or `UserKeyDefinition` are:
 | `key`             | A human readable, camelCase-formatted name for the key definition. This name should be unique amongst all other `KeyDefinition`s or `UserKeyDefinition`s that consume the same `StateDefinition`. |
 | `options`         | An object of type [`KeyDefinitionOptions`](#key-definition-options) or [`UserKeyDefinitionOptions`](#key-definition-options), which defines the behavior of the key.                              |
 
-:::warning
-
-It is the responsibility of the team to ensure the uniqueness of the `key` within a
-`StateDefinition`. As such, you should never consume the `StateDefinition` of another team in your
-own key definition.
-
-:::
+> [!WARNING]
+> It is the responsibility of the team to ensure the uniqueness of the `key` within a
+> `StateDefinition`. As such, you should never consume the `StateDefinition` of another team in your
+> own key definition.
 
 ##### Key Definition Options
 
@@ -172,12 +163,10 @@ These methods are helpers for invoking their more modular siblings `SingleUserSt
 can all be injected into your service as well. If you prefer thin dependencies over the slightly
 larger changeset required, you can absolutely make use of the more targeted providers.
 
-:::warning `ActiveUserState` is deprecated
-
-The `ActiveUserStateProvider.get` and its helper `getActive<T>` are deprecated. See
-[here](#should-i-use-activeuserstate) for details.
-
-:::
+> [!WARNING] > `ActiveUserState` is deprecated
+>
+> The `ActiveUserStateProvider.get` and its helper `getActive<T>` are deprecated. See
+> [here](#should-i-use-activeuserstate) for details.
 
 You will most likely use `StateProvider` in a domain service that is responsible for managing the
 state, with the state values being scoped to a single user. The `StateProvider` should be injected
@@ -227,13 +216,10 @@ The `state$` property provides you with an `Observable<T | null>` that can be su
 `SingleUserState<T>.state$` will emit when the chosen storage location emits an update to the state
 defined by the corresponding `UserKeyDefinition` for the requested `userId`.
 
-:::note
-
-Updates to `SingleUserState` or `ActiveUserState` handling the same `KeyDefinition` will cause each
-other to emit on their `state$` observables if the `userId` handled by the `SingleUserState` happens
-to be active at the time of the update.
-
-:::
+> [!NOTE]
+> Updates to `SingleUserState` or `ActiveUserState` handling the same `KeyDefinition` will cause each
+> other to emit on their `state$` observables if the `userId` handled by the `SingleUserState` happens
+> to be active at the time of the update.
 
 ### `DerivedState<T>`
 
@@ -241,12 +227,8 @@ For details on how to use derived state, see [Derived State](#derived-state).
 
 ### `ActiveUserState<T>`
 
-:::warning
-
-`ActiveUserState` has race condition problems. Do not add usages and consider transitioning your
-code to SingleUserState instead. [Read more.](#should-i-use-activeuserstate)
-
-:::
+> [!WARNING] > `ActiveUserState` has race condition problems. Do not add usages and consider transitioning your
+> code to SingleUserState instead. [Read more.](#should-i-use-activeuserstate)
 
 `ActiveUserState<T>` is an object to help you maintain and view the state of the currently active
 user. If the currently-active user changes, like through account switching, the data this object
@@ -269,22 +251,19 @@ type StateUpdateOptions = {
 }
 ```
 
-:::warning `firstValueFrom()` and state updates
-
-A usage pattern of updating state and then immediately requesting a value through `firstValueFrom()`
-**will not always result in the updated value being returned**. This is because we cannot guarantee
-that the update has taken place before the `firstValueFrom()` executes, in which case the previous
-(cached) value of the observable will be returned.
-
-Use of `firstValueFrom()` should be avoided. If you find yourself trying to use `firstValueFrom()`,
-consider propagating the underlying observable instead of leaving reactivity.
-
-If you do need to obtain the result of an update in a non-reactive way, you should use the result  
-returned from the `update()` method. The `update()` will return the value that will be persisted
-to  
-state, after any `shouldUpdate()` filters are applied.
-
-:::
+> [!WARNING] > `firstValueFrom()` and state updates
+>
+> A usage pattern of updating state and then immediately requesting a value through `firstValueFrom()` > **will not always result in the updated value being returned**. This is because we cannot guarantee
+> that the update has taken place before the `firstValueFrom()` executes, in which case the previous
+> (cached) value of the observable will be returned.
+>
+> Use of `firstValueFrom()` should be avoided. If you find yourself trying to use `firstValueFrom()`,
+> consider propagating the underlying observable instead of leaving reactivity.
+>
+> If you do need to obtain the result of an update in a non-reactive way, you should use the result  
+> returned from the `update()` method. The `update()` will return the value that will be persisted
+> to  
+> state, after any `shouldUpdate()` filters are applied.
 
 #### Using `shouldUpdate` to filter unnecessary updates
 
@@ -650,12 +629,9 @@ new DerivedState<TFrom, TTo, { example: Dependency }>();
 would require a `deps` object with an `example` property of type `Dependency` to be passed to any
 `DerivedState` configured to use the `DerivedDefinition`.
 
-:::warning
-
-Both `derive` and `deserializer` functions should take null inputs into consideration. Both parent
-state and stored data for deserialization can be `null` or `undefined`.
-
-:::
+> [!WARNING]
+> Both `derive` and `deserializer` functions should take null inputs into consideration. Both parent
+> state and stored data for deserialization can be `null` or `undefined`.
 
 ## `DerivedStateProvider`
 
@@ -677,12 +653,9 @@ interface DerivedStateProvider {
 }
 ```
 
-:::tip
-
-Any observable can be used as the parent state. If you need to perform some kind of work on data
-stored to disk prior to sending to your `derive` functions, that is supported.
-
-:::
+> [!TIP]
+> Any observable can be used as the parent state. If you need to perform some kind of work on data
+> stored to disk prior to sending to your `derive` functions, that is supported.
 
 ## `DerivedState`
 
@@ -702,9 +675,5 @@ interface DerivedState<T> {
   useful for clearing derived state from memory without impacting the parent state, such as during
   logout.
 
-:::note
-
-`forceValue` forces `state$` _once_. It does not prevent the derived state from being recomputed
-when the parent state changes.
-
-:::
+> [!NOTE] > `forceValue` forces `state$` _once_. It does not prevent the derived state from being recomputed
+> when the parent state changes.
