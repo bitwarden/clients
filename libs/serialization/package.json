@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/serialization",
+  "version": "0.0.1",
+  "description": "Core serialization utilities",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}
