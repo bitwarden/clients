@@ -1,16 +1,16 @@
 <div
   [ngClass]="{
     'tw-sticky tw-top-0 tw-z-50 tw-pb-2': sideNavService.open,
-    'tw-pb-[calc(theme(spacing.6)_+_1px)]': !sideNavService.open,
+    'tw-pb-[calc(theme(spacing.6)_+_2px)]': !sideNavService.open,
   }"
   class="tw-px-2 tw-pt-5"
 >
   <!-- absolutely position the link svg to avoid shifting layout when sidenav is closed -->
   <a
     [routerLink]="route()"
-    class="tw-p-3 tw-block tw-rounded-md tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2 hover:tw-bg-hover-contrast"
+    class="tw-relative tw-p-3 tw-block tw-rounded-md tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2 hover:tw-bg-hover-contrast tw-h-[73px] [&_svg]:tw-absolute [&_svg]:tw-inset-[theme(spacing.3)] [&_svg]:tw-w-[calc(100%_-_theme(spacing.6))] [&_svg]:tw-transition-[inline-start-inset]"
     [ngClass]="{
-      'tw-relative tw-h-[56px] [&_svg]:tw-absolute [&_svg]:tw-top-1/2 [&_svg]:tw-left-[12px] [&_svg]:tw-transform [&_svg]:-tw-translate-y-1/2':
+      '!tw-h-[55px] [&_svg]:!tw-w-[26px] [&_svg]:tw-inset-y-[theme(spacing.3)]':
         !sideNavService.open,
     }"
     [attr.aria-label]="label()"
