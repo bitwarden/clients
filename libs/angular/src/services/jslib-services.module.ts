@@ -48,8 +48,6 @@ import {
   LoginSuccessHandlerService,
   LogoutReason,
   LogoutService,
-  PinService,
-  PinServiceAbstraction,
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -166,6 +164,8 @@ import {
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import {
   SendPasswordService,
   DefaultSendPasswordService,
@@ -672,7 +672,6 @@ const safeProviders: SafeProvider[] = [
     provide: KeyService,
     useClass: DefaultKeyService,
     deps: [
-      PinServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyGenerationServiceAbstraction,
       CryptoFunctionServiceAbstraction,
@@ -1224,12 +1223,13 @@ const safeProviders: SafeProvider[] = [
     useClass: PinService,
     deps: [
       AccountServiceAbstraction,
-      CryptoFunctionServiceAbstraction,
       EncryptService,
       KdfConfigService,
       KeyGenerationServiceAbstraction,
       LogService,
       StateProvider,
+      KeyService,
+      SdkService,
     ],
   }),
   safeProvider({

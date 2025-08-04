@@ -3,10 +3,8 @@
 import { inject } from "@angular/core";
 import { combineLatest, defer, firstValueFrom, map, Observable } from "rxjs";
 
-import {
-  PinServiceAbstraction,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BiometricsService,
