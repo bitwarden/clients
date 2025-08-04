@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Deursoek kluis"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Voeg item toe"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Ontgrendel met Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Bykomende Windows Hello-instellings"
-  },
   "unlockWithPolkit": {
     "message": "Unlock with system authentication"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "ontgrendel u kluis"
   },
-  "autoPromptWindowsHello": {
-    "message": "Vra vir Windows Hello by lansering"
-  },
-  "autoPromptPolkit": {
-    "message": "Ask for system authentication on launch"
-  },
   "autoPromptTouchId": {
     "message": "Vra vir Touch ID by lansering"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "Aanbeveel vir veiligheid."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

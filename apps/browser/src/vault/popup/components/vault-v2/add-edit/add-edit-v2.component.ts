@@ -268,6 +268,7 @@ export class AddEditV2Component implements OnInit {
       // Clear popup history so after closing/reopening, Back won’t return to the add-edit form
       await this.popupRouterCacheService.setHistory([]);
     }
+    await BrowserApi.sendMessage("addEditCipherSubmitted");
   }
 
   subscribeToParams(): void {

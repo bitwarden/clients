@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Annuleren"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Geannuleerd"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Groepen zoeken"
+  },
+  "resetSearch": {
+    "message": "Zoekopdracht resetten"
   },
   "allItems": {
     "message": "Alle Items"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Krijg advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox."
+  },
+  "subscribe": {
+    "message": "Abonneren"
   },
   "unsubscribe": {
     "message": "Afmelden"
@@ -9465,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "Apparaatbeheer voor Bitwarden configureren met behulp van de implementatiehandleiding voor jouw platform."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Stuur eventgegevens naar je Logscale-instantie"
+  },
+  "failedToSaveIntegration": {
+    "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
+  },
   "deviceIdMissing": {
     "message": "Apparaat-ID ontbreekt"
   },
@@ -9479,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Open deze link opnieuw vanaf je e-mail op een desktop."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "$INTEGRATION$ verbinden",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$ implementatiehandleiding openen.",
@@ -9536,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Maak een nieuwe clientorganisatie aan om te beheren als Aanbieder. Extra plaatsen worden weergegeven in de volgende factureringscyclus."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer-token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Selecteer een plan"
@@ -10285,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "De gebruiker is verwijderd uit de organisatie en alle bijbehorende gebruikersgegevens zijn verwijderd."
   },
-  "deletedUserId": {
-    "message": "Gebruiker $ID$ verwijderd - een eigenaar / beheerder heeft het gebruikersaccount verwijderd",
+  "deletedUserIdEventMessage": {
+    "message": "Gebruiker $ID$ verwijderd",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "Gebruikersverificatie"
   },
-  "claimedDomainsDesc": {
-    "message": "Verifieer een domein om eigenaar te worden van alle leden wiens e-mailadres overeenkomt met het domein. Leden kunnen de SSO-identificatie overslaan wanneer ze inloggen. Beheerders kunnen accounts van lelden verwijderen."
+  "claimedDomainsDescription": {
+    "message": "Claim een domein voor eigendom van ledenaccounts. De SSO-identificatiepagina wordt overgeslagen tijdens het inloggen voor leden met geclaimde domeinen en beheerders kunnen geclaimde accounts verwijderen."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Invoer is geen geldig formaat. Formaat: mijndomein.com. Subdomeinen moet je afzonderlijk verifiëren."
@@ -10896,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Onbetaalde facturen"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Je abonnement is niet betaald. Neem contact op met je providerbeheerder om de service naar jezelf en je klanten te herstellen.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is opgeschort",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Neem contact op met de Bitwarden Klantenservice om de toegang tot je providersportaal te herstellen om je abonnement te vernieuwen.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Je abonnement is niet betaald. Voeg een betaalmethode toe voor $CANCELLATION_DATE$ om de service aan jezelf en klanten te herstellen.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Abonneren op $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Je proefperiode van 7 dagen $PLAN$ begint vandaag. Voeg nu een betaalmethode toe om deze functies na afloop van je proefperiode te blijven gebruiken ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Onbeperkte geheimen en projecten"
   }
 }

@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Pretraživanje trezora"
   },
+  "resetSearch": {
+    "message": "Ponovno postavljanje pretraživanja"
+  },
   "addItem": {
     "message": "Dodaj stavku"
   },
@@ -241,7 +244,7 @@
     "message": "SSH agent je servis namijenjen developerima koji omogućuje potpisivanje SSH zahtjeva izravno iz tvojeg Bitwarden trezora."
   },
   "sshAgentPromptBehavior": {
-    "message": "Zahtjevaj autorizaciju pri korištenju SSH agenta"
+    "message": "Traži autorizaciju pri korištenju SSH agenta"
   },
   "sshAgentPromptBehaviorDesc": {
     "message": "Odaberi kako će se postupati sa zahtjevima za autorizaciju SSH agenta."
@@ -573,7 +576,7 @@
     "message": "Kopiraj kôd za provjeru (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopiraj $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1440,7 +1443,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "broj kartice"
   },
   "premiumMembership": {
     "message": "Premium članstvo"
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Otključaj koristeći Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Dodatne Windows Hello postavke"
-  },
   "unlockWithPolkit": {
     "message": "Otključaj autentifikacijom sustava"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "Otključaj trezor"
   },
-  "autoPromptWindowsHello": {
-    "message": "Zahtijevaj Windows Hello pri pokretanju"
-  },
-  "autoPromptPolkit": {
-    "message": "Traži autentifikaciju sustava pri pokretanju"
-  },
   "autoPromptTouchId": {
     "message": "Zahtijevaj Touch ID pri pokretanju"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Zahtijevaj lozinku pri pokretanju"
-  },
-  "recommendedForSecurity": {
-    "message": "Preporučeno za sigurnost."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"
@@ -4016,9 +4007,9 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Omogući automatski unos"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
   }
 }

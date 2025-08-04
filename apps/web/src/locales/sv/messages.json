@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Avbryt"
   },
+  "later": {
+    "message": "Senare"
+  },
   "canceled": {
     "message": "Avbruten"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Sök i grupper"
+  },
+  "resetSearch": {
+    "message": "Nollställ sökning"
   },
   "allItems": {
     "message": "Alla objekt"
@@ -1102,7 +1108,7 @@
     "message": "Ogiltig nyckel. Försök igen."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "Tvåstegsverifiering stöds inte för nycklar. Uppdatera appen för att logga in."
+    "message": "Tvåstegsverifiering stöds inte för inloggningsnycklar. Uppdatera appen för att logga in."
   },
   "loginWithPasskeyInfo": {
     "message": "Använd en genererad inloggningsnyckel som automatiskt loggar in dig utan lösenord. Din identitet verifieras med biometri, såsom ansiktsigenkänning eller fingeravtryck, eller en annan FIDO2-säkerhetsmetod."
@@ -1168,7 +1174,7 @@
     "message": "Ta bort inloggningsnyckel"
   },
   "removePasskeyInfo": {
-    "message": "Om alla nycklar tas bort kommer du inte kunna logga in på nya enheter utan ditt huvudlösenord."
+    "message": "Om alla inloggningsnycklar tas bort kommer du inte kunna logga in på nya enheter utan ditt huvudlösenord."
   },
   "passkeyLimitReachedInfo": {
     "message": "Gränsen för antal inloggningsnycklar har uppnåtts. Ta bort en inloggningsnyckel innan du lägger till en ny."
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Få råd, tillkännagivanden och forskningsmöjligheter från Bitwarden i din inkorg."
+  },
+  "subscribe": {
+    "message": "Abonnera"
   },
   "unsubscribe": {
     "message": "Avsluta prenumeration"
@@ -9465,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "Konfigurera enhetshanteringen för Bitwarden med hjälp av implementeringsguiden för din plattform."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Skicka händelsedata till din Logscale-instans"
+  },
+  "failedToSaveIntegration": {
+    "message": "Misslyckades med att spara integration. Försök igen senare."
+  },
   "deviceIdMissing": {
     "message": "Enhetens ID saknas"
   },
@@ -9479,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Öppna den här länken igen från ditt e-postmeddelande på ett skrivbord."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Anslut $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Starta implementeringsguiden för $INTEGRATION$.",
@@ -9536,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Skapa en ny kundorganisation som du kan hantera som Provider. Ytterligare platser kommer att återspeglas i nästa faktureringscykel."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bärartoken"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Välj en plan"
@@ -10285,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "Användaren har tagits bort från organisationen och alla tillhörande användardata har raderats."
   },
-  "deletedUserId": {
-    "message": "Borttagen användare $ID$ - en ägare/administratör har tagit bort användarkontot",
+  "deletedUserIdEventMessage": {
+    "message": "Tog bort användaren $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "Under verifiering"
   },
-  "claimedDomainsDesc": {
-    "message": "Gör anspråk på en domän för att äga alla medlemskonton vars e-postadress matchar domänen. Medlemmar kommer att kunna hoppa över SSO-identifieraren när de loggar in. Administratörer kommer också att kunna ta bort medlemskonton."
+  "claimedDomainsDescription": {
+    "message": "Begär en domän för att äga medlemskonton. SSO-identifierarsidan kommer att hoppas över under inloggningen för medlemmar med namngivna domäner och administratörer kommer att kunna ta bort begärda konton."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Inmatningen är inte ett giltigt format. Format: mydomain.com. Underdomäner kräver separata poster för att hävdas."
@@ -10896,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Obetalda fakturor"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Din prenumeration har inte betalats. Kontakta din leverantörsadministratör för att återställa tjänsten för dig och dina kunder.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ är avstängd",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "För att återställa åtkomsten till din leverantörsportal, kontakta Bitwardens kundsupport för att förnya ditt abonnemang.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Din prenumeration har inte betalats. För att återställa tjänsten för dig och dina kunder, lägg till en betalningsmetod senast $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Abonnera på $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Din testperiod på 7 dagar för $PLAN$ börjar idag. Lägg till en betalningsmetod nu för att fortsätta använda dessa funktioner efter din testperiod avslutas: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Obegränsade hemligheter och projekt"
   }
 }

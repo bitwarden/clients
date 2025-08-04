@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Cerca en la caixa forta"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Afegeix element"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Desbloqueja amb Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Configuració addicional de Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Desbloqueja amb l'autenticació del sistema"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "desbloqueja la teva caixa forta"
   },
-  "autoPromptWindowsHello": {
-    "message": "Sol·liciteu Windows Hello en iniciar"
-  },
-  "autoPromptPolkit": {
-    "message": "Sol·licita l'autenticació del sistema a l'inici"
-  },
   "autoPromptTouchId": {
     "message": "Sol·liciteu Touch ID en iniciar"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "Recomanat per seguretat."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloqueja amb la contrasenya mestra en reiniciar"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

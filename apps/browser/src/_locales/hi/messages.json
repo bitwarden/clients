@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "वॉल्ट खोजे"
   },
+  "resetSearch": {
+    "message": "खोज रीसेट करें"
+  },
   "edit": {
     "message": "संपादन करें"
   },

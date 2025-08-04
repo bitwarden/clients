@@ -4,12 +4,10 @@ import { MockProxy } from "jest-mock-extended";
 import mock from "jest-mock-extended/lib/Mock";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -38,11 +36,9 @@ describe("EmergencyAccessService", () => {
   let apiService: MockProxy<ApiService>;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let bulkEncryptService: MockProxy<BulkEncryptService>;
   let cipherService: MockProxy<CipherService>;
   let logService: MockProxy<LogService>;
   let emergencyAccessService: EmergencyAccessService;
-  let configService: ConfigService;
 
   const mockNewUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("trustedPublicKey")];
@@ -52,7 +48,6 @@ describe("EmergencyAccessService", () => {
     apiService = mock<ApiService>();
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    bulkEncryptService = mock<BulkEncryptService>();
     cipherService = mock<CipherService>();
     logService = mock<LogService>();
 
@@ -61,10 +56,8 @@ describe("EmergencyAccessService", () => {
       apiService,
       keyService,
       encryptService,
-      bulkEncryptService,
       cipherService,
       logService,
-      configService,
     );
   });
 

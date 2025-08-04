@@ -6,7 +6,6 @@ import {
   userEvent,
   getAllByRole,
   getByRole,
-  getByLabelText,
   fireEvent,
   getByText,
   getAllByLabelText,
@@ -155,16 +154,11 @@ export const PopoverOpen: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
-    const passwordLabelIcon = getByLabelText(canvas, "A random password (required)", {
-      selector: "button",
+    const popoverLink = getByRole(canvas, "button", {
+      name: "Popover trigger link",
     });
 
-    await userEvent.click(passwordLabelIcon);
-  },
-  parameters: {
-    chromatic: {
-      disableSnapshot: true,
-    },
+    await userEvent.click(popoverLink);
   },
 };
 

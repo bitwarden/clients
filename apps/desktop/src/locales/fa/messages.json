@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "جستجوی گاوصندوق"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "افزودن مورد"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "قفل گشایی با Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "تنظیمات اضافی Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "باز کردن قفل با احراز هویت سیستم"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "قفل گاوصندوق خود را باز کنید"
   },
-  "autoPromptWindowsHello": {
-    "message": "درخواست Windows Hello در هنگام راه‌اندازی"
-  },
-  "autoPromptPolkit": {
-    "message": "در زمان اجرا درخواست احراز هویت سیستم را بده"
-  },
   "autoPromptTouchId": {
     "message": "درخواست Touch ID در هنگام راه‌اندازی"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "هنگام شروع برنامه، کلمه عبور مورد نیاز است"
-  },
-  "recommendedForSecurity": {
-    "message": "برای امنیت توصیه می‌شود."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "در زمان شروع مجدد، با کلمه عبور اصلی قفل کن"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

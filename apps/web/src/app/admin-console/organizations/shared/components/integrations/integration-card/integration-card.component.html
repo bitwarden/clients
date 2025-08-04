@@ -33,7 +33,7 @@
     <p class="tw-mb-0">{{ description }}</p>
 
     @if (canSetupConnection) {
-      <button type="button" class="tw-mt-3" bitButton (click)="setupConnection(name)">
+      <button type="button" class="tw-mt-3" bitButton (click)="setupConnection()">
         <span>{{ "connectIntegrationButtonDesc" | i18n: name }}</span>
       </button>
     }

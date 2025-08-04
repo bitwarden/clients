@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Pretraži trezor"
   },
+  "resetSearch": {
+    "message": "Ponovno postavljanje pretraživanja"
+  },
   "edit": {
     "message": "Uredi"
   },
@@ -1830,7 +1833,7 @@
     "message": "Sigurnosni kôd"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "broj kartice"
   },
   "ex": {
     "message": "npr."
@@ -3464,7 +3467,7 @@
     "message": "Zahtjev poslan"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3477,13 +3480,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
   "device": {
-    "message": "Device"
+    "message": "Uređaj"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Status prijave"
   },
   "masterPasswordChanged": {
     "message": "Glavna lozinka promijenjena"
@@ -3582,17 +3585,17 @@
     "message": "Zapamti ovaj uređaj kako bi buduće prijave bile brže"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Upravljaj uređajima"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Trenutna sesija"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Mobitel",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Proširenje",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -3600,10 +3603,10 @@
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Web trezor"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Web aplikacija"
   },
   "cli": {
     "message": "CLI"
@@ -3613,22 +3616,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Zahtjev u tijeku"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Prva prijava"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Pouzdan"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Zahtijeva odobrenje"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Uređaji"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "$EMAIL$ pokušava pristupiti",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3637,28 +3640,28 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Potvrdi pristup"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Odbij pristup"
   },
   "time": {
-    "message": "Time"
+    "message": "Vrijeme"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Vrsta uređaja"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Zahtjev za prijavu"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Ovaj zahtjev više nije valjan."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Pokušavaš li pristupiti svom računu?"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3671,16 +3674,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Zahtjev za prijavu je već istekao."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Upravo"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Zatraženo prije $MINUTES$ minute/a",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4598,7 +4601,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopiraj $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {

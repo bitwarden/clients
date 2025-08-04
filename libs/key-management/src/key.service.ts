@@ -232,6 +232,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.buildProtectedSymmetricKey(masterKey, newUserKey);
   }
 
+  async makeUserKeyV1(): Promise<UserKey> {
+    const newUserKey = await this.keyGenerationService.createKey(512);
+    return newUserKey as UserKey;
+  }
+
   /**
    * Clears the user key. Clears all stored versions of the user keys as well, such as the biometrics key
    * @param userId The desired user
@@ -259,44 +264,49 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
   }
 
-  // TODO: Move to MasterPasswordService
-  async getOrDeriveMasterKey(password: string, userId?: UserId) {
-    const [resolvedUserId, email] = await firstValueFrom(
-      combineLatest([this.accountService.activeAccount$, this.accountService.accounts$]).pipe(
-        map(([activeAccount, accounts]) => {
-          userId ??= activeAccount?.id;
-          if (userId == null || accounts[userId] == null) {
-            throw new Error("No user found");
-          }
-          return [userId, accounts[userId].email];
-        }),
-      ),
-    );
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(resolvedUserId));
+  /**
+   * @deprecated Please use `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` or `makeMasterPasswordUnlockData` in @link MasterPasswordService instead.
+   */
+  async getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey> {
+    if (userId == null) {
+      throw new Error("User ID is required.");
+    }
+
+    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey != null) {
       return masterKey;
     }
 
-    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(resolvedUserId));
-    if (kdf == null) {
-      throw new Error("No kdf found for user");
+    const email = await firstValueFrom(
+      this.accountService.accounts$.pipe(map((accounts) => accounts[userId]?.email)),
+    );
+    if (email == null) {
+      throw new Error("No email found for user " + userId);
     }
+
+    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
+    if (kdf == null) {
+      throw new Error("No kdf found for user " + userId);
+    }
+
     return await this.makeMasterKey(password, email, kdf);
   }
 
   /**
    * Derive a master key from a password and email.
    *
+   * @deprecated Please use `makeMasterPasswordAuthenticationData`, `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` in @link MasterPasswordService instead.
+   *
    * @remarks
    * Does not validate the kdf config to ensure it satisfies the minimum requirements for the given kdf type.
-   * TODO: Move to MasterPasswordService
    */
-  async makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey> {
+  async makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey> {
     const start = new Date().getTime();
+    email = email.trim().toLowerCase();
     const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
       password,
       email,
-      KdfConfig,
+      kdfConfig,
     )) as MasterKey;
     const end = new Date().getTime();
     this.logService.info(`[KeyService] Deriving master key took ${end - start}ms`);
@@ -304,6 +314,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return masterKey;
   }
 
+  /**
+   * @deprecated Please use `makeMasterPasswordUnlockData` in {@link MasterPasswordService} instead.
+   */
   async encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
     userKey?: UserKey,
@@ -312,23 +325,19 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return await this.buildProtectedSymmetricKey(masterKey, userKey);
   }
 
-  // TODO: move to MasterPasswordService
+  /**
+   * @deprecated Please use `makeMasterPasswordAuthenticationData` in {@link MasterPasswordService} instead.
+   */
   async hashMasterKey(
     password: string,
-    key: MasterKey | null,
+    key: MasterKey,
     hashPurpose?: HashPurpose,
   ): Promise<string> {
-    if (key == null) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (userId == null) {
-        throw new Error("No active user found.");
-      }
-
-      key = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
+    if (password == null) {
+      throw new Error("password is required.");
     }
-
-    if (password == null || key == null) {
-      throw new Error("Invalid parameters.");
+    if (key == null) {
+      throw new Error("key is required.");
     }
 
     const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
@@ -341,9 +350,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return Utils.fromBufferToB64(hash);
   }
 
-  // TODO: move to MasterPasswordService
   async compareKeyHash(
-    masterPassword: string | null,
+    masterPassword: string,
     masterKey: MasterKey,
     userId: UserId,
   ): Promise<boolean> {

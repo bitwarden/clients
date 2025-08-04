@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Zrušiť"
   },
+  "later": {
+    "message": "Neskôr"
+  },
   "canceled": {
     "message": "Zrušené"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Search groups"
+  },
+  "resetSearch": {
+    "message": "Resetovať vyhľadávanie"
   },
   "allItems": {
     "message": "Všetky položky"
@@ -4625,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden."
+  },
+  "subscribe": {
+    "message": "Predplatiť si"
   },
   "unsubscribe": {
     "message": "Odhlásiť sa z odberu"
@@ -9465,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Pošlite dáta z denníka udalostí do vašej inštancie Logscale"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Chýba ID zariadenia"
   },
@@ -9479,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Otvorte tento odkaz z emailu na desktope."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Prepojiť $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
@@ -9536,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Vytvoriť novú klientskú organizáciu ktorú môžete spravovať ako Poskytovateľ. Dodatočné sedenia sa prejavia v najbližšom fakturačnom období."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Vyberte plán"
@@ -10285,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "Používateľ bol odstránený z organizácie a všetky súvisiace dáta boli vymazané."
   },
-  "deletedUserId": {
-    "message": "Odstránený používateľ $ID$ - vlastnik / správca vymazal používateľský účet",
+  "deletedUserIdEventMessage": {
+    "message": "Používateľ $ID$ vymazaný",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "Overuje sa"
   },
-  "claimedDomainsDesc": {
-    "message": "Privlastnite si doménu, aby ste vlastnili všetky členské účty, ktorých e-mailová adresa sa zhoduje s doménou. Členovia budú môcť pri prihlasovaní preskočiť identifikátor SSO. Správcovia budú môcť tiež vymazávať členské účty."
+  "claimedDomainsDescription": {
+    "message": "Privlastnite si doménu, aby ste mohli vlastniť členské účty. Stránka s identifikátorom SSO bude pri prihlásení členov s privlastnenými doménami preskočená a správcovia budú môcť členské účty odstrániť."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Zadaný neplatný formát. Formát: mydomain.com. Pre privlastnenie subdomén musia byť tieto každá zadaná individuálne."
@@ -10896,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Neuhradené faktúry"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Predplatné nebolo uhradené. Pre obnovu služby pre vás a vašich klientov, kontaktujte správcu vášho poskytovateľa.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ je pozastavený",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Pre obnovu prístupu k portálu poskytovateľa, kontaktujte zákaznícku podporu Bitwarden a obnovte vaše predplatné.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Predplatné nebolo uhradené. Pre obnovu služby pre vás a vašich klientov, pridajte platobnú metódu do $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Predplatiť si $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Vaša 7-dňová skúšobná doba pre $PLAN$ začína dnes. Ak chcete používať nasledujúce funkcie po uplynutí skúšobnej doby, pridajte platobnú metódu: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Neobmedzený počet položiek a projektov"
   }
 }

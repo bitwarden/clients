@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Претражи сеф"
   },
+  "resetSearch": {
+    "message": "Ресетовати претрагу"
+  },
   "addItem": {
     "message": "Додај ставку"
   },
@@ -573,7 +576,7 @@
     "message": "Копирај потврдни код (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Копирај $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1440,7 +1443,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "број картице"
   },
   "premiumMembership": {
     "message": "Премијум чланство"
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Откључај са Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Додатна подешавања Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Откључати системском аутентификацијом"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "откључај свој сеф"
   },
-  "autoPromptWindowsHello": {
-    "message": "Захтевај Windows Hello при покретању"
-  },
-  "autoPromptPolkit": {
-    "message": "Затражите аутентификацију система при покретању"
-  },
   "autoPromptTouchId": {
     "message": "Захтевај Touch ID при покретању"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Захтевај лозинку при покретању"
-  },
-  "recommendedForSecurity": {
-    "message": "Препоручује се за сигурност."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Закључајте са главном лозинком при поновном покретању"
@@ -4016,9 +4007,9 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Упали ауто-унос"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden не потврђује локације уноса, будите сигурни да сте у добром прозору и поље пре употребе пречице."
   }
 }

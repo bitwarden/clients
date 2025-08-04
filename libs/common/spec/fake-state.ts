@@ -18,7 +18,7 @@ import { CombinedState, activeMarker } from "../src/platform/state/user-state";
 import { UserId } from "../src/types/guid";
 import { DerivedStateDependencies } from "../src/types/state";
 
-import { FakeAccountService } from "./fake-account-service";
+import { MinimalAccountService } from "./fake-state-provider";
 
 const DEFAULT_TEST_OPTIONS: StateUpdateOptions<any, any> = {
   shouldUpdate: () => true,
@@ -177,7 +177,7 @@ export class FakeActiveUserState<T> implements ActiveUserState<T> {
   combinedState$: Observable<CombinedState<T>>;
 
   constructor(
-    private accountService: FakeAccountService,
+    private activeAccountAccessor: MinimalAccountService,
     initialValue?: T,
     updateSyncCallback?: (userId: UserId, newValue: T) => Promise<void>,
   ) {
@@ -194,14 +194,10 @@ export class FakeActiveUserState<T> implements ActiveUserState<T> {
     this.state$ = this.combinedState$.pipe(map(([_userId, state]) => state));
   }
 
-  get userId() {
-    return this.accountService.activeUserId;
-  }
-
   nextState(state: T | null, { syncValue }: { syncValue: boolean } = { syncValue: true }) {
     this.stateSubject.next({
       syncValue,
-      combinedState: [this.userId, state],
+      combinedState: [this.activeAccountAccessor.activeUserId, state],
     });
   }
 
@@ -216,12 +212,12 @@ export class FakeActiveUserState<T> implements ActiveUserState<T> {
         ? await firstValueFrom(options.combineLatestWith.pipe(timeout(options.msTimeout)))
         : null;
     if (!options.shouldUpdate(current, combinedDependencies)) {
-      return [this.userId, current];
+      return [this.activeAccountAccessor.activeUserId, current];
     }
     const newState = configureState(current, combinedDependencies);
     this.nextState(newState);
-    this.nextMock([this.userId, newState]);
-    return [this.userId, newState];
+    this.nextMock([this.activeAccountAccessor.activeUserId, newState]);
+    return [this.activeAccountAccessor.activeUserId, newState];
   }
 
   /** Tracks update values resolved by `FakeState.update` */

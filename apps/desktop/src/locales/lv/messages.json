@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Meklēt glabātavā"
   },
+  "resetSearch": {
+    "message": "Atiestatīt meklēšanu"
+  },
   "addItem": {
     "message": "Pievienot vienumu"
   },
@@ -1813,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Atslēgt ar Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Windows Hello papildu iestatījumi"
-  },
   "unlockWithPolkit": {
     "message": "Atslēgt ar sistēmas autentifikāciju"
   },
@@ -1831,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "atslēgt glabātavu"
   },
-  "autoPromptWindowsHello": {
-    "message": "Palaišanā vaicāt pēc Windows Hello"
-  },
-  "autoPromptPolkit": {
-    "message": "Palaišanas laikā vaicāt pēc autentifikācijas"
-  },
   "autoPromptTouchId": {
     "message": "Palaišanā vaicāt pēc Touch ID"
   },
@@ -1845,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Pieprasīt paroli pēc lietotnes palaišanas"
-  },
-  "recommendedForSecurity": {
-    "message": "Ieteicams drošībai."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Aizslēgt ar galveno paroli pēc pārsāknēšanas"
@@ -4016,7 +4007,7 @@
     }
   },
   "enableAutotype": {
-    "message": "Iespējot automātiskās ievades saīsni"
+    "message": "Iespējot automātisko ievadi"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden nepārbauda ievades atrašanās vietas, jāpārliecinās, ka atrodies pareizajā logā un laukā, pirms saīsnes izmantošanas."

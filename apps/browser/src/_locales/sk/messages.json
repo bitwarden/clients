@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Prehľadávať trezor"
   },
+  "resetSearch": {
+    "message": "Resetovať vyhľadávanie"
+  },
   "edit": {
     "message": "Upraviť"
   },

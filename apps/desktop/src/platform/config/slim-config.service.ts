@@ -43,8 +43,8 @@ export class SlimConfigService implements ConfigService {
       this.environmentService.environment$,
       this.globalStateProvider.get(GLOBAL_SERVER_CONFIGURATIONS).state$,
     ]).pipe(
-      map(([environment, serverConfig]) =>
-        getFeatureFlagValue(serverConfig[environment.getApiUrl()], key),
+      map(([environment, serverConfigMap]) =>
+        getFeatureFlagValue(serverConfigMap?.[environment.getApiUrl()], key),
       ),
     );
   }
