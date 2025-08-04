@@ -3,6 +3,7 @@ export * from "./icon";
 export * as Icons from "./icons";
 export {
   AdminConsoleLogo,
+  BusinessUnitPortalLogo,
   PasswordManagerLogo,
   ProviderPortalLogo,
   SecretsManagerLogo,

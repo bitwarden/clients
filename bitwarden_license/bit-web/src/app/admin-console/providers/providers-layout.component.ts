@@ -12,8 +12,12 @@ import { ProviderStatusType, ProviderType } from "@bitwarden/common/admin-consol
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { Icon, IconModule, ProviderPortalLogo } from "@bitwarden/components";
-import { BusinessUnitPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/business-unit-portal-logo.icon";
+import {
+  Icon,
+  IconModule,
+  ProviderPortalLogo,
+  BusinessUnitPortalLogo,
+} from "@bitwarden/components";
 import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
 
 import { ProviderWarningsService } from "../../billing/providers/services/provider-warnings.service";
