@@ -41,11 +41,6 @@ export * from "./registration/registration-env-selector/registration-env-selecto
 export * from "./registration/registration-finish/registration-finish.service";
 export * from "./registration/registration-finish/default-registration-finish.service";
 
-// set password (JIT user)
-export * from "./set-password-jit/set-password-jit.component";
-export * from "./set-password-jit/set-password-jit.service.abstraction";
-export * from "./set-password-jit/default-set-password-jit.service";
-
 // user verification
 export * from "./user-verification/user-verification-dialog.component";
 export * from "./user-verification/user-verification-dialog.types";

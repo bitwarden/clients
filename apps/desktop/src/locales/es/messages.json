@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Buscar en caja fuerte"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Añadir elemento"
   },
@@ -190,7 +193,7 @@
     "message": "Clave pública"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Huella digital"
   },
   "sshKeyAlgorithm": {
     "message": "Tipo de clave"
@@ -229,7 +232,7 @@
     "message": "Por favor, desbloquea tu caja fuerte para aprobar la solicitud de clave SSH."
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "La solicitud de clave SSH ha expirado."
   },
   "enableSshAgent": {
     "message": "Habilitar agente SSH"
@@ -244,7 +247,7 @@
     "message": "Solicitar autorización al usar el agente SSH"
   },
   "sshAgentPromptBehaviorDesc": {
-    "message": "Choose how to handle SSH-agent authorization requests."
+    "message": "Elige como gestionar las solicitudes de autorización del agente SSH."
   },
   "sshAgentPromptBehaviorHelp": {
     "message": "Recordar autorizaciones SSH"
@@ -467,7 +470,7 @@
     "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Usa un campo enlazado cuando estés experimentando problemas de autocompletado para un sitio web específico."
   },
   "linkedLabelHelpText": {
     "message": "Enter the the field's html id, name, aria-label, or placeholder."
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Copiar código de verificación (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Longitud"
@@ -1022,7 +1039,7 @@
     "message": "Tiempo de autenticación agotado"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "La sesión de autenticación ha expirado. Por favor, inicia de nuevo el proceso de inicio de sesión."
   },
   "selfHostBaseUrl": {
     "message": "URL del servidor autoalojado",
@@ -1425,6 +1442,9 @@
     "message": "Copiar código de seguridad",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "Membresía Premium"
   },
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Desbloquear con Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Ajustes adicionales de Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Desbloquear con la autenticación del sistema"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "Verificar para Bitwarden."
   },
-  "autoPromptWindowsHello": {
-    "message": "Solicitar Windows Hello al iniciar"
-  },
-  "autoPromptPolkit": {
-    "message": "Solicitar autenticación de sistema al iniciar"
-  },
   "autoPromptTouchId": {
     "message": "Solicitar Touch ID al iniciar"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Solicitar contraseña al iniciar la aplicación"
-  },
-  "recommendedForSecurity": {
-    "message": "Recomendado por seguridad."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear con contraseña maestra al reiniciar"
@@ -2393,7 +2401,7 @@
     "message": "Esta acción está protegida. Para continuar, vuelva a introducir su contraseña maestra para verificar su identidad."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Contraseña maestra establecida correctamente"
   },
   "updatedMasterPassword": {
     "message": "Contraseña maestra actualizada"
@@ -2408,13 +2416,13 @@
     "message": "Tu contraseña maestra no cumple con una o más de las políticas de tu organización. Para acceder a la caja fuerte, debes actualizar tu contraseña maestra ahora. Proceder te desconectará de tu sesión actual, requiriendo que vuelva a iniciar sesión. Las sesiones activas en otros dispositivos pueden seguir estando activas durante hasta una hora."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Tras cambiar tu contraseña tendrás que iniciar sesión con tu nueva contraseña. Las sesiones activas en otros dispositivos se cerrarán en una hora."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Cambia tu contraseña maestra para completar la recuperación de la cuenta."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "Tu contraseña maestra no cumple con los requisitos de esta organización. Cambia tu contraseña maestra para continuar."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
@@ -2528,7 +2536,7 @@
     "message": "Contraseña maestra eliminada."
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "Ya no es necesaria una contraseña maestra para los miembros de la siguiente organización. Por favor, confirma el dominio que aparece a continuación con el administrador de tu organización."
   },
   "organizationName": {
     "message": "Nombre de la organización"
@@ -2597,7 +2605,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Solo los elementos individuales de la caja fuerte, incluyendo adjuntos asociados a $EMAIL$, serán exportados. Los elementos de la caja fuerte de la organización no se incluirán",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2954,7 +2962,7 @@
     "message": "aplicación web"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Asegúrate de que la frase de la Huella digital coincide con la siguiente antes de aprobar."
   },
   "needAnotherOptionV1": {
     "message": "¿Necesitas otra opción?"
@@ -3154,10 +3162,10 @@
     "message": "Solicitar aprobación del administrador"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "No se puede completar el inicio de sesión"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "Necesitas iniciar sesión en un dispositivo de confianza o pedir a tu administrador que te asigne una contraseña."
   },
   "region": {
     "message": "Región"
@@ -3212,10 +3220,10 @@
     "message": "La organización no es de confianza"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "Por la seguridad de tu cuenta, confirma únicamente si has otorgado acceso de emergencia a este usuario y que su huella digital coincida con la mostrada en su cuenta"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "Por la seguridad de tu cuenta, procede únicamente si eres un miembro de esta organización, tienes la recuperación de la cuenta activada y la huella digital mostrada a continuación coincide con la huella digital de la organización."
   },
   "orgTrustWarning1": {
     "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
@@ -3567,11 +3575,11 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Opciones avanzadas",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Advertencia",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -3764,7 +3772,7 @@
     "message": "Actualización de la extensión requerida"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+    "message": "La extensión del navegador que estás utilizando está desactualizada. Por favor, actualízala o desactiva la integración del navegador de la validación de la huella digital en los ajustes de la aplicación de escritorio."
   },
   "changeAtRiskPassword": {
     "message": "Cambiar contraseña en riesgo"
@@ -3997,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden no valida las ubicaciones de entrada, asegúrate de que estás en la ventana y en el capo correctos antes de usar el atajo."
   }
 }

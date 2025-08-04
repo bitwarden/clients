@@ -118,14 +118,14 @@ export class LocalBackedSessionStorageService
       return null;
     }
 
-    const valueJson = await this.encryptService.decryptString(new EncString(local), encKey);
-    if (valueJson == null) {
+    try {
+      const valueJson = await this.encryptService.decryptString(new EncString(local), encKey);
+      return JSON.parse(valueJson);
+    } catch {
       // error with decryption, value is lost, delete state and start over
       await this.localStorage.remove(this.sessionStorageKey(key));
       return null;
     }
-
-    return JSON.parse(valueJson);
   }
 
   private async updateLocalSessionValue(key: string, value: unknown): Promise<void> {

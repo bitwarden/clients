@@ -8,7 +8,7 @@
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-dev
-## No ownership fo Cargo.lock and Cargo.toml to allow dependency updates
+## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
 
@@ -94,6 +94,14 @@ libs/platform @bitwarden/team-platform-dev
 libs/storage-core @bitwarden/team-platform-dev
 libs/logging @bitwarden/team-platform-dev
 libs/storage-test-utils @bitwarden/team-platform-dev
+libs/messaging @bitwarden/team-platform-dev
+libs/messaging-internal @bitwarden/team-platform-dev
+libs/serialization @bitwarden/team-platform-dev
+libs/guid @bitwarden/team-platform-dev
+libs/client-type @bitwarden/team-platform-dev
+libs/core-test-utils @bitwarden/team-platform-dev
+libs/state @bitwarden/team-platform-dev
+libs/state-test-utils @bitwarden/team-platform-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files
@@ -138,6 +146,8 @@ apps/desktop/desktop_native/autotype @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
+apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-dev
+.github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-dev
 # SSH Agent
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
 

@@ -26,7 +26,6 @@ import {
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
   LoginComponentService,
-  SetPasswordJitService,
   SsoComponentService,
   DefaultSsoComponentService,
   TwoFactorAuthDuoComponentService,
@@ -34,7 +33,6 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
-  PinServiceAbstraction,
   SsoUrlService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -57,6 +55,7 @@ import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitw
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
   VaultTimeoutSettingsService,
@@ -139,7 +138,6 @@ import { NativeMessagingService } from "../../services/native-messaging.service"
 import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
-import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
@@ -378,21 +376,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CLIENT_TYPE,
     useValue: ClientType.Desktop,
-  }),
-  safeProvider({
-    provide: SetPasswordJitService,
-    useClass: DesktopSetPasswordJitService,
-    deps: [
-      EncryptService,
-      I18nServiceAbstraction,
-      KdfConfigService,
-      KeyService,
-      MasterPasswordApiService,
-      InternalMasterPasswordServiceAbstraction,
-      OrganizationApiServiceAbstraction,
-      OrganizationUserApiService,
-      InternalUserDecryptionOptionsServiceAbstraction,
-    ],
   }),
   safeProvider({
     provide: SetInitialPasswordService,

@@ -4,6 +4,8 @@ import { firstValueFrom } from "rxjs";
 
 import { CollectionRequest } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -36,6 +38,7 @@ export class EditCommand {
     private folderApiService: FolderApiServiceAbstraction,
     private accountService: AccountService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
+    private policyService: PolicyService,
   ) {}
 
   async run(
@@ -104,6 +107,18 @@ export class EditCommand {
       return Response.error("Editing this item type is restricted by organizational policy.");
     }
 
+    const isPersonalVaultItem = cipherView.organizationId == null;
+
+    const organizationOwnershipPolicyApplies = await firstValueFrom(
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, activeUserId),
+    );
+
+    if (isPersonalVaultItem && organizationOwnershipPolicyApplies) {
+      return Response.error(
+        "An organization policy restricts editing this cipher. Please use the share command first before modifying it.",
+      );
+    }
+
     const encCipher = await this.cipherService.encrypt(cipherView, activeUserId);
     try {
       const updatedCipher = await this.cipherService.updateWithServer(encCipher);
@@ -155,7 +170,7 @@ export class EditCommand {
     let folderView = await folder.decrypt();
     folderView = FolderExport.toView(req, folderView);
 
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
+    const userKey = await this.keyService.getUserKey(activeUserId);
     const encFolder = await this.folderService.encrypt(folderView, userKey);
     try {
       const folder = await this.folderApiService.save(encFolder, activeUserId);

@@ -2,11 +2,16 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -59,6 +64,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   @Input() addAccessToggle: boolean;
   @Input() activeCollection: CollectionView | undefined;
 
+  private restrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
+
   private _ciphers?: C[] = [];
   @Input() get ciphers(): C[] {
     return this._ciphers;
@@ -85,8 +92,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected canDeleteSelected$: Observable<boolean>;
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
+  private restrictedTypes: RestrictedCipherType[] = [];
 
-  constructor(protected cipherAuthorizationService: CipherAuthorizationService) {
+  constructor(
+    protected cipherAuthorizationService: CipherAuthorizationService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
+  ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
       switchMap(() => {
@@ -113,6 +124,11 @@ export class VaultItemsComponent<C extends CipherViewLike> {
         return canDelete$;
       }),
     );
+
+    this.restrictedItemTypesService.restricted$.pipe(takeUntilDestroyed()).subscribe((types) => {
+      this.restrictedTypes = types;
+      this.refreshItems();
+    });
 
     this.canRestoreSelected$ = this.selection.changed.pipe(
       startWith(null),
@@ -267,6 +283,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   // TODO: PM-13944 Refactor to use cipherAuthorizationService.canClone$ instead
   protected canClone(vaultItem: VaultItem<C>) {
+    // This will check for restrictions from org policies before allowing cloning.
+    const isItemRestricted = this.restrictedPolicies().some(
+      (rt) => rt.cipherType === CipherViewLikeUtils.getType(vaultItem.cipher),
+    );
+    if (isItemRestricted) {
+      return false;
+    }
+
     if (vaultItem.cipher.organizationId == null) {
       return true;
     }
@@ -342,9 +366,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   private refreshItems() {
     const collections: VaultItem<C>[] = this.collections.map((collection) => ({ collection }));
-    const ciphers: VaultItem<C>[] = this.ciphers.map((cipher) => ({
-      cipher,
-    }));
+    const ciphers: VaultItem<C>[] = this.ciphers
+      .filter(
+        (cipher) =>
+          !this.restrictedItemTypesService.isCipherRestricted(cipher, this.restrictedTypes),
+      )
+      .map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
     // All ciphers are selectable, collections only if they can be edited or deleted
@@ -539,7 +566,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   private hasPersonalItems(): boolean {
-    return this.selection.selected.some(({ cipher }) => cipher?.organizationId === null);
+    return this.selection.selected.some(({ cipher }) => !cipher?.organizationId);
   }
 
   private allCiphersHaveEditAccess(): boolean {

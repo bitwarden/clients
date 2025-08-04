@@ -568,6 +568,9 @@
   "cancel": {
     "message": "انصراف"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "لغو شده"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "جستجوی گروه‌ها"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "allItems": {
     "message": "تمام موارد"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "یادداشت امن"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "typeSshKey": {
     "message": "کلید SSH"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "کپی نام"
+  },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "من"
@@ -3482,6 +3508,9 @@
   "webVault": {
     "message": "گاوصندوق وب"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3993,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "شما تلاش برای ورود به سیستم از دستگاه دیگری را رد کردید. اگر واقعاً این شما بودید، سعی کنید دوباره با دستگاه وارد شوید."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "درخواست ورود قبلاً منقضی شده است."
   },
@@ -4107,6 +4152,9 @@
   },
   "reviewLoginRequest": {
     "message": "بررسی درخواست ورود"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "دوره آزمایشی رایگان شما در $COUNT$ روز به پایان می‌رسد.",
@@ -4583,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "پیشنهادها، اعلان‌ها و فرصت‌های تحقیقاتی Bitwarden را در صندوق ورودی خود دریافت کنید."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "لغو اشتراک"
@@ -9423,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "مدیریت دستگاه‌ها را برای Bitwarden با استفاده از راهنمای پیاده‌سازی مربوط به پلتفرم خود پیکربندی کنید."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "شناسه دستگاه موجود نیست"
   },
@@ -9437,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "این لینک را از ایمیل خود روی دسکتاپ باز کنید."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "راهنمای پیاده‌سازی $INTEGRATION$ را اجرا کنید.",
@@ -9494,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "یک سازمان مشتری جدید به‌عنوان ارائه‌دهنده ایجاد کنید. صندلی‌های اضافی در دوره صورتحساب بعدی اعمال خواهند شد."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "یک طرح انتخاب کنید"
@@ -10243,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "کاربر از سازمان حذف شده و تمامی داده‌های مربوط به کاربر نیز پاک شده‌اند."
   },
-  "deletedUserId": {
-    "message": "کاربر $ID$ حذف شد - یک مالک یا مدیر حساب کاربری را حذف کرده است",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "در حال تأیید"
   },
-  "claimedDomainsDesc": {
-    "message": "یک دامنه را ثبت کنید تا مالک تمام حساب‌های کاربری اعضایی باشید که آدرس ایمیل آنها با آن دامنه مطابقت دارد. اعضا می‌توانند هنگام ورود، مرحله شناسایی SSO را رد کنند. همچنین مدیران قادر خواهند بود حساب‌های کاربری اعضا را حذف کنند."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "ورودی یک قالب معتبر نیست. فرمت: .mydomain.com زیر دامنه ها برای ثبت نیاز به ورودی‌های جداگانه دارند."
@@ -10854,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Unpaid invoices"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
   }
 }

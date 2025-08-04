@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Zrušit"
   },
+  "later": {
+    "message": "Později"
+  },
   "canceled": {
     "message": "Zrušeno"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Prohledat skupiny"
   },
+  "resetSearch": {
+    "message": "Resetovat hledání"
+  },
   "allItems": {
     "message": "Všechny položky"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Zabezpečená poznámka"
+  },
+  "typeNote": {
+    "message": "Poznámka"
   },
   "typeSshKey": {
     "message": "SSH klíč"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "Kopírovat název"
+  },
+  "cardNumber": {
+    "message": "číslo karty"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Já"
@@ -3482,6 +3508,9 @@
   "webVault": {
     "message": "Webový trezor"
   },
+  "webApp": {
+    "message": "Webová aplikace"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3993,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to opravdu Vy, zkuste se znovu přihlásit do zařízení."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Požadavek na přihlášení byl schválen pro $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to Vy, zkuste se znovu přihlásit do zařízení."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Požadavek na přihlášení již vypršel."
   },
@@ -4107,6 +4152,9 @@
   },
   "reviewLoginRequest": {
     "message": "Podívat se na žádost o přihlášení"
+  },
+  "loginRequest": {
+    "message": "Požadavek na přihlášení"
   },
   "freeTrialEndPromptCount": {
     "message": "Vaše zkušební doba končí za $COUNT$ dnů.",
@@ -4583,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden."
+  },
+  "subscribe": {
+    "message": "Předplatné"
   },
   "unsubscribe": {
     "message": "Odhlásit odběr"
@@ -9423,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "Nastaví správu zařízení pro Bitwarden pomocí implementačního průvodce pro Vaši platformu."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Odeslat data události do Vaší instance Logscale"
+  },
+  "failedToSaveIntegration": {
+    "message": "Nepodařilo se uložit integraci. Opakujte akci později."
+  },
   "deviceIdMissing": {
     "message": "Chybí ID zařízení"
   },
@@ -9437,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Znovu otevřete tento odkaz z Vašeho e-mailu na počítači."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Připojit $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Spustí průvodce implementací $INTEGRATION$.",
@@ -9494,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Vytvořte novou klientskou organizaci pro správu jako poskytovatele. Další uživatelé budou reflektováni v dalším platebním cyklu."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Token na doručitele"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Vyberte plán"
@@ -10243,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "Uživatel byl odebrán z organizace a všechna přidružená uživatelská data byla smazána."
   },
-  "deletedUserId": {
-    "message": "Smazaný uživatel $ID$ - vlastník / správce smazal uživatelský účet",
+  "deletedUserIdEventMessage": {
+    "message": "Smazaný uživatel $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "V ověřování"
   },
-  "claimedDomainsDesc": {
-    "message": "Uplatněním domény získáte všechny členské účty, jejichž e-mailová adresa se shoduje s doménou. Členové budou moci při přihlašování přeskočit identifikátor SSO. Správci budou moci členské účty také mazat."
+  "claimedDomainsDescription": {
+    "message": "Požádejte o doménu, abyste mohli vlastnit členské účty. Stránka s identifikátorem SSO bude při přihlašování členů s deklarovanými doménami přeskočena a správci budou moci deklarované účty smazat."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Vstup není platný formát. Příklad: mojedoména.cz.Poddomény vyžadují samostatné záznamy, které je třeba uplatnit."
@@ -10854,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Nezaplacené faktury"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Vaše předplatné nebylo zaplaceno. Obraťte se na správce poskytovatele, abyste obnovili službu pro Vás a Vaše klienty.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ je pozastaven",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Chcete-li obnovit přístup k portálu poskytovatele, obraťte se na zákaznickou podporu Bitwarden pro obnovení předplatného.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Vaše předplatné nebylo zaplaceno. Chcete-li obnovit službu Vám a Vašim klientům, přidejte platební metodu do $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Předplatné $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Vaše 7denní zkušební verze $PLAN$ začíná dnes. Přidejte platební metodu nyní, abyste mohli pokračovat v používání těchto funkcí po skončení zkušební verze: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Neomezené tajné klíče a projekty"
   }
 }

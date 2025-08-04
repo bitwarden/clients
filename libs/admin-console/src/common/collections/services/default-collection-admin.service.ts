@@ -1,9 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionAdminService, CollectionService } from "../abstractions";
@@ -55,7 +57,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     return view;
   }
 
-  async save(collection: CollectionAdminView): Promise<CollectionDetailsResponse> {
+  async save(collection: CollectionAdminView, userId: UserId): Promise<CollectionDetailsResponse> {
     const request = await this.encrypt(collection);
 
     let response: CollectionDetailsResponse;
@@ -71,9 +73,9 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     }
 
     if (response.assigned) {
-      await this.collectionService.upsert(new CollectionData(response));
+      await this.collectionService.upsert(new CollectionData(response), userId);
     } else {
-      await this.collectionService.delete(collection.id);
+      await this.collectionService.delete([collection.id as CollectionId], userId);
     }
 
     return response;

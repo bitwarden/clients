@@ -22,6 +22,7 @@ import {
   ClientSettings,
   DeviceType as SdkDeviceType,
   TokenProvider,
+  UnsignedSharedKey,
 } from "@bitwarden/sdk-internal";
 
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
@@ -228,6 +229,7 @@ export class DefaultSdkService implements SdkService {
             },
       privateKey,
       signingKey: undefined,
+      securityState: undefined,
     });
 
     // We initialize the org crypto even if the org_keys are
@@ -236,7 +238,7 @@ export class DefaultSdkService implements SdkService {
       organizationKeys: new Map(
         Object.entries(orgKeys ?? {})
           .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [k, v.key]),
+          .map(([k, v]) => [k, v.key as UnsignedSharedKey]),
       ),
     });
   }

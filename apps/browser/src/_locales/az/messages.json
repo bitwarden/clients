@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Seyfdə axtar"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Düzəliş et"
   },
@@ -1828,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Güvənlik kodu"
+  },
+  "cardNumber": {
+    "message": "kart nömrəsi"
   },
   "ex": {
     "message": "məs."
@@ -3460,6 +3466,28 @@
   "logInRequestSent": {
     "message": "Tələb göndərildi"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş tələbi təsdiqləndi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu siz idinizsə, cihazla yenidən giriş etməyə çalışın."
+  },
+  "device": {
+    "message": "Cihaz"
+  },
+  "loginStatus": {
+    "message": "Giriş statusu"
+  },
   "masterPasswordChanged": {
     "message": "Ana parol saxlanıldı"
   },
@@ -3555,6 +3583,113 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Gələcək girişləri problemsiz etmək üçün bu cihazı xatırla"
+  },
+  "manageDevices": {
+    "message": "Cihazları idarə et"
+  },
+  "currentSession": {
+    "message": "Hazırkı seans"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Uzantı",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Masaüstü",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Veb seyf"
+  },
+  "webApp": {
+    "message": "Veb tətbiq"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Tələb gözlənir"
+  },
+  "firstLogin": {
+    "message": "İlk giriş"
+  },
+  "trusted": {
+    "message": "Güvənli"
+  },
+  "needsApproval": {
+    "message": "Təsdiq lazımdır"
+  },
+  "devices": {
+    "message": "Cihazlar"
+  },
+  "accessAttemptBy": {
+    "message": "$EMAIL$ ilə müraciət cəhdi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Müraciəti təsdiqlə"
+  },
+  "denyAccess": {
+    "message": "Müraciətə rədd cavabı ver"
+  },
+  "time": {
+    "message": "Vaxt"
+  },
+  "deviceType": {
+    "message": "Cihaz növü"
+  },
+  "loginRequest": {
+    "message": "Giriş tələbi"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Bu tələb artıq yararsızdır."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Hesabınıza müraciət etməyə çalışırsınız?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş təsdiqləndi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu həqiqətən siz idinizsə, cihazla yenidən giriş etməyə çalışın."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Giriş tələbinin müddəti artıq bitib."
+  },
+  "justNow": {
+    "message": "İndicə"
+  },
+  "requestedXMinutesAgo": {
+    "message": "$MINUTES$ dəqiqə əvvəl tələb göndərildi",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Cihaz təsdiqi tələb olunur. Aşağıdan bir təsdiq variantı seçin:"
@@ -4465,17 +4600,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Kopyala: $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },

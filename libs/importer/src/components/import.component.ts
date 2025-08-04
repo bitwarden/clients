@@ -23,7 +23,6 @@ import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/opera
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
@@ -36,6 +35,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -100,6 +100,7 @@ const safeProviders: SafeProvider[] = [
       PinServiceAbstraction,
       AccountService,
       SdkService,
+      RestrictedItemTypesService,
     ],
   }),
 ];
@@ -299,7 +300,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     // Retrieve all organizations a user is a member of and has collections they can manage
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.organizations$ = this.organizationService.memberOrganizations$(userId).pipe(
-      combineLatestWith(this.collectionService.decryptedCollections$),
+      combineLatestWith(this.collectionService.decryptedCollections$(userId)),
       map(([organizations, collections]) =>
         organizations
           .filter((org) => collections.some((c) => c.organizationId === org.id && c.manage))
@@ -317,15 +318,15 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         if (value) {
-          this.collections$ = Utils.asyncToObservable(() =>
-            this.collectionService
-              .getAllDecrypted()
-              .then((decryptedCollections) =>
+          this.collections$ = this.collectionService
+            .decryptedCollections$(userId)
+            .pipe(
+              map((decryptedCollections) =>
                 decryptedCollections
                   .filter((c2) => c2.organizationId === value && c2.manage)
                   .sort(Utils.getSortFunction(this.i18nService, "name")),
               ),
-          );
+            );
         }
       });
     this.formGroup.controls.vaultSelector.setValue("myVault");

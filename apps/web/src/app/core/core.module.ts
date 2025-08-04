@@ -33,7 +33,6 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   LoginComponentService,
-  SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
   TwoFactorAuthDuoComponentService,
@@ -42,6 +41,8 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
+import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -78,7 +79,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
@@ -117,7 +117,6 @@ import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import {
   WebChangePasswordService,
-  WebSetPasswordJitService,
   WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
@@ -240,9 +239,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ThemeStateService,
-    useFactory: (globalStateProvider: GlobalStateProvider) =>
-      // Web chooses to have Light as the default theme
-      new DefaultThemeStateService(globalStateProvider, ThemeTypes.Light),
+    useClass: DefaultThemeStateService,
     deps: [GlobalStateProvider],
   }),
   safeProvider({
@@ -264,7 +261,6 @@ const safeProviders: SafeProvider[] = [
       PolicyApiServiceAbstraction,
       LogService,
       PolicyService,
-      ConfigService,
     ],
   }),
   safeProvider({
@@ -277,21 +273,6 @@ const safeProviders: SafeProvider[] = [
     provide: LockComponentService,
     useClass: WebLockComponentService,
     deps: [],
-  }),
-  safeProvider({
-    provide: SetPasswordJitService,
-    useClass: WebSetPasswordJitService,
-    deps: [
-      EncryptService,
-      I18nServiceAbstraction,
-      KdfConfigService,
-      KeyServiceAbstraction,
-      MasterPasswordApiService,
-      InternalMasterPasswordServiceAbstraction,
-      OrganizationApiServiceAbstraction,
-      OrganizationUserApiService,
-      InternalUserDecryptionOptionsServiceAbstraction,
-    ],
   }),
   safeProvider({
     provide: SetInitialPasswordService,
@@ -412,6 +393,11 @@ const safeProviders: SafeProvider[] = [
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: DefaultDeviceManagementComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: OrganizationIntegrationApiService,
+    useClass: OrganizationIntegrationApiService,
+    deps: [ApiService],
   }),
 ];
 

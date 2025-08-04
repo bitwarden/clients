@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Avbryt"
   },
+  "later": {
+    "message": "Senare"
+  },
   "canceled": {
     "message": "Avbruten"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Sök i grupper"
   },
+  "resetSearch": {
+    "message": "Nollställ sökning"
+  },
   "allItems": {
     "message": "Alla objekt"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Säker anteckning"
+  },
+  "typeNote": {
+    "message": "Anteckning"
   },
   "typeSshKey": {
     "message": "SSH-nyckel"
@@ -861,6 +870,23 @@
   "copyName": {
     "message": "Kopiera namn"
   },
+  "cardNumber": {
+    "message": "kortnummer"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopiera $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Jag"
   },
@@ -1061,7 +1087,7 @@
     "message": "Logga in med huvudlösenord"
   },
   "readingPasskeyLoading": {
-    "message": "Läser nyckel..."
+    "message": "Läser inloggningsnyckel..."
   },
   "readingPasskeyLoadingInfo": {
     "message": "Håll det här fönstret öppet och följ anvisningarna från din webbläsare."
@@ -1082,10 +1108,10 @@
     "message": "Ogiltig nyckel. Försök igen."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "Tvåstegsverifiering stöds inte för nycklar. Uppdatera appen för att logga in."
+    "message": "Tvåstegsverifiering stöds inte för inloggningsnycklar. Uppdatera appen för att logga in."
   },
   "loginWithPasskeyInfo": {
-    "message": "Använd en genererad nyckel som automatiskt loggar in dig utan lösenord. Din identitet verifieras med biometri, såsom ansiktsigenkänning eller fingeravtryck, eller en annan FIDO2-säkerhetsmetod."
+    "message": "Använd en genererad inloggningsnyckel som automatiskt loggar in dig utan lösenord. Din identitet verifieras med biometri, såsom ansiktsigenkänning eller fingeravtryck, eller en annan FIDO2-säkerhetsmetod."
   },
   "newPasskey": {
     "message": "Ny nyckel"
@@ -1100,16 +1126,16 @@
     "message": "Håll det här fönstret öppet och följ anvisningarna från din webbläsare."
   },
   "errorCreatingPasskey": {
-    "message": "Fel vid skapande av nyckel"
+    "message": "Fel vid skapande av inloggningsnyckel"
   },
   "errorCreatingPasskeyInfo": {
-    "message": "Det uppstod ett problem med att skapa nyckeln."
+    "message": "Det uppstod ett problem med att skapa din inloggningsnyckel."
   },
   "passkeySuccessfullyCreated": {
-    "message": "Nyckeln har skapats!"
+    "message": "Inloggningsnyckeln har skapats!"
   },
   "customPasskeyNameInfo": {
-    "message": "Namnge din nyckel för att hjälpa dig att identifiera den."
+    "message": "Namnge din inloggningsnyckel för att hjälpa dig att identifiera den."
   },
   "useForVaultEncryption": {
     "message": "Använd för valvkryptering"
@@ -1118,7 +1144,7 @@
     "message": "Logga in och lås upp utan ditt huvudlösenord på enheter som stöds. Följ anvisningarna från din webbläsare för att slutföra konfigurationen."
   },
   "useForVaultEncryptionErrorReadingPasskey": {
-    "message": "Fel när nyckeln skulle läsas. Försök igen eller avmarkera det här alternativet."
+    "message": "Fel när inloggningsnyckeln skulle läsas. Försök igen eller avmarkera det här alternativet."
   },
   "encryptionNotSupported": {
     "message": "Kryptering stöds inte"
@@ -1130,7 +1156,7 @@
     "message": "Används för kryptering"
   },
   "loginWithPasskeyEnabled": {
-    "message": "Inloggning med nyckel är aktiverad"
+    "message": "Inloggning med inloggningsnyckel är aktiverad"
   },
   "passkeySaved": {
     "message": "$NAME$ sparad",
@@ -1142,16 +1168,16 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Nyckel borttagen"
+    "message": "Inloggningsnyckel borttagen"
   },
   "removePasskey": {
-    "message": "Ta bort nyckel"
+    "message": "Ta bort inloggningsnyckel"
   },
   "removePasskeyInfo": {
-    "message": "Om alla nycklar tas bort kommer du inte kunna logga in på nya enheter utan ditt huvudlösenord."
+    "message": "Om alla inloggningsnycklar tas bort kommer du inte kunna logga in på nya enheter utan ditt huvudlösenord."
   },
   "passkeyLimitReachedInfo": {
-    "message": "Gränsen för antal nycklar har uppnåtts. Ta bort en nyckel innan du lägger till en ny."
+    "message": "Gränsen för antal inloggningsnycklar har uppnåtts. Ta bort en inloggningsnyckel innan du lägger till en ny."
   },
   "tryAgain": {
     "message": "Försök igen"
@@ -3482,6 +3508,9 @@
   "webVault": {
     "message": "Webbvalv"
   },
+  "webApp": {
+    "message": "Webbapp"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3993,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Du nekade ett inloggningsförsök från en annan enhet. Om detta verkligen var du, försök att logga in med enheten igen."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggningsbegäran godkänd för $EMAIL$ på $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om det var du, försök att logga in med enheten igen."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Inloggningsbegäran har redan löpt ut."
   },
@@ -4107,6 +4152,9 @@
   },
   "reviewLoginRequest": {
     "message": "Granska begäran om inloggning"
+  },
+  "loginRequest": {
+    "message": "Inloggningsbegäran"
   },
   "freeTrialEndPromptCount": {
     "message": "Din kostnadsfria testperiod avslutas om $COUNT$ dagar.",
@@ -4584,6 +4632,9 @@
   "receiveMarketingEmailsV2": {
     "message": "Få råd, tillkännagivanden och forskningsmöjligheter från Bitwarden i din inkorg."
   },
+  "subscribe": {
+    "message": "Abonnera"
+  },
   "unsubscribe": {
     "message": "Avsluta prenumeration"
   },
@@ -5048,7 +5099,7 @@
     "message": "SSO-identifierare"
   },
   "ssoIdentifierHintPartOne": {
-    "message": "Ge detta ID till dina medlemmar så att de kan logga in med SSO. För att kringgå detta steg, konfigurera",
+    "message": "Ge detta ID till dina medlemmar så att de kan logga in med SSO. För att kringgå detta steg, konfigurera ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
@@ -6582,7 +6633,7 @@
     "message": "Migrerad till Key Connector"
   },
   "paymentSponsored": {
-    "message": "Ange en betalningsmetod som ska kopplas till organisationen. Oroa dig inte, vi kommer inte att debitera dig något om du inte väljer ytterligare funktioner eller om ditt sponsorskap upphör."
+    "message": "Ange en betalningsmetod som ska kopplas till organisationen. Oroa dig inte, vi kommer inte att debitera dig något om du inte väljer ytterligare funktioner eller om ditt sponsorskap upphör. "
   },
   "orgCreatedSponsorshipInvalid": {
     "message": "Sponsringserbjudandet har löpt ut. Du kan ta bort den organisation du skapade för att undvika en kostnad i slutet av din 7-dagars provperiod. Annars kan du stänga den här prompten för att behålla organisationen och ta på dig faktureringsansvaret."
@@ -8855,10 +8906,10 @@
     "message": "Nyckel"
   },
   "passkeyNotCopied": {
-    "message": "Nyckeln kommer inte att kopieras"
+    "message": "Inloggningsnyckeln kommer inte att kopieras"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Nyckeln kommer inte att kopieras till det klonade föremålet. Vill du fortsätta klona det här objektet?"
+    "message": "Inloggningsnyckeln kommer inte att kopieras till det klonade föremålet. Vill du fortsätta klona det här objektet?"
   },
   "modifiedCollectionManagement": {
     "message": "Modifierad inställning för samlingshantering $ID$.",
@@ -8970,7 +9021,7 @@
     "message": "Tack för att du anmälde dig till Bitwarden Secrets Manager!"
   },
   "smFreeTrialConfirmationEmail": {
-    "message": "Vi har skickat ett bekräftelsemail till din e-postadress på"
+    "message": "Vi har skickat ett bekräftelsemail till din e-postadress på "
   },
   "sorryToSeeYouGo": {
     "message": "Ledsen att se dig gå! Hjälp till att förbättra Bitwarden genom att dela med dig av varför du avbokar.",
@@ -9254,7 +9305,7 @@
     "message": "Ge grupper eller personer tillgång till detta maskinkonto."
   },
   "machineAccountProjectsDescription": {
-    "message": "Tilldela projekt till detta maskinkonto."
+    "message": "Tilldela projekt till detta maskinkonto. "
   },
   "createMachineAccount": {
     "message": "Skapa ett maskinkonto"
@@ -9398,7 +9449,7 @@
     "message": "SCIM"
   },
   "scimIntegrationDescStart": {
-    "message": "Konfigurera",
+    "message": "Konfigurera ",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "scimIntegrationDescEnd": {
@@ -9423,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "Konfigurera enhetshanteringen för Bitwarden med hjälp av implementeringsguiden för din plattform."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Skicka händelsedata till din Logscale-instans"
+  },
+  "failedToSaveIntegration": {
+    "message": "Misslyckades med att spara integration. Försök igen senare."
+  },
   "deviceIdMissing": {
     "message": "Enhetens ID saknas"
   },
@@ -9437,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Öppna den här länken igen från ditt e-postmeddelande på ett skrivbord."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Anslut $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Starta implementeringsguiden för $INTEGRATION$.",
@@ -9494,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Skapa en ny kundorganisation som du kan hantera som Provider. Ytterligare platser kommer att återspeglas i nästa faktureringscykel."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bärartoken"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Välj en plan"
@@ -9807,10 +9882,10 @@
     "message": "Ladda ner CSV"
   },
   "monthlySubscriptionUserSeatsMessage": {
-    "message": "Justeringar av din prenumeration kommer att resultera i proportionella debiteringar av dina faktureringssummor på din nästa faktureringsperiod."
+    "message": "Justeringar av din prenumeration kommer att resultera i proportionella debiteringar av dina faktureringssummor på din nästa faktureringsperiod. "
   },
   "annualSubscriptionUserSeatsMessage": {
-    "message": "Justeringar av din prenumeration kommer att resultera i proportionella avgifter på en månatlig faktureringscykel."
+    "message": "Justeringar av din prenumeration kommer att resultera i proportionella avgifter på en månatlig faktureringscykel. "
   },
   "billingHistoryDescription": {
     "message": "Ladda ner en CSV-fil för att få fram klientuppgifter för varje faktureringsdatum. Proraterade avgifter ingår inte i CSV-filen och kan skilja sig från den länkade fakturan. De mest exakta faktureringsuppgifterna hittar du på dina månadsfakturor.",
@@ -9974,7 +10049,7 @@
     "message": "Valfri lokal hosting"
   },
   "upgradeFreeOrganization": {
-    "message": "Uppgradera din $NAME$-organisation",
+    "message": "Uppgradera din $NAME$-organisation ",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10243,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "Användaren har tagits bort från organisationen och alla tillhörande användardata har raderats."
   },
-  "deletedUserId": {
-    "message": "Borttagen användare $ID$ - en ägare/administratör har tagit bort användarkontot",
+  "deletedUserIdEventMessage": {
+    "message": "Tog bort användaren $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "Under verifiering"
   },
-  "claimedDomainsDesc": {
-    "message": "Gör anspråk på en domän för att äga alla medlemskonton vars e-postadress matchar domänen. Medlemmar kommer att kunna hoppa över SSO-identifieraren när de loggar in. Administratörer kommer också att kunna ta bort medlemskonton."
+  "claimedDomainsDescription": {
+    "message": "Begär en domän för att äga medlemskonton. SSO-identifierarsidan kommer att hoppas över under inloggningen för medlemmar med namngivna domäner och administratörer kommer att kunna ta bort begärda konton."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Inmatningen är inte ett giltigt format. Format: mydomain.com. Underdomäner kräver separata poster för att hävdas."
@@ -10835,7 +10910,7 @@
     "message": "Eventuell tillgänglig kredit kommer automatiskt att tillämpas på fakturor som genereras för detta konto."
   },
   "mustBePositiveNumber": {
-    "message": "Måste vara ett positivt nummer."
+    "message": "Måste vara ett positivt tal"
   },
   "cardSecurityCode": {
     "message": "Kortets säkerhetskod"
@@ -10854,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Obetalda fakturor"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Din prenumeration har inte betalats. Kontakta din leverantörsadministratör för att återställa tjänsten för dig och dina kunder.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ är avstängd",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "För att återställa åtkomsten till din leverantörsportal, kontakta Bitwardens kundsupport för att förnya ditt abonnemang.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Din prenumeration har inte betalats. För att återställa tjänsten för dig och dina kunder, lägg till en betalningsmetod senast $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Abonnera på $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Din testperiod på 7 dagar för $PLAN$ börjar idag. Lägg till en betalningsmetod nu för att fortsätta använda dessa funktioner efter din testperiod avslutas: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Obegränsade hemligheter och projekt"
   }
 }

@@ -10,7 +10,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -151,25 +150,17 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       this.loginSuccessHandlerService.run(authResult.userId);
 
       // TODO: PM-22663 use the new service to handle routing.
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+      const forceSetPasswordReason = await firstValueFrom(
+        this.masterPasswordService.forceSetPasswordReason$(activeUserId),
+      );
+
       if (
-        await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+        forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
+        forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
       ) {
-        const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(getUserId),
-        );
-
-        const forceSetPasswordReason = await firstValueFrom(
-          this.masterPasswordService.forceSetPasswordReason$(activeUserId),
-        );
-
-        if (
-          forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
-          forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
-        ) {
-          await this.router.navigate(["/change-password"]);
-        } else {
-          await this.router.navigate(["/vault"]);
-        }
+        await this.router.navigate(["/change-password"]);
       } else {
         await this.router.navigate(["/vault"]);
       }

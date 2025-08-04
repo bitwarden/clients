@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Rechercher dans le coffre"
   },
+  "resetSearch": {
+    "message": "Réinitialiser la recherche"
+  },
   "addItem": {
     "message": "Ajouter un élément"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Copier le code de vérification (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Longueur"
@@ -1425,6 +1442,9 @@
     "message": "Copier le code de sécurité",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "numéro de carte"
+  },
   "premiumMembership": {
     "message": "Adhésion Premium"
   },
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Déverrouiller avec Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Paramètres supplémentaires de Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Déverrouiller avec l'authentification du système"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "déverouiller votre coffre"
   },
-  "autoPromptWindowsHello": {
-    "message": "Demander à Windows Hello au démarrage"
-  },
-  "autoPromptPolkit": {
-    "message": "Demander l'authentification du système au lancement"
-  },
   "autoPromptTouchId": {
     "message": "Demander Touch ID au démarrage de l'application"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Exiger un mot de passe au démarrage de l'application"
-  },
-  "recommendedForSecurity": {
-    "message": "Recommandé pour la sécurité."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Verrouiller avec le mot de passe principal au redémarrage"
@@ -3567,11 +3575,11 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Options avancées",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Avertissement",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -3997,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Activer le type automatique"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden ne valide pas les emplacements d'entrée, assurez-vous d'être dans la bonne fenêtre et le bon champ avant d'utiliser le raccourci."
   }
 }

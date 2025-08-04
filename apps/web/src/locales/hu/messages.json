@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Mégsem"
   },
+  "later": {
+    "message": "Később"
+  },
   "canceled": {
     "message": "Megszakítva"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Csoportok keresése"
   },
+  "resetSearch": {
+    "message": "Keresés visszaállítása"
+  },
   "allItems": {
     "message": "Összes elem"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Biztonságos jegyzet"
+  },
+  "typeNote": {
+    "message": "Jegyzet"
   },
   "typeSshKey": {
     "message": "SSH kulcs"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "Név másolása"
+  },
+  "cardNumber": {
+    "message": "kártya szám"
+  },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ másolása",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Én"
@@ -3482,6 +3508,9 @@
   "webVault": {
     "message": "Webes széf"
   },
+  "webApp": {
+    "message": "Webalkalmazás"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3993,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "A bejelentkezési kérelem jóváhagyásra került: $EMAIL$ - $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "A bejelentkezési kérés már lejárt."
   },
@@ -4107,6 +4152,9 @@
   },
   "reviewLoginRequest": {
     "message": "Bejelentkezési kérés áttekintése"
+  },
+  "loginRequest": {
+    "message": "Bejelentkezés kérés"
   },
   "freeTrialEndPromptCount": {
     "message": "Az ingyenes próbaidőszak $COUNT$ nap múlva ér véget.",
@@ -4583,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Kapj tanácsokat, bejelentéseket és közvélemény-kutatásokat a Bitwardentől a postaládádba."
+  },
+  "subscribe": {
+    "message": "Feliratkozás"
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -9423,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "Az eszközkezelés konfigurálása a Bitwarden számára a platform megvalósítási útmutatója segítségével."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Eseményadatok küldése a Logscale példánynak"
+  },
+  "failedToSaveIntegration": {
+    "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
+  },
   "deviceIdMissing": {
     "message": "Az eszköz AZ hiányzik."
   },
@@ -9437,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Nyissuk meg újra ezt a hivatkozást az emailből az asztali gépen."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "$INTEGRATION$ csatlakozás",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$ megvalósítási útmutató elindítása.",
@@ -9494,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
+  },
+  "url": {
+    "message": "Webcím"
+  },
+  "bearerToken": {
+    "message": "Tulajdonosi vezérjel"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Előfizetés kiválasztása"
@@ -10243,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "A felhasználó eltávolításra került a szervezetből és az összes kapcsolódó felhasználói adat törlésre került."
   },
-  "deletedUserId": {
-    "message": "$ID$ felhasználó törlésre került – egy tulajdonos/adminisztrátor törölte a felhasználói fiókot.",
+  "deletedUserIdEventMessage": {
+    "message": "$ID$ felhasználó törlésre került.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "Ellenőrzés alatt"
   },
-  "claimedDomainsDesc": {
-    "message": "Igényeljünk egy tartományt az összes olyan tagfiók birtoklásához, amelynek email címe megegyezik a tartománnyal A tagok bejelentkezéskor kihagyhatják az egyszeri bejelentkezési azonosítót. Az adminisztrátorok törölhetik a tagfiókokat is."
+  "claimedDomainsDescription": {
+    "message": "Tartomány igénylése tagfiókok birtoklására. Az igényelt tartományokkal  rendelkező tagok bejelentkezése során az SSO azonosító oldal kihagyásra kerül és az adminisztrátorok törölhetik az igényelt fiókokat."
   },
   "invalidDomainNameClaimMessage": {
     "message": "A bemeneti formátum nem érvényes. Formátum: valami.hu Az altartományokhoz külön bejegyzések szükségesek az igényléshez."
@@ -10854,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Kifizetetlen számlák"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Az előfizetés nem lett kifizetve. Lépjünk kapcsolatba a szolgáltató adminisztrátorával, hogy visszaállítsa a szolgáltatást nekünk és az ügyfeleknek.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ felfüggesztésre került.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "A szolgáltatói portálhoz hozzáférés visszaállításához lépjünk kapcsolatba a Bitwarden ügyfélszolgálatával az előfizetés megújításához.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Az előfizetés nem lett kifizetve. A szolgáltatás visszaállításához nekünk és az ügyfeleknek adjunk hozzá egy fizetési módot $CANCELLATION_DATE$ segítségével.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Feliratkozás: $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "A 7 napos $PLAN$ próbaverzió ma kezdődik. Adjunk hozzá most egy fizetési módot, hogy továbbra is használhassuk ezeket a funkciókat a próba befejezése után:",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Korlátlan titkos elem és projekt"
   }
 }
