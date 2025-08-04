@@ -84,7 +84,7 @@ export class WebLoginComponentService
         this.logService.error(
           `WebLoginComponentService.getOrgPoliciesFromOrgInvite: Email mismatch. Expected: ${orgInvite.email}, Received: ${email}`,
         );
-        return;
+        return undefined;
       }
 
       let policies: Policy[];
