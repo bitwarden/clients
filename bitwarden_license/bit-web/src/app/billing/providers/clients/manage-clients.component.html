@@ -1,39 +1,41 @@
+@let isSuspensionActive = suspensionActive$ | async;
+@let provider = provider$ | async;
 <app-header [title]="pageTitle">
   <bit-search [placeholder]="'search' | i18n" [formControl]="searchControl"></bit-search>
-  <ng-container *ngIf="addExistingOrgsFromProviderPortal$ | async; else addExistingOrgsDisabled">
+  <button
+    bitButton
+    buttonType="primary"
+    type="button"
+    [bitMenuTriggerFor]="clientMenu"
+    [disabled]="isSuspensionActive"
+    [title]="isSuspensionActive ? ('providerIsDisabled' | i18n) : ''"
+    appA11yTitle="{{ 'add' | i18n }}"
+  >
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "add" | i18n }}
+  </button>
+  <bit-menu #clientMenu>
     <button
-      bitButton
-      buttonType="primary"
       type="button"
-      [bitMenuTriggerFor]="clientMenu"
-      appA11yTitle="{{ 'add' | i18n }}"
-    >
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-      {{ "add" | i18n }}
-    </button>
-    <bit-menu #clientMenu>
-      <button type="button" bitMenuItem (click)="createClient()">
-        <i aria-hidden="true" class="bwi bwi-business"></i>
-        {{ newClientButtonLabel }}
-      </button>
-      <button type="button" bitMenuItem (click)="addExistingOrganization()">
-        <i aria-hidden="true" class="bwi bwi-filter"></i>
-        {{ "existingOrganization" | i18n }}
-      </button>
-    </bit-menu>
-  </ng-container>
-  <ng-template #addExistingOrgsDisabled>
-    <a
-      type="button"
-      bitButton
-      *ngIf="isProviderAdmin"
-      buttonType="primary"
+      bitMenuItem
+      [disabled]="isSuspensionActive"
+      [title]="isSuspensionActive ? ('providerIsDisabled' | i18n) : ''"
       (click)="createClient()"
     >
-      <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-      {{ "addNewOrganization" | i18n }}
-    </a>
-  </ng-template>
+      <i aria-hidden="true" class="bwi bwi-business"></i>
+      {{ newClientButtonLabel }}
+    </button>
+    <button
+      type="button"
+      bitMenuItem
+      [disabled]="isSuspensionActive"
+      [title]="isSuspensionActive ? ('providerIsDisabled' | i18n) : ''"
+      (click)="addExistingOrganization()"
+    >
+      <i aria-hidden="true" class="bwi bwi-filter"></i>
+      {{ "existingOrganization" | i18n }}
+    </button>
+  </bit-menu>
 </app-header>
 
 <ng-container *ngIf="loading">
@@ -87,26 +89,41 @@
           appA11yTitle="{{ 'options' | i18n }}"
         ></button>
         <bit-menu #rowMenu>
-          <button type="button" bitMenuItem (click)="manageClientName(row)">
+          <button
+            type="button"
+            bitMenuItem
+            [disabled]="isSuspensionActive"
+            [title]="isSuspensionActive ? ('providerIsDisabled' | i18n) : ''"
+            (click)="manageClientName(row)"
+          >
             <i aria-hidden="true" class="bwi bwi-pencil-square"></i>
             {{ "updateName" | i18n }}
           </button>
-          <button type="button" bitMenuItem (click)="manageClientSubscription(row)">
+          <button
+            type="button"
+            bitMenuItem
+            [disabled]="isSuspensionActive"
+            [title]="isSuspensionActive ? ('providerIsDisabled' | i18n) : ''"
+            (click)="manageClientSubscription(row)"
+          >
             <i aria-hidden="true" class="bwi bwi-family"></i>
             {{ "manageSubscription" | i18n }}
           </button>
-          <button *ngIf="isProviderAdmin" type="button" bitMenuItem (click)="remove(row)">
-            <span class="tw-text-danger">
-              <i aria-hidden="true" class="bwi bwi-close"></i> {{ "unlinkOrganization" | i18n }}
-            </span>
-          </button>
+          @if (provider?.type === ProviderUserType.ProviderAdmin) {
+            <button type="button" bitMenuItem (click)="remove(row)">
+              <span class="tw-text-danger">
+                <i aria-hidden="true" class="bwi bwi-close"></i> {{ "unlinkOrganization" | i18n }}
+              </span>
+            </button>
+          }
         </bit-menu>
       </td>
     </ng-template>
   </bit-table-scroll>
   <div *ngIf="dataSource.data.length === 0" class="tw-mt-10">
     <app-no-clients
-      [showAddOrganizationButton]="isProviderAdmin"
+      [showAddOrganizationButton]="provider?.type === ProviderUserType.ProviderAdmin"
+      [disableAddOrganizationButton]="isSuspensionActive"
       (addNewOrganizationClicked)="createClient()"
     />
   </div>

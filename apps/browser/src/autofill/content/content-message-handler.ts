@@ -1,3 +1,4 @@
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
@@ -18,6 +19,8 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
   [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
+  [VaultMessages.OpenBrowserExtensionToUrl]: ({ data }) =>
+    handleOpenBrowserExtensionToUrlMessage(data),
 };
 
 /**
@@ -73,8 +76,13 @@ function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: s
   sendExtensionRuntimeMessage({ command, data: data.data, remember, referrer });
 }
 
+/** @deprecated use {@link handleOpenBrowserExtensionToUrlMessage} */
 function handleOpenAtRiskPasswordsMessage() {
   sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
+}
+
+function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUrls }) {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url });
 }
 
 /**

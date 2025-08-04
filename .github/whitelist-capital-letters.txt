@@ -34,3 +34,4 @@
 ./apps/browser/src/safari/safari/Info.plist
 ./apps/browser/src/safari/desktop.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 ./SECURITY.md
+./libs/nx-plugin/src/generators/files/README.md__tmpl__

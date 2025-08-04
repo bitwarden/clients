@@ -1,7 +1,9 @@
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KdfType } from "@bitwarden/key-management";
 
+import { EncryptedString } from "../../../../key-management/crypto/models/enc-string";
 import { KeysRequest } from "../../../../models/request/keys.request";
-import { EncryptedString } from "../../../../platform/models/domain/enc-string";
 
 export class RegisterFinishRequest {
   constructor(

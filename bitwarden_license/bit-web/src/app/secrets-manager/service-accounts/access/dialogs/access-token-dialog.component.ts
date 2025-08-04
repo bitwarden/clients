@@ -14,6 +14,7 @@ export interface AccessTokenDetails {
 
 @Component({
   templateUrl: "./access-token-dialog.component.html",
+  standalone: false,
 })
 export class AccessTokenDialogComponent implements OnInit {
   constructor(

@@ -1,10 +1,11 @@
 import { Component, ElementRef, ViewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { ToastService } from "../";
+import { ToastService, CopyClickListener, COPY_CLICK_LISTENER } from "../";
 
 import { CopyClickDirective } from "./copy-click.directive";
 
@@ -21,7 +22,6 @@ import { CopyClickDirective } from "./copy-click.directive";
       #toastWithLabel
     ></button>
   `,
-  standalone: true,
   imports: [CopyClickDirective],
 })
 class TestCopyClickComponent {
@@ -35,10 +35,12 @@ describe("CopyClickDirective", () => {
   let fixture: ComponentFixture<TestCopyClickComponent>;
   const copyToClipboard = jest.fn();
   const showToast = jest.fn();
+  const copyClickListener = mock<CopyClickListener>();
 
   beforeEach(async () => {
     copyToClipboard.mockClear();
     showToast.mockClear();
+    copyClickListener.onCopy.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [TestCopyClickComponent],
@@ -56,6 +58,7 @@ describe("CopyClickDirective", () => {
         },
         { provide: PlatformUtilsService, useValue: { copyToClipboard } },
         { provide: ToastService, useValue: { showToast } },
+        { provide: COPY_CLICK_LISTENER, useValue: copyClickListener },
       ],
     }).compileComponents();
 
@@ -93,7 +96,6 @@ describe("CopyClickDirective", () => {
     successToastButton.click();
     expect(showToast).toHaveBeenCalledWith({
       message: "copySuccessful",
-      title: null,
       variant: "success",
     });
   });
@@ -104,7 +106,6 @@ describe("CopyClickDirective", () => {
     infoToastButton.click();
     expect(showToast).toHaveBeenCalledWith({
       message: "copySuccessful",
-      title: null,
       variant: "info",
     });
   });
@@ -116,8 +117,15 @@ describe("CopyClickDirective", () => {
 
     expect(showToast).toHaveBeenCalledWith({
       message: "valueCopied Content",
-      title: null,
       variant: "success",
     });
+  });
+
+  it("should call copyClickListener.onCopy when value is copied", () => {
+    const successToastButton = fixture.componentInstance.successToastButton.nativeElement;
+
+    successToastButton.click();
+
+    expect(copyClickListener.onCopy).toHaveBeenCalledWith("success toast shown");
   });
 });

@@ -9,10 +9,11 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 
+import { AsyncActionsModule } from "./async-actions.module";
 import { BitActionDirective } from "./bit-action.directive";
 
 const template = /*html*/ `
-  <button bitButton buttonType="primary" [bitAction]="action" class="tw-mr-2">
+  <button bitButton buttonType="primary" [bitAction]="action" class="tw-me-2">
     Perform action {{ statusEmoji }}
   </button>
   <button bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
@@ -20,6 +21,7 @@ const template = /*html*/ `
 @Component({
   template,
   selector: "app-promise-example",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class PromiseExampleComponent {
   statusEmoji = "🟡";
@@ -36,6 +38,7 @@ class PromiseExampleComponent {
 @Component({
   template,
   selector: "app-action-resolves-quickly",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ActionResolvesQuicklyComponent {
   statusEmoji = "🟡";
@@ -53,6 +56,7 @@ class ActionResolvesQuicklyComponent {
 @Component({
   template,
   selector: "app-observable-example",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ObservableExampleComponent {
   action = () => {
@@ -63,6 +67,7 @@ class ObservableExampleComponent {
 @Component({
   template,
   selector: "app-rejected-promise-example",
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class RejectedPromiseExampleComponent {
   action = async () => {
@@ -76,13 +81,15 @@ export default {
   title: "Component Library/Async Actions/Standalone",
   decorators: [
     moduleMetadata({
-      declarations: [
+      imports: [
+        ButtonModule,
+        IconButtonModule,
+        BitActionDirective,
         PromiseExampleComponent,
         ObservableExampleComponent,
         RejectedPromiseExampleComponent,
         ActionResolvesQuicklyComponent,
       ],
-      imports: [ButtonModule, IconButtonModule, BitActionDirective],
       providers: [
         {
           provide: ValidationService,

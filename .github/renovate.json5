@@ -4,52 +4,24 @@
   enabledManagers: ["cargo", "github-actions", "npm"],
   packageRules: [
     {
-      // Group all build/test/lint workflows for GitHub Actions together for Platform.
-      // Since they are code owners we don't need to assign a review team in Renovate.
-      // Any changes here should also be reflected in CODEOWNERS.
-      groupName: "github-action",
+      // Group all Github Action minor updates together to reduce PR noise.
+      groupName: "Minor github-actions updates",
       matchManagers: ["github-actions"],
-      matchFileNames: [
-        "./github/workflows/automatic-issue-responses.yml",
-        "./github/workflows/automatic-pull-request-responses.yml",
-        "./github/workflows/build-browser.yml",
-        "./github/workflows/build-cli.yml",
-        "./github/workflows/build-desktop.yml",
-        "./github/workflows/build-web.yml",
-        "./github/workflows/chromatic.yml",
-        "./github/workflows/crowdin-pull.yml",
-        "./github/workflows/enforce-labels.yml",
-        "./github/workflows/lint.yml",
-        "./github/workflows/locales-lint.yml",
-        "./github/workflows/repository-management.yml",
-        "./github/workflows/scan.yml",
-        "./github/workflows/stale-bot.yml",
-        "./github/workflows/test.yml",
-        "./github/workflows/version-auto-bump.yml",
-      ],
-      commitMessagePrefix: "[deps] Platform:",
+      matchUpdateTypes: ["minor"],
+      addLabels: ["hold"],
     },
     {
-      // Group all release-related workflows for GitHub Actions together for BRE.
-      // Since they are code owners we don't need to assign a review team in Renovate.
-      // Any changes here should also be reflected in CODEOWNERS.
-      groupName: "github-action",
-      matchManagers: ["github-actions"],
-      matchFileNames: [
-        "./github/workflows/brew-bump-desktop.yml",
-        "./github/workflows/deploy-web.yml",
-        "./github/workflows/publish-cli.yml",
-        "./github/workflows/publish-desktop.yml",
-        "./github/workflows/publish-web.yml",
-        "./github/workflows/retrieve-current-desktop-rollout.yml",
-        "./github/workflows/staged-rollout-desktop.yml",
-        "./github/workflows/release-cli.yml",
-        "./github/workflows/release-desktop-beta.yml",
-        "./github/workflows/release-desktop.yml",
-        "./github/workflows/release-web.yml",
-      ],
-      commitMessagePrefix: "[deps] BRE:",
-      addLabels: ["hold"],
+      // Enable support for Rust toolchain updates.
+      matchManagers: ["custom.regex"],
+      matchDepNames: ["rust"],
+      commitMessageTopic: "Rust",
+    },
+    {
+      // By default, we send patch updates to the Dependency Dashboard and do not generate a PR.
+      // We want to generate PRs for a select number of dependencies to ensure we stay up to date on these.
+      matchPackageNames: ["browserslist", "electron", "rxjs", "typescript", "webpack", "zone.js"],
+      matchUpdateTypes: ["patch"],
+      dependencyDashboardApproval: false,
     },
     {
       // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular.
@@ -73,49 +45,7 @@
       enabled: false,
     },
     {
-      // Renovate should manage patch updates for TypeScript and Zone.js, despite ignoring major and minor.
-      matchPackageNames: ["typescript", "zone.js"],
-      matchUpdateTypes: "patch",
-    },
-    {
-      // We want to update all the Jest-related packages together, to reduce PR noise.
-      groupName: "jest",
-      matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
-    },
-    {
-      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "napi",
-      matchPackageNames: ["napi", "napi-build", "napi-derive"],
-    },
-    {
-      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "macOS/iOS bindings",
-      matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
-    },
-    {
-      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
-      groupName: "zbus",
-      matchPackageNames: ["zbus", "zbus_polkit"],
-    },
-    {
-      matchPackageNames: [
-        "base64-loader",
-        "buffer",
-        "bufferutil",
-        "core-js",
-        "css-loader",
-        "html-loader",
-        "mini-css-extract-plugin",
-        "postcss",
-        "postcss-loader",
-        "process",
-        "sass",
-        "sass-loader",
-        "style-loader",
-        "ts-loader",
-        "url",
-        "util",
-      ],
+      matchPackageNames: ["buffer", "bufferutil", "core-js", "process", "url", "util"],
       description: "Admin Console owned dependencies",
       commitMessagePrefix: "[deps] AC:",
       reviewers: ["team:team-admin-console-dev"],
@@ -129,6 +59,9 @@
     {
       matchPackageNames: [
         "@angular-eslint/schematics",
+        "@eslint/compat",
+        "@typescript-eslint/rule-tester",
+        "@typescript-eslint/utils",
         "angular-eslint",
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
@@ -149,6 +82,9 @@
     {
       matchPackageNames: [
         "@angular-eslint/schematics",
+        "@eslint/compat",
+        "@typescript-eslint/rule-tester",
+        "@typescript-eslint/utils",
         "angular-eslint",
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
@@ -162,7 +98,7 @@
         "lint-staged",
         "typescript-eslint",
       ],
-      groupName: "Linting minor-patch",
+      groupName: "Minor and patch linting updates",
       matchUpdateTypes: ["minor", "patch"],
     },
     {
@@ -208,10 +144,13 @@
         "@electron/notarize",
         "@electron/rebuild",
         "@ngtools/webpack",
+        "@nx/devkit",
+        "@nx/eslint",
+        "@nx/jest",
+        "@nx/js",
         "@types/chrome",
         "@types/firefox-webext-browser",
         "@types/glob",
-        "@types/jquery",
         "@types/lowdb",
         "@types/node",
         "@types/node-forge",
@@ -220,6 +159,7 @@
         "anyhow",
         "arboard",
         "babel-loader",
+        "base64-loader",
         "base64",
         "bindgen",
         "browserslist",
@@ -227,6 +167,7 @@
         "bytes",
         "core-foundation",
         "copy-webpack-plugin",
+        "css-loader",
         "dirs",
         "electron",
         "electron-builder",
@@ -238,6 +179,7 @@
         "futures",
         "hex",
         "homedir",
+        "html-loader",
         "html-webpack-injector",
         "html-webpack-plugin",
         "interprocess",
@@ -246,6 +188,7 @@
         "libc",
         "log",
         "lowdb",
+        "mini-css-extract-plugin",
         "napi",
         "napi-build",
         "napi-derive",
@@ -256,15 +199,23 @@
         "oslog",
         "pin-project",
         "pkg",
+        "postcss",
+        "postcss-loader",
         "rand",
         "rxjs",
+        "sass",
+        "sass-loader",
         "scopeguard",
         "security-framework",
         "security-framework-sys",
+        "semver",
         "serde",
         "serde_json",
         "simplelog",
+        "style-loader",
         "sysinfo",
+        "ts-node",
+        "ts-loader",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
         "typenum",
@@ -287,6 +238,52 @@
       reviewers: ["team:team-platform-dev"],
     },
     {
+      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "napi",
+      matchPackageNames: ["napi", "napi-build", "napi-derive"],
+    },
+    {
+      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "macOS/iOS bindings",
+      matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
+    },
+    {
+      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities.
+      groupName: "zbus",
+      matchPackageNames: ["zbus", "zbus_polkit"],
+    },
+    {
+      // We group all webpack build-related minor and patch updates together to reduce PR noise.
+      // We include patch updates here because we want PRs for webpack patch updates and it's in this group.
+      matchPackageNames: [
+        "@babel/core",
+        "@babel/preset-env",
+        "babel-loader",
+        "base64-loader",
+        "browserslist",
+        "copy-webpack-plugin",
+        "css-loader",
+        "html-loader",
+        "html-webpack-injector",
+        "html-webpack-plugin",
+        "mini-css-extract-plugin",
+        "postcss-loader",
+        "postcss",
+        "sass-loader",
+        "sass",
+        "style-loader",
+        "ts-loader",
+        "tsconfig-paths-webpack-plugin",
+        "webpack-cli",
+        "webpack-dev-server",
+        "webpack-node-externals",
+        "webpack",
+      ],
+      description: "webpack-related build dependencies",
+      groupName: "Minor and patch webpack updates",
+      matchUpdateTypes: ["minor", "patch"],
+    },
+    {
       matchPackageNames: [
         "@angular-devkit/build-angular",
         "@angular/animations",
@@ -301,6 +298,7 @@
         "@angular/platform-browser",
         "@angular/platform",
         "@angular/router",
+        "axe-playwright",
         "@compodoc/compodoc",
         "@ng-select/ng-select",
         "@storybook/addon-a11y",
@@ -309,19 +307,16 @@
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
         "@storybook/addon-links",
+        "@storybook/test-runner",
         "@storybook/addon-themes",
         "@storybook/angular",
         "@storybook/manager-api",
         "@storybook/theming",
-        "@typescript-eslint/utils",
-        "@typescript-eslint/rule-tester",
         "@types/react",
         "autoprefixer",
         "bootstrap",
         "chromatic",
-        "jquery",
         "ngx-toastr",
-        "popper.js",
         "react",
         "react-dom",
         "remark-gfm",
@@ -345,6 +340,11 @@
       description: "Secrets Manager owned dependencies",
       commitMessagePrefix: "[deps] SM:",
       reviewers: ["team:team-secrets-manager-dev"],
+    },
+    {
+      // We need to update several Jest-related packages together, for version compatibility.
+      groupName: "jest",
+      matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
     },
     {
       matchPackageNames: [
@@ -398,21 +398,23 @@
       reviewers: ["team:team-vault-dev"],
     },
     {
-      matchPackageNames: [
-        "@types/argon2-browser",
-        "aes",
-        "argon2",
-        "argon2-browser",
-        "big-integer",
-        "cbc",
-        "rsa",
-        "russh-cryptovec",
-        "sha2",
-      ],
+      matchPackageNames: ["aes", "big-integer", "cbc", "rsa", "russh-cryptovec", "sha2"],
       description: "Key Management owned dependencies",
       commitMessagePrefix: "[deps] KM:",
       reviewers: ["team:team-key-management-dev"],
     },
+    {
+      // Any versions of lowdb above 1.0.0 are not compatible with CommonJS.
+      matchPackageNames: ["lowdb"],
+      allowedVersions: "1.0.0",
+      description: "Higher versions of lowdb are not compatible with CommonJS",
+    },
+    {
+      // Pin types as well since we are not upgrading past v1 (and also v2+ does not need separate types).
+      matchPackageNames: ["@types/lowdb"],
+      allowedVersions: "< 2.0.0",
+      description: "Higher versions of lowdb do not need separate types",
+    },
   ],
-  ignoreDeps: ["@types/koa-bodyparser", "bootstrap", "node-ipc", "node", "npm"],
+  ignoreDeps: ["@types/koa-bodyparser", "bootstrap", "node-ipc", "@bitwarden/sdk-internal"],
 }

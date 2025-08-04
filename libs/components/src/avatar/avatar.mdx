@@ -1,15 +1,15 @@
-import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+import { Description, Meta, Canvas, Primary, Controls, Title } from "@storybook/addon-docs";
 
 import * as stories from "./avatar.stories";
 
 <Meta of={stories} />
 
-# Avatar
+```ts
+import { AvatarModule } from "@bitwarden/components";
+```
 
-Avatars display a unique color that helps a user visually recognize their logged in account.
-
-A variance in color across the avatar component is important as it is used in Account Switching as a
-visual indicator to recognize which of a personal or work account a user is logged into.
+<Title />
+<Description />
 
 <Primary />
 <Controls />

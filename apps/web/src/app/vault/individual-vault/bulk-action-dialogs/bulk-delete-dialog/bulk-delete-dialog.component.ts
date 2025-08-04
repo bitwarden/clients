@@ -9,9 +9,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -29,10 +30,12 @@ export interface BulkDeleteDialogParams {
   unassignedCiphers?: string[];
 }
 
-export enum BulkDeleteDialogResult {
-  Deleted = "deleted",
-  Canceled = "canceled",
-}
+export const BulkDeleteDialogResult = {
+  Deleted: "deleted",
+  Canceled: "canceled",
+} as const;
+
+type BulkDeleteDialogResult = UnionOfValues<typeof BulkDeleteDialogResult>;
 
 /**
  * Strongly typed helper to open a BulkDeleteDialog
@@ -51,6 +54,7 @@ export const openBulkDeleteDialog = (
 
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
+  standalone: false,
 })
 export class BulkDeleteDialogComponent {
   cipherIds: string[];
@@ -64,7 +68,6 @@ export class BulkDeleteDialogComponent {
     @Inject(DIALOG_DATA) params: BulkDeleteDialogParams,
     private dialogRef: DialogRef<BulkDeleteDialogResult>,
     private cipherService: CipherService,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private apiService: ApiService,
     private collectionService: CollectionService,
@@ -112,7 +115,11 @@ export class BulkDeleteDialogComponent {
       });
     }
     if (this.collections.length) {
-      await this.collectionService.delete(this.collections.map((c) => c.id));
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.collectionService.delete(
+        this.collections.map((c) => c.id as CollectionId),
+        userId,
+      );
       this.toastService.showToast({
         variant: "success",
         title: null,

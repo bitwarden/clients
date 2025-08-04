@@ -44,14 +44,18 @@ export default {
   component: TabGroupComponent,
   decorators: [
     moduleMetadata({
-      declarations: [
+      imports: [
+        CommonModule,
+        TabsModule,
+        ButtonModule,
+        FormFieldModule,
+        RouterModule,
         ActiveDummyComponent,
         ItemTwoDummyComponent,
         ItemThreeDummyComponent,
         ItemWithChildCounterDummyComponent,
         DisabledDummyComponent,
       ],
-      imports: [CommonModule, TabsModule, ButtonModule, FormFieldModule, RouterModule],
     }),
     applicationConfig({
       providers: [
@@ -90,7 +94,7 @@ export const ContentTabs: Story = {
         <bit-tab label="Second Tab">Second Tab Content</bit-tab>
         <bit-tab>
           <ng-template bitTabLabel>
-            <i class="bwi bwi-search tw-pr-1"></i> Template Label
+            <i class="bwi bwi-search tw-pe-1"></i> Template Label
           </ng-template>
           Template Label Content
         </bit-tab>
@@ -112,7 +116,7 @@ export const NavigationTabs: Story = {
         <bit-tab-link [route]="['item-3']">Item 3</bit-tab-link>
         <bit-tab-link [route]="['item-with-child-counter']">
           Item With Counter
-          <div slot="end" class="tw-pl-2 tw-text-muted">
+          <div slot="end" class="tw-ps-2 tw-text-muted">
             42
           </div>
         </bit-tab-link>

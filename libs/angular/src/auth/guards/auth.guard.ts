@@ -36,7 +36,36 @@ export const authGuard: CanActivateFn = async (
     return false;
   }
 
-  if (authStatus === AuthenticationStatus.Locked) {
+  const userId = (await firstValueFrom(accountService.activeAccount$)).id;
+  const forceSetPasswordReason = await firstValueFrom(
+    masterPasswordService.forceSetPasswordReason$(userId),
+  );
+
+  // User JIT provisioned into a master-password-encryption org
+  if (
+    authStatus === AuthenticationStatus.Locked &&
+    forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
+    !routerState.url.includes("set-initial-password")
+  ) {
+    return router.createUrlTree(["/set-initial-password"]);
+  }
+
+  // TDE Offboarding on untrusted device
+  if (
+    authStatus === AuthenticationStatus.Locked &&
+    forceSetPasswordReason === ForceSetPasswordReason.TdeOffboardingUntrustedDevice &&
+    !routerState.url.includes("set-initial-password")
+  ) {
+    return router.createUrlTree(["/set-initial-password"]);
+  }
+
+  // We must add exemptions for the SsoNewJitProvisionedUser and TdeOffboardingUntrustedDevice scenarios as
+  // the "set-initial-password" route is guarded by the authGuard.
+  if (
+    authStatus === AuthenticationStatus.Locked &&
+    forceSetPasswordReason !== ForceSetPasswordReason.SsoNewJitProvisionedUser &&
+    forceSetPasswordReason !== ForceSetPasswordReason.TdeOffboardingUntrustedDevice
+  ) {
     if (routerState != null) {
       messagingService.send("lockedUrl", { url: routerState.url });
     }
@@ -47,29 +76,34 @@ export const authGuard: CanActivateFn = async (
 
   if (
     !routerState.url.includes("remove-password") &&
-    (await keyConnectorService.getConvertAccountRequired())
+    (await firstValueFrom(keyConnectorService.convertAccountRequired$))
   ) {
     return router.createUrlTree(["/remove-password"]);
   }
 
-  const userId = (await firstValueFrom(accountService.activeAccount$)).id;
-  const forceSetPasswordReason = await firstValueFrom(
-    masterPasswordService.forceSetPasswordReason$(userId),
-  );
-
+  // Handle cases where a user needs to set a password when they don't already have one:
+  // - TDE org user has been given "manage account recovery" permission
+  // - TDE offboarding on a trusted device, where we have access to their encryption key wrap with their new password
   if (
-    forceSetPasswordReason ===
-      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission &&
-    !routerState.url.includes("set-password")
+    (forceSetPasswordReason ===
+      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission ||
+      forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding) &&
+    !routerState.url.includes("set-initial-password")
   ) {
-    return router.createUrlTree(["/set-password"]);
+    const route = "/set-initial-password";
+    return router.createUrlTree([route]);
   }
 
+  // Handle cases where a user has a password but needs to set a new one:
+  // - Account recovery
+  // - Weak Password on login
   if (
-    forceSetPasswordReason !== ForceSetPasswordReason.None &&
-    !routerState.url.includes("update-temp-password")
+    (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
+      forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
+    !routerState.url.includes("change-password")
   ) {
-    return router.createUrlTree(["/update-temp-password"]);
+    const route = "/change-password";
+    return router.createUrlTree([route]);
   }
 
   return true;

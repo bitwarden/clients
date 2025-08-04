@@ -16,5 +16,6 @@ export class DisablePersonalVaultExportPolicy extends BasePolicy {
 @Component({
   selector: "policy-disable-personal-vault-export",
   templateUrl: "disable-personal-vault-export.component.html",
+  standalone: false,
 })
 export class DisablePersonalVaultExportPolicyComponent extends BasePolicyComponent {}

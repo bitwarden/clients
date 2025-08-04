@@ -5,8 +5,10 @@
   [subtitle]="params.name"
 >
   <ng-container bitDialogContent>
-    <bit-callout type="warning">{{ "orgTrustWarning" | i18n }}</bit-callout>
     <p bitTypography="body1">
+      {{ "orgTrustWarning1" | i18n }}
+      <br />
+      <br />
       {{ "fingerprintPhrase" | i18n }} <code>{{ fingerprint }}</code>
     </p>
   </ng-container>

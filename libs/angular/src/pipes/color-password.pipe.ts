@@ -6,7 +6,10 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
  An updated pipe that sanitizes HTML, highlights numbers and special characters (in different colors each)
  and handles Unicode / Emoji characters correctly.
 */
-@Pipe({ name: "colorPassword" })
+@Pipe({
+  name: "colorPassword",
+  standalone: false,
+})
 export class ColorPasswordPipe implements PipeTransform {
   transform(password: string) {
     const template = (character: string, type: string) =>

@@ -7,6 +7,8 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { DialogConfig, DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DownloadLicenseDialogResult {
   Cancelled = "cancelled",
   Downloaded = "downloaded",
@@ -18,6 +20,7 @@ type DownloadLicenseDialogData = {
 
 @Component({
   templateUrl: "download-license.component.html",
+  standalone: false,
 })
 export class DownloadLicenceDialogComponent {
   licenseForm = this.formBuilder.group({

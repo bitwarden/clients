@@ -1,4 +1,15 @@
-<ng-container *ngIf="freeTrial$ | async as freeTrial">
+<app-organization-free-trial-warning
+  *ngIf="useOrganizationWarningsService$ | async"
+  [organization]="organization"
+  (clicked)="navigateToPaymentMethod()"
+>
+</app-organization-free-trial-warning>
+<app-organization-reseller-renewal-warning
+  *ngIf="useOrganizationWarningsService$ | async"
+  [organization]="organization"
+>
+</app-organization-reseller-renewal-warning>
+<ng-container *ngIf="freeTrialWhenWarningsServiceDisabled$ | async as freeTrial">
   <bit-banner
     id="free-trial-banner"
     class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
@@ -19,7 +30,7 @@
     </a>
   </bit-banner>
 </ng-container>
-<ng-container *ngIf="resellerWarning$ | async as resellerWarning">
+<ng-container *ngIf="resellerWarningWhenWarningsServiceDisabled$ | async as resellerWarning">
   <bit-banner
     id="reseller-warning-banner"
     class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
@@ -142,6 +153,3 @@
     </div>
   </div>
 </div>
-<ng-template #attachments></ng-template>
-<ng-template #cipherAddEdit></ng-template>
-<ng-template #collectionsModal></ng-template>

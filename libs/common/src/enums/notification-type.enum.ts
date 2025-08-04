@@ -1,3 +1,5 @@
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum NotificationType {
   SyncCipherUpdate = 0,
   SyncCipherCreate = 1,
@@ -27,5 +29,5 @@ export enum NotificationType {
   Notification = 20,
   NotificationStatus = 21,
 
-  PendingSecurityTasks = 22,
+  RefreshSecurityTasks = 22,
 }

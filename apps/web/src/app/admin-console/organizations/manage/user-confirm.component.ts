@@ -18,6 +18,7 @@ export type UserConfirmDialogData = {
 @Component({
   selector: "app-user-confirm",
   templateUrl: "user-confirm.component.html",
+  standalone: false,
 })
 export class UserConfirmComponent implements OnInit {
   name: string;

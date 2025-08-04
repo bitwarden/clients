@@ -1,11 +1,6 @@
-<bit-callout *ngIf="accountDeprovisioningEnabled$ | async; else disabledBlock" type="warning">
+<bit-callout type="warning">
   {{ "singleOrgPolicyMemberWarning" | i18n }}
 </bit-callout>
-<ng-template #disabledBlock>
-  <bit-callout type="warning">
-    {{ "singleOrgPolicyWarning" | i18n }}
-  </bit-callout>
-</ng-template>
 
 <bit-form-control>
   <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />

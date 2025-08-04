@@ -29,7 +29,10 @@ export class RotateableKeySetService {
       userKey,
       rawPublicKey,
     );
-    const encryptedPublicKey = await this.encryptService.encrypt(rawPublicKey, userKey);
+    const encryptedPublicKey = await this.encryptService.wrapEncapsulationKey(
+      rawPublicKey,
+      userKey,
+    );
     return new RotateableKeySet(encryptedUserKey, encryptedPublicKey, encryptedPrivateKey);
   }
 
@@ -55,14 +58,17 @@ export class RotateableKeySetService {
       throw new Error("failed to rotate key set: newUserKey is required");
     }
 
-    const publicKey = await this.encryptService.decryptToBytes(
+    const publicKey = await this.encryptService.unwrapEncapsulationKey(
       keySet.encryptedPublicKey,
       oldUserKey,
     );
     if (publicKey == null) {
       throw new Error("failed to rotate key set: could not decrypt public key");
     }
-    const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
+    const newEncryptedPublicKey = await this.encryptService.wrapEncapsulationKey(
+      publicKey,
+      newUserKey,
+    );
     const newEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
       newUserKey,
       publicKey,

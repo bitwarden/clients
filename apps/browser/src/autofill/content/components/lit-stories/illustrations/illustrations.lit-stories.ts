@@ -1,12 +1,12 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
+import { IconProps } from "../../common-types";
 import * as Illustrations from "../../illustrations";
 
-type Args = {
-  theme: Theme;
+type Args = IconProps & {
   size: number;
 };
 
@@ -24,7 +24,7 @@ export default {
 
 const Template = (
   args: Args,
-  IllustrationComponent: (props: Args) => ReturnType<typeof html>,
+  IllustrationComponent: (props: IconProps) => ReturnType<typeof html>,
 ) => html`
   <div
     style="width: ${args.size}px; height: ${args.size}px; display: flex; align-items: center; justify-content: center;"

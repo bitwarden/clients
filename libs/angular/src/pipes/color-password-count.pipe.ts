@@ -7,7 +7,10 @@ import { ColorPasswordPipe } from "./color-password.pipe";
 /*
  An updated pipe that extends ColourPasswordPipe to include a character count
 */
-@Pipe({ name: "colorPasswordCount" })
+@Pipe({
+  name: "colorPasswordCount",
+  standalone: false,
+})
 export class ColorPasswordCountPipe extends ColorPasswordPipe {
   transform(password: string) {
     const template = (character: string, type: string, index: number) =>

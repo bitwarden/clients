@@ -81,7 +81,7 @@
   <!-- Bank Account -->
   <ng-container *ngIf="showBankAccount && usingBankAccount">
     <bit-callout type="warning" title="{{ 'verifyBankAccount' | i18n }}">
-      {{ "verifyBankAccountWithStatementDescriptorWarning" | i18n }}
+      {{ bankAccountWarning }}
     </bit-callout>
     <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4" formGroupName="bankInformation">
       <bit-form-field class="tw-col-span-1" disableMargin>

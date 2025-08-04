@@ -15,6 +15,7 @@ export interface SecretHardDeleteOperation {
 
 @Component({
   templateUrl: "./secret-hard-delete.component.html",
+  standalone: false,
 })
 export class SecretHardDeleteDialogComponent {
   constructor(

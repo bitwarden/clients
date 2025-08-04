@@ -18,7 +18,6 @@ import {
 
 @Component({
   templateUrl: "about-dialog.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, DialogModule, ButtonModule, TypographyModule],
 })
 export class AboutDialogComponent {

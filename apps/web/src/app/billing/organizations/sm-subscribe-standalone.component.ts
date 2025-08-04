@@ -23,6 +23,7 @@ import { secretsManagerSubscribeFormFactory } from "../shared";
 @Component({
   selector: "sm-subscribe-standalone",
   templateUrl: "sm-subscribe-standalone.component.html",
+  standalone: false,
 })
 export class SecretsManagerSubscribeStandaloneComponent {
   @Input() plan: PlanResponse;

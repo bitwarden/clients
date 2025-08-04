@@ -5,6 +5,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 @Pipe({
   name: "fingerprint",
+  standalone: false,
 })
 export class FingerprintPipe {
   constructor(private keyService: KeyService) {}

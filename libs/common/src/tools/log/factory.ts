@@ -3,11 +3,10 @@ import { Jsonify } from "type-fest";
 import { LogService } from "../../platform/abstractions/log.service";
 
 import { DefaultSemanticLogger } from "./default-semantic-logger";
-import { DisabledSemanticLogger } from "./disabled-semantic-logger";
+import { DISABLED_LOGGER } from "./disabled-logger";
 import { SemanticLogger } from "./semantic-logger.abstraction";
-
-/** A type for injection of a log provider */
-export type LogProvider = <Context>(context: Jsonify<Context>) => SemanticLogger;
+import { LogProvider } from "./types";
+import { warnLoggingEnabled } from "./util";
 
 /** Instantiates a semantic logger that emits nothing when a message
  *  is logged.
@@ -18,38 +17,72 @@ export type LogProvider = <Context>(context: Jsonify<Context>) => SemanticLogger
 export function disabledSemanticLoggerProvider<Context extends object>(
   _context: Jsonify<Context>,
 ): SemanticLogger {
-  return new DisabledSemanticLogger();
+  return DISABLED_LOGGER;
 }
 
 /** Instantiates a semantic logger that emits logs to the console.
- *  @param context a static payload that is cloned when the logger
- *   logs a message. The `messages`, `level`, and `content` fields
- *   are reserved for use by loggers.
- *  @param settings specializes how the semantic logger functions.
- *   If this is omitted, the logger suppresses debug messages.
+ *  @param logService writes semantic logs to the console
  */
-export function consoleSemanticLoggerProvider<Context extends object>(
-  logger: LogService,
-  context: Jsonify<Context>,
-): SemanticLogger {
-  return new DefaultSemanticLogger(logger, context);
+export function consoleSemanticLoggerProvider(logService: LogService): LogProvider {
+  function provider<Context extends object>(context: Jsonify<Context>) {
+    const logger = new DefaultSemanticLogger(logService, context);
+
+    warnLoggingEnabled(logService, "consoleSemanticLoggerProvider", context);
+    return logger;
+  }
+
+  return provider;
 }
 
-/** Instantiates a semantic logger that emits logs to the console.
+/** Instantiates a semantic logger that emits logs to the console when the
+ *  context's `type` matches its values.
+ *  @param logService writes semantic logs to the console
+ *  @param types the values to match against
+ */
+export function enableLogForTypes(logService: LogService, types: string[]): LogProvider {
+  if (types.length) {
+    warnLoggingEnabled(logService, "enableLogForTypes", { types });
+  }
+
+  function provider<Context extends object>(context: Jsonify<Context>) {
+    const { type } = context as { type?: unknown };
+    if (typeof type === "string" && types.includes(type)) {
+      const logger = new DefaultSemanticLogger(logService, context);
+
+      warnLoggingEnabled(logService, "enableLogForTypes", {
+        targetType: type,
+        available: types,
+        loggerContext: context,
+      });
+      return logger;
+    } else {
+      return DISABLED_LOGGER;
+    }
+  }
+
+  return provider;
+}
+
+/** Instantiates a semantic logger that emits logs to the console when its enabled.
+ *  @param enable logs are emitted when this is true
+ *  @param logService writes semantic logs to the console
  *  @param context a static payload that is cloned when the logger
- *   logs a message. The `messages`, `level`, and `content` fields
- *   are reserved for use by loggers.
- *  @param settings specializes how the semantic logger functions.
- *   If this is omitted, the logger suppresses debug messages.
+ *   logs a message.
+ *
+ *  @remarks The `message`, `level`, `provider`, and `content` fields
+ *   are reserved for use by the semantic logging system.
  */
 export function ifEnabledSemanticLoggerProvider<Context extends object>(
   enable: boolean,
-  logger: LogService,
+  logService: LogService,
   context: Jsonify<Context>,
 ) {
   if (enable) {
-    return consoleSemanticLoggerProvider(logger, context);
+    const logger = new DefaultSemanticLogger(logService, context);
+
+    warnLoggingEnabled(logService, "ifEnabledSemanticLoggerProvider", context);
+    return logger;
   } else {
-    return disabledSemanticLoggerProvider(context);
+    return DISABLED_LOGGER;
   }
 }

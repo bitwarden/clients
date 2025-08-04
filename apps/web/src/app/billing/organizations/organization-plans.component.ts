@@ -48,12 +48,13 @@ import { BillingResponse } from "@bitwarden/common/billing/models/response/billi
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
@@ -77,7 +78,6 @@ const Allowed2020PlansForLegacyProviders = [
 @Component({
   selector: "app-organization-plans",
   templateUrl: "organization-plans.component.html",
-  standalone: true,
   imports: [BillingSharedModule, OrganizationCreateModule],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
@@ -626,7 +626,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       if (this.createOrganization) {
         const orgKey = await this.keyService.makeOrgKey<OrgKey>();
         const key = orgKey[0].encryptedString;
-        const collection = await this.encryptService.encrypt(
+        const collection = await this.encryptService.encryptString(
           this.i18nService.t("defaultCollection"),
           orgKey[1],
         );
@@ -757,7 +757,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     // Backfill pub/priv key if necessary
     if (!this.organization.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const orgShareKey = await firstValueFrom(
+        this.keyService
+          .orgKeys$(userId)
+          .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
+      );
       const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
@@ -812,7 +819,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       );
       const providerKey = await this.keyService.getProviderKey(this.providerId);
       providerRequest.organizationCreateRequest.key = (
-        await this.encryptService.encrypt(orgKey.key, providerKey)
+        await this.encryptService.wrapSymmetricKey(orgKey, providerKey)
       ).encryptedString;
       const orgId = (
         await this.apiService.postProviderCreateOrganization(this.providerId, providerRequest)

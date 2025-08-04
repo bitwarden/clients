@@ -29,6 +29,7 @@ import { TwoFactorVerifyComponent } from "../../../auth/settings/two-factor/two-
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "../../../auth/settings/two-factor/two-factor-setup.component.html",
+  standalone: false,
 })
 export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent implements OnInit {
   tabbedHeader = false;
@@ -118,7 +119,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     return this.apiService.getTwoFactorOrganizationProviders(this.organizationId);
   }
 
-  protected filterProvider(type: TwoFactorProviderType) {
+  protected filterProvider(type: TwoFactorProviderType): boolean {
     return type !== TwoFactorProviderType.OrganizationDuo;
   }
 }

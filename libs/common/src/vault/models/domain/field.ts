@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Field as SdkField, LinkedIdType as SdkLinkedIdType } from "@bitwarden/sdk-internal";
+
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { FieldType, LinkedIdType } from "../../enums";
 import { FieldData } from "../data/field.data";
@@ -72,5 +74,38 @@ export class Field extends Domain {
       name,
       value,
     });
+  }
+
+  /**
+   * Maps Field to SDK format.
+   *
+   * @returns {SdkField} The SDK field object.
+   */
+  toSdkField(): SdkField {
+    return {
+      name: this.name?.toSdk(),
+      value: this.value?.toSdk(),
+      type: this.type,
+      // Safe type cast: client and SDK LinkedIdType enums have identical values
+      linkedId: this.linkedId as unknown as SdkLinkedIdType,
+    };
+  }
+
+  /**
+   * Maps SDK Field to Field
+   * @param obj The SDK Field object to map
+   */
+  static fromSdkField(obj: SdkField): Field | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const field = new Field();
+    field.name = EncString.fromJSON(obj.name);
+    field.value = EncString.fromJSON(obj.value);
+    field.type = obj.type;
+    field.linkedId = obj.linkedId;
+
+    return field;
   }
 }

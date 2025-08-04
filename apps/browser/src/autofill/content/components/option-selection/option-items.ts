@@ -14,32 +14,61 @@ const { css } = createEmotion({
   key: optionItemsTagName,
 });
 
-export function OptionItems({
-  theme,
-  topOffset,
-  label,
-  options,
-  handleOptionSelection,
-}: {
+export type OptionItemsProps = {
+  id: string;
   theme: Theme;
   topOffset: number;
   label?: string;
   options: Option[];
   handleOptionSelection: (selectedOption: Option) => void;
-}) {
+};
+
+export function OptionItems({
+  id,
+  theme,
+  topOffset,
+  label,
+  options,
+  handleOptionSelection,
+}: OptionItemsProps) {
   // @TODO get client vendor from context
   const isSafari = false;
 
   return html`
-    <div class=${optionsStyles({ theme, topOffset })} key="container">
+    <div
+      class=${optionsStyles({ theme, topOffset })}
+      key="container"
+      @keyup=${(e: KeyboardEvent) => handleMenuKeyUp(e)}
+    >
       ${label ? html`<div class=${optionsLabelStyles({ theme })}>${label}</div>` : nothing}
       <div class=${optionsWrapper({ isSafari, theme })}>
         ${options.map((option) =>
-          OptionItem({ ...option, theme, handleSelection: () => handleOptionSelection(option) }),
+          OptionItem({
+            id,
+            ...option,
+            theme,
+            contextLabel: label,
+            handleSelection: () => handleOptionSelection(option),
+          }),
         )}
       </div>
     </div>
   `;
+}
+
+function handleMenuKeyUp(event: KeyboardEvent) {
+  const items = [
+    ...(event.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('[tabindex="0"]'),
+  ];
+  const index = items.indexOf(document.activeElement as HTMLElement);
+  const direction = event.key === "ArrowDown" ? 1 : event.key === "ArrowUp" ? -1 : 0;
+
+  if (index === -1 || direction === 0) {
+    return;
+  }
+
+  event.preventDefault();
+  items[(index + direction + items.length) % items.length]?.focus();
 }
 
 const optionsStyles = ({ theme, topOffset }: { theme: Theme; topOffset: number }) => css`

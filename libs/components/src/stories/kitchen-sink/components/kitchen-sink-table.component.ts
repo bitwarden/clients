@@ -3,7 +3,6 @@ import { Component } from "@angular/core";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 @Component({
-  standalone: true,
   selector: "bit-kitchen-sink-table",
   imports: [KitchenSinkSharedModule],
   template: `

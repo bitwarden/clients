@@ -1,7 +1,5 @@
 ﻿@import "variables.scss";
 
-#lock-page,
-#set-password-page,
 #remove-password-page {
   display: flex;
   justify-content: center;
@@ -23,10 +21,6 @@
   }
 }
 
-#accessibility-cookie-page,
-#register-page,
-#hint-page,
-#update-temp-password-page,
 #remove-password-page {
   padding-top: 20px;
 
@@ -43,69 +37,6 @@
   }
 }
 
-#accessibility-cookie-page,
-#register-page,
-#hint-page,
-#lock-page,
-#update-temp-password-page {
-  .content {
-    width: 325px;
-    transition: width 0.25s linear;
-
-    p {
-      text-align: center;
-    }
-
-    p.lead,
-    h1 {
-      font-size: $font-size-large;
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: normal;
-    }
-
-    .box {
-      margin-bottom: 20px;
-    }
-
-    .buttons {
-      &:not(.with-rows),
-      .buttons-row {
-        display: flex;
-        margin-bottom: 10px;
-      }
-
-      &:not(.with-rows),
-      .buttons-row:last-child {
-        margin-bottom: 20px;
-      }
-
-      button {
-        margin-right: 10px;
-
-        &:last-child {
-          margin-right: 0;
-        }
-      }
-    }
-
-    .sub-options {
-      text-align: center;
-      margin-bottom: 20px;
-
-      a {
-        display: block;
-        margin-bottom: 10px;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
-    }
-  }
-}
-
-#set-password-page,
 #remove-password-page {
   .content {
     width: 500px;
@@ -157,35 +88,8 @@
   }
 }
 
-#register-page,
-#update-temp-password-page {
-  .content {
-    width: 400px;
-  }
-}
-
 #remove-password-page {
   .content > p {
     margin-bottom: 20px;
-  }
-}
-
-#login-approval-page {
-  .section-title {
-    padding: 20px;
-  }
-  .content {
-    padding: 16px;
-    .section {
-      margin-bottom: 30px;
-      code {
-        @include themify($themes) {
-          color: themed("codeColor");
-        }
-      }
-      h4.label {
-        font-weight: bold;
-      }
-    }
   }
 }

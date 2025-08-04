@@ -20,7 +20,6 @@ type BackgroundTypes = "danger" | "primary" | "success" | "warning";
 @Component({
   selector: "tools-password-strength",
   templateUrl: "password-strength-v2.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, ProgressModule],
 })
 export class PasswordStrengthV2Component implements OnChanges {

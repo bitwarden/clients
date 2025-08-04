@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
+import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { DeviceType } from "@bitwarden/common/enums";
 import { isBrowserSafariApi } from "@bitwarden/platform";
 
@@ -129,6 +131,27 @@ export class BrowserApi {
       active: true,
       windowId: chrome.windows.WINDOW_ID_CURRENT,
     });
+  }
+
+  static getBrowserClientVendor(clientWindow: Window): BrowserClientVendor {
+    const device = BrowserPlatformUtilsService.getDevice(clientWindow);
+
+    switch (device) {
+      case DeviceType.ChromeExtension:
+      case DeviceType.ChromeBrowser:
+        return BrowserClientVendors.Chrome;
+      case DeviceType.OperaExtension:
+      case DeviceType.OperaBrowser:
+        return BrowserClientVendors.Opera;
+      case DeviceType.EdgeExtension:
+      case DeviceType.EdgeBrowser:
+        return BrowserClientVendors.Edge;
+      case DeviceType.VivaldiExtension:
+      case DeviceType.VivaldiBrowser:
+        return BrowserClientVendors.Vivaldi;
+      default:
+        return BrowserClientVendors.Unknown;
+    }
   }
 
   /**
@@ -414,7 +437,7 @@ export class BrowserApi {
    * @param event - The event in which to add the listener to.
    * @param callback - The callback you want registered onto the event.
    */
-  static addListener<T extends (...args: readonly unknown[]) => unknown>(
+  static addListener<T extends (...args: readonly any[]) => any>(
     event: chrome.events.Event<T>,
     callback: T,
   ) {
@@ -641,6 +664,10 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    if (!(await BrowserApi.permissionsGranted(["privacy"]))) {
+      return false;
+    }
+
     const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
 

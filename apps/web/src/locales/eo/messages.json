@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Ĉiuj aplikaĵoj"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "Critical applications"
   },
@@ -30,7 +33,7 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Sciigitaj membroj"
   },
   "revokeMembers": {
     "message": "Revoke members"
@@ -51,7 +54,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Krei novan salutan eron"
   },
   "criticalApplicationsWithCount": {
     "message": "Critical applications ($COUNT$)",
@@ -63,7 +66,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "Sciigitaj membroj ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -90,16 +93,16 @@
     "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
   },
   "markCriticalApps": {
-    "message": "Mark critical apps"
+    "message": "Marki kritikajn apojn"
   },
   "markAppAsCritical": {
     "message": "Mark app as critical"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps marked as critical"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
-    "message": "Application"
+    "message": "Aplikaĵo"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
@@ -111,7 +114,7 @@
     "message": "Total passwords"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "Serĉi aplikaĵojn"
   },
   "atRiskMembers": {
     "message": "At-risk members"
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "These members are logging into applications with weak, exposed, or reused passwords."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "These applications have weak, exposed, or reused passwords."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -202,10 +220,10 @@
     "message": "Notoj"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Privata noto"
   },
   "note": {
-    "message": "Note"
+    "message": "Noto"
   },
   "customFields": {
     "message": "Tekstujoj Uzantfaritaj"
@@ -223,10 +241,10 @@
     "message": "Identification"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Kontakta informo"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Detaloj de la karto"
   },
   "cardBrandDetails": {
     "message": "$BRAND$ details",
@@ -247,10 +265,10 @@
     "message": "Autofill options"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Retejo (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Retejo (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -260,16 +278,16 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Retejo aldoniĝis"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Aldoni retejon"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Forigi la retejon"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Implicita ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -279,7 +297,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Montri la eltrovon en akordo al $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -339,7 +357,7 @@
     "message": "Januaro"
   },
   "february": {
-    "message": "februaro"
+    "message": "Februaro"
   },
   "march": {
     "message": "Marto"
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Dosierujo"
   },
-  "newCustomField": {
-    "message": "Nova propra kampo"
-  },
   "value": {
     "message": "Valoro"
-  },
-  "dragToSort": {
-    "message": "Trenu por ordigi"
-  },
-  "dragToReorder": {
-    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Teksto"
@@ -438,7 +447,7 @@
     "message": "Kaŝita"
   },
   "cfTypeBoolean": {
-    "message": "Bulea"
+    "message": "Duvalora"
   },
   "cfTypeCheckbox": {
     "message": "Checkbox"
@@ -448,10 +457,10 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Kampa tipo"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Kampa labelo"
   },
   "remove": {
     "message": "Forigi"
@@ -471,10 +480,10 @@
     "message": "Aldoni dosierujon"
   },
   "editFolder": {
-    "message": "Redakti dosierujon"
+    "message": "Redakti la dosierujon"
   },
   "editWithName": {
-    "message": "Edit $ITEM$: $NAME$",
+    "message": "Redakti $ITEM$: $NAME$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -487,7 +496,7 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Nova desierujo"
   },
   "folderName": {
     "message": "Folder name"
@@ -496,7 +505,7 @@
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Ĉu vi certas, ke vi volas poreterne forigi tiun dosierujon?"
   },
   "baseDomain": {
     "message": "Baza domajno",
@@ -521,11 +530,11 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "Eltrovado de kongruo",
+    "message": "Eltrovo en akordo",
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "Implicita eltrovado de kongruo",
+    "message": "Implicita eltrovado en akordo",
     "description": "Default URI match detection for auto-fill."
   },
   "never": {
@@ -537,12 +546,6 @@
   "toggleCollapse": {
     "message": "Baskuli Fali",
     "description": "Toggling an expand/collapse state."
-  },
-  "generatePassword": {
-    "message": "Generi pasvorton"
-  },
-  "generatePassphrase": {
-    "message": "Generate passphrase"
   },
   "checkPassword": {
     "message": "Kontrolu ĉu pasvorto estis elmontrita."
@@ -565,6 +568,9 @@
   "cancel": {
     "message": "Nuligi"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Nuligita"
   },
@@ -575,7 +581,7 @@
     "message": "Forviŝi"
   },
   "favorite": {
-    "message": "Preferaĵo"
+    "message": "Favorato"
   },
   "unfavorite": {
     "message": "Forigi de preferaĵo"
@@ -584,50 +590,53 @@
     "message": "Redakti"
   },
   "searchCollection": {
-    "message": "Serĉi Kolekton"
+    "message": "Traserĉi la kolekton"
   },
   "searchFolder": {
-    "message": "Serĉi dosierujon"
+    "message": "Traserĉi la dosierujon"
   },
   "searchFavorites": {
-    "message": "Serĉi Favoratojn"
+    "message": "Serĉi favoratojn"
   },
   "searchLogin": {
-    "message": "Search logins",
+    "message": "Serĉi salutilojn",
     "description": "Search Login type"
   },
   "searchCard": {
-    "message": "Search cards",
+    "message": "Serĉi kartojn",
     "description": "Search Card type"
   },
   "searchIdentity": {
-    "message": "Search identities",
+    "message": "Serĉi identecojn",
     "description": "Search Identity type"
   },
   "searchSecureNote": {
-    "message": "Search secure notes",
+    "message": "Serĉi sekurajn notojn",
     "description": "Search Secure Note type"
   },
   "searchVault": {
-    "message": "Traserĉu Trezorejon"
+    "message": "Traserĉi la trezorejon"
   },
   "searchMyVault": {
-    "message": "Search my vault"
+    "message": "Traserĉi mian trezorejon"
   },
   "searchOrganization": {
-    "message": "Search organization"
+    "message": "Serĉi organizon"
   },
   "searchMembers": {
-    "message": "Search members"
+    "message": "Serĉi membrojn"
   },
   "searchGroups": {
-    "message": "Search groups"
+    "message": "Serĉi grupojn"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "allItems": {
-    "message": "Ĉiuj Eroj"
+    "message": "Ĉiuj eroj"
   },
   "favorites": {
-    "message": "Ŝatataj"
+    "message": "Favoratoj"
   },
   "types": {
     "message": "Tipoj"
@@ -643,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Sekura noto"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "typeSshKey": {
     "message": "SSH-ŝlosilo"
@@ -675,7 +687,7 @@
     "message": "Lasta nomo"
   },
   "fullName": {
-    "message": "Plena Nomo"
+    "message": "Tuta nomo"
   },
   "address": {
     "message": "Adreso"
@@ -690,7 +702,7 @@
     "message": "Adreso 3"
   },
   "cityTown": {
-    "message": "Urbo / Urbo"
+    "message": "Urbo / Urbeto"
   },
   "stateProvince": {
     "message": "Ŝtato / Provinco"
@@ -702,7 +714,7 @@
     "message": "Lando"
   },
   "shared": {
-    "message": "Kunhavigita"
+    "message": "Kundividita"
   },
   "attachments": {
     "message": "Aldonaĵoj"
@@ -711,19 +723,19 @@
     "message": "Elektu"
   },
   "newItem": {
-    "message": "New item"
+    "message": "Nova ero"
   },
   "addItem": {
     "message": "Aldoni Artikolon"
   },
   "editItem": {
-    "message": "Redakti Artikolon"
+    "message": "Redakti la eron"
   },
   "viewItem": {
-    "message": "Vidigi Artikolon"
+    "message": "Vidi la eron"
   },
   "newItemHeader": {
-    "message": "New $TYPE$",
+    "message": "Nova $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -732,7 +744,7 @@
     }
   },
   "editItemHeader": {
-    "message": "Edit $TYPE$",
+    "message": "Redakti $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -741,7 +753,7 @@
     }
   },
   "viewItemType": {
-    "message": "View $ITEMTYPE$",
+    "message": "Vidi $ITEMTYPE$",
     "placeholders": {
       "itemtype": {
         "content": "$1",
@@ -754,13 +766,13 @@
     "description": "for adding new items"
   },
   "item": {
-    "message": "Item"
+    "message": "Ero"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Detaloj de la ero"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Nomo de la ero"
   },
   "ex": {
     "message": "ekz.",
@@ -770,13 +782,13 @@
     "message": "Aliaj"
   },
   "share": {
-    "message": "Kunhavigi"
+    "message": "Kundividi"
   },
   "moveToOrganization": {
-    "message": "Movu al Organizo"
+    "message": "Movi al organizo"
   },
   "valueCopied": {
-    "message": "$VALUE$ kopiita",
+    "message": "$VALUE$ kopiiĝis",
     "description": "Value has been copied to the clipboard.",
     "placeholders": {
       "value": {
@@ -786,41 +798,41 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Kopiado sukcesiĝis"
   },
   "copyValue": {
-    "message": "Kopii valoron",
+    "message": "Kopii la valoron",
     "description": "Copy value to clipboard"
   },
   "copyPassword": {
-    "message": "Kopii pasvorton",
+    "message": "Kopii la pasvorton",
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "Kopii la pasfrazon",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "La pasvorto kopiiĝis"
   },
   "copyUsername": {
-    "message": "Kopii uzantnomon",
+    "message": "Kopii la uzantnomon",
     "description": "Copy username to clipboard"
   },
   "copyNumber": {
-    "message": "Kopii Numeron",
+    "message": "Kopii la numeron",
     "description": "Copy credit card number"
   },
   "copySecurityCode": {
-    "message": "Kopiu Sekureckodon",
+    "message": "Kopii sekurigan kodon",
     "description": "Copy credit card security code (CVV)"
   },
   "copyUri": {
-    "message": "Kopii URI",
+    "message": "Kopii URI-n",
     "description": "Copy URI to clipboard"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Kopii la $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -829,43 +841,63 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Kopii la retejon"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Kopii la notojn"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Kopii la adreson"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Kopii la frazon"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Kopii la retpoŝton"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Kopii la kompanion"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Kopii la numeron de Socia Sekureco"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Kopii la numeron de pasporto"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Kopii la numeron de permesilo"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Kopii la nomon"
+  },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Mi"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "myVault": {
     "message": "Mia Trezorejo"
   },
   "allVaults": {
-    "message": "Ĉiuj Trezorejoj"
+    "message": "Ĉiuj trezorejoj"
   },
   "vault": {
     "message": "Trezorejo"
@@ -877,13 +909,13 @@
     "message": "Trezorejaj Eroj"
   },
   "filter": {
-    "message": "Filter"
+    "message": "Filtri"
   },
   "deleteSelected": {
     "message": "Forigi Elektitajn"
   },
   "moveSelected": {
-    "message": "Movu Elektitaĵojn"
+    "message": "Movi la elektaĵojn"
   },
   "selectAll": {
     "message": "Elekti ĉiujn"
@@ -895,7 +927,7 @@
     "message": "Lanĉo"
   },
   "newAttachment": {
-    "message": "Aldoni Novan Aldonaĵon"
+    "message": "Aldoni novan aldonaĵon"
   },
   "deletedAttachment": {
     "message": "Forigita aldonaĵo"
@@ -904,7 +936,7 @@
     "message": "Ĉu vi certe volas forigi ĉi tiun aldonaĵon?"
   },
   "attachmentSaved": {
-    "message": "La aldonaĵo estas konservita."
+    "message": "La aldonaĵo konserviĝis"
   },
   "file": {
     "message": "Dosiero"
@@ -916,13 +948,13 @@
     "message": "Maksimuma dosiergrandeco estas 500 MB."
   },
   "addedItem": {
-    "message": "Aldonita ero"
+    "message": "Ero aldoniĝis"
   },
   "editedItem": {
-    "message": "Redaktita ero"
+    "message": "Ero redaktiĝis"
   },
   "movedItemToOrg": {
-    "message": "$ITEMNAME$ moved to $ORGNAME$",
+    "message": "$ITEMNAME$ moviĝis al $ORGNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -935,7 +967,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Eroj moviĝis al $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -944,7 +976,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Ero moviĝis al $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -953,22 +985,22 @@
     }
   },
   "deleteItem": {
-    "message": "Forigi Artikolon"
+    "message": "Forigi la eron"
   },
   "deleteFolder": {
-    "message": "Forigi dosierujon"
+    "message": "Forigi la dosierujon"
   },
   "deleteAttachment": {
-    "message": "Forigi Aldonaĵon"
+    "message": "Forigi la aldonaĵon"
   },
   "deleteItemConfirmation": {
     "message": "Ĉu vi vere volas sendi al la rubujo?"
   },
   "deletedItem": {
-    "message": "Artikolo sendita al rubujo"
+    "message": "La ero sendiĝis al la rubujo"
   },
   "deletedItems": {
-    "message": "Eroj senditaj al rubujo"
+    "message": "La eroj sendiĝis al la rubujo"
   },
   "movedItems": {
     "message": "Movitaj eroj"
@@ -977,10 +1009,10 @@
     "message": "Ĉu vi certe volas anstataŭigi la nunan pasvorton?"
   },
   "editedFolder": {
-    "message": "Redaktita dosierujo"
+    "message": "`Dosierujo konserviĝis"
   },
   "addedFolder": {
-    "message": "Aldonita dosierujo"
+    "message": "Dosierujo aldoniĝis"
   },
   "deleteFolderConfirmation": {
     "message": "Ĉu vi certe volas forigi ĉi tiun dosierujon?"
@@ -989,37 +1021,37 @@
     "message": "Forigita dosierujo"
   },
   "editInfo": {
-    "message": "Edit info"
+    "message": "Redakti informon"
   },
   "access": {
-    "message": "Access"
+    "message": "Aliro"
   },
   "accessLevel": {
-    "message": "Access level"
+    "message": "Alira nivelo"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "En alirado"
   },
   "loggedOut": {
-    "message": "Adiaŭita"
+    "message": "Adiaŭinta"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Vi estas adiaŭita el via konto."
   },
   "loginExpired": {
-    "message": "Via seanco eksvalidiĝis."
+    "message": "Via salutajo eksvalidiĝis."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Relanĉi registradon"
   },
   "expiredLink": {
     "message": "Expired link"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Bonvole relanĉu registradon aŭ provu saluti"
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Mi eble jam havas konton."
   },
   "logOutConfirmation": {
     "message": "Ĉu vi certas ke vi volas adiaŭi?"
@@ -1037,67 +1069,67 @@
     "message": "Ne"
   },
   "location": {
-    "message": "Location"
+    "message": "Loko"
   },
   "loginOrCreateNewAccount": {
-    "message": "Ensalutu aŭ kreu novan konton por aliri vian sekuran trezorejon."
+    "message": "Saluti aŭ krei novan konton por aliri vian sekuran trezorejon"
   },
   "loginWithDevice": {
-    "message": "Saluti kun la aparato"
+    "message": "Saluti per aparato"
   },
   "loginWithDeviceEnabledNote": {
     "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Bezonas alian elekteblon?"
   },
   "loginWithMasterPassword": {
-    "message": "Saluti kun la ĉefpasvorto"
+    "message": "Saluti per la ĉefa pasvorto"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "En legado de pasŝlosilo..."
   },
   "readingPasskeyLoadingInfo": {
     "message": "Keep this window open and follow prompts from your browser."
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Uzi diferentan motodon salutan"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Saluti per pasŝlosilo"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Bonrevenon"
   },
   "invalidPasskeyPleaseTryAgain": {
-    "message": "Invalid Passkey. Please try again."
+    "message": "Malvalida pasŝlosilo. Bonvolu provi denove."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "2FA for passkeys is not supported. Update the app to log in."
+    "message": "2FA por pasŝlosilo estas ne disponebla. Ĝisdatigu la apon por saluti."
   },
   "loginWithPasskeyInfo": {
-    "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
+    "message": "Uzi generitan pasŝlosilon, kio ebligos al vi aŭtomatan salutadon sen pasvorto. Biometrio, kiel vizaĝa rekognado aŭ fingropremaĵo, aŭ alia sekuriga metodo de FIDO2 aŭtentigos vian identecon."
   },
   "newPasskey": {
-    "message": "New passkey"
+    "message": "Nova pasŝlosilo"
   },
   "learnMoreAboutPasswordless": {
     "message": "Learn more about passwordless"
   },
   "creatingPasskeyLoading": {
-    "message": "Creating passkey..."
+    "message": "En kreado de pasŝlosilo..."
   },
   "creatingPasskeyLoadingInfo": {
     "message": "Keep this window open and follow prompts from your browser."
   },
   "errorCreatingPasskey": {
-    "message": "Error creating passkey"
+    "message": "Eraro krei pasŝlosilon"
   },
   "errorCreatingPasskeyInfo": {
-    "message": "There was a problem creating your passkey."
+    "message": "Estis problemo krei vian pasŝlosilon."
   },
   "passkeySuccessfullyCreated": {
     "message": "Passkey successfully created!"
@@ -1118,7 +1150,7 @@
     "message": "Encryption not supported"
   },
   "enablePasskeyEncryption": {
-    "message": "Set up encryption"
+    "message": "Kunmeti ĉifradon"
   },
   "usedForEncryption": {
     "message": "Used for encryption"
@@ -1127,7 +1159,7 @@
     "message": "Log in with passkey turned on"
   },
   "passkeySaved": {
-    "message": "$NAME$ saved",
+    "message": "$NAME$ konserviĝis",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1136,34 +1168,34 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "La pasŝlosilo foriĝis"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "Forigi la pasŝlosilon"
   },
   "removePasskeyInfo": {
-    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+    "message": "Se ĉiuj pasŝlosiloj estus forigitaj, estos al vi neeble saluti en novajn aparatojn sen via ĉefa pasvorto."
   },
   "passkeyLimitReachedInfo": {
     "message": "Passkey limit reached. Remove a passkey to add another."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Provu denove"
   },
   "createAccount": {
     "message": "Krei konton"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Nova al Bitwarden?"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Ŝargu fortan pasvorton"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Finu krei vian konton ŝarginte pasvorton"
   },
   "newAroundHere": {
-    "message": "New around here?"
+    "message": "Nova ĉirkaŭ ĉi tie?"
   },
   "startTrial": {
     "message": "Komencu Provperiodon"
@@ -1175,13 +1207,13 @@
     "message": "Ensaluti en Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Enmetu la kodon senditan al via retpoŝto"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Enmetu la kodon el via aŭtentiga apo"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Premu vian YubiKey por aŭtentigi"
   },
   "authenticationTimeout": {
     "message": "Authentication timeout"
@@ -1196,19 +1228,19 @@
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Daŭrigi salutadon"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Kio estas aparato?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Aparato estas unika instalaĵo de la Bitwarden'a apo, kie vi havas salutaĵon. Reinstali, forviŝi datumon de la apo, aŭ forviŝi viajn kuketojn povus rezultigi aparaton plurfoje aperantan."
   },
   "logInInitiated": {
     "message": "Log in initiated"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Peto sendiĝis"
   },
   "submit": {
     "message": "Sendu"
@@ -1223,7 +1255,7 @@
     "message": "Kiel ni nomu vin?"
   },
   "masterPass": {
-    "message": "Ĉefpasvorto"
+    "message": "Ĉefa pasvorto"
   },
   "masterPassDesc": {
     "message": "La ĉefa pasvorto estas la pasvorto, kiun vi uzas por aliri vian trezorejon. Tre gravas, ke vi ne forgesu vian ĉefan pasvorton. Ne eblas retrovi la pasvorton, se vi forgesos ĝin."
@@ -1241,13 +1273,13 @@
     "message": "Majstra Pasvorta Konsilo (nedeviga)"
   },
   "newMasterPassHint": {
-    "message": "New master password hint (optional)"
+    "message": "Aludo de la nova ĉefa pasvorto (elektebla)"
   },
   "masterPassHintLabel": {
-    "message": "Majstra Pasvorta Konsilo"
+    "message": "Aludo de la ĉefa pasvorto"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Se vi forgesus vian pasvorton, la aludo de la pasvorto povus esti sendita al via retpoŝto; maksimume $CURRENT$/$MAXIMUM$ literoj.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -1263,34 +1295,34 @@
     "message": "Agordoj"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Retpoŝto de la konto"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Peti aludon"
   },
   "requestPasswordHint": {
     "message": "Request password hint"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "Enmeti la retpoŝtadreson de via konto, kaj sendiĝos la aludo de via pasvorto"
   },
   "getMasterPasswordHint": {
-    "message": "Akiru ĉefan pasvortan sugeston"
+    "message": "Preni aludon de la ĉefa pasvorto"
   },
   "emailRequired": {
-    "message": "Retpoŝta adreso estas bezonata."
+    "message": "Retpoŝtadreso estas bezonata."
   },
   "invalidEmail": {
     "message": "Nevalida retpoŝta adreso."
   },
   "masterPasswordRequired": {
-    "message": "Ĉefpasvorto estas nepra."
+    "message": "Ĉefa pasvorto estas bezonata."
   },
   "confirmMasterPasswordRequired": {
     "message": "Reentajpado de ĉefpasvorto estas nepra."
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least $VALUE$ characters long.",
+    "message": "Ĉefa pasvorto devas esti apenaŭ $VALUE$ literojn longa.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1306,13 +1338,13 @@
     "message": "Via nova konto kreiĝis! Vi nun povas ensaluti."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Via nova konto estas kreita!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Vi jam salutis!"
   },
   "trialAccountCreated": {
-    "message": "Account created successfully."
+    "message": "Konto kreiĝis sukcese."
   },
   "masterPassSent": {
     "message": "Ni sendis al vi retpoŝton kun via ĉefa pasvorta sugesto."
@@ -1355,13 +1387,13 @@
     "message": "Nevalida majstra pasvorto"
   },
   "invalidFilePassword": {
-    "message": "Invalid file password, please use the password you entered when you created the export file."
+    "message": "Nevalida pasvorto de la dosiero, bonvolu uzi la pasvorton, kiun vi enmetis kiam vi kreis la elportan dosieron."
   },
   "lockNow": {
-    "message": "Ŝlosi Nun"
+    "message": "Ŝlosi nun"
   },
   "noItemsInList": {
-    "message": "Ne estas listigendaj eroj."
+    "message": "Estas neniu ero por listi"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "You do not have permission to view all items in this collection."
@@ -1370,34 +1402,34 @@
     "message": "You do not have permissions to this collection"
   },
   "noCollectionsInList": {
-    "message": "Estas neniuj kolektoj listigeblaj."
+    "message": "Estas neniu kolekto por listi."
   },
   "noGroupsInList": {
-    "message": "Estas neniuj grupoj listigeblaj."
+    "message": "Estas neniu grupo por listi."
   },
   "noUsersInList": {
-    "message": "Estas neniuj uzantoj listigeblaj."
+    "message": "Estas neniu uzanto por listi."
   },
   "noMembersInList": {
-    "message": "There are no members to list."
+    "message": "Estas neniu membro por listi."
   },
   "noEventsInList": {
-    "message": "Ne estas eventoj listigeblaj."
+    "message": "Estas neniu evento por listi."
   },
   "newOrganization": {
-    "message": "Nova Organizo"
+    "message": "Nova organizo"
   },
   "noOrganizationsList": {
-    "message": "Vi ne apartenas al iuj organizoj. Organizoj permesas al vi sekure dividi erojn kun aliaj uzantoj."
+    "message": "Vi ne apartenas al iu ajn organizo. La organizoj permesas al vi sekure kundividi erojn kun aliaj uzantoj."
   },
   "notificationSentDevice": {
-    "message": "A notification has been sent to your device."
+    "message": "Sciigo estas sendita al via aparato."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Malŝlosu Bitwarden'on en via aparato aŭ en la "
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Ĉu vi provadas aliri vian konton?"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -1409,13 +1441,13 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Konfirmi aliron"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Malkonfirmi aliron"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "Reteja apo"
   },
   "notificationSentDevicePart2": {
     "message": "Make sure the Fingerprint phrase matches the one below before approving."
@@ -1445,20 +1477,20 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Ne demandu doneve en tiu ĉi aparato por 30 tagoj"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Elekti alian metodon",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Uzi vian rehavigan kodon"
   },
   "insertU2f": {
-    "message": "Enmetu vian sekurecan ŝlosilon en la USB-havenon de via komputilo. Se ĝi havas butonon, tuŝu ĝin."
+    "message": "Enŝovu vian sekurigan ŝlosilon en la USB-konektilon de via komputilo. Se ĝi havas butonon, tuŝu ĝin."
   },
   "loginUnavailable": {
-    "message": "Saluto ne disponebla"
+    "message": "Saluto ne disponeblas"
   },
   "noTwoStepProviders": {
     "message": "Ĉi tiu konto havas du-paŝan ensaluton ebligita, tamen neniu el la agorditaj du-paŝaj provizantoj estas subtenata de ĉi tiu retumilo."
@@ -1467,10 +1499,10 @@
     "message": "Bonvolu uzi subtenatan tTT-legilon (kiel Chrome) kaj / aŭ aldoni pliajn provizantojn pli bone subtenatajn tra tTT-legiloj (kiel aŭtentikiga programo)."
   },
   "twoStepOptions": {
-    "message": "Elektebloj de la du-ŝtupa saluto"
+    "message": "Elektebloj pri la duŝtupa salutado"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Elekti dupaŝan salutan metodon"
   },
   "recoveryCodeDesc": {
     "message": "Ĉu vi perdis aliron al ĉiuj viaj du-faktoraj provizantoj? Uzu vian reakiran kodon por malŝalti ĉiujn du-faktorajn provizantojn de via konto."
@@ -1482,7 +1514,7 @@
     "message": "Aŭtentiga Programo"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Enmetu kodon generitan de aŭtentiga apo kiel Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -1492,7 +1524,7 @@
     "message": "Uzu YubiKey por aliri vian konton. Funkcias kun YubiKey 4-serio, 5-serio kaj NEO-aparatoj."
   },
   "duoDescV2": {
-    "message": "Enter a code generated by Duo Security.",
+    "message": "Enmetu kodon generitan de Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -1515,13 +1547,13 @@
     "message": "(Migrated from FIDO)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Malfermi en nova langeto"
   },
   "emailTitle": {
     "message": "Retpoŝto"
   },
   "emailDescV2": {
-    "message": "Enter a code sent to your email."
+    "message": "Enmetu kodon senditan al via retpoŝto."
   },
   "continue": {
     "message": "Daŭrigi"
@@ -1557,7 +1589,7 @@
     }
   },
   "deleteSelectedConfirmation": {
-    "message": "Are you sure you want to continue?"
+    "message": "Ĉu vi certas ke vi volas daŭrigi?"
   },
   "moveSelectedItemsDesc": {
     "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
@@ -1575,10 +1607,10 @@
     "message": "Kopii Konfirman Kodon"
   },
   "copyUuid": {
-    "message": "Copy UUID"
+    "message": "Kopii UUID-n"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "Eraro en Refreŝigo de Alira Peto"
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "No refresh token or API keys found. Please try logging out and logging back in."
@@ -1587,16 +1619,16 @@
     "message": "Averto"
   },
   "confirmVaultExport": {
-    "message": "Konfirmu Eksportadon de Trezorejo"
+    "message": "Konfirmu elporton de la trezorejo"
   },
   "confirmSecretsExport": {
-    "message": "Confirm secrets export"
+    "message": "Konfirmu elporton de la sekretoj"
   },
   "exportWarningDesc": {
     "message": "Ĉi tiu eksportado enhavas viajn volbajn datumojn en neĉifrita formato. Vi ne devas stoki aŭ sendi la eksportitan dosieron per nesekuraj kanaloj (kiel retpoŝto). Forigu ĝin tuj post kiam vi finuzos ĝin."
   },
   "exportSecretsWarningDesc": {
-    "message": "This export contains your secrets data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Tiu ĉi elporto enhavas viajn sekretajn datumojn en neĉifrita formato. Vi devus ne stapli aŭ sendi la elportotan dosieron tra nesekuraj kanaloj (kiel retpoŝto). Forigu ĝin tuj kiam vi finos uzi ĝin."
   },
   "encExportKeyWarningDesc": {
     "message": "Ĉi tiu eksporto ĉifras viajn datumojn per la ĉifra ŝlosilo de via konto. Se vi iam turnos la ĉifran ŝlosilon de via konto, vi devas eksporti denove, ĉar vi ne povos deĉifri ĉi tiun eksportan dosieron."
@@ -1605,64 +1637,64 @@
     "message": "Kontaj ĉifraj ŝlosiloj estas unikaj por ĉiu Bitwarden-uzanto-konto, do vi ne povas importi ĉifritan eksportadon en alian konton."
   },
   "export": {
-    "message": "Export"
+    "message": "Elporti"
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "Elporti el"
   },
   "exportVault": {
-    "message": "Eksportu Trezorejon"
+    "message": "Elporti la trezorejon"
   },
   "exportSecrets": {
-    "message": "Export secrets"
+    "message": "Elporti la sekretojn"
   },
   "fileFormat": {
     "message": "Dosierformato"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "This file export will be password protected and require the file password to decrypt."
+    "message": "Tiu dosieriga elporto estos pasvorte protektita kaj bezonos la pasvorton de la dosiero por deĉifri "
   },
   "exportPasswordDescription": {
-    "message": "This password will be used to export and import this file"
+    "message": "Tiu pasvorto estos uzata por elporti kaj enporti ĉi tiun dosieron"
   },
   "confirmMasterPassword": {
     "message": "Konfirmi la ĉefpasvorton"
   },
   "confirmFormat": {
-    "message": "Confirm format"
+    "message": "Konfirmu formaton"
   },
   "filePassword": {
-    "message": "File password"
+    "message": "Pasvorto de la dosiero"
   },
   "confirmFilePassword": {
-    "message": "Confirm file password"
+    "message": "Konfirmu la pasvorton de la dosiero"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
+    "message": "Uzu vian ŝlosilon de konta ĉifrado, derivitan el la uzantnomo kaj ĉefa pasvorto de via konto, por ĉifri la elporton kaj limigi enporton nur al la nuna konto ĉe Bitwarden."
   },
   "passwordProtectedOptionDescription": {
-    "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
+    "message": "Ŝargu pasvorton de la dosiero por ĉifri la elporton, kaj ĝin enportu al ajna konto ĉe Bitwarden uzante la pasvorton por deĉifrado."
   },
   "exportTypeHeading": {
-    "message": "Export type"
+    "message": "Elporta tipo"
   },
   "accountRestricted": {
     "message": "Account restricted"
   },
   "passwordProtected": {
-    "message": "Password protected"
+    "message": "La pasvorto protektiĝis"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
+    "message": "Ne akordas la «Pasvorto de la dosiero» kaj la «Konfirmu la pasvorton de la dosiero»."
   },
   "confirmVaultImport": {
-    "message": "Confirm vault import"
+    "message": "Konfirmu enporton de trezorejo"
   },
   "confirmVaultImportDesc": {
-    "message": "This file is password-protected. Please enter the file password to import data."
+    "message": "Tiu dosiero estas pasvorte protektata. Bonvolu enmeti la pasvorton de la dosiero por enporti datumon."
   },
   "exportSuccess": {
-    "message": "Viaj volbaj datumoj estis eksportitaj."
+    "message": "Datumo de la trezorejo elportiĝis"
   },
   "passwordGenerator": {
     "message": "Pasvorta Generilo"
@@ -1689,10 +1721,10 @@
     "message": "Longo"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Minimuma longo de pasvorto"
   },
   "uppercase": {
-    "message": "Uppercase (A-Z)",
+    "message": "Majusklo (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
@@ -1707,7 +1739,7 @@
     "message": "Signoj Specialaj (!@#$%^&*)"
   },
   "numWords": {
-    "message": "Nombro de Vortoj"
+    "message": "Nombro de vortoj"
   },
   "wordSeparator": {
     "message": "Vortdisigilo"
@@ -1736,26 +1768,26 @@
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
-    "message": "Ne estas listigitaj pasvortoj."
+    "message": "Estas neniu pasvorto por listi"
   },
   "clearHistory": {
     "message": "Clear history"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Neniu por montri"
   },
   "nothingGeneratedRecently": {
     "message": "You haven't generated anything recently"
   },
   "clear": {
-    "message": "Malplenigi",
+    "message": "Forviŝi",
     "description": "To clear something out. Example: To clear browser history."
   },
   "accountUpdated": {
     "message": "Konto ĝisdatigita"
   },
   "changeEmail": {
-    "message": "Ŝanĝi retpoŝton"
+    "message": "Ŝanĝi la retpoŝton"
   },
   "changeEmailTwoFactorWarning": {
     "message": "Proceeding will change your account email address. It will not change the email address used for two-step login authentication. You can change this email address in the two-step login settings."
@@ -1778,8 +1810,11 @@
   "loggedOutWarning": {
     "message": "Prilabori vian adiaŭadon de la nuna seanco, necesigos vin saluti denove. La seancoj aktivaj sur aliaj aparatoj povas resti aktivaj ankoraŭ unu horon."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
   "emailChanged": {
-    "message": "Retpoŝto Ŝanĝis"
+    "message": "La retpoŝto konserviĝis"
   },
   "logBackIn": {
     "message": "Bonvolu saluti refoje."
@@ -1803,13 +1838,13 @@
     "message": "Nuna Majstra Pasvorto"
   },
   "newMasterPass": {
-    "message": "Nova Majstra Pasvorto"
+    "message": "Nova ĉefa pasvorto"
   },
   "confirmNewMasterPass": {
     "message": "Konfirmi Novan Majstran Pasvorton"
   },
   "encKeySettings": {
-    "message": "Agordoj de Ĉifroklavo"
+    "message": "Agordoj pri ĉifra ŝlosilo"
   },
   "kdfAlgorithm": {
     "message": "KDF-Algoritmo"
@@ -1855,7 +1890,7 @@
     "message": "Ŝanĝaj Ŝlosilaj Agordoj Ŝanĝiĝis"
   },
   "dangerZone": {
-    "message": "Danĝera Zono"
+    "message": "Danĝera zono"
   },
   "deauthorizeSessions": {
     "message": "Senrajtigi Sesiojn"
@@ -1864,10 +1899,10 @@
     "message": "Ĉu vi zorgas pri tio, ke via konto estas ensalutinta sur alia aparato? Sekvu sube por senrajtigi ĉiujn komputilojn aŭ aparatojn, kiujn vi antaŭe uzis. Ĉi tiu sekureca paŝo rekomendas se vi antaŭe uzis publikan komputilon aŭ hazarde konservis vian pasvorton sur aparato, kiu ne estas via. Ĉi tiu paŝo ankaŭ malplenigos ĉiujn antaŭe memoritajn du-paŝajn ensalutajn sesiojn. "
   },
   "deauthorizeSessionsWarning": {
-    "message": "Se vi daŭrigos vian adiaŭadon de la nuna seanco, necesos vin saluti denove. Oni ankaŭ demandos de vi du-faktoran aŭtentigon, se tiu elekteblo estas ebligita. La seancoj aktivaj sur aliaj aparatoj povas resti daŭre aktivaj ankoraŭ unu horon."
+    "message": "La daŭrigo ankaŭ elsalutos vin de via nuna sesio, postulante vin denove ensaluti. Oni ankaŭ petos vin du-ŝtupa ensaluto, se ĝi estas ebligita. Aktivaj sesioj sur aliaj aparatoj povas daŭre resti aktivaj ĝis ĝis unu horo. "
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "Saluto per nova aparato"
   },
   "turnOffNewDeviceLoginProtection": {
     "message": "Turn off new device login protection"
@@ -1888,7 +1923,7 @@
     "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
-    "message": "Ĉiuj Sesioj Neaŭtorizitaj"
+    "message": "Ĉiuj salutaĵoj malaŭtoritatiĝis"
   },
   "accountIsOwnedMessage": {
     "message": "This account is owned by $ORGANIZATIONNAME$",
@@ -1952,7 +1987,7 @@
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
-    "message": "new item",
+    "message": "nova ero",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLoginLink": {
@@ -1989,7 +2024,7 @@
     "message": "Data successfully exported"
   },
   "importWarning": {
-    "message": "Vi importas datumojn al $ORGANIZATION$. Viaj datumoj povas esti dividitaj kun membroj de ĉi tiu organizo. Ĉu vi volas daŭrigi?",
+    "message": "Vi nun enportas datumojn al $ORGANIZATION$. Viaj datumoj povas esti kundividitaj kun membroj de ĉi tiu organizo. Ĉu vi volas procedi?",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2038,7 +2073,7 @@
     "message": "Elektu la importan dosieron"
   },
   "chooseFile": {
-    "message": "Choose File"
+    "message": "Elekti dosieron"
   },
   "noFileChosen": {
     "message": "No file chosen"
@@ -2060,10 +2095,10 @@
     "message": "Elektebloj"
   },
   "preferences": {
-    "message": "Preferences"
+    "message": "Agordoj"
   },
   "preferencesDesc": {
-    "message": "Customize your web vault experience."
+    "message": "Personecigi vian sperton de la reteja trezorejo"
   },
   "preferencesUpdated": {
     "message": "Preferences saved"
@@ -2081,7 +2116,7 @@
     "message": "Show a recognizable image next to each login."
   },
   "default": {
-    "message": "Apriora"
+    "message": "Implicita"
   },
   "domainRules": {
     "message": "Regaj Reguloj"
@@ -2096,7 +2131,7 @@
     "message": "Propraj Ekvivalentaj Domajnoj"
   },
   "exclude": {
-    "message": "Ekskludi"
+    "message": "Ekskluzivi"
   },
   "include": {
     "message": "Inkluzivi"
@@ -2123,7 +2158,7 @@
     "message": "Domajnoj ĝisdatigitaj"
   },
   "twoStepLogin": {
-    "message": "Du-ŝtupa saluto"
+    "message": "Duŝtupa salutado"
   },
   "twoStepLoginEnforcement": {
     "message": "Two-step Login Enforcement"
@@ -2150,11 +2185,23 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Ebligi du-paŝan ensaluton povas konstante elŝlosi vin el via Bitwarden-konto. Rekuperiga kodo permesas vin aliri vian konton, se vi ne plu povas uzi vian normalan du-paŝan ensalutan provizanton (ekz. vi perdas Bitwarden-subteno ne povos helpi vin se vi perdos aliron al via konto. Ni rekomendas al vi skribi aŭ presi la reakiran kodon kaj konservi ĝin en sekura loko. "
   },
+  "restrictedItemTypePolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypePolicyDesc": {
+    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
   },
   "viewRecoveryCode": {
-    "message": "Rigardi Rekuperan Kodon"
+    "message": "Vidi rehavigan kodon"
   },
   "providers": {
     "message": "Provizantoj",
@@ -2164,10 +2211,10 @@
     "message": "Ebligi"
   },
   "enabled": {
-    "message": "Enŝaltita"
+    "message": "Ŝaltita"
   },
   "restoreAccess": {
-    "message": "Restarigu Aliron"
+    "message": "Rehavigi aliron"
   },
   "premium": {
     "message": "Premium",
@@ -2198,16 +2245,19 @@
     "message": "View items"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Vidi erojn, kaŝitajn pasvortojn"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Redakti erojn"
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
   },
   "disable": {
-    "message": "Neebligi"
+    "message": "Malŝalti"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
   },
   "revokeAccess": {
     "message": "Revoke access"
@@ -2222,7 +2272,7 @@
     "message": "Enigu vian ĉefan pasvorton por modifi du-paŝajn ensalutajn agordojn."
   },
   "twoStepAuthenticatorInstructionPrefix": {
-    "message": "Download an authenticator app such as"
+    "message": "Elŝutu aŭtentigan apon kiel"
   },
   "twoStepAuthenticatorInstructionInfix1": {
     "message": ","
@@ -2261,7 +2311,7 @@
     "message": "Konigilo"
   },
   "twoStepAuthenticatorEnterCodeV2": {
-    "message": "Verification code"
+    "message": "Aŭtentiga kodo"
   },
   "twoStepAuthenticatorReaddDesc": {
     "message": "Se vi bezonas aldoni ĝin al alia aparato, sube estas la QR-kodo (aŭ ŝlosilo) postulita de via aŭtentikiga programo."
@@ -2270,10 +2320,10 @@
     "message": "Ĉu vi certas, ke vi volas malŝalti ĉi tiun du-paŝan ensalutan provizanton?"
   },
   "twoStepDisabled": {
-    "message": "Du-ŝtupa ensaluta provizanto malŝaltita."
+    "message": "Malŝaltiĝis provizanto de duŝtupa salutado,"
   },
   "twoFactorYubikeyAdd": {
-    "message": "Aldoni novan YubiKey al via konto"
+    "message": "Aldoni novan YubiKey-n al via konto"
   },
   "twoFactorYubikeyPlugIn": {
     "message": "Enŝovu la YubiKey en la USB-havenon de via komputilo."
@@ -2333,13 +2383,13 @@
     "message": "Se unu el viaj YubiKeys subtenas NFC (kiel YubiKey NEO), vi estos instigita per poŝtelefonoj kiam ajn NFC-havebleco estas detektita."
   },
   "yubikeysUpdated": {
-    "message": "YubiKeys ĝisdatigis"
+    "message": "YubiKeys ĝisdatiĝis"
   },
   "disableAllKeys": {
-    "message": "Neebligi ĉiujn ŝlosilojn"
+    "message": "Malŝalti ĉiujn ŝlosilojn"
   },
   "twoFactorDuoDesc": {
-    "message": "Enmetu la informojn pri Bitwarden-aplikaĵo de via panelo de Duo Admin."
+    "message": "Enmetu la informojn pri Bitwarden-aplikaĵo el la panelo de via Duo Admin."
   },
   "twoFactorDuoClientId": {
     "message": "Client Id"
@@ -2363,13 +2413,13 @@
     "message": "Sendi retpoŝton"
   },
   "twoFactorU2fAdd": {
-    "message": "Aldonu sekurecan ŝlosilon FIDO U2F al via konto"
+    "message": "Aldoni al via konto sekurigan ŝlosilon de FIDO U2F"
   },
   "removeU2fConfirmation": {
     "message": "Ĉu vi certe volas forigi ĉi tiun sekurecan ŝlosilon?"
   },
   "twoFactorWebAuthnAdd": {
-    "message": "Add a WebAuthn security key to your account"
+    "message": "Aldoni al via konto sekurigan ŝlosilon de WebAuthn"
   },
   "readKey": {
     "message": "Legi Ŝlosilon"
@@ -2378,13 +2428,13 @@
     "message": "Ŝlosilo estas kompromitita."
   },
   "twoFactorU2fGiveName": {
-    "message": "Donu al la sekureca ŝlosilo amikan nomon por identigi ĝin."
+    "message": "Donu al la sekuriga ŝlosilo amikecan nomon por ĝin identigi."
   },
   "twoFactorU2fPlugInReadKey": {
     "message": "Enŝovu la sekurecan ŝlosilon en la USB-havenon de via komputilo kaj alklaku la butonon \" Legu Ŝlosilon \"."
   },
   "twoFactorU2fTouchButton": {
-    "message": "Se la sekureca ŝlosilo havas butonon, tuŝu ĝin."
+    "message": "Se la sekuriga ŝlosilo havas butonon, tuŝu ĝin."
   },
   "twoFactorU2fSaveForm": {
     "message": "Konservu la formularon."
@@ -2393,7 +2443,7 @@
     "message": "Pro platformaj limigoj, FIDO U2F ne povas esti uzata en ĉiuj Bitwarden-aplikaĵoj. Vi rajtigu alian du-paŝan ensalutan provizanton, por ke vi povu aliri vian konton kiam FIDO U2F ne povas esti uzata. Subtenitaj platformoj:"
   },
   "twoFactorU2fSupportWeb": {
-    "message": "Reta volbo kaj retumilaj etendaĵoj sur labortablo / tekkomputilo kun U2F-ebligita retumilo (Chrome, Opera, Vivaldi aŭ Firefox kun FIDO U2F ebligita)."
+    "message": "Reteja trezorejo kaj retumilaj etendaĵoj sur labortablo / klapkomputilo kun U2F-disponebla retumilo (Chrome, Opera, Vivaldi aŭ Firefox kun FIDO U2F ŝaltita)."
   },
   "twoFactorU2fWaiting": {
     "message": "Atendante, ke vi tuŝu la butonon de via sekureca ŝlosilo"
@@ -2457,10 +2507,10 @@
     "message": "Raporto 2FA neaktiva"
   },
   "inactive2faReportDesc": {
-    "message": "Dufakta aŭtentokontrolo (2FA) estas grava sekureca agordo, kiu helpas sekurigi viajn kontojn. Se la retejo ofertas ĝin, vi devas ĉiam ebligi dufakturan aŭtentikigon."
+    "message": "La duŝtupa salutado aldonas tavolon protekti viajn kontojn. Instalu duŝtupan salutadon uzantante Bitwarden-aŭtentigilon por tiuj kontoj, aŭ uzu alternativan metodon."
   },
   "inactive2faFound": {
-    "message": "Ensalutoj Sen 2FA Trovitaj"
+    "message": "Troviĝis salutoj sen duŝtupa salutado"
   },
   "inactive2faFoundReportDesc": {
     "message": "We found $COUNT$ website(s) in your $VAULT$ that may not be configured with two-step login (according to 2fa.directory). To further protect these accounts, you should set up two-step login.",
@@ -2522,7 +2572,7 @@
     }
   },
   "weakPasswordsReport": {
-    "message": "Raporto pri Malfortaj Pasvortoj"
+    "message": "Malfortaj pasvortoj"
   },
   "weakPasswordsReportDesc": {
     "message": "Malfortaj pasvortoj facile diveneblas per retpiratoj kaj aŭtomataj iloj, kiuj estas uzataj por rompi pasvortojn. La Bitwarden-pasvorta generatoro povas helpi vin krei fortajn pasvortojn."
@@ -2556,7 +2606,7 @@
     "message": "Se servo, kiun vi uzas, estas kompromitita, reuzi la saman pasvorton aliloke povas permesi al retpiratoj facile aliri al pli da viaj retaj kontoj. Vi devas uzi unikan pasvorton por ĉiu konto aŭ servo."
   },
   "reusedPasswordsFound": {
-    "message": "Reuzitaj Pasvortoj Trovitaj"
+    "message": "Troviĝis reuzitaj pasvortoj"
   },
   "reusedPasswordsFoundReportDesc": {
     "message": "We found $COUNT$ passwords that are being reused in your $VAULT$. You should change them to a unique value.",
@@ -2663,7 +2713,7 @@
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "addCredit": {
-    "message": "Aldoni Krediton",
+    "message": "Aldoni krediton",
     "description": "Add more credit to your account's balance."
   },
   "amount": {
@@ -2684,10 +2734,10 @@
     "description": "Another way of saying \"Get a Premium membership\""
   },
   "premiumUpdated": {
-    "message": "Vi ĝisdatigis al premio."
+    "message": "Vi ĝisdatigis al Premium."
   },
   "premiumUpgradeUnlockFeatures": {
-    "message": "Altgradigu vian konton al supera membreco kaj malŝlosu iujn bonegajn aldonajn funkciojn."
+    "message": "Altgradigu vian konton al Premium-membreco kaj malŝlosu iom da bonegaj aldonaj funkcioj."
   },
   "premiumSignUpStorage": {
     "message": "1 GB ĉifrita stokado por dosieraj aldonaĵoj."
@@ -2736,7 +2786,7 @@
     "message": "Bitwarden Families plan."
   },
   "addons": {
-    "message": "Aldonaĵoj"
+    "message": "Etendaĵoj"
   },
   "premiumAccess": {
     "message": "Altkvalita Aliro"
@@ -2758,7 +2808,7 @@
     "message": "Aldona Stokado (GB)"
   },
   "additionalStorageGbDesc": {
-    "message": "Nombro da pliaj GB"
+    "message": "# da pliaj GB"
   },
   "additionalStorageIntervalDesc": {
     "message": "Via plano venas kun $SIZE$ da ĉifrita dosier-stokado. Vi povas aldoni plian stokadon kontraŭ $PRICE$ po GB / $INTERVAL$.",
@@ -2830,7 +2880,7 @@
     "message": "Alklaku la butonon PayPal por ensaluti vian konton PayPal, poste alklaku la butonon Sendu sube por daŭrigi."
   },
   "cancelSubscription": {
-    "message": "Nuligi Abonon"
+    "message": "Nuligi la abonon"
   },
   "subscriptionExpiration": {
     "message": "Subscription expiration"
@@ -2857,10 +2907,10 @@
     "message": "Ĉu vi certas, ke vi volas nuligi? Vi perdos aliron al ĉiuj funkcioj de ĉi tiu abono fine de ĉi tiu faktura ciklo."
   },
   "canceledSubscription": {
-    "message": "La abono estis nuligita."
+    "message": "Abono nuliĝis"
   },
   "neverExpires": {
-    "message": "Never expires"
+    "message": "Neniam eksvalidiĝis"
   },
   "status": {
     "message": "Stato"
@@ -2915,10 +2965,10 @@
     "message": "Neniu pagmaniero registrita."
   },
   "addPaymentMethod": {
-    "message": "Aldoni Pagmanieron"
+    "message": "Aldoni pagan metodon"
   },
   "changePaymentMethod": {
-    "message": "Ŝanĝi Pagmanieron"
+    "message": "Ŝanĝi la pagan metodon"
   },
   "invoices": {
     "message": "Fakturoj"
@@ -2934,7 +2984,7 @@
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "unpaid": {
-    "message": "Sensalajra",
+    "message": "Nepagita",
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "transactions": {
@@ -2992,7 +3042,7 @@
     "message": "Ĝisdatigita pagmaniero."
   },
   "purchasePremium": {
-    "message": "Aĉetu Superpagon"
+    "message": "Aĉetu Premium'on"
   },
   "licenseFile": {
     "message": "Permesila Dosiero"
@@ -3040,13 +3090,13 @@
     "message": "Uzantoj"
   },
   "userSeats": {
-    "message": "Uzantaj Sidlokoj"
+    "message": "Uzanto-sidejoj"
   },
   "additionalUserSeats": {
     "message": "Pliaj Uzaj Lokoj"
   },
   "userSeatsDesc": {
-    "message": "Nombro de uzantaj lokoj"
+    "message": "# de uzanto-sidejoj"
   },
   "userSeatsAdditionalDesc": {
     "message": "Via plano venas kun $BASE_SEATS$ uzanto-seĝoj. Vi povas aldoni pliajn uzantojn kontraŭ $SEAT_PRICE$ po uzanto / monato.",
@@ -3195,7 +3245,7 @@
     }
   },
   "trialThankYou": {
-    "message": "Thanks for signing up for Bitwarden for $PLAN$!",
+    "message": "Dankon pro la registriĝo al Bitwarden por $PLAN$!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -3237,7 +3287,7 @@
     "message": "Baza Prezo"
   },
   "organizationCreated": {
-    "message": "Organizo kreita"
+    "message": "Organizo kreiĝis"
   },
   "organizationReadyToGo": {
     "message": "Via nova organizo pretas!"
@@ -3255,22 +3305,22 @@
     "message": "Vi forlasis la organizon."
   },
   "defaultCollection": {
-    "message": "Apriora Kolekto"
+    "message": "Implicita kolekto"
   },
   "getHelp": {
-    "message": "Akiri Helpon"
+    "message": "Akiri helpon"
   },
   "getApps": {
-    "message": "Akiru la Programojn"
+    "message": "Akiri la programojn"
   },
   "loggedInAs": {
     "message": "Ensalutinta kiel"
   },
   "eventLogs": {
-    "message": "Eventaj Registroj"
+    "message": "Eventa ĵurnalo"
   },
   "people": {
-    "message": "Homoj"
+    "message": "Personoj"
   },
   "policies": {
     "message": "Politikoj"
@@ -3339,13 +3389,13 @@
     "message": "Nurlegebla"
   },
   "newCollection": {
-    "message": "Nova Kolekto"
+    "message": "Nova kolekto"
   },
   "addCollection": {
-    "message": "Aldoni Kolekton"
+    "message": "Aldoni kolekton"
   },
   "editCollection": {
-    "message": "Redakti Kolekton"
+    "message": "Redakti kolekton"
   },
   "collectionInfo": {
     "message": "Collection info"
@@ -3411,7 +3461,7 @@
     "message": "Administranto"
   },
   "adminDesc": {
-    "message": "Administrantoj povas aliri kaj administri ĉiujn erojn, kolektojn kaj uzantojn en via organizo."
+    "message": "Administri la aliron al organizo, ĉiujn kolektojn, membrojn, raportadojn, kaj sekurecajn agordojn"
   },
   "user": {
     "message": "Uzanto"
@@ -3426,7 +3476,7 @@
     "message": "Add Access"
   },
   "addAccessFilter": {
-    "message": "Add Access Filter"
+    "message": "Aldoni Aliran Filtrilon"
   },
   "refresh": {
     "message": "Refreŝigi"
@@ -3458,6 +3508,9 @@
   "webVault": {
     "message": "Rettrezorejo"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3468,7 +3521,7 @@
     "message": "Bitwarden Secrets Manager"
   },
   "loggedIn": {
-    "message": "Ensalutinta."
+    "message": "Salutinta"
   },
   "changedPassword": {
     "message": "Ŝanĝis pasvorton de konto."
@@ -3477,7 +3530,7 @@
     "message": "Ebligita / ĝisdatigita du-ŝtupa ensaluto."
   },
   "disabled2fa": {
-    "message": "Neebligita du-ŝtupa saluto."
+    "message": "Duŝtupa saluto malŝaltiĝis"
   },
   "recovered2fa": {
     "message": "Konto senpaneigita el du-ŝtupa saluto."
@@ -3502,16 +3555,16 @@
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
   },
   "exportedVault": {
-    "message": "Eksportiĝis trezorejo."
+    "message": "La trezorejo elportiĝis"
   },
   "exportedOrganizationVault": {
     "message": "Eksportiĝis trezorejo de organizo."
   },
   "editedOrgSettings": {
-    "message": "Redaktitaj organizaj agordoj."
+    "message": "Redaktiĝis organizaj agordoj."
   },
   "createdItemId": {
-    "message": "Kreita ero $ID$.",
+    "message": "Kreiĝis ero $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3538,7 +3591,7 @@
     }
   },
   "movedItemIdToOrg": {
-    "message": "Moved item $ID$ to an organization.",
+    "message": "Movigis la eron $ID$ al organizo",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3727,7 +3780,7 @@
     }
   },
   "removedUserId": {
-    "message": "Removed user $ID$.",
+    "message": "Foriĝis uzanto $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3865,7 +3918,7 @@
     }
   },
   "removedOrganizationId": {
-    "message": "Forviŝiĝis organizo $ID$.",
+    "message": "Foriĝis organizo $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3916,7 +3969,7 @@
     "message": "IP Address"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "Konfirmu salutadon"
   },
   "denyLogIn": {
     "message": "Deny login"
@@ -3939,6 +3992,22 @@
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
@@ -3977,7 +4046,7 @@
     "message": "to edit your email address."
   },
   "view": {
-    "message": "Vidigi"
+    "message": "Vidi"
   },
   "invalidDateRange": {
     "message": "Nevalida datintervalo."
@@ -3986,10 +4055,10 @@
     "message": "Eraro okazis."
   },
   "userAccess": {
-    "message": "Uzanto-Aliro"
+    "message": "Uzanto-aliro"
   },
   "userType": {
-    "message": "Uzanto-Tipo"
+    "message": "Uzanto-tipo"
   },
   "groupAccess": {
     "message": "Grupaliro"
@@ -4072,8 +4141,8 @@
   "updateBrowser": {
     "message": "Ĝisdatigi retumilon"
   },
-  "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Vi uzas nesubtenatan tTT-legilon. La ttt-volbo eble ne funkcias ĝuste."
@@ -4083,6 +4152,9 @@
   },
   "reviewLoginRequest": {
     "message": "Review login request"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
@@ -4134,7 +4206,7 @@
     "message": "Click here to add a payment method."
   },
   "joinOrganization": {
-    "message": "Aliĝi al Organizo"
+    "message": "Aliĝi al organizo"
   },
   "joinOrganizationName": {
     "message": "Join $ORGANIZATIONNAME$",
@@ -4173,7 +4245,7 @@
     }
   },
   "rememberEmail": {
-    "message": "Memoru retpoŝton"
+    "message": "Rememorigi la retpoŝton"
   },
   "recoverAccountTwoStepDesc": {
     "message": "Se vi ne povas aliri vian konton per viaj normalaj du-ŝtupaj ensalutaj metodoj, vi povas uzi vian du-ŝtupan ensalutan rekuperan kodon por malŝalti ĉiujn du-ŝtupajn provizantojn en via konto."
@@ -4182,10 +4254,10 @@
     "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
   },
   "recoverAccountTwoStep": {
-    "message": "Senpaneigi la du-faktoran aŭtentigon de la konto"
+    "message": "Restarigi la dufaktoran aŭtentigon de la konto"
   },
   "twoStepRecoverDisabled": {
-    "message": "Du-faktora aŭtentigo estas neebligita en via konto."
+    "message": "Dufaktora aŭtentigo estas malŝaltita en via konto."
   },
   "learnMore": {
     "message": "Lernu pli"
@@ -4233,13 +4305,13 @@
     }
   },
   "organizationDeleted": {
-    "message": "Organizo Forigita"
+    "message": "Organizo foriĝis"
   },
   "organizationDeletedDesc": {
     "message": "La organizo kaj ĉiuj rilataj datumoj estis forigitaj."
   },
   "organizationUpdated": {
-    "message": "Organizo ĝisdatigita"
+    "message": "Organizo konserviĝis"
   },
   "taxInformation": {
     "message": "Impostaj Informoj"
@@ -4449,10 +4521,10 @@
     }
   },
   "seatsToAdd": {
-    "message": "Aldonaj Seĝoj"
+    "message": "Sidejoj por aldoni"
   },
   "seatsToRemove": {
-    "message": "Forigeblaj Seĝoj"
+    "message": "Sidejo por forigi"
   },
   "seatsAddNote": {
     "message": "Aldoni uzantajn seĝojn rezultigos ĝustigojn al viaj fakturaj sumoj kaj tuj ŝargos vian pagmanieron en dosiero. La unua ŝarĝo estos proporciigita por la resto de la aktuala faktura ciklo."
@@ -4468,9 +4540,6 @@
         "example": "15"
       }
     }
-  },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Encryption key update cannot proceed"
   },
   "editFieldLabel": {
     "message": "Edit $LABEL$",
@@ -4524,23 +4593,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
-  },
-  "keyUpdated": {
-    "message": "Ŝlosilo ĝisdatigita"
-  },
-  "updateEncryptionKey": {
-    "message": "Ĝisdatigi Ĉifran Ŝlosilon"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Post ĝisdatigi vian ĉifradan ŝlosilon, vi devas elsaluti kaj reeniri al ĉiuj Bitwarden-aplikaĵoj, kiujn vi nun uzas (kiel la poŝtelefona programo aŭ retumila etendaĵoj). Malsukceso elsaluti kaj reeniri (kiu elŝutas via nova ĉifra ŝlosilo) povas rezultigi korupton de datumoj. Ni provos elsaluti vin aŭtomate, tamen ĝi eble prokrastos. "
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Ĉiuj ĉifritaj eksportaĵoj, kiujn vi konservis, ankaŭ malvalidiĝos."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Abono"
@@ -4552,13 +4612,13 @@
     "message": "Ĝisdatigi"
   },
   "upgradeOrganization": {
-    "message": "Altgradiga Organizo"
+    "message": "Altgradigi organizon"
   },
   "upgradeOrganizationDesc": {
     "message": "Ĉi tiu funkcio ne haveblas por senpagaj organizoj. Ŝanĝu al pagita plano por malŝlosi pli da funkcioj."
   },
   "createOrganizationStep1": {
-    "message": "Krei Organizon: Paŝo 1"
+    "message": "Krei organizon: Ŝtupo 1"
   },
   "createOrganizationCreatePersonalAccount": {
     "message": "Antaŭ ol krei vian organizon, vi unue devas krei senpagan personan konton."
@@ -4567,10 +4627,13 @@
     "message": "Repagita"
   },
   "nothingSelected": {
-    "message": "Vi elektis nenion."
+    "message": "Vi elektis neniun."
   },
   "receiveMarketingEmailsV2": {
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "Unsubscribe"
@@ -4637,7 +4700,7 @@
     "description": "ex. Date this item was updated"
   },
   "dateCreated": {
-    "message": "Created",
+    "message": "Kreita",
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
@@ -4645,7 +4708,7 @@
     "description": "ex. Date this password was updated"
   },
   "organizationIsDisabled": {
-    "message": "Organizo estas malŝaltita."
+    "message": "La organizo suspendiĝis"
   },
   "secretsAccessSuspended": {
     "message": "Suspended organizations cannot be accessed. Please contact your organization owner for assistance."
@@ -4869,7 +4932,7 @@
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
-    "message": "Uzanta Prefero"
+    "message": "Prefero de la uzanto"
   },
   "vaultTimeoutAction": {
     "message": "Volta Tempolima Ago"
@@ -4878,7 +4941,7 @@
     "message": "Ŝlosita trezorejo postulas, ke vi reenmetu vian ĉefan pasvorton por aliri ĝin denove."
   },
   "vaultTimeoutActionLogOutDesc": {
-    "message": "Ensalutita volbo postulas, ke vi denove aŭtentikigu por aliri ĝin denove."
+    "message": "Reaŭtentigo estas postulata por denove aliri al vian trezorejo."
   },
   "lock": {
     "message": "Ŝlosi",
@@ -4889,7 +4952,7 @@
     "description": "Noun: A special folder for holding deleted items that have not yet been permanently deleted"
   },
   "searchTrash": {
-    "message": "Serĉi rubujon"
+    "message": "Traserĉi la rubujon"
   },
   "permanentlyDelete": {
     "message": "Konstante Forigi"
@@ -4928,16 +4991,16 @@
     }
   },
   "restore": {
-    "message": "Restarigi"
+    "message": "Rehavigi"
   },
   "restoreSelected": {
-    "message": "Restarigi elektitajn"
+    "message": "Rehavigi elektitajn"
   },
   "restoredItem": {
-    "message": "Restarigita elemento"
+    "message": "Ero rehaviĝis"
   },
   "restoredItems": {
-    "message": "Restarigitaj Eroj"
+    "message": "Eroj rehaviĝis"
   },
   "restoredItemId": {
     "message": "Restariĝis ero $ID$.",
@@ -5040,7 +5103,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
-    "message": "Malkonekti SSO"
+    "message": "Malkonekti SSO-n"
   },
   "unlinkSsoConfirmation": {
     "message": "Are you sure you want to unlink SSO for this organization?"
@@ -5059,9 +5122,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Via nuna organizo havas politikon, kiu ne permesas vin aliĝi al pli ol unu organizo. Bonvolu kontakti administrantojn de via organizo aŭ registriĝi de alia Bitwarden-konto."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Organizaj membroj, kiuj ne estas Posedantoj aŭ Administrantoj kaj jam estas membro de alia organizo, estos forigitaj de via organizo."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
@@ -5143,11 +5203,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Ĉu vi certas, ke vi volas poreterne forviŝi ĉi tiun Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
-    "message": "Dato de Forigo"
+    "message": "Foriĝa dato"
   },
   "deletionDateDescV2": {
     "message": "The Send will be permanently deleted on this date.",
@@ -5164,13 +5224,13 @@
     "message": "Maksimuma Aliro-Kalkulo"
   },
   "disabled": {
-    "message": "Neebligita"
+    "message": "Malebligita"
   },
   "revoked": {
     "message": "Revoked"
   },
   "sendLink": {
-    "message": "Sendi ligon",
+    "message": "Sendi ligilon",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
@@ -5345,7 +5405,7 @@
     }
   },
   "approve": {
-    "message": "Aprovi"
+    "message": "Aprobi"
   },
   "reject": {
     "message": "Malakcepti"
@@ -5369,6 +5429,9 @@
   "emergencyRejected": {
     "message": "Krizaliro malakceptita"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Pravaloriziĝis la pasvorto de $USER$. Vi nun povas saluti per la nova pasvorto.",
     "placeholders": {
@@ -5377,6 +5440,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
   },
   "personalOwnership": {
     "message": "Persona Posedo"
@@ -5409,11 +5475,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendOptions": {
-    "message": "Send options",
+    "message": "Sendi elekteblojn",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendOptionsPolicyDesc": {
-    "message": "Set options for creating and editing Sends.",
+    "message": "Ŝargi elekteblojn por krei kaj redakti Sends.",
     "description": "'Sends' is a plural noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendOptionsExemption": {
@@ -5445,7 +5511,7 @@
     "message": "Permesas pli detalan kontrolon de uzaj permesoj por progresintaj agordoj."
   },
   "customDescNonEnterpriseStart": {
-    "message": "Custom roles is an ",
+    "message": "Propra rolo estas ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customDescNonEnterpriseLink": {
@@ -5490,16 +5556,16 @@
     "message": "Delete any collection"
   },
   "manageGroups": {
-    "message": "Administri Grupojn"
+    "message": "Administri la grupojn"
   },
   "managePolicies": {
-    "message": "Administri Politikojn"
+    "message": "Administri la politikojn"
   },
   "manageSso": {
-    "message": "Administri SSO"
+    "message": "Administri SSO-n"
   },
   "manageUsers": {
-    "message": "Administri Uzantojn"
+    "message": "Administri uzantojn"
   },
   "manageAccountRecovery": {
     "message": "Manage account recovery"
@@ -5581,7 +5647,7 @@
     "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
   },
   "tryItNow": {
-    "message": "Try it now"
+    "message": "Nun provu ĝin"
   },
   "sendRequest": {
     "message": "Send request"
@@ -5631,7 +5697,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send **or** sign up to try it today.'"
   },
   "sendAccessTaglineSignUp": {
-    "message": "aliĝi",
+    "message": "registriĝi",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or **sign up** to try it today.'"
   },
   "sendAccessTaglineTryToday": {
@@ -5769,10 +5835,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "ĉi tiu uzanto"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "resetPasswordSuccess": {
@@ -5891,15 +5969,6 @@
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
-  },
-  "removeUsers": {
-    "message": "Remove users"
-  },
-  "revokeUsers": {
-    "message": "Revoke users"
-  },
-  "restoreUsers": {
-    "message": "Restore users"
   },
   "error": {
     "message": "Eraro"
@@ -6047,13 +6116,22 @@
     "message": "Are you sure you want to detach this organization? The organization will continue to exist but will no longer be managed by the Provider."
   },
   "add": {
-    "message": "Aldonu"
+    "message": "Aldoni"
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "Ĉefpasvorto Estas Aktualigita"
   },
   "updateMasterPassword": {
-    "message": "Aktualigu Ĉefpasvorton"
+    "message": "Ĝisdatigi la ĉefan pasvorton"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "updateMasterPasswordWarning": {
     "message": "Your master password was recently changed by an administrator in your organization. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
@@ -6305,20 +6383,56 @@
   "sponsoredFamilies": {
     "message": "Free Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "You and your family are eligible for Free Bitwarden Families. Redeem with your personal email to keep your data secure even when you are not at work."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Redeem your Free Bitwarden for Families plan today to keep your data secure even when you are not at work."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "The Bitwarden for Families plan include"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium access for up to 6 users"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Shared collections for Family secrets"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "The link is no longer valid. Please have the sponsor resend the offer."
@@ -6371,7 +6485,7 @@
   "redeemedAccount": {
     "message": "Account redeemed"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
@@ -6420,13 +6534,13 @@
     "message": "URL de la Key Connector"
   },
   "sendVerificationCode": {
-    "message": "Send a verification code to your email"
+    "message": "Sendi aŭtentigan kodon al via retpoŝto"
   },
   "sendCode": {
     "message": "Sendu Kodon"
   },
   "codeSent": {
-    "message": "Kodo Sendiĝis"
+    "message": "Kodo sendiĝis"
   },
   "verificationCode": {
     "message": "Aŭtentiga Kodo"
@@ -6443,14 +6557,11 @@
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Leave organization"
@@ -6510,10 +6621,10 @@
     "message": "SSO turned on"
   },
   "enabledKeyConnector": {
-    "message": "Aktivigita Key Connector"
+    "message": "Aktiviĝis Key Connector"
   },
   "disabledKeyConnector": {
-    "message": "Neebligita Key Connector"
+    "message": "Key Connector deactivated"
   },
   "keyConnectorWarning": {
     "message": "Once members begin using Key Connector, your organization cannot revert to master password decryption. Proceed only if you are comfortable deploying and managing a key server."
@@ -6537,7 +6648,7 @@
     "message": "Sponsoring organization"
   },
   "keyConnectorTest": {
-    "message": "Testu"
+    "message": "Provi"
   },
   "keyConnectorTestSuccess": {
     "message": "Success! Key Connector reached."
@@ -6751,7 +6862,7 @@
     "message": "Access denied. You do not have permission to view this page."
   },
   "masterPassword": {
-    "message": "Ĉefpasvorto"
+    "message": "Ĉefa pasvorto"
   },
   "security": {
     "message": "Sekureco"
@@ -6793,6 +6904,24 @@
   },
   "generateEmail": {
     "message": "Generate email"
+  },
+  "generatePassword": {
+    "message": "Generi pasvorton"
+  },
+  "generatePassphrase": {
+    "message": "Generi pasfrazon"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
   },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
@@ -6856,6 +6985,9 @@
   },
   "useThisPassword": {
     "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Use this username"
@@ -7093,7 +7225,7 @@
     }
   },
   "premiumSubcriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Necesas abonon de Premium"
   },
   "scim": {
     "message": "SCIM provisioning",
@@ -7160,7 +7292,7 @@
     "message": "Enigo ne estas retpoŝta adreso."
   },
   "inputMinLength": {
-    "message": "Input must be at least $COUNT$ characters long.",
+    "message": "La enmeto devas esti apenaŭ $COUNT$ signojn longa.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7249,11 +7381,14 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "Launch Duo"
   },
   "turnOn": {
-    "message": "Ŝaltu"
+    "message": "Ŝalti"
   },
   "on": {
     "message": "Ŝaltita"
@@ -7262,10 +7397,10 @@
     "message": "Off"
   },
   "members": {
-    "message": "Members"
+    "message": "Membroj"
   },
   "reporting": {
-    "message": "Reporting"
+    "message": "En raportado"
   },
   "numberOfUsers": {
     "message": "Nombro de uzantoj"
@@ -7274,10 +7409,10 @@
     "message": "Pick an avatar color"
   },
   "customizeAvatar": {
-    "message": "Customize avatar"
+    "message": "Personecigi la rolfiguron"
   },
   "avatarUpdated": {
-    "message": "Avatar updated"
+    "message": "La rolfiguro ĝisdatiĝis"
   },
   "brightBlue": {
     "message": "Bright Blue"
@@ -7329,11 +7464,11 @@
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "passwordCharacterCount": {
-    "message": "Password character count",
+    "message": "Nombrigo de pasvortaj signoj",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "hide": {
-    "message": "Hide"
+    "message": "Kaŝi"
   },
   "projects": {
     "message": "Projects",
@@ -7386,15 +7521,15 @@
     "description": "Label for the search bar used to search projects."
   },
   "project": {
-    "message": "Project",
+    "message": "Projekto",
     "description": "Similar to collections, projects can be used to group secrets."
   },
   "editProject": {
-    "message": "Edit project",
+    "message": "Redatki la projekton",
     "description": "The action to modify an existing project."
   },
   "viewProject": {
-    "message": "View project",
+    "message": "Vidi la projekton",
     "description": "The action to view details of a project."
   },
   "deleteProject": {
@@ -7406,19 +7541,19 @@
     "description": "The action to delete multiple projects from the system."
   },
   "secret": {
-    "message": "Secret",
+    "message": "Sekreto",
     "description": "Label for a secret (key/value pair)"
   },
   "serviceAccount": {
-    "message": "Service account",
+    "message": "Konto ĉe servo",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
   "serviceAccounts": {
-    "message": "Service accounts",
+    "message": "Kontoj ĉe servo",
     "description": "The title for the section that deals with service accounts."
   },
   "secrets": {
-    "message": "Secrets",
+    "message": "Sekuretoj",
     "description": "The title for the section of the application that deals with secrets."
   },
   "nameValuePair": {
@@ -7434,15 +7569,15 @@
     "description": "Notification for the successful creation of a secret."
   },
   "newSecret": {
-    "message": "New secret",
+    "message": "Nova sekreto",
     "description": "Title for creating a new secret."
   },
   "newServiceAccount": {
-    "message": "New service account",
+    "message": "Nova konto ĉe servo",
     "description": "Title for creating a new service account."
   },
   "secretsNoItemsTitle": {
-    "message": "No secrets to show",
+    "message": "Neniu sekreto por montri",
     "description": "Empty state to indicate that there are no secrets to display."
   },
   "secretsNoItemsMessage": {
@@ -7465,7 +7600,7 @@
     "description": "Placeholder text for searching secrets."
   },
   "deleteServiceAccounts": {
-    "message": "Delete service accounts",
+    "message": "Forigi kontojn ĉe servo",
     "description": "Title for the action to delete one or multiple service accounts."
   },
   "deleteServiceAccount": {
@@ -7473,7 +7608,7 @@
     "description": "Title for the action to delete a single service account."
   },
   "viewServiceAccount": {
-    "message": "View service account",
+    "message": "Vidi la konton ĉe servo",
     "description": "Action to view the details of a service account."
   },
   "deleteServiceAccountDialogMessage": {
@@ -7512,27 +7647,27 @@
     "description": "Title for editing a service account."
   },
   "addProject": {
-    "message": "Add project",
+    "message": "Aldoni projekton",
     "description": "Title for creating a new project."
   },
   "projectEdited": {
-    "message": "Project edited",
+    "message": "La projekto redaktiĝis",
     "description": "Notification for the successful editing of a project."
   },
   "projectSaved": {
-    "message": "Project saved",
+    "message": "Projekto konserviĝis",
     "description": "Notification for the successful saving of a project."
   },
   "projectCreated": {
-    "message": "Project created",
+    "message": "La projekto kreiĝis",
     "description": "Notification for the successful creation of a project."
   },
   "projectName": {
-    "message": "Project name",
+    "message": "Nomo de projekto",
     "description": "Label for entering the name of a project."
   },
   "newProject": {
-    "message": "New project",
+    "message": "Nova projekto",
     "description": "Title for creating a new project."
   },
   "softDeleteSecretWarning": {
@@ -7540,7 +7675,7 @@
     "description": "Warns that deleting secrets can have consequences on integrations"
   },
   "softDeletesSuccessToast": {
-    "message": "Secrets sent to trash",
+    "message": "La sekretoj sendiĝis al la rubujo",
     "description": "Notifies that the selected secrets have been moved to the trash"
   },
   "hardDeleteSecretConfirmation": {
@@ -7550,14 +7685,14 @@
     "message": "Are you sure you want to permanently delete these secrets?"
   },
   "hardDeletesSuccessToast": {
-    "message": "Secrets permanently deleted"
+    "message": "La sekretoj poreterne forviŝiĝis"
   },
   "smAccess": {
-    "message": "Access",
+    "message": "Aliro",
     "description": "Title indicating what permissions a service account has"
   },
   "projectCommaSecret": {
-    "message": "Project, Secret",
+    "message": "Projekto, Sekreto",
     "description": ""
   },
   "serviceAccountName": {
@@ -7572,20 +7707,20 @@
     "message": "Service account updated",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Type or select projects or secrets",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
-    "message": "Type to filter",
+    "message": "Entajpu por filtri",
     "description": "Instructions for filtering a list of projects or secrets"
   },
   "deleteProjectsToast": {
-    "message": "Projects deleted",
+    "message": "La projektoj forviŝiĝis",
     "description": "Notifies that the selected projects have been deleted"
   },
   "deleteProjectToast": {
-    "message": "Project deleted",
+    "message": "La projekto forviŝiĝis",
     "description": "Notifies that a project has been deleted"
   },
   "deleteProjectDialogMessage": {
@@ -7609,7 +7744,7 @@
     }
   },
   "deleteProjectConfirmMessage": {
-    "message": "Delete $PROJECT$",
+    "message": "Forviŝi $PROJECT$",
     "description": "Confirmation prompt to delete a specific project, where '$PROJECT$' is a placeholder for the name of the project.",
     "placeholders": {
       "project": {
@@ -7629,7 +7764,7 @@
     }
   },
   "deleteProjectsDialogMessage": {
-    "message": "Deleting projects is permanent and irreversible.",
+    "message": "Forviŝi projektojn estas poreterne kaj neinversigeble",
     "description": "This message is displayed in a dialog box as a warning before proceeding with project deletion."
   },
   "projectsNoItemsTitle": {
@@ -7659,8 +7794,8 @@
     "message": "Access tokens",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "New access token",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -7668,7 +7803,7 @@
     "description": "Label for the expiration date of an access token."
   },
   "canRead": {
-    "message": "Can read",
+    "message": "Povas legi",
     "description": "Label for the access level of an access token (Read only)."
   },
   "accessTokensNoItemsTitle": {
@@ -7684,7 +7819,7 @@
     "description": "Message to be displayed before closing an access token, reminding the user to download or copy it."
   },
   "expiresOnAccessToken": {
-    "message": "Expires on:",
+    "message": "Ekvalidiĝas en:",
     "description": "Label for the expiration date of an access token."
   },
   "accessTokenCallOutTitle": {
@@ -7768,19 +7903,19 @@
     "message": "Select collections"
   },
   "role": {
-    "message": "Role"
+    "message": "Rolo"
   },
   "removeMember": {
-    "message": "Remove member"
+    "message": "Forigi la membron"
   },
   "collection": {
     "message": "Collection"
   },
   "noCollection": {
-    "message": "No collection"
+    "message": "Neniu kolekto"
   },
   "noCollectionsAdded": {
-    "message": "No collections added"
+    "message": "Neniu kolekto aldoniĝis"
   },
   "noMembersAdded": {
     "message": "No members added"
@@ -7789,7 +7924,7 @@
     "message": "No groups added"
   },
   "group": {
-    "message": "Group"
+    "message": "Grupo"
   },
   "domainVerification": {
     "message": "Domain verification"
@@ -7803,12 +7938,6 @@
   "noDomainsSubText": {
     "message": "Connecting a domain allows members to skip the SSO identifier field during Login with SSO."
   },
-  "verifyDomain": {
-    "message": "Verify domain"
-  },
-  "reverifyDomain": {
-    "message": "Reverify domain"
-  },
   "copyDnsTxtRecord": {
     "message": "Copy DNS TXT record"
   },
@@ -7817,18 +7946,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Copy and paste the TXT record into your DNS Provider."
-  },
-  "domainNameInputHint": {
-    "message": "Example: mydomain.com. Subdomains require separate entries to be verified."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatic Domain Verification"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden will attempt to verify the domain 3 times during the first 72 hours. If the domain can’t be verified, check the DNS record in your host and manually verify. The domain will be removed from your organization in 7 days if it is not verified"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be verified."
   },
   "removeDomain": {
     "message": "Remove domain"
@@ -7842,9 +7959,6 @@
   "domainSaved": {
     "message": "Domain saved"
   },
-  "domainVerified": {
-    "message": "Domain verified"
-  },
   "duplicateDomainError": {
     "message": "You can't claim the same domain twice."
   },
@@ -7857,29 +7971,14 @@
       }
     }
   },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ not verified. Check your DNS record.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Verified"
-  },
-  "domainStatusUnverified": {
-    "message": "Unverified"
-  },
   "domainNameTh": {
-    "message": "Name"
+    "message": "Nomo"
   },
   "domainStatusTh": {
-    "message": "Status"
+    "message": "Stato"
   },
   "lastChecked": {
-    "message": "Last checked"
+    "message": "Lastatempe kontrolita"
   },
   "editDomain": {
     "message": "Edit domain"
@@ -7905,32 +8004,14 @@
       }
     }
   },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ verified",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ not verified",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
   "verificationRequiredForActionSetPinToContinue": {
     "message": "Verification required for this action. Set a PIN to continue."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "Ŝargi PIN-on"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "Aŭtentigi per biometriko"
   },
   "awaitingConfirmation": {
     "message": "Awaiting confirmation"
@@ -7939,34 +8020,34 @@
     "message": "Could not complete biometrics."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "Ĉu vi bezonas diferentan metodon?"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "Uzi la ĉefan pasvorton"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "Uzi PIN-on"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "Uzi biometrikon"
   },
   "enterVerificationCodeSentToEmail": {
     "message": "Enter the verification code that was sent to your email."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Resendi kodon"
   },
   "memberColumnHeader": {
-    "message": "Member"
+    "message": "Membro"
   },
   "groupSlashMemberColumnHeader": {
-    "message": "Group/Member"
+    "message": "Grupo/Membro"
   },
   "selectGroupsAndMembers": {
     "message": "Select groups and members"
   },
   "selectGroups": {
-    "message": "Select groups"
+    "message": "Elekti grupojn"
   },
   "userPermissionOverrideHelperDesc": {
     "message": "Permissions set for a member will replace permissions set by that member's group."
@@ -7975,7 +8056,7 @@
     "message": "No members or groups added"
   },
   "deleted": {
-    "message": "Deleted"
+    "message": "Forviŝita"
   },
   "memberStatusFilter": {
     "message": "Member status filter"
@@ -7983,14 +8064,17 @@
   "inviteMember": {
     "message": "Invite member"
   },
+  "addSponsorship": {
+    "message": "Add sponsorship"
+  },
   "needsConfirmation": {
-    "message": "Needs confirmation"
+    "message": "Necesas konfirmon"
   },
   "memberRole": {
     "message": "Member role"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "Pli el Bitwarden"
   },
   "switchProducts": {
     "message": "Switch products"
@@ -8050,13 +8134,13 @@
     }
   },
   "server": {
-    "message": "Server"
+    "message": "Servilo"
   },
   "exportData": {
-    "message": "Export data"
+    "message": "Elporti datumon"
   },
   "exportingOrganizationSecretDataTitle": {
-    "message": "Exporting Organization Secret Data"
+    "message": "En elportado de Sekretaj Datumoj de Organizo"
   },
   "exportingOrganizationSecretDataDescription": {
     "message": "Only the Secrets Manager data associated with $ORGANIZATION$ will be exported. Items in other products or from other organizations will not be included.",
@@ -8068,28 +8152,28 @@
     }
   },
   "fileUpload": {
-    "message": "File upload"
+    "message": "Alŝuto de dosieroj"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Alŝuti"
   },
   "acceptedFormats": {
     "message": "Accepted Formats:"
   },
   "copyPasteImportContents": {
-    "message": "Copy & paste import contents:"
+    "message": "Kopii & alglui la enhavojn de la enportoto:"
   },
   "or": {
-    "message": "or"
+    "message": "aŭ"
   },
   "unlockWithBiometrics": {
-    "message": "Unlock with biometrics"
+    "message": "Malŝlosi per biometriko"
   },
   "unlockWithPin": {
-    "message": "Unlock with PIN"
+    "message": "Malŝlosi per PIN"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "Malŝlosi per la ĉefa pasvorto"
   },
   "licenseAndBillingManagement": {
     "message": "License and billing management"
@@ -8107,13 +8191,13 @@
     "message": "Sync License"
   },
   "licenseSyncSuccess": {
-    "message": "Successfully synced license"
+    "message": "Sukcese spegulis la permesilon"
   },
   "licenseUploadSuccess": {
     "message": "Successfully uploaded license"
   },
   "lastLicenseSync": {
-    "message": "Last license sync"
+    "message": "Lasta spegulado de permesilo"
   },
   "billingSyncHelp": {
     "message": "Billing Sync help"
@@ -8161,10 +8245,10 @@
     "message": "Add projects to grant access"
   },
   "canReadWrite": {
-    "message": "Can read, write"
+    "message": "Povas legi, enskribi"
   },
   "groupSlashUser": {
-    "message": "Group/User"
+    "message": "Grupo/Uzanto"
   },
   "lowKdfIterations": {
     "message": "Low KDF Iterations"
@@ -8185,10 +8269,10 @@
     "message": "This user can access Secrets Manager"
   },
   "important": {
-    "message": "Important:"
+    "message": "Seriozaĵo:"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Vidi ĉiujn"
   },
   "showingPortionOfTotal": {
     "message": "Showing $PORTION$ of $TOTAL$",
@@ -8207,13 +8291,49 @@
     "message": "Resolve the errors below and try again."
   },
   "description": {
-    "message": "Description"
+    "message": "Priskribo"
   },
   "errorReadingImportFile": {
     "message": "An error occurred when trying to read the import file"
   },
+  "accessedSecretWithId": {
+    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
-    "message": "Accessed secret $SECRET_ID$.",
+    "message": "Aliĝis al sekreto $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Created a new secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8226,26 +8346,26 @@
     "description": "Software Development Kit"
   },
   "createAnAccount": {
-    "message": "Create an account"
+    "message": "Krei konton"
   },
   "createSecret": {
-    "message": "Create a secret"
+    "message": "Krei sekreton"
   },
   "createProject": {
-    "message": "Create a project"
+    "message": "Krei projekton"
   },
   "createServiceAccount": {
-    "message": "Create a service account"
+    "message": "Krei konton ĉe servo"
   },
   "downloadThe": {
-    "message": "Download the",
+    "message": "Elŝuti la",
     "description": "Link to a downloadable resource. This will be used as part of a larger phrase. Example: Download the Secrets Manager CLI"
   },
   "smCLI": {
     "message": "Secrets Manager CLI"
   },
   "importSecrets": {
-    "message": "Import secrets"
+    "message": "Enporti sekretojn"
   },
   "getStarted": {
     "message": "Get started"
@@ -8264,10 +8384,10 @@
     }
   },
   "restoreSecret": {
-    "message": "Restore secret"
+    "message": "Rehavigi sekreton"
   },
   "restoreSecrets": {
-    "message": "Restore secrets"
+    "message": "Rehavigi sekretojn"
   },
   "restoreSecretPrompt": {
     "message": "Are you sure you want to restore this secret?"
@@ -8392,6 +8512,12 @@
   },
   "requestAdminApproval": {
     "message": "Request admin approval"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
@@ -8590,13 +8716,13 @@
     }
   },
   "next": {
-    "message": "Next"
+    "message": "Antaŭen"
   },
   "ssoLoginIsRequired": {
-    "message": "SSO login is required"
+    "message": "SSO-salutado estas bezonata"
   },
   "selectedRegionFlag": {
-    "message": "Selected region flag"
+    "message": "Elektis flagon de regiono"
   },
   "accountSuccessfullyCreated": {
     "message": "Account successfully created!"
@@ -8621,14 +8747,6 @@
   },
   "deviceTrusted": {
     "message": "Device trusted"
-  },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Invite Users"
@@ -8709,7 +8827,7 @@
     }
   },
   "collectionManagement": {
-    "message": "Collection management"
+    "message": "Administrado de kolekto"
   },
   "collectionManagementDesc": {
     "message": "Manage the collection behavior for the organization"
@@ -8736,10 +8854,10 @@
     "message": "Secrets Manager plan price"
   },
   "passwordManager": {
-    "message": "Password Manager"
+    "message": "Pasvorto-Administrilo"
   },
   "freeOrganization": {
-    "message": "Free Organization"
+    "message": "Senpaga Organizo"
   },
   "limitServiceAccounts": {
     "message": "Limit service accounts (optional)"
@@ -8754,7 +8872,7 @@
     "message": "Max potential service account cost"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Jam salutis!"
   },
   "beta": {
     "message": "Beta"
@@ -8785,13 +8903,13 @@
     "message": "At least one member or group must have can manage permission."
   },
   "typePasskey": {
-    "message": "Passkey"
+    "message": "Pasŝlosilo"
   },
   "passkeyNotCopied": {
-    "message": "Passkey will not be copied"
+    "message": "Pasŝlosilo ne estos kopiita"
   },
   "passkeyNotCopiedAlert": {
-    "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+    "message": "La pasŝlosilo ne estos kopiita al la klonaĵo. Ĉu vi volas daŭrigi la klonadon de ĉi tiu ero?"
   },
   "modifiedCollectionManagement": {
     "message": "Modified collection management setting $ID$.",
@@ -8807,13 +8925,13 @@
     "description": "This is followed a by a hyperlink to the help website."
   },
   "installBrowserExtension": {
-    "message": "Install browser extension"
+    "message": "Instali la retumilan etendaĵon"
   },
   "installBrowserExtensionDetails": {
-    "message": "Use the extension to quickly save logins and auto-fill forms without opening the web app."
+    "message": "Uzu la etendaĵon por rapide konservi salutilojn kaj aŭtomate plenigi la kampojn sen malfermo de la reteja apo."
   },
   "projectAccessUpdated": {
-    "message": "Project access updated"
+    "message": "Projekto-alirebleco ĝisdatiĝis"
   },
   "unexpectedErrorSend": {
     "message": "An unexpected error has occurred while loading this Send. Try again later."
@@ -8828,7 +8946,7 @@
     "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
   },
   "collectionAccessRestricted": {
-    "message": "Collection access is restricted"
+    "message": "La aliro al kolekto estas limigita"
   },
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
@@ -8854,6 +8972,30 @@
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "To maintain your subscription for $ORG$, ",
@@ -8902,7 +9044,7 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooDifficultToUse": {
-    "message": "Too difficult to use",
+    "message": "Tro malfacila por uzi",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "notUsingEnough": {
@@ -9072,15 +9214,15 @@
     "message": "Machine accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
   },
   "machineAccount": {
-    "message": "Machine account",
+    "message": "Maŝina konto",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
   "machineAccounts": {
-    "message": "Machine accounts",
+    "message": "Maŝinaj kontoj",
     "description": "The title for the section that deals with machine accounts."
   },
   "newMachineAccount": {
-    "message": "New machine account",
+    "message": "Nova maŝina konto",
     "description": "Title for creating a new machine account."
   },
   "machineAccountsNoItemsMessage": {
@@ -9088,23 +9230,23 @@
     "description": "Message to encourage the user to start creating machine accounts."
   },
   "machineAccountsNoItemsTitle": {
-    "message": "Nothing to show yet",
+    "message": "Ankoraŭ neniu por montri",
     "description": "Title to indicate that there are no machine accounts to display."
   },
   "deleteMachineAccounts": {
-    "message": "Delete machine accounts",
+    "message": "Forĵeti maŝinajn kontojn",
     "description": "Title for the action to delete one or multiple machine accounts."
   },
   "deleteMachineAccount": {
-    "message": "Delete machine account",
+    "message": "Forĵeti maŝinan konton",
     "description": "Title for the action to delete a single machine account."
   },
   "viewMachineAccount": {
-    "message": "View machine account",
+    "message": "Vidi maŝinan konton",
     "description": "Action to view the details of a machine account."
   },
   "deleteMachineAccountDialogMessage": {
-    "message": "Deleting machine account $MACHINE_ACCOUNT$ is permanent and irreversible.",
+    "message": "Forĵeti la maŝinan konton $MACHINE_ACCOUNT$  estas poreterne kaj neinverseble.",
     "placeholders": {
       "machine_account": {
         "content": "$1",
@@ -9166,7 +9308,7 @@
     "message": "Assign projects to this machine account. "
   },
   "createMachineAccount": {
-    "message": "Create a machine account"
+    "message": "Krei maŝinan konton"
   },
   "maPeopleWarningMessage": {
     "message": "Removing people from a machine account does not remove the access tokens they created. For security best practice, it is recommended to revoke access tokens created by people removed from a machine account."
@@ -9196,7 +9338,7 @@
     }
   },
   "additionalMachineAccounts": {
-    "message": "Additional machine accounts"
+    "message": "Aldonaj maŝinaj kontoj"
   },
   "includedMachineAccounts": {
     "message": "Your plan comes with $COUNT$ machine accounts.",
@@ -9259,7 +9401,7 @@
     }
   },
   "providerDeleted": {
-    "message": "Provider deleted"
+    "message": "La provizanto foriĝis"
   },
   "providerDeletedDesc": {
     "message": "The Provider and all associated data has been deleted."
@@ -9293,7 +9435,7 @@
     "message": "Use Bitwarden Secrets Manager SDK in the following programming languages to build your own applications."
   },
   "ssoDescStart": {
-    "message": "Configure",
+    "message": "Agordi",
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
   "ssoDescEnd": {
@@ -9327,10 +9469,16 @@
     "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
   "deviceManagement": {
-    "message": "Device management"
+    "message": "Administrado de la aparatoj"
   },
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
+  },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
   },
   "deviceIdMissing": {
     "message": "Device ID is missing"
@@ -9346,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Reopen this link from your email on a desktop."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
@@ -9404,6 +9561,15 @@
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
   },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
+  },
   "selectAPlan": {
     "message": "Select a plan"
   },
@@ -9417,16 +9583,16 @@
     "message": "month per member billed annually"
   },
   "seats": {
-    "message": "Seats"
+    "message": "Sidejoj"
   },
   "addOrganization": {
-    "message": "Add organization"
+    "message": "Aldoni organizon"
   },
   "createdNewClient": {
-    "message": "Successfully created new client"
+    "message": "Sukcese kreiĝis nova kliento"
   },
   "noAccess": {
-    "message": "No access"
+    "message": "Neniu aliro"
   },
   "collectionAdminConsoleManaged": {
     "message": "This collection is only accessible from the admin console"
@@ -9438,16 +9604,25 @@
     "message": "Select vault item"
   },
   "collectionItemSelect": {
-    "message": "Select collection item"
+    "message": "Elekti kolekteron"
   },
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Continue setting up your free trial of Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Continue setting up your free trial of Bitwarden Password Manager"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Continue setting up your free trial of Bitwarden Secrets Manager"
@@ -9462,7 +9637,7 @@
     "message": "Enter your Enterprise organization information"
   },
   "viewItemsIn": {
-    "message": "View items in $NAME$",
+    "message": "Vidi la erojn en $NAME$",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -9472,7 +9647,7 @@
     }
   },
   "backTo": {
-    "message": "Back to $NAME$",
+    "message": "Reveni al $NAME$",
     "description": "Navigate back to a previous folder or collection",
     "placeholders": {
       "name": {
@@ -9482,11 +9657,11 @@
     }
   },
   "back": {
-    "message": "Back",
+    "message": "Reveni",
     "description": "Button text to navigate back"
   },
   "removeItem": {
-    "message": "Remove $NAME$",
+    "message": "Forigi $NAME$'n",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -9496,10 +9671,10 @@
     }
   },
   "viewInfo": {
-    "message": "View info"
+    "message": "Vidi informon"
   },
   "viewAccess": {
-    "message": "View access"
+    "message": "Vidi aliron"
   },
   "noCollectionsSelected": {
     "message": "You have not selected any collections."
@@ -9535,7 +9710,7 @@
     "message": "Low KDF iterations. Increase your iterations to improve the security of your account."
   },
   "changeKDFSettings": {
-    "message": "Change KDF settings"
+    "message": "Ŝanĝi agordojn pri KDF"
   },
   "secureYourInfrastructure": {
     "message": "Secure your infrastructure"
@@ -9550,7 +9725,7 @@
     "message": "Stay ahead of security vulnerabilities by upgrading to a paid plan for enhanced monitoring."
   },
   "approveAllRequests": {
-    "message": "Approve all requests"
+    "message": "Aprobi ĉiujn petojn"
   },
   "allLoginRequestsApproved": {
     "message": "All login requests approved"
@@ -9577,16 +9752,16 @@
     "message": "An error occurred while previewing the invoice. Please try again later."
   },
   "unverified": {
-    "message": "Unverified"
+    "message": "Malkonfirmita"
   },
   "verified": {
-    "message": "Verified"
+    "message": "Konfirmita"
   },
   "viewSecret": {
-    "message": "View secret"
+    "message": "Vidi sekreton"
   },
   "noClients": {
-    "message": "There are no clients to list"
+    "message": "Estas neniu kliento por listi"
   },
   "providerBillingEmailHint": {
     "message": "This email address will receive all invoices pertaining to this provider",
@@ -9599,10 +9774,10 @@
     "message": "Quickly view member access across the organization by upgrading to an Enterprise plan."
   },
   "date": {
-    "message": "Date"
+    "message": "Dato"
   },
   "exportClientReport": {
-    "message": "Export client report"
+    "message": "Elporti klientan raporton"
   },
   "memberAccessReport": {
     "message": "Member access"
@@ -9623,16 +9798,16 @@
     "message": "(No Group)"
   },
   "memberAccessReportTwoFactorEnabledTrue": {
-    "message": "On"
+    "message": "Ŝaltita"
   },
   "memberAccessReportTwoFactorEnabledFalse": {
-    "message": "Off"
+    "message": "Malŝaltita"
   },
   "memberAccessReportAuthenticationEnabledTrue": {
-    "message": "On"
+    "message": "Ŝaltita"
   },
   "memberAccessReportAuthenticationEnabledFalse": {
-    "message": "Off"
+    "message": "Malŝaltita"
   },
   "higherKDFIterations": {
     "message": "Higher KDF iterations can help protect your master password from being brute forced by an attacker."
@@ -9671,7 +9846,7 @@
     "message": "Add machine accounts to grant access to this secret"
   },
   "smAccessRemovalWarningSecretTitle": {
-    "message": "Remove access to this secret"
+    "message": "Forigi aliron al tiu ĉi sekreto"
   },
   "smAccessRemovalSecretMessage": {
     "message": "This action will remove your access to this secret."
@@ -9693,7 +9868,7 @@
     "message": "Contact your provider admin to purchase additional seats."
   },
   "open": {
-    "message": "Open",
+    "message": "Malfermi",
     "description": "The status of an invoice."
   },
   "uncollectible": {
@@ -9701,7 +9876,7 @@
     "description": "The status of an invoice."
   },
   "clientDetails": {
-    "message": "Client details"
+    "message": "Detajoj de la kriento"
   },
   "downloadCSV": {
     "message": "Download CSV"
@@ -9735,10 +9910,10 @@
     "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
   },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Aldoni al dosierujo"
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "Elekti dosierujon"
   },
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
@@ -9775,7 +9950,7 @@
     }
   },
   "data": {
-    "message": "Data"
+    "message": "Datumo"
   },
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"
@@ -9796,7 +9971,7 @@
     "message": "The following projects can be accessed by this machine account."
   },
   "config": {
-    "message": "Config"
+    "message": "Agordoj"
   },
   "learnMoreAboutEmergencyAccess": {
     "message": "Learn more about emergency access"
@@ -9853,7 +10028,7 @@
     "message": "Text Sends"
   },
   "includesXMembers": {
-    "message": "for $COUNT$ member",
+    "message": "por $COUNT$ membroj",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9874,7 +10049,7 @@
     "message": "Optional on-premises hosting"
   },
   "upgradeFreeOrganization": {
-    "message": "Upgrade your $NAME$ organization ",
+    "message": "Altgradigi vian organizon %NAME% ",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -9883,7 +10058,7 @@
     }
   },
   "includeSsoAuthenticationMessage": {
-    "message": "SSO Authentication"
+    "message": "SSO-Aŭtentigo"
   },
   "familiesPlanInvLimitReachedManageBilling": {
     "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
@@ -9943,10 +10118,10 @@
     "message": "Key algorithm"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Privata ŝlosilo"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Publika ŝlosilo"
   },
   "sshFingerprint": {
     "message": "Fingerprint"
@@ -9955,7 +10130,7 @@
     "message": "Fingerprint"
   },
   "sshKeyPrivateKey": {
-    "message": "Private key"
+    "message": "Privata ŝlosilo"
   },
   "sshKeyPublicKey": {
     "message": "Public key"
@@ -9973,16 +10148,16 @@
     "message": "RSA 4096-Bit"
   },
   "premiumAccounts": {
-    "message": "6 premium accounts"
+    "message": "6 premium-kontoj"
   },
   "unlimitedSharing": {
-    "message": "Unlimited sharing"
+    "message": "Senlimaj kundividoj"
   },
   "unlimitedCollections": {
-    "message": "Unlimited collections"
+    "message": "Senlimaj kolektoj"
   },
   "secureDataSharing": {
-    "message": "Secure data sharing"
+    "message": "Sekura kundivido de datumo"
   },
   "eventLogMonitoring": {
     "message": "Event log monitoring"
@@ -10003,7 +10178,7 @@
     "message": "Unlimited secrets storage"
   },
   "unlimitedUsers": {
-    "message": "Unlimited users"
+    "message": "Senlimaj uzantoj"
   },
   "UpTo50MachineAccounts": {
     "message": "Up to 50 machine accounts"
@@ -10012,32 +10187,32 @@
     "message": "Up to 20 machine accounts"
   },
   "current": {
-    "message": "Current"
+    "message": "Kuranta"
   },
   "secretsManagerSubscriptionInfo": {
     "message": "Your Secrets Manager subscription will upgrade based on the plan selected"
   },
   "bitwardenPasswordManager": {
-    "message": "Bitwarden Password Manager"
+    "message": "Pasvorto-Administrilo Bitwarden"
   },
   "secretsManagerComplimentaryPasswordManager": {
     "message": "Your complimentary one year Password Manager subscription will upgrade to the selected plan. You will not be charged until the complimentary period is over."
   },
   "fileSavedToDevice": {
-    "message": "File saved to device. Manage from your device downloads."
+    "message": "La dosiero konserviĝis en la aparato. Administri de via aparato la elŝutojn."
   },
   "publicApi": {
-    "message": "Public API",
+    "message": "Publika API",
     "description": "The text, 'API', is an acronym and should not be translated."
   },
   "showCharacterCount": {
-    "message": "Show character count"
+    "message": "Montri la nombron de signoj"
   },
   "hideCharacterCount": {
-    "message": "Hide character count"
+    "message": "Kaŝi nombrigon de signoj"
   },
   "editAccess": {
-    "message": "Edit access"
+    "message": "Redakti aliron"
   },
   "textHelpText": {
     "message": "Use text fields for data like security questions"
@@ -10055,7 +10230,7 @@
     "message": "Enter the the field's html id, name, aria-label, or placeholder."
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Inkluzive la majusklajn literojn",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -10063,7 +10238,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Inkluzive minusklajn literojn",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -10071,7 +10246,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Inkluzive la numerojn",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -10079,14 +10254,14 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Inkluzive specialajn signojn",
     "description": "Full description for the password generator special characters checkbox"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Aldoni aldonaĵon"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "La maksimuma dosiergrando estas 500 MB"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Are you sure you want to permanently delete this attachment?"
@@ -10108,7 +10283,7 @@
     "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
   },
   "deleteOrganizationUser": {
-    "message": "Delete $NAME$",
+    "message": "Forigi $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10143,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "The user was removed from the organization and all associated user data has been deleted."
   },
-  "deletedUserId": {
-    "message": "Deleted user $ID$ - an owner / admin deleted the user account",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10183,7 +10358,7 @@
     "message": "This action is not applicable to any of the selected members."
   },
   "deletedSuccessfully": {
-    "message": "Deleted successfully"
+    "message": "Sukcese forigis"
   },
   "freeFamiliesSponsorship": {
     "message": "Remove Free Bitwarden Families sponsorship"
@@ -10208,42 +10383,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "importantNotice": {
-    "message": "Important notice"
-  },
-  "setupTwoStepLogin": {
-    "message": "Set up two-step login"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Remind me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
-  },
-  "changeAcctEmail": {
-    "message": "Change account email"
   },
   "removeMembers": {
     "message": "Remove members"
@@ -10288,10 +10427,10 @@
     "message": "Claimed"
   },
   "domainStatusUnderVerification": {
-    "message": "Under verification"
+    "message": "En konfirmado"
   },
-  "claimedDomainsDesc": {
-    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
@@ -10346,19 +10485,22 @@
     "message": "Key rotation successful"
   },
   "rotationCompletedDesc": {
-    "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
+    "message": "Viaj ĉefa pasvorto kaj ĉifraj ŝlosiloj estas ĝisdatigitaj. Viaj aliaj aparatoj estas adiaŭintaj."
   },
   "trustUserEmergencyAccess": {
-    "message": "Trust and confirm user"
+    "message": "Fidi kaj konfirmi uzanton"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Fidi organizon"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Fidi"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Ne fidi"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -10366,23 +10508,26 @@
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
   },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
   "trustUser": {
-    "message": "Trust user"
+    "message": "Fidi uzanton"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "La pasvorto kiun vi enmetis estas neĝusta."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Enporti"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Konfirmu la pasvorton"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Enmetu la pasvorton por la SSH-ŝlosilo."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Enmetu la pasvorton"
   },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
@@ -10409,13 +10554,13 @@
     "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
   },
   "openExtension": {
-    "message": "Open extension"
+    "message": "Malfermi etendaĵon"
   },
   "doNotHaveExtension": {
     "message": "Don't have the Bitwarden browser extension?"
   },
   "installExtension": {
-    "message": "Install extension"
+    "message": "Instali etendaĵon"
   },
   "openedExtension": {
     "message": "Opened the browser extension"
@@ -10428,7 +10573,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "openExtensionManuallyPart2": {
-    "message": "from the toolbar.",
+    "message": "el la ilarbreto",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
@@ -10478,7 +10623,7 @@
     "message": "Organization subscription restarted"
   },
   "restartSubscription": {
-    "message": "Restart your subscription"
+    "message": "Rekomenci vian abonon"
   },
   "suspendedManagedOrgMessage": {
     "message": "Contact $PROVIDER$ for assistance.",
@@ -10512,7 +10657,7 @@
     }
   },
   "existingOrganization": {
-    "message": "Existing organization"
+    "message": "Ekzistanta organizo"
   },
   "selectOrganizationProviderPortal": {
     "message": "Select an organization to add to your Provider Portal."
@@ -10571,20 +10716,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
@@ -10600,5 +10736,249 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "setupExtensionPageTitle": {
+    "message": "Autofill your passwords securely with one click"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Get the Bitwarden browser extension and start autofilling today"
+  },
+  "getTheExtension": {
+    "message": "Get the extension"
+  },
+  "addItLater": {
+    "message": "Add it later"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "You can't autofill passwords without the browser extension"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Are you sure you don't want to add the extension now?"
+  },
+  "skipToWebApp": {
+    "message": "Skip to web app"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden extension installed!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Open the extension to log in and start autofilling."
+  },
+  "openBitwardenExtension": {
+    "message": "Open Bitwarden extension"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "For tips on getting started with Bitwarden visit the",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Learning Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Help Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+  },
+  "restart": {
+    "message": "Relanĉi"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Billing address required to add credit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Billing address"
+  },
+  "addBillingAddress": {
+    "message": "Add billing address"
+  },
+  "editBillingAddress": {
+    "message": "Edit billing address"
+  },
+  "noBillingAddress": {
+    "message": "No address on file."
+  },
+  "billingAddressUpdated": {
+    "message": "Your billing address has been updated."
+  },
+  "paymentDetails": {
+    "message": "Payment details"
+  },
+  "paymentMethodUpdated": {
+    "message": "Your payment method has been updated."
+  },
+  "bankAccountVerified": {
+    "message": "Your bank account has been verified."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+  },
+  "mustBePositiveNumber": {
+    "message": "Must be a positive number"
+  },
+  "cardSecurityCode": {
+    "message": "Card security code"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "taxId": {
+    "message": "Tax ID: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
+  },
+  "unpaidInvoices": {
+    "message": "Unpaid invoices"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
   }
 }

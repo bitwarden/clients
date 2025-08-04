@@ -1,3 +1,13 @@
+/*
+    -- Note --
+    
+    As of June 2025, settings should only be added here if they are owned
+    by the platform team. Other settings should be added to the relevant service
+    owned by the team that owns the setting.
+
+    More info: https://bitwarden.atlassian.net/browse/PM-23126
+*/
+
 import { Observable, map } from "rxjs";
 
 import {
@@ -8,6 +18,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
@@ -70,6 +81,15 @@ const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "ssh
   deserializer: (b) => b,
 });
 
+const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentRememberAuthorizations",
+  {
+    deserializer: (b) => b,
+    clearOn: [],
+  },
+);
+
 const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
   deserializer: (b) => b,
   clearOn: [], // User setting, no need to clear
@@ -98,7 +118,7 @@ export class DesktopSettingsService {
 
   private readonly closeToTrayState = this.stateProvider.getGlobal(CLOSE_TO_TRAY_KEY);
   /**
-   * Tha applications setting for whether or not to close the application into the system tray.
+   * The applications setting for whether or not to close the application into the system tray.
    */
   closeToTray$ = this.closeToTrayState.state$.pipe(map(Boolean));
 
@@ -158,6 +178,11 @@ export class DesktopSettingsService {
   private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
 
   sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
+
+  private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
+  sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
+    map((v) => v ?? SshAgentPromptType.Always),
+  );
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
 
@@ -290,6 +315,10 @@ export class DesktopSettingsService {
    */
   async setSshAgentEnabled(value: boolean) {
     await this.sshAgentEnabledState.update(() => value);
+  }
+
+  async setSshAgentPromptBehavior(value: SshAgentPromptType) {
+    await this.sshAgentPromptBehavior.update(() => value);
   }
 
   /**

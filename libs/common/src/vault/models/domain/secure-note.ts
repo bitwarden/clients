@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { SecureNote as SdkSecureNote } from "@bitwarden/sdk-internal";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { SecureNoteType } from "../../enums";
@@ -40,5 +42,31 @@ export class SecureNote extends Domain {
     }
 
     return Object.assign(new SecureNote(), obj);
+  }
+
+  /**
+   * Maps Secure note to SDK format.
+   *
+   * @returns {SdkSecureNote} The SDK secure note object.
+   */
+  toSdkSecureNote(): SdkSecureNote {
+    return {
+      type: this.type,
+    };
+  }
+
+  /**
+   * Maps an SDK SecureNote object to a SecureNote
+   * @param obj - The SDK SecureNote object
+   */
+  static fromSdkSecureNote(obj: SdkSecureNote): SecureNote | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const secureNote = new SecureNote();
+    secureNote.type = obj.type;
+
+    return secureNote;
   }
 }

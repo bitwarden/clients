@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
+import { from, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -12,7 +21,14 @@ import {
   PaymentInformation,
   PlanInformation,
 } from "@bitwarden/common/billing/abstractions/organization-billing.service";
-import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
+import {
+  PaymentMethodType,
+  PlanType,
+  ProductTierType,
+  ProductType,
+} from "@bitwarden/common/billing/enums";
+import { PreviewTaxAmountForOrganizationTrialRequest } from "@bitwarden/common/billing/models/request/tax";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -34,11 +50,15 @@ export interface OrganizationCreatedEvent {
   planDescription: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum SubscriptionCadence {
   Annual,
   Monthly,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum SubscriptionProduct {
   PasswordManager,
   SecretsManager,
@@ -48,17 +68,18 @@ export enum SubscriptionProduct {
   selector: "app-trial-billing-step",
   templateUrl: "trial-billing-step.component.html",
   imports: [BillingSharedModule],
-  standalone: true,
 })
-export class TrialBillingStepComponent implements OnInit {
+export class TrialBillingStepComponent implements OnInit, OnDestroy {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(ManageTaxInformationComponent) taxInfoComponent: ManageTaxInformationComponent;
   @Input() organizationInfo: OrganizationInfo;
   @Input() subscriptionProduct: SubscriptionProduct = SubscriptionProduct.PasswordManager;
+  @Input() trialLength: number;
   @Output() steppedBack = new EventEmitter();
   @Output() organizationCreated = new EventEmitter<OrganizationCreatedEvent>();
 
   loading = true;
+  fetchingTaxAmount = false;
 
   annualCadence = SubscriptionCadence.Annual;
   monthlyCadence = SubscriptionCadence.Monthly;
@@ -72,6 +93,12 @@ export class TrialBillingStepComponent implements OnInit {
   annualPlan?: PlanResponse;
   monthlyPlan?: PlanResponse;
 
+  taxAmount = 0;
+
+  private destroy$ = new Subject<void>();
+
+  protected readonly SubscriptionProduct = SubscriptionProduct;
+
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -79,6 +106,7 @@ export class TrialBillingStepComponent implements OnInit {
     private messagingService: MessagingService,
     private organizationBillingService: OrganizationBillingService,
     private toastService: ToastService,
+    private taxService: TaxServiceAbstraction,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -86,7 +114,24 @@ export class TrialBillingStepComponent implements OnInit {
     this.applicablePlans = plans.data.filter(this.isApplicable);
     this.annualPlan = this.findPlanFor(SubscriptionCadence.Annual);
     this.monthlyPlan = this.findPlanFor(SubscriptionCadence.Monthly);
+
+    if (this.trialLength === 0) {
+      this.formGroup.controls.cadence.valueChanges
+        .pipe(
+          switchMap((cadence) => from(this.previewTaxAmount(cadence))),
+          takeUntil(this.destroy$),
+        )
+        .subscribe((taxAmount) => {
+          this.taxAmount = taxAmount;
+        });
+    }
+
     this.loading = false;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async submit(): Promise<void> {
@@ -114,7 +159,11 @@ export class TrialBillingStepComponent implements OnInit {
     this.messagingService.send("organizationCreated", { organizationId });
   }
 
-  protected changedCountry() {
+  async onTaxInformationChanged() {
+    if (this.trialLength === 0) {
+      this.taxAmount = await this.previewTaxAmount(this.formGroup.value.cadence);
+    }
+
     this.paymentComponent.showBankAccount =
       this.taxInfoComponent.getTaxInformation().country === "US";
     if (
@@ -169,6 +218,7 @@ export class TrialBillingStepComponent implements OnInit {
     const payment: PaymentInformation = {
       paymentMethod,
       billing: this.getBillingInformationFromTaxInfoComponent(),
+      skipTrial: this.trialLength === 0,
     };
 
     const response = await this.organizationBillingService.purchaseSubscription({
@@ -248,5 +298,47 @@ export class TrialBillingStepComponent implements OnInit {
       plan.productTier === ProductTierType.TeamsStarter;
     const notDisabledOrLegacy = !plan.disabled && !plan.legacyYear;
     return hasCorrectProductType && notDisabledOrLegacy;
+  }
+
+  private previewTaxAmount = async (cadence: SubscriptionCadence): Promise<number> => {
+    this.fetchingTaxAmount = true;
+
+    if (!this.taxInfoComponent.validate()) {
+      this.fetchingTaxAmount = false;
+      return 0;
+    }
+
+    const plan = this.findPlanFor(cadence);
+
+    const productType =
+      this.subscriptionProduct === SubscriptionProduct.PasswordManager
+        ? ProductType.PasswordManager
+        : ProductType.SecretsManager;
+
+    const taxInformation = this.taxInfoComponent.getTaxInformation();
+
+    const request: PreviewTaxAmountForOrganizationTrialRequest = {
+      planType: plan.type,
+      productType,
+      taxInformation: {
+        ...taxInformation,
+      },
+    };
+
+    const response = await this.taxService.previewTaxAmountForOrganizationTrial(request);
+    this.fetchingTaxAmount = false;
+    return response;
+  };
+
+  get price() {
+    return this.getPriceFor(this.formGroup.value.cadence);
+  }
+
+  get total() {
+    return this.price + this.taxAmount;
+  }
+
+  get interval() {
+    return this.formGroup.value.cadence === SubscriptionCadence.Annual ? "year" : "month";
   }
 }

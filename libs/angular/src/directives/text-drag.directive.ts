@@ -2,7 +2,6 @@ import { Directive, HostListener, Input } from "@angular/core";
 
 @Directive({
   selector: "[appTextDrag]",
-  standalone: true,
   host: {
     draggable: "true",
     class: "tw-cursor-move",

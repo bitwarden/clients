@@ -2,15 +2,18 @@ import { mock, MockProxy } from "jest-mock-extended";
 import * as JSZip from "jszip";
 import { BehaviorSubject, of } from "rxjs";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -25,6 +28,10 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   DEFAULT_KDF_CONFIG,
   PBKDF2KdfConfig,
@@ -170,7 +177,11 @@ describe("VaultExportService", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let accountService: MockProxy<AccountService>;
   let apiService: MockProxy<ApiService>;
+  let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
+  let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
   let fetchMock: jest.Mock;
+
+  const userId = "" as UserId;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -184,8 +195,13 @@ describe("VaultExportService", () => {
     apiService = mock<ApiService>();
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
+    restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
+    restrictedItemTypesService = {
+      restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+      isCipherRestricted: jest.fn().mockReturnValue(false),
+      isCipherRestricted$: jest.fn().mockReturnValue(of(false)),
+    };
 
-    const userId = "" as UserId;
     const accountInfo: AccountInfo = {
       email: "",
       emailVerified: true,
@@ -209,7 +225,7 @@ describe("VaultExportService", () => {
     folderService.folderViews$.mockReturnValue(of(UserFolderViews));
     folderService.folders$.mockReturnValue(of(UserFolders));
     kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
-    encryptService.encrypt.mockResolvedValue(new EncString("encrypted"));
+    encryptService.encryptString.mockResolvedValue(new EncString("encrypted"));
     apiService.getAttachmentData.mockResolvedValue(attachmentResponse);
 
     exportService = new IndividualVaultExportService(
@@ -222,6 +238,7 @@ describe("VaultExportService", () => {
       kdfConfigService,
       accountService,
       apiService,
+      restrictedItemTypesService as RestrictedItemTypesService,
     );
   });
 
@@ -259,6 +276,46 @@ describe("VaultExportService", () => {
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherDomains.slice(0, 2), exportedData.data);
+  });
+
+  it("does not unencrypted export restricted user items", async () => {
+    restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+    const cardCipher = generateCipherView(false);
+    cardCipher.type = CipherType.Card;
+
+    (restrictedItemTypesService.isCipherRestricted as jest.Mock)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true) // cardCipher - restricted
+      .mockReturnValueOnce(false);
+
+    const testCiphers = [UserCipherViews[0], cardCipher, UserCipherViews[1]];
+    cipherService.getAllDecrypted.mockResolvedValue(testCiphers);
+
+    const actual = await exportService.getExport("json");
+    expect(typeof actual.data).toBe("string");
+    const exportedData = actual as ExportedVaultAsString;
+
+    expectEqualCiphers([UserCipherViews[0], UserCipherViews[1]], exportedData.data);
+  });
+
+  it("does not encrypted export restricted user items", async () => {
+    restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+    const cardCipher = generateCipherDomain(false);
+    cardCipher.type = CipherType.Card;
+
+    (restrictedItemTypesService.isCipherRestricted as jest.Mock)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true) // cardCipher - restricted
+      .mockReturnValueOnce(false);
+
+    const testCiphers = [UserCipherDomains[0], cardCipher, UserCipherDomains[1]];
+    cipherService.getAll.mockResolvedValue(testCiphers);
+
+    const actual = await exportService.getExport("encrypted_json");
+    expect(typeof actual.data).toBe("string");
+    const exportedData = actual as ExportedVaultAsString;
+
+    expectEqualCiphers([UserCipherDomains[0], UserCipherDomains[1]], exportedData.data);
   });
 
   describe("zip export", () => {
@@ -313,7 +370,7 @@ describe("VaultExportService", () => {
 
         cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
         folderService.getAllDecryptedFromState.mockResolvedValue([]);
-        encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+        encryptService.decryptFileData.mockResolvedValue(new Uint8Array(255));
 
         global.fetch = jest.fn(() =>
           Promise.resolve({
@@ -338,7 +395,9 @@ describe("VaultExportService", () => {
 
       cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+      cipherService.getDecryptedAttachmentBuffer.mockRejectedValue(
+        new Error("Error decrypting attachment"),
+      );
 
       global.fetch = jest.fn(() =>
         Promise.resolve({
@@ -356,13 +415,17 @@ describe("VaultExportService", () => {
     it("contains attachments with folders", async () => {
       const cipherData = new CipherData();
       cipherData.id = "mock-id";
+      const cipherRecord: Record<CipherId, CipherData> = {
+        ["mock-id" as CipherId]: cipherData,
+      };
       const cipherView = new CipherView(new Cipher(cipherData));
       const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
       attachmentView.fileName = "mock-file-name";
       cipherView.attachments = [attachmentView];
+      cipherService.ciphers$.mockReturnValue(of(cipherRecord));
       cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+      cipherService.getDecryptedAttachmentBuffer.mockResolvedValue(new Uint8Array(255));
       global.fetch = jest.fn(() =>
         Promise.resolve({
           status: 200,
@@ -427,7 +490,7 @@ describe("VaultExportService", () => {
       });
 
       it("has a mac property", async () => {
-        encryptService.encrypt.mockResolvedValue(mac);
+        encryptService.encryptString.mockResolvedValue(mac);
         exportedVault = await exportService.getPasswordProtectedExport(password);
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);
@@ -436,7 +499,7 @@ describe("VaultExportService", () => {
       });
 
       it("has data property", async () => {
-        encryptService.encrypt.mockResolvedValue(data);
+        encryptService.encryptString.mockResolvedValue(data);
         exportedVault = await exportService.getPasswordProtectedExport(password);
         exportString = exportedVault.data;
         exportObject = JSON.parse(exportString);

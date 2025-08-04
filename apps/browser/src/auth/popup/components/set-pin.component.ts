@@ -14,7 +14,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   templateUrl: "set-pin.component.html",
   imports: [
     DialogModule,

@@ -1,0 +1,37 @@
+<div
+  class="tw-rounded-2xl tw-bg-primary-100 tw-border-primary-600 tw-border-solid tw-border tw-p-4 tw-pt-3 tw-flex tw-flex-col tw-gap-2 tw-mb-4"
+>
+  <div class="tw-flex tw-justify-between tw-items-start tw-flex-grow">
+    <div>
+      <h2 bitTypography="h4" class="tw-font-semibold !tw-mb-1">{{ title }}</h2>
+      <p
+        *ngIf="subtitle"
+        class="tw-text-main tw-mb-0"
+        bitTypography="body2"
+        [innerHTML]="subtitle"
+      ></p>
+      <ng-content *ngIf="!subtitle"></ng-content>
+    </div>
+    <button
+      type="button"
+      bitIconButton="bwi-close"
+      size="small"
+      *ngIf="!persistent"
+      (click)="handleDismiss()"
+      [attr.title]="'close' | i18n"
+      [attr.aria-label]="'close' | i18n"
+    ></button>
+  </div>
+
+  <button
+    class="tw-w-full"
+    bitButton
+    type="button"
+    buttonType="primary"
+    *ngIf="buttonText"
+    (click)="handleButtonClick($event)"
+  >
+    {{ buttonText }}
+    <i *ngIf="buttonIcon" [ngClass]="buttonIcon" class="bwi tw-ml-1" aria-hidden="true"></i>
+  </button>
+</div>

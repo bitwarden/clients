@@ -9,7 +9,6 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
@@ -30,8 +29,6 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
 
   /** User's entered email obtained pre-login. Always present in MP login. */
   userEnteredEmail: string;
-  /** If 2fa is required, token is returned to bypass captcha */
-  captchaBypassToken?: string;
   /** The local version of the user's master key hash */
   localMasterKeyHash: string;
   /** The user's master key */
@@ -78,8 +75,8 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
-  override async logIn(credentials: PasswordLoginCredentials) {
-    const { email, masterPassword, captchaToken, twoFactor } = credentials;
+  override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
+    const { email, masterPassword, twoFactor } = credentials;
 
     const data = new PasswordLoginStrategyData();
     data.masterKey = await this.loginStrategyService.makePreloginKey(masterPassword, email);
@@ -96,7 +93,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
     data.tokenRequest = new PasswordTokenRequest(
       email,
       serverMasterKeyHash,
-      captchaToken,
       await this.buildTwoFactor(twoFactor, email),
       await this.buildDeviceRequest(),
     );
@@ -105,65 +101,13 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
     const [authResult, identityResponse] = await this.startLogIn();
 
-    if (identityResponse instanceof IdentityCaptchaResponse) {
-      return authResult;
-    }
+    await this.evaluateMasterPasswordIfRequired(identityResponse, credentials, authResult);
 
-    const masterPasswordPolicyOptions =
-      this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
-
-    // The identity result can contain master password policies for the user's organizations
-    if (masterPasswordPolicyOptions?.enforceOnLogin) {
-      // If there is a policy active, evaluate the supplied password before its no longer in memory
-      const meetsRequirements = this.evaluateMasterPassword(
-        credentials,
-        masterPasswordPolicyOptions,
-      );
-      if (meetsRequirements) {
-        return authResult;
-      }
-
-      if (identityResponse instanceof IdentityTwoFactorResponse) {
-        // Save the flag to this strategy for use in 2fa login as the master password is about to pass out of scope
-        this.cache.next({
-          ...this.cache.value,
-          forcePasswordResetReason: ForceSetPasswordReason.WeakMasterPassword,
-        });
-      } else {
-        // Authentication was successful, save the force update password options with the state service
-        await this.masterPasswordService.setForceSetPasswordReason(
-          ForceSetPasswordReason.WeakMasterPassword,
-          authResult.userId, // userId is only available on successful login
-        );
-        authResult.forcePasswordReset = ForceSetPasswordReason.WeakMasterPassword;
-      }
-    }
     return authResult;
   }
 
-  override async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string,
-  ): Promise<AuthResult> {
-    const data = this.cache.value;
-    data.tokenRequest.captchaResponse = captchaResponse ?? data.captchaBypassToken;
-    this.cache.next(data);
-
+  override async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
     const result = await super.logInTwoFactor(twoFactor);
-
-    // 2FA was successful, save the force update password options with the state service if defined
-    const forcePasswordResetReason = this.cache.value.forcePasswordResetReason;
-    if (
-      !result.requiresTwoFactor &&
-      !result.requiresCaptcha &&
-      forcePasswordResetReason != ForceSetPasswordReason.None
-    ) {
-      await this.masterPasswordService.setForceSetPasswordReason(
-        forcePasswordResetReason,
-        result.userId,
-      );
-      result.forcePasswordReset = forcePasswordResetReason;
-    }
 
     return result;
   }
@@ -182,7 +126,10 @@ export class PasswordLoginStrategy extends LoginStrategy {
     if (this.encryptionKeyMigrationRequired(response)) {
       return;
     }
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
+
+    if (response.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
 
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {
@@ -208,13 +155,70 @@ export class PasswordLoginStrategy extends LoginStrategy {
     return !response.key;
   }
 
-  private getMasterPasswordPolicyOptionsFromResponse(
-    response:
+  private async evaluateMasterPasswordIfRequired(
+    identityResponse:
       | IdentityTokenResponse
       | IdentityTwoFactorResponse
       | IdentityDeviceVerificationResponse,
-  ): MasterPasswordPolicyOptions {
-    if (response == null || response instanceof IdentityDeviceVerificationResponse) {
+    credentials: PasswordLoginCredentials,
+    authResult: AuthResult,
+  ): Promise<void> {
+    // TODO: PM-21084 - investigate if we should be sending down masterPasswordPolicy on the
+    // IdentityDeviceVerificationResponse like we do for the IdentityTwoFactorResponse
+    // If the response is a device verification response, we don't need to evaluate the password
+    if (identityResponse instanceof IdentityDeviceVerificationResponse) {
+      return;
+    }
+
+    // The identity result can contain master password policies for the user's organizations.
+    // Get the master password policy options from both the org invite and the identity response.
+    const masterPasswordPolicyOptions = this.policyService.combineMasterPasswordPolicyOptions(
+      credentials.masterPasswordPoliciesFromOrgInvite,
+      this.getMasterPasswordPolicyOptionsFromResponse(identityResponse),
+    );
+
+    // We deliberately do not check enforceOnLogin as existing users who are logging
+    // in after getting an org invite should always be forced to set a password that
+    // meets the org's policy. Org Invite -> Registration also works this way for
+    // new BW users as well.
+    if (
+      !credentials.masterPasswordPoliciesFromOrgInvite &&
+      !masterPasswordPolicyOptions?.enforceOnLogin
+    ) {
+      return;
+    }
+
+    // If there is a policy active, evaluate the supplied password before its no longer in memory
+    const meetsRequirements = this.evaluateMasterPassword(credentials, masterPasswordPolicyOptions);
+    if (meetsRequirements) {
+      return;
+    }
+
+    if (identityResponse instanceof IdentityTwoFactorResponse) {
+      // Save the flag to this strategy for use in 2fa as the master password is about to pass out of scope
+      this.cache.next({
+        ...this.cache.value,
+        forcePasswordResetReason: ForceSetPasswordReason.WeakMasterPassword,
+      });
+      return;
+    }
+
+    // Authentication was successful, save the force update password options with the state service
+    // if there isn't already a reason set (this would only be AdminForcePasswordReset as that can be set server side
+    // and would have already been processed in the base login strategy processForceSetPasswordReason method)
+    // Note: masterPasswordService.setForceSetPasswordReason will not allow overwriting
+    // AdminForcePasswordReset with any other reason except for None. This is because
+    // an AdminForcePasswordReset will always force a user to update their password to a password that meets the policy.
+    await this.masterPasswordService.setForceSetPasswordReason(
+      ForceSetPasswordReason.WeakMasterPassword,
+      authResult.userId, // userId is only available on successful login
+    );
+  }
+
+  private getMasterPasswordPolicyOptionsFromResponse(
+    response: IdentityTokenResponse | IdentityTwoFactorResponse,
+  ): MasterPasswordPolicyOptions | null {
+    if (response == null) {
       return null;
     }
     return MasterPasswordPolicyOptions.fromResponse(response.masterPasswordPolicy);
@@ -245,5 +249,36 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
     const [authResult] = await this.startLogIn();
     return authResult;
+  }
+
+  /**
+   * Override to handle the WeakMasterPassword reason if no other reason is set.
+   * @param authResult - The authentication result
+   * @param userId - The user ID
+   */
+  override async processForceSetPasswordReason(
+    adminForcePasswordReset: boolean,
+    userId: UserId,
+  ): Promise<boolean> {
+    // handle any existing reasons
+    const adminForcePasswordResetFlagSet = await super.processForceSetPasswordReason(
+      adminForcePasswordReset,
+      userId,
+    );
+
+    // If we are already processing an admin force password reset, don't process other reasons
+    if (adminForcePasswordResetFlagSet) {
+      return false;
+    }
+
+    // If we have a cached weak password reason from login/logInTwoFactor apply it
+    const cachedReason = this.cache.value.forcePasswordResetReason;
+    if (cachedReason !== ForceSetPasswordReason.None) {
+      await this.masterPasswordService.setForceSetPasswordReason(cachedReason, userId);
+      return true;
+    }
+
+    // If none of the conditions are met, return false
+    return false;
   }
 }

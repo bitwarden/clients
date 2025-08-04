@@ -21,5 +21,6 @@ export class ActivateAutofillPolicy extends BasePolicy {
 @Component({
   selector: "policy-activate-autofill",
   templateUrl: "activate-autofill.component.html",
+  standalone: false,
 })
 export class ActivateAutofillPolicyComponent extends BasePolicyComponent {}

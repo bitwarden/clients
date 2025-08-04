@@ -20,6 +20,7 @@ export interface SecretDeleteOperation {
 
 @Component({
   templateUrl: "./secret-delete.component.html",
+  standalone: false,
 })
 export class SecretDeleteDialogComponent {
   constructor(

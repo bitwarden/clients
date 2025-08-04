@@ -22,6 +22,7 @@ import { KeyService } from "@bitwarden/key-management";
  */
 @Directive({
   selector: "app-user-verification",
+  standalone: false,
 })
 export class UserVerificationComponent implements ControlValueAccessor, OnInit, OnDestroy {
   private _invalidSecret = false;

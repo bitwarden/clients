@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KdfConfig, KdfConfigService, KdfType } from "@bitwarden/key-management";
@@ -17,14 +18,18 @@ export class BaseVaultExportService {
     private kdfConfigService: KdfConfigService,
   ) {}
 
-  protected async buildPasswordExport(clearText: string, password: string): Promise<string> {
-    const kdfConfig: KdfConfig = await this.kdfConfigService.getKdfConfig();
+  protected async buildPasswordExport(
+    userId: UserId,
+    clearText: string,
+    password: string,
+  ): Promise<string> {
+    const kdfConfig: KdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
     const salt = Utils.fromBufferToB64(await this.cryptoFunctionService.randomBytes(16));
     const key = await this.pinService.makePinKey(password, salt, kdfConfig);
 
-    const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), key);
-    const encText = await this.encryptService.encrypt(clearText, key);
+    const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), key);
+    const encText = await this.encryptService.encryptString(clearText, key);
 
     const jsonDoc: BitwardenPasswordProtectedFileFormat = {
       encrypted: true,

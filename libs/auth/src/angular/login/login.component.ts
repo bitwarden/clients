@@ -17,11 +17,12 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -30,7 +31,10 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -40,20 +44,20 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import { VaultIcon, WaveIcon } from "../icons";
 
 import { LoginComponentService, PasswordPolicies } from "./login-component.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LoginUiState {
   EMAIL_ENTRY = "EmailEntry",
   MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",
 }
 
 @Component({
-  standalone: true,
   templateUrl: "./login.component.html",
   imports: [
     AsyncActionsModule,
@@ -120,6 +124,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
+    private configService: ConfigService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -223,7 +229,21 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const credentials = new PasswordLoginCredentials(email, masterPassword);
+    // Try to retrieve any org policies from an org invite now so we can send it to the
+    // login strategies. Since it is optional and we only want to be doing this on the
+    // web we will only send in content in the right context.
+    const orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
+      ? await this.loginComponentService.getOrgPoliciesFromOrgInvite()
+      : null;
+
+    const orgMasterPasswordPolicyOptions = orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
+
+    const credentials = new PasswordLoginCredentials(
+      email,
+      masterPassword,
+      undefined,
+      orgMasterPasswordPolicyOptions,
+    );
 
     try {
       const authResult = await this.loginStrategyService.logIn(credentials);
@@ -279,16 +299,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   private async handleAuthResult(authResult: AuthResult): Promise<void> {
     if (authResult.requiresEncryptionKeyMigration) {
       /* Legacy accounts used the master key to encrypt data.
-         Migration is required but only performed on Web. */
-      if (this.clientType === ClientType.Web) {
-        await this.router.navigate(["migrate-legacy-encryption"]);
-      } else {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccured"),
-          message: this.i18nService.t("encryptionKeyMigrationRequired"),
-        });
-      }
+         This is now unsupported and requires a downgraded client */
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("legacyEncryptionUnsupported"),
+      });
       return;
     }
 
@@ -307,10 +323,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     await this.loginSuccessHandlerService.run(authResult.userId);
 
     // Determine where to send the user next
-    if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
-      await this.router.navigate(["update-temp-password"]);
-      return;
-    }
+    // The AuthGuard will handle routing to change-password based on state
 
     // TODO: PM-18269 - evaluate if we can combine this with the
     // password evaluation done in the password login strategy.
@@ -322,7 +335,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       if (orgPolicies) {
         // Since we have retrieved the policies, we can go ahead and set them into state for future use
-        // e.g., the update-password page currently only references state for policy data and
+        // e.g., the change-password page currently only references state for policy data and
         // doesn't fallback to pulling them from the server like it should if they are null.
         await this.setPoliciesIntoState(authResult.userId, orgPolicies.policies);
 
@@ -330,7 +343,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           orgPolicies.enforcedPasswordPolicyOptions,
         );
         if (isPasswordChangeRequired) {
-          await this.router.navigate(["update-password"]);
+          await this.router.navigate(["change-password"]);
           return;
         }
       }
@@ -342,9 +355,15 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.router.navigate(["vault"]);
     }
   }
+
   /**
    * Checks if the master password meets the enforced policy requirements
    * and if the user is required to change their password.
+   *
+   * TODO: This is duplicate checking that we want to only do in the password login strategy.
+   *       Once we no longer need the policies state being set to reference later in change password
+   *       via using the Admin Console's new policy endpoint changes we can remove this. Consult
+   *       PM-23001 for details.
    */
   private async isPasswordChangeRequiredByOrgPolicy(
     enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions,
@@ -539,7 +558,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       // If we load an email into the form, we need to initialize it for the login process as well
       // so that other login components can use it.
       // We do this here as it's possible that a user doesn't edit the email field before submitting.
-      this.loginEmailService.setLoginEmail(storedEmail);
+      await this.loginEmailService.setLoginEmail(storedEmail);
     } else {
       this.formGroup.controls.rememberEmail.setValue(false);
     }

@@ -33,6 +33,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
       useExisting: ExpirationOptionsComponent,
     },
   ],
+  standalone: false,
 })
 export class ExpirationOptionsComponent
   implements ControlValueAccessor, Validator, OnInit, OnDestroy

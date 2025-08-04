@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "ID"
   },
+  "typeNote": {
+    "message": "メモ"
+  },
   "typeSecureNote": {
     "message": "セキュアメモ"
   },
@@ -37,6 +40,9 @@
   },
   "searchVault": {
     "message": "保管庫を検索"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "addItem": {
     "message": "アイテムの追加"
@@ -237,6 +243,24 @@
   "enableSshAgentHelp": {
     "message": "SSH エージェントとは、Bitwarden 保管庫から直接 SSH リクエストに署名できる、開発者を対象としたサービスです。"
   },
+  "sshAgentPromptBehavior": {
+    "message": "SSHエージェントを使用する際に認証を要求する"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "SSHエージェント認可リクエストの処理方法を選択します。"
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "SSH認可を記憶する"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "常に表示する"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "表示しない"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "保管庫がロックされるまで記憶する"
+  },
   "premiumRequired": {
     "message": "プレミアム会員専用"
   },
@@ -333,12 +357,6 @@
   "other": {
     "message": "その他"
   },
-  "generatePassword": {
-    "message": "パスワードの自動生成"
-  },
-  "generatePassphrase": {
-    "message": "パスフレーズを生成"
-  },
   "type": {
     "message": "タイプ"
   },
@@ -393,6 +411,70 @@
   "authenticatorKeyTotp": {
     "message": "認証キー (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "認証キー"
+  },
+  "autofillOptions": {
+    "message": "自動入力のオプション"
+  },
+  "websiteUri": {
+    "message": "ウェブサイト (URI)"
+  },
+  "websiteUriCount": {
+    "message": "ウェブサイト (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "ウェブサイトを追加しました"
+  },
+  "addWebsite": {
+    "message": "ウェブサイトを追加"
+  },
+  "deleteWebsite": {
+    "message": "ウェブサイトを削除"
+  },
+  "owner": {
+    "message": "所有者"
+  },
+  "addField": {
+    "message": "フィールドを追加"
+  },
+  "editField": {
+    "message": "フィールドを編集"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "この添付ファイルを完全に削除してもよろしいですか？"
+  },
+  "fieldType": {
+    "message": "フィールドの種類"
+  },
+  "fieldLabel": {
+    "message": "フィールドのラベル"
+  },
+  "add": {
+    "message": "追加"
+  },
+  "textHelpText": {
+    "message": "秘密の質問などのデータには、テキストフィールドを使用します"
+  },
+  "hiddenHelpText": {
+    "message": "パスワードのような機密データには、非表示フィールドを使用します"
+  },
+  "checkBoxHelpText": {
+    "message": "「メールアドレスを記憶する」などのフォームのチェックボックスを自動入力する場合は、チェックボックスを使用します"
+  },
+  "linkedHelpText": {
+    "message": "特定のウェブサイトで自動入力の問題が発生している場合は、リンクされたフィールドを使用します。"
+  },
+  "linkedLabelHelpText": {
+    "message": "フィールドの HTML の id、name、aria-label、placeholder を入力します。"
+  },
   "folder": {
     "message": "フォルダー"
   },
@@ -417,6 +499,9 @@
   "cfTypeLinked": {
     "message": "リンク済",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "チェックボックス"
   },
   "linkedValue": {
     "message": "リンクされた値",
@@ -489,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "認証コード (TOTP) をコピー"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "長さ"
@@ -612,8 +711,8 @@
   "maxFileSize": {
     "message": "最大ファイルサイズは500MBです。"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "暗号化キーの移行が必要です。暗号化キーを更新するには、ウェブ保管庫からログインしてください。"
+  "legacyEncryptionUnsupported": {
+    "message": "従来の暗号化はサポートされていません。アカウントを復元するにはサポートにお問い合わせください。"
   },
   "editedFolder": {
     "message": "フォルダーを編集しました"
@@ -1018,9 +1117,6 @@
   "addNewItem": {
     "message": "新しいアイテムの追加"
   },
-  "addNewFolder": {
-    "message": "新規フォルダーの追加"
-  },
   "view": {
     "message": "表示"
   },
@@ -1346,6 +1442,9 @@
     "message": "セキュリティコードのコピー",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "プレミアム会員"
   },
@@ -1637,42 +1736,17 @@
   "accountRestricted": {
     "message": "アカウント制限"
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「ファイルパスワード」と「ファイルパスワードの確認」が一致しません。"
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "アクセシビリティクッキーを読み込む"
-  },
-  "registerAccessibilityUser": {
-    "message": "アクセシビリティユーザーとして登録する",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "以下のメールに送信されたリンクをコピーして貼り付けてください"
-  },
-  "enterhCaptchaUrl": {
-    "message": "hCaptcha のアクセシビリティクッキーを読み込むための URL を入力してください",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha URL が必要です",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "無効な URL"
-  },
   "done": {
     "message": "完了"
-  },
-  "accessibilityCookieSaved": {
-    "message": "アクセシビリティクッキーを保存しました！"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "アクセシビリティクッキーが保存されていません"
   },
   "warning": {
     "message": "警告",
@@ -1742,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Windows Hello でロック解除"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "追加の Windows Hello 設定"
-  },
   "unlockWithPolkit": {
     "message": "システム認証でロック解除"
   },
@@ -1760,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "Bitwarden の認証を行います。"
   },
-  "autoPromptWindowsHello": {
-    "message": "起動時に Windows Hello を要求する"
-  },
-  "autoPromptPolkit": {
-    "message": "起動時にシステム認証を要求する"
-  },
   "autoPromptTouchId": {
     "message": "起動時に Touch ID を要求する"
   },
@@ -1774,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "アプリ起動時にパスワードを要求"
-  },
-  "recommendedForSecurity": {
-    "message": "セキュリティ向上のためおすすめします。"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "再起動時にマスターパスワードでロック"
@@ -1914,6 +1976,58 @@
         "example": "5"
       }
     }
+  },
+  "cardDetails": {
+    "message": "Card details"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ details",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Learn more about authenticators"
+  },
+  "copyTOTP": {
+    "message": "Copy Authenticator key (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Make 2-step verification seamless"
+  },
+  "totpHelper": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "premium": {
+    "message": "Premium",
+    "description": "Premium membership"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Free organizations cannot use attachments"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 field needs your attention."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ fields need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
   },
   "verificationRequired": {
     "message": "認証が必要です",
@@ -2083,6 +2197,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "組織のポリシーにより、個々の保管庫へのアイテムのインポートがブロックされました。"
+  },
+  "personalDetails": {
+    "message": "Personal details"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "Contact information"
   },
   "allSends": {
     "message": "すべての Send",
@@ -2277,6 +2400,9 @@
   "passwordConfirmationDesc": {
     "message": "この操作は保護されています。続行するには、確認のためにマスターパスワードを再入力してください。"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "マスターパスワードを更新しました"
   },
@@ -2288,6 +2414,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。"
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "あなたの組織は信頼できるデバイスの暗号化を無効化しました。保管庫にアクセスするにはマスターパスワードを設定してください。"
@@ -2400,14 +2535,14 @@
   "removedMasterPassword": {
     "message": "マスターパスワードを削除しました。"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ は自己ホストの鍵サーバで SSO を使用しています。この組織のメンバーのログインにマスターパスワードは必要ありません。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "組織から脱退する"
@@ -2518,6 +2653,27 @@
   "generateEmail": {
     "message": "メールアドレスを生成"
   },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "generatePassword": {
+    "message": "パスワードの自動生成"
+  },
+  "generatePassphrase": {
+    "message": "パスフレーズを生成"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "値は $MIN$ から $MAX$ の間でなければなりません。",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2570,6 +2726,15 @@
   },
   "useThisEmail": {
     "message": "このメールアドレスを使う"
+  },
+  "useThisPassword": {
+    "message": "このパスワードを使用する"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "このユーザー名を使用する"
   },
   "random": {
     "message": "ランダム"
@@ -2936,12 +3101,6 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "入力されたパスワードは脆弱かつすでに流出済みです。アカウントを守るためより強力で一意なパスワードを使用してください。本当にこの脆弱なパスワードを使用しますか？"
   },
-  "useThisPassword": {
-    "message": "このパスワードを使用する"
-  },
-  "useThisUsername": {
-    "message": "このユーザー名を使用する"
-  },
   "checkForBreaches": {
     "message": "このパスワードの既知のデータ流出を確認"
   },
@@ -3002,6 +3161,12 @@
   "requestAdminApproval": {
     "message": "管理者の承認を要求する"
   },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+  },
   "region": {
     "message": "リージョン"
   },
@@ -3041,6 +3206,30 @@
   },
   "deviceTrusted": {
     "message": "信頼されたデバイス"
+  },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
   },
   "inputRequired": {
     "message": "入力が必要です。"
@@ -3212,6 +3401,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "以下の手順に従ってログインを完了してください。"
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "ブラウザで Duo を起動"
   },
@@ -3366,6 +3558,30 @@
     "message": "一般的な形式",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "成功"
   },
@@ -3436,6 +3652,17 @@
   "ssoError": {
     "message": "SSO ログインのための空きポートが見つかりませんでした。"
   },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "PINまたはパスワードによるロック解除が最初に必要なため、生体認証によるロック解除は利用できません。"
   },
@@ -3459,6 +3686,27 @@
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "生体認証によるロック解除は、不明な理由により現在利用できません。"
+  },
+  "itemDetails": {
+    "message": "アイテムの詳細"
+  },
+  "itemName": {
+    "message": "アイテム名"
+  },
+  "loginCredentials": {
+    "message": "ログイン資格情報"
+  },
+  "additionalOptions": {
+    "message": "追加のオプション"
+  },
+  "itemHistory": {
+    "message": "アイテムの履歴"
+  },
+  "lastEdited": {
+    "message": "直近の編集"
+  },
+  "upload": {
+    "message": "アップロード"
   },
   "authorize": {
     "message": "認可"
@@ -3508,42 +3756,6 @@
   "fileSavedToDevice": {
     "message": "ファイルをデバイスに保存しました。デバイスのダウンロードで管理できます。"
   },
-  "importantNotice": {
-    "message": "重要なお知らせ"
-  },
-  "setupTwoStepLogin": {
-    "message": "2段階認証によるログインを設定する"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden は2025年2月以降、新しいデバイスからのログイン時にアカウントのメールアドレスに確認コードを送信します。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "代わりに2段階認証によるログインでアカウントを保護するか、メールアドレスをあなたがアクセスできるものに変更できます。"
-  },
-  "remindMeLater": {
-    "message": "後で再通知"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "メールアドレス $EMAIL$ は、確実にアクセスできるものですか？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "いいえ、違います"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "はい、メールアドレスには私が確実にアクセスできます"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "2段階認証によるログインを有効にする"
-  },
-  "changeAcctEmail": {
-    "message": "アカウントのメールアドレスを変更する"
-  },
   "allowScreenshots": {
     "message": "スクリーンショットを許可"
   },
@@ -3565,7 +3777,239 @@
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "移動"
+  },
+  "newFolder": {
+    "message": "新しいフォルダー"
+  },
+  "folderName": {
+    "message": "フォルダー名"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Assign to collections"
+  },
+  "assignToTheseCollections": {
+    "message": "Assign to these collections"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Only organization members with access to these collections will be able to see the item."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "noCollectionsAssigned": {
+    "message": "No collections have been assigned"
+  },
+  "assign": {
+    "message": "Assign"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Select collections to assign"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Successfully assigned collections"
+  },
+  "nothingSelected": {
+    "message": "You have not selected anything."
+  },
+  "itemsMovedToOrg": {
+    "message": "Items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Selected items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

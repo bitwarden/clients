@@ -46,7 +46,6 @@ interface Key {
 @Component({
   selector: "app-two-factor-setup-webauthn",
   templateUrl: "two-factor-setup-webauthn.component.html",
-  standalone: true,
   imports: [
     AsyncActionsModule,
     ButtonModule,

@@ -11,6 +11,7 @@ import {
 @Component({
   selector: "app-billing-history",
   templateUrl: "billing-history.component.html",
+  standalone: false,
 })
 export class BillingHistoryComponent {
   @Input()

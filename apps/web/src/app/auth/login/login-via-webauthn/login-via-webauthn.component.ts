@@ -7,6 +7,7 @@ import { CreatePasskeyIcon } from "@bitwarden/angular/auth/icons/create-passkey.
 @Component({
   selector: "app-login-via-webauthn",
   templateUrl: "login-via-webauthn.component.html",
+  standalone: false,
 })
 export class LoginViaWebAuthnComponent extends BaseLoginViaWebAuthnComponent {
   protected readonly Icons = { CreatePasskeyIcon, CreatePasskeyFailedIcon };

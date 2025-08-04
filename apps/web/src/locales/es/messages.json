@@ -2,11 +2,14 @@
   "allApplications": {
     "message": "Todas las aplicaciones"
   },
+  "appLogoLabel": {
+    "message": "Logo de Bitwarden"
+  },
   "criticalApplications": {
     "message": "Aplicaciones críticas"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "No hay aplicaciones críticas en riesgo"
   },
   "accessIntelligence": {
     "message": "Inteligencia de Acceso"
@@ -51,7 +54,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Crear nuevo elemento de inicio de sesión"
   },
   "criticalApplicationsWithCount": {
     "message": "Aplicaciones críticas ($COUNT$)",
@@ -72,7 +75,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "No se encontraron aplicaciones en $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -95,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Mark app as critical"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps marked as critical"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Aplicación"
@@ -105,13 +108,13 @@
     "message": "At-risk passwords"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "Solicitar cambio de contraseña"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "Total de contraseñas"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "Buscar aplicaciones"
   },
   "atRiskMembers": {
     "message": "At-risk members"
@@ -137,8 +140,14 @@
   "atRiskMembersDescription": {
     "message": "These members are logging into applications with weak, exposed, or reused passwords."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "These applications have weak, exposed, or reused passwords."
+  },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
@@ -149,17 +158,26 @@
       }
     }
   },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
-    "message": "Total members"
+    "message": "Total de miembros"
   },
   "atRiskApplications": {
     "message": "At-risk applications"
   },
   "totalApplications": {
-    "message": "Total applications"
+    "message": "Total de aplicaciones"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Desmarcar como aplicación crítica"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Critical application successfully unmarked"
@@ -202,7 +220,7 @@
     "message": "Notas"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Nota privada"
   },
   "note": {
     "message": "Nota"
@@ -241,7 +259,7 @@
     "message": "Historial del elemento"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Clave de autenticador"
   },
   "autofillOptions": {
     "message": "Opciones de autocompletar"
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Carpeta"
   },
-  "newCustomField": {
-    "message": "Nuevo campo personalizado"
-  },
   "value": {
     "message": "Valor"
-  },
-  "dragToSort": {
-    "message": "Arrastra para ordenar"
-  },
-  "dragToReorder": {
-    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Texto"
@@ -474,7 +483,7 @@
     "message": "Editar carpeta"
   },
   "editWithName": {
-    "message": "Edit $ITEM$: $NAME$",
+    "message": "Editar $ITEM$: $NAME$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -487,16 +496,16 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Nueva carpeta"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Nombre de la carpeta"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "¿Estás seguro de que quieres eliminar permanentemente esta carpeta?"
   },
   "baseDomain": {
     "message": "Dominio base",
@@ -538,12 +547,6 @@
     "message": "Colapsar/Expandir",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Generar contraseña"
-  },
-  "generatePassphrase": {
-    "message": "Generate passphrase"
-  },
   "checkPassword": {
     "message": "Comprobar si la contraseña está comprometida."
   },
@@ -564,6 +567,9 @@
   },
   "cancel": {
     "message": "Cancelar"
+  },
+  "later": {
+    "message": "Later"
   },
   "canceled": {
     "message": "Cancelado"
@@ -623,6 +629,9 @@
   "searchGroups": {
     "message": "Buscar grupos"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "allItems": {
     "message": "Todos los elementos"
   },
@@ -644,8 +653,11 @@
   "typeSecureNote": {
     "message": "Nota segura"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Clave SSH"
   },
   "typeLoginPlural": {
     "message": "Inicios de sesión"
@@ -786,7 +798,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Copia Exitosa"
   },
   "copyValue": {
     "message": "Copiar valor",
@@ -797,11 +809,11 @@
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "Copiar frase de contraseña",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "Contraseña copiada"
   },
   "copyUsername": {
     "message": "Copiar usuario",
@@ -820,7 +832,7 @@
     "description": "Copy URI to clipboard"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Copiar $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -829,7 +841,7 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Copiar sitio web"
   },
   "copyNotes": {
     "message": "Copiar notas"
@@ -844,7 +856,7 @@
     "message": "Copiar correo electrónico"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Copiar empresa"
   },
   "copySSN": {
     "message": "Copiar número de seguro social"
@@ -858,8 +870,28 @@
   "copyName": {
     "message": "Copiar nombre"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Yo"
+  },
+  "myItems": {
+    "message": "Mis Elementos"
   },
   "myVault": {
     "message": "Mi caja fuerte"
@@ -935,7 +967,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Elementos movidos a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -944,7 +976,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Elemento movido a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -1010,16 +1042,16 @@
     "message": "Tu sesión ha expirado."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Reiniciar registro"
   },
   "expiredLink": {
     "message": "Enlace expirado"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Por favor, reinicia el registro o intenta iniciar sesión."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Puede que ya tengas una cuenta"
   },
   "logOutConfirmation": {
     "message": "¿Estás seguro de querer cerrar la sesión?"
@@ -1037,7 +1069,7 @@
     "message": "No"
   },
   "location": {
-    "message": "Location"
+    "message": "Ubicación"
   },
   "loginOrCreateNewAccount": {
     "message": "Identifícate o crea una nueva cuenta para acceder a tu caja fuerte."
@@ -1049,7 +1081,7 @@
     "message": "Iniciar sesión con el dispositivo debe configurarse en los ajustes de la aplicación Bitwarden. ¿Necesitas otra opción?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "¿Necesitas otra opción?"
   },
   "loginWithMasterPassword": {
     "message": "Iniciar sesión con contraseña maestra"
@@ -1064,13 +1096,13 @@
     "message": "Utilizar otro método de inicio de sesión"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Iniciar sesión con clave de acceso"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Usar inicio de sesión único"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Bienvenido de nuevo"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Clave inválida. Por favor, inténtelo de nuevo."
@@ -1154,7 +1186,7 @@
     "message": "Crear cuenta"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "¿Nuevo en Bitwarden?"
   },
   "setAStrongPassword": {
     "message": "Establece una contraseña fuerte"
@@ -1172,43 +1204,43 @@
     "message": "Identificarse"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Iniciar sesión en Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Introduce el código enviado a tu correo electrónico"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Introduce el código de tu aplicación de autenticación"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Pulsa tu YubiKey para autenticarte"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Tiempo de autenticación agotado"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verifica tu Identidad"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "No reconocemos este dispositivo. Introduce el código enviado a tu correo electrónico para verificar tu identidad."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Continuar el inicio de sesión"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "¿Qué es un dispositivo?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Un dispositivo es una instalación única de la aplicación Bitwarden donde has iniciado sesión. La reinstalación, la eliminación de datos de la aplicación o la eliminación de tus cookies podrían resultar en la aparición de un dispositivo múltiples veces."
   },
   "logInInitiated": {
     "message": "Inicio de sesión en proceso"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Solicitud enviada"
   },
   "submit": {
     "message": "Enviar"
@@ -1241,7 +1273,7 @@
     "message": "Pista de contraseña maestra (opcional)"
   },
   "newMasterPassHint": {
-    "message": "New master password hint (optional)"
+    "message": "Nueva pista para la contraseña maestra (opcional)"
   },
   "masterPassHintLabel": {
     "message": "Pista de contraseña maestra"
@@ -1269,7 +1301,7 @@
     "message": "Solicitar pista"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Solicitar pista de la contraseña"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
@@ -1306,7 +1338,7 @@
     "message": "¡Tu nueva cuenta ha sido creada! Ahora puedes acceder."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "¡Tu nueva cuenta ha sido creada!"
   },
   "youHaveBeenLoggedIn": {
     "message": "¡Has iniciado sesión!"
@@ -1327,10 +1359,10 @@
     "message": "Correo electrónico"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Tu caja fuerte está bloqueada"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Tu cuenta está bloqueada"
   },
   "uuid": {
     "message": "UUID"
@@ -1367,7 +1399,7 @@
     "message": "No tiene los permisos para ver todos los elementos de esta colección."
   },
   "youDoNotHavePermissions": {
-    "message": "You do not have permissions to this collection"
+    "message": "No tienes permisos para esta colección"
   },
   "noCollectionsInList": {
     "message": "No hay colecciones que listar."
@@ -1394,13 +1426,13 @@
     "message": "Se ha enviado una notificación a tu dispositivo."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Desbloquea Bitwarden en tu dispositivo o en la "
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "¿Estás intentando acceder a tu cuenta?"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Intento de acceso de $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1409,13 +1441,13 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Confirmar acceso"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Denegar acceso"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "aplicación web"
   },
   "notificationSentDevicePart2": {
     "message": "Make sure the Fingerprint phrase matches the one below before approving."
@@ -1424,7 +1456,7 @@
     "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Se ha enviado una notificación a tu dispositivo"
   },
   "versionNumber": {
     "message": "Versión $VERSION_NUMBER$",
@@ -1445,14 +1477,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "No volver a preguntar en este dispositivo durante 30 días"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Selecciona otro método",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Usa tu código de recuperación"
   },
   "insertU2f": {
     "message": "Inserta tu llave de seguridad en el puerto USB de tu equipo. Si tiene un botón, púlsalo."
@@ -1470,7 +1502,7 @@
     "message": "Opciones de la autenticación en dos pasos"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Selecciona un método de inicio de sesión en dos pasos"
   },
   "recoveryCodeDesc": {
     "message": "¿Has perdido el acceso a todos tus métodos de autenticación en dos pasos? Utiliza tu código de recuperación para deshabilitar todos los métodos de autenticación en dos pasos de tu cuenta."
@@ -1482,7 +1514,7 @@
     "message": "Aplicación de autenticación"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Introduce un código generado por una aplicación de autenticación como Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -1492,7 +1524,7 @@
     "message": "Usa un Yubikey para acceder a tu cuenta. Funciona con YubiKey 4, 4 Nano, 4C y dispositivos NEO."
   },
   "duoDescV2": {
-    "message": "Enter a code generated by Duo Security.",
+    "message": "Introduce un código generado por Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -1515,13 +1547,13 @@
     "message": "(Migrado desde FIDO)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Abrir en una nueva pestaña"
   },
   "emailTitle": {
     "message": "Correo electrónico"
   },
   "emailDescV2": {
-    "message": "Enter a code sent to your email."
+    "message": "Introduce un código enviado a tu correo electrónico."
   },
   "continue": {
     "message": "Continuar"
@@ -1560,7 +1592,7 @@
     "message": "¿Está seguro de que desea continuar?"
   },
   "moveSelectedItemsDesc": {
-    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "message": "Selecciona una carpeta a la que quieras mover los $COUNT$ elementos seleccionados.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1682,7 +1714,7 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Evita caracteres ambiguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "length": {
@@ -1720,17 +1752,17 @@
     "message": "Incluir número"
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "Los requisitos de política empresarial se han aplicado a las opciones de tu generador.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "passwordHistory": {
     "message": "Historial de contraseñas"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Historial del generador"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Borrar historial del generador"
   },
   "cleargGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
@@ -1739,13 +1771,13 @@
     "message": "No hay contraseñas que listar."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Limpiar historial"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Nada que mostrar"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "No has generado nada recientemente"
   },
   "clear": {
     "message": "Limpiar",
@@ -1778,6 +1810,9 @@
   "loggedOutWarning": {
     "message": "Proceder cerrará tu sesión actual, requiriendo que vuelvas a acceder. Las sesiones activas en otros dispositivos pueden seguir activas hasta dentro de una hora."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
   "emailChanged": {
     "message": "Correo electrónico cambiado"
   },
@@ -1785,10 +1820,10 @@
     "message": "Por favor, vuelve a acceder."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Sesión actual"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Solicitud pendiente"
   },
   "logBackInOthersToo": {
     "message": "Por favor, vuelve a acceder. Si estás utilizando otras aplicaciones de Bitwarden, cierra sesión y vuelva a acceder en ellas también."
@@ -1891,7 +1926,7 @@
     "message": "Desautorizadas todas las sesiones"
   },
   "accountIsOwnedMessage": {
-    "message": "This account is owned by $ORGANIZATIONNAME$",
+    "message": "Esta cuenta es propiedad de $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -1936,7 +1971,7 @@
     "message": "Tu cuenta de Bitwarden y los datos de tu caja fuerte fueron eliminados permanentemente."
   },
   "deleteOrganizationWarning": {
-    "message": "Deleting your organization is permanent. It cannot be undone."
+    "message": "Eliminar tu organización es permanente. No se puede deshacer."
   },
   "myAccount": {
     "message": "Mi cuenta"
@@ -2007,7 +2042,7 @@
     "message": "Error al descifrar el archivo exportado. Su clave de cifrado no coincide con la clave de cifrado utilizada para exporta los datos."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Destino"
   },
   "learnAboutImportOptions": {
     "message": "Conozca sus opciones de importación"
@@ -2150,6 +2185,18 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Habilitar la autenticación en dos pasos puede impedirte acceder permanentemente a tu cuenta de Bitwarden. Un código de recuperación te permite acceder a la cuenta en caso de que no puedas usar más tu proveedor de autenticación en dos pasos (ej. si pierdes tu dispositivo). El soporte de Bitwarden no será capaz de asistirte si pierdes acceso a tu cuenta. Te recomendamos que escribas o imprimas este código y lo guardes en un lugar seguro."
   },
+  "restrictedItemTypePolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypePolicyDesc": {
+    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
   },
@@ -2192,16 +2239,16 @@
     "message": "Gestionar"
   },
   "manageCollection": {
-    "message": "Manage collection"
+    "message": "Gestionar colección"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Ver elementos"
   },
   "viewItemsHidePass": {
     "message": "View items, hidden passwords"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Editar elementos"
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
@@ -2209,11 +2256,14 @@
   "disable": {
     "message": "Desactivar"
   },
+  "orgUserDetailsNotFound": {
+    "message": "Detalles del miembro no encontrados."
+  },
   "revokeAccess": {
     "message": "Revocar el acceso"
   },
   "revoke": {
-    "message": "Revoke"
+    "message": "Revocar"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Este proveedor de autenticación en dos pasos está habilitado para tu cuenta."
@@ -2234,7 +2284,7 @@
     "message": "."
   },
   "continueToExternalUrlTitle": {
-    "message": "Continue to $URL$?",
+    "message": "¿Continuar a $URL$?",
     "placeholders": {
       "url": {
         "content": "$1",
@@ -2243,10 +2293,10 @@
     }
   },
   "continueToExternalUrlDesc": {
-    "message": "You are leaving Bitwarden and launching an external website in a new window."
+    "message": "Estás saliendo de Bitwarden y lanzando un sitio web externo en una nueva ventana."
   },
   "twoStepContinueToBitwardenUrlTitle": {
-    "message": "Continue to bitwarden.com?"
+    "message": "¿Continuar a bitwarden.com?"
   },
   "twoStepContinueToBitwardenUrlDesc": {
     "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website."
@@ -2261,7 +2311,7 @@
     "message": "Clave"
   },
   "twoStepAuthenticatorEnterCodeV2": {
-    "message": "Verification code"
+    "message": "Código de verificación"
   },
   "twoStepAuthenticatorReaddDesc": {
     "message": "En caso de que necesite agregarlo a otro dispositivo, a continuación se indica el código QR (o clave) requerido por su aplicación autenticadora."
@@ -2510,7 +2560,7 @@
     "message": "Compruebe las contraseñas comprometidas"
   },
   "timesExposed": {
-    "message": "Times exposed"
+    "message": "Veces expuesta"
   },
   "exposedXTimes": {
     "message": "Comprometida $COUNT$ veces",
@@ -2547,7 +2597,7 @@
     "message": "No hay elementos en su caja fuerte que tengan contraseñas débiles."
   },
   "weakness": {
-    "message": "Weakness"
+    "message": "Debilidad"
   },
   "reusedPasswordsReport": {
     "message": "Contraseñas reutilizadas"
@@ -2575,7 +2625,7 @@
     "message": "No hay inicios de sesión en su caja fuerte que tengan contraseñas que esten siendo reutilizadas."
   },
   "timesReused": {
-    "message": "Times reused"
+    "message": "Veces reutilizada"
   },
   "reusedXTimes": {
     "message": "Reutilizada $COUNT$ veces",
@@ -2924,10 +2974,10 @@
     "message": "Facturas"
   },
   "noUnpaidInvoices": {
-    "message": "No unpaid invoices."
+    "message": "No hay facturas pendientes."
   },
   "noPaidInvoices": {
-    "message": "No paid invoices."
+    "message": "No hay facturas pagadas."
   },
   "paid": {
     "message": "Pagado",
@@ -3378,10 +3428,10 @@
     }
   },
   "inviteSingleEmailDesc": {
-    "message": "You have 1 invite remaining."
+    "message": "Tienes 1 invitación restante."
   },
   "inviteZeroEmailDesc": {
-    "message": "You have 0 invites remaining."
+    "message": "Tienes 0 invitaciones restantes."
   },
   "userUsingTwoStep": {
     "message": "Este usuario está usando autenticación de dos pasos para proteger su cuenta."
@@ -3457,6 +3507,9 @@
   },
   "webVault": {
     "message": "Caja fuerte Web"
+  },
+  "webApp": {
+    "message": "Web app"
   },
   "cli": {
     "message": "CLI"
@@ -3547,7 +3600,7 @@
     }
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Ver todas las opciones de inicio de sesión"
   },
   "viewAllLoginOptions": {
     "message": "Ver todas las opciones de inicio de sesión"
@@ -3886,22 +3939,22 @@
     "message": "Dispositivo"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Estado del inicio de sesión"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Primer inicio de sesión"
   },
   "trusted": {
     "message": "Trusted"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Necesita aprobación"
   },
   "areYouTryingtoLogin": {
-    "message": "Are you trying to log in?"
+    "message": "¿Estás intentando iniciar sesión?"
   },
   "logInAttemptBy": {
-    "message": "Login attempt by $EMAIL$",
+    "message": "Intento de inicio de sesión de $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3910,22 +3963,22 @@
     }
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Tipo de Dispositivo"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "Dirección IP"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "Confirmar inicio de sesión"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "Denegar inicio de sesión"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Esta solicitud ya no es válida."
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Inicio de sesión confirmado para $EMAIL$ en $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3940,14 +3993,30 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Justo ahora"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Solicitado hace $MINUTES$ minutos",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4058,7 +4127,7 @@
     "message": "Tu cuenta de correo ha sido verificada."
   },
   "emailVerifiedV2": {
-    "message": "Email verified"
+    "message": "Correo electrónico verificado"
   },
   "emailVerifiedFailed": {
     "message": "No se ha podido verificar tu cuenta de correo electrónico. Prueba a enviar un nuevo correo de verificación."
@@ -4072,20 +4141,23 @@
   "updateBrowser": {
     "message": "Actualizar navegador"
   },
-  "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Está utilizando un navegador web no compatible. Es posible que la caja fuerte web no funcione correctamente."
   },
   "youHaveAPendingLoginRequest": {
-    "message": "You have a pending login request from another device."
+    "message": "Tienes una solicitud de inicio de sesión desde otro dispositivo."
   },
   "reviewLoginRequest": {
     "message": "Review login request"
   },
+  "loginRequest": {
+    "message": "Login request"
+  },
   "freeTrialEndPromptCount": {
-    "message": "Your free trial ends in $COUNT$ days.",
+    "message": "Tu prueba gratuita termina en $COUNT$ días.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4094,7 +4166,7 @@
     }
   },
   "freeTrialEndPromptMultipleDays": {
-    "message": "$ORGANIZATION$, your free trial ends in $COUNT$ days.",
+    "message": "$ORGANIZATION$, tu prueba gratuita termina en $COUNT$ días.",
     "placeholders": {
       "count": {
         "content": "$2",
@@ -4107,7 +4179,7 @@
     }
   },
   "freeTrialEndPromptTomorrow": {
-    "message": "$ORGANIZATION$, your free trial ends tomorrow.",
+    "message": "$ORGANIZATION$, tu prueba gratuita termina mañana.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4116,7 +4188,7 @@
     }
   },
   "freeTrialEndPromptTomorrowNoOrgName": {
-    "message": "Your free trial ends tomorrow."
+    "message": "Tu prueba gratuita termina mañana."
   },
   "freeTrialEndPromptToday": {
     "message": "$ORGANIZATION$, your free trial ends today.",
@@ -4128,16 +4200,16 @@
     }
   },
   "freeTrialEndingTodayWithoutOrgName": {
-    "message": "Your free trial ends today."
+    "message": "Tu prueba gratuita termina hoy."
   },
   "clickHereToAddPaymentMethod": {
-    "message": "Click here to add a payment method."
+    "message": "Pulsa aquí para añadir un método de pago."
   },
   "joinOrganization": {
     "message": "Únete a la organización"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Unirse a $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -4149,7 +4221,7 @@
     "message": "Usted ha sido invitado a unirse a la organización mencionada anteriormente. Para aceptar la invitación, debe iniciar sesión o crear una nueva cuenta de Bitwarden."
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Termina de unirte a esta organización estableciendo una contraseña maestra."
   },
   "inviteAccepted": {
     "message": "Invitación Aceptada"
@@ -4469,11 +4541,8 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Encryption key update cannot proceed"
-  },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Editar $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4524,23 +4593,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
-  },
-  "keyUpdated": {
-    "message": "Clave actualizada"
-  },
-  "updateEncryptionKey": {
-    "message": "Actualizar clave de cifrado"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Hemos cambiado el esquema de cifrado para proporcionar una mayor seguridad. Actualice su clave de cifrado ahora introduciendo su contraseña maestra a continuación."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Una vez actualices tu clave de cifrado, será necesario que cierres sesión y vuelvas a identificarte en todas las aplicaciones de Bitwarden que estés utilizando (como la aplicación móvil o la extensión de navegador). Si la reautenticación falla (la cual descargaría la nueva clave de cifrad) puede producirse corrupción de datos. Intentaremos cerrar tu sesión automáticamente, pero puede tardar un tiempo."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Cualquier exportación cifrada que hayas guardado también será inválida."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Suscripción"
@@ -4571,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "Darse de baja"
@@ -4672,7 +4735,7 @@
     "message": "Seleccionado"
   },
   "recommended": {
-    "message": "Recommended"
+    "message": "Recomendado"
   },
   "ownership": {
     "message": "Propiedad"
@@ -4743,7 +4806,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Serás notificado una vez que la solicitud sea aprobada"
   },
   "free": {
     "message": "Gratis",
@@ -4865,7 +4928,7 @@
     "message": "Número mínimo de palabras"
   },
   "overridePasswordTypePolicy": {
-    "message": "Password Type",
+    "message": "Tipo de Contraseña",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -4982,10 +5045,10 @@
     "message": "Inicie sesión utilizando el portal de inicio de sesión único de su organización. Introduzca el identificador de su organización para comenzar."
   },
   "singleSignOnEnterOrgIdentifier": {
-    "message": "Enter your organization's SSO identifier to begin"
+    "message": "Introduce el identificador SSO de tu organización para comenzar"
   },
   "singleSignOnEnterOrgIdentifierText": {
-    "message": "To log in with your SSO provider, enter your organization's SSO identifier to begin. You may need to enter this SSO identifier when you log in from a new device."
+    "message": "Para iniciar sesión con tu proveedor de SSO, introduce el SSO de tu organización para comenzar. Puede que necesites introducir este identificador SSO cuando inicies sesión en un nuevo dispositivo."
   },
   "enterpriseSingleSignOn": {
     "message": "Inicio de sesión único empresarial"
@@ -5000,7 +5063,7 @@
     "message": "Esta ventana se cerrará automáticamente en 5 segundos"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "Puedes cerrar esta ventana"
   },
   "includeAllTeamsFeatures": {
     "message": "Todas las características de Equipos y además:"
@@ -5060,9 +5123,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "Su organización actual tiene una política que no le permite unirse a más de una organización. Póngase en contacto con los administradores de su organización o acceda desde una cuenta de Bitwarden diferente."
   },
-  "singleOrgPolicyWarning": {
-    "message": "Los miembros de la organización que no son dueños o administradores y que ya son miembros de otra organización serán eliminados de su organización."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
   },
@@ -5088,7 +5148,7 @@
     "message": "Limit views"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Nadie puede ver este Send tras alcanzar el límite.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
@@ -5102,11 +5162,11 @@
     }
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Detalles del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Texto a compartir"
   },
   "sendTypeFile": {
     "message": "Archivo"
@@ -5150,7 +5210,7 @@
     "message": "Fecha de eliminación"
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "El Send se borrará permanentemente en esta fecha.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -5174,7 +5234,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Copiar enlace"
   },
   "copySendLink": {
     "message": "Copiar enlace Send",
@@ -5200,7 +5260,7 @@
     "message": "Borrado pendiente"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Ocultar texto por defecto"
   },
   "expired": {
     "message": "Caducado"
@@ -5369,6 +5429,9 @@
   "emergencyRejected": {
     "message": "Acceso de emergencia rechazado"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Restablecimiento de contraseña para $USER$. Ahora puede iniciar sesión usando la nueva contraseña.",
     "placeholders": {
@@ -5377,6 +5440,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
   },
   "personalOwnership": {
     "message": "Propiedad personal"
@@ -5523,7 +5589,7 @@
     "message": "Desactivar la propiedad personal para los usuarios de la organización"
   },
   "send": {
-    "message": "Enviar",
+    "message": "Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendAccessTaglineProductDesc": {
@@ -5557,19 +5623,19 @@
     "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
   },
   "centralizeSecretsManagement": {
-    "message": "Centralize secrets management."
+    "message": "Centralizar gestión de secretos."
   },
   "centralizeSecretsManagementDescription": {
     "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
   },
   "preventSecretLeaks": {
-    "message": "Prevent secret leaks."
+    "message": "Evitar fugas de secretos."
   },
   "preventSecretLeaksDescription": {
     "message": "Protect secrets with end-to-end encryption. No more hard coding secrets or sharing through .env files."
   },
   "enhanceDeveloperProductivity": {
-    "message": "Enhance developer productivity."
+    "message": "Mejorar la productividad de los desarrolladores."
   },
   "enhanceDeveloperProductivityDescription": {
     "message": "Programmatically retrieve and deploy secrets at runtime so developers can focus on what matters most, like improving code quality."
@@ -5581,19 +5647,19 @@
     "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
   },
   "tryItNow": {
-    "message": "Try it now"
+    "message": "Pruébalo ahora"
   },
   "sendRequest": {
-    "message": "Send request"
+    "message": "Enviar solicitud"
   },
   "addANote": {
-    "message": "Add a note"
+    "message": "Añadir una nota"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden Secrets Manager"
   },
   "moreProductsFromBitwarden": {
-    "message": "More products from Bitwarden"
+    "message": "Más productos de Bitwarden"
   },
   "requestAccessToSecretsManager": {
     "message": "Request access to Secrets Manager"
@@ -5648,7 +5714,7 @@
     }
   },
   "viewSend": {
-    "message": "View Send",
+    "message": "Ver Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -5680,7 +5746,7 @@
     "message": "Autenticar WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Leer clave de seguridad"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -5769,11 +5835,23 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "este usuario"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
     "message": "Una o más políticas de organización requieren la contraseña maestra para cumplir con los siguientes requisitos:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "resetPasswordSuccess": {
     "message": "¡Contraseña restablecida!"
@@ -5892,30 +5970,21 @@
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
   },
-  "removeUsers": {
-    "message": "Eliminar usuarios"
-  },
-  "revokeUsers": {
-    "message": "Revocar usuarios"
-  },
-  "restoreUsers": {
-    "message": "Restaurar usuarios"
-  },
   "error": {
     "message": "Error"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Error de descifrado"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden no pudo descifrar el/los elemento(s) de la caja fuerte listados a continuación."
   },
   "contactCSToAvoidDataLossPart1": {
     "message": "Contact customer success",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "para evitar pérdida de datos adicionales.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
@@ -6049,11 +6118,20 @@
   "add": {
     "message": "Añadir"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Contraseña maestra establecida correctamente"
+  },
   "updatedMasterPassword": {
     "message": "Contraseña maestra actualizada"
   },
   "updateMasterPassword": {
     "message": "Actualizar contraseña maestra"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "updateMasterPasswordWarning": {
     "message": "Su contraseña maestra ha sido cambiada recientemente por un administrador de su organización. Para acceder a la caja fuerte, debe actualizar su contraseña maestra ahora. Proceder le desconectará de su sesión actual, requiriendo que vuelva a iniciar sesión. Las sesiones activas en otros dispositivos pueden seguir estando activas durante hasta una hora."
@@ -6305,20 +6383,56 @@
   "sponsoredFamilies": {
     "message": "Familias Bitwarden gratis"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Usted y su familia son elegibles para Familias Bitwarden Gratis. Canjeé con su correo electrónico personal para mantener tus datos seguros incluso cuando no estés en el trabajo."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Reclame su plan gratuito de Bitwarden para Familias, para mantener sus datos seguros, incluso cuando no se encuentra en el trabajo."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "El plan de Bitwarden para familias incluye"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Acceso Premium para hasta 6 usuarios"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Colecciones compartidas para Secretos Familiares"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Colecciones compartidas para miembros familiares"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "El enlace ya no es válido. Por favor, solicite al patrocinados que vuelva a enviar la oferta."
@@ -6371,7 +6485,7 @@
   "redeemedAccount": {
     "message": "Cuenta canjeada"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Revocar cuenta $NAME$",
     "placeholders": {
       "name": {
@@ -6438,19 +6552,16 @@
     "message": "El código de verificación es requerido."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "La autenticación fue cancelada o tardó demasiado. Por favor, inténtalo de nuevo."
   },
   "invalidVerificationCode": {
     "message": "Código de verificación no válido"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ está usando SSO con un servidor de claves autoalojado. Una contraseña maestra ya no es necesaria para iniciar sesión para los miembros de esta organización.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Abandonar organización"
@@ -6675,7 +6786,7 @@
     "message": "requerido"
   },
   "charactersCurrentAndMaximum": {
-    "message": "$CURRENT$/$MAX$ character maximum",
+    "message": "Máximo $CURRENT$/$MAX$ caracteres",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -6700,7 +6811,7 @@
     "message": "Requerido si el ID de la entidad no es una URL."
   },
   "offerNoLongerValid": {
-    "message": "This offer is no longer valid. Contact your organization administrators for more information."
+    "message": "Esta oferta ya no es válida. Ponte en contacto con los administradores de tu organización para obtener más información."
   },
   "openIdOptionalCustomizations": {
     "message": "Personalizaciones opcionales"
@@ -6792,10 +6903,28 @@
     "message": "Generar nombre de usuario"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "Generar correo electrónico"
+  },
+  "generatePassword": {
+    "message": "Generar contraseña"
+  },
+  "generatePassphrase": {
+    "message": "Generar frase de contraseña"
+  },
+  "passwordGenerated": {
+    "message": "Contraseña generada"
+  },
+  "passphraseGenerated": {
+    "message": "Frase de contraseña generada"
+  },
+  "usernameGenerated": {
+    "message": "Nombre de usuario generado"
+  },
+  "emailGenerated": {
+    "message": "Correo electrónico generado"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "El valor debe estar entre $MIN$ y $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -6842,7 +6971,7 @@
     "message": "Utiliza la bandeja de entrada global configurada de tu dominio."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Usar este correo electrónico"
   },
   "random": {
     "message": "Aleatorio",
@@ -6852,23 +6981,26 @@
     "message": "Palabra aleatoria"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Generador de nombre de usuario"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Usar esta contraseña"
+  },
+  "useThisPassphrase": {
+    "message": "Usar esta frase de contraseña"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Usar este nombre de usuario"
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "¡Contraseña segura generada! No olvides actualizar tu contraseña en el sitio web."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Usa el generador",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "para crear una contraseña única y segura",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
@@ -6938,7 +7070,7 @@
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "Elige un dominio que esté soportado por el servicio seleccionado",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -6960,7 +7092,7 @@
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Website: $WEBSITE$. Generated by Bitwarden.",
+    "message": "Sitio web: $WEBSITE$. Generado por Bitwarden.",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {
@@ -7226,10 +7358,10 @@
     }
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 campo necesita tu atención."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ campos necesitan tu atención.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7248,6 +7380,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
   },
   "launchDuo": {
     "message": "Iniciar Duo"
@@ -7572,9 +7707,9 @@
     "message": "Cuenta de servicio actualizada",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Escriba o seleccione proyectos o secretos",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Escriba para filtrar",
@@ -7659,8 +7794,8 @@
     "message": "Tokens de acceso",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nuevo token de acceso",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -7803,12 +7938,6 @@
   "noDomainsSubText": {
     "message": "Conectar un dominio permite a los miembros omitir el campo identificador SSO durante el inicio de sesión con SSO."
   },
-  "verifyDomain": {
-    "message": "Verificar dominio"
-  },
-  "reverifyDomain": {
-    "message": "Reverificar dominio"
-  },
   "copyDnsTxtRecord": {
     "message": "Copiar registro DNS TXT"
   },
@@ -7817,18 +7946,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Copia y pega el registro TXT en tu proveedor de DNS."
-  },
-  "domainNameInputHint": {
-    "message": "Ejemplo: mydomain.com. Los subdominios requieren entradas separadas para ser verificadas."
-  },
-  "automaticDomainVerification": {
-    "message": "Verificación automática de dominio"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden intentará verificar el dominio 3 veces durante las primeras 72 horas. Si el dominio no puede ser verificado, compruebe el registro DNS en su host y verifique manualmente. El dominio se eliminará de su organización en 7 días si no se verifica"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Los datos inreoducidos no tienen un formato válido. Formato: midominio.com. Los subdominios requieren entradas separadas para ser verificadas."
   },
   "removeDomain": {
     "message": "Eliminar dominio"
@@ -7842,9 +7959,6 @@
   "domainSaved": {
     "message": "Dominio guardado"
   },
-  "domainVerified": {
-    "message": "Dominio verificado"
-  },
   "duplicateDomainError": {
     "message": "No puedes reclamar el mismo dominio dos veces."
   },
@@ -7856,21 +7970,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ no verificado. Compruebe su registro DNS.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Verificado"
-  },
-  "domainStatusUnverified": {
-    "message": "No Verificado"
   },
   "domainNameTh": {
     "message": "Nombre"
@@ -7898,24 +7997,6 @@
   },
   "removedDomain": {
     "message": "Dominio $DOMAIN$ eliminado",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ verificado",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ no verificado",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7982,6 +8063,9 @@
   },
   "inviteMember": {
     "message": "Invitar miembro"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Necesita confirmación"
@@ -8212,8 +8296,44 @@
   "errorReadingImportFile": {
     "message": "Ocurrió un error al intentar leer el archivo importado"
   },
+  "accessedSecretWithId": {
+    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Acceso secreto $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Created a new secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8376,10 +8496,10 @@
     "message": "Se requiere aprobación en el dispositivo. Seleccione una opción de aprobación a continuación:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Aprobación del dispositivo requerida"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Selecciona una opción de aprobación abajo"
   },
   "rememberThisDevice": {
     "message": "Recordar en este dispositivo"
@@ -8392,6 +8512,12 @@
   },
   "requestAdminApproval": {
     "message": "Solicitar aprobación del administrador"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "trustedDeviceEncryption": {
     "message": "Cifrado de dispositivo de confianza"
@@ -8436,7 +8562,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "out of $TOTAL$",
+    "message": "de $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -8503,16 +8629,16 @@
     "message": "Aprobar solicitud"
   },
   "deviceApproved": {
-    "message": "Device approved"
+    "message": "Dispositivo aprobado"
   },
   "deviceRemoved": {
-    "message": "Device removed"
+    "message": "Dispositivo eliminado"
   },
   "removeDevice": {
-    "message": "Remove device"
+    "message": "Eliminar dispositivo"
   },
   "removeDeviceConfirmation": {
-    "message": "Are you sure you want to remove this device?"
+    "message": "¿Estás seguro de que quieres eliminar este dispositivo?"
   },
   "noDeviceRequests": {
     "message": "No hay solicitudes de dispositivo"
@@ -8621,14 +8747,6 @@
   },
   "deviceTrusted": {
     "message": "Dispositivo de confianza"
-  },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Invitar usuarios"
@@ -8779,7 +8897,7 @@
     "message": "Alternar navegación lateral"
   },
   "skipToContent": {
-    "message": "Skip to content"
+    "message": "Saltar al contenido"
   },
   "managePermissionRequired": {
     "message": "At least one member or group must have can manage permission."
@@ -8831,7 +8949,7 @@
     "message": "Collection access is restricted"
   },
   "readOnlyCollectionAccess": {
-    "message": "You do not have access to manage this collection."
+    "message": "No tienes acceso para administrar esta colección."
   },
   "grantManageCollectionWarningTitle": {
     "message": "Missing Manage Collection Permissions"
@@ -8855,8 +8973,32 @@
     "message": "Formatos comunes",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Más sobre la detección de coincidencias",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "maintainYourSubscription": {
-    "message": "To maintain your subscription for $ORG$, ",
+    "message": "Para mantener tu suscripción a $ORG$, ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
     "placeholders": {
       "org": {
@@ -8866,7 +9008,7 @@
     }
   },
   "addAPaymentMethod": {
-    "message": "add a payment method",
+    "message": "añade un método de pago",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
@@ -8879,34 +9021,34 @@
     "message": "Thank you for signing up for Bitwarden Secrets Manager!"
   },
   "smFreeTrialConfirmationEmail": {
-    "message": "We've sent a confirmation email to your email at "
+    "message": "Hemos enviado un correo electrónico de confirmación a tu correo electrónico "
   },
   "sorryToSeeYouGo": {
-    "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
+    "message": "¡Lamento que te vayas! Ayuda a mejorar Bitwarden compartiendo el motivo de tu cancelación.",
     "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
   },
   "selectCancellationReason": {
-    "message": "Select a reason for canceling",
+    "message": "Selecciona un motivo de cancelación",
     "description": "Used as a form field label for a select input on the offboarding survey."
   },
   "anyOtherFeedback": {
-    "message": "Is there any other feedback you'd like to share?",
+    "message": "¿Hay algún otro comentario que quieras compartir?",
     "description": "Used as a form field label for a textarea input on the offboarding survey."
   },
   "missingFeatures": {
-    "message": "Missing features",
+    "message": "Faltan características",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "movingToAnotherTool": {
-    "message": "Moving to another tool",
+    "message": "Me muevo a otra herramienta",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooDifficultToUse": {
-    "message": "Too difficult to use",
+    "message": "Muy difícil de usar",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "notUsingEnough": {
-    "message": "Not using enough",
+    "message": "No lo uso suficiente",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooExpensive": {
@@ -8914,16 +9056,16 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "freeForOneYear": {
-    "message": "Free for 1 year"
+    "message": "Gratis durante 1 año"
   },
   "newWebApp": {
-    "message": "Welcome to the new and improved web app. Learn more about what’s changed."
+    "message": "Bienvenido a la nueva y mejorada aplicación web. Aprende más sobre lo que ha cambiado."
   },
   "releaseBlog": {
-    "message": "Read release blog"
+    "message": "Leer blog de lanzamientos"
   },
   "adminConsole": {
-    "message": "Admin Console"
+    "message": "Consola de Administración"
   },
   "providerPortal": {
     "message": "Provider Portal"
@@ -8956,7 +9098,7 @@
     "message": "Seleccionar colecciones para asignar"
   },
   "noCollectionsAssigned": {
-    "message": "No collections have been assigned"
+    "message": "No se han asignado colecciones"
   },
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
@@ -9025,7 +9167,7 @@
     "description": "A subscription status label"
   },
   "subscriptionExpired": {
-    "message": "Subscription expired",
+    "message": "Suscripción expirada",
     "description": "The date header used when a subscription is past due."
   },
   "pastDueWarningForChargeAutomatically": {
@@ -9057,7 +9199,7 @@
     "description": "A warning shown to the user when their subscription is past due and they pay via invoice."
   },
   "unpaidInvoice": {
-    "message": "Unpaid invoice",
+    "message": "Factura no pagada",
     "description": "The header of a warning box shown to a user whose subscription is unpaid."
   },
   "toReactivateYourSubscription": {
@@ -9088,7 +9230,7 @@
     "description": "Message to encourage the user to start creating machine accounts."
   },
   "machineAccountsNoItemsTitle": {
-    "message": "Nothing to show yet",
+    "message": "Nada que mostrar aún",
     "description": "Title to indicate that there are no machine accounts to display."
   },
   "deleteMachineAccounts": {
@@ -9259,13 +9401,13 @@
     }
   },
   "providerDeleted": {
-    "message": "Provider deleted"
+    "message": "Proveedor eliminado"
   },
   "providerDeletedDesc": {
-    "message": "The Provider and all associated data has been deleted."
+    "message": "El Proveedor y todos los datos asociados han sido eliminados."
   },
   "deleteProviderRecoverConfirmDesc": {
-    "message": "You have requested to delete this Provider. Use the button below to confirm."
+    "message": "Has solicitado eliminar este Proveedor. Usa el botón de abajo para confirmar."
   },
   "deleteProviderWarning": {
     "message": "Deleting your provider is permanent. It cannot be undone."
@@ -9301,7 +9443,7 @@
     "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
   "userProvisioning": {
-    "message": "User provisioning"
+    "message": "Aprovisionamiento de usuarios"
   },
   "scimIntegration": {
     "message": "SCIM"
@@ -9321,31 +9463,46 @@
     "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
   "eventManagement": {
-    "message": "Event management"
+    "message": "Gestión de eventos"
   },
   "eventManagementDesc": {
     "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
   "deviceManagement": {
-    "message": "Device management"
+    "message": "Gestión de dispositivos"
   },
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
-    "message": "Device ID is missing"
+    "message": "Falta el ID del dispositivo"
   },
   "deviceTypeMissing": {
-    "message": "Device type is missing"
+    "message": "Falta el tipo de dispositivo"
   },
   "deviceCreationDateMissing": {
-    "message": "Device creation date is missing"
+    "message": "Falta la fecha de creación del dispositivo"
   },
   "desktopRequired": {
     "message": "Desktop required"
   },
   "reopenLinkOnDesktop": {
     "message": "Reopen this link from your email on a desktop."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
@@ -9404,8 +9561,17 @@
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
   },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
+  },
   "selectAPlan": {
-    "message": "Select a plan"
+    "message": "Selecciona un plan"
   },
   "thirtyFivePercentDiscount": {
     "message": "Descuento del 35%"
@@ -9420,16 +9586,16 @@
     "message": "Seats"
   },
   "addOrganization": {
-    "message": "Add organization"
+    "message": "Añadir organización"
   },
   "createdNewClient": {
-    "message": "Successfully created new client"
+    "message": "Nuevo cliente creado con éxito"
   },
   "noAccess": {
-    "message": "No access"
+    "message": "Sin acceso"
   },
   "collectionAdminConsoleManaged": {
-    "message": "This collection is only accessible from the admin console"
+    "message": "Esta colección solo es accesible desde la consola de administración"
   },
   "organizationOptionsMenu": {
     "message": "Toggle Organization Menu"
@@ -9443,11 +9609,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Continue setting up your free trial of Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Continue setting up your free trial of Bitwarden Password Manager"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Continue setting up your free trial of Bitwarden Secrets Manager"
@@ -9462,7 +9637,7 @@
     "message": "Enter your Enterprise organization information"
   },
   "viewItemsIn": {
-    "message": "View items in $NAME$",
+    "message": "Ver elementos en $NAME$",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -9472,7 +9647,7 @@
     }
   },
   "backTo": {
-    "message": "Back to $NAME$",
+    "message": "Volver a $NAME$",
     "description": "Navigate back to a previous folder or collection",
     "placeholders": {
       "name": {
@@ -9486,7 +9661,7 @@
     "description": "Button text to navigate back"
   },
   "removeItem": {
-    "message": "Remove $NAME$",
+    "message": "Eliminar $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -9496,19 +9671,19 @@
     }
   },
   "viewInfo": {
-    "message": "View info"
+    "message": "Ver información"
   },
   "viewAccess": {
-    "message": "View access"
+    "message": "Ver acceso"
   },
   "noCollectionsSelected": {
-    "message": "You have not selected any collections."
+    "message": "No has seleccionado ninguna colección."
   },
   "updateName": {
-    "message": "Update name"
+    "message": "Actualizar nombre"
   },
   "updatedOrganizationName": {
-    "message": "Updated organization name"
+    "message": "Nombre de la organización actualizado"
   },
   "providerPlan": {
     "message": "Managed Service Provider"
@@ -9577,13 +9752,13 @@
     "message": "An error occurred while previewing the invoice. Please try again later."
   },
   "unverified": {
-    "message": "Unverified"
+    "message": "No Verificado"
   },
   "verified": {
-    "message": "Verified"
+    "message": "Verificado"
   },
   "viewSecret": {
-    "message": "View secret"
+    "message": "Ver secreto"
   },
   "noClients": {
     "message": "There are no clients to list"
@@ -9599,7 +9774,7 @@
     "message": "Quickly view member access across the organization by upgrading to an Enterprise plan."
   },
   "date": {
-    "message": "Date"
+    "message": "Fecha"
   },
   "exportClientReport": {
     "message": "Export client report"
@@ -9638,13 +9813,13 @@
     "message": "Higher KDF iterations can help protect your master password from being brute forced by an attacker."
   },
   "incrementsOf100,000": {
-    "message": "increments of 100,000"
+    "message": "incrementos de 100.000"
   },
   "smallIncrements": {
-    "message": "small increments"
+    "message": "pequeños incrementos"
   },
   "kdfIterationRecommends": {
-    "message": "We recommend 600,000 or more"
+    "message": "Recomendamos 600.000 o más"
   },
   "kdfToHighWarningIncreaseInIncrements": {
     "message": "For older devices, setting your KDF too high may lead to performance issues. Increase the value in $VALUE$ and test your devices.",
@@ -9662,7 +9837,7 @@
     "message": "Grant groups or people access to this secret. Permissions set for people will override permissions set by groups."
   },
   "secretPeopleEmptyMessage": {
-    "message": "Add people or groups to share access to this secret"
+    "message": "Añade personas o grupos para compartir el acceso a este secreto"
   },
   "secretMachineAccountsDescription": {
     "message": "Grant machine accounts access to this secret."
@@ -9677,7 +9852,7 @@
     "message": "This action will remove your access to this secret."
   },
   "invoice": {
-    "message": "Invoice"
+    "message": "Factura"
   },
   "unassignedSeatsAvailable": {
     "message": "You have $SEATS$ unassigned seats available.",
@@ -9735,16 +9910,16 @@
     "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
   },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Añadir a carpeta"
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "Seleccionar carpeta"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 elemento será transferido permanentemente a la organización seleccionada. Ya no serás el propietario de este elemento."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elementos serán transferidos permanentemente a la organización seleccionada. Ya no serás el propietario de estos elementos.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -9753,7 +9928,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 elemento será transferido permanentemente a $ORG$. Ya no serás el propietario de este elemento.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -9762,7 +9937,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elementos serán transferidos permanentemente a $ORG$. Ya no serás el propietario de estos elementos.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -9955,10 +10130,10 @@
     "message": "Fingerprint"
   },
   "sshKeyPrivateKey": {
-    "message": "Private key"
+    "message": "Clave privada"
   },
   "sshKeyPublicKey": {
-    "message": "Public key"
+    "message": "Clave pública"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -9973,7 +10148,7 @@
     "message": "RSA 4096-Bit"
   },
   "premiumAccounts": {
-    "message": "6 premium accounts"
+    "message": "6 cuentas premium"
   },
   "unlimitedSharing": {
     "message": "Unlimited sharing"
@@ -9997,13 +10172,13 @@
     "message": "Account recovery"
   },
   "customRoles": {
-    "message": "Custom roles"
+    "message": "Roles personalizados"
   },
   "unlimitedSecretsStorage": {
     "message": "Unlimited secrets storage"
   },
   "unlimitedUsers": {
-    "message": "Unlimited users"
+    "message": "Usuario ilimitados"
   },
   "UpTo50MachineAccounts": {
     "message": "Up to 50 machine accounts"
@@ -10027,7 +10202,7 @@
     "message": "File saved to device. Manage from your device downloads."
   },
   "publicApi": {
-    "message": "Public API",
+    "message": "API Pública",
     "description": "The text, 'API', is an acronym and should not be translated."
   },
   "showCharacterCount": {
@@ -10037,7 +10212,7 @@
     "message": "Hide character count"
   },
   "editAccess": {
-    "message": "Edit access"
+    "message": "Editar acceso"
   },
   "textHelpText": {
     "message": "Use text fields for data like security questions"
@@ -10083,7 +10258,7 @@
     "description": "Full description for the password generator special characters checkbox"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Añadir adjunto"
   },
   "maxFileSizeSansPunctuation": {
     "message": "Maximum file size is 500 MB"
@@ -10108,7 +10283,7 @@
     "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
   },
   "deleteOrganizationUser": {
-    "message": "Delete $NAME$",
+    "message": "Eliminar $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10132,7 +10307,7 @@
     "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
-    "message": "Deleted $NAME$",
+    "message": "$NAME$ eliminado",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10143,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "The user was removed from the organization and all associated user data has been deleted."
   },
-  "deletedUserId": {
-    "message": "Deleted user $ID$ - an owner / admin deleted the user account",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10153,7 +10328,7 @@
     }
   },
   "userLeftOrganization": {
-    "message": "User $ID$ left organization",
+    "message": "El usuario $ID$ abandonó la organización",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10177,10 +10352,10 @@
     "message": "To regain access to your organization, add a payment method."
   },
   "deleteMembers": {
-    "message": "Delete members"
+    "message": "Eliminar miembros"
   },
   "noSelectedMembersApplicable": {
-    "message": "This action is not applicable to any of the selected members."
+    "message": "Esta acción no es aplicable a ninguno de los miembros seleccionados."
   },
   "deletedSuccessfully": {
     "message": "Deleted successfully"
@@ -10209,47 +10384,11 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Important notice"
-  },
-  "setupTwoStepLogin": {
-    "message": "Set up two-step login"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Remind me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
-  },
-  "changeAcctEmail": {
-    "message": "Change account email"
-  },
   "removeMembers": {
     "message": "Remove members"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Dispositivos"
   },
   "deviceListDescription": {
     "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
@@ -10290,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "Under verification"
   },
-  "claimedDomainsDesc": {
-    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
@@ -10360,11 +10499,17 @@
   "doNotTrust": {
     "message": "Do not trust"
   },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Trust user"
@@ -10373,10 +10518,10 @@
     "message": "The password you entered is incorrect."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importar"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Confirmar contraseña"
   },
   "enterSshKeyPasswordDesc": {
     "message": "Enter the password for the SSH key."
@@ -10385,7 +10530,7 @@
     "message": "Enter password"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "La clave SSH no es válida"
   },
   "sshKeyTypeUnsupported": {
     "message": "The SSH key type is not supported"
@@ -10524,7 +10669,7 @@
     "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
   },
   "doYouWantToAddThisOrg": {
-    "message": "Do you want to add this organization to $PROVIDER$?",
+    "message": "¿Quieres añadir esta organización a $PROVIDER$?",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -10571,20 +10716,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
@@ -10600,5 +10736,249 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Comparte archivos y datos de forma segura con cualquiera, en cualquier plataforma. Tu información permanecerá encriptada de extremo a extremo, limitando su exposición.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "setupExtensionPageTitle": {
+    "message": "Autofill your passwords securely with one click"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Get the Bitwarden browser extension and start autofilling today"
+  },
+  "getTheExtension": {
+    "message": "Get the extension"
+  },
+  "addItLater": {
+    "message": "Add it later"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "You can't autofill passwords without the browser extension"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Are you sure you don't want to add the extension now?"
+  },
+  "skipToWebApp": {
+    "message": "Skip to web app"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden extension installed!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Open the extension to log in and start autofilling."
+  },
+  "openBitwardenExtension": {
+    "message": "Open Bitwarden extension"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "For tips on getting started with Bitwarden visit the",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Learning Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Help Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+  },
+  "restart": {
+    "message": "Reiniciar"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Billing address required to add credit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Billing address"
+  },
+  "addBillingAddress": {
+    "message": "Add billing address"
+  },
+  "editBillingAddress": {
+    "message": "Edit billing address"
+  },
+  "noBillingAddress": {
+    "message": "No address on file."
+  },
+  "billingAddressUpdated": {
+    "message": "Your billing address has been updated."
+  },
+  "paymentDetails": {
+    "message": "Payment details"
+  },
+  "paymentMethodUpdated": {
+    "message": "Your payment method has been updated."
+  },
+  "bankAccountVerified": {
+    "message": "Your bank account has been verified."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+  },
+  "mustBePositiveNumber": {
+    "message": "Must be a positive number"
+  },
+  "cardSecurityCode": {
+    "message": "Card security code"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "taxId": {
+    "message": "Tax ID: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
+  },
+  "unpaidInvoices": {
+    "message": "Unpaid invoices"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
   }
 }

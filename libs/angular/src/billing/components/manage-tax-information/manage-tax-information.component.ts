@@ -11,6 +11,7 @@ import { CountryListItem, TaxInformation } from "@bitwarden/common/billing/model
 @Component({
   selector: "app-manage-tax-information",
   templateUrl: "./manage-tax-information.component.html",
+  standalone: false,
 })
 export class ManageTaxInformationComponent implements OnInit, OnDestroy {
   @Input() startWith: TaxInformation;
@@ -64,12 +65,8 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy {
   };
 
   validate(): boolean {
-    if (this.formGroup.dirty) {
-      this.formGroup.markAllAsTouched();
-      return this.formGroup.valid;
-    } else {
-      return this.formGroup.valid;
-    }
+    this.formGroup.markAllAsTouched();
+    return this.formGroup.valid;
   }
 
   markAllAsTouched() {

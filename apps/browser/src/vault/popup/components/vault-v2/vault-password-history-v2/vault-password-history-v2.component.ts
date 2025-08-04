@@ -19,7 +19,6 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
 @Component({
-  standalone: true,
   selector: "vault-password-history-v2",
   templateUrl: "vault-password-history-v2.component.html",
   imports: [
@@ -69,8 +68,6 @@ export class PasswordHistoryV2Component implements OnInit {
     const activeUserId = activeAccount.id as UserId;
 
     const cipher = await this.cipherService.get(cipherId, activeUserId);
-    this.cipher = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+    this.cipher = await this.cipherService.decrypt(cipher, activeUserId);
   }
 }

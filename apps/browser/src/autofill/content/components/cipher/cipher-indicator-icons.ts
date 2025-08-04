@@ -16,13 +16,15 @@ const cipherIndicatorIconsMap: Record<
   [OrganizationCategories.family]: Family,
 };
 
+export type CipherInfoIndicatorIconsProps = {
+  organizationCategories?: OrganizationCategory[];
+  theme: Theme;
+};
+
 export function CipherInfoIndicatorIcons({
   organizationCategories = [],
   theme,
-}: {
-  organizationCategories?: OrganizationCategory[];
-  theme: Theme;
-}) {
+}: CipherInfoIndicatorIconsProps) {
   return html`
     <span class=${cipherInfoIndicatorIconsStyles}>
       ${organizationCategories.map((name) =>

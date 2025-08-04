@@ -59,6 +59,7 @@ export interface SecretsManagerSubscriptionOptions {
 @Component({
   selector: "app-sm-adjust-subscription",
   templateUrl: "sm-adjust-subscription.component.html",
+  standalone: false,
 })
 export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDestroy {
   @Input() organizationId: string;

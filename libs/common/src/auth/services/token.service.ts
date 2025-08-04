@@ -3,9 +3,12 @@
 import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
 import { Opaque } from "type-fest";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -16,7 +19,6 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
-import { EncString, EncryptedString } from "../../platform/models/domain/enc-string";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import {
@@ -43,6 +45,8 @@ import {
   SECURITY_STAMP_MEMORY,
 } from "./token.state";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum TokenStorageLocation {
   Disk = "disk",
   SecureStorage = "secureStorage",
@@ -289,20 +293,28 @@ export class TokenService implements TokenServiceAbstraction {
   private async encryptAccessToken(accessToken: string, userId: UserId): Promise<EncString> {
     const accessTokenKey = await this.getOrCreateAccessTokenKey(userId);
 
-    return await this.encryptService.encrypt(accessToken, accessTokenKey);
+    return await this.encryptService.encryptString(accessToken, accessTokenKey);
   }
 
+  /**
+   * Decrypts the access token using the provided access token key.
+   *
+   * @param accessTokenKey - the key used to decrypt the access token
+   * @param encryptedAccessToken - the encrypted access token to decrypt
+   * @returns the decrypted access token
+   * @throws Error if the access token key is not provided or the decryption fails
+   */
   private async decryptAccessToken(
     accessTokenKey: AccessTokenKey,
     encryptedAccessToken: EncString,
-  ): Promise<string | null> {
+  ): Promise<string> {
     if (!accessTokenKey) {
       throw new Error(
         "decryptAccessToken: Access token key required. Cannot decrypt access token.",
       );
     }
 
-    const decryptedAccessToken = await this.encryptService.decryptToUtf8(
+    const decryptedAccessToken = await this.encryptService.decryptString(
       encryptedAccessToken,
       accessTokenKey,
     );

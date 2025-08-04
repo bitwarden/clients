@@ -36,6 +36,8 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DialogService, ToastService } from "@bitwarden/components";
 
 // Value = hours
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum DatePreset {
   OneHour = 1,
   OneDay = 24,
@@ -144,14 +146,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
       return this.sendLinkBaseUrl + this.send.accessId + "/" + this.send.urlB64Key;
     }
     return null;
-  }
-
-  get isSafari() {
-    return this.platformUtilsService.isSafari();
-  }
-
-  get isDateTimeLocalSupported(): boolean {
-    return !(this.platformUtilsService.isFirefox() || this.platformUtilsService.isSafari());
   }
 
   async ngOnInit() {

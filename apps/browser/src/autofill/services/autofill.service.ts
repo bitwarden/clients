@@ -49,6 +49,8 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { AutofillPort } from "../enums/autofill-port.enum";
@@ -593,15 +595,20 @@ export default class AutofillService implements AutofillServiceInterface {
    *
    * @param cipher - The cipher to autofill
    * @param tab - The tab to autofill
+   * @param action - override for default action once reprompt is completed successfully
    */
-  async isPasswordRepromptRequired(cipher: CipherView, tab: chrome.tabs.Tab): Promise<boolean> {
+  async isPasswordRepromptRequired(
+    cipher: CipherView,
+    tab: chrome.tabs.Tab,
+    action?: string,
+  ): Promise<boolean> {
     const userHasMasterPasswordAndKeyHash =
       await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
     if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPasswordAndKeyHash) {
       if (!this.isDebouncingPasswordRepromptPopout()) {
         await this.openVaultItemPasswordRepromptPopout(tab, {
           cipherId: cipher.id,
-          action: "autofill",
+          action: action ?? "autofill",
         });
       }
 
@@ -931,28 +938,37 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (!passwordFields.length) {
-      // No password fields on this page. Let's try to just fuzzy fill the username.
-      pageDetails.fields.forEach((f) => {
-        if (
-          !options.skipUsernameOnlyFill &&
-          f.viewable &&
-          (f.type === "text" || f.type === "email" || f.type === "tel") &&
-          AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.UsernameFieldNames)
-        ) {
-          usernames.push(f);
+      // If there are no passwords, username or TOTP fields may be present.
+      // username and TOTP fields are mutually exclusive
+      pageDetails.fields.forEach((field) => {
+        if (!field.viewable) {
+          return;
         }
 
-        if (
+        const isFillableTotpField =
           options.allowTotpAutofill &&
-          f.viewable &&
-          (f.type === "text" || f.type === "number") &&
-          (AutofillService.fieldIsFuzzyMatch(f, [
+          ["number", "tel", "text"].some((t) => t === field.type) &&
+          (AutofillService.fieldIsFuzzyMatch(field, [
             ...AutoFillConstants.TotpFieldNames,
             ...AutoFillConstants.AmbiguousTotpFieldNames,
           ]) ||
-            f.autoCompleteType === "one-time-code")
-        ) {
-          totps.push(f);
+            field.autoCompleteType === "one-time-code");
+
+        const isFillableUsernameField =
+          !options.skipUsernameOnlyFill &&
+          ["email", "tel", "text"].some((t) => t === field.type) &&
+          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
+
+        // Prefer more uniquely keyworded fields first.
+        switch (true) {
+          case isFillableTotpField:
+            totps.push(field);
+            return;
+          case isFillableUsernameField:
+            usernames.push(field);
+            return;
+          default:
+            return;
         }
       });
     }
@@ -1566,252 +1582,6 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Generates the autofill script for the specified page details and identify cipher item.
-   * @param {AutofillScript} fillScript
-   * @param {AutofillPageDetails} pageDetails
-   * @param {{[p: string]: AutofillField}} filledFields
-   * @param {GenerateFillScriptOptions} options
-   * @returns {AutofillScript}
-   * @private
-   */
-  private async generateIdentityFillScript(
-    fillScript: AutofillScript,
-    pageDetails: AutofillPageDetails,
-    filledFields: { [id: string]: AutofillField },
-    options: GenerateFillScriptOptions,
-  ): Promise<AutofillScript> {
-    if (await this.configService.getFeatureFlag(FeatureFlag.GenerateIdentityFillScriptRefactor)) {
-      return this._generateIdentityFillScript(fillScript, pageDetails, filledFields, options);
-    }
-
-    if (!options.cipher.identity) {
-      return null;
-    }
-
-    const fillFields: { [id: string]: AutofillField } = {};
-
-    pageDetails.fields.forEach((f) => {
-      if (
-        AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillTypes) ||
-        ["current-password", "new-password"].includes(f.autoCompleteType)
-      ) {
-        return;
-      }
-
-      for (let i = 0; i < IdentityAutoFillConstants.IdentityAttributes.length; i++) {
-        const attr = IdentityAutoFillConstants.IdentityAttributes[i];
-        // eslint-disable-next-line
-        if (!f.hasOwnProperty(attr) || !f[attr] || !f.viewable) {
-          continue;
-        }
-
-        // ref https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill
-        // ref https://developers.google.com/web/fundamentals/design-and-ux/input/forms/
-        if (
-          !fillFields.name &&
-          AutofillService.isFieldMatch(
-            f[attr],
-            IdentityAutoFillConstants.FullNameFieldNames,
-            IdentityAutoFillConstants.FullNameFieldNameValues,
-          )
-        ) {
-          fillFields.name = f;
-          break;
-        } else if (
-          !fillFields.firstName &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.FirstnameFieldNames)
-        ) {
-          fillFields.firstName = f;
-          break;
-        } else if (
-          !fillFields.middleName &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.MiddlenameFieldNames)
-        ) {
-          fillFields.middleName = f;
-          break;
-        } else if (
-          !fillFields.lastName &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.LastnameFieldNames)
-        ) {
-          fillFields.lastName = f;
-          break;
-        } else if (
-          !fillFields.title &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.TitleFieldNames)
-        ) {
-          fillFields.title = f;
-          break;
-        } else if (
-          !fillFields.email &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.EmailFieldNames)
-        ) {
-          fillFields.email = f;
-          break;
-        } else if (
-          !fillFields.address1 &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.Address1FieldNames)
-        ) {
-          fillFields.address1 = f;
-          break;
-        } else if (
-          !fillFields.address2 &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.Address2FieldNames)
-        ) {
-          fillFields.address2 = f;
-          break;
-        } else if (
-          !fillFields.address3 &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.Address3FieldNames)
-        ) {
-          fillFields.address3 = f;
-          break;
-        } else if (
-          !fillFields.address &&
-          AutofillService.isFieldMatch(
-            f[attr],
-            IdentityAutoFillConstants.AddressFieldNames,
-            IdentityAutoFillConstants.AddressFieldNameValues,
-          )
-        ) {
-          fillFields.address = f;
-          break;
-        } else if (
-          !fillFields.postalCode &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.PostalCodeFieldNames)
-        ) {
-          fillFields.postalCode = f;
-          break;
-        } else if (
-          !fillFields.city &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.CityFieldNames)
-        ) {
-          fillFields.city = f;
-          break;
-        } else if (
-          !fillFields.state &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.StateFieldNames)
-        ) {
-          fillFields.state = f;
-          break;
-        } else if (
-          !fillFields.country &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.CountryFieldNames)
-        ) {
-          fillFields.country = f;
-          break;
-        } else if (
-          !fillFields.phone &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.PhoneFieldNames)
-        ) {
-          fillFields.phone = f;
-          break;
-        } else if (
-          !fillFields.username &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.UserNameFieldNames)
-        ) {
-          fillFields.username = f;
-          break;
-        } else if (
-          !fillFields.company &&
-          AutofillService.isFieldMatch(f[attr], IdentityAutoFillConstants.CompanyFieldNames)
-        ) {
-          fillFields.company = f;
-          break;
-        }
-      }
-    });
-
-    const identity = options.cipher.identity;
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "title");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "firstName");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "middleName");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "lastName");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "address1");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "address2");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "address3");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "city");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "postalCode");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "company");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "email");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "phone");
-    this.makeScriptAction(fillScript, identity, fillFields, filledFields, "username");
-
-    let filledState = false;
-    if (fillFields.state && identity.state && identity.state.length > 2) {
-      const stateLower = identity.state.toLowerCase();
-      const isoState =
-        IdentityAutoFillConstants.IsoStates[stateLower] ||
-        IdentityAutoFillConstants.IsoProvinces[stateLower];
-      if (isoState) {
-        filledState = true;
-        this.makeScriptActionWithValue(fillScript, isoState, fillFields.state, filledFields);
-      }
-    }
-
-    if (!filledState) {
-      this.makeScriptAction(fillScript, identity, fillFields, filledFields, "state");
-    }
-
-    let filledCountry = false;
-    if (fillFields.country && identity.country && identity.country.length > 2) {
-      const countryLower = identity.country.toLowerCase();
-      const isoCountry = IdentityAutoFillConstants.IsoCountries[countryLower];
-      if (isoCountry) {
-        filledCountry = true;
-        this.makeScriptActionWithValue(fillScript, isoCountry, fillFields.country, filledFields);
-      }
-    }
-
-    if (!filledCountry) {
-      this.makeScriptAction(fillScript, identity, fillFields, filledFields, "country");
-    }
-
-    if (fillFields.name && (identity.firstName || identity.lastName)) {
-      let fullName = "";
-      if (AutofillService.hasValue(identity.firstName)) {
-        fullName = identity.firstName;
-      }
-      if (AutofillService.hasValue(identity.middleName)) {
-        if (fullName !== "") {
-          fullName += " ";
-        }
-        fullName += identity.middleName;
-      }
-      if (AutofillService.hasValue(identity.lastName)) {
-        if (fullName !== "") {
-          fullName += " ";
-        }
-        fullName += identity.lastName;
-      }
-
-      this.makeScriptActionWithValue(fillScript, fullName, fillFields.name, filledFields);
-    }
-
-    if (fillFields.address && AutofillService.hasValue(identity.address1)) {
-      let address = "";
-      if (AutofillService.hasValue(identity.address1)) {
-        address = identity.address1;
-      }
-      if (AutofillService.hasValue(identity.address2)) {
-        if (address !== "") {
-          address += ", ";
-        }
-        address += identity.address2;
-      }
-      if (AutofillService.hasValue(identity.address3)) {
-        if (address !== "") {
-          address += ", ";
-        }
-        address += identity.address3;
-      }
-
-      this.makeScriptActionWithValue(fillScript, address, fillFields.address, filledFields);
-    }
-
-    return fillScript;
-  }
-
-  /**
    * Generates the autofill script for the specified page details and identity cipher item.
    *
    * @param fillScript - Object to store autofill script, passed between method references
@@ -1819,7 +1589,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param filledFields - The fields that have already been filled, passed between method references
    * @param options - Contains data used to fill cipher items
    */
-  private _generateIdentityFillScript(
+  private generateIdentityFillScript(
     fillScript: AutofillScript,
     pageDetails: AutofillPageDetails,
     filledFields: { [id: string]: AutofillField },
@@ -2903,52 +2673,46 @@ export default class AutofillService implements AutofillServiceInterface {
   /**
    * Accepts a field and returns true if the field contains a
    * value that matches any of the names in the provided list.
+   *
+   * Returns boolean and attr of value that was matched as a tuple if showMatch is set to true.
+   *
    * @param {AutofillField} field
    * @param {string[]} names
-   * @returns {boolean}
+   * @param {boolean} showMatch
+   * @returns {boolean | [boolean, { attr: string; value: string }?]}
    */
-  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean {
-    if (AutofillService.hasValue(field.htmlID) && this.fuzzyMatch(names, field.htmlID)) {
-      return true;
-    }
-    if (AutofillService.hasValue(field.htmlName) && this.fuzzyMatch(names, field.htmlName)) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-tag"]) &&
-      this.fuzzyMatch(names, field["label-tag"])
-    ) {
-      return true;
-    }
-    if (AutofillService.hasValue(field.placeholder) && this.fuzzyMatch(names, field.placeholder)) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-left"]) &&
-      this.fuzzyMatch(names, field["label-left"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-top"]) &&
-      this.fuzzyMatch(names, field["label-top"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-aria"]) &&
-      this.fuzzyMatch(names, field["label-aria"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field.dataSetValues) &&
-      this.fuzzyMatch(names, field.dataSetValues)
-    ) {
-      return true;
-    }
+  static fieldIsFuzzyMatch(
+    field: AutofillField,
+    names: string[],
+    showMatch: true,
+  ): [boolean, { attr: string; value: string }?];
+  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean;
+  static fieldIsFuzzyMatch(
+    field: AutofillField,
+    names: string[],
+    showMatch: boolean = false,
+  ): boolean | [boolean, { attr: string; value: string }?] {
+    const attrs = [
+      "htmlID",
+      "htmlName",
+      "label-tag",
+      "placeholder",
+      "label-left",
+      "label-top",
+      "label-aria",
+      "dataSetValues",
+    ];
 
-    return false;
+    for (const attr of attrs) {
+      const value = field[attr];
+      if (!AutofillService.hasValue(value)) {
+        continue;
+      }
+      if (this.fuzzyMatch(names, value)) {
+        return showMatch ? [true, { attr, value }] : true;
+      }
+    }
+    return showMatch ? [false] : false;
   }
 
   /**

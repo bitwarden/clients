@@ -5,8 +5,8 @@ import { Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { KeyService } from "@bitwarden/key-management";
 
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
@@ -86,7 +86,7 @@ export class SecretsManagerPortingApiService {
         importData.projects.map(async (p: any) => {
           const project = new SecretsManagerImportedProjectRequest();
           project.id = p.id;
-          project.name = await this.encryptService.encrypt(p.name, orgKey);
+          project.name = await this.encryptService.encryptString(p.name, orgKey);
           return project;
         }),
       );
@@ -96,9 +96,9 @@ export class SecretsManagerPortingApiService {
           const secret = new SecretsManagerImportedSecretRequest();
 
           [secret.key, secret.value, secret.note] = await Promise.all([
-            this.encryptService.encrypt(s.key, orgKey),
-            this.encryptService.encrypt(s.value, orgKey),
-            this.encryptService.encrypt(s.note, orgKey),
+            this.encryptService.encryptString(s.key, orgKey),
+            this.encryptService.encryptString(s.value, orgKey),
+            this.encryptService.encryptString(s.note, orgKey),
           ]);
 
           secret.id = s.id;
@@ -129,7 +129,7 @@ export class SecretsManagerPortingApiService {
       exportData.projects.map(async (p) => {
         const project = new SecretsManagerExportProject();
         project.id = p.id;
-        project.name = await this.encryptService.decryptToUtf8(new EncString(p.name), orgKey);
+        project.name = await this.encryptService.decryptString(new EncString(p.name), orgKey);
         return project;
       }),
     );
@@ -139,9 +139,9 @@ export class SecretsManagerPortingApiService {
         const secret = new SecretsManagerExportSecret();
 
         [secret.key, secret.value, secret.note] = await Promise.all([
-          this.encryptService.decryptToUtf8(new EncString(s.key), orgKey),
-          this.encryptService.decryptToUtf8(new EncString(s.value), orgKey),
-          this.encryptService.decryptToUtf8(new EncString(s.note), orgKey),
+          this.encryptService.decryptString(new EncString(s.key), orgKey),
+          this.encryptService.decryptString(new EncString(s.value), orgKey),
+          this.encryptService.decryptString(new EncString(s.note), orgKey),
         ]);
 
         secret.id = s.id;

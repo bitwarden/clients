@@ -12,6 +12,7 @@ export interface SecretViewDialogParams {
 
 @Component({
   templateUrl: "./secret-view-dialog.component.html",
+  standalone: false,
 })
 export class SecretViewDialogComponent implements OnInit {
   protected loading = true;

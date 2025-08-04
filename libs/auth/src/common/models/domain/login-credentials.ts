@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
@@ -14,9 +15,8 @@ export class PasswordLoginCredentials {
   constructor(
     public email: string,
     public masterPassword: string,
-    // TODO: PM-15162 - captcha is deprecated as part of UI refresh work
-    public captchaToken?: string,
     public twoFactor?: TokenTwoFactorRequest,
+    public masterPasswordPoliciesFromOrgInvite?: MasterPasswordPolicyOptions,
   ) {}
 }
 

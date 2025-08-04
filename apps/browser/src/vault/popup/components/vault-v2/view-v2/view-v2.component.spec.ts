@@ -20,14 +20,14 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 
@@ -82,6 +82,7 @@ describe("ViewV2Component", () => {
     getKeyForCipherKeyDecryption: jest.fn().mockResolvedValue({}),
     deleteWithServer: jest.fn().mockResolvedValue(undefined),
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
+    decrypt: jest.fn().mockResolvedValue(mockCipher),
   };
 
   beforeEach(async () => {
@@ -239,6 +240,93 @@ describe("ViewV2Component", () => {
 
       expect(copy).toHaveBeenCalledTimes(1);
     }));
+
+    it("does not set the cipher until reprompt is complete", fakeAsync(() => {
+      let promptPromise: (val?: unknown) => void;
+      mockCipherService.decrypt.mockImplementationOnce(() =>
+        Promise.resolve({
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        }),
+      );
+      doAutofill.mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          // store the promise resolver to manually trigger the promise resolve
+          promptPromise = resolve;
+        });
+      });
+
+      params$.next({ action: AUTOFILL_ID });
+
+      flush(); // Flush all pending actions
+
+      expect(component.cipher).toBeUndefined();
+      expect(doAutofill).toHaveBeenCalled();
+
+      promptPromise!(true); // resolve the password prompt
+
+      flush();
+      expect(component.cipher).toEqual({ ...mockCipher, reprompt: CipherRepromptType.Password });
+    }));
+
+    it("does not set the cipher at all if doAutofill fails and reprompt is active", fakeAsync(() => {
+      let promptPromise: (val?: unknown) => void;
+      mockCipherService.decrypt.mockImplementationOnce(() =>
+        Promise.resolve({
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        }),
+      );
+      doAutofill.mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          // store the promise resolver to manually trigger the promise resolve
+          promptPromise = resolve;
+        });
+      });
+
+      params$.next({ action: AUTOFILL_ID });
+
+      flush(); // Flush all pending actions
+
+      expect(component.cipher).toBeUndefined();
+      expect(doAutofill).toHaveBeenCalled();
+
+      promptPromise!(false); // resolve the password prompt
+
+      flush();
+      expect(component.cipher).toBeUndefined();
+    }));
+
+    it.each([COPY_PASSWORD_ID, COPY_VERIFICATION_CODE_ID])(
+      "does not set cipher when copy fails for %s",
+      fakeAsync((action: string) => {
+        let promptPromise: (val?: unknown) => void;
+        mockCipherService.decrypt.mockImplementationOnce(() =>
+          Promise.resolve({
+            ...mockCipher,
+            reprompt: CipherRepromptType.Password,
+          }),
+        );
+        copy.mockImplementationOnce(() => {
+          return new Promise((resolve) => {
+            // store the promise resolver to manually trigger the promise resolve
+            promptPromise = resolve;
+          });
+        });
+
+        params$.next({ action });
+
+        flush(); // Flush all pending actions
+
+        expect(component.cipher).toBeUndefined();
+        expect(copy).toHaveBeenCalled();
+
+        promptPromise!(false); // resolve the password prompt
+
+        flush();
+        expect(component.cipher).toBeUndefined();
+      }),
+    );
 
     it("closes the popout after a load action", fakeAsync(() => {
       jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValueOnce(true);

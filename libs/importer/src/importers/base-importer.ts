@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import * as papa from "papaparse";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -277,7 +279,7 @@ export abstract class BaseImporter {
     result.collections = result.folders.map((f) => {
       const collection = new CollectionView();
       collection.name = f.name;
-      collection.id = f.id;
+      collection.id = f.id ?? undefined; // folder id may be null, which is not suitable for collections.
       return collection;
     });
     result.folderRelationships = [];
@@ -317,12 +319,6 @@ export abstract class BaseImporter {
       cipher.notes = null;
     } else {
       cipher.notes = cipher.notes.trim();
-    }
-    if (cipher.fields != null && cipher.fields.length === 0) {
-      cipher.fields = null;
-    }
-    if (cipher.passwordHistory != null && cipher.passwordHistory.length === 0) {
-      cipher.passwordHistory = null;
     }
   }
 

@@ -45,7 +45,7 @@ import {
   AutofillOverlayElement,
   AutofillOverlayPort,
   InlineMenuAccountCreationFieldType,
-  InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -1025,7 +1025,7 @@ describe("OverlayBackground", () => {
         overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
           tabId: tab.id,
           accountCreationFieldType: "text",
-          inlineMenuFillType: InlineMenuFillType.AccountCreationUsername,
+          inlineMenuFillType: InlineMenuFillTypes.AccountCreationUsername,
         });
         cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, identityCipher]);
         cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
@@ -1383,7 +1383,7 @@ describe("OverlayBackground", () => {
         {
           command: "updateFocusedFieldData",
           focusedFieldData: createFocusedFieldDataMock({
-            inlineMenuFillType: InlineMenuFillType.CurrentPasswordUpdate,
+            inlineMenuFillType: InlineMenuFillTypes.CurrentPasswordUpdate,
           }),
         },
         mock<chrome.runtime.MessageSender>({ tab }),
@@ -2045,7 +2045,7 @@ describe("OverlayBackground", () => {
         });
 
         it("displays the password generator when the focused field is for password generation", async () => {
-          focusedFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
 
           sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
           await flushPromises();
@@ -2103,7 +2103,7 @@ describe("OverlayBackground", () => {
         });
 
         it("shows the save login menu when the focused field type is for password generation and the field is filled", async () => {
-          focusedFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
 
           sendMockExtensionMessage(
             { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
@@ -3409,7 +3409,7 @@ describe("OverlayBackground", () => {
           {
             command: "updateFocusedFieldData",
             focusedFieldData: createFocusedFieldDataMock({
-              inlineMenuFillType: InlineMenuFillType.CurrentPasswordUpdate,
+              inlineMenuFillType: InlineMenuFillTypes.CurrentPasswordUpdate,
             }),
           },
           sender,
@@ -3607,7 +3607,7 @@ describe("OverlayBackground", () => {
 
     describe("fillGeneratedPassword", () => {
       const focusedFieldData = createFocusedFieldDataMock({
-        inlineMenuFillType: InlineMenuFillType.PasswordGeneration,
+        inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
       });
 
       beforeEach(() => {

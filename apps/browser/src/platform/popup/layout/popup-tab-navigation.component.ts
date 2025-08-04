@@ -1,44 +1,34 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LinkModule } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Icon, IconModule, LinkModule } from "@bitwarden/components";
+
+export type NavButton = {
+  label: string;
+  page: string;
+  icon: Icon;
+  iconActive: Icon;
+  showBerry?: boolean;
+};
 
 @Component({
   selector: "popup-tab-navigation",
   templateUrl: "popup-tab-navigation.component.html",
-  standalone: true,
-  imports: [CommonModule, LinkModule, RouterModule, JslibModule],
+  imports: [CommonModule, LinkModule, RouterModule, JslibModule, IconModule],
   host: {
     class: "tw-block tw-h-full tw-w-full tw-flex tw-flex-col",
   },
 })
 export class PopupTabNavigationComponent {
-  navButtons = [
-    {
-      label: "vault",
-      page: "/tabs/vault",
-      iconKey: "lock",
-      iconKeyActive: "lock-f",
-    },
-    {
-      label: "generator",
-      page: "/tabs/generator",
-      iconKey: "generate",
-      iconKeyActive: "generate-f",
-    },
-    {
-      label: "send",
-      page: "/tabs/send",
-      iconKey: "send",
-      iconKeyActive: "send-f",
-    },
-    {
-      label: "settings",
-      page: "/tabs/settings",
-      iconKey: "cog",
-      iconKeyActive: "cog-f",
-    },
-  ];
+  @Input() navButtons: NavButton[] = [];
+
+  constructor(private i18nService: I18nService) {}
+
+  buttonTitle(navButton: NavButton) {
+    const labelText = this.i18nService.t(navButton.label);
+    return navButton.showBerry ? this.i18nService.t("labelWithNotification", labelText) : labelText;
+  }
 }

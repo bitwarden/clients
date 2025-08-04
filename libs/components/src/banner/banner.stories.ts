@@ -2,6 +2,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { SharedModule } from "../shared/shared.module";
@@ -44,48 +45,50 @@ export default {
 
 type Story = StoryObj<BannerComponent>;
 
+export const Base: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: `
+        <bit-banner ${formatArgsForCodeSnippet<BannerComponent>(args)}>
+          Content Really Long Text Lorem Ipsum Ipsum Ipsum
+          <button bitLink linkType="secondary">Button</button>
+        </bit-banner>
+      `,
+    };
+  },
+};
+
 export const Premium: Story = {
+  ...Base,
   args: {
     bannerType: "premium",
   },
-  render: (args) => ({
-    props: args,
-    template: `
-      <bit-banner [bannerType]="bannerType" (onClose)="onClose($event)" [showClose]=showClose>
-        Content Really Long Text Lorem Ipsum Ipsum Ipsum
-        <button bitLink linkType="secondary">Button</button>
-      </bit-banner>
-      `,
-  }),
-};
-
-Premium.args = {
-  bannerType: "premium",
 };
 
 export const Info: Story = {
-  ...Premium,
+  ...Base,
   args: {
     bannerType: "info",
   },
 };
 
 export const Warning: Story = {
-  ...Premium,
+  ...Base,
   args: {
     bannerType: "warning",
   },
 };
 
 export const Danger: Story = {
-  ...Premium,
+  ...Base,
   args: {
     bannerType: "danger",
   },
 };
 
 export const HideClose: Story = {
-  ...Premium,
+  ...Base,
   args: {
     showClose: false,
   },

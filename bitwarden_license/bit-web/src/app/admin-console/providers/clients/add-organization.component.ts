@@ -19,6 +19,7 @@ interface AddOrganizationDialogData {
 
 @Component({
   templateUrl: "add-organization.component.html",
+  standalone: false,
 })
 export class AddOrganizationComponent implements OnInit {
   protected provider: Provider;

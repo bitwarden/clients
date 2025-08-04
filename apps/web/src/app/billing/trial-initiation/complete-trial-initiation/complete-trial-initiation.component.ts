@@ -4,7 +4,7 @@ import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -18,6 +18,7 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import {
   OrganizationBillingServiceAbstraction as OrganizationBillingService,
   OrganizationInformation,
@@ -31,7 +32,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 
-import { AcceptOrganizationInviteService } from "../../../auth/organization-invite/accept-organization.service";
 import {
   OrganizationCreatedEvent,
   SubscriptionProduct,
@@ -47,11 +47,13 @@ export type InitiationPath =
 @Component({
   selector: "app-complete-trial-initiation",
   templateUrl: "complete-trial-initiation.component.html",
+  standalone: false,
 })
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
 
-  InputPasswordFlow = InputPasswordFlow;
+  inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
+  initializing = true;
 
   /** Password Manager or Secrets Manager */
   product: ProductType;
@@ -86,6 +88,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   loading = false;
   productTierValue: number;
 
+  trialLength: number;
+
   orgInfoFormGroup = this.formBuilder.group({
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
     billingEmail: [""],
@@ -96,6 +100,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   protected readonly ProductType = ProductType;
   protected trialPaymentOptional$ = this.configService.getFeatureFlag$(
     FeatureFlag.TrialPaymentOptional,
+  );
+  protected allowTrialLengthZero$ = this.configService.getFeatureFlag$(
+    FeatureFlag.AllowTrialLengthZero,
   );
 
   constructor(
@@ -108,7 +115,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private routerService: RouterService,
     private organizationBillingService: OrganizationBillingService,
-    private acceptOrganizationInviteService: AcceptOrganizationInviteService,
+    private organizationInviteService: OrganizationInviteService,
     private toastService: ToastService,
     private registrationFinishService: RegistrationFinishService,
     private validationService: ValidationService,
@@ -160,12 +167,14 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         this.useTrialStepper = true;
       }
 
+      this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : 7;
+
       // Are they coming from an email for sponsoring a families organization
       // After logging in redirect them to setup the families sponsorship
       this.setupFamilySponsorship(qParams.sponsorshipToken);
     });
 
-    const invite = await this.acceptOrganizationInviteService.getOrganizationInvite();
+    const invite = await this.organizationInviteService.getOrganizationInvite();
     let policies: Policy[] | null = null;
 
     if (invite != null) {
@@ -198,6 +207,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.orgInfoFormGroup.controls.name.markAsTouched();
       });
+
+    this.initializing = false;
   }
 
   ngOnDestroy(): void {
@@ -217,7 +228,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   async orgNameEntrySubmit(): Promise<void> {
     const isTrialPaymentOptional = await firstValueFrom(this.trialPaymentOptional$);
 
-    if (isTrialPaymentOptional) {
+    /** Only skip payment if the flag is on AND trialLength > 0 */
+    if (isTrialPaymentOptional && this.trialLength > 0) {
       await this.createOrganizationOnTrial();
     } else {
       await this.conditionallyCreateOrganization();
@@ -325,6 +337,18 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     return this.productTier;
   }
 
+  readonly showBillingStep$ = combineLatest([
+    this.trialPaymentOptional$,
+    this.allowTrialLengthZero$,
+  ]).pipe(
+    map(([trialPaymentOptional, allowTrialLengthZero]) => {
+      return (
+        (!trialPaymentOptional && !this.isSecretsManagerFree) ||
+        (trialPaymentOptional && allowTrialLengthZero && this.trialLength === 0)
+      );
+    }),
+  );
+
   /** Create an organization unless the trial is for secrets manager */
   async conditionallyCreateOrganization(): Promise<void> {
     if (!this.isSecretsManagerFree) {
@@ -362,14 +386,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const captchaToken = await this.finishRegistration(passwordInputResult);
+    await this.finishRegistration(passwordInputResult);
 
-    if (captchaToken == null) {
-      this.submitting = false;
-      return;
-    }
-
-    await this.logIn(passwordInputResult.newPassword, captchaToken);
+    await this.logIn(passwordInputResult.newPassword);
 
     this.submitting = false;
 
@@ -385,14 +404,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Logs the user in based using the token received by the `finishRegistration` method */
-  private async logIn(masterPassword: string, captchaBypassToken: string): Promise<void> {
-    const credentials = new PasswordLoginCredentials(
-      this.email,
-      masterPassword,
-      captchaBypassToken,
-      null,
-    );
+  /** Logs the user in */
+  private async logIn(masterPassword: string): Promise<void> {
+    const credentials = new PasswordLoginCredentials(this.email, masterPassword);
 
     await this.loginStrategyService.logIn(credentials);
   }

@@ -19,5 +19,6 @@ export class RequireSsoPolicy extends BasePolicy {
 @Component({
   selector: "policy-require-sso",
   templateUrl: "require-sso.component.html",
+  standalone: false,
 })
 export class RequireSsoPolicyComponent extends BasePolicyComponent {}

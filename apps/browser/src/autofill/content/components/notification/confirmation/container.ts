@@ -9,6 +9,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../../notification/abstractions/notification-bar";
+import { I18n } from "../../common-types";
 import { themes, spacing } from "../../constants/styles";
 import {
   NotificationHeader,
@@ -24,10 +25,12 @@ export type NotificationConfirmationContainerProps = NotificationBarIframeInitDa
   handleOpenTasks: (e: Event) => void;
 } & {
   error?: string;
-  i18n: { [key: string]: string };
+  headerMessage?: string;
+  i18n: I18n;
+  itemName: string;
+  notificationTestId: string;
   task?: NotificationTaskInfo;
   type: NotificationType;
-  username: string;
 };
 
 export function NotificationConfirmationContainer({
@@ -35,21 +38,25 @@ export function NotificationConfirmationContainer({
   handleCloseNotification,
   handleOpenVault,
   handleOpenTasks,
+  headerMessage,
   i18n,
+  itemName,
+  notificationTestId,
   task,
   theme = ThemeTypes.Light,
   type,
-  username,
 }: NotificationConfirmationContainerProps) {
-  const headerMessage = getHeaderMessage(i18n, type, error);
-  const confirmationMessage = getConfirmationMessage(i18n, username, type, error);
+  const confirmationMessage = getConfirmationMessage(i18n, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
+  const buttonAria = error
+    ? i18n.notificationNewItemAria
+    : chrome.i18n.getMessage("notificationViewAria", [itemName]);
 
   let messageDetails: string | undefined;
   let remainingTasksCount: number | undefined;
-  let tasksAreComplete: boolean = false;
+  let tasksAreComplete: boolean = true;
 
-  if (task) {
+  if (task && !error) {
     remainingTasksCount = task.remainingTasksCount || 0;
     tasksAreComplete = remainingTasksCount === 0;
 
@@ -63,21 +70,25 @@ export function NotificationConfirmationContainer({
   }
 
   return html`
-    <div class=${notificationContainerStyles(theme)}>
+    <div data-testid="${notificationTestId}" class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
+        i18n,
         message: headerMessage,
         theme,
       })}
       ${NotificationConfirmationBody({
+        buttonAria,
         buttonText,
         confirmationMessage,
-        tasksAreComplete,
+        error,
+        itemName,
         messageDetails,
+        tasksAreComplete,
         theme,
         handleOpenVault,
       })}
-      ${remainingTasksCount
+      ${!error && remainingTasksCount
         ? NotificationConfirmationFooter({
             i18n,
             theme,
@@ -104,40 +115,16 @@ const notificationContainerStyles = (theme: Theme) => css`
   }
 `;
 
-function getConfirmationMessage(
-  i18n: { [key: string]: string },
-  username: string,
-  type?: NotificationType,
-  error?: string,
-) {
-  const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [username]);
-  const loginUpdatedSuccessDetails = chrome.i18n.getMessage("loginUpdatedSuccessDetails", [
-    username,
-  ]);
-
+function getConfirmationMessage(i18n: I18n, type?: NotificationType, error?: string) {
   if (error) {
     return i18n.saveFailureDetails;
   }
-  return type === "add" ? loginSaveSuccessDetails : loginUpdatedSuccessDetails;
-}
 
-function getHeaderMessage(
-  i18n: { [key: string]: string },
-  type?: NotificationType,
-  error?: string,
-) {
-  if (error) {
-    return i18n.saveFailure;
-  }
-
-  switch (type) {
-    case NotificationTypes.Add:
-      return i18n.loginSaveSuccess;
-    case NotificationTypes.Change:
-      return i18n.loginUpdateSuccess;
-    case NotificationTypes.Unlock:
-      return "";
-    default:
-      return undefined;
-  }
+  /* @TODO This partial string return and later concatenation with the cipher name is needed
+   * to handle cipher name overflow cases, but is risky for i18n concerns. Fix concatenation
+   * with cipher name overflow when a tag replacement solution is available.
+   */
+  return type === NotificationTypes.Add
+    ? i18n.notificationLoginSaveConfirmation
+    : i18n.notificationLoginUpdatedConfirmation;
 }

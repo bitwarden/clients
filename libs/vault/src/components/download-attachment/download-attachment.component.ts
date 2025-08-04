@@ -2,26 +2,21 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NEVER, switchMap } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { EmergencyAccessId, OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
+import { CipherId, EmergencyAccessId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 
 @Component({
-  standalone: true,
   selector: "app-download-attachment",
   templateUrl: "./download-attachment.component.html",
   imports: [AsyncActionsModule, CommonModule, JslibModule, IconButtonModule],
@@ -39,40 +34,30 @@ export class DownloadAttachmentComponent {
   // Required for fetching attachment data when viewed from cipher via emergency access
   @Input() emergencyAccessId?: EmergencyAccessId;
 
-  /** The organization key if the cipher is associated with one */
-  private orgKey: OrgKey | null = null;
+  /** When owners/admins can mange all items and when accessing from the admin console, use the admin endpoint */
+  @Input() admin?: boolean = false;
 
   constructor(
     private i18nService: I18nService,
     private apiService: ApiService,
     private fileDownloadService: FileDownloadService,
     private toastService: ToastService,
-    private encryptService: EncryptService,
     private stateProvider: StateProvider,
-    private keyService: KeyService,
-  ) {
-    this.stateProvider.activeUserId$
-      .pipe(
-        switchMap((userId) => (userId !== null ? this.keyService.orgKeys$(userId) : NEVER)),
-        takeUntilDestroyed(),
-      )
-      .subscribe((data: Record<OrganizationId, OrgKey> | null) => {
-        if (data) {
-          this.orgKey = data[this.cipher.organizationId as OrganizationId];
-        }
-      });
-  }
+    private cipherService: CipherService,
+  ) {}
 
   /** Download the attachment */
   download = async () => {
     let url: string;
 
     try {
-      const attachmentDownloadResponse = await this.apiService.getAttachmentData(
-        this.cipher.id,
-        this.attachment.id,
-        this.emergencyAccessId,
-      );
+      const attachmentDownloadResponse = this.admin
+        ? await this.apiService.getAttachmentDataAdmin(this.cipher.id, this.attachment.id)
+        : await this.apiService.getAttachmentData(
+            this.cipher.id,
+            this.attachment.id,
+            this.emergencyAccessId,
+          );
       url = attachmentDownloadResponse.url;
     } catch (e) {
       if (e instanceof ErrorResponse && (e as ErrorResponse).statusCode === 404) {
@@ -95,9 +80,15 @@ export class DownloadAttachmentComponent {
     }
 
     try {
-      const encBuf = await EncArrayBuffer.fromResponse(response);
-      const key = this.attachment.key != null ? this.attachment.key : this.orgKey;
-      const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
+      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+
+      const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
+        this.cipher.id as CipherId,
+        this.attachment,
+        response,
+        userId,
+      );
+
       this.fileDownloadService.download({
         fileName: this.attachment.fileName,
         blobData: decBuf,

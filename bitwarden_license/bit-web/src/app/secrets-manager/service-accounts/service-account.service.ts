@@ -5,8 +5,8 @@ import { Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -91,7 +91,10 @@ export class ServiceAccountService {
     );
   }
 
-  async create(organizationId: string, serviceAccountView: ServiceAccountView) {
+  async create(
+    organizationId: string,
+    serviceAccountView: ServiceAccountView,
+  ): Promise<ServiceAccountView> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = await this.getServiceAccountRequest(orgKey, serviceAccountView);
     const r = await this.apiService.send(
@@ -101,9 +104,14 @@ export class ServiceAccountService {
       true,
       true,
     );
-    this._serviceAccount.next(
-      await this.createServiceAccountView(orgKey, new ServiceAccountResponse(r)),
+
+    const serviceAccount = await this.createServiceAccountView(
+      orgKey,
+      new ServiceAccountResponse(r),
     );
+    this._serviceAccount.next(serviceAccount);
+
+    return serviceAccount;
   }
 
   async delete(serviceAccounts: ServiceAccountView[]): Promise<BulkOperationStatus[]> {
@@ -130,7 +138,10 @@ export class ServiceAccountService {
     serviceAccountView: ServiceAccountView,
   ) {
     const request = new ServiceAccountRequest();
-    request.name = await this.encryptService.encrypt(serviceAccountView.name, organizationKey);
+    request.name = await this.encryptService.encryptString(
+      serviceAccountView.name,
+      organizationKey,
+    );
     return request;
   }
 
@@ -144,7 +155,7 @@ export class ServiceAccountService {
     serviceAccountView.creationDate = serviceAccountResponse.creationDate;
     serviceAccountView.revisionDate = serviceAccountResponse.revisionDate;
     serviceAccountView.name = serviceAccountResponse.name
-      ? await this.encryptService.decryptToUtf8(
+      ? await this.encryptService.decryptString(
           new EncString(serviceAccountResponse.name),
           organizationKey,
         )
@@ -163,7 +174,7 @@ export class ServiceAccountService {
     view.revisionDate = response.revisionDate;
     view.accessToSecrets = response.accessToSecrets;
     view.name = response.name
-      ? await this.encryptService.decryptToUtf8(new EncString(response.name), organizationKey)
+      ? await this.encryptService.decryptString(new EncString(response.name), organizationKey)
       : null;
     return view;
   }

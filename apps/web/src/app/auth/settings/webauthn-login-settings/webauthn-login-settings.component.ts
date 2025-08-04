@@ -23,6 +23,7 @@ import { openEnableCredentialDialogComponent } from "./enable-encryption-dialog/
   host: {
     "aria-live": "polite",
   },
+  standalone: false,
 })
 export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

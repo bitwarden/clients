@@ -16,7 +16,15 @@ import { BiometricStateService } from "@bitwarden/key-management";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { cleanUserAgent, isDev, isLinux, isMac, isMacAppStore, isWindows } from "../utils";
+import {
+  cleanUserAgent,
+  isDev,
+  isLinux,
+  isMac,
+  isMacAppStore,
+  isSnapStore,
+  isWindows,
+} from "../utils";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
@@ -32,7 +40,7 @@ export class WindowMain {
   session: Electron.Session;
 
   readonly defaultWidth = 950;
-  readonly defaultHeight = 600;
+  readonly defaultHeight = 790;
 
   constructor(
     private biometricStateService: BiometricStateService,
@@ -156,9 +164,8 @@ export class WindowMain {
               }
             }
 
-            // this currently breaks the file portal, so should only be used when
-            // no files are needed but security requirements are super high https://github.com/flatpak/xdg-desktop-portal/issues/785
-            if (process.env.EXPERIMENTAL_PREVENT_DEBUGGER_MEMORY_ACCESS === "true") {
+            // this currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
+            if (!isSnapStore()) {
               this.logService.info("Disabling memory dumps in main process");
               try {
                 await processisolations.disableMemoryAccess();
@@ -286,6 +293,15 @@ export class WindowMain {
 
     this.win.webContents.on("dom-ready", () => {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
+    });
+
+    // Persist zoom changes immediately when user zooms in/out or resets zoom
+    // We can't depend on higher level web events (like close) to do this
+    // because locking the vault resets window state.
+    this.win.webContents.on("zoom-changed", async () => {
+      const newZoom = this.win.webContents.zoomFactor;
+      this.windowStates[mainWindowSizeKey].zoomFactor = newZoom;
+      await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
     });
 
     if (this.windowStates[mainWindowSizeKey].isMaximized) {

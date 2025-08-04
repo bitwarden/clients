@@ -45,6 +45,7 @@ class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
 
 @Component({
   templateUrl: "members.component.html",
+  standalone: false,
 })
 export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   accessEvents = false;

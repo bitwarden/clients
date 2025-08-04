@@ -49,8 +49,12 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import {
   openAddEditVaultItemPopout,
   openViewVaultItemPopout,
@@ -459,7 +463,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const cipherView = cipherViews[cipherIndex];
       if (
         !this.cardAndIdentityCiphers.has(cipherView) &&
-        [CipherType.Card, CipherType.Identity].includes(cipherView.type)
+        ([CipherType.Card, CipherType.Identity] as CipherType[]).includes(cipherView.type)
       ) {
         this.cardAndIdentityCiphers.add(cipherView);
       }
@@ -661,20 +665,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return this.inlineMenuFido2Credentials.has(credentialId);
   }
 
+  /**
+   * When focused field data contains account creation field type of totp
+   * and there are totp fields in the current frame for page details return true
+   *
+   * @returns boolean
+   */
   private isTotpFieldForCurrentField(): boolean {
     if (!this.focusedFieldData) {
       return false;
     }
-    const { tabId, frameId } = this.focusedFieldData;
-    const pageDetailsMap = this.pageDetailsForTab[tabId];
-    if (!pageDetailsMap || !pageDetailsMap.has(frameId)) {
+    const totpFields = this.getTotpFields();
+    if (!totpFields) {
       return false;
     }
-    const pageDetail = pageDetailsMap.get(frameId);
     return (
-      pageDetail?.details?.fields?.every((field) =>
-        this.inlineMenuFieldQualificationService.isTotpField(field),
-      ) || false
+      totpFields.length > 0 &&
+      this.focusedFieldData?.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp
     );
   }
 
@@ -794,7 +801,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param focusedFieldData - Optional focused field data to validate against
    */
   private focusedFieldMatchesFillType(
-    fillType: InlineMenuFillTypes,
+    fillType: InlineMenuFillType,
     focusedFieldData?: FocusedFieldData,
   ) {
     const focusedFieldFillType = focusedFieldData
@@ -803,7 +810,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     // When updating the current password for a field, it should fill with a login cipher
     if (
-      focusedFieldFillType === InlineMenuFillType.CurrentPasswordUpdate &&
+      focusedFieldFillType === InlineMenuFillTypes.CurrentPasswordUpdate &&
       fillType === CipherType.Login
     ) {
       return true;
@@ -816,7 +823,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Identifies whether the inline menu is being shown on an account creation field.
    */
   private shouldShowInlineMenuAccountCreation(): boolean {
-    if (this.focusedFieldMatchesFillType(InlineMenuFillType.AccountCreationUsername)) {
+    if (this.focusedFieldMatchesFillType(InlineMenuFillTypes.AccountCreationUsername)) {
       return true;
     }
 
@@ -1149,7 +1156,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     let pageDetails = Array.from(pageDetailsForTab.values());
-    if (this.focusedFieldMatchesFillType(InlineMenuFillType.CurrentPasswordUpdate)) {
+    if (this.focusedFieldMatchesFillType(InlineMenuFillTypes.CurrentPasswordUpdate)) {
       pageDetails = this.getFilteredPageDetails(
         pageDetails,
         this.inlineMenuFieldQualificationService.isUpdateCurrentPasswordField,
@@ -1399,7 +1406,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const pageDetailsMap = this.pageDetailsForTab[currentTabId];
     const pageDetails = pageDetailsMap?.get(currentFrameId);
 
-    const fields = pageDetails.details.fields;
+    const fields = pageDetails?.details?.fields || [];
     const totpFields = fields.filter((f) =>
       this.inlineMenuFieldQualificationService.isTotpField(f),
     );
@@ -1679,7 +1686,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       !this.focusedFieldMatchesFillType(
         focusedFieldData?.inlineMenuFillType,
         previousFocusedFieldData,
-      )
+      ) ||
+      // a TOTP field was just focused to - or unfocused from — a non-TOTP field
+      // may want to generalize this logic if cipher inline menu types exceed [general cipher, TOTP]
+      [focusedFieldData, previousFocusedFieldData].filter(
+        (fd) => fd?.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp,
+      ).length === 1
     ) {
       const updateAllCipherTypes = !this.focusedFieldMatchesFillType(
         CipherType.Login,
@@ -1697,7 +1709,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private shouldUpdatePasswordGeneratorMenuOnFieldFocus() {
     return (
       this.isInlineMenuButtonVisible &&
-      this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration)
+      this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)
     );
   }
 
@@ -1759,9 +1771,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private shouldUpdateAccountCreationMenuOnFieldFocus(previousFocusedFieldData: FocusedFieldData) {
     const accountCreationFieldBlurred =
       this.focusedFieldMatchesFillType(
-        InlineMenuFillType.AccountCreationUsername,
+        InlineMenuFillTypes.AccountCreationUsername,
         previousFocusedFieldData,
-      ) && !this.focusedFieldMatchesFillType(InlineMenuFillType.AccountCreationUsername);
+      ) && !this.focusedFieldMatchesFillType(InlineMenuFillTypes.AccountCreationUsername);
     return accountCreationFieldBlurred || this.shouldShowInlineMenuAccountCreation();
   }
 
@@ -1868,7 +1880,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     return (
       (this.shouldShowInlineMenuAccountCreation() ||
-        this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration)) &&
+        this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)) &&
       !!(loginData.password || loginData.newPassword)
     );
   }
@@ -3028,7 +3040,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const focusFieldShouldShowPasswordGenerator =
-      this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration) ||
+      this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration) ||
       (showInlineMenuAccountCreation &&
         this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password));
     if (!focusFieldShouldShowPasswordGenerator) {

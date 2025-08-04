@@ -25,6 +25,7 @@ import { AccessPolicyService } from "../../shared/access-policies/access-policy.
 @Component({
   selector: "sm-service-account-projects",
   templateUrl: "./service-account-projects.component.html",
+  standalone: false,
 })
 export class ServiceAccountProjectsComponent implements OnInit, OnDestroy {
   private currentAccessPolicies: ApItemViewType[];

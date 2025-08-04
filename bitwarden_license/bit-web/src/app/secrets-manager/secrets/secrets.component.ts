@@ -36,6 +36,7 @@ import { SecretService } from "./secret.service";
 @Component({
   selector: "sm-secrets",
   templateUrl: "./secrets.component.html",
+  standalone: false,
 })
 export class SecretsComponent implements OnInit {
   protected secrets$: Observable<SecretListView[]>;

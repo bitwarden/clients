@@ -121,55 +121,55 @@
     <value>Trình quản lý mật khẩu Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Ở nhà, ở cơ quan hay khi di chuyển, Bitwarden sẽ bảo vệ tất cả mật khẩu, mã khóa và thông tin cá nhân của bạn.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Được công nhận là trình quản lý mật khẩu tốt nhất bởi PCMag, WIRED, The Verge, CNET, G2 và nhiều trang web khác! 
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+BẢO VỆ CUỘC SỐNG SỐ CỦA BẠN 
+Bảo vệ cuộc sống số của bạn và ngăn chặn rò rỉ dữ liệu bằng cách tạo và lưu trữ mật khẩu duy nhất, mạnh mẽ cho mỗi tài khoản. Lưu trữ mọi thứ trong kho mật khẩu được mã hóa end-to-end mà chỉ bạn có thể truy cập.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+TRUY CẬP DỮ LIỆU CỦA BẠN BẤT CỨ ĐÂU, BẤT CỨ KHI NÀO, TRÊN BẤT CỨ THIẾT BỊ NÀO
+Quản lý, lưu trữ, bảo vệ và chia sẻ mật khẩu không giới hạn trên mọi thiết bị mà không có bất kỳ hạn chế nào.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+MỌI NGƯỜI ĐỀU NÊN CÓ CÔNG CỤ ĐỂ BẢO VỆ BẢN THÂN TRỰC TUYẾN
+Sử dụng Bitwarden miễn phí mà không có quảng cáo hoặc bán dữ liệu. Bitwarden tin rằng mọi người đều nên có khả năng bảo vệ an toàn khi trực tuyến. Các gói cao cấp cung cấp quyền truy cập vào các tính năng nâng cao.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+TĂNG CƯỜNG KHẢ NĂNG CHO ĐỘI NGŨ CỦA BẠN VỚI BITWARDEN
+Các gói dành cho Đội ngũ và Doanh nghiệp đi kèm với các tính năng chuyên nghiệp cho doanh nghiệp. Một số ví dụ bao gồm tích hợp Đăng nhập một lần, tự lưu trữ, tích hợp danh bạ và cấp phép SCIM, chính sách toàn cầu, truy cập API, nhật ký sự kiện và nhiều hơn nữa.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Sử dụng Bitwarden để bảo vệ nhân viên của bạn và chia sẻ thông tin nhạy cảm với đồng nghiệp.
 
 
-More reasons to choose Bitwarden:
+Thêm những lý do để chọn Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Mã hóa hàng đầu thế giới
+Mật khẩu được bảo vệ bằng mã hóa end-to-end tiên tiến (AES-256 bit, salted hashtag và PBKDF2 SHA-256) để dữ liệu của bạn luôn an toàn và riêng tư.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Kiểm toán bảo mật bởi bên thứ ba
+Bitwarden thường xuyên thực hiện các cuộc kiểm toán bảo mật toàn diện bởi các công ty bảo mật uy tín. Các cuộc kiểm toán hàng năm này bao gồm đánh giá mã nguồn và thử nghiệm xâm nhập trên các tài sản trí tuệ (IP), máy chủ và ứng dụng web của Bitwarden.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Xác thực hai yếu tố (2FA) nâng cao
+Bảo vệ đăng nhập của bạn bằng ứng dụng xác thực bên thứ ba, mã xác thực qua email hoặc thông tin xác thực FIDO2 WebAuthn như khóa bảo mật phần cứng hoặc mã khóa.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Chuyển dữ liệu trực tiếp cho người khác trong khi duy trì bảo mật mã hóa đầu cuối và hạn chế rủi ro lộ thông tin.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Trình tạo mật khẩu tích hợp
+Tạo mật khẩu dài, phức tạp và duy nhất cùng tên người dùng riêng biệt cho mỗi trang web bạn truy cập. Tích hợp với các nhà cung cấp địa chỉ email ẩn danh để tăng cường bảo mật.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Dịch thuật toàn cầu
+Bitwarden được bản địa hoa tới hơn 60 ngôn ngữ, được thực hiện bởi cộng đồng toàn cầu thông qua Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Ứng dụng đa nền tảng
+Bảo mật và chia sẻ dữ liệu nhạy cảm trong kho Bitwarden của bạn từ bất kỳ trình duyệt, thiết bị di động hoặc hệ điều hành máy tính nào và nhiều hơn nữa.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden bảo mật hơn cả mật khẩu
+Giải pháp quản lý thông tin đăng nhập được mã hóa đầu cuối của Bitwarden giúp các tổ chức bảo mật mọi thứ, bao gồm bí mật của nhà phát triển và trải nghiệm khóa truy cập. Truy cập Bitwarden.com để tìm hiểu thêm về Trình bảo vệ Bí mật Bitwarden và Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Ở nhà, ở cơ quan hay khi di chuyển, Bitwarden sẽ bảo vệ tất cả mật khẩu, mã khóa và thông tin cá nhân của bạn.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Đồng bộ hóa và truy cập vào kho lưu trữ của bạn từ nhiều thiết bị</value>

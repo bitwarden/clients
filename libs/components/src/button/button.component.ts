@@ -1,12 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component, model, computed } from "@angular/core";
+import { input, HostBinding, Component, model, computed, booleanAttribute } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
-import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
+import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
 
 const focusRing = [
   "focus-visible:tw-ring-2",
@@ -14,6 +11,11 @@ const focusRing = [
   "focus-visible:tw-ring-primary-600",
   "focus-visible:tw-z-10",
 ];
+
+const buttonSizeStyles: Record<ButtonSize, string[]> = {
+  small: ["tw-py-1", "tw-px-3", "tw-text-sm"],
+  default: ["tw-py-1.5", "tw-px-3"],
+};
 
 const buttonStyles: Record<ButtonType, string[]> = {
   primary: [
@@ -28,9 +30,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "tw-bg-transparent",
     "tw-border-primary-600",
     "!tw-text-primary-600",
-    "hover:tw-bg-primary-600",
-    "hover:tw-border-primary-600",
-    "hover:!tw-text-contrast",
+    "hover:tw-bg-hover-default",
     ...focusRing,
   ],
   danger: [
@@ -49,7 +49,6 @@ const buttonStyles: Record<ButtonType, string[]> = {
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
-  standalone: true,
   imports: [NgClass],
   host: {
     "[attr.disabled]": "disabledAttr()",
@@ -59,8 +58,6 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
     return [
       "tw-font-semibold",
-      "tw-py-1.5",
-      "tw-px-3",
       "tw-rounded-full",
       "tw-transition",
       "tw-border-2",
@@ -70,8 +67,8 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       "hover:tw-no-underline",
       "focus:tw-outline-none",
     ]
-      .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType ?? "secondary"])
+      .concat(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
+      .concat(buttonStyles[this.buttonType() ?? "secondary"])
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
@@ -85,7 +82,8 @@ export class ButtonComponent implements ButtonLikeAbstraction {
               "disabled:hover:tw-no-underline",
             ]
           : [],
-      );
+      )
+      .concat(buttonSizeStyles[this.size() || "default"]);
   }
 
   protected disabledAttr = computed(() => {
@@ -105,20 +103,13 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
-  @Input() buttonType: ButtonType;
+  readonly buttonType = input<ButtonType>("secondary");
 
-  private _block = false;
+  readonly size = input<ButtonSize>("default");
 
-  @Input()
-  get block(): boolean {
-    return this._block;
-  }
+  readonly block = input(false, { transform: booleanAttribute });
 
-  set block(value: boolean | "") {
-    this._block = coerceBooleanProperty(value);
-  }
-
-  loading = model<boolean>(false);
+  readonly loading = model<boolean>(false);
 
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show

@@ -1,5 +1,4 @@
-import { DialogRef } from "@angular/cdk/dialog";
-import { Component } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -10,37 +9,37 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
-import { firstValueFrom, map } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PlanSponsorshipType } from "@bitwarden/common/billing/enums";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ButtonModule, DialogModule, DialogService, FormFieldModule } from "@bitwarden/components";
+import { OrgKey } from "@bitwarden/common/types/key";
+import {
+  DialogRef,
+  ButtonModule,
+  DialogConfig,
+  DIALOG_DATA,
+  DialogModule,
+  DialogService,
+  FormFieldModule,
+  ToastService,
+} from "@bitwarden/components";
 
 interface RequestSponsorshipForm {
   sponsorshipEmail: FormControl<string | null>;
   sponsorshipNote: FormControl<string | null>;
 }
 
-export interface AddSponsorshipDialogResult {
-  action: AddSponsorshipDialogAction;
-  value: Partial<AddSponsorshipFormValue> | null;
-}
-
-interface AddSponsorshipFormValue {
-  sponsorshipEmail: string;
-  sponsorshipNote: string;
-  status: string;
-}
-
-enum AddSponsorshipDialogAction {
-  Saved = "saved",
-  Canceled = "canceled",
+interface AddSponsorshipDialogParams {
+  organizationId: string;
+  organizationKey: OrgKey;
 }
 
 @Component({
   templateUrl: "add-sponsorship-dialog.component.html",
-  standalone: true,
   imports: [
     JslibModule,
     ButtonModule,
@@ -53,54 +52,86 @@ enum AddSponsorshipDialogAction {
 export class AddSponsorshipDialogComponent {
   sponsorshipForm: FormGroup<RequestSponsorshipForm>;
   loading = false;
+  organizationId: string;
+  organizationKey: OrgKey;
 
   constructor(
-    private dialogRef: DialogRef<AddSponsorshipDialogResult>,
+    private dialogRef: DialogRef,
     private formBuilder: FormBuilder,
-    private accountService: AccountService,
     private i18nService: I18nService,
+    private organizationUserApiService: OrganizationUserApiService,
+    private toastService: ToastService,
+    private apiService: ApiService,
+    private encryptService: EncryptService,
+
+    @Inject(DIALOG_DATA) protected dialogParams: AddSponsorshipDialogParams,
   ) {
+    this.organizationId = this.dialogParams?.organizationId;
+    this.organizationKey = this.dialogParams.organizationKey;
+
     this.sponsorshipForm = this.formBuilder.group<RequestSponsorshipForm>({
       sponsorshipEmail: new FormControl<string | null>("", {
         validators: [Validators.email, Validators.required],
-        asyncValidators: [this.validateNotCurrentUserEmail.bind(this)],
+        asyncValidators: [this.isOrganizationMember.bind(this)],
         updateOn: "change",
       }),
-      sponsorshipNote: new FormControl<string | null>("", {}),
+      sponsorshipNote: new FormControl<string | null>("", {
+        validators: [Validators.maxLength(1000)],
+      }),
     });
   }
 
-  static open(dialogService: DialogService): DialogRef<AddSponsorshipDialogResult> {
-    return dialogService.open<AddSponsorshipDialogResult>(AddSponsorshipDialogComponent);
+  static open(dialogService: DialogService, config: DialogConfig<AddSponsorshipDialogParams>) {
+    return dialogService.open(AddSponsorshipDialogComponent, {
+      ...config,
+      data: config.data,
+    } as unknown as DialogConfig<unknown, DialogRef>);
   }
 
   protected async save() {
+    this.sponsorshipEmailControl.markAllAsTouched();
+
     if (this.sponsorshipForm.invalid) {
       return;
     }
-
     this.loading = true;
-    // TODO: This is a mockup implementation - needs to be updated with actual API integration
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
 
-    const formValue = this.sponsorshipForm.getRawValue();
-    const dialogValue: Partial<AddSponsorshipFormValue> = {
-      status: "Sent",
-      sponsorshipEmail: formValue.sponsorshipEmail ?? "",
-      sponsorshipNote: formValue.sponsorshipNote ?? "",
-    };
+    try {
+      const notes = this.sponsorshipForm.value.sponsorshipNote || "";
+      const email = this.sponsorshipForm.value.sponsorshipEmail || "";
 
-    this.dialogRef.close({
-      action: AddSponsorshipDialogAction.Saved,
-      value: dialogValue,
-    });
+      const encryptedNotes = await this.encryptService.encryptString(notes, this.organizationKey);
+      const isAdminInitiated = true;
+      await this.apiService.postCreateSponsorship(this.organizationId, {
+        sponsoredEmail: email,
+        planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
+        friendlyName: email,
+        isAdminInitiated,
+        notes: encryptedNotes.encryptedString,
+      });
+
+      this.toastService.showToast({
+        variant: "success",
+        title: undefined,
+        message: this.i18nService.t("sponsorshipCreated"),
+      });
+      await this.resetForm();
+    } catch (e: any) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: e?.message || this.i18nService.t("unexpectedError"),
+      });
+    }
 
     this.loading = false;
+
+    this.dialogRef.close();
   }
 
-  protected close = () => {
-    this.dialogRef.close({ action: AddSponsorshipDialogAction.Canceled, value: null });
-  };
+  private async resetForm() {
+    this.sponsorshipForm.reset();
+  }
 
   get sponsorshipEmailControl() {
     return this.sponsorshipForm.controls.sponsorshipEmail;
@@ -110,24 +141,21 @@ export class AddSponsorshipDialogComponent {
     return this.sponsorshipForm.controls.sponsorshipNote;
   }
 
-  private async validateNotCurrentUserEmail(
-    control: AbstractControl,
-  ): Promise<ValidationErrors | null> {
+  private async isOrganizationMember(control: AbstractControl): Promise<ValidationErrors | null> {
     const value = control.value;
-    if (!value) {
-      return null;
-    }
 
-    const currentUserEmail = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email ?? "")),
+    const users = await this.organizationUserApiService.getAllMiniUserDetails(this.organizationId);
+
+    const userExists = users.data.some(
+      (member) => member.email.toLowerCase() === value.toLowerCase(),
     );
 
-    if (!currentUserEmail) {
-      return null;
-    }
-
-    if (value.toLowerCase() === currentUserEmail.toLowerCase()) {
-      return { currentUserEmail: true };
+    if (userExists) {
+      return {
+        isOrganizationMember: {
+          message: this.i18nService.t("organizationHasMemberMessage", value),
+        },
+      };
     }
 
     return null;

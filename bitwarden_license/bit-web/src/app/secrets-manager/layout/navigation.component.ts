@@ -22,7 +22,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { SecretsManagerLogo } from "@bitwarden/web-vault/app/layouts/secrets-manager-logo";
+import { SecretsManagerLogo } from "@bitwarden/components";
 
 import { OrganizationCounts } from "../models/view/counts.view";
 import { ProjectService } from "../projects/project.service";
@@ -34,6 +34,7 @@ import { CountService } from "../shared/counts/count.service";
 @Component({
   selector: "sm-navigation",
   templateUrl: "./navigation.component.html",
+  standalone: false,
 })
 export class NavigationComponent implements OnInit, OnDestroy {
   protected readonly logo = SecretsManagerLogo;

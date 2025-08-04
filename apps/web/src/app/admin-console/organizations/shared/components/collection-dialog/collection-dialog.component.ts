@@ -26,7 +26,6 @@ import {
   CollectionResponse,
   CollectionView,
   CollectionService,
-  Collection,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
@@ -38,7 +37,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   DIALOG_DATA,
@@ -65,6 +64,8 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CollectionDialogTabType {
   Info = 0,
   Access = 1,
@@ -76,6 +77,8 @@ export enum CollectionDialogTabType {
  * @readonly
  * @enum {string}
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum ButtonType {
   /** Displayed when the user has reached the maximum number of collections allowed for the organization. */
   Upgrade = "upgrade",
@@ -103,6 +106,8 @@ export interface CollectionDialogResult {
   collection: CollectionResponse | CollectionView;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CollectionDialogAction {
   Saved = "saved",
   Canceled = "canceled",
@@ -112,7 +117,6 @@ export enum CollectionDialogAction {
 
 @Component({
   templateUrl: "collection-dialog.component.html",
-  standalone: true,
   imports: [SharedModule, AccessSelectorModule, SelectModule],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
@@ -129,7 +133,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showOrgSelector = false;
   protected formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
-    externalId: "",
+    externalId: { value: "", disabled: true },
     parent: undefined as string | undefined,
     access: [[] as AccessItemValue[]],
     selectedOrg: "",
@@ -137,18 +141,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected PermissionMode = PermissionMode;
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
-  protected collections: Collection[];
   protected buttonDisplayName: ButtonType = ButtonType.Save;
-  protected isExternalIdVisible$ = this.configService
-    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-    .pipe(
-      map((isEnabled) => {
-        return (
-          !isEnabled ||
-          (!!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value)
-        );
-      }),
-    );
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -159,7 +152,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private groupService: GroupApiService,
     private collectionAdminService: CollectionAdminService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private organizationUserApiService: OrganizationUserApiService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -173,14 +165,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     // Opened from the individual vault
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (this.params.showOrgSelector) {
       this.showOrgSelector = true;
       this.formGroup.controls.selectedOrg.valueChanges
         .pipe(takeUntil(this.destroy$))
         .subscribe((id) => this.loadOrg(id));
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
       this.organizations$ = this.organizationService.organizations$(userId).pipe(
         first(),
         map((orgs) =>
@@ -202,9 +192,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     );
 
     if (isBreadcrumbEventLogsEnabled) {
-      this.collections = await this.collectionService.getAll();
       this.organizationSelected.setAsyncValidators(
-        freeOrgCollectionLimitValidator(this.organizations$, this.collections, this.i18nService),
+        freeOrgCollectionLimitValidator(
+          this.organizations$,
+          this.collectionService
+            .encryptedCollections$(userId)
+            .pipe(map((collections) => collections ?? [])),
+          this.i18nService,
+        ),
       );
       this.formGroup.updateValueAndValidity();
     }
@@ -219,7 +214,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
           }
         }),
         filter(() => this.organizationSelected.errors?.cannotCreateCollections),
-        switchMap((value) => this.findOrganizationById(value)),
+        switchMap((organizationId) => this.organizations$.pipe(getById(organizationId))),
         takeUntil(this.destroy$),
       )
       .subscribe((org) => {
@@ -227,11 +222,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         this.organizationSelected.markAsTouched();
         this.formGroup.updateValueAndValidity();
       });
-  }
-
-  async findOrganizationById(orgId: string): Promise<Organization | undefined> {
-    const organizations = await firstValueFrom(this.organizations$);
-    return organizations.find((org) => org.id === orgId);
   }
 
   async loadOrg(orgId: string) {
@@ -348,6 +338,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     return this.formGroup.controls.selectedOrg;
   }
 
+  protected get isExternalIdVisible(): boolean {
+    return this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
+  }
+
   protected get collectionId() {
     return this.params.collectionId;
   }
@@ -416,7 +410,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       collectionView.name = this.formGroup.controls.name.value;
     }
 
-    const savedCollection = await this.collectionAdminService.save(collectionView);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const savedCollection = await this.collectionAdminService.save(collectionView, userId);
 
     this.toastService.showToast({
       variant: "success",
@@ -484,23 +479,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   private handleFormGroupReadonly(readonly: boolean) {
     if (readonly) {
       this.formGroup.controls.name.disable();
-      this.formGroup.controls.externalId.disable();
       this.formGroup.controls.parent.disable();
       this.formGroup.controls.access.disable();
     } else {
       this.formGroup.controls.name.enable();
-
-      this.configService
-        .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((isEnabled) => {
-          if (isEnabled) {
-            this.formGroup.controls.externalId.disable();
-          } else {
-            this.formGroup.controls.externalId.enable();
-          }
-        });
-
       this.formGroup.controls.parent.enable();
       this.formGroup.controls.access.enable();
     }
@@ -607,5 +589,5 @@ export function openCollectionDialog(
   dialogService: DialogService,
   config: DialogConfig<CollectionDialogParams, DialogRef<CollectionDialogResult>>,
 ) {
-  return dialogService.open(CollectionDialogComponent, config);
+  return dialogService.open<CollectionDialogResult>(CollectionDialogComponent, config);
 }

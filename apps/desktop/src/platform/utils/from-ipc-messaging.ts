@@ -1,6 +1,8 @@
 import { fromEventPattern, share } from "rxjs";
 
 import { Message } from "@bitwarden/common/platform/messaging";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { tagAsExternal } from "@bitwarden/common/platform/messaging/internal";
 
 /**

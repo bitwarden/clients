@@ -54,12 +54,20 @@ export class DefaultBillingAccountProfileStateService implements BillingAccountP
     hasPremiumFromAnyOrganization: boolean,
     userId: UserId,
   ): Promise<void> {
-    await this.stateProvider.getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION).update((_) => {
-      return {
-        hasPremiumPersonally: hasPremiumPersonally,
-        hasPremiumFromAnyOrganization: hasPremiumFromAnyOrganization,
-      };
-    });
+    await this.stateProvider.getUser(userId, BILLING_ACCOUNT_PROFILE_KEY_DEFINITION).update(
+      (_) => {
+        return {
+          hasPremiumPersonally: hasPremiumPersonally,
+          hasPremiumFromAnyOrganization: hasPremiumFromAnyOrganization,
+        };
+      },
+      {
+        shouldUpdate: (state) =>
+          state == null ||
+          state.hasPremiumFromAnyOrganization !== hasPremiumFromAnyOrganization ||
+          state.hasPremiumPersonally !== hasPremiumPersonally,
+      },
+    );
   }
 
   canViewSubscription$(userId: UserId): Observable<boolean> {

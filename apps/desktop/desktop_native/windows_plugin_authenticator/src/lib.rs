@@ -9,57 +9,13 @@ use windows::Win32::System::Com::*;
 use windows::Win32::System::LibraryLoader::*;
 use windows_core::*;
 
+mod pluginauthenticator;
+mod webauthn;
+
 const AUTHENTICATOR_NAME: &str = "Bitwarden Desktop Authenticator";
 //const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
 const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
 const RPID: &str = "bitwarden.com";
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST {
-    pub transactionId: GUID,
-    pub cbRequestSignature: Dword,
-    pub pbRequestSignature: *mut byte,
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_REQUEST {
-    pub hWnd: HWND,
-    pub transactionId: GUID,
-    pub cbRequestSignature: Dword,
-    pub pbRequestSignature: *mut byte,
-    pub cbEncodedRequest: Dword,
-    pub pbEncodedRequest: *mut byte,
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
-    pub cbOpSignPubKey: Dword,
-    pub pbOpSignPubKey: PByte,
-}
-
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
-    pub cbEncodedResponse: Dword,
-    pub pbEncodedResponse: *mut byte,
-}
-
-type Dword = u32;
-type Byte = u8;
-type byte = u8;
-pub type PByte = *mut Byte;
-
-type EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST =
-    *const EXPERIMENTAL_WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST;
-pub type EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST =
-    *const EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_REQUEST;
-pub type EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE =
-    *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_RESPONSE;
-pub type EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE =
-    *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE;
 
 /// Handles initialization and registration for the Bitwarden desktop app as a
 /// plugin authenticator with Windows.
@@ -109,7 +65,8 @@ fn initialize_com_library() -> std::result::Result<(), String> {
 
 /// Registers the Bitwarden Plugin Authenticator COM library with Windows.
 fn register_com_library() -> std::result::Result<(), String> {
-    static FACTORY: windows_core::StaticComObject<Factory> = Factory().into_static();
+    static FACTORY: windows_core::StaticComObject<pluginauthenticator::Factory> =
+        pluginauthenticator::Factory().into_static();
     let clsid: *const GUID = &GUID::from_u128(0xa98925d161f640de9327dc418fcb2ff4);
 
     match unsafe {
@@ -146,25 +103,25 @@ fn add_authenticator() -> std::result::Result<(), String> {
     let cbor_authenticator_info = "A60182684649444F5F325F30684649444F5F325F310282637072666B686D61632D7365637265740350D548826E79B4DB40A3D811116F7E834904A362726BF5627570F5627576F5098168696E7465726E616C0A81A263616C672664747970656A7075626C69632D6B6579";
     let mut authenticator_info_bytes = hex::decode(cbor_authenticator_info).unwrap();
 
-    let add_authenticator_options = EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
-        pwszAuthenticatorName: authenticator_name_ptr,
-        pwszPluginClsId: clsid_ptr,
-        pwszPluginRpId: relying_party_id_ptr,
-        pwszLightThemeLogo: ptr::null(), // unused by Windows
-        pwszDarkThemeLogo: ptr::null(),  // unused by Windows
-        cbAuthenticatorInfo: authenticator_info_bytes.len() as u32,
-        pbAuthenticatorInfo: authenticator_info_bytes.as_mut_ptr(),
+    let add_authenticator_options = webauthn::ExperimentalWebAuthnPluginAddAuthenticatorOptions {
+        authenticator_name: authenticator_name_ptr,
+        com_clsid: clsid_ptr,
+        rpid: relying_party_id_ptr,
+        light_theme_logo: ptr::null(), // unused by Windows
+        dark_theme_logo: ptr::null(),  // unused by Windows
+        cbor_authenticator_info_byte_count: authenticator_info_bytes.len() as u32,
+        cbor_authenticator_info: authenticator_info_bytes.as_mut_ptr(),
     };
 
-    let plugin_signing_public_key_byte_count: Dword = 0;
+    let plugin_signing_public_key_byte_count: u32 = 0;
     let mut plugin_signing_public_key: c_uchar = 0;
-    let plugin_signing_public_key_ptr: PByte = &mut plugin_signing_public_key;
+    let plugin_signing_public_key_ptr = &mut plugin_signing_public_key;
 
-    let mut add_response = EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
-        cbOpSignPubKey: plugin_signing_public_key_byte_count,
-        pbOpSignPubKey: plugin_signing_public_key_ptr,
+    let mut add_response = webauthn::ExperimentalWebAuthnPluginAddAuthenticatorResponse {
+        plugin_operation_signing_key_byte_count: plugin_signing_public_key_byte_count,
+        plugin_operation_signing_key: plugin_signing_public_key_ptr,
     };
-    let mut add_response_ptr: *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE =
+    let mut add_response_ptr: *mut webauthn::ExperimentalWebAuthnPluginAddAuthenticatorResponse =
         &mut add_response;
 
     let result = unsafe {
@@ -193,23 +150,10 @@ fn add_authenticator() -> std::result::Result<(), String> {
     }
 }
 
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
-    pub pwszAuthenticatorName: *const u16,
-    pub pwszPluginClsId: *const u16,
-    pub pwszPluginRpId: *const u16,
-    pub pwszLightThemeLogo: *const u16,
-    pub pwszDarkThemeLogo: *const u16,
-    pub cbAuthenticatorInfo: u32,
-    pub pbAuthenticatorInfo: *const u8,
-}
-
 type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorFnDeclaration = unsafe extern "cdecl" fn(
-    pPluginAddAuthenticatorOptions: *const EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
-    ppPluginAddAuthenticatorResponse: *mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
-)
-    -> HRESULT;
+    pPluginAddAuthenticatorOptions: *const webauthn::ExperimentalWebAuthnPluginAddAuthenticatorOptions,
+    ppPluginAddAuthenticatorResponse: *mut *mut webauthn::ExperimentalWebAuthnPluginAddAuthenticatorResponse,
+) -> HRESULT;
 
 unsafe fn delay_load<T>(library: PCSTR, function: PCSTR) -> Option<T> {
     let library = LoadLibraryExA(library, None, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
@@ -227,71 +171,4 @@ unsafe fn delay_load<T>(library: PCSTR, function: PCSTR) -> Option<T> {
     _ = FreeLibrary(library);
 
     None
-}
-
-#[interface("e6466e9a-b2f3-47c5-b88d-89bc14a8d998")]
-unsafe trait EXPERIMENTAL_IPluginAuthenticator: IUnknown {
-    fn EXPERIMENTAL_PluginMakeCredential(
-        &self,
-        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
-        response: *mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
-    ) -> HRESULT;
-    fn EXPERIMENTAL_PluginGetAssertion(
-        &self,
-        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
-        response: *mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
-    ) -> HRESULT;
-    fn EXPERIMENTAL_PluginCancelOperation(
-        &self,
-        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
-    ) -> HRESULT;
-}
-
-#[implement(EXPERIMENTAL_IPluginAuthenticator)]
-struct PACOMObject;
-
-impl EXPERIMENTAL_IPluginAuthenticator_Impl for PACOMObject_Impl {
-    unsafe fn EXPERIMENTAL_PluginMakeCredential(
-        &self,
-        _request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
-        _response: *mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
-    ) -> HRESULT {
-        HRESULT(0)
-    }
-
-    unsafe fn EXPERIMENTAL_PluginGetAssertion(
-        &self,
-        _request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
-        _response: *mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
-    ) -> HRESULT {
-        HRESULT(0)
-    }
-
-    unsafe fn EXPERIMENTAL_PluginCancelOperation(
-        &self,
-        _request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
-    ) -> HRESULT {
-        HRESULT(0)
-    }
-}
-
-#[implement(IClassFactory)]
-struct Factory();
-
-impl IClassFactory_Impl for Factory_Impl {
-    fn CreateInstance(
-        &self,
-        outer: Ref<IUnknown>,
-        iid: *const GUID,
-        object: *mut *mut core::ffi::c_void,
-    ) -> Result<()> {
-        assert!(outer.is_null());
-        let unknown: IInspectable = PACOMObject.into();
-        unsafe { unknown.query(iid, object).ok() }
-    }
-
-    fn LockServer(&self, lock: BOOL) -> Result<()> {
-        assert!(lock.as_bool());
-        Ok(())
-    }
 }

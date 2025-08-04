@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -27,6 +29,8 @@ import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider, SYNC_DISK, UserKeyDefinition } from "../state";
+
+import { SyncOptions } from "./sync.service";
 
 const LAST_SYNC_DATE = new UserKeyDefinition<Date>(SYNC_DISK, "lastSync", {
   deserializer: (d) => (d != null ? new Date(d) : null),
@@ -55,6 +59,7 @@ export abstract class CoreSyncService implements SyncService {
     protected readonly stateProvider: StateProvider,
   ) {}
 
+  abstract fullSync(forceSync: boolean, syncOptions?: SyncOptions): Promise<boolean>;
   abstract fullSync(forceSync: boolean, allowThrowOnError?: boolean): Promise<boolean>;
 
   async getLastSync(): Promise<Date> {
@@ -167,7 +172,11 @@ export abstract class CoreSyncService implements SyncService {
           notification.collectionIds != null &&
           notification.collectionIds.length > 0
         ) {
-          const collections = await this.collectionService.getAll();
+          const collections = await firstValueFrom(
+            this.collectionService
+              .encryptedCollections$(userId)
+              .pipe(map((collections) => collections ?? [])),
+          );
           if (collections != null) {
             for (let i = 0; i < collections.length; i++) {
               if (notification.collectionIds.indexOf(collections[i].id) > -1) {

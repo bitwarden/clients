@@ -1,5 +1,5 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { CardData } from "../../../vault/models/data/card.data";
 import { Card } from "../../models/domain/card";
 
@@ -97,6 +97,23 @@ describe("Card", () => {
 
     it("returns null if object is null", () => {
       expect(Card.fromJSON(null)).toBeNull();
+    });
+  });
+
+  describe("toSdkCard", () => {
+    it("should map to SDK Card", () => {
+      const card = new Card(data);
+
+      const sdkCard = card.toSdkCard();
+
+      expect(sdkCard).toEqual({
+        cardholderName: "encHolder",
+        brand: "encBrand",
+        number: "encNumber",
+        expMonth: "encMonth",
+        expYear: "encYear",
+        code: "encCode",
+      });
     });
   });
 });

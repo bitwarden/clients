@@ -18,10 +18,11 @@ $theme-colors: (
 );
 
 $body-bg: $white;
-$body-color: #333333;
+$body-color: #1b2029;
 
-$font-family-sans-serif: "DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif,
-  "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+$font-family-sans-serif:
+  Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+  "Segoe UI Symbol";
 
 $h1-font-size: 1.7rem;
 $h2-font-size: 1.3rem;
@@ -215,7 +216,7 @@ $themes: (
     textColor: $body-color,
     textDangerColor: $white,
     textInfoColor: $white,
-    textHeadingColor: #333333,
+    textHeadingColor: $body-color,
     textMuted: #6c757d,
     textSuccessColor: $white,
     textWarningColor: $white,

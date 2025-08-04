@@ -2,11 +2,13 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { RotateableKeySet } from "@bitwarden/auth/common";
 
 import { DeviceType } from "../../../enums";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { BaseResponse } from "../../../models/response/base.response";
-import { EncString } from "../../../platform/models/domain/enc-string";
 
 export class ProtectedDeviceResponse extends BaseResponse {
   constructor(response: Jsonify<ProtectedDeviceResponse>) {

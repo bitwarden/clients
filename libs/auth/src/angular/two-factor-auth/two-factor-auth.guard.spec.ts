@@ -11,7 +11,7 @@ import { LoginStrategyServiceAbstraction } from "../../common";
 
 import { TwoFactorAuthGuard } from "./two-factor-auth.guard";
 
-@Component({ template: "" })
+@Component({ template: "", standalone: true })
 export class EmptyComponent {}
 
 describe("TwoFactorAuthGuard", () => {

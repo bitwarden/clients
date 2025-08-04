@@ -5,12 +5,13 @@ import {
   OrganizationUserResetPasswordDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
 import { OrganizationAuthRequestUpdateRequest } from "./organization-auth-request-update.request";
+import { PendingAuthRequestWithFingerprintView } from "./pending-auth-request-with-fingerprint.view";
 import { PendingAuthRequestView } from "./pending-auth-request.view";
 
 export class OrganizationAuthRequestService {
@@ -23,6 +24,16 @@ export class OrganizationAuthRequestService {
 
   async listPendingRequests(organizationId: string): Promise<PendingAuthRequestView[]> {
     return await this.organizationAuthRequestApiService.listPendingRequests(organizationId);
+  }
+
+  async listPendingRequestsWithFingerprint(
+    organizationId: string,
+  ): Promise<PendingAuthRequestWithFingerprintView[]> {
+    return Promise.all(
+      ((await this.listPendingRequests(organizationId)) ?? []).map(
+        async (r) => await PendingAuthRequestWithFingerprintView.fromView(r, this.keyService),
+      ),
+    );
   }
 
   async denyPendingRequests(organizationId: string, ...requestIds: string[]): Promise<void> {
@@ -112,7 +123,7 @@ export class OrganizationAuthRequestService {
 
     // Decrypt Organization's encrypted Private Key with org key
     const orgSymKey = await this.keyService.getOrgKey(organizationId);
-    const decOrgPrivateKey = await this.encryptService.decryptToBytes(
+    const decOrgPrivateKey = await this.encryptService.decryptBytes(
       new EncString(encryptedOrgPrivateKey),
       orgSymKey,
     );

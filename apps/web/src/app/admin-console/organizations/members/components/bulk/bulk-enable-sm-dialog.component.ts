@@ -22,6 +22,7 @@ export type BulkEnableSecretsManagerDialogData = {
 
 @Component({
   templateUrl: `bulk-enable-sm-dialog.component.html`,
+  standalone: false,
 })
 export class BulkEnableSecretsManagerDialogComponent implements OnInit {
   protected dataSource = new TableDataSource<OrganizationUserView>();

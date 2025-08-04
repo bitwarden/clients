@@ -1,0 +1,59 @@
+import { Meta, Canvas } from "@storybook/addon-docs";
+
+import * as stories from "./icons.stories";
+
+<Meta title="Documentation/Icons" />
+
+# Iconography
+
+Bitwarden has a suite of presentational icons available for use, as well as a few helper classes for
+sizing and rotation.
+
+Icons use the `bwi` class, as well as an additional `bwi-*` class to indicate which icon will be
+rendered.
+
+Example basic usage:
+
+```
+<i class="bwi bwi-check"></i>
+```
+
+## Accessibility
+
+Avoid using icons to convey information unless paired with meaningful, clear text. If an icon must
+be used and text cannot be displayed visually along with the icon, use an `aria-label` to provide
+the text to screen readers, and a `title` attribute to provide the text visually through a tool tip.
+Note: this pattern should only be followed for very common iconography such as a settings cog icon
+or an options menu icon.
+
+## Status Indicators
+
+<Canvas of={stories.StatusIcons} />
+
+## Bitwarden Objects
+
+<Canvas of={stories.BitwardenObjects} />
+
+## Actions
+
+<Canvas of={stories.Actions} />
+
+## Directional and Menu Indicators
+
+<Canvas of={stories.DirectionalMenuIndicators} />
+
+## Misc Objects
+
+<Canvas of={stories.MiscObjects} />
+
+## Platforms and Logos
+
+<Canvas of={stories.PlatformsAndLogos} />
+
+## Size Variants
+
+<Canvas of={stories.SizeVariants} />
+
+## Rotation Variants
+
+<Canvas of={stories.RotationVariants} />

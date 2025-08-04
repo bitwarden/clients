@@ -18,6 +18,8 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     outputs:
       release_version: ${{ steps.version.outputs.version }}
       tag_version: ${{ steps.version.outputs.tag }}
@@ -50,6 +52,8 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
       - setup
+    permissions:
+      contents: write
     steps:
       - name: Download latest build artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}

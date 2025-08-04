@@ -2,6 +2,8 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
 import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -12,12 +14,13 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CipherId, CollectionId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { getByIds } from "@bitwarden/common/platform/misc";
+import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
@@ -39,7 +42,6 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
 @Component({
   selector: "app-cipher-view",
   templateUrl: "cipher-view.component.html",
-  standalone: true,
   imports: [
     CalloutModule,
     CommonModule,
@@ -80,7 +82,6 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   private destroyed$: Subject<void> = new Subject();
   cardIsExpired: boolean = false;
   hadPendingChangePasswordTask: boolean = false;
-  isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
 
   constructor(
     private organizationService: OrganizationService,
@@ -90,8 +91,8 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     private defaultTaskService: TaskService,
     private platformUtilsService: PlatformUtilsService,
     private changeLoginPasswordService: ChangeLoginPasswordService,
-    private configService: ConfigService,
     private cipherService: CipherService,
+    private logService: LogService,
   ) {}
 
   async ngOnChanges() {
@@ -124,7 +125,8 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     }
 
     const { username, password, totp, fido2Credentials } = this.cipher.login;
-    return username || password || totp || fido2Credentials;
+
+    return username || password || totp || fido2Credentials?.length > 0;
   }
 
   get hasAutofill() {
@@ -142,6 +144,8 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
       return;
     }
 
+    const userId = await firstValueFrom(this.activeUserId$);
+
     // Load collections if not provided and the cipher has collectionIds
     if (
       this.cipher.collectionIds &&
@@ -149,28 +153,21 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
       (!this.collections || this.collections.length === 0)
     ) {
       this.collections = await firstValueFrom(
-        this.collectionService.decryptedCollectionViews$(
-          this.cipher.collectionIds as CollectionId[],
-        ),
+        this.collectionService
+          .decryptedCollections$(userId)
+          .pipe(getByIds(this.cipher.collectionIds)),
       );
     }
 
-    const userId = await firstValueFrom(this.activeUserId$);
-
-    // Show Tasks for Manage and Edit permissions
-    // Using cipherService to see if user has access to cipher in a non-AC context to address with Edit Except Password permissions
-    const allCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
-    const cipherServiceCipher = allCiphers[this.cipher?.id as CipherId];
-
-    if (cipherServiceCipher?.edit && cipherServiceCipher?.viewPassword) {
-      await this.checkPendingChangePasswordTasks(userId);
-    }
-
-    if (this.cipher.organizationId && userId) {
+    if (this.cipher.organizationId) {
       this.organization$ = this.organizationService
         .organizations$(userId)
         .pipe(getOrganizationById(this.cipher.organizationId))
         .pipe(takeUntil(this.destroyed$));
+
+      if (this.cipher.type === CipherType.Login) {
+        await this.checkPendingChangePasswordTasks(userId);
+      }
     }
 
     if (this.cipher.folderId) {
@@ -181,17 +178,28 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   }
 
   async checkPendingChangePasswordTasks(userId: UserId): Promise<void> {
-    if (!(await firstValueFrom(this.isSecurityTasksEnabled$))) {
-      return;
+    try {
+      // Show Tasks for Manage and Edit permissions
+      // Using cipherService to see if user has access to cipher in a non-AC context to address with Edit Except Password permissions
+      const allCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
+      const cipherServiceCipher = allCiphers[this.cipher?.id as CipherId];
+
+      if (!cipherServiceCipher?.edit || !cipherServiceCipher?.viewPassword) {
+        this.hadPendingChangePasswordTask = false;
+        return;
+      }
+
+      const tasks = await firstValueFrom(this.defaultTaskService.pendingTasks$(userId));
+
+      this.hadPendingChangePasswordTask = tasks?.some((task) => {
+        return (
+          task.cipherId === this.cipher?.id && task.type === SecurityTaskType.UpdateAtRiskCredential
+        );
+      });
+    } catch (error) {
+      this.hadPendingChangePasswordTask = false;
+      this.logService.error("Failed to retrieve change password tasks for cipher", error);
     }
-
-    const tasks = await firstValueFrom(this.defaultTaskService.pendingTasks$(userId));
-
-    this.hadPendingChangePasswordTask = tasks?.some((task) => {
-      return (
-        task.cipherId === this.cipher?.id && task.type === SecurityTaskType.UpdateAtRiskCredential
-      );
-    });
   }
 
   launchChangePassword = async () => {

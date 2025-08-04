@@ -10,6 +10,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -17,6 +18,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Component({
   selector: "[sponsoring-org-row]",
   templateUrl: "sponsoring-org-row.component.html",
+  standalone: false,
 })
 export class SponsoringOrgRowComponent implements OnInit {
   @Input() sponsoringOrg: Organization = null;
@@ -37,6 +39,7 @@ export class SponsoringOrgRowComponent implements OnInit {
     private toastService: ToastService,
     private policyService: PolicyService,
     private accountService: AccountService,
+    private organizationSponsorshipApiService: OrganizationSponsorshipApiServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -73,7 +76,10 @@ export class SponsoringOrgRowComponent implements OnInit {
   }
 
   async resendEmail() {
-    await this.apiService.postResendSponsorshipOffer(this.sponsoringOrg.id);
+    await this.organizationSponsorshipApiService.postResendSponsorshipOffer(
+      this.sponsoringOrg.id,
+      this.sponsoringOrg.familySponsorshipFriendlyName,
+    );
     this.toastService.showToast({
       variant: "success",
       title: null,
@@ -104,7 +110,7 @@ export class SponsoringOrgRowComponent implements OnInit {
       return;
     }
 
-    await this.apiService.deleteRevokeSponsorship(this.sponsoringOrg.id);
+    await this.organizationSponsorshipApiService.deleteRevokeSponsorship(this.sponsoringOrg.id);
     this.toastService.showToast({
       variant: "success",
       title: null,

@@ -5,19 +5,101 @@
   </button>
 </app-header>
 
-<bit-tab-group [(selectedIndex)]="tabIndex">
-  <bit-tab [label]="'sponsoredBitwardenFamilies' | i18n">
-    <app-organization-sponsored-families
-      [sponsoredFamilies]="sponsoredFamilies"
-      (removeSponsorshipEvent)="removeSponsorhip($event)"
-    ></app-organization-sponsored-families>
-  </bit-tab>
+<bit-container>
+  <ng-container>
+    <p bitTypography="body1">
+      {{ "sponsorshipFreeBitwardenFamilies" | i18n }}
+    </p>
+    <div bitTypography="body1">
+      {{ "sponsoredFamiliesIncludeMessage" | i18n }}:
+      <ul class="tw-list-outside">
+        <li>{{ "sponsoredFamiliesPremiumAccess" | i18n }}</li>
+        <li>{{ "sponsoredFamiliesSharedCollectionsForFamilyMembers" | i18n }}</li>
+      </ul>
+    </div>
 
-  <bit-tab [label]="'memberFamilies' | i18n">
-    <app-organization-member-families
-      [memberFamilies]="sponsoredFamilies"
-    ></app-organization-member-families>
-  </bit-tab>
-</bit-tab-group>
+    <h2 bitTypography="h2" class="">{{ "sponsoredBitwardenFamilies" | i18n }}</h2>
 
-<p class="tw-px-4" bitTypography="body2">{{ "sponsoredFamiliesRemoveActiveSponsorship" | i18n }}</p>
+    @if (loading()) {
+      <ng-container>
+        <i class="bwi bwi-spinner bwi-spin tw-text-muted" title="{{ 'loading' | i18n }}"></i>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      </ng-container>
+    }
+
+    @if (!loading() && sponsoredFamilies?.length > 0) {
+      <ng-container>
+        <bit-table>
+          <ng-container header>
+            <tr>
+              <th bitCell>{{ "recipient" | i18n }}</th>
+              <th bitCell>{{ "status" | i18n }}</th>
+              <th bitCell>{{ "notes" | i18n }}</th>
+              <th bitCell></th>
+            </tr>
+          </ng-container>
+          <ng-template body alignContent="middle">
+            @for (sponsoredFamily of sponsoredFamilies; let i = $index; track i) {
+              <ng-container>
+                <tr bitRow>
+                  <td bitCell>{{ sponsoredFamily.friendlyName }}</td>
+                  <td bitCell [class]="sponsoredFamily.statusClass">
+                    {{ sponsoredFamily.statusMessage }}
+                  </td>
+                  <td bitCell>{{ sponsoredFamily.notes }}</td>
+                  <td bitCell>
+                    <button
+                      type="button"
+                      bitIconButton="bwi-ellipsis-v"
+                      buttonType="main"
+                      [bitMenuTriggerFor]="appListDropdown"
+                      appA11yTitle="{{ 'options' | i18n }}"
+                    ></button>
+                    <bit-menu #appListDropdown>
+                      @if (!isSelfHosted && !sponsoredFamily.validUntil) {
+                        <button
+                          type="button"
+                          bitMenuItem
+                          [attr.aria-label]="'resendEmailLabel' | i18n"
+                          (click)="resendEmail(sponsoredFamily)"
+                        >
+                          <i aria-hidden="true" class="bwi bwi-envelope"></i>
+                          {{ "resendInvitation" | i18n }}
+                        </button>
+                      }
+
+                      @if (!isSelfHosted && !sponsoredFamily.validUntil) {
+                        <hr class="tw-m-0" />
+                      }
+
+                      <button
+                        type="button"
+                        bitMenuItem
+                        [attr.aria-label]="'revokeAccountMessage' | i18n"
+                        (click)="removeSponsorship(sponsoredFamily)"
+                      >
+                        <i aria-hidden="true" class="bwi bwi-close tw-text-danger"></i>
+                        <span class="tw-text-danger tw-pl-1">{{ "remove" | i18n }}</span>
+                      </button>
+                    </bit-menu>
+                  </td>
+                </tr>
+              </ng-container>
+            }
+          </ng-template>
+        </bit-table>
+        <hr class="tw-mt-0" />
+      </ng-container>
+    } @else if (!loading()) {
+      <div class="tw-my-5 tw-py-5 tw-flex tw-flex-col tw-items-center">
+        <img class="tw-w-32" src="./../../../images/search.svg" alt="Search" />
+        <h4 class="tw-mt-3" bitTypography="h4">{{ "noSponsoredFamiliesMessage" | i18n }}</h4>
+        <p bitTypography="body2">{{ "nosponsoredFamiliesDetails" | i18n }}</p>
+      </div>
+    }
+
+    @if (!loading() && sponsoredFamilies.length > 0) {
+      <p bitTypography="body2">{{ "sponsoredFamiliesRemoveActiveSponsorship" | i18n }}</p>
+    }
+  </ng-container>
+</bit-container>

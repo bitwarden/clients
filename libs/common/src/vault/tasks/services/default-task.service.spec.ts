@@ -7,7 +7,6 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { NotificationType } from "@bitwarden/common/enums";
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Message, MessageListener } from "@bitwarden/common/platform/messaging";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
@@ -25,7 +24,6 @@ describe("Default task service", () => {
   const userId = "user-id" as UserId;
   const mockApiSend = jest.fn();
   const mockGetAllOrgs$ = jest.fn();
-  const mockGetFeatureFlag$ = jest.fn();
   const mockAuthStatuses$ = new BehaviorSubject<Record<UserId, AuthenticationStatus>>({});
   const mockNotifications$ = new Subject<readonly [NotificationResponse, UserId]>();
   const mockMessages$ = new Subject<Message<Record<string, unknown>>>();
@@ -34,14 +32,12 @@ describe("Default task service", () => {
   beforeEach(async () => {
     mockApiSend.mockClear();
     mockGetAllOrgs$.mockClear();
-    mockGetFeatureFlag$.mockClear();
 
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     service = new DefaultTaskService(
       fakeStateProvider,
       { send: mockApiSend } as unknown as ApiService,
       { organizations$: mockGetAllOrgs$ } as unknown as OrganizationService,
-      { getFeatureFlag$: mockGetFeatureFlag$ } as unknown as ConfigService,
       { authStatuses$: mockAuthStatuses$.asObservable() } as unknown as AuthService,
       { notifications$: mockNotifications$.asObservable() } as unknown as NotificationsService,
       { allMessages$: mockMessages$.asObservable() } as unknown as MessageListener,
@@ -50,7 +46,6 @@ describe("Default task service", () => {
 
   describe("tasksEnabled$", () => {
     it("should emit true if any organization uses risk insights", async () => {
-      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(true));
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
@@ -70,7 +65,6 @@ describe("Default task service", () => {
     });
 
     it("should emit false if no organization uses risk insights", async () => {
-      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(true));
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
@@ -78,23 +72,6 @@ describe("Default task service", () => {
           },
           {
             useRiskInsights: false,
-          },
-        ] as Organization[]),
-      );
-
-      const { tasksEnabled$ } = service;
-
-      const result = await firstValueFrom(tasksEnabled$("user-id" as UserId));
-
-      expect(result).toBe(false);
-    });
-
-    it("should emit false if the feature flag is off", async () => {
-      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(false));
-      mockGetAllOrgs$.mockReturnValue(
-        new BehaviorSubject([
-          {
-            useRiskInsights: true,
           },
         ] as Organization[]),
       );
@@ -108,6 +85,33 @@ describe("Default task service", () => {
   });
 
   describe("tasks$", () => {
+    beforeEach(() => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: true,
+          },
+        ] as Organization[]),
+      );
+    });
+
+    it("should return an empty array if tasks are not enabled", async () => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: false,
+          },
+        ] as Organization[]),
+      );
+
+      const { tasks$ } = service;
+
+      const result = await firstValueFrom(tasks$("user-id" as UserId));
+
+      expect(result.length).toBe(0);
+      expect(mockApiSend).not.toHaveBeenCalled();
+    });
+
     it("should fetch tasks from the API when the state is null", async () => {
       mockApiSend.mockResolvedValue({
         data: [
@@ -153,6 +157,33 @@ describe("Default task service", () => {
   });
 
   describe("pendingTasks$", () => {
+    beforeEach(() => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: true,
+          },
+        ] as Organization[]),
+      );
+    });
+
+    it("should return an empty array if tasks are not enabled", async () => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: false,
+          },
+        ] as Organization[]),
+      );
+
+      const { pendingTasks$ } = service;
+
+      const result = await firstValueFrom(pendingTasks$("user-id" as UserId));
+
+      expect(result.length).toBe(0);
+      expect(mockApiSend).not.toHaveBeenCalled();
+    });
+
     it("should filter tasks to only pending tasks", async () => {
       fakeStateProvider.singleUser.mockFor("user-id" as UserId, SECURITY_TASKS, [
         {
@@ -334,7 +365,7 @@ describe("Default task service", () => {
         const subscription = service.listenForTaskNotifications();
 
         const notification = {
-          type: NotificationType.PendingSecurityTasks,
+          type: NotificationType.RefreshSecurityTasks,
         } as NotificationResponse;
         mockNotifications$.next([notification, userId]);
 
@@ -359,7 +390,7 @@ describe("Default task service", () => {
         const subscription = service.listenForTaskNotifications();
 
         const notification = {
-          type: NotificationType.PendingSecurityTasks,
+          type: NotificationType.RefreshSecurityTasks,
         } as NotificationResponse;
         mockNotifications$.next([notification, "other-user-id" as UserId]);
 

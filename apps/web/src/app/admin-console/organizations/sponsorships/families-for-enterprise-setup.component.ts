@@ -30,7 +30,6 @@ import {
 
 @Component({
   templateUrl: "families-for-enterprise-setup.component.html",
-  standalone: true,
   imports: [SharedModule, OrganizationPlansComponent],
 })
 export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {

@@ -5,6 +5,8 @@ import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ItemModule } from "@bitwarden/components";
@@ -31,7 +33,6 @@ const RateUrls = {
 
 @Component({
   templateUrl: "about-page-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -47,11 +48,16 @@ export class AboutPageV2Component {
     private dialogService: DialogService,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
+    private configService: ConfigService,
   ) {}
 
   about() {
     this.dialogService.open(AboutDialogComponent);
   }
+
+  protected isNudgeFeatureEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM8851_BrowserOnboardingNudge,
+  );
 
   async launchHelp() {
     const confirmed = await this.dialogService.openSimpleDialog({

@@ -51,6 +51,9 @@ env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
   _GITHUB_PR_REPO_NAME: ${{ github.event.pull_request.head.repo.full_name }}
 
+permissions:
+  contents: read
+
 jobs:
   setup:
     name: Setup
@@ -78,10 +81,8 @@ jobs:
 
       - name: Check secrets
         id: check-secrets
-        env:
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
         run: |
-          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
           echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
 
@@ -133,12 +134,34 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Get Latest Server Version
+        id: latest-server-version
+        uses: bitwarden/gh-actions/get-release-version@main
+        with:
+          repository: bitwarden/server
+          trim: false
+
+      - name: Set Server Ref
+        id: set-server-ref
+        run: |
+          SERVER_REF="${{ steps.latest-server-version.outputs.version }}"
+          echo "Latest server release version: $SERVER_REF"
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            SERVER_REF="$GITHUB_REF"
+          elif [[ "$GITHUB_REF" == "refs/heads/rc" ]]; then
+            SERVER_REF="$GITHUB_REF"
+          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            SERVER_REF="refs/heads/main"
+          fi
+          echo "Server ref: $SERVER_REF"
+          echo "server_ref=$SERVER_REF" >> $GITHUB_OUTPUT
+
       - name: Check out Server repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           path: server
           repository: bitwarden/server
-          ref: ${{ github.event.pull_request.head.sha && 'main' || github.ref }}
+          ref: ${{ steps.set-server-ref.outputs.server_ref }}
 
       - name: Check Branch to Publish
         env:
@@ -160,7 +183,7 @@ jobs:
           VERSION=$( jq -r ".version" package.json)
           jq --arg version "$VERSION+${GITHUB_SHA:0:7}" '.version = $version' package.json > package.json.tmp
           mv package.json.tmp package.json
-      
+
       ########## Set up Docker ##########
       - name: Set up Docker
         uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 # v4.3.0
@@ -174,17 +197,19 @@ jobs:
             }
 
       - name: Set up QEMU emulators
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 
       ########## ACRs ##########
-      - name: Login to Prod Azure
+      - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Log into Prod container registry
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -255,7 +280,7 @@ jobs:
           IMAGE_NAME: ${{ steps.image-name.outputs.name }}
         run: |
           mkdir build
-          docker run --rm --volume $(pwd)/build:/temp --entrypoint bash \
+          docker run --rm --volume $(pwd)/build:/temp --entrypoint sh \
             $IMAGE_NAME -c "cp -r ./ /temp"
 
           zip -r web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip build
@@ -269,7 +294,7 @@ jobs:
 
       - name: Install Cosign
         if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
+        uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
 
       - name: Sign image with Cosign
         if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
@@ -287,7 +312,7 @@ jobs:
       - name: Scan Docker image
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: container-scan
-        uses: anchore/scan-action@869c549e657a088dc0441b08ce4fc0ecdac2bb65 # v5.3.0
+        uses: anchore/scan-action@2c901ab7378897c01b8efaa2d0c9bf519cc64b9e # v6.2.0
         with:
           image: ${{ steps.image-name.outputs.name }}
           fail-build: false
@@ -304,11 +329,19 @@ jobs:
       - name: Log out of Docker
         run: docker logout $_AZ_REGISTRY
 
-  
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
+
   crowdin-push:
     name: Crowdin Push
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     needs: build-containers
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
@@ -316,10 +349,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -328,8 +363,11 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Upload Sources
-        uses: crowdin/github-action@30849777a3cba6ee9a09e24e195272b8287a0a5b # v1.20.4
+        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
@@ -346,11 +384,15 @@ jobs:
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     needs: build-containers
+    permissions:
+      id-token: write
     steps:
-      - name: Login to Azure - CI Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve github PAT secrets
         id: retrieve-secret-pat
@@ -358,6 +400,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Trigger web vault deploy using GitHub Run ID
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -385,6 +430,8 @@ jobs:
       - build-containers
       - crowdin-push
       - trigger-web-vault-deploy
+    permissions:
+      id-token: write
     steps:
       - name: Check if any job failed
         if: |
@@ -393,11 +440,13 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Login to Azure - Prod Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         if: failure()
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -406,6 +455,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0

@@ -4,6 +4,8 @@
  * @see {@link https://en.wikipedia.org/wiki/List_of_HTTP_status_codes}
  * src: https://gist.github.com/RWOverdijk/6cef816cfdf5722228e01cc05fd4b094
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum HttpStatusCode {
   /**
    * The server has received the request headers and the client should proceed to send the request body

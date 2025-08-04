@@ -5,6 +5,8 @@ import { Observable, of, switchMap } from "rxjs";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -13,8 +15,8 @@ import { OrganizationCreateRequest } from "../../admin-console/models/request/or
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { EncString } from "../../platform/models/domain/enc-string";
 import { SyncService } from "../../platform/sync";
 import { OrgKey } from "../../types/key";
 import {
@@ -120,7 +122,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   private async makeOrganizationKeys(): Promise<OrganizationKeys> {
     const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>();
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(key);
-    const encryptedCollectionName = await this.encryptService.encrypt(
+    const encryptedCollectionName = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       key,
     );
@@ -174,6 +176,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     const [paymentToken, paymentMethodType] = information.paymentMethod;
     request.paymentToken = paymentToken;
     request.paymentMethodType = paymentMethodType;
+    request.skipTrial = information.skipTrial;
 
     const billingInformation = information.billing;
     request.billingAddressPostalCode = billingInformation.postalCode;

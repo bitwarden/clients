@@ -1,22 +1,28 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import Domain from "@bitwarden/common/platform/models/domain/domain-base";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import Domain, { EncryptableKeys } from "@bitwarden/common/platform/models/domain/domain-base";
 import { OrgKey } from "@bitwarden/common/types/key";
 
 import { CollectionData } from "./collection.data";
 import { CollectionView } from "./collection.view";
 
-export class Collection extends Domain {
-  id: string;
-  organizationId: string;
-  name: EncString;
-  externalId: string;
-  readOnly: boolean;
-  hidePasswords: boolean;
-  manage: boolean;
+export const CollectionTypes = {
+  SharedCollection: 0,
+  DefaultUserCollection: 1,
+} as const;
 
-  constructor(obj?: CollectionData) {
+export type CollectionType = (typeof CollectionTypes)[keyof typeof CollectionTypes];
+
+export class Collection extends Domain {
+  id: string | undefined;
+  organizationId: string | undefined;
+  name: EncString | undefined;
+  externalId: string | undefined;
+  readOnly: boolean = false;
+  hidePasswords: boolean = false;
+  manage: boolean = false;
+  type: CollectionType = CollectionTypes.SharedCollection;
+
+  constructor(obj?: CollectionData | null) {
     super();
     if (obj == null) {
       return;
@@ -33,8 +39,9 @@ export class Collection extends Domain {
         readOnly: null,
         hidePasswords: null,
         manage: null,
+        type: null,
       },
-      ["id", "organizationId", "readOnly", "hidePasswords", "manage"],
+      ["id", "organizationId", "readOnly", "hidePasswords", "manage", "type"],
     );
   }
 
@@ -42,8 +49,8 @@ export class Collection extends Domain {
     return this.decryptObj<Collection, CollectionView>(
       this,
       new CollectionView(this),
-      ["name"],
-      this.organizationId,
+      ["name"] as EncryptableKeys<Collection, CollectionView>[],
+      this.organizationId ?? null,
       orgKey,
     );
   }

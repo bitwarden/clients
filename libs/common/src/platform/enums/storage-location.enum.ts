@@ -1,5 +1,1 @@
-export enum StorageLocation {
-  Both = "both",
-  Disk = "disk",
-  Memory = "memory",
-}
+export { StorageLocationEnum as StorageLocation } from "@bitwarden/storage-core";

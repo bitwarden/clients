@@ -1,16 +1,14 @@
 import { ClientType } from "../../../../enums";
 import { Utils } from "../../../../platform/misc/utils";
-import { CaptchaProtectedRequest } from "../captcha-protected.request";
 
 import { DeviceRequest } from "./device.request";
 import { TokenTwoFactorRequest } from "./token-two-factor.request";
 import { TokenRequest } from "./token.request";
 
-export class PasswordTokenRequest extends TokenRequest implements CaptchaProtectedRequest {
+export class PasswordTokenRequest extends TokenRequest {
   constructor(
     public email: string,
     public masterPasswordHash: string,
-    public captchaResponse: string,
     protected twoFactor: TokenTwoFactorRequest,
     device?: DeviceRequest,
     public newDeviceOtp?: string,
@@ -24,10 +22,6 @@ export class PasswordTokenRequest extends TokenRequest implements CaptchaProtect
     obj.grant_type = "password";
     obj.username = this.email;
     obj.password = this.masterPasswordHash;
-
-    if (this.captchaResponse != null) {
-      obj.captchaResponse = this.captchaResponse;
-    }
 
     if (this.newDeviceOtp) {
       obj.newDeviceOtp = this.newDeviceOtp;

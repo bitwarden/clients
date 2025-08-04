@@ -31,10 +31,10 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
   private apiService: ApiService = inject(ApiService);
   private accountService: AccountService = inject(AccountService);
 
-  private allowPersonalOwnership$ = this.accountService.activeAccount$.pipe(
+  private organizationDataOwnershipDisabled$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) =>
-      this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
     map((p) => !p),
   );
@@ -69,11 +69,11 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     cipherId?: CipherId,
     cipherType?: CipherType,
   ): Promise<CipherFormConfig> {
-    const [organization, allowPersonalOwnership, allOrganizations, allCollections] =
+    const [organization, organizationDataOwnershipDisabled, allOrganizations, allCollections] =
       await firstValueFrom(
         combineLatest([
           this.organization$,
-          this.allowPersonalOwnership$,
+          this.organizationDataOwnershipDisabled$,
           this.allOrganizations$,
           this.allCollections$,
         ]),
@@ -84,13 +84,14 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     const organizations = mode === "clone" ? allOrganizations : [organization];
     // Only allow the user to assign to their personal vault when cloning and
     // the policies are enabled for it.
-    const allowPersonalOwnershipOnlyForClone = mode === "clone" ? allowPersonalOwnership : false;
+    const disableOrganizationDataOwnershipOnlyForClone =
+      mode === "clone" ? organizationDataOwnershipDisabled : false;
     const cipher = await this.getCipher(cipherId, organization);
     return {
       mode,
       cipherType: cipher?.type ?? cipherType ?? CipherType.Login,
       admin: organization.canEditAllCiphers ?? false,
-      allowPersonalOwnership: allowPersonalOwnershipOnlyForClone,
+      organizationDataOwnershipDisabled: disableOrganizationDataOwnershipOnlyForClone,
       originalCipher: cipher,
       collections: allCollections,
       organizations,
@@ -100,7 +101,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     };
   }
 
-  private async getCipher(id: CipherId | null, organization: Organization): Promise<Cipher | null> {
+  async getCipher(id: CipherId | null, organization: Organization): Promise<Cipher | null> {
     if (id == null) {
       return null;
     }

@@ -24,7 +24,7 @@ import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/aut
 import {
   AutofillOverlayElement,
   InlineMenuAccountCreationFieldType,
-  InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -789,11 +789,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (!autofillFieldData.fieldQualifier) {
       switch (autofillFieldData.inlineMenuFillType) {
         case CipherType.Login:
-        case InlineMenuFillType.CurrentPasswordUpdate:
+        case InlineMenuFillTypes.CurrentPasswordUpdate:
           this.qualifyUserFilledField(autofillFieldData, this.loginFieldQualifiers);
           break;
-        case InlineMenuFillType.AccountCreationUsername:
-        case InlineMenuFillType.PasswordGeneration:
+        case InlineMenuFillTypes.AccountCreationUsername:
+        case InlineMenuFillTypes.PasswordGeneration:
           this.qualifyUserFilledField(autofillFieldData, this.accountCreationFieldQualifiers);
           break;
         case CipherType.Card:
@@ -1106,18 +1106,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private setQualifiedAccountCreationFillType(autofillFieldData: AutofillField) {
     if (this.inlineMenuFieldQualificationService.isNewPasswordField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
       this.qualifyAccountCreationFieldType(autofillFieldData);
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isUpdateCurrentPasswordField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.CurrentPasswordUpdate;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.AccountCreationUsername;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.AccountCreationUsername;
       this.qualifyAccountCreationFieldType(autofillFieldData);
     }
   }
@@ -1128,6 +1128,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private qualifyAccountCreationFieldType(autofillFieldData: AutofillField) {
+    if (this.inlineMenuFieldQualificationService.isTotpField(autofillFieldData)) {
+      autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Totp;
+      return;
+    }
+
     if (!this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
       autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Password;
       return;
