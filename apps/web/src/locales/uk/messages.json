@@ -3991,7 +3991,7 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте увійти з пристроєм знову."
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте ввійти з пристроєм знову."
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Login request approved for $EMAIL$ on $DEVICE$",
@@ -4007,7 +4007,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були ви, спробуйте ввійти з пристроєм знову."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Термін дії запиту на вхід завершився."
@@ -9477,6 +9477,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Send event data to your Logscale instance"
   },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Відсутній ID пристрою"
   },
@@ -9557,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Створіть нову організацію клієнта, щоб керувати нею як провайдер. Додаткові місця будуть відображені в наступному платіжному циклі."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Оберіть тарифний план"
@@ -10917,6 +10929,36 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Unpaid invoices"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
     "message": "Subscribe to $PLAN$",
