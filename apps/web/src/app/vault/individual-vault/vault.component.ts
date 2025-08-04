@@ -611,6 +611,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         case "assignToCollections":
           await this.bulkAssignToCollections(event.items);
           break;
+        case "toggleFavorite":
+          await this.handleFavoriteEvent(event.item);
+          break;
+        case "editCipher":
+          await this.editCipher(event.item);
+          break;
       }
     } finally {
       this.processingEvent = false;
@@ -1265,6 +1271,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         cipher.id,
       );
     }
+  }
+
+  /**
+   * Toggles the favorite status of the cipher and updates it on the server.
+   */
+  async handleFavoriteEvent(cipher: C) {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipherFullView = await this.cipherService.getFullCipherView(cipher);
+    const encryptedCipher = await this.cipherService.encrypt(cipherFullView, activeUserId);
+    await this.cipherService.updateWithServer(encryptedCipher);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(
+        cipher.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
+      ),
+    });
+
+    this.refresh();
   }
 
   protected deleteCipherWithServer(id: string, userId: UserId, permanent: boolean) {

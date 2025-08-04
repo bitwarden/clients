@@ -34,3 +34,12 @@ export const CLICK_ITEMS_AUTOFILL_VAULT_VIEW = new UserKeyDefinition<boolean>(
     clearOn: [], // do not clear user settings
   },
 );
+
+export const ENABLE_CONTEXT_MENU = new UserKeyDefinition<boolean>(
+  VAULT_SETTINGS_DISK,
+  "enableContextMenu",
+  {
+    deserializer: (obj) => obj,
+    clearOn: [], // do not clear user settings
+  },
+);
