@@ -1108,7 +1108,7 @@
     "message": "Ogiltig nyckel. Försök igen."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "Tvåstegsverifiering stöds inte för nycklar. Uppdatera appen för att logga in."
+    "message": "Tvåstegsverifiering stöds inte för inloggningsnycklar. Uppdatera appen för att logga in."
   },
   "loginWithPasskeyInfo": {
     "message": "Använd en genererad inloggningsnyckel som automatiskt loggar in dig utan lösenord. Din identitet verifieras med biometri, såsom ansiktsigenkänning eller fingeravtryck, eller en annan FIDO2-säkerhetsmetod."
@@ -1174,7 +1174,7 @@
     "message": "Ta bort inloggningsnyckel"
   },
   "removePasskeyInfo": {
-    "message": "Om alla nycklar tas bort kommer du inte kunna logga in på nya enheter utan ditt huvudlösenord."
+    "message": "Om alla inloggningsnycklar tas bort kommer du inte kunna logga in på nya enheter utan ditt huvudlösenord."
   },
   "passkeyLimitReachedInfo": {
     "message": "Gränsen för antal inloggningsnycklar har uppnåtts. Ta bort en inloggningsnyckel innan du lägger till en ny."
@@ -9477,6 +9477,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Skicka händelsedata till din Logscale-instans"
   },
+  "failedToSaveIntegration": {
+    "message": "Misslyckades med att spara integration. Försök igen senare."
+  },
   "deviceIdMissing": {
     "message": "Enhetens ID saknas"
   },
@@ -9557,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Skapa en ny kundorganisation som du kan hantera som Provider. Ytterligare platser kommer att återspeglas i nästa faktureringscykel."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bärartoken"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Välj en plan"
@@ -10917,6 +10929,36 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Obetalda fakturor"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Din prenumeration har inte betalats. Kontakta din leverantörsadministratör för att återställa tjänsten för dig och dina kunder.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ är avstängd",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "För att återställa åtkomsten till din leverantörsportal, kontakta Bitwardens kundsupport för att förnya ditt abonnemang.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Din prenumeration har inte betalats. För att återställa tjänsten för dig och dina kunder, lägg till en betalningsmetod senast $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
     "message": "Abonnera på $PLAN$",
