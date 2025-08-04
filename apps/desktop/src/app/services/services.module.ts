@@ -5,6 +5,7 @@ import { Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { LoginApprovalDialogComponentServiceAbstraction } from "@bitwarden/angular/auth/login-approval";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -31,7 +32,6 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
-  LoginApprovalComponentServiceAbstraction,
   LoginEmailService,
   SsoUrlService,
 } from "@bitwarden/auth/common";
@@ -107,7 +107,7 @@ import {
 import { LockComponentService } from "@bitwarden/key-management-ui";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 
-import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-login-approval-component.service";
+import { DesktopLoginApprovalDialogComponentService } from "../../auth/login/desktop-login-approval-dialog-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
@@ -444,8 +444,8 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: LoginApprovalComponentServiceAbstraction,
-    useClass: DesktopLoginApprovalComponentService,
+    provide: LoginApprovalDialogComponentServiceAbstraction,
+    useClass: DesktopLoginApprovalDialogComponentService,
     deps: [I18nServiceAbstraction],
   }),
   safeProvider({

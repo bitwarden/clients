@@ -1,5 +1,6 @@
 <bit-dialog>
-  <span bitDialogTitle>{{ "areYouTryingToAccessYourAccount" | i18n }}</span>
+  <span bitDialogTitle>{{ "loginRequest" | i18n }}</span>
+
   <ng-container bitDialogContent>
     <ng-container *ngIf="loading">
       <div class="tw-flex tw-items-center tw-justify-center" *ngIf="loading">
@@ -8,28 +9,29 @@
     </ng-container>
 
     <ng-container *ngIf="!loading">
-      <h4 class="tw-mb-3">{{ "accessAttemptBy" | i18n: email }}</h4>
+      <p>{{ "accessAttemptBy" | i18n: email }}</p>
       <div>
-        <b>{{ "fingerprintPhraseHeader" | i18n }}</b>
+        <span class="tw-font-medium">{{ "fingerprintPhraseHeader" | i18n }}</span>
         <p class="tw-text-code">{{ fingerprintPhrase }}</p>
       </div>
       <div>
-        <b>{{ "deviceType" | i18n }}</b>
-        <p>{{ authRequestResponse?.requestDeviceType }}</p>
+        <span class="tw-font-medium">{{ "deviceType" | i18n }}</span>
+        <p>{{ readableDeviceTypeName }}</p>
       </div>
       <div>
-        <b>{{ "location" | i18n }}</b>
+        <span class="tw-font-medium">{{ "location" | i18n }}</span>
         <p>
           <span class="tw-capitalize">{{ authRequestResponse?.requestCountryName }} </span>
           ({{ authRequestResponse?.requestIpAddress }})
         </p>
       </div>
       <div>
-        <b>{{ "time" | i18n }}</b>
+        <span class="tw-font-medium">{{ "time" | i18n }}</span>
         <p>{{ requestTimeText }}</p>
       </div>
     </ng-container>
   </ng-container>
+
   <ng-container bitDialogFooter>
     <button
       bitButton

@@ -2,13 +2,13 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
-import { LoginApprovalComponent } from "@bitwarden/auth/angular";
+import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { DesktopLoginApprovalComponentService } from "./desktop-login-approval-component.service";
+import { DesktopLoginApprovalDialogComponentService } from "./desktop-login-approval-dialog-component.service";
 
-describe("DesktopLoginApprovalComponentService", () => {
-  let service: DesktopLoginApprovalComponentService;
+describe("DesktopLoginApprovalDialogComponentService", () => {
+  let service: DesktopLoginApprovalDialogComponentService;
   let i18nService: MockProxy<I18nServiceAbstraction>;
   let originalIpc: any;
 
@@ -31,12 +31,12 @@ describe("DesktopLoginApprovalComponentService", () => {
 
     TestBed.configureTestingModule({
       providers: [
-        DesktopLoginApprovalComponentService,
+        DesktopLoginApprovalDialogComponentService,
         { provide: I18nServiceAbstraction, useValue: i18nService },
       ],
     });
 
-    service = TestBed.inject(DesktopLoginApprovalComponentService);
+    service = TestBed.inject(DesktopLoginApprovalDialogComponentService);
   });
 
   afterEach(() => {
@@ -54,7 +54,7 @@ describe("DesktopLoginApprovalComponentService", () => {
     const message = `Confirm access attempt for ${email}`;
     const closeText = "Close";
 
-    const loginApprovalComponent = { email } as LoginApprovalComponent;
+    const loginApprovalDialogComponent = { email } as LoginApprovalDialogComponent;
     i18nService.t.mockImplementation((key: string) => {
       switch (key) {
         case "accountAccessRequested":
@@ -71,18 +71,20 @@ describe("DesktopLoginApprovalComponentService", () => {
     jest.spyOn(ipc.platform, "isWindowVisible").mockResolvedValue(false);
     jest.spyOn(ipc.auth, "loginRequest").mockResolvedValue();
 
-    await service.showLoginRequestedAlertIfWindowNotVisible(loginApprovalComponent.email);
+    await service.showLoginRequestedAlertIfWindowNotVisible(loginApprovalDialogComponent.email);
 
     expect(ipc.auth.loginRequest).toHaveBeenCalledWith(title, message, closeText);
   });
 
   it("does not call ipc.auth.loginRequest when window is visible", async () => {
-    const loginApprovalComponent = { email: "test@bitwarden.com" } as LoginApprovalComponent;
+    const loginApprovalDialogComponent = {
+      email: "test@bitwarden.com",
+    } as LoginApprovalDialogComponent;
 
     jest.spyOn(ipc.platform, "isWindowVisible").mockResolvedValue(true);
     jest.spyOn(ipc.auth, "loginRequest");
 
-    await service.showLoginRequestedAlertIfWindowNotVisible(loginApprovalComponent.email);
+    await service.showLoginRequestedAlertIfWindowNotVisible(loginApprovalDialogComponent.email);
 
     expect(ipc.auth.loginRequest).not.toHaveBeenCalled();
   });

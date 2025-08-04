@@ -18,7 +18,6 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  DefaultLoginApprovalComponentService,
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
   DefaultRegistrationFinishService,
@@ -40,7 +39,6 @@ import {
   DefaultLoginSuccessHandlerService,
   DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
-  LoginApprovalComponentServiceAbstraction,
   LoginEmailService,
   LoginEmailServiceAbstraction,
   LoginStrategyService,
@@ -343,6 +341,8 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { DefaultLoginApprovalDialogComponentService } from "../auth/login-approval/default-login-approval-dialog-component.service";
+import { LoginApprovalDialogComponentServiceAbstraction } from "../auth/login-approval/login-approval-dialog-component.service.abstraction";
 import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
@@ -1494,8 +1494,8 @@ const safeProviders: SafeProvider[] = [
     deps: [CryptoFunctionServiceAbstraction],
   }),
   safeProvider({
-    provide: LoginApprovalComponentServiceAbstraction,
-    useClass: DefaultLoginApprovalComponentService,
+    provide: LoginApprovalDialogComponentServiceAbstraction,
+    useClass: DefaultLoginApprovalDialogComponentService,
     deps: [],
   }),
   safeProvider({
