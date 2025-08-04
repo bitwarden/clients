@@ -166,6 +166,7 @@ pub mod clipboards {
 pub mod sshagent {
     use std::sync::Arc;
 
+    use desktop_core::ssh_agent::BitwardenSshKey;
     use napi::{
         bindgen_prelude::Promise,
         threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
@@ -174,7 +175,7 @@ pub mod sshagent {
 
     #[napi]
     pub struct SshAgentState {
-        state: desktop_core::ssh_agent::BitwardenDesktopAgent,
+        state: desktop_core::ssh_agent::BitwardenDesktopAgent<BitwardenSshKey>,
     }
 
     #[napi(object)]
@@ -798,25 +799,6 @@ pub mod autofill {
 }
 
 #[napi]
-pub mod crypto {
-    use napi::bindgen_prelude::Buffer;
-
-    #[napi]
-    pub async fn argon2(
-        secret: Buffer,
-        salt: Buffer,
-        iterations: u32,
-        memory: u32,
-        parallelism: u32,
-    ) -> napi::Result<Buffer> {
-        desktop_core::crypto::argon2(&secret, &salt, iterations, memory, parallelism)
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
-            .map(|v| v.to_vec())
-            .map(Buffer::from)
-    }
-}
-
-#[napi]
 pub mod passkey_authenticator {
     #[napi]
     pub fn register() -> napi::Result<()> {
@@ -881,5 +863,24 @@ pub mod logging {
         }
 
         fn flush(&self) {}
+    }
+}
+
+#[napi]
+pub mod autotype {
+    #[napi]
+    pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
+        autotype::get_foreground_window_title().map_err(|_| {
+            napi::Error::from_reason(
+                "Autotype Error: failed to get foreground window title".to_string(),
+            )
+        })
+    }
+
+    #[napi]
+    pub fn type_input(input: Vec<u16>) -> napi::Result<(), napi::Status> {
+        autotype::type_input(input).map_err(|_| {
+            napi::Error::from_reason("Autotype Error: failed to type input".to_string())
+        })
     }
 }

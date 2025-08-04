@@ -1,5 +1,5 @@
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { Guid } from "@bitwarden/common/types/guid";
 
 export class MemberAccessResponse extends BaseResponse {

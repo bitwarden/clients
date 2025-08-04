@@ -89,6 +89,7 @@ export class DefaultPolicyService implements PolicyService {
     const policies$ = policies ? of(policies) : this.policies$(userId);
     return policies$.pipe(
       map((obsPolicies) => {
+        // TODO ([PM-23777]): replace with this.combinePoliciesIntoMasterPasswordPolicyOptions(obsPolicies))
         let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
         const filteredPolicies =
           obsPolicies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
@@ -144,6 +145,47 @@ export class DefaultPolicyService implements PolicyService {
         return enforcedOptions;
       }),
     );
+  }
+
+  combinePoliciesIntoMasterPasswordPolicyOptions(
+    policies: Policy[],
+  ): MasterPasswordPolicyOptions | undefined {
+    let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
+    const filteredPolicies = policies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
+
+    if (filteredPolicies.length === 0) {
+      return;
+    }
+
+    filteredPolicies.forEach((currentPolicy) => {
+      if (!currentPolicy.enabled || !currentPolicy.data) {
+        return undefined;
+      }
+
+      if (!enforcedOptions) {
+        enforcedOptions = new MasterPasswordPolicyOptions();
+      }
+
+      this.mergeMasterPasswordPolicyOptions(enforcedOptions, currentPolicy.data);
+    });
+
+    return enforcedOptions;
+  }
+
+  combineMasterPasswordPolicyOptions(
+    ...policies: MasterPasswordPolicyOptions[]
+  ): MasterPasswordPolicyOptions | undefined {
+    let combinedOptions: MasterPasswordPolicyOptions | undefined = undefined;
+
+    policies.forEach((currentOptions) => {
+      if (!combinedOptions) {
+        combinedOptions = new MasterPasswordPolicyOptions();
+      }
+
+      this.mergeMasterPasswordPolicyOptions(combinedOptions, currentOptions);
+    });
+
+    return combinedOptions;
   }
 
   evaluateMasterPassword(
@@ -238,11 +280,38 @@ export class DefaultPolicyService implements PolicyService {
       case PolicyType.RestrictedItemTypes:
         // restricted item types policy
         return false;
+      case PolicyType.RemoveUnlockWithPin:
+        // Remove Unlock with PIN policy
+        return false;
       case PolicyType.OrganizationDataOwnership:
         // organization data ownership policy applies to everyone except admins and owners
         return organization.isAdmin;
       default:
         return organization.canManagePolicies;
+    }
+  }
+
+  private mergeMasterPasswordPolicyOptions(
+    target: MasterPasswordPolicyOptions | undefined,
+    source: MasterPasswordPolicyOptions | undefined,
+  ) {
+    if (!target) {
+      target = new MasterPasswordPolicyOptions();
+    }
+
+    // For complexity and minLength, take the highest value.
+    // For boolean settings, enable it if either policy has it enabled (OR).
+    if (source) {
+      target.minComplexity = Math.max(
+        target.minComplexity,
+        source.minComplexity ?? target.minComplexity,
+      );
+      target.minLength = Math.max(target.minLength, source.minLength ?? target.minLength);
+      target.requireUpper = Boolean(target.requireUpper || source.requireUpper);
+      target.requireLower = Boolean(target.requireLower || source.requireLower);
+      target.requireNumbers = Boolean(target.requireNumbers || source.requireNumbers);
+      target.requireSpecial = Boolean(target.requireSpecial || source.requireSpecial);
+      target.enforceOnLogin = Boolean(target.enforceOnLogin || source.enforceOnLogin);
     }
   }
 }

@@ -3,16 +3,16 @@ import {
   NEVER,
   Observable,
   combineLatest,
+  distinctUntilChanged,
+  filter,
   firstValueFrom,
   forkJoin,
   map,
   of,
+  shareReplay,
   switchMap,
 } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
@@ -21,7 +21,12 @@ import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  EncString,
+  EncryptedString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -32,7 +37,6 @@ import { KeySuffixOptions, HashPurpose, EncryptionType } from "@bitwarden/common
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
-import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
@@ -80,6 +84,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   ) {
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
+      filter((orgKeys) => orgKeys != null),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: false }),
     ) as Observable<Record<OrganizationId, OrgKey>>;
   }
 
@@ -198,25 +205,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return userKey;
   }
 
-  async hasUserKey(userId?: UserId): Promise<boolean> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-    if (userId == null) {
-      return false;
-    }
-    return await this.hasUserKeyInMemory(userId);
-  }
-
-  async hasUserKeyInMemory(userId?: UserId): Promise<boolean> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
+  async hasUserKey(userId: UserId): Promise<boolean> {
     if (userId == null) {
       return false;
     }
 
     return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
-  }
-
-  async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
-    return (await this.getKeyFromStorage(keySuffix, userId)) != null;
   }
 
   async makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]> {
@@ -234,6 +228,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
     const newUserKey = await this.keyGenerationService.createKey(512);
     return this.buildProtectedSymmetricKey(masterKey, newUserKey);
+  }
+
+  async makeUserKeyV1(): Promise<UserKey> {
+    const newUserKey = await this.keyGenerationService.createKey(512);
+    return newUserKey as UserKey;
   }
 
   /**
@@ -263,44 +262,49 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
   }
 
-  // TODO: Move to MasterPasswordService
-  async getOrDeriveMasterKey(password: string, userId?: UserId) {
-    const [resolvedUserId, email] = await firstValueFrom(
-      combineLatest([this.accountService.activeAccount$, this.accountService.accounts$]).pipe(
-        map(([activeAccount, accounts]) => {
-          userId ??= activeAccount?.id;
-          if (userId == null || accounts[userId] == null) {
-            throw new Error("No user found");
-          }
-          return [userId, accounts[userId].email];
-        }),
-      ),
-    );
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(resolvedUserId));
+  /**
+   * @deprecated Please use `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` or `makeMasterPasswordUnlockData` in @link MasterPasswordService instead.
+   */
+  async getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey> {
+    if (userId == null) {
+      throw new Error("User ID is required.");
+    }
+
+    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey != null) {
       return masterKey;
     }
 
-    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(resolvedUserId));
-    if (kdf == null) {
-      throw new Error("No kdf found for user");
+    const email = await firstValueFrom(
+      this.accountService.accounts$.pipe(map((accounts) => accounts[userId]?.email)),
+    );
+    if (email == null) {
+      throw new Error("No email found for user " + userId);
     }
+
+    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
+    if (kdf == null) {
+      throw new Error("No kdf found for user " + userId);
+    }
+
     return await this.makeMasterKey(password, email, kdf);
   }
 
   /**
    * Derive a master key from a password and email.
    *
+   * @deprecated Please use `makeMasterPasswordAuthenticationData`, `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` in @link MasterPasswordService instead.
+   *
    * @remarks
    * Does not validate the kdf config to ensure it satisfies the minimum requirements for the given kdf type.
-   * TODO: Move to MasterPasswordService
    */
-  async makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey> {
+  async makeMasterKey(password: string, email: string, kdfConfig: KdfConfig): Promise<MasterKey> {
     const start = new Date().getTime();
+    email = email.trim().toLowerCase();
     const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
       password,
       email,
-      KdfConfig,
+      kdfConfig,
     )) as MasterKey;
     const end = new Date().getTime();
     this.logService.info(`[KeyService] Deriving master key took ${end - start}ms`);
@@ -308,6 +312,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return masterKey;
   }
 
+  /**
+   * @deprecated Please use `makeMasterPasswordUnlockData` in {@link MasterPasswordService} instead.
+   */
   async encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
     userKey?: UserKey,
@@ -316,23 +323,19 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return await this.buildProtectedSymmetricKey(masterKey, userKey);
   }
 
-  // TODO: move to MasterPasswordService
+  /**
+   * @deprecated Please use `makeMasterPasswordAuthenticationData` in {@link MasterPasswordService} instead.
+   */
   async hashMasterKey(
     password: string,
-    key: MasterKey | null,
+    key: MasterKey,
     hashPurpose?: HashPurpose,
   ): Promise<string> {
-    if (key == null) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (userId == null) {
-        throw new Error("No active user found.");
-      }
-
-      key = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
+    if (password == null) {
+      throw new Error("password is required.");
     }
-
-    if (password == null || key == null) {
-      throw new Error("Invalid parameters.");
+    if (key == null) {
+      throw new Error("key is required.");
     }
 
     const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
@@ -345,9 +348,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return Utils.fromBufferToB64(hash);
   }
 
-  // TODO: move to MasterPasswordService
   async compareKeyHash(
-    masterPassword: string | null,
+    masterPassword: string,
     masterKey: MasterKey,
     userId: UserId,
   ): Promise<boolean> {
@@ -412,12 +414,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   async getOrgKey(orgId: OrganizationId): Promise<OrgKey | null> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-    if (activeUserId == null) {
-      throw new Error("A user must be active to retrieve an org key");
-    }
-    const orgKeys = await firstValueFrom(this.orgKeys$(activeUserId));
-    return orgKeys?.[orgId] ?? null;
+    return await firstValueFrom(
+      this.activeUserOrgKeys$.pipe(map((orgKeys) => orgKeys[orgId] ?? null)),
+    );
   }
 
   async makeDataEncKey<T extends OrgKey | UserKey>(
@@ -668,19 +667,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    * Initialize all necessary crypto keys needed for a new account.
    * Warning! This completely replaces any existing keys!
    */
-  async initAccount(): Promise<{
+  async initAccount(userId: UserId): Promise<{
     userKey: UserKey;
     publicKey: string;
     privateKey: EncString;
   }> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-
-    if (activeUserId == null) {
-      throw new Error("Cannot initilize an account if one is not active.");
+    if (userId == null) {
+      throw new Error("UserId is required.");
     }
 
     // Verify user key doesn't exist
-    const existingUserKey = await this.getUserKey(activeUserId);
+    const existingUserKey = await this.getUserKey(userId);
 
     if (existingUserKey != null) {
       this.logService.error("Tried to initialize account with existing user key.");
@@ -693,9 +690,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("Failed to create valid private key.");
     }
 
-    await this.setUserKey(userKey, activeUserId);
+    await this.setUserKey(userKey, userId);
     await this.stateProvider
-      .getUser(activeUserId, USER_ENCRYPTED_PRIVATE_KEY)
+      .getUser(userId, USER_ENCRYPTED_PRIVATE_KEY)
       .update(() => privateKey.encryptedString!);
 
     return {

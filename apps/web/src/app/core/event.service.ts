@@ -342,9 +342,9 @@ export class EventService {
         );
         break;
       case EventType.OrganizationUser_Deleted:
-        msg = this.i18nService.t("deletedUserId", this.formatOrgUserId(ev));
+        msg = this.i18nService.t("deletedUserIdEventMessage", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
-          "deletedUserId",
+          "deletedUserIdEventMessage",
           this.getShortId(ev.organizationUserId),
         );
         break;

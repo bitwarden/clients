@@ -7,7 +7,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
-import { matchAllowedColorSchemes, sendExtensionMessage, setElementStyles } from "../../../utils";
+import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   NotificationsExtensionMessage,
   OverlayNotificationsContentService as OverlayNotificationsContentServiceInterface,
@@ -55,6 +55,7 @@ export class OverlayNotificationsContentService
     position: "relative",
     transition: "transform 0.15s ease-out, opacity 0.15s ease",
     borderRadius: "4px",
+    colorScheme: "normal",
   };
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
     openNotificationBar: ({ message }) => this.handleOpenNotificationBarMessage(message),
@@ -66,9 +67,6 @@ export class OverlayNotificationsContentService
 
   constructor() {
     void sendExtensionMessage("checkNotificationQueue");
-    void sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
-      this.notificationRefreshFlag = !!notificationRefreshFlag;
-    });
   }
 
   /**
@@ -84,11 +82,10 @@ export class OverlayNotificationsContentService
    *
    * @param message - The message containing the initialization data for the notification bar.
    */
-  private handleOpenNotificationBarMessage(message: NotificationsExtensionMessage) {
+  private async handleOpenNotificationBarMessage(message: NotificationsExtensionMessage) {
     if (!message.data) {
       return;
     }
-
     const { type, typeData, params } = message.data;
 
     if (this.currentNotificationBarType && type !== this.currentNotificationBarType) {
@@ -103,6 +100,10 @@ export class OverlayNotificationsContentService
       launchTimestamp: typeData.launchTimestamp,
       params,
     };
+
+    await sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
+      this.notificationRefreshFlag = !!notificationRefreshFlag;
+    });
 
     if (globalThis.document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => this.openNotificationBar(initData));
@@ -182,18 +183,13 @@ export class OverlayNotificationsContentService
    * @param initData - The initialization data for the notification bar.
    */
   private createNotificationBarIframeElement(initData: NotificationBarIframeInitData) {
-    const content = (document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement)
-      ?.content;
-    const allowedColorScheme = matchAllowedColorSchemes(content);
     const isNotificationFresh =
       initData.launchTimestamp && Date.now() - initData.launchTimestamp < 250;
 
     this.currentNotificationBarType = initData.type;
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
-    this.notificationBarIframeElement.src = chrome.runtime.getURL(
-      `notification/bar.html?colorScheme=${encodeURIComponent(allowedColorScheme)}`,
-    );
+    this.notificationBarIframeElement.src = chrome.runtime.getURL("notification/bar.html");
     setElementStyles(
       this.notificationBarIframeElement,
       {

@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Cerca nella cassaforte"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Aggiungi elemento"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Copia codice di verifica (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Lunghezza"
@@ -1425,6 +1442,9 @@
     "message": "Copia codice di sicurezza",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "Abbonamento Premium"
   },
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Sblocca con Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Impostazioni aggiuntive di Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Sblocca con l'autenticazione di sistema"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "sblocca la tua cassaforte"
   },
-  "autoPromptWindowsHello": {
-    "message": "Richiedi Windows Hello all'avvio"
-  },
-  "autoPromptPolkit": {
-    "message": "Chiedi autenticazione di sistema all'avvio"
-  },
   "autoPromptTouchId": {
     "message": "Richiedi Touch ID all'avvio"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Richiedi parola d'accesso all'avvio dell'app"
-  },
-  "recommendedForSecurity": {
-    "message": "Consigliato per la sicurezza."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Blocca con password principale al riavvio"
@@ -2406,6 +2414,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "La tua password principale non soddisfa uno o più politiche della tua organizzazione. Per accedere alla cassaforte, aggiornala ora. Procedere ti farà uscire dalla sessione corrente, richiedendoti di accedere di nuovo. Le sessioni attive su altri dispositivi potrebbero continuare a rimanere attive per un massimo di un'ora."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "La tua organizzazione ha disabilitato la crittografia affidabile del dispositivo. Per favore imposta una password principale per accedere alla tua cassaforte."
@@ -3144,6 +3161,12 @@
   "requestAdminApproval": {
     "message": "Richiedi approvazione dell'amministratore"
   },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+  },
   "region": {
     "message": "Regione"
   },
@@ -3550,6 +3573,14 @@
   "uriMatchWarningDialogLink": {
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Successo"
@@ -3974,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

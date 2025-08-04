@@ -450,7 +450,7 @@
     "message": "Gera automaticamente palavras-passe fortes e únicas para as suas credenciais."
   },
   "bitWebVaultApp": {
-    "message": "Aplicação Web Bitwarden"
+    "message": "Aplicação web Bitwarden"
   },
   "importItems": {
     "message": "Importar itens"
@@ -546,6 +546,9 @@
   },
   "searchVault": {
     "message": "Procurar no cofre"
+  },
+  "resetSearch": {
+    "message": "Repor pesquisa"
   },
   "edit": {
     "message": "Editar"
@@ -653,7 +656,7 @@
     "message": "Classificar a extensão"
   },
   "browserNotSupportClipboard": {
-    "message": "O seu navegador Web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
+    "message": "O seu navegador web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
   },
   "verifyYourIdentity": {
     "message": "Verifique a sua identidade"
@@ -929,7 +932,7 @@
     "message": "Torne a sua conta mais segura configurando a verificação de dois passos na aplicação Web Bitwarden."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continuar para a aplicação Web?"
+    "message": "Continuar para a aplicação web?"
   },
   "editedFolder": {
     "message": "Pasta guardada"
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "Oh não! Não conseguimos guardar isto. Tente introduzir os detalhes manualmente.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "Depois de ter alterado a sua palavra-passe, é necessário iniciar sessão com a sua nova palavra-passe. As sessões ativas noutros dispositivos serão interrompidas dentro de uma hora."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Altere a sua palavra-passe mestra para concluir a recuperação da conta."
   },
   "enableChangedPasswordNotification": {
     "message": "Pedir para atualizar credencial existente"
@@ -1578,7 +1587,7 @@
     "message": "URL do servidor da API"
   },
   "webVaultUrl": {
-    "message": "URL do servidor do cofre Web"
+    "message": "URL do servidor do cofre web"
   },
   "identityUrl": {
     "message": "URL do servidor de identidade"
@@ -1822,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Código de segurança"
+  },
+  "cardNumber": {
+    "message": "número do cartão"
   },
   "ex": {
     "message": "ex."
@@ -3454,6 +3466,31 @@
   "logInRequestSent": {
     "message": "Pedido enviado"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Pedido de início de sessão aprovado para $EMAIL$ no $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+  },
+  "device": {
+    "message": "Dispositivo"
+  },
+  "loginStatus": {
+    "message": "Estado do início de sessão"
+  },
+  "masterPasswordChanged": {
+    "message": "Palavra-passe mestra guardada"
+  },
   "exposedMasterPassword": {
     "message": "Palavra-passe mestra exposta"
   },
@@ -3547,6 +3584,113 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Memorizar este dispositivo para facilitar futuros inícios de sessão"
   },
+  "manageDevices": {
+    "message": "Gerir dispositivos"
+  },
+  "currentSession": {
+    "message": "Sessão atual"
+  },
+  "mobile": {
+    "message": "Móvel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensão",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Computador",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Cofre web"
+  },
+  "webApp": {
+    "message": "Aplicação web"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Pedido pendente"
+  },
+  "firstLogin": {
+    "message": "Primeiro início de sessão"
+  },
+  "trusted": {
+    "message": "Confiável"
+  },
+  "needsApproval": {
+    "message": "Precisa de aprovação"
+  },
+  "devices": {
+    "message": "Dispositivos"
+  },
+  "accessAttemptBy": {
+    "message": "Tentativa de acesso por $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirmar acesso"
+  },
+  "denyAccess": {
+    "message": "Recusar acesso"
+  },
+  "time": {
+    "message": "Hora"
+  },
+  "deviceType": {
+    "message": "Tipo de dispositivo"
+  },
+  "loginRequest": {
+    "message": "Pedido de início de sessão"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Este pedido já não é válido."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Está a tentar aceder à sua conta?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Início de sessão confirmado para $EMAIL$ no $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "O pedido de início de sessão já expirou."
+  },
+  "justNow": {
+    "message": "Agora mesmo"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Pedido há $MINUTES$ minutos",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "É necessária a aprovação do dispositivo. Selecione uma opção de aprovação abaixo:"
   },
@@ -3567,6 +3711,12 @@
   },
   "requestAdminApproval": {
     "message": "Pedir aprovação do administrador"
+  },
+  "unableToCompleteLogin": {
+    "message": "Não é possível concluir o início de sessão"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Tem de iniciar sessão num dispositivo de confiança ou pedir ao seu administrador que lhe atribua uma palavra-passe."
   },
   "ssoIdentifierRequired": {
     "message": "É necessário o identificador de SSO da organização."
@@ -4450,17 +4600,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copiar $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },

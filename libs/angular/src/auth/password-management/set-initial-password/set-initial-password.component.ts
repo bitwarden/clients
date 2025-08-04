@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+// import { NoAccess } from "libs/components/src/icon/icons";
 import { firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -30,9 +31,11 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   AnonLayoutWrapperDataService,
+  ButtonModule,
   CalloutComponent,
   DialogService,
   ToastService,
+  Icons,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -46,7 +49,7 @@ import {
 @Component({
   standalone: true,
   templateUrl: "set-initial-password.component.html",
-  imports: [CalloutComponent, CommonModule, InputPasswordComponent, I18nPipe],
+  imports: [ButtonModule, CalloutComponent, CommonModule, InputPasswordComponent, I18nPipe],
 })
 export class SetInitialPasswordComponent implements OnInit {
   protected inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAuthedUser;
@@ -105,6 +108,14 @@ export class SetInitialPasswordComponent implements OnInit {
     this.forceSetPasswordReason = await firstValueFrom(
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
     );
+
+    if (this.forceSetPasswordReason === ForceSetPasswordReason.TdeOffboardingUntrustedDevice) {
+      this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER_UNTRUSTED_DEVICE;
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "unableToCompleteLogin" },
+        pageIcon: Icons.NoAccess,
+      });
+    }
 
     if (this.forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser) {
       this.userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;

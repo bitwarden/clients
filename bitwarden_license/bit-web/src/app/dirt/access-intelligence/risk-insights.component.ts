@@ -23,7 +23,6 @@ import {
   DrawerBodyComponent,
   DrawerComponent,
   DrawerHeaderComponent,
-  LayoutComponent,
   TabsModule,
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -53,7 +52,6 @@ export enum RiskInsightsTabType {
     DrawerComponent,
     DrawerBodyComponent,
     DrawerHeaderComponent,
-    LayoutComponent,
   ],
 })
 export class RiskInsightsComponent implements OnInit {

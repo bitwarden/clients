@@ -3,6 +3,7 @@
 import { Subject } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -12,7 +13,6 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
@@ -118,14 +118,14 @@ export class LocalBackedSessionStorageService
       return null;
     }
 
-    const valueJson = await this.encryptService.decryptString(new EncString(local), encKey);
-    if (valueJson == null) {
+    try {
+      const valueJson = await this.encryptService.decryptString(new EncString(local), encKey);
+      return JSON.parse(valueJson);
+    } catch {
       // error with decryption, value is lost, delete state and start over
       await this.localStorage.remove(this.sessionStorageKey(key));
       return null;
     }
-
-    return JSON.parse(valueJson);
   }
 
   private async updateLocalSessionValue(key: string, value: unknown): Promise<void> {

@@ -462,13 +462,13 @@
     "message": "Parola oluştur"
   },
   "generatePassphrase": {
-    "message": "Parola üret"
+    "message": "Parola cümlesi üret"
   },
   "passwordGenerated": {
     "message": "Parola üretildi"
   },
   "passphraseGenerated": {
-    "message": "Parola ifadesi oluşturuldu"
+    "message": "Parola cümlesi üretildi"
   },
   "usernameGenerated": {
     "message": "Kullanıcı adı üretildi"
@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Kasada ara"
   },
+  "resetSearch": {
+    "message": "Aramayı sıfırla"
+  },
   "edit": {
     "message": "Düzenle"
   },
@@ -569,7 +572,7 @@
     "message": "Kimlik doğrulama sırrı"
   },
   "passphrase": {
-    "message": "Uzun söz"
+    "message": "Parola cümlesi"
   },
   "favorite": {
     "message": "Favori"
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "Bu hesabı kaydedemedik. Bilgileri elle girmeyi deneyin.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "Parolanızı değiştirdikten sonra yeni parolanızyla tekrar giriş yapmanız gerekecektir. Diğer cihazlarınızdaki aktif oturumlar bir saat içinde kapatılacaktır."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Hesap kurtarmayı tamamlamak için ana parolanızı değiştirin."
   },
   "enableChangedPasswordNotification": {
     "message": "Mevcut hesapları güncellemeyi öner"
@@ -1823,6 +1832,9 @@
   "securityCode": {
     "message": "Güvenlik kodu"
   },
+  "cardNumber": {
+    "message": "kart numarası"
+  },
   "ex": {
     "message": "örn."
   },
@@ -2208,7 +2220,7 @@
     "message": "Bu parolayı kullan"
   },
   "useThisPassphrase": {
-    "message": "Bu parola ifadesini kullanın"
+    "message": "Bu parola cümlesini kullan"
   },
   "useThisUsername": {
     "message": "Bu kullanıcı adını kullan"
@@ -3171,7 +3183,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": "Güçlü bir parola ifadesi oluşturmak için $RECOMMENDED$ veya daha fazla kelime kullanın.",
+    "message": " Güçlü bir parola cümlesi üretmek için en az $RECOMMENDED$ kelime kullanın.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3454,6 +3466,31 @@
   "logInRequestSent": {
     "message": "İstek gönderildi"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$DEVICE$ cihazında $EMAIL$ girişi onaylandı",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Başka bir cihazdan giriş isteğini reddettiniz. Yanlışlıkla yaptıysanız aynı cihazdan yeniden giriş yapmayı deneyin."
+  },
+  "device": {
+    "message": "Cihaz"
+  },
+  "loginStatus": {
+    "message": "Oturum açma durumu"
+  },
+  "masterPasswordChanged": {
+    "message": "Ana parola kaydedildi"
+  },
   "exposedMasterPassword": {
     "message": "Açığa Çıkmış Ana Parola"
   },
@@ -3547,6 +3584,113 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Sonraki girişleri kolaylaştırmak için bu cihazı hatırla"
   },
+  "manageDevices": {
+    "message": "Cihazları yönet"
+  },
+  "currentSession": {
+    "message": "Geçerli oturum"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Uzantı",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Masaüstü",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web kasası"
+  },
+  "webApp": {
+    "message": "Web uygulaması"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "İstek bekliyor"
+  },
+  "firstLogin": {
+    "message": "İlk giriş"
+  },
+  "trusted": {
+    "message": "Güvenilen"
+  },
+  "needsApproval": {
+    "message": "Onay gerekiyor"
+  },
+  "devices": {
+    "message": "Cihazlar"
+  },
+  "accessAttemptBy": {
+    "message": "$EMAIL$ erişim denemesi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Erişimi onayla"
+  },
+  "denyAccess": {
+    "message": "Erişimi reddet"
+  },
+  "time": {
+    "message": "Tarih"
+  },
+  "deviceType": {
+    "message": "Cihaz türü"
+  },
+  "loginRequest": {
+    "message": "Giriş isteği"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Bu istek artık geçerli değil."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Hesabınıza erişmeye mi çalışıyorsunuz?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "$DEVICE$ cihazında $EMAIL$ girişi onaylandı",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Başka bir cihazdan giriş isteğini reddettiniz. Yanlışlıkla yaptıysanız aynı cihazdan yeniden giriş yapmayı deneyin."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Giriş isteğinin süresi doldu."
+  },
+  "justNow": {
+    "message": "Az önce"
+  },
+  "requestedXMinutesAgo": {
+    "message": "$MINUTES$ dakika önce istendi",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Cihaz onayı gerekiyor. Lütfen onay yönteminizi seçin:"
   },
@@ -3567,6 +3711,12 @@
   },
   "requestAdminApproval": {
     "message": "Yönetici onayı iste"
+  },
+  "unableToCompleteLogin": {
+    "message": "Oturum açma tamamlanamadı"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Güvenilen bir cihazdan oturum açmalı veya yöneticinizden size parola atamasını istemelisiniz."
   },
   "ssoIdentifierRequired": {
     "message": "Kuruluş SSO tanımlayıcısı gereklidir."
@@ -4450,17 +4600,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Kopyala: $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },

@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, HostListener, Input, OnDestroy, Optional } from "@angular/core";
-import { BehaviorSubject, finalize, Subject, takeUntil, tap } from "rxjs";
+import { Directive, HostListener, model, Optional, inject, DestroyRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, finalize, tap } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -16,8 +17,7 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
 @Directive({
   selector: "[bitAction]",
 })
-export class BitActionDirective implements OnDestroy {
-  private destroy$ = new Subject<void>();
+export class BitActionDirective {
   private _loading$ = new BehaviorSubject<boolean>(false);
 
   /**
@@ -38,7 +38,9 @@ export class BitActionDirective implements OnDestroy {
 
   disabled = false;
 
-  @Input("bitAction") handler: FunctionReturningAwaitable;
+  readonly handler = model<FunctionReturningAwaitable>(undefined, { alias: "bitAction" });
+
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private buttonComponent: ButtonLikeAbstraction,
@@ -48,12 +50,12 @@ export class BitActionDirective implements OnDestroy {
 
   @HostListener("click")
   protected async onClick() {
-    if (!this.handler || this.loading || this.disabled || this.buttonComponent.disabled()) {
+    if (!this.handler() || this.loading || this.disabled || this.buttonComponent.disabled()) {
       return;
     }
 
     this.loading = true;
-    functionToObservable(this.handler)
+    functionToObservable(this.handler())
       .pipe(
         tap({
           error: (err: unknown) => {
@@ -62,13 +64,8 @@ export class BitActionDirective implements OnDestroy {
           },
         }),
         finalize(() => (this.loading = false)),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

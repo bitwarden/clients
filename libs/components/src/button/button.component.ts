@@ -1,6 +1,5 @@
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component, model, computed, input } from "@angular/core";
+import { input, HostBinding, Component, model, computed, booleanAttribute } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
@@ -68,8 +67,8 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       "hover:tw-no-underline",
       "focus:tw-outline-none",
     ]
-      .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType ?? "secondary"])
+      .concat(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
+      .concat(buttonStyles[this.buttonType() ?? "secondary"])
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
@@ -104,22 +103,13 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
-  @Input() buttonType: ButtonType = "secondary";
+  readonly buttonType = input<ButtonType>("secondary");
 
-  size = input<ButtonSize>("default");
+  readonly size = input<ButtonSize>("default");
 
-  private _block = false;
+  readonly block = input(false, { transform: booleanAttribute });
 
-  @Input()
-  get block(): boolean {
-    return this._block;
-  }
-
-  set block(value: boolean | "") {
-    this._block = coerceBooleanProperty(value);
-  }
-
-  loading = model<boolean>(false);
+  readonly loading = model<boolean>(false);
 
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show

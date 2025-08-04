@@ -100,7 +100,7 @@ a:not(popup-page a, popup-tab-navigation a) {
   }
 }
 
-input:not(bit-form-field input, bit-search input),
+input:not(bit-form-field input, bit-search input, input[bitcheckbox]),
 select:not(bit-form-field select),
 textarea:not(bit-form-field textarea) {
   @include themify($themes) {
@@ -109,7 +109,7 @@ textarea:not(bit-form-field textarea) {
   }
 }
 
-input,
+input:not(input[bitcheckbox]),
 select,
 textarea,
 button:not(bit-chip-select button) {

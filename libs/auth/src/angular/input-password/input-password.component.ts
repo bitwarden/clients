@@ -129,7 +129,7 @@ export class InputPasswordComponent implements OnInit {
   @Input({ transform: (val: string) => val?.trim().toLowerCase() }) email?: string;
   @Input() userId?: UserId;
   @Input() loading = false;
-  @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
+  @Input() masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
 
   @Input() inlineButtons = false;
   @Input() primaryButtonText?: Translation;
@@ -169,7 +169,7 @@ export class InputPasswordComponent implements OnInit {
 
   protected get minPasswordLengthMsg() {
     if (
-      this.masterPasswordPolicyOptions != null &&
+      this.masterPasswordPolicyOptions != undefined &&
       this.masterPasswordPolicyOptions.minLength > 0
     ) {
       return this.i18nService.t("characterMinimum", this.masterPasswordPolicyOptions.minLength);
@@ -463,7 +463,7 @@ export class InputPasswordComponent implements OnInit {
 
   /**
    * Returns `true` if the current password is correct (it can be used to successfully decrypt
-   * the masterKeyEncrypedUserKey), `false` otherwise
+   * the masterKeyEncryptedUserKey), `false` otherwise
    */
   private async verifyCurrentPassword(
     currentPassword: string,
