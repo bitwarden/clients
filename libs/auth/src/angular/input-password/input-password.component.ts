@@ -28,6 +28,7 @@ import {
   FormFieldModule,
   IconButtonModule,
   InputModule,
+  LinkModule,
   ToastService,
   Translation,
 } from "@bitwarden/components";
@@ -112,6 +113,7 @@ interface InputPasswordForm {
     PasswordCalloutComponent,
     PasswordStrengthV2Component,
     ReactiveFormsModule,
+    LinkModule,
     SharedModule,
   ],
 })

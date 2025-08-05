@@ -15,5 +15,6 @@ config.safelist = [
     pattern: /tw-bg-(.*)/,
   },
 ];
+config.corePlugins.preflight = true;
 
 module.exports = config;
