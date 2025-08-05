@@ -1,7 +1,6 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
-// import { A11yTitleDirective } from "../a11y/a11y-title.directive";
 
 import { BitIconButtonComponent } from "./icon-button.component";
 
