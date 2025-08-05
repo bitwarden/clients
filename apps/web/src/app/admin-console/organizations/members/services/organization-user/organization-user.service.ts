@@ -70,9 +70,7 @@ export class OrganizationUserService {
     organization: Organization,
     userIdsWithKeys: { id: string; key: string }[],
   ): Observable<ListResponse<OrganizationUserBulkResponse>> {
-    const encryptedCollectionName$ = this.getEncryptedDefaultCollectionName$(organization);
-
-    return encryptedCollectionName$.pipe(
+    return this.getEncryptedDefaultCollectionName$(organization).pipe(
       switchMap((collectionName) => {
         const request = new OrganizationUserBulkConfirmRequest(
           userIdsWithKeys,
