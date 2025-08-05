@@ -98,7 +98,7 @@ export default {
             <div class="tw-font-bold tw-mb-2">
               Secondary Projected Content (optional)
             </div>
-            <button bitButton>Perform Action</button>
+            <button type="button" bitButton>Perform Action</button>
           </div>
         </auth-anon-layout>
       `,
