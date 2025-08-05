@@ -54,6 +54,7 @@ import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.res
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   DIALOG_DATA,
@@ -149,7 +150,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   @Output() onCanceled = new EventEmitter<void>();
   @Output() onTrialBillingSuccess = new EventEmitter();
 
-  protected discountPercentage: number = 20;
   protected discountPercentageFromSub: number;
   protected loading = true;
   protected planCards: PlanCard[];
@@ -892,7 +892,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     // Backfill pub/priv key if necessary
     if (!this.organization.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const orgShareKey = await firstValueFrom(
+        this.keyService
+          .orgKeys$(userId)
+          .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
+      );
       const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
