@@ -74,7 +74,7 @@ const sizes: Record<IconButtonSize, string[]> = {
   small: ["tw-text-base", "tw-p-2", "tw-rounded"],
 };
 /**
-  * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label` that are added via the `appA11yTitle` input.
+  * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label` that are added via the `label` input.
 
   * The most common use of the icon button is in the banner, toast, and modal components as a close button. It can also be found in tables as the 3 dot option menu, or on navigation list items when there are options that need to be collapsed into a menu.
 
