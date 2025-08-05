@@ -65,7 +65,7 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy, OnChang
   }
 
   submit = async () => {
-    this.formGroup.markAllAsTouched();
+    this.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
     }
@@ -74,7 +74,7 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy, OnChang
   };
 
   validate(): boolean {
-    this.formGroup.markAllAsTouched();
+    this.markAllAsTouched();
     return this.formGroup.valid;
   }
 
