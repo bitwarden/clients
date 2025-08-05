@@ -49,13 +49,6 @@ export const Primary: Story = {
   },
 };
 
-export const Secondary: Story = {
-  ...Default,
-  args: {
-    buttonType: "secondary",
-  },
-};
-
 export const Danger: Story = {
   ...Default,
   args: {
@@ -77,18 +70,18 @@ export const Muted: Story = {
   },
 };
 
-export const Light: Story = {
+export const NavContrast: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <div class="tw-bg-background-alt2 tw-p-6 tw-w-full tw-inline-block">
+    <div class="tw-bg-background-alt3 tw-p-6 tw-w-full tw-inline-block">
       <!-- <div> used only to provide dark background color -->
       <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     </div>
       `,
   }),
   args: {
-    buttonType: "light",
+    buttonType: "nav-contrast",
   },
 };
 

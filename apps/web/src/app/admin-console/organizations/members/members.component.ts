@@ -111,8 +111,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected showUserManagementControls$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
-  protected rowHeight = 69;
-  protected rowHeightClass = `tw-h-[69px]`;
+  protected rowHeight = 66;
+  protected rowHeightClass = `tw-h-[66px]`;
 
   private organizationUsersCount = 0;
 
@@ -721,7 +721,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
-        organizationId: this.organization.id,
+        organization: this.organization,
         users: this.dataSource.getCheckedUsers(),
       },
     });
