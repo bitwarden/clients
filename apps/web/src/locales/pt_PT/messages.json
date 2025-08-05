@@ -9477,6 +9477,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Enviar dados de eventos para a sua instância Logscale"
   },
+  "failedToSaveIntegration": {
+    "message": "Falha ao guardar a integração. Por favor, tente novamente mais tarde."
+  },
   "deviceIdMissing": {
     "message": "ID do dispositivo em falta"
   },
@@ -9557,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Crie uma nova organização de clientes para gerir como Fornecedor. Os lugares adicionais serão refletidos na próxima faturação."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Token de portador"
+  },
+  "index": {
+    "message": "Índice"
   },
   "selectAPlan": {
     "message": "Selecionar um plano"
@@ -10917,6 +10929,36 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Faturas não pagas"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "A sua subscrição não foi paga. Contacte o administrador do seu fornecedor para restabelecer o serviço para si e para os seus clientes.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ está suspenso",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Para restaurar o acesso ao portal do fornecedor, entre em contacto com o Apoio ao cliente do Bitwarden para renovar a sua subscrição.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "A sua subscrição não foi paga. Para restabelecer o serviço para si e para os seus clientes, adicione um método de pagamento até $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
     "message": "Subscrever o plano $PLAN$",

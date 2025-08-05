@@ -15,6 +15,7 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
 import {
+  AnonLayoutWrapperDataService,
   ButtonComponent,
   DialogRef,
   DialogService,
@@ -25,6 +26,7 @@ import { VaultIcons } from "@bitwarden/vault";
 
 import { SETUP_EXTENSION_DISMISSED } from "../../guards/setup-extension-redirect.guard";
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
+import { ManuallyOpenExtensionComponent } from "../manually-open-extension/manually-open-extension.component";
 
 import {
   AddExtensionLaterDialogComponent,
@@ -32,10 +34,11 @@ import {
 } from "./add-extension-later-dialog.component";
 import { AddExtensionVideosComponent } from "./add-extension-videos.component";
 
-const SetupExtensionState = {
+export const SetupExtensionState = {
   Loading: "loading",
   NeedsExtension: "needs-extension",
   Success: "success",
+  ManualOpen: "manual-open",
 } as const;
 
 type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
@@ -51,6 +54,7 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
     IconModule,
     RouterModule,
     AddExtensionVideosComponent,
+    ManuallyOpenExtensionComponent,
   ],
 })
 export class SetupExtensionComponent implements OnInit, OnDestroy {
@@ -63,6 +67,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
   private stateProvider = inject(StateProvider);
   private accountService = inject(AccountService);
   private document = inject(DOCUMENT);
+  private anonLayoutWrapperDataService = inject(AnonLayoutWrapperDataService);
 
   protected SetupExtensionState = SetupExtensionState;
   protected PartyIcon = VaultIcons.Party;
@@ -153,8 +158,21 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
   }
 
   /** Opens the browser extension */
-  openExtension() {
-    void this.webBrowserExtensionInteractionService.openExtension();
+  async openExtension() {
+    await this.webBrowserExtensionInteractionService.openExtension().catch(() => {
+      this.state = SetupExtensionState.ManualOpen;
+
+      // Update the anon layout data to show the proper error design
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: {
+          key: "somethingWentWrong",
+        },
+        pageIcon: VaultIcons.BrowserExtensionIcon,
+        hideIcon: false,
+        hideCardWrapper: false,
+        maxWidth: "md",
+      });
+    });
   }
 
   /** Update local state to never show this page again. */

@@ -28,8 +28,8 @@ import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
-export const RowHeight = 75.5;
-export const RowHeightClass = `tw-h-[75.5px]`;
+export const RowHeight = 75;
+export const RowHeightClass = `tw-h-[75px]`;
 
 const MaxSelectionCount = 500;
 
@@ -285,7 +285,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected canClone(vaultItem: VaultItem<C>) {
     // This will check for restrictions from org policies before allowing cloning.
     const isItemRestricted = this.restrictedPolicies().some(
-      (rt) => rt.cipherType === vaultItem.cipher.type,
+      (rt) => rt.cipherType === CipherViewLikeUtils.getType(vaultItem.cipher),
     );
     if (isItemRestricted) {
       return false;

@@ -50,8 +50,8 @@ describe("LocalBackedSessionStorage", () => {
       const result = await sut.get("test");
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(encryptService.decryptString).toHaveBeenCalledWith(encrypted, sessionKey),
-        expect(result).toEqual("decrypted");
+      (expect(encryptService.decryptString).toHaveBeenCalledWith(encrypted, sessionKey),
+        expect(result).toEqual("decrypted"));
     });
 
     it("caches the decrypted value when one is stored in local storage", async () => {
@@ -69,8 +69,8 @@ describe("LocalBackedSessionStorage", () => {
       const result = await sut.get("test");
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(encryptService.decryptString).toHaveBeenCalledWith(encrypted, sessionKey),
-        expect(result).toEqual("decrypted");
+      (expect(encryptService.decryptString).toHaveBeenCalledWith(encrypted, sessionKey),
+        expect(result).toEqual("decrypted"));
     });
 
     it("caches the decrypted value when one is stored in local storage", async () => {

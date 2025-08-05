@@ -9,6 +9,7 @@ import { Subject, firstValueFrom } from "rxjs";
 
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -170,7 +171,7 @@ export class Main {
     );
 
     const activeUserStateProvider = new DefaultActiveUserStateProvider(
-      accountService,
+      new DefaultActiveUserAccessor(accountService),
       singleUserStateProvider,
     );
 

@@ -2,7 +2,7 @@
   role="search"
   (mouseenter)="isFormHovered.set(true)"
   (mouseleave)="isFormHovered.set(false)"
-  class="tw-relative tw-flex tw-items-center tw-w-full"
+  class="tw-relative tw-flex tw-items-center tw-w-full tw-h-10"
 >
   <label class="tw-sr-only" [for]="id">{{ "search" | i18n }}</label>
   <label
@@ -18,7 +18,7 @@
     [type]="inputType"
     [id]="id"
     [placeholder]="placeholder() ?? ('search' | i18n)"
-    class="tw-ps-9"
+    class="tw-ps-9 tw-h-full"
     name="searchText"
     [ngModel]="searchText"
     (ngModelChange)="onChange($event)"

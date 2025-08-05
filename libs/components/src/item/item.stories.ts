@@ -125,6 +125,11 @@ export const ContentTypes: Story = {
         </button>
       </bit-item>
       <bit-item>
+        <button bit-item-content disabled title="I'm a disabled button">
+          And I am a disabled button.
+        </button>
+      </bit-item>
+      <bit-item>
         <bit-item-content>
           I'm just static :(
         </bit-item-content>
@@ -392,7 +397,7 @@ export const VirtualScrolling: Story = {
       data: Array.from(Array(100000).keys()),
     },
     template: /*html*/ `
-      <cdk-virtual-scroll-viewport [itemSize]="59" class="tw-h-[500px]">
+      <cdk-virtual-scroll-viewport [itemSize]="54" class="tw-h-[500px]">
         <bit-item-group aria-label="Virtual Scrolling">
           <bit-item *cdkVirtualFor="let item of data">
             <button bit-item-content>

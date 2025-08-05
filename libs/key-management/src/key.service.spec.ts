@@ -1,9 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -12,6 +9,7 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -496,77 +494,79 @@ describe("keyService", () => {
   });
 
   describe("userPrivateKey$", () => {
-    type SetupKeysParams = {
-      makeMasterKey: boolean;
-      makeUserKey: boolean;
-    };
+    let mockUserKey: UserKey;
+    let mockUserPrivateKey: Uint8Array;
+    let mockEncryptedPrivateKey: EncryptedString;
 
-    function setupKeys({
-      makeMasterKey,
-      makeUserKey,
-    }: SetupKeysParams): [UserKey | null, MasterKey | null] {
-      const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-      const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64) : null;
-      masterPasswordService.masterKeySubject.next(fakeMasterKey);
-      userKeyState.nextState(null);
-      const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
-      userKeyState.nextState(fakeUserKey);
-      return [fakeUserKey, fakeMasterKey];
-    }
+    beforeEach(() => {
+      mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
+      mockEncryptedPrivateKey = makeEncString("encryptedPrivateKey").encryptedString!;
+      mockUserPrivateKey = makeStaticByteArray(10, 1);
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      stateProvider.singleUser
+        .getFake(mockUserId, USER_ENCRYPTED_PRIVATE_KEY)
+        .nextState(mockEncryptedPrivateKey);
+      encryptService.unwrapDecapsulationKey.mockResolvedValue(mockUserPrivateKey);
+    });
 
-    it("will return users decrypted private key when user has a user key and encrypted private key set", async () => {
-      const [userKey] = setupKeys({
-        makeMasterKey: false,
-        makeUserKey: true,
+    it("returns the unwrapped user private key when user key and encrypted private key are set", async () => {
+      const result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
+
+      expect(result).toEqual(mockUserPrivateKey);
+      expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
+        new EncString(mockEncryptedPrivateKey),
+        mockUserKey,
+      );
+    });
+
+    it("throws an error if unwrapping encrypted private key fails", async () => {
+      encryptService.unwrapDecapsulationKey.mockImplementationOnce(() => {
+        throw new Error("Unwrapping failed");
       });
 
-      const userEncryptedPrivateKeyState = stateProvider.singleUser.getFake(
-        mockUserId,
-        USER_ENCRYPTED_PRIVATE_KEY,
+      await expect(firstValueFrom(keyService.userPrivateKey$(mockUserId))).rejects.toThrow(
+        "Unwrapping failed",
       );
-
-      const fakeEncryptedUserPrivateKey = makeEncString("1");
-
-      userEncryptedPrivateKeyState.nextState(fakeEncryptedUserPrivateKey.encryptedString!);
-
-      // Decryption of the user private key
-      const fakeDecryptedUserPrivateKey = makeStaticByteArray(10, 1);
-      encryptService.unwrapDecapsulationKey.mockResolvedValue(fakeDecryptedUserPrivateKey);
-
-      const fakeUserPublicKey = makeStaticByteArray(10, 2);
-      cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(fakeUserPublicKey);
-
-      const userPrivateKey = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
-
-      expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
-        fakeEncryptedUserPrivateKey,
-        userKey,
-      );
-
-      expect(userPrivateKey).toBe(fakeDecryptedUserPrivateKey);
     });
 
-    it("returns null user private key when no user key is found", async () => {
-      setupKeys({ makeMasterKey: false, makeUserKey: false });
+    it("returns null if user key is not set", async () => {
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
 
-      const userPrivateKey = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
+      const result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
 
+      expect(result).toBeNull();
       expect(encryptService.unwrapDecapsulationKey).not.toHaveBeenCalled();
-
-      expect(userPrivateKey).toBeFalsy();
     });
 
-    it("returns null when user does not have a private key set", async () => {
-      setupKeys({ makeUserKey: true, makeMasterKey: false });
+    it("returns null if encrypted private key is not set", async () => {
+      stateProvider.singleUser.getFake(mockUserId, USER_ENCRYPTED_PRIVATE_KEY).nextState(null);
 
-      const encryptedUserPrivateKeyState = stateProvider.singleUser.getFake(
-        mockUserId,
-        USER_ENCRYPTED_PRIVATE_KEY,
-      );
-      encryptedUserPrivateKeyState.nextState(null);
+      const result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
 
-      const userPrivateKey = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
-      expect(userPrivateKey).toBeFalsy();
+      expect(result).toBeNull();
+      expect(encryptService.unwrapDecapsulationKey).not.toHaveBeenCalled();
+    });
+
+    it("reacts to changes in user key or encrypted private key", async () => {
+      // Initial state: both set
+      let result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
+
+      expect(result).toEqual(mockUserPrivateKey);
+
+      // Change user key to null
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
+
+      result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
+
+      expect(result).toBeNull();
+
+      // Restore user key, remove encrypted private key
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      stateProvider.singleUser.getFake(mockUserId, USER_ENCRYPTED_PRIVATE_KEY).nextState(null);
+
+      result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
+
+      expect(result).toBeNull();
     });
   });
 
@@ -697,7 +697,6 @@ describe("keyService", () => {
     });
 
     it("returns decryption keys when some of the org keys are providers", async () => {
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(64));
       const org2Id = "org2Id" as OrganizationId;
       updateKeys({
         userKey: makeSymmetricCryptoKey<UserKey>(64),
@@ -1066,7 +1065,7 @@ describe("keyService", () => {
     });
   });
 
-  describe("userPrivateKey$", () => {
+  describe("userEncryptionKeyPair$", () => {
     type SetupKeysParams = {
       makeMasterKey: boolean;
       makeUserKey: boolean;
