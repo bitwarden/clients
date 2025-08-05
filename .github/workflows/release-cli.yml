@@ -90,6 +90,7 @@ jobs:
                       apps/cli/bw-macos-arm64-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-oss-linux-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-linux-${{ env.PKG_VERSION }}.zip,
+                      apps/cli/bw-linux-arm64-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bitwarden-cli.${{ env.PKG_VERSION }}.nupkg,
                       apps/cli/bw_${{ env.PKG_VERSION }}_amd64.snap,
                       apps/cli/bitwarden-cli-${{ env.PKG_VERSION }}-npm-build.zip"
