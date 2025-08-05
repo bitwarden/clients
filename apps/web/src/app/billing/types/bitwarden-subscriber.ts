@@ -9,6 +9,8 @@ export type BitwardenSubscriber =
   | { type: "organization"; data: Organization }
   | { type: "provider"; data: Provider };
 
+export type NonIndividualSubscriber = Exclude<BitwardenSubscriber, { type: "account" }>;
+
 export const mapAccountToSubscriber = map<Account | null, BitwardenSubscriber>((account) => {
   if (!account) {
     throw new Error("Account not found");

@@ -38,6 +38,7 @@ import { AccountComponent } from "./settings/account.component";
 import { SetupProviderComponent } from "./setup/setup-provider.component";
 import { SetupComponent } from "./setup/setup.component";
 import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-provider.component";
+import { ProviderWarningsModule } from "../../billing/providers/warnings/provider-warnings.module";
 
 @NgModule({
   imports: [
@@ -55,6 +56,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     CardComponent,
     ScrollLayoutDirective,
     PaymentComponent,
+    ProviderWarningsModule,
   ],
   declarations: [
     AcceptProviderComponent,

@@ -21,6 +21,7 @@
       <app-display-billing-address
         [subscriber]="view.provider"
         [billingAddress]="view.billingAddress"
+        [taxIdWarning]="enableTaxIdWarning ? view.taxIdWarning : null"
         (updated)="setBillingAddress($event)"
       ></app-display-billing-address>
 

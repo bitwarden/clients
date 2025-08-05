@@ -3,7 +3,6 @@ import { Observable } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { BannerModule } from "@bitwarden/components";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { OrganizationWarningsService } from "../services";
@@ -26,12 +25,12 @@ import { OrganizationResellerRenewalWarning } from "../types";
       </bit-banner>
     }
   `,
-  imports: [BannerModule, OrganizationWarningsModule, SharedModule],
+  imports: [BannerModule, SharedModule],
 })
 export class OrganizationResellerRenewalWarningComponent implements OnInit {
   @Input({ required: true }) organization!: Organization;
 
-  warning$!: Observable<OrganizationResellerRenewalWarning>;
+  warning$!: Observable<OrganizationResellerRenewalWarning | null>;
 
   constructor(private organizationWarningsService: OrganizationWarningsService) {}
 

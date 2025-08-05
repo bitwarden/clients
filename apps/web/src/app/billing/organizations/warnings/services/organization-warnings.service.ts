@@ -1,6 +1,17 @@
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { filter, from, lastValueFrom, map, Observable, Subject, switchMap, takeWhile } from "rxjs";
+import {
+  BehaviorSubject,
+  filter,
+  from,
+  lastValueFrom,
+  map,
+  merge,
+  Observable,
+  Subject,
+  switchMap,
+  tap,
+} from "rxjs";
 import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -8,10 +19,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 import {
   TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
@@ -35,8 +46,11 @@ const format = (date: Date) =>
 export class OrganizationWarningsService {
   private cache$ = new Map<OrganizationId, Observable<OrganizationWarningsResponse>>();
 
-  private refreshFreeTrialWarning$ = new Subject<OrganizationId>();
-  readonly freeTrialWarningRefreshed$ = this.refreshFreeTrialWarning$.asObservable();
+  private refreshFreeTrialWarningTrigger = new Subject<void>();
+  private refreshTaxIdWarningTrigger = new Subject<void>();
+
+  private taxIdWarningRefreshedSubject = new BehaviorSubject<TaxIdWarningType | null>(null);
+  taxIdWarningRefreshed$ = this.taxIdWarningRefreshedSubject.asObservable();
 
   constructor(
     private configService: ConfigService,
@@ -45,15 +59,22 @@ export class OrganizationWarningsService {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationBillingClient: OrganizationBillingClient,
     private router: Router,
-    protected syncService: SyncService,
   ) {}
 
   getFreeTrialWarning$ = (
     organization: Organization,
-    bypassCache: boolean = false,
-  ): Observable<OrganizationFreeTrialWarning> =>
-    this.getWarning$(organization, (response) => response.freeTrial, bypassCache).pipe(
+  ): Observable<OrganizationFreeTrialWarning | null> =>
+    merge(
+      this.getWarning$(organization, (response) => response.freeTrial),
+      this.refreshFreeTrialWarningTrigger.pipe(
+        switchMap(() => this.getWarning$(organization, (response) => response.freeTrial, true)),
+      ),
+    ).pipe(
       map((warning) => {
+        if (!warning) {
+          return null;
+        }
+
         const { remainingTrialDays } = warning;
 
         if (remainingTrialDays >= 2) {
@@ -79,10 +100,12 @@ export class OrganizationWarningsService {
 
   getResellerRenewalWarning$ = (
     organization: Organization,
-    bypassCache: boolean = false,
-  ): Observable<OrganizationResellerRenewalWarning> =>
-    this.getWarning$(organization, (response) => response.resellerRenewal, bypassCache).pipe(
-      map((warning): OrganizationResellerRenewalWarning | null => {
+  ): Observable<OrganizationResellerRenewalWarning | null> =>
+    this.getWarning$(organization, (response) => response.resellerRenewal).pipe(
+      map((warning) => {
+        if (!warning) {
+          return null;
+        }
         switch (warning.type) {
           case "upcoming": {
             return {
@@ -117,14 +140,27 @@ export class OrganizationWarningsService {
           }
         }
       }),
-      filter((result): result is NonNullable<typeof result> => result !== null),
     );
 
-  showInactiveSubscriptionDialog$ = (
-    organization: Organization,
-    bypassCache: boolean = false,
-  ): Observable<void> =>
-    this.getWarning$(organization, (response) => response.inactiveSubscription, bypassCache).pipe(
+  getTaxIdWarning$ = (organization: Organization): Observable<TaxIdWarningType | null> =>
+    merge(
+      this.getWarning$(organization, (response) => response.taxId),
+      this.refreshTaxIdWarningTrigger.pipe(
+        switchMap(() =>
+          this.getWarning$(organization, (response) => response.taxId, true).pipe(
+            tap((warning) => this.taxIdWarningRefreshedSubject.next(warning ? warning.type : null)),
+          ),
+        ),
+      ),
+    ).pipe(map((warning) => (warning ? warning.type : null)));
+
+  refreshFreeTrialWarning = () => this.refreshFreeTrialWarningTrigger.next();
+
+  refreshTaxIdWarning = () => this.refreshTaxIdWarningTrigger.next();
+
+  showInactiveSubscriptionDialog$ = (organization: Organization): Observable<void> =>
+    this.getWarning$(organization, (response) => response.inactiveSubscription).pipe(
+      filter((warning) => warning !== null),
       switchMap(async (warning) => {
         switch (warning.resolution) {
           case "contact_provider": {
@@ -190,11 +226,9 @@ export class OrganizationWarningsService {
       }),
     );
 
-  showSubscribeBeforeFreeTrialEndsDialog$ = (
-    organization: Organization,
-    bypassCache: boolean = false,
-  ): Observable<void> =>
-    this.getWarning$(organization, (response) => response.freeTrial, bypassCache).pipe(
+  showSubscribeBeforeFreeTrialEndsDialog$ = (organization: Organization): Observable<void> =>
+    this.getWarning$(organization, (response) => response.freeTrial).pipe(
+      filter((warning) => warning !== null),
       switchMap(async () => {
         const organizationSubscriptionResponse = await this.organizationApiService.getSubscription(
           organization.id,
@@ -209,7 +243,7 @@ export class OrganizationWarningsService {
         });
         const result = await lastValueFrom(dialogRef.closed);
         if (result === TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED) {
-          this.refreshFreeTrialWarning$.next(organization.id as OrganizationId);
+          this.refreshFreeTrialWarningTrigger.next();
         }
       }),
     );
@@ -232,10 +266,12 @@ export class OrganizationWarningsService {
     organization: Organization,
     extract: (response: OrganizationWarningsResponse) => T | null | undefined,
     bypassCache: boolean = false,
-  ): Observable<T> =>
+  ): Observable<T | null> =>
     this.readThroughWarnings$(organization, bypassCache).pipe(
-      map(extract),
-      takeWhile((warning): warning is T => !!warning),
+      map((response) => {
+        const value = extract(response);
+        return value ? value : null;
+      }),
       take(1),
     );
 }

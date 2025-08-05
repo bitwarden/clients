@@ -3,18 +3,31 @@ import { Component, Inject } from "@angular/core";
 
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  CalloutTypes,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
-
-import { SharedModule } from "../../../shared";
-import { BitwardenSubscriber } from "../../types";
-import { BillingAddress, getTaxIdTypeForCountry } from "../types";
+import {
+  BillingAddress,
+  getTaxIdTypeForCountry,
+} from "@bitwarden/web-vault/app/billing/payment/types";
+import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import {
+  TaxIdWarningType,
+  TaxIdWarningTypes,
+} from "@bitwarden/web-vault/app/billing/warnings/types";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { EnterBillingAddressComponent } from "./enter-billing-address.component";
 
 type DialogParams = {
   subscriber: BitwardenSubscriber;
   billingAddress: BillingAddress | null;
+  taxIdWarning?: TaxIdWarningType;
 };
 
 type DialogResult =
@@ -30,11 +43,18 @@ type DialogResult =
           {{ "editBillingAddress" | i18n }}
         </span>
         <div bitDialogContent>
+          @let callout = taxIdWarningCallout;
+          @if (callout) {
+            <bit-callout [type]="callout.type" [title]="callout.title">
+              {{ callout.message }}
+            </bit-callout>
+          }
           <app-enter-billing-address
             [scenario]="{
               type: 'update',
               existing: dialogParams.billingAddress,
               supportsTaxId,
+              taxIdWarning: dialogParams.taxIdWarning,
             }"
             [group]="formGroup"
           ></app-enter-billing-address>
@@ -138,6 +158,37 @@ export class EditBillingAddressDialogComponent {
       }
       case "provider": {
         return true;
+      }
+    }
+  }
+
+  get taxIdWarningCallout(): {
+    type: CalloutTypes;
+    title: string;
+    message: string;
+  } | null {
+    if (
+      !this.supportsTaxId ||
+      !this.dialogParams.taxIdWarning ||
+      this.dialogParams.taxIdWarning === TaxIdWarningTypes.PendingVerification
+    ) {
+      return null;
+    }
+
+    switch (this.dialogParams.taxIdWarning) {
+      case TaxIdWarningTypes.Missing: {
+        return {
+          type: "warning",
+          title: this.i18nService.t("missingTaxIdCalloutTitle"),
+          message: this.i18nService.t("missingTaxIdCalloutDescription"),
+        };
+      }
+      case TaxIdWarningTypes.FailedVerification: {
+        return {
+          type: "warning",
+          title: this.i18nService.t("unverifiedTaxIdCalloutTitle"),
+          message: this.i18nService.t("unverifiedTaxIdCalloutDescription"),
+        };
       }
     }
   }

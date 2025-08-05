@@ -3,9 +3,15 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { map, Observable, startWith, Subject, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  TaxIdWarningType,
+  TaxIdWarningTypes,
+} from "@bitwarden/web-vault/app/billing/warnings/types";
 
 import { SharedModule } from "../../../shared";
-import { BillingAddress, selectableCountries, taxIdTypes } from "../types";
+import { BillingAddress, getTaxIdTypeForCountry, selectableCountries, taxIdTypes } from "../types";
+
 
 export interface BillingAddressControls {
   country: string;
@@ -28,6 +34,7 @@ type Scenario =
       type: "update";
       existing?: BillingAddress;
       supportsTaxId: boolean;
+      taxIdWarning?: TaxIdWarningType;
     };
 
 @Component({
@@ -110,7 +117,7 @@ type Scenario =
           </bit-form-field>
         </div>
         @if (supportsTaxId$ | async) {
-          <div class="tw-col-span-6">
+          <div class="tw-col-span-12">
             <bit-form-field [disableMargin]="true">
               <bit-label>{{ "taxIdNumber" | i18n }}</bit-label>
               <input
@@ -119,6 +126,17 @@ type Scenario =
                 [formControl]="group.controls.taxId"
                 data-testid="tax-id"
               />
+              @let hint = taxIdWarningHint;
+              @if (hint) {
+                <bit-hint
+                  ><i
+                    class="bwi bwi-exclamation-triangle tw-mr-1"
+                    title="{{ hint }}"
+                    aria-hidden="true"
+                  ></i
+                  >{{ hint }}</bit-hint
+                >
+              }
             </bit-form-field>
           </div>
         }
@@ -136,6 +154,8 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
   protected supportsTaxId$!: Observable<boolean>;
 
   private destroy$ = new Subject<void>();
+
+  constructor(private i18nService: I18nService) {}
 
   ngOnInit() {
     switch (this.scenario.type) {
@@ -184,6 +204,40 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
     this.group.controls.city.disable();
     this.group.controls.state.disable();
   };
+
+  get taxIdWarningHint() {
+    if (
+      this.scenario.type === "checkout" ||
+      !this.scenario.supportsTaxId ||
+      !this.group.value.country ||
+      this.scenario.taxIdWarning !== TaxIdWarningTypes.FailedVerification
+    ) {
+      return null;
+    }
+
+    const taxIdType = getTaxIdTypeForCountry(this.group.value.country);
+
+    if (!taxIdType) {
+      return null;
+    }
+
+    const checkInputFormat = this.i18nService.t("checkInputFormat");
+
+    switch (taxIdType.code) {
+      case "au_abn": {
+        const exampleFormat = this.i18nService.t("exampleTaxIdFormat", "ABN", taxIdType.example);
+        return `${checkInputFormat} ${exampleFormat}`;
+      }
+      case "eu_vat": {
+        const exampleFormat = this.i18nService.t("exampleTaxIdFormat", "EU VAT", taxIdType.example);
+        return `${checkInputFormat} ${exampleFormat}`;
+      }
+      case "gb_vat": {
+        const exampleFormat = this.i18nService.t("exampleTaxIdFormat", "GB VAT", taxIdType.example);
+        return `${checkInputFormat} ${exampleFormat}`;
+      }
+    }
+  }
 
   static getFormGroup = (): BillingAddressFormGroup =>
     new FormGroup({
