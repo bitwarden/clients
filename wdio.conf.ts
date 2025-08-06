@@ -15,7 +15,15 @@ export const config: WebdriverIO.Config = {
       project: "./wdio/tsconfig.json",
     },
   },
-  reporters: ["spec"],
+  reporters: [
+    "spec",
+    ["junit", {
+      outputDir: "./",
+      outputFileFormat: function(options) {
+        return `wdio-junit-results.xml`;
+      }
+    }]
+  ],
   services: [],
   capabilities: [],
 };

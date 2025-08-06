@@ -90,6 +90,7 @@
     "@wdio/mocha-framework": "9.16.2",
     "@wdio/spec-reporter": "9.16.2",
     "@wdio/dot-reporter": "9.16.2",
+    "@wdio/junit-reporter": "9.16.2",
     "wdio-chromedriver-service": "8.1.1",
     "wdio-electron-service": "8.2.1",
     "chromedriver": "138.0.5",
