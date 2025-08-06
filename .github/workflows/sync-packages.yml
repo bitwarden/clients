@@ -1,0 +1,188 @@
+name: Sync Packages from Upstream
+
+on:
+  workflow_dispatch:
+    inputs:
+      upstream_ref:
+        description: 'Upstream branch or tag to sync from'
+        required: false
+        default: 'main'
+        type: string
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  sync-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/bitwarden/clients.git || true
+          git fetch upstream
+
+      - name: Backup current WebDriverIO dependencies
+        run: |
+          # Extract WebDriverIO related dependencies from package.json
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            const wdioDevDeps = {};
+            const wdioDeps = {};
+            
+            // WebDriverIO related packages to preserve
+            const wdioPackages = [
+              '@wdio/cli',
+              '@wdio/local-runner', 
+              '@wdio/mocha-framework',
+              '@wdio/spec-reporter',
+              '@wdio/dot-reporter',
+              '@wdio/chromedriver-service',
+              'wdio-electron-service'
+            ];
+            
+            // Extract WebDriverIO dependencies
+            Object.keys(pkg.devDependencies || {}).forEach(dep => {
+              if (wdioPackages.includes(dep)) {
+                wdioDevDeps[dep] = pkg.devDependencies[dep];
+              }
+            });
+            
+            Object.keys(pkg.dependencies || {}).forEach(dep => {
+              if (wdioPackages.includes(dep)) {
+                wdioDeps[dep] = pkg.dependencies[dep];
+              }
+            });
+            
+            // Save backup
+            fs.writeFileSync('wdio-deps-backup.json', JSON.stringify({
+              devDependencies: wdioDevDeps,
+              dependencies: wdioDeps
+            }, null, 2));
+            
+            console.log('Backed up WebDriverIO dependencies:', Object.keys(wdioDevDeps).concat(Object.keys(wdioDeps)));
+          "
+
+      - name: Sync package.json from upstream
+        run: |
+          UPSTREAM_REF="${{ github.event.inputs.upstream_ref || 'main' }}"
+          echo "Syncing from upstream/$UPSTREAM_REF"
+          
+          # Get upstream package.json
+          git show upstream/$UPSTREAM_REF:package.json > upstream-package.json
+          
+          # Merge package.json while preserving WebDriverIO deps
+          node -e "
+            const fs = require('fs');
+            const upstreamPkg = JSON.parse(fs.readFileSync('upstream-package.json', 'utf8'));
+            const wdioBackup = JSON.parse(fs.readFileSync('wdio-deps-backup.json', 'utf8'));
+            
+            // Merge WebDriverIO dependencies back in
+            Object.assign(upstreamPkg.devDependencies, wdioBackup.devDependencies);
+            Object.assign(upstreamPkg.dependencies, wdioBackup.dependencies);
+            
+            // Write merged package.json
+            fs.writeFileSync('package.json', JSON.stringify(upstreamPkg, null, 2) + '\n');
+            
+            console.log('Merged package.json with WebDriverIO dependencies preserved');
+          "
+
+      - name: Sync package-lock.json from upstream
+        run: |
+          UPSTREAM_REF="${{ github.event.inputs.upstream_ref || 'main' }}"
+          
+          # Get upstream package-lock.json if it exists
+          if git show upstream/$UPSTREAM_REF:package-lock.json > /dev/null 2>&1; then
+            echo "Syncing package-lock.json from upstream"
+            git show upstream/$UPSTREAM_REF:package-lock.json > package-lock.json
+          else
+            echo "No package-lock.json found in upstream, keeping current version"
+          fi
+
+      - name: Install dependencies and update lockfile
+        run: |
+          echo "Installing dependencies with WebDriverIO packages..."
+          npm install
+          
+          # Verify WebDriverIO packages are still installed
+          echo "Verifying WebDriverIO dependencies:"
+          npm list @wdio/cli @wdio/local-runner @wdio/mocha-framework @wdio/spec-reporter @wdio/dot-reporter @wdio/chromedriver-service wdio-electron-service || true
+
+      - name: Verify e2e test configuration
+        run: |
+          # Verify wdio.conf.ts exists and is valid
+          if [ -f "wdio.conf.ts" ]; then
+            echo "✓ wdio.conf.ts exists"
+            node -e "
+              try {
+                require('typescript').transpileModule(require('fs').readFileSync('wdio.conf.ts', 'utf8'), {
+                  compilerOptions: { module: 'commonjs' }
+                });
+                console.log('✓ wdio.conf.ts syntax is valid');
+              } catch (e) {
+                console.error('✗ wdio.conf.ts has syntax errors:', e.message);
+                process.exit(1);
+              }
+            "
+          else
+            echo "✗ wdio.conf.ts not found"
+            exit 1
+          fi
+          
+          # Verify e2e test directory exists
+          if [ -d "test/wdio" ]; then
+            echo "✓ E2E test directory exists"
+          else
+            echo "✗ E2E test directory not found"
+            exit 1
+          fi
+
+      - name: Test e2e dependencies
+        run: |
+          echo "Testing WebDriverIO CLI availability..."
+          npx wdio --version || exit 1
+          echo "✓ WebDriverIO CLI is working"
+
+      - name: Clean up temporary files
+        run: |
+          rm -f upstream-package.json wdio-deps-backup.json
+
+      - name: Commit changes
+        run: |
+          # Check if there are any changes
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          # Stage all changes
+          git add package.json package-lock.json
+          
+          # Commit changes
+          git commit -m "chore: sync packages from upstream while preserving WebDriverIO deps
+
+          - Synced package.json from upstream/${{ github.event.inputs.upstream_ref || 'main' }}
+          - Preserved WebDriverIO dependencies for e2e testing
+          - Updated package-lock.json
+          
+          Auto-synced by sync-packages workflow"
+          
+          # Push changes
+          git push origin main
