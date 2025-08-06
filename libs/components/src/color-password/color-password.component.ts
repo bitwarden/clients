@@ -2,14 +2,8 @@ import { Component, computed, HostBinding, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-const CharacterTypes = {
-  Letter: "Letter",
-  Emoji: "Emoji",
-  Special: "Special",
-  Number: "Number",
-} as const;
+type CharacterType = "Letter" | "Emoji" | "Special" | "Number";
 
-type CharacterType = keyof typeof CharacterTypes;
 /**
  * The color password is used primarily in the Generator pages and in the Login type form. It includes
  * the logic for displaying letters as `text-main`, numbers as `primary`, and special symbols as
@@ -36,10 +30,10 @@ export class ColorPasswordComponent {
   });
 
   characterStyles: Record<CharacterType, string[]> = {
-    [CharacterTypes.Emoji]: [],
-    [CharacterTypes.Letter]: ["tw-text-main"],
-    [CharacterTypes.Special]: ["tw-text-danger"],
-    [CharacterTypes.Number]: ["tw-text-primary-600"],
+    Emoji: [],
+    Letter: ["tw-text-main"],
+    Special: ["tw-text-danger"],
+    Number: ["tw-text-primary-600"],
   };
 
   @HostBinding("class")
@@ -68,18 +62,18 @@ export class ColorPasswordComponent {
 
   private getCharacterType(character: string): CharacterType {
     if (character.match(Utils.regexpEmojiPresentation)) {
-      return CharacterTypes.Emoji;
+      return "Emoji";
     }
 
     if (character.match(/\d/)) {
-      return CharacterTypes.Number;
+      return "Number";
     }
 
     const specials = ["&", "<", ">", " "];
     if (specials.includes(character) || character.match(/[^\w ]/)) {
-      return CharacterTypes.Special;
+      return "Special";
     }
 
-    return CharacterTypes.Letter;
+    return "Letter";
   }
 }
