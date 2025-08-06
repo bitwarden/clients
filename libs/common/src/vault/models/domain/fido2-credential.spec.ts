@@ -1,6 +1,6 @@
 import { mockEnc } from "../../../../spec";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { EncryptionType } from "../../../platform/enums";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 
 import { Fido2Credential } from "./fido2-credential";

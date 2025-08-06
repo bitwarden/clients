@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Скасувати"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Скасовано"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Пошук в групах"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "allItems": {
     "message": "Усі записи"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Захищена нотатка"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "typeSshKey": {
     "message": "Ключ SSH"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "Копіювати ім'я"
+  },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Я"
@@ -3482,6 +3508,9 @@
   "webVault": {
     "message": "Вебсховище"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3962,7 +3991,23 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте увійти з пристроєм знову."
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте ввійти з пристроєм знову."
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були ви, спробуйте ввійти з пристроєм знову."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Термін дії запиту на вхід завершився."
@@ -4107,6 +4152,9 @@
   },
   "reviewLoginRequest": {
     "message": "Переглянути запит входу"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Ваш безплатний пробний період завершується через $COUNT$ днів.",
@@ -4583,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Отримуйте поради, оголошення та можливості дослідження від Bitwarden у своїй поштовій скриньці."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "Відписатися"
@@ -9423,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "Налаштуйте керування пристроями для Bitwarden, використовуючи посібник із впровадження для вашої платформи."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Відсутній ID пристрою"
   },
@@ -9437,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Відкрийте це посилання з електронної пошти на комп'ютері."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Відкрити посібник із впровадження $INTEGRATION$.",
@@ -9494,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Створіть нову організацію клієнта, щоб керувати нею як провайдер. Додаткові місця будуть відображені в наступному платіжному циклі."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Оберіть тарифний план"
@@ -10243,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "Користувача вилучено з організації. Всі пов'язані дані користувача видалено."
   },
-  "deletedUserId": {
-    "message": "Видалений користувач $ID$ - власник / адміністратор видалив обліковий запис користувача",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "Проходить перевірку"
   },
-  "claimedDomainsDesc": {
-    "message": "Заявіть домен, щоб володіти всіма обліковими записами учасників, адреси е-пошти яких відповідають цьому домену. Учасники матимуть змогу пропустити ідентифікацію SSO під час входу в систему. Адміністратори також зможуть видаляти облікові записи учасників."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Неправильний формат введення. Правильний формат: mydomain.com. Для заявлення піддоменів потрібно ввести окремі записи."
@@ -10854,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Unpaid invoices"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
   }
 }

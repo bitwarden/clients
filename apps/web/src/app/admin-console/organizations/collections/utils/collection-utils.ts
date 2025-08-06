@@ -82,5 +82,7 @@ function cloneCollection(
   cloned.organizationId = collection.organizationId;
   cloned.readOnly = collection.readOnly;
   cloned.manage = collection.manage;
+  cloned.type = collection.type;
+
   return cloned;
 }

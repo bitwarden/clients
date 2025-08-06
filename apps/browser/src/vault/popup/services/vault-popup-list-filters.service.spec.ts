@@ -20,12 +20,15 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
+
+import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import {
   CachedFilterState,
@@ -47,7 +50,7 @@ describe("VaultPopupListFiltersService", () => {
   const memberOrganizations$ = (userId: UserId) => _memberOrganizations$;
   const organizations$ = new BehaviorSubject<Organization[]>([]);
   let folderViews$ = new BehaviorSubject([]);
-  const cipherViews$ = new BehaviorSubject({});
+  const cipherListViews$ = new BehaviorSubject({});
   let decryptedCollections$ = new BehaviorSubject<CollectionView[]>([]);
   const policyAppliesToUser$ = new BehaviorSubject<boolean>(false);
   let viewCacheService: {
@@ -56,7 +59,7 @@ describe("VaultPopupListFiltersService", () => {
   };
 
   const collectionService = {
-    decryptedCollections$,
+    decryptedCollections$: () => decryptedCollections$,
     getAllNested: () => Promise.resolve([]),
   } as unknown as CollectionService;
 
@@ -65,7 +68,7 @@ describe("VaultPopupListFiltersService", () => {
   } as unknown as FolderService;
 
   const cipherService = {
-    cipherViews$: () => cipherViews$,
+    cipherListViews$: () => cipherListViews$,
   } as unknown as CipherService;
 
   const organizationService = {
@@ -104,7 +107,7 @@ describe("VaultPopupListFiltersService", () => {
       signal: jest.fn(() => mockCachedSignal),
     };
 
-    collectionService.getAllNested = () => Promise.resolve([]);
+    collectionService.getAllNested = () => [];
     TestBed.configureTestingModule({
       providers: [
         {
@@ -380,14 +383,7 @@ describe("VaultPopupListFiltersService", () => {
     beforeEach(() => {
       decryptedCollections$.next(testCollections);
 
-      collectionService.getAllNested = () =>
-        Promise.resolve(
-          testCollections.map((c) => ({
-            children: [],
-            node: c,
-            parent: null,
-          })),
-        );
+      collectionService.getAllNested = () => testCollections.map((c) => new TreeNode(c, null));
     });
 
     it("returns all collections", (done) => {
@@ -508,7 +504,7 @@ describe("VaultPopupListFiltersService", () => {
         { id: "2345", name: "Folder 2" },
       ]);
 
-      cipherViews$.next({
+      cipherListViews$.next({
         "1": { folderId: "1234", organizationId: "1234" },
         "2": { folderId: "2345", organizationId: "56789" },
       });
@@ -560,6 +556,28 @@ describe("VaultPopupListFiltersService", () => {
 
         service.filterFunction$.subscribe((filterFunction) => {
           expect(filterFunction(ciphers)).toEqual([ciphers[0], ciphers[2], ciphers[3]]);
+          done();
+        });
+
+        service.filterForm.patchValue({ organization });
+      });
+
+      it("keeps ciphers with null and undefined for organizationId when MyVault is selected", (done) => {
+        const organization = { id: MY_VAULT_ID } as Organization;
+
+        const undefinedOrgIdCipher = {
+          type: CipherType.SecureNote,
+          collectionIds: [],
+          organizationId: undefined,
+        } as unknown as PopupCipherViewLike;
+
+        service.filterFunction$.subscribe((filterFunction) => {
+          expect(filterFunction([...ciphers, undefinedOrgIdCipher])).toEqual([
+            ciphers[0],
+            ciphers[2],
+            ciphers[3],
+            undefinedOrgIdCipher,
+          ]);
           done();
         });
 
@@ -717,7 +735,10 @@ function createSeededVaultPopupListFiltersService(
   collections: CollectionView[],
   folderViews: FolderView[],
   cachedState: CachedFilterState = {},
-): { service: VaultPopupListFiltersService; cachedSignal: WritableSignal<CachedFilterState> } {
+): {
+  service: VaultPopupListFiltersService;
+  cachedSignal: WritableSignal<CachedFilterState>;
+} {
   const seededMemberOrganizations$ = new BehaviorSubject<Organization[]>(organizations);
   const seededCollections$ = new BehaviorSubject<CollectionView[]>(collections);
   const seededFolderViews$ = new BehaviorSubject<FolderView[]>(folderViews);
@@ -728,15 +749,13 @@ function createSeededVaultPopupListFiltersService(
   } as any;
 
   const collectionServiceMock = {
-    decryptedCollections$: seededCollections$,
+    decryptedCollections$: () => seededCollections$,
     getAllNested: () =>
-      Promise.resolve(
-        seededCollections$.value.map((c) => ({
-          children: [],
-          node: c,
-          parent: null,
-        })),
-      ),
+      seededCollections$.value.map((c) => ({
+        children: [],
+        node: c,
+        parent: null,
+      })),
   } as any;
 
   const folderServiceMock = {
@@ -744,7 +763,7 @@ function createSeededVaultPopupListFiltersService(
   } as any;
 
   const cipherServiceMock = {
-    cipherViews$: () => new BehaviorSubject({}),
+    cipherListViews$: () => new BehaviorSubject({}),
   } as any;
 
   const i18nServiceMock = {

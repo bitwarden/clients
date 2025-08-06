@@ -1,6 +1,7 @@
+import { Location } from "@angular/common";
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { filter, from, lastValueFrom, map, Observable, switchMap, takeWhile } from "rxjs";
+import { filter, from, lastValueFrom, map, Observable, Subject, switchMap, takeWhile } from "rxjs";
 import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -10,10 +11,15 @@ import { OrganizationWarningsResponse } from "@bitwarden/common/billing/models/r
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 
 import { openChangePlanDialog } from "../../organizations/change-plan-dialog.component";
+import {
+  TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
+  TrialPaymentDialogComponent,
+} from "../../shared/trial-payment-dialog/trial-payment-dialog.component";
 import { OrganizationFreeTrialWarning, OrganizationResellerRenewalWarning } from "../types";
 
 const format = (date: Date) =>
@@ -26,6 +32,7 @@ const format = (date: Date) =>
 @Injectable({ providedIn: "root" })
 export class OrganizationWarningsService {
   private cache$ = new Map<OrganizationId, Observable<OrganizationWarningsResponse>>();
+  private refreshWarnings$ = new Subject<OrganizationId>();
 
   constructor(
     private configService: ConfigService,
@@ -34,6 +41,8 @@ export class OrganizationWarningsService {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationBillingApiService: OrganizationBillingApiServiceAbstraction,
     private router: Router,
+    private location: Location,
+    protected syncService: SyncService,
   ) {}
 
   getFreeTrialWarning$ = (
@@ -174,9 +183,32 @@ export class OrganizationWarningsService {
             });
             break;
           }
+          case "add_payment_method_optional_trial": {
+            const organizationSubscriptionResponse =
+              await this.organizationApiService.getSubscription(organization.id);
+
+            const dialogRef = TrialPaymentDialogComponent.open(this.dialogService, {
+              data: {
+                organizationId: organization.id,
+                subscription: organizationSubscriptionResponse,
+                productTierType: organization?.productTierType,
+              },
+            });
+            const result = await lastValueFrom(dialogRef.closed);
+            if (result === TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED) {
+              this.refreshWarnings$.next(organization.id as OrganizationId);
+            }
+          }
         }
       }),
     );
+
+  refreshWarningsForOrganization$(organizationId: OrganizationId): Observable<void> {
+    return this.refreshWarnings$.pipe(
+      filter((id) => id === organizationId),
+      map((): void => void 0),
+    );
+  }
 
   private getResponse$ = (
     organization: Organization,

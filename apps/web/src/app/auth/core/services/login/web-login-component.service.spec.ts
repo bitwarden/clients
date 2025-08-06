@@ -1,6 +1,5 @@
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { of } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -138,8 +137,8 @@ describe("WebLoginComponentService", () => {
           resetPasswordPolicyEnabled,
         ]);
 
-        internalPolicyService.masterPasswordPolicyOptions$.mockReturnValue(
-          of(masterPasswordPolicyOptions),
+        internalPolicyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(
+          masterPasswordPolicyOptions,
         );
 
         const result = await service.getOrgPoliciesFromOrgInvite();

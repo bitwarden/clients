@@ -5,6 +5,7 @@ import { Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { LoginApprovalDialogComponentServiceAbstraction } from "@bitwarden/angular/auth/login-approval";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -25,16 +26,13 @@ import {
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
   LoginComponentService,
-  SetPasswordJitService,
   SsoComponentService,
   DefaultSsoComponentService,
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
-  LoginApprovalComponentServiceAbstraction,
   LoginEmailService,
-  PinServiceAbstraction,
   SsoUrlService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -55,7 +53,9 @@ import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
   VaultTimeoutSettingsService,
@@ -107,11 +107,12 @@ import {
 import { LockComponentService } from "@bitwarden/key-management-ui";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 
-import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-login-approval-component.service";
+import { DesktopLoginApprovalDialogComponentService } from "../../auth/login/desktop-login-approval-dialog-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
@@ -137,10 +138,8 @@ import { NativeMessagingService } from "../../services/native-messaging.service"
 import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
-import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
-import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
 
 const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
@@ -296,7 +295,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: CryptoFunctionServiceAbstraction,
-    useClass: RendererCryptoFunctionService,
+    useClass: WebCryptoFunctionService,
     deps: [WINDOW],
   }),
   safeProvider({
@@ -379,21 +378,6 @@ const safeProviders: SafeProvider[] = [
     useValue: ClientType.Desktop,
   }),
   safeProvider({
-    provide: SetPasswordJitService,
-    useClass: DesktopSetPasswordJitService,
-    deps: [
-      EncryptService,
-      I18nServiceAbstraction,
-      KdfConfigService,
-      KeyService,
-      MasterPasswordApiService,
-      InternalMasterPasswordServiceAbstraction,
-      OrganizationApiServiceAbstraction,
-      OrganizationUserApiService,
-      InternalUserDecryptionOptionsServiceAbstraction,
-    ],
-  }),
-  safeProvider({
     provide: SetInitialPasswordService,
     useClass: DesktopSetInitialPasswordService,
     deps: [
@@ -460,14 +444,26 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: LoginApprovalComponentServiceAbstraction,
-    useClass: DesktopLoginApprovalComponentService,
+    provide: LoginApprovalDialogComponentServiceAbstraction,
+    useClass: DesktopLoginApprovalDialogComponentService,
     deps: [I18nServiceAbstraction],
   }),
   safeProvider({
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: DesktopAutotypeService,
+    useClass: DesktopAutotypeService,
+    deps: [
+      AccountService,
+      AuthService,
+      CipherServiceAbstraction,
+      ConfigService,
+      GlobalStateProvider,
+      PlatformUtilsServiceAbstraction,
+    ],
   }),
 ];
 

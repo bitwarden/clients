@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Cancelar"
   },
+  "later": {
+    "message": "Mais tarde"
+  },
   "canceled": {
     "message": "Cancelado"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Procurar grupos"
   },
+  "resetSearch": {
+    "message": "Repor pesquisa"
+  },
   "allItems": {
     "message": "Todos os itens"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Nota segura"
+  },
+  "typeNote": {
+    "message": "Nota"
   },
   "typeSshKey": {
     "message": "Chave SSH"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "Copiar nome"
+  },
+  "cardNumber": {
+    "message": "número do cartão"
+  },
+  "copyFieldCipherName": {
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Eu"
@@ -3482,6 +3508,9 @@
   "webVault": {
     "message": "Cofre web"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3993,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Pedido de início de sessão aprovado para $EMAIL$ no $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "O pedido de início de sessão já expirou."
   },
@@ -4107,6 +4152,9 @@
   },
   "reviewLoginRequest": {
     "message": "Rever pedido de início de sessão"
+  },
+  "loginRequest": {
+    "message": "Pedido de início de sessão"
   },
   "freeTrialEndPromptCount": {
     "message": "O seu período experimental gratuito termina dentro de $COUNT$ dias.",
@@ -4583,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Receba conselhos, anúncios e oportunidades de investigação do Bitwarden na sua caixa de entrada."
+  },
+  "subscribe": {
+    "message": "Subscrever"
   },
   "unsubscribe": {
     "message": "Anular subscrição"
@@ -6660,7 +6711,7 @@
     "message": "URL do servidor da API"
   },
   "webVaultUrl": {
-    "message": "URL do servidor do cofre Web"
+    "message": "URL do servidor do cofre web"
   },
   "identityUrl": {
     "message": "URL do servidor de identidade"
@@ -8877,7 +8928,7 @@
     "message": "Instalar a extensão do navegador"
   },
   "installBrowserExtensionDetails": {
-    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação Web."
+    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação web."
   },
   "projectAccessUpdated": {
     "message": "Acesso ao projeto atualizado"
@@ -8939,11 +8990,11 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Opções avançadas",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Aviso",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
@@ -9008,7 +9059,7 @@
     "message": "Gratuito durante 1 ano"
   },
   "newWebApp": {
-    "message": "Bem-vindo à nova e melhorada aplicação Web. Saiba mais sobre o que mudou."
+    "message": "Bem-vindo à nova e melhorada aplicação web. Saiba mais sobre o que mudou."
   },
   "releaseBlog": {
     "message": "Ler o blogue de lançamento"
@@ -9423,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "Configure a gestão de dispositivos do Bitwarden utilizando o guia de implementação da sua plataforma."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Enviar dados de eventos para a sua instância Logscale"
+  },
+  "failedToSaveIntegration": {
+    "message": "Falha ao guardar a integração. Por favor, tente novamente mais tarde."
+  },
   "deviceIdMissing": {
     "message": "ID do dispositivo em falta"
   },
@@ -9437,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Reabra este link a partir do seu e-mail num computador."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Estabelecer ligação com o $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Lançar o guia de implementação da $INTEGRATION$.",
@@ -9494,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Crie uma nova organização de clientes para gerir como Fornecedor. Os lugares adicionais serão refletidos na próxima faturação."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Token de portador"
+  },
+  "index": {
+    "message": "Índice"
   },
   "selectAPlan": {
     "message": "Selecionar um plano"
@@ -10243,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "O utilizador foi removido da organização e todos os dados de utilizador associados foram eliminados."
   },
-  "deletedUserId": {
-    "message": "Utilizador $ID$ eliminado - um proprietário/administrador eliminou a conta de utilizador",
+  "deletedUserIdEventMessage": {
+    "message": "Eliminar utilizador $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "Sob verificação"
   },
-  "claimedDomainsDesc": {
-    "message": "Reivindique um domínio para possuir todas as contas de membros cujo endereço de e-mail corresponda ao domínio. Os membros poderão ignorar o identificador SSO quando iniciarem sessão. Os administradores também poderão eliminar contas de membros."
+  "claimedDomainsDescription": {
+    "message": "Reivindique um domínio para possuir contas de membros. A página do identificador SSO será ignorada durante o início de sessão para membros com domínios reivindicados e os administradores poderão eliminar contas reivindicadas."
   },
   "invalidDomainNameClaimMessage": {
     "message": "O campo não é um formato válido. Formato: omeudominio.com. Os subdomínios requerem campos separados para serem reivindicado."
@@ -10755,7 +10830,7 @@
     "message": "Tem a certeza de que não pretende adicionar a extensão agora?"
   },
   "skipToWebApp": {
-    "message": "Saltar para a Web app"
+    "message": "Saltar para a aplicação web"
   },
   "bitwardenExtensionInstalled": {
     "message": "Extensão Bitwarden instalada!"
@@ -10854,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Faturas não pagas"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "A sua subscrição não foi paga. Contacte o administrador do seu fornecedor para restabelecer o serviço para si e para os seus clientes.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ está suspenso",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Para restaurar o acesso ao portal do fornecedor, entre em contacto com o Apoio ao cliente do Bitwarden para renovar a sua subscrição.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "A sua subscrição não foi paga. Para restabelecer o serviço para si e para os seus clientes, adicione um método de pagamento até $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscrever o plano $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "O seu período experimental de 7 dias do plano $PLAN$ começa hoje. Adicione um método de pagamento agora para continuar a utilizar estas funcionalidades após o fim do período experimental: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Segredos e projetos ilimitados"
   }
 }

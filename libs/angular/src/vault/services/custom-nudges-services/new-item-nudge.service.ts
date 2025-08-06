@@ -49,7 +49,7 @@ export class NewItemNudgeService extends DefaultSingleNudgeService {
 
         const ciphersBoolean = ciphers.some((cipher) => cipher.type === currentType);
 
-        if (ciphersBoolean) {
+        if (ciphersBoolean && !nudgeStatus.hasSpotlightDismissed) {
           const dismissedStatus = {
             hasSpotlightDismissed: true,
             hasBadgeDismissed: true,

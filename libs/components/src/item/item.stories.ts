@@ -5,7 +5,6 @@ import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@stor
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { A11yGridDirective } from "../a11y/a11y-grid.directive";
 import { AvatarModule } from "../avatar";
 import { BadgeModule } from "../badge";
 import { IconButtonModule } from "../icon-button";
@@ -32,7 +31,6 @@ export default {
         TypographyModule,
         ItemActionComponent,
         ItemContentComponent,
-        A11yGridDirective,
         ScrollingModule,
         LayoutComponent,
         RouterTestingModule,
@@ -124,6 +122,11 @@ export const ContentTypes: Story = {
       <bit-item>
         <button bit-item-content href="#">
           And I am a button.
+        </button>
+      </bit-item>
+      <bit-item>
+        <button bit-item-content disabled title="I'm a disabled button">
+          And I am a disabled button.
         </button>
       </bit-item>
       <bit-item>
@@ -394,7 +397,7 @@ export const VirtualScrolling: Story = {
       data: Array.from(Array(100000).keys()),
     },
     template: /*html*/ `
-      <cdk-virtual-scroll-viewport [itemSize]="59" class="tw-h-[500px]">
+      <cdk-virtual-scroll-viewport [itemSize]="54" class="tw-h-[500px]">
         <bit-item-group aria-label="Virtual Scrolling">
           <bit-item *cdkVirtualFor="let item of data">
             <button bit-item-content>

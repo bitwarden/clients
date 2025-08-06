@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Prehľadávať trezor"
   },
+  "resetSearch": {
+    "message": "Resetovať vyhľadávanie"
+  },
   "edit": {
     "message": "Upraviť"
   },
@@ -1828,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Bezpečnostný kód"
+  },
+  "cardNumber": {
+    "message": "číslo karty"
   },
   "ex": {
     "message": "napr."
@@ -3460,6 +3466,28 @@
   "logInRequestSent": {
     "message": "Požiadavka bola odoslaná"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Potvrdené prihlásenie pre $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli vy, skúste sa prihlásiť pomocou zariadenia znova."
+  },
+  "device": {
+    "message": "Zariadenie"
+  },
+  "loginStatus": {
+    "message": "Stav prihlásenia"
+  },
   "masterPasswordChanged": {
     "message": "Hlavné heslo uložené"
   },
@@ -3555,6 +3583,113 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Zapamätať si toto zariadenie, pre budúce bezproblémové prihlásenie"
+  },
+  "manageDevices": {
+    "message": "Spravovať zariadenia"
+  },
+  "currentSession": {
+    "message": "Aktuálna relácia"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Rozšírenie",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Počítač",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Webový trezor"
+  },
+  "webApp": {
+    "message": "Webová aplikácia"
+  },
+  "cli": {
+    "message": "Príkazový riadok (CLI)"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Žiadosť čaká na spracovanie"
+  },
+  "firstLogin": {
+    "message": "Prvé prihlásenie"
+  },
+  "trusted": {
+    "message": "Dôveryhodné"
+  },
+  "needsApproval": {
+    "message": "Potrebuje súhlas"
+  },
+  "devices": {
+    "message": "Zariadenia"
+  },
+  "accessAttemptBy": {
+    "message": "Pokus o prístup z $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Potvrdiť prístup"
+  },
+  "denyAccess": {
+    "message": "Zamietnuť prístup"
+  },
+  "time": {
+    "message": "Čas"
+  },
+  "deviceType": {
+    "message": "Typ zariadenia"
+  },
+  "loginRequest": {
+    "message": "Žiadosť o prihlásenie"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Táto žiadosť už nie je platná."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Snažíte sa získať prístup k svojmu účtu?"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Potvrdené prihlásenie pre $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli naozaj vy, skúste sa prihlásiť pomocou zariadenia znova."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Platnosť žiadosti o prihlásenie už vypršala."
+  },
+  "justNow": {
+    "message": "Práve teraz"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Vyžiadané pred $MINUTES$ min.",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Vyžaduje sa schválenie zariadenia. Vyberte možnosť schválenia nižšie:"
@@ -4465,17 +4600,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Kopírovať $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Kopírovať $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },

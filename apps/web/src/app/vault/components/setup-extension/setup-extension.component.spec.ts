@@ -1,18 +1,22 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { StateProvider } from "@bitwarden/common/platform/state";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
+import { VaultIcons } from "@bitwarden/vault";
 
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
 
-import { SetupExtensionComponent } from "./setup-extension.component";
+import { SetupExtensionComponent, SetupExtensionState } from "./setup-extension.component";
 
 describe("SetupExtensionComponent", () => {
   let fixture: ComponentFixture<SetupExtensionComponent>;
@@ -21,11 +25,15 @@ describe("SetupExtensionComponent", () => {
   const getFeatureFlag = jest.fn().mockResolvedValue(false);
   const navigate = jest.fn().mockResolvedValue(true);
   const openExtension = jest.fn().mockResolvedValue(true);
+  const update = jest.fn().mockResolvedValue(true);
+  const setAnonLayoutWrapperData = jest.fn();
   const extensionInstalled$ = new BehaviorSubject<boolean | null>(null);
 
   beforeEach(async () => {
     navigate.mockClear();
     openExtension.mockClear();
+    update.mockClear();
+    setAnonLayoutWrapperData.mockClear();
     getFeatureFlag.mockClear().mockResolvedValue(true);
     window.matchMedia = jest.fn().mockReturnValue(false);
 
@@ -36,6 +44,15 @@ describe("SetupExtensionComponent", () => {
         { provide: ConfigService, useValue: { getFeatureFlag } },
         { provide: WebBrowserInteractionService, useValue: { extensionInstalled$, openExtension } },
         { provide: PlatformUtilsService, useValue: { getDevice: () => DeviceType.UnknownBrowser } },
+        { provide: AnonLayoutWrapperDataService, useValue: { setAnonLayoutWrapperData } },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: new BehaviorSubject({ account: { id: "account-id" } }) },
+        },
+        {
+          provide: StateProvider,
+          useValue: { getUser: () => ({ update }) },
+        },
       ],
     }).compileComponents();
 
@@ -120,6 +137,31 @@ describe("SetupExtensionComponent", () => {
 
         expect(openExtension).toHaveBeenCalled();
       });
+
+      it("dismisses the extension page", () => {
+        expect(update).toHaveBeenCalledTimes(1);
+      });
+
+      it("shows error state when extension fails to open", fakeAsync(() => {
+        openExtension.mockRejectedValueOnce(new Error("Failed to open extension"));
+
+        const openExtensionButton = fixture.debugElement.query(By.css("button"));
+
+        openExtensionButton.triggerEventHandler("click");
+
+        tick();
+
+        expect(component["state"]).toBe(SetupExtensionState.ManualOpen);
+        expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
+          pageTitle: {
+            key: "somethingWentWrong",
+          },
+          pageIcon: VaultIcons.BrowserExtensionIcon,
+          hideIcon: false,
+          hideCardWrapper: false,
+          maxWidth: "md",
+        });
+      }));
     });
   });
 });

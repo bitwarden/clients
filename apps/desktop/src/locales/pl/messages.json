@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Szukaj w sejfie"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Dodaj element"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Kopiuj kod weryfikacyjny (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Długość"
@@ -1425,6 +1442,9 @@
     "message": "Kopiuj kod zabezpieczający",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "Konto Premium"
   },
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Odblokuj za pomocą Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Dodatkowe ustawienia Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Odblokuj za pomocą uwierzytelniania systemowego"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "odblokuj sejf"
   },
-  "autoPromptWindowsHello": {
-    "message": "Poproś o Windows Hello przy uruchomieniu"
-  },
-  "autoPromptPolkit": {
-    "message": "Zapytaj o uwierzytelnianie systemowe przy uruchomieniu"
-  },
   "autoPromptTouchId": {
     "message": "Poproś o Touch ID przy uruchomieniu"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Wymagaj hasła przy starcie aplikacji"
-  },
-  "recommendedForSecurity": {
-    "message": "Zalecane dla bezpieczeństwa."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zablokuj hasłem głównym po uruchomieniu ponownym"
@@ -3997,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

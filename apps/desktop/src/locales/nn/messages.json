@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Søk i kvelven"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Legg til ei oppføring"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Kopier verifiseringskoden (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Lengd"
@@ -1425,6 +1442,9 @@
     "message": "Kopier tryggleikskode",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "Premium-tinging"
   },
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Lås opp med Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Additional Windows Hello settings"
-  },
   "unlockWithPolkit": {
     "message": "Unlock with system authentication"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "unlock your vault"
   },
-  "autoPromptWindowsHello": {
-    "message": "Ask for Windows Hello on app start"
-  },
-  "autoPromptPolkit": {
-    "message": "Ask for system authentication on launch"
-  },
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "Recommended for security."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
@@ -3997,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Odustani"
   },
+  "later": {
+    "message": "Kasnije"
+  },
   "canceled": {
     "message": "Otkazano"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Pretraži grupe"
   },
+  "resetSearch": {
+    "message": "Ponovno postavljanje pretraživanja"
+  },
   "allItems": {
     "message": "Sve stavke"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Sigurna bilješka"
+  },
+  "typeNote": {
+    "message": "Bilješka"
   },
   "typeSshKey": {
     "message": "SSH ključ"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "Kopiraj ime"
+  },
+  "cardNumber": {
+    "message": "broj kartice"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopiraj $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Ja"
@@ -3482,6 +3508,9 @@
   "webVault": {
     "message": "Web trezor"
   },
+  "webApp": {
+    "message": "Web aplikacija"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3919,7 +3948,7 @@
     "message": "Pouzdan"
   },
   "needsApproval": {
-    "message": "Zahtjeva odobrenje"
+    "message": "Zahtijeva odobrenje"
   },
   "areYouTryingtoLogin": {
     "message": "Pokušavaš li se prijaviti?"
@@ -3962,6 +3991,22 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
     "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
   "loginRequestHasAlreadyExpired": {
@@ -4107,6 +4152,9 @@
   },
   "reviewLoginRequest": {
     "message": "Pregledaj zahtjev za prijavu"
+  },
+  "loginRequest": {
+    "message": "Zahtjev za prijavu"
   },
   "freeTrialEndPromptCount": {
     "message": "Besplatno probno razdoblje završava za $COUNT$ dan/a.",
@@ -4583,6 +4631,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Primaj e-poštom od Bitwardena savjete, najave i mogućnosti istraživanja."
+  },
+  "subscribe": {
+    "message": "Pretplati se"
   },
   "unsubscribe": {
     "message": "Poništi pretplatu"
@@ -9423,6 +9474,12 @@
   "deviceManagementDesc": {
     "message": "Konfiguriraj upravljanje uređajima za Bitwarden pomoću vodiča za implementaciju za svoju platformu."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Pošaljite podatke o događajima svojoj Logscale instanci"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Nedostaje ID uređaja"
   },
@@ -9437,6 +9494,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Otvori ovu poveznicu na stolnom računalu."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Spoji $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Pokreni vodič za implementaciju $INTEGRATION$.",
@@ -9494,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Stvori novu klijentsku organizaciju kojom ćeš upravljati kao Pružatelj. Dodatna mjesta bit će vidljiva u sljedećem ciklusu naplate."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Odaberi plan"
@@ -10243,8 +10318,8 @@
   "organizationUserDeletedDesc": {
     "message": "Korisnik je uklonjen iz organizacije i svi povezani korisnički podaci su izbrisani."
   },
-  "deletedUserId": {
-    "message": "Izbrisan korisnik $ID$ - vlasnik/admin je izbrisao korisnički račun",
+  "deletedUserIdEventMessage": {
+    "message": "Izbrisan korisnik $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10429,8 @@
   "domainStatusUnderVerification": {
     "message": "Provjera u tijeku"
   },
-  "claimedDomainsDesc": {
-    "message": "Potvrdi domenu za vlasništvo nad svim računima članova čija adresa e-pošte odgovara domeni. Članovi će moći preskočiti SSO identifikator prilikom prijave. Administratori će također moći brisati članske račune."
+  "claimedDomainsDescription": {
+    "message": "Potvrdi domenu za vlasništvo nad članskim računima. Stranica za SSO identifikator bit će preskočena tijekom prijave za članove sa potvrđenim domenama, a administratori će moći izbrisati zatražene račune."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Unos nije važeći. Format: mojadomena.hr Poddomene zahtijevaju zasebne unose za provjeru."
@@ -10854,5 +10929,56 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Neplaćeni računi"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Tvoja pretplata nije plaćena. Obrati se administratoru svog davatelja usluga za obnovu usluge za sebe i svoje klijente.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ je suspendiran",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Za vraćanje pristupa portalu tvojeg davatelja usluga, obrati se korisničkoj podršci Bitwardena za obnavljanje pretplate.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Tvoja pretplata nije plaćena. Za vraćanje usluge sebi i svojim klijentima, dodaj način plaćanja do $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Pretplati se na $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Tvoj 7-dnevni probni rok za plan $PLAN$ počinje danas. Dodaj način plaćanja za nastavak korištenja značajki nakon završetka probnog roka: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Neograničen broj tajni i projekata"
   }
 }

@@ -31,6 +31,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -325,7 +326,11 @@ export abstract class LoginStrategy {
 
   protected async createKeyPairForOldAccount(userId: UserId) {
     try {
-      const userKey = await this.keyService.getUserKeyWithLegacySupport(userId);
+      const userKey = await this.keyService.getUserKey(userId);
+      if (userKey.inner().type == EncryptionType.CoseEncrypt0) {
+        throw new Error("Cannot create key pair for account on V2 encryption");
+      }
+
       const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
       if (!privateKey.encryptedString) {
         throw new Error("Failed to create encrypted private key");

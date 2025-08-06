@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { NgIf, NgClass } from "@angular/common";
+import { Component, ElementRef, ViewChild, input, model, signal, computed } from "@angular/core";
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
@@ -16,6 +17,9 @@ import { FocusableElement } from "../shared/focusable-element";
 
 let nextId = 0;
 
+/**
+ * Do not nest Search components inside another `<form>`, as they already contain their own standalone `<form>` element for searching.
+ */
 @Component({
   selector: "bit-search",
   templateUrl: "./search.component.html",
@@ -30,7 +34,7 @@ let nextId = 0;
       useExisting: SearchComponent,
     },
   ],
-  imports: [InputModule, ReactiveFormsModule, FormsModule, I18nPipe],
+  imports: [InputModule, ReactiveFormsModule, FormsModule, I18nPipe, NgIf, NgClass],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
   private notifyOnChange: (v: string) => void;
@@ -43,17 +47,31 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 
-  @Input() disabled: boolean;
-  @Input() placeholder: string;
-  @Input() autocomplete: string;
+  protected isInputFocused = signal(false);
+  protected isFormHovered = signal(false);
+
+  protected showResetButton = computed(() => this.isInputFocused() || this.isFormHovered());
+
+  readonly disabled = model<boolean>();
+  readonly placeholder = input<string>();
+  readonly autocomplete = input<string>();
 
   getFocusTarget() {
     return this.input?.nativeElement;
   }
 
   onChange(searchText: string) {
+    this.searchText = searchText; // update the model when the input changes (so we can use it with *ngIf in the template)
     if (this.notifyOnChange != undefined) {
       this.notifyOnChange(searchText);
+    }
+  }
+
+  // Handle the reset button click
+  clearSearch() {
+    this.searchText = "";
+    if (this.notifyOnChange) {
+      this.notifyOnChange("");
     }
   }
 
@@ -76,6 +94,6 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   }
 
   setDisabledState(isDisabled: boolean) {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 }

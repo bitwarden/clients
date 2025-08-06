@@ -92,11 +92,6 @@ const moduleRules = [
     test: /\.[jt]sx?$/,
     loader: "@ngtools/webpack",
   },
-  {
-    test: /argon2(-simd)?\.wasm$/,
-    loader: "base64-loader",
-    type: "javascript/auto",
-  },
 ];
 
 const requiredPlugins = [
@@ -204,7 +199,6 @@ const mainConfig = {
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
     "overlay/menu":
       "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
-    "encrypt-worker": "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
     "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
   },
@@ -290,7 +284,6 @@ const mainConfig = {
     clean: true,
   },
   module: {
-    noParse: /argon2(-simd)?\.wasm$/,
     rules: moduleRules,
   },
   experiments: {
@@ -365,13 +358,7 @@ if (manifestVersion == 2) {
           test: /\.tsx?$/,
           loader: "ts-loader",
         },
-        {
-          test: /argon2(-simd)?\.wasm$/,
-          loader: "base64-loader",
-          type: "javascript/auto",
-        },
       ],
-      noParse: /argon2(-simd)?\.wasm$/,
     },
     cache:
       ENV !== "development"

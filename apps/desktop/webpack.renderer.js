@@ -41,11 +41,6 @@ const common = {
         },
         type: "asset/resource",
       },
-      {
-        test: /argon2(-simd)?\.wasm$/,
-        loader: "base64-loader",
-        type: "javascript/auto",
-      },
     ],
   },
   plugins: [],
@@ -154,13 +149,7 @@ const renderer = {
         test: /[\/\\]@angular[\/\\].+\.js$/,
         parser: { system: true },
       },
-      {
-        test: /argon2(-simd)?\.wasm$/,
-        loader: "base64-loader",
-        type: "javascript/auto",
-      },
     ],
-    noParse: /argon2(-simd)?\.wasm$/,
   },
   experiments: {
     asyncWebAssembly: true,

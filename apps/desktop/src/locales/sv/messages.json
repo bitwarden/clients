@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Sök i valv"
   },
+  "resetSearch": {
+    "message": "Nollställ sökning"
+  },
   "addItem": {
     "message": "Lägg till objekt"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Kopiera verifieringskod (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopiera $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Längd"
@@ -1425,6 +1442,9 @@
     "message": "Kopiera säkerhetskod",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "kortnummer"
+  },
   "premiumMembership": {
     "message": "Premium-medlemskap"
   },
@@ -1489,7 +1509,7 @@
     "message": "Lösenordshistorik"
   },
   "generatorHistory": {
-    "message": "Generatorns historia"
+    "message": "Generatorns historik"
   },
   "clearGeneratorHistoryTitle": {
     "message": "Rensa generatorhistorik"
@@ -1796,9 +1816,6 @@
   "unlockWithWindowsHello": {
     "message": "Lås upp med Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Ytterligare inställningar för Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Lås upp med systemautentisering"
   },
@@ -1814,12 +1831,6 @@
   "touchIdConsentMessage": {
     "message": "lås upp ditt valv"
   },
-  "autoPromptWindowsHello": {
-    "message": "Be om Windows Hello vid appstart"
-  },
-  "autoPromptPolkit": {
-    "message": "Be om systemautentisering vid start"
-  },
   "autoPromptTouchId": {
     "message": "Be om Touch ID vid appstart"
   },
@@ -1828,9 +1839,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Kräv lösenord vid appstart"
-  },
-  "recommendedForSecurity": {
-    "message": "Rekommenderas för säkerhet."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lås med huvudlösenord vid omstart"
@@ -3333,10 +3341,10 @@
     "message": "Nyckel"
   },
   "passkeyNotCopied": {
-    "message": "Nyckeln kommer inte att kopieras"
+    "message": "Inloggningsnyckeln kommer inte att kopieras"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Nyckeln kommer inte att kopieras till det klonade objektet. Vill du klona det här objektet?"
+    "message": "Inloggningsnyckeln kommer inte att kopieras till det klonade objektet. Vill du klona det här objektet?"
   },
   "aliasDomain": {
     "message": "Aliasdomän"
@@ -3587,10 +3595,10 @@
     "message": "Inaktivera hårdvaruacceleration och starta om"
   },
   "removePasskey": {
-    "message": "Ta bort nyckel"
+    "message": "Ta bort inloggningsnyckel"
   },
   "passkeyRemoved": {
-    "message": "Nyckel borttagen"
+    "message": "Inloggningsnyckel borttagen"
   },
   "errorAssigningTargetCollection": {
     "message": "Fel vid tilldelning av målsamling."
@@ -3997,5 +4005,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Aktivera automatisk inmatning"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
   }
 }

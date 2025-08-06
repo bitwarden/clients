@@ -1,6 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { AfterContentChecked, Directive, ElementRef, Input, NgZone, Optional } from "@angular/core";
+import {
+  AfterContentChecked,
+  booleanAttribute,
+  Directive,
+  ElementRef,
+  input,
+  NgZone,
+  Optional,
+} from "@angular/core";
 import { take } from "rxjs/operators";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -21,11 +29,7 @@ import { FocusableElement } from "../shared/focusable-element";
   selector: "[appAutofocus], [bitAutofocus]",
 })
 export class AutofocusDirective implements AfterContentChecked {
-  @Input() set appAutofocus(condition: boolean | string) {
-    this.autofocus = condition === "" || condition === true;
-  }
-
-  private autofocus: boolean;
+  readonly appAutofocus = input(undefined, { transform: booleanAttribute });
 
   // Track if we have already focused the element.
   private focused = false;
@@ -46,7 +50,7 @@ export class AutofocusDirective implements AfterContentChecked {
    */
   ngAfterContentChecked() {
     // We only want to focus the element on initial render and it's not a mobile browser
-    if (this.focused || !this.autofocus || Utils.isMobileBrowser) {
+    if (this.focused || !this.appAutofocus() || Utils.isMobileBrowser) {
       return;
     }
 
