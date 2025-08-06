@@ -1,4 +1,12 @@
-import { Component, HostBinding, input, Input, Optional, Self } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  computed,
+  HostBinding,
+  input,
+  Optional,
+  Self,
+} from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
@@ -11,6 +19,7 @@ let nextId = 0;
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
   host: {
     "[id]": "this.id()",
+    "[attr.disabled]": "disabled()",
   },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
@@ -74,30 +83,13 @@ export class RadioInputComponent implements BitFormControlAbstraction {
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {}
 
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @HostBinding()
-  @Input()
-  get disabled() {
-    return this._disabled ?? this.ngControl?.disabled ?? false;
-  }
-  set disabled(value: any) {
-    this._disabled = value != null && value !== false;
-  }
-  private _disabled?: boolean;
+  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input()
+  readonly disabled = computed(() => this.disabledInput() || this.ngControl?.disabled || null);
+
   get required() {
-    return (
-      this._required ?? this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false
-    );
+    return this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false;
   }
-  set required(value: any) {
-    this._required = value != null && value !== false;
-  }
-  private _required?: boolean;
 
   get hasError() {
     return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);

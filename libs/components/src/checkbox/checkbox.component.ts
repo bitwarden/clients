@@ -1,4 +1,12 @@
-import { Component, HostBinding, Input, Optional, Self } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  computed,
+  HostBinding,
+  input,
+  Optional,
+  Self,
+} from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
@@ -7,6 +15,9 @@ import { BitFormControlAbstraction } from "../form-control";
   selector: "input[type=checkbox][bitCheckbox]",
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: CheckboxComponent }],
+  host: {
+    "[attr.disabled]": "disabled()",
+  },
 })
 export class CheckboxComponent implements BitFormControlAbstraction {
   @HostBinding("class")
@@ -102,30 +113,13 @@ export class CheckboxComponent implements BitFormControlAbstraction {
   protected indeterminateImage =
     `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 13 13"%3E%3Cpath stroke="%23fff" stroke-width="2" d="M2.5 6.5h8"/%3E%3C/svg%3E%0A')`;
 
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @HostBinding()
-  @Input()
-  get disabled() {
-    return this._disabled ?? this.ngControl?.disabled ?? false;
-  }
-  set disabled(value: any) {
-    this._disabled = value != null && value !== false;
-  }
-  private _disabled?: boolean;
+  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input()
+  readonly disabled = computed(() => this.disabledInput() || this.ngControl?.disabled || null);
+
   get required() {
-    return (
-      this._required ?? this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false
-    );
+    return this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false;
   }
-  set required(value: any) {
-    this._required = value != null && value !== false;
-  }
-  private _required?: boolean;
 
   get hasError() {
     return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
