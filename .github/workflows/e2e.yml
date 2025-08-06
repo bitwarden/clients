@@ -21,8 +21,11 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
-      - name: Install dependencies
+      - name: Install main dependencies
         run: npm ci
+      - name: Install E2E dependencies
+        working-directory: ./e2e
+        run: npm install
       - name: Build web app
         run: |
           cd apps/web
@@ -33,12 +36,14 @@ jobs:
           npx http-server apps/web/build -p 8080 &
           sleep 5
       - name: Run E2E tests
+        working-directory: ./e2e
         run: |
-          APP=web WEB_URL=http://localhost:8080 URLS='{"api":"http://localhost:8081","identity":"http://localhost:8081","webVault":"http://localhost:8080"}' npm run test:e2e
+          APP=web WEB_URL=http://localhost:8080 URLS='{"api":"http://localhost:8081","identity":"http://localhost:8081","webVault":"http://localhost:8080"}' npm run test:web
         continue-on-error: true
 
       - name: Generate test report
         if: always()
+        working-directory: ./e2e
         run: |
           # Create test results directory
           mkdir -p test-results
@@ -90,10 +95,10 @@ jobs:
         with:
           name: e2e-web-test-results
           path: |
-            test-results/
-            wdio-*.xml
-            wdio-*.json
-            screenshots/
+            e2e/test-results/
+            e2e/wdio-*.xml
+            e2e/wdio-*.json
+            e2e/screenshots/
           retention-days: 30
 
       - name: Upload test logs
@@ -102,6 +107,6 @@ jobs:
         with:
           name: e2e-web-logs
           path: |
-            *.log
-            logs/
+            e2e/*.log
+            e2e/logs/
           retention-days: 7

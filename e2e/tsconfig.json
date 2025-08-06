@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "types": ["node", "@wdio/globals/types"]
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}

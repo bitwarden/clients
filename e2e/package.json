@@ -1,0 +1,31 @@
+{
+  "name": "@bitwarden/e2e-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for Bitwarden client applications",
+  "private": true,
+  "scripts": {
+    "test": "wdio run ./wdio.conf.ts",
+    "test:web": "APP=web wdio run ./wdio.conf.ts",
+    "test:browser": "APP=browser wdio run ./wdio.conf.ts",
+    "test:cli": "APP=cli wdio run ./wdio.conf.ts",
+    "test:desktop": "APP=desktop wdio run ./wdio.conf.ts"
+  },
+  "devDependencies": {
+    "@wdio/cli": "9.16.2",
+    "@wdio/local-runner": "9.16.2",
+    "@wdio/mocha-framework": "9.16.2",
+    "@wdio/spec-reporter": "9.16.2",
+    "@wdio/dot-reporter": "9.16.2",
+    "@wdio/junit-reporter": "9.16.2",
+    "wdio-chromedriver-service": "8.1.1",
+    "wdio-electron-service": "8.2.1",
+    "chromedriver": "138.0.5",
+    "typescript": "5.5.4",
+    "@types/node": "22.15.3",
+    "dotenv": "16.4.7"
+  },
+  "engines": {
+    "node": ">=18",
+    "npm": ">=9"
+  }
+}

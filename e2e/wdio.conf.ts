@@ -12,7 +12,7 @@ export const config: WebdriverIO.Config = {
   autoCompileOpts: {
     tsNodeOpts: {
       transpileOnly: true,
-      project: "./wdio/tsconfig.json",
+      project: "./tsconfig.json",
     },
   },
   reporters: [
