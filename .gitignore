@@ -59,3 +59,4 @@ apps/**/config/local.json
 # Ignore upstream workflows but keep our own
 .github/workflows/*
 !.github/workflows/e2e.yml
+!.github/workflows/sync-packages.yml
