@@ -2,7 +2,7 @@ import { Component, computed, HostBinding, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-type CharacterType = "Letter" | "Emoji" | "Special" | "Number";
+type CharacterType = "letter" | "emoji" | "special" | "number";
 
 /**
  * The color password is used primarily in the Generator pages and in the Login type form. It includes
@@ -30,10 +30,10 @@ export class ColorPasswordComponent {
   });
 
   characterStyles: Record<CharacterType, string[]> = {
-    Emoji: [],
-    Letter: ["tw-text-main"],
-    Special: ["tw-text-danger"],
-    Number: ["tw-text-primary-600"],
+    emoji: [],
+    letter: ["tw-text-main"],
+    special: ["tw-text-danger"],
+    number: ["tw-text-primary-600"],
   };
 
   @HostBinding("class")
@@ -62,18 +62,18 @@ export class ColorPasswordComponent {
 
   private getCharacterType(character: string): CharacterType {
     if (character.match(Utils.regexpEmojiPresentation)) {
-      return "Emoji";
+      return "emoji";
     }
 
     if (character.match(/\d/)) {
-      return "Number";
+      return "number";
     }
 
     const specials = ["&", "<", ">", " "];
     if (specials.includes(character) || character.match(/[^\w ]/)) {
-      return "Special";
+      return "special";
     }
 
-    return "Letter";
+    return "letter";
   }
 }
