@@ -22,7 +22,7 @@ export const config: WebdriverIO.Config = {
 
 switch (app) {
   case "web":
-    config.services!.push("chromedriver");
+    config.services!.push(["chromedriver", {}]);
     config.capabilities = [
       {
         browserName: "chrome",
@@ -34,7 +34,7 @@ switch (app) {
     config.baseUrl = process.env.WEB_URL || "http://localhost:8080";
     break;
   case "browser":
-    config.services!.push("chromedriver");
+    config.services!.push(["chromedriver", {}]);
     config.capabilities = [
       {
         browserName: "chrome",
