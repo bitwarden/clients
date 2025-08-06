@@ -5454,7 +5454,7 @@
     "message": "cannot be managed from the Admin Console until the user is offboarded"
   },
   "organizationDataOwnershipWarningContentTop":{
-    "message": "By turning this policy off, the defualt collection: "
+    "message": "By turning this policy off, the default collection: "
   },
   "organizationDataOwnershipWarningContentBottom":{
     "message": "Learn more about the ",
