@@ -47,26 +47,23 @@ jobs:
             const wdioDevDeps = {};
             const wdioDeps = {};
             
-            // WebDriverIO related packages to preserve
-            const wdioPackages = [
-              '@wdio/cli',
-              '@wdio/local-runner', 
-              '@wdio/mocha-framework',
-              '@wdio/spec-reporter',
-              '@wdio/dot-reporter',
-              '@wdio/chromedriver-service',
-              'wdio-electron-service'
-            ];
+            // WebDriverIO related packages to preserve - use regex for flexible matching
+            const isWdioPackage = (name) => {
+              return name.startsWith('@wdio/') || 
+                     name.startsWith('wdio-') || 
+                     name === 'chromedriver' ||
+                     name === 'webdriverio';
+            };
             
             // Extract WebDriverIO dependencies
             Object.keys(pkg.devDependencies || {}).forEach(dep => {
-              if (wdioPackages.includes(dep)) {
+              if (isWdioPackage(dep)) {
                 wdioDevDeps[dep] = pkg.devDependencies[dep];
               }
             });
             
             Object.keys(pkg.dependencies || {}).forEach(dep => {
-              if (wdioPackages.includes(dep)) {
+              if (isWdioPackage(dep)) {
                 wdioDeps[dep] = pkg.dependencies[dep];
               }
             });
@@ -119,11 +116,16 @@ jobs:
       - name: Install dependencies and update lockfile
         run: |
           echo "Installing dependencies with WebDriverIO packages..."
-          npm install
+          
+          # Try normal install first
+          if ! npm install; then
+            echo "Normal install failed, trying with --force to resolve conflicts..."
+            npm install --force
+          fi
           
           # Verify WebDriverIO packages are still installed
           echo "Verifying WebDriverIO dependencies:"
-          npm list @wdio/cli @wdio/local-runner @wdio/mocha-framework @wdio/spec-reporter @wdio/dot-reporter @wdio/chromedriver-service wdio-electron-service || true
+          npm list @wdio/cli @wdio/local-runner @wdio/mocha-framework @wdio/spec-reporter @wdio/dot-reporter wdio-chromedriver-service wdio-electron-service chromedriver || true
 
       - name: Verify e2e test configuration
         run: |
