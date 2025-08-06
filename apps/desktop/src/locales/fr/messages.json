@@ -42,7 +42,7 @@
     "message": "Rechercher dans le coffre"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Réinitialiser la recherche"
   },
   "addItem": {
     "message": "Ajouter un élément"
@@ -1443,7 +1443,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "numéro de carte"
   },
   "premiumMembership": {
     "message": "Adhésion Premium"
@@ -3575,11 +3575,11 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Options avancées",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Avertissement",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -4007,9 +4007,9 @@
     }
   },
   "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "Activer le type automatique"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden ne valide pas les emplacements d'entrée, assurez-vous d'être dans la bonne fenêtre et le bon champ avant d'utiliser le raccourci."
   }
 }
