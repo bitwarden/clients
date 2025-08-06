@@ -21,11 +21,17 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            e2e/package-lock.json
       - name: Install main dependencies
         run: npm ci
       - name: Install E2E dependencies
         working-directory: ./e2e
-        run: npm install
+        run: |
+          echo "Installing E2E dependencies..."
+          npm ci --only=dev || npm install
+          echo "E2E dependencies installed successfully"
       - name: Build browser extension
         run: |
           cd apps/browser
@@ -34,6 +40,12 @@ jobs:
       - name: Run E2E tests
         working-directory: ./e2e
         run: |
+          echo "Starting E2E tests for browser extension..."
+          echo "Checking WebDriverIO installation..."
+          npx wdio --version
+          echo "Extension path: $(pwd)/../apps/browser/build"
+          ls -la $(pwd)/../apps/browser/build || echo "Build directory not found"
+          echo "Running tests..."
           APP=browser EXTENSION_PATH=$(pwd)/../apps/browser/build npm run test:browser
         continue-on-error: true
 

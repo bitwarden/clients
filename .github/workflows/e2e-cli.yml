@@ -21,11 +21,17 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            e2e/package-lock.json
       - name: Install main dependencies
         run: npm ci
       - name: Install E2E dependencies
         working-directory: ./e2e
-        run: npm install
+        run: |
+          echo "Installing E2E dependencies..."
+          npm ci --only=dev || npm install
+          echo "E2E dependencies installed successfully"
       - name: Build CLI app
         run: |
           cd apps/cli
@@ -34,6 +40,12 @@ jobs:
       - name: Run E2E tests
         working-directory: ./e2e
         run: |
+          echo "Starting E2E tests for CLI application..."
+          echo "Checking WebDriverIO installation..."
+          npx wdio --version
+          echo "CLI command path: $(pwd)/../apps/cli/build/bw.js"
+          ls -la $(pwd)/../apps/cli/build/bw.js || echo "CLI build file not found"
+          echo "Running tests..."
           APP=cli CLI_COMMAND="node $(pwd)/../apps/cli/build/bw.js" npm run test:cli
         continue-on-error: true
 
