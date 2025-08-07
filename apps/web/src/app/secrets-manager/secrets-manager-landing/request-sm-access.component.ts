@@ -10,7 +10,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Guid } from "@bitwarden/common/types/guid";
 import { NoItemsModule, SearchModule, ToastService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -63,7 +62,7 @@ export class RequestSMAccessComponent implements OnInit {
 
     const formValue = this.requestAccessForm.value;
     const request = new RequestSMAccessRequest();
-    request.OrganizationId = formValue.selectedOrganization.id as Guid;
+    request.OrganizationId = formValue.selectedOrganization.id;
     request.EmailContent = formValue.requestAccessEmailContents;
 
     await this.smLandingApiService.requestSMAccessFromAdmins(request);

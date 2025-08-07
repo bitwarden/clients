@@ -501,16 +501,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       .update(() => encPrivateKey);
   }
 
-  async getPrivateKey(): Promise<Uint8Array | null> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-
-    if (activeUserId == null) {
-      throw new Error("User must be active while attempting to retrieve private key.");
-    }
-
-    return await firstValueFrom(this.userPrivateKey$(activeUserId));
-  }
-
   // TODO: Make public key required
   async getFingerprint(fingerprintMaterial: string, publicKey?: Uint8Array): Promise<string[]> {
     if (publicKey == null) {

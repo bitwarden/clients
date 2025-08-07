@@ -86,21 +86,23 @@ export const WithoutRoute: Story = {
 export const WithChildButtons: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-collection-shared">
         <button
+          type="button" 
           slot="end"
           class="tw-ms-auto"
           [bitIconButton]="'bwi-pencil-square'"
-          [buttonType]="'light'"
+          [buttonType]="'nav-contrast'"
           size="small"
           aria-label="option 2"
         ></button>
         <button
+          type="button" 
           slot="end"
           class="tw-ms-auto"
           [bitIconButton]="'bwi-check'"
-          [buttonType]="'light'"
+          [buttonType]="'nav-contrast'"
           size="small"
           aria-label="option 3"
         ></button>

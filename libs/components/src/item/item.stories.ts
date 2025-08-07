@@ -66,7 +66,7 @@ export const Default: Story = {
     props: args,
     template: /*html*/ `
       <bit-item>
-        <button bit-item-content>
+        <button type="button" bit-item-content>
           <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
           Foo
           <span slot="secondary">Bar</span>
@@ -120,12 +120,12 @@ export const ContentTypes: Story = {
         </a>
       </bit-item>
       <bit-item>
-        <button bit-item-content href="#">
+        <button type="button" bit-item-content href="#">
           And I am a button.
         </button>
       </bit-item>
       <bit-item>
-        <button bit-item-content disabled title="I'm a disabled button">
+        <button type="button" bit-item-content disabled title="I'm a disabled button">
           And I am a disabled button.
         </button>
       </bit-item>
@@ -187,7 +187,7 @@ export const TextOverflowWrap: Story = {
 const multipleActionListTemplate = /*html*/ `
   <bit-item-group aria-label="Multiple Action List">
     <bit-item>
-      <button bit-item-content>
+      <button type="button" bit-item-content>
         <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
         Foo
         <span slot="secondary">Bar</span>
@@ -206,7 +206,7 @@ const multipleActionListTemplate = /*html*/ `
       </ng-container>
     </bit-item>
     <bit-item>
-      <button bit-item-content>
+      <button type="button" bit-item-content>
         <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
         Foo
         <span slot="secondary">Bar</span>
@@ -225,7 +225,7 @@ const multipleActionListTemplate = /*html*/ `
       </ng-container>
     </bit-item>
     <bit-item>
-      <button bit-item-content>
+      <button type="button" bit-item-content>
         <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
         Foo
         <span slot="secondary">Bar</span>
@@ -244,7 +244,7 @@ const multipleActionListTemplate = /*html*/ `
       </ng-container>
     </bit-item>
     <bit-item>
-      <button bit-item-content>
+      <button type="button" bit-item-content>
         <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
         Foo
         <span slot="secondary">Bar</span>
@@ -263,7 +263,7 @@ const multipleActionListTemplate = /*html*/ `
       </ng-container>
     </bit-item>
     <bit-item>
-      <button bit-item-content>
+      <button type="button" bit-item-content>
         <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
         Foo
         <span slot="secondary">Bar</span>
@@ -282,7 +282,7 @@ const multipleActionListTemplate = /*html*/ `
       </ng-container>
     </bit-item>
     <bit-item>
-      <button bit-item-content>
+      <button type="button" bit-item-content>
         <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
         Foo
         <span slot="secondary">Bar</span>
@@ -397,10 +397,10 @@ export const VirtualScrolling: Story = {
       data: Array.from(Array(100000).keys()),
     },
     template: /*html*/ `
-      <cdk-virtual-scroll-viewport [itemSize]="59" class="tw-h-[500px]">
+      <cdk-virtual-scroll-viewport [itemSize]="54" class="tw-h-[500px]">
         <bit-item-group aria-label="Virtual Scrolling">
           <bit-item *cdkVirtualFor="let item of data">
-            <button bit-item-content>
+            <button type="button" bit-item-content>
               <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
               {{ item }}
             </button>
@@ -429,7 +429,7 @@ export const WithoutBorderRadius: Story = {
     template: /*html*/ `
       <bit-layout>
       <bit-item>
-        <button bit-item-content>
+        <button type="button" bit-item-content>
           <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
           Foo
           <span slot="secondary">Bar</span>
