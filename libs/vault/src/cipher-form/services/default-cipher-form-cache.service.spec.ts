@@ -25,7 +25,7 @@ describe("CipherFormCacheService", () => {
     });
   });
 
-  describe("feature enabled", () => {
+  describe("Cache Service", () => {
     it("`getCachedCipherView` returns the cipher", async () => {
       cacheSignal.set({ id: "cipher-4" } as CipherView);
       service = testBed.inject(CipherFormCacheService);
