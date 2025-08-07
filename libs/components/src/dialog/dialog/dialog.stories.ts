@@ -78,16 +78,17 @@ type Story = StoryObj<DialogComponent & { title: string }>;
 export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
         <ng-container bitDialogTitle>
           <span bitBadge variant="success">Foobar</span>
         </ng-container>
         <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
         <ng-container bitDialogFooter>
-          <button bitButton buttonType="primary" [disabled]="loading">Save</button>
-          <button bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
+          <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
           <button
+            type="button"
             [disabled]="loading"
             class="tw-ms-auto"
             bitIconButton="bwi-trash"
@@ -142,7 +143,7 @@ export const Loading: Story = {
 export const ScrollingContent: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-dialog title="Scrolling Example" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
         <span bitDialogContent>
           Dialog body text goes here.<br />
@@ -152,8 +153,8 @@ export const ScrollingContent: Story = {
           end of sequence!
         </span>
         <ng-container bitDialogFooter>
-          <button bitButton buttonType="primary" [disabled]="loading">Save</button>
-          <button bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
+          <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
         </ng-container>
       </bit-dialog>
     `,
@@ -166,7 +167,7 @@ export const ScrollingContent: Story = {
 export const TabContent: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-dialog title="Tab Content Example" [dialogSize]="dialogSize" [disablePadding]="disablePadding">
         <span bitDialogContent>
           <bit-tab-group>
@@ -176,8 +177,8 @@ export const TabContent: Story = {
           </bit-tab-group>
         </span>
         <ng-container bitDialogFooter>
-          <button bitButton buttonType="primary" [disabled]="loading">Save</button>
-          <button bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
+          <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
         </ng-container>
       </bit-dialog>
     `,
@@ -211,7 +212,7 @@ export const WithCards: Story = {
               <h2 bitTypography="h6">
                 Foo
               </h2>
-              <button bitIconButton="bwi-star" size="small" slot="end"></button>
+              <button type="button" bitIconButton="bwi-star" size="small" slot="end"></button>
             </bit-section-header>
             <bit-card>
               <bit-form-field>
@@ -231,7 +232,7 @@ export const WithCards: Story = {
               <h2 bitTypography="h6">
                 Bar
               </h2>
-              <button bitIconButton="bwi-star" size="small" slot="end"></button>
+              <button type="button" bitIconButton="bwi-star" size="small" slot="end"></button>
             </bit-section-header>
             <bit-card>
               <bit-form-field>
@@ -248,9 +249,10 @@ export const WithCards: Story = {
           </bit-section>
         </ng-container>
         <ng-container bitDialogFooter>
-          <button bitButton buttonType="primary" [disabled]="loading">Save</button>
-          <button bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
+          <button type="button" bitButton buttonType="primary" [disabled]="loading">Save</button>
+          <button type="button" bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
           <button
+            type="button"
             [disabled]="loading"
             class="tw-ms-auto"
             bitIconButton="bwi-trash"
