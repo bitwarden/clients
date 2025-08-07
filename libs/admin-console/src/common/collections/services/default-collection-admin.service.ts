@@ -7,8 +7,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
@@ -31,7 +29,6 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     private keyService: KeyService,
     private encryptService: EncryptService,
     private collectionService: CollectionService,
-    private i18nService: I18nService,
   ) {}
 
   private orgKeyCache = new Map<UserId, Observable<Record<OrganizationId, OrgKey>>>();
@@ -116,9 +113,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Promise<CollectionAdminView[]> {
-    const decCollections: CollectionAdminView[] = [];
-
-    collections.forEach(async (c) => {
+    const promises = collections.map(async (c) => {
       const view = new CollectionAdminView();
       view.id = c.id;
       view.name = await this.encryptService.decryptString(
@@ -138,10 +133,10 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
         view.unmanaged = c.unmanaged;
       }
 
-      decCollections.push(view);
+      return view;
     });
 
-    return decCollections.sort(Utils.getSortFunction(this.i18nService, "name"));
+    return await Promise.all(promises);
   }
 
   private async encrypt(model: CollectionAdminView, userId: UserId): Promise<CollectionRequest> {
