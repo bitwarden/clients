@@ -7,7 +7,6 @@
         type="button"
         [attr.tabindex]="device.pendingAuthRequest != null ? 0 : null"
         (click)="answerAuthRequest(device.pendingAuthRequest)"
-        (keydown.enter)="answerAuthRequest(device.pendingAuthRequest)"
       >
         <!-- Default Content -->
         <span class="tw-text-base">{{ device.displayName }}</span>
