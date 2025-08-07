@@ -1,9 +1,10 @@
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserApi } from "../browser/browser-api";
+import { fromChromeEvent } from "../browser/from-chrome-event";
 
 import { BadgeIcon, IconPaths } from "./icon";
 
@@ -25,16 +26,9 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
   private badgeAction = BrowserApi.getBrowserAction();
   private sidebarAction = BrowserApi.getSidebarAction(self);
 
-  activeTab$ = new Observable<chrome.tabs.TabActiveInfo>((subscriber) => {
-    const listener = (tab: chrome.tabs.TabActiveInfo) => {
-      subscriber.next(tab);
-    };
-    BrowserApi.addListener(chrome.tabs.onActivated, listener);
-
-    return () => {
-      BrowserApi.removeListener(chrome.tabs.onActivated, listener);
-    };
-  });
+  activeTab$ = fromChromeEvent(chrome.tabs.onActivated).pipe(
+    map(([tabActiveInfo]) => tabActiveInfo),
+  );
 
   constructor(private platformUtilsService: PlatformUtilsService) {}
 
