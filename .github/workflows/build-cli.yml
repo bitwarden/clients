@@ -71,6 +71,7 @@ jobs:
 
       - name: Get Node Version
         id: retrieve-node-version
+        working-directory: ./
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
@@ -104,7 +105,7 @@ jobs:
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-      _WIN_PKG_FETCH_VERSION: 20.11.1
+      _WIN_PKG_FETCH_VERSION: 22.15.1
       _WIN_PKG_VERSION: 3.5
     permissions:
       contents: read
@@ -283,7 +284,7 @@ jobs:
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-      _WIN_PKG_FETCH_VERSION: 20.11.1
+      _WIN_PKG_FETCH_VERSION: 22.15.1
       _WIN_PKG_VERSION: 3.5
     steps:
       - name: Check out repo
