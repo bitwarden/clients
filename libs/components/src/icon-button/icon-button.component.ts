@@ -1,20 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import {
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  HostBinding,
-  // inject,
-  input,
-  model,
-  OnInit,
-} from "@angular/core";
+import { Component, computed, effect, ElementRef, HostBinding, input, model } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
+import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
 
@@ -99,7 +90,7 @@ const sizes: Record<IconButtonSize, string[]> = {
     "[attr.bitIconButton]": "icon()",
   },
 })
-export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement, OnInit {
+export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   readonly icon = model<string>(undefined, { alias: "bitIconButton" });
 
   readonly buttonType = input<IconButtonType>("main");
@@ -109,7 +100,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   readonly label = input<string>();
 
   private originalTitle: string | null;
-  private originalAriaLabel: string | null;
 
   @HostBinding("class") get classList() {
     return [
@@ -177,23 +167,14 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   }
 
   constructor(private elementRef: ElementRef) {
+    this.originalTitle = this.elementRef.nativeElement.getAttribute("title");
+
     effect(() => {
       setA11yTitleAndAriaLabel({
         element: this.elementRef.nativeElement,
         title: this.originalTitle ?? this.label(),
-        label: this.originalAriaLabel ?? this.label(),
+        label: this.label(),
       });
-    });
-  }
-
-  ngOnInit() {
-    this.originalTitle = this.elementRef.nativeElement.getAttribute("title");
-    this.originalAriaLabel = this.elementRef.nativeElement.getAttribute("aria-label");
-
-    setA11yTitleAndAriaLabel({
-      element: this.elementRef.nativeElement,
-      title: this.originalTitle ?? this.label(),
-      label: this.originalAriaLabel ?? this.label(),
     });
   }
 }
