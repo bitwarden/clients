@@ -77,6 +77,8 @@ export class RadioInputComponent implements BitFormControlAbstraction {
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
+  // TODO migrate to computed signal when Angular adds signal support to reactive forms
+  // https://bitwarden.atlassian.net/browse/CL-819
   get disabled() {
     return this.disabledInput() || this.ngControl?.disabled || null;
   }
