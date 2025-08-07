@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   testData as TestData,
@@ -103,7 +104,7 @@ describe("Keeper CSV Importer", () => {
   });
 
   it("should create collections, with subcollections and relationships", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(TestData);
     expect(result != null).toBe(true);
 
@@ -126,7 +127,7 @@ describe("Keeper CSV Importer", () => {
   });
 
   it("should create collections tree, with child collections and relationships", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(testDataMultiCollection);
     expect(result != null).toBe(true);
 

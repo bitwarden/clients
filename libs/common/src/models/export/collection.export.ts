@@ -5,13 +5,14 @@
 import { Collection as CollectionDomain, CollectionView } from "@bitwarden/admin-console/common";
 
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { emptyGuid, OrganizationId } from "../../types/guid";
 
 import { safeGetString } from "./utils";
 
 export class CollectionExport {
   static template(): CollectionExport {
     const req = new CollectionExport();
-    req.organizationId = "00000000-0000-0000-0000-000000000000";
+    req.organizationId = emptyGuid as OrganizationId;
     req.name = "Collection name";
     req.externalId = null;
     return req;
@@ -35,7 +36,7 @@ export class CollectionExport {
     return domain;
   }
 
-  organizationId: string;
+  organizationId: OrganizationId;
   name: string;
   externalId: string;
 

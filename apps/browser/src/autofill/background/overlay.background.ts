@@ -191,6 +191,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     editedCipher: () => this.updateOverlayCiphers(),
     deletedCipher: () => this.updateOverlayCiphers(),
     bgSaveCipher: () => this.updateOverlayCiphers(),
+    updateOverlayCiphers: () => this.updateOverlayCiphers(),
     fido2AbortRequest: ({ sender }) => this.abortFido2ActiveRequest(sender.tab.id),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
