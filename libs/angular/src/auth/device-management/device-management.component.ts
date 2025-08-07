@@ -157,7 +157,7 @@ export class DeviceManagementComponent implements OnInit {
       return;
     }
 
-    const upsertDevice = {
+    const upsertDevice: DeviceDisplayData = {
       creationDate: "",
       displayName: this.devicesService.getReadableDeviceTypeName(
         authRequestResponse.requestDeviceTypeValue,
