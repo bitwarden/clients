@@ -82,7 +82,14 @@ export class BadgeService {
           }
         }),
       )
-      .subscribe();
+      .subscribe({
+        error: (err: unknown) => {
+          this.logService.error(
+            "Fatal error in badge service observable, badge will fail to update",
+            err,
+          );
+        },
+      });
   }
 
   /**
