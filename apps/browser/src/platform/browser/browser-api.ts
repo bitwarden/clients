@@ -454,7 +454,7 @@ export class BrowserApi {
    * @param event - The event in which to remove the listener from.
    * @param callback - The callback you want removed from the event.
    */
-  static removeListener<T extends (...args: readonly any[]) => unknown>(
+  static removeListener<T extends (...args: readonly unknown[]) => unknown>(
     event: chrome.events.Event<T>,
     callback: T,
   ) {
