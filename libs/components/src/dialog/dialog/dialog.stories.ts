@@ -212,7 +212,7 @@ export const WithCards: Story = {
     },
     template: /*html*/ `
       <form [formGroup]="formObj">
-      <bit-dialog background="alt" [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
         <ng-container bitDialogContent>
           <bit-section>
             <bit-section-header>
@@ -276,5 +276,6 @@ export const WithCards: Story = {
     dialogSize: "default",
     title: "Default",
     subtitle: "Subtitle",
+    background: "alt",
   },
 };
