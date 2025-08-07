@@ -1,12 +1,4 @@
-import {
-  booleanAttribute,
-  Component,
-  computed,
-  HostBinding,
-  input,
-  Optional,
-  Self,
-} from "@angular/core";
+import { booleanAttribute, Component, HostBinding, input, Optional, Self } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
@@ -19,7 +11,7 @@ let nextId = 0;
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
   host: {
     "[id]": "this.id()",
-    "[attr.disabled]": "disabled()",
+    "[attr.disabled]": "disabled",
   },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
@@ -85,7 +77,9 @@ export class RadioInputComponent implements BitFormControlAbstraction {
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  readonly disabled = computed(() => this.disabledInput() || this.ngControl?.disabled || null);
+  get disabled() {
+    return this.disabledInput() || this.ngControl?.disabled || null;
+  }
 
   get required() {
     return this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false;

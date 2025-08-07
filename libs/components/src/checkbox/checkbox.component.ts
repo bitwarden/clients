@@ -1,12 +1,4 @@
-import {
-  booleanAttribute,
-  Component,
-  computed,
-  HostBinding,
-  input,
-  Optional,
-  Self,
-} from "@angular/core";
+import { booleanAttribute, Component, HostBinding, input, Optional, Self } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
@@ -16,7 +8,7 @@ import { BitFormControlAbstraction } from "../form-control";
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: CheckboxComponent }],
   host: {
-    "[attr.disabled]": "disabled()",
+    "[attr.disabled]": "disabled",
   },
 })
 export class CheckboxComponent implements BitFormControlAbstraction {
@@ -115,7 +107,9 @@ export class CheckboxComponent implements BitFormControlAbstraction {
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  readonly disabled = computed(() => this.disabledInput() || this.ngControl?.disabled || null);
+  get disabled() {
+    return this.disabledInput() || this.ngControl?.disabled || null;
+  }
 
   get required() {
     return this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false;
