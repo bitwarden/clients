@@ -1322,7 +1322,7 @@ export default class MainBackground {
     );
 
     this.mainContextMenuHandler = new MainContextMenuHandler(
-      this.stateService,
+      this.tokenService,
       this.autofillSettingsService,
       this.i18nService,
       this.logService,
