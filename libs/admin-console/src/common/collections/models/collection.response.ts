@@ -10,6 +10,7 @@ export class CollectionResponse extends BaseResponse {
   name: string;
   externalId: string;
   type: CollectionType;
+  userDefaultCollectionEmail: string;
 
   constructor(response: any) {
     super(response);
@@ -18,6 +19,7 @@ export class CollectionResponse extends BaseResponse {
     this.name = this.getResponseProperty("Name");
     this.externalId = this.getResponseProperty("ExternalId");
     this.type = this.getResponseProperty("Type");
+    this.userDefaultCollectionEmail = this.getResponseProperty("UserDefaultCollectionEmail");
   }
 }
 

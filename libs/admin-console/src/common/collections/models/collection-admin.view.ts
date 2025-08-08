@@ -115,4 +115,16 @@ export class CollectionAdminView extends CollectionView {
   get isUnassignedCollection() {
     return this.id === Unassigned;
   }
+
+  /**
+   * Returns true if the collection can be edited and does not have a {@link userDefaultCollectionEmail}.
+   * When an organization user is offboarded with the Enforce Organization Data Ownership policy enabled,
+   * their "My items" collection will transfer ownership to the organization and the collection name becomes
+   * read only, replaced by the new {@link userDefaultCollectionEmail} to be able to identify the offboarded user's
+   * data moving forward. To enforce this rule, this function will be used to prevent encrypting and
+   * saving a new name when editing a collection.
+   */
+  override canEditName(org: Organization): boolean {
+    return this.canEdit(org) && super.canEditName(org);
+  }
 }
