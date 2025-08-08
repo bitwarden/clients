@@ -15,11 +15,9 @@ import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rx
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 // eslint-disable-next-line no-restricted-imports
 import {
-  OrganizationIntegrationType,
-  OrganizationIntegrationRequest,
-  OrganizationIntegrationResponse,
-  OrganizationIntegrationApiService,
-} from "@bitwarden/bit-common/dirt/integrations/index";
+  HecConfiguration,
+  HecConfigurationTemplate,
+} from "@bitwarden/bit-common/dirt/integrations";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -29,6 +27,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { SharedModule } from "../../../../../../shared/shared.module";
 import { openHecConnectDialog } from "../integration-dialog/index";
 import { Integration } from "../models";
+import { OrganizationIntegrationService } from "../services/organization-integration.service";
 
 @Component({
   selector: "app-integration-card",
@@ -59,18 +58,24 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   @Input() isConnected?: boolean;
   @Input() canSetupConnection?: boolean;
 
+  organizationId: OrganizationId;
+
   constructor(
     private themeStateService: ThemeStateService,
     @Inject(SYSTEM_THEME_OBSERVABLE)
     private systemTheme$: Observable<ThemeType>,
     private dialogService: DialogService,
     private activatedRoute: ActivatedRoute,
-    private apiService: OrganizationIntegrationApiService,
+    private organizationIntegrationService: OrganizationIntegrationService,
     private toastService: ToastService,
     private i18nService: I18nService,
   ) {}
 
   ngAfterViewInit() {
+    this.organizationId = this.activatedRoute.snapshot.paramMap.get(
+      "organizationId",
+    ) as OrganizationId;
+
     combineLatest([this.themeStateService.selectedTheme$, this.systemTheme$])
       .pipe(takeUntil(this.destroyed$))
       .subscribe(([theme, systemTheme]) => {
@@ -120,11 +125,21 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     return this.isConnected !== undefined;
   }
 
+  IsUpdateAvailable(): boolean {
+    return !!this.integrationSettings.configuration;
+  }
+
   async setupConnection() {
     // invoke the dialog to connect the integration
     const dialog = openHecConnectDialog(this.dialogService, {
       data: {
         settings: this.integrationSettings,
+        configuration: this.organizationIntegrationService.convertToJson<HecConfiguration>(
+          this.integrationSettings.configuration,
+        ),
+        template: this.organizationIntegrationService.convertToJson<HecConfigurationTemplate>(
+          this.integrationSettings.template,
+        ),
       },
     });
 
@@ -135,43 +150,35 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    // create integration and configuration objects
+    const integration = new HecConfiguration(result.url, result.bearerToken, result.service);
+    const configurationTemplate = new HecConfigurationTemplate(result.index, result.service);
+
     // save the integration
     try {
-      const dbResponse = await this.saveHecIntegration(result.configuration);
-      this.isConnected = !!dbResponse.id;
-    } catch {
+      const dbResponse = await this.organizationIntegrationService.saveHec(
+        this.organizationId,
+        this.integrationSettings.name,
+        integration,
+        configurationTemplate,
+      );
+
+      if (!!dbResponse.integration && !!dbResponse.configuration) {
+        this.isConnected = true;
+        this.integrationSettings.configuration = dbResponse.integration.configuration;
+        this.integrationSettings.template = dbResponse.configuration.template;
+      }
+    } catch (err) {
+      this.isConnected = false;
+      // eslint-disable-next-line no-console
+      console.error("Failed to save integration", err);
+
       this.toastService.showToast({
         variant: "error",
         title: null,
         message: this.i18nService.t("failedToSaveIntegration"),
       });
       return;
-    }
-  }
-
-  async saveHecIntegration(configuration: string): Promise<OrganizationIntegrationResponse> {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get(
-      "organizationId",
-    ) as OrganizationId;
-
-    const request = new OrganizationIntegrationRequest(
-      OrganizationIntegrationType.Hec,
-      configuration,
-    );
-
-    const integrations = await this.apiService.getOrganizationIntegrations(organizationId);
-    const existingIntegration = integrations.find(
-      (i) => i.type === OrganizationIntegrationType.Hec,
-    );
-
-    if (existingIntegration) {
-      return await this.apiService.updateOrganizationIntegration(
-        organizationId,
-        existingIntegration.id,
-        request,
-      );
-    } else {
-      return await this.apiService.createOrganizationIntegration(organizationId, request);
     }
   }
 }

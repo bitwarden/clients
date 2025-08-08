@@ -1,6 +1,11 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
+// eslint-disable-next-line no-restricted-imports
+import {
+  HecConfiguration,
+  HecConfigurationTemplate,
+} from "@bitwarden/bit-common/dirt/integrations";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -8,11 +13,16 @@ import { Integration } from "../../models";
 
 export type HecConnectDialogParams = {
   settings: Integration;
+  configuration: HecConfiguration | null;
+  template: HecConfigurationTemplate | null;
 };
 
 export interface HecConnectDialogResult {
   integrationSettings: Integration;
-  configuration: string;
+  url: string;
+  bearerToken: string;
+  index: string;
+  service: string;
   success: boolean;
   error: string | null;
 }
@@ -37,16 +47,16 @@ export class ConnectHecDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const settings = this.getSettingsAsJson(this.connectInfo.settings.configuration ?? "");
+    this.formGroup.patchValue({
+      url: this.connectInfo.configuration?.uri || "",
+      bearerToken: this.connectInfo.configuration?.token || "",
+      index: this.connectInfo.template?.index || "",
+      service: this.connectInfo.settings.name,
+    });
+  }
 
-    if (settings) {
-      this.formGroup.patchValue({
-        url: settings?.url || "",
-        bearerToken: settings?.bearerToken || "",
-        index: settings?.index || "",
-        service: this.connectInfo.settings.name,
-      });
-    }
+  isUpdateAvailable(): boolean {
+    return !!this.connectInfo.configuration;
   }
 
   getSettingsAsJson(configuration: string) {
@@ -62,7 +72,10 @@ export class ConnectHecDialogComponent implements OnInit {
 
     const result: HecConnectDialogResult = {
       integrationSettings: this.connectInfo.settings,
-      configuration: JSON.stringify(formJson),
+      url: formJson.url || "",
+      bearerToken: formJson.bearerToken || "",
+      index: formJson.index || "",
+      service: formJson.service || "",
       success: true,
       error: null,
     };

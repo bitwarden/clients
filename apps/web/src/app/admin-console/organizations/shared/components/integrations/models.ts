@@ -21,4 +21,5 @@ export type Integration = {
   isConnected?: boolean;
   canSetupConnection?: boolean;
   configuration?: string;
+  template?: string;
 };
