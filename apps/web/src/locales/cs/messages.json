@@ -1030,7 +1030,7 @@
     "message": "Úroveň přístupu"
   },
   "accessing": {
-    "message": "Přistupování"
+    "message": "Přístup k"
   },
   "loggedOut": {
     "message": "Odhlášení"
@@ -1427,9 +1427,6 @@
   },
   "notificationSentDevicePart1": {
     "message": "Odemknout Bitwarden na Vašem zařízení nebo na "
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokoušíte se získat přístup k Vašemu účtu?"
   },
   "accessAttemptBy": {
     "message": "Pokus o přístup z $EMAIL$",
@@ -3236,7 +3233,7 @@
     "message": "Přednostní zákaznická podpora"
   },
   "xDayFreeTrial": {
-    "message": "$COUNT$denní zkušební verze, možno kdykoli zrušit",
+    "message": "$COUNT$denní zkušební verze, můžete kdykoli zrušit",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Tento požadavek již není platný."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Přihlášení bylo potvrzeno z $EMAIL$ pro $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to opravdu Vy, zkuste se znovu přihlásit do zařízení."
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Požadavek na přihlášení byl schválen pro $EMAIL$ na $DEVICE$",
     "placeholders": {
@@ -4025,7 +4006,7 @@
     }
   },
   "creatingAccountOn": {
-    "message": "Vytváření účtu na"
+    "message": "Vytvořit účet na"
   },
   "checkYourEmail": {
     "message": "Zkontrolujte Váš e-mail"
@@ -4040,7 +4021,7 @@
     "message": "Žádný e-mail?"
   },
   "goBack": {
-    "message": "Zpět"
+    "message": "Vraťte se"
   },
   "toEditYourEmailAddress": {
     "message": "pro úpravu Vaší e-mailové adresy."
@@ -4639,10 +4620,10 @@
     "message": "Odhlásit odběr"
   },
   "atAnyTime": {
-    "message": "kdykoli."
+    "message": "můžete kdykoli."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "Pokračováním souhlasíte s"
+    "message": "Pokračováním souhlasíte s dokumenty"
   },
   "and": {
     "message": "a"
@@ -5444,6 +5425,37 @@
   "organizationDataOwnership": {
     "message": "Vynutit vlastnictví dat organizace"
   },
+  "organizationDataOwnershipDesc": {
+    "message": "Vyžaduje, aby byly všechny položky vlastněny organizací s odebráním volby ukládat položky na úrovni účtu.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Všechny položky budou vlastněny a uloženy v organizaci, což umožní organizaci ovládání, viditelnost a hlášení. Pokud je zapnuto, bude k dispozici výchozí sbírka pro každého člena pro ukládání položek. Další informace o správě ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "životního cyklu pověření",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Opravdu chcete pokračovat?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "bude i nadále přístupné členům"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "nebude automaticky vybráno při vytváření nových položek"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "nelze spravovat z konzole pro správce, dokud není uživatel odpojen"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Odmítnutím této zásady se jedná o výchozí sbírku: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Více informací o ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
   "personalOwnership": {
     "message": "Odebrat osobní trezor"
   },
@@ -5597,7 +5609,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendAccessTaglineLearnMore": {
-    "message": "Dozvědět se více o",
+    "message": "Získejte více informací o",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**Learn more about** Bitwarden Send or sign up to try it today.'"
   },
   "sendVaultCardProductDesc": {
@@ -5701,7 +5713,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or **sign up** to try it today.'"
   },
   "sendAccessTaglineTryToday": {
-    "message": "abyste to vyzkoušeli ještě dnes.",
+    "message": "pro vyzkoušení ještě dnes.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
   "sendAccessCreatorIdentifier": {
@@ -10980,5 +10992,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Neomezené tajné klíče a projekty"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Předplatné bylo zrušeno"
+  },
+  "providersubCanceledmessage": {
+    "message": "Chcete-li se znovu přihlásit, kontaktujte zákaznickou podporu Bitwarden."
+  },
+  "showMore": {
+    "message": "Zobrazit více"
+  },
+  "showLess": {
+    "message": "Zobrazit méně"
   }
 }

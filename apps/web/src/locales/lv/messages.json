@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Bitwarden jāatslēdz savā ierīcē vai "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Vai mēģini piekļūt savam kontam?"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ piekļuves mēģinājums",
     "placeholders": {
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Šis pieprasījums vairs nav derīgs."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
     "placeholders": {
@@ -5443,6 +5424,37 @@
   },
   "organizationDataOwnership": {
     "message": "Uzspiest apvienības datu īpašumtiesības"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Visiem vienumiem jāpieder apvienībai, tādējādi noņemot iespēju glabāt tos konta līmenī.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "credential lifecycle",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Vai tiešām turpināt?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "turpinās būt pieejams dalībniekiem"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "netiks automātiski atlasīts, kad tiks izveidoti jauni vienumi"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "nav pārvaldāms pārvaldītāja konsolē, līdz lietotājs ir atstājis apvienību"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Pēc šīs pamatnostādnes izslēgšanas noklusējuma krājums: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Uzzināt vairāk par ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Personīgās īpašumtiesības"
@@ -9478,7 +9490,7 @@
     "message": "Nosūtīt notikum udatus uz savu Logscale instanci"
   },
   "failedToSaveIntegration": {
-    "message": "Failed to save integration. Please try again later."
+    "message": "Neizdevās saglabāt iekļaušanu. Lūgums vēlāk mēģināt vēlreiz."
   },
   "deviceIdMissing": {
     "message": "Trūkst ierīces Id"
@@ -9565,10 +9577,10 @@
     "message": "URL"
   },
   "bearerToken": {
-    "message": "Bearer Token"
+    "message": "Uzrādītāja pilnvara"
   },
   "index": {
-    "message": "Index"
+    "message": "Indekss"
   },
   "selectAPlan": {
     "message": "Atlasīt plānu"
@@ -10980,5 +10992,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Neierobežoti noslēpumi un projekti"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Abonements atcelts"
+  },
+  "providersubCanceledmessage": {
+    "message": "Lai abonētu no jauna, jāsazināš ar Bitwarden klientu atbalstu."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

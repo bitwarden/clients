@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Разблокируйте Bitwarden на своем устройстве или "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
-  },
   "accessAttemptBy": {
     "message": "Попытка доступа $EMAIL$",
     "placeholders": {
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Этот запрос больше не действителен."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Вход подтвержден для $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Вы отклонили попытку авторизации с другого устройства. Если это действительно были вы, попробуйте авторизоваться с этого устройства еще раз."
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Запрос входа для $EMAIL$ на $DEVICE$ одобрен",
     "placeholders": {
@@ -5443,6 +5424,37 @@
   },
   "organizationDataOwnership": {
     "message": "Принудительное соблюдение прав собственности на данные организации"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Необходимо, чтобы все элементы принадлежали организации, что исключает возможность их хранения на уровне аккаунта.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Все элементы будут принадлежать организации и сохраняться в ней, что позволит осуществлять контроль, видимость и отчетность в масштабах всей организации. При включении для каждого участника будет доступна коллекция по умолчанию для хранения элементов. Узнайте больше об управлении ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "жизненным циклом учетных данных",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Вы уверены, что хотите продолжить?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "будет оставаться доступным для участников"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "не будет автоматически выбираться при создании новых элементов"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "невозможно управлять из консоли администратора до тех пор, пока пользователь не будет удален"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "При отключении этой политики коллекция по умолчанию: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Узнайте больше о ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Удалить личное хранилище"
@@ -10980,5 +10992,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Неограниченные секреты и проекты"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Подписка отменена"
+  },
+  "providersubCanceledmessage": {
+    "message": "Чтобы повторно оформить подписку, обратитесь в службу поддержки Bitwarden."
+  },
+  "showMore": {
+    "message": "Больше"
+  },
+  "showLess": {
+    "message": "Меньше"
   }
 }
