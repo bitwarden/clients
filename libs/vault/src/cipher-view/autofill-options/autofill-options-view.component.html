@@ -26,7 +26,7 @@
           type="button"
           (click)="openWebsite(login.launchUri)"
           data-testid="launch-website"
-          [attr.aria-label]="('launch' | i18n) + ' ' + login.hostOrUri"
+          [label]="('launch' | i18n) + ' ' + login.hostOrUri"
         ></button>
         <button
           bitIconButton="bwi-clone"
@@ -35,7 +35,7 @@
           [appCopyClick]="login.uri"
           [valueLabel]="'website' | i18n"
           showToast
-          [appA11yTitle]="'copyWebsite' | i18n"
+          [label]="'copyWebsite' | i18n"
           data-testid="copy-website"
         ></button>
       </bit-form-field>

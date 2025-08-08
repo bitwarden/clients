@@ -94,8 +94,7 @@ export const Default: Story = {
             bitIconButton="bwi-trash"
             buttonType="danger"
             size="default"
-            title="Delete"
-            aria-label="Delete"></button>
+            label="Delete"></button>
         </ng-container>
       </bit-dialog>
     `,
@@ -212,7 +211,7 @@ export const WithCards: Story = {
               <h2 bitTypography="h6">
                 Foo
               </h2>
-              <button type="button" bitIconButton="bwi-star" size="small" slot="end"></button>
+              <button label="Favorite" type="button" bitIconButton="bwi-star" size="small" slot="end"></button>
             </bit-section-header>
             <bit-card>
               <bit-form-field>
@@ -232,7 +231,7 @@ export const WithCards: Story = {
               <h2 bitTypography="h6">
                 Bar
               </h2>
-              <button type="button" bitIconButton="bwi-star" size="small" slot="end"></button>
+              <button type="button" label="Favorite" bitIconButton="bwi-star" size="small" slot="end"></button>
             </bit-section-header>
             <bit-card>
               <bit-form-field>
@@ -258,8 +257,7 @@ export const WithCards: Story = {
             bitIconButton="bwi-trash"
             buttonType="danger"
             size="default"
-            title="Delete"
-            aria-label="Delete"></button>
+            label="Delete"></button>
         </ng-container>
       </bit-dialog>
   </form>

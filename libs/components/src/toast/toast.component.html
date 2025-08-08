@@ -25,6 +25,7 @@
       type="button"
       size="small"
       (click)="this.onClose.emit()"
+      [label]="'close' | i18n"
     ></button>
   </div>
   <div class="tw-h-1 tw-w-full tw-bg-text-main/30" [style.width]="progressWidth() + '%'"></div>

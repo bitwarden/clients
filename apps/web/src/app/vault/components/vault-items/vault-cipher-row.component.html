@@ -82,7 +82,7 @@
     size="small"
     bitIconButton="bwi-ellipsis-v"
     type="button"
-    appA11yTitle="{{ 'options' | i18n }}"
+    label="{{ 'options' | i18n }}"
     appStopProp
   ></button>
   <bit-menu #corruptedCipherOptions>
@@ -101,7 +101,7 @@
       bitIconButton="bwi-ellipsis-v"
       type="button"
       appStopProp
-      appA11yTitle="{{ 'options' | i18n }}"
+      label="{{ 'options' | i18n }}"
     ></button>
     <bit-menu #cipherOptions>
       <ng-container *ngIf="isNotDeletedLoginCipher">
