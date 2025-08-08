@@ -1,4 +1,4 @@
-import { Account, AccountKeys, AccountProfile } from "./account";
+import { Account, AccountProfile } from "./account";
 
 describe("Account", () => {
   describe("fromJSON", () => {
@@ -7,12 +7,10 @@ describe("Account", () => {
     });
 
     it("should call all the sub-fromJSONs", () => {
-      const keysSpy = jest.spyOn(AccountKeys, "fromJSON");
       const profileSpy = jest.spyOn(AccountProfile, "fromJSON");
 
       Account.fromJSON({});
 
-      expect(keysSpy).toHaveBeenCalled();
       expect(profileSpy).toHaveBeenCalled();
     });
   });
