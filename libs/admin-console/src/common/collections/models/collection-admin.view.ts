@@ -24,24 +24,6 @@ export class CollectionAdminView extends CollectionView {
    */
   assigned: boolean = false;
 
-  constructor(response?: CollectionAccessDetailsResponse) {
-    super(response);
-
-    if (!response) {
-      return;
-    }
-
-    this.groups = response.groups
-      ? response.groups.map((g) => new CollectionAccessSelectionView(g))
-      : [];
-
-    this.users = response.users
-      ? response.users.map((g) => new CollectionAccessSelectionView(g))
-      : [];
-
-    this.assigned = response.assigned;
-  }
-
   /**
    * Returns true if the user can edit a collection (including user and group access) from the Admin Console.
    */
@@ -114,5 +96,24 @@ export class CollectionAdminView extends CollectionView {
    */
   get isUnassignedCollection() {
     return this.id === Unassigned;
+  }
+
+  static fromCollectionAccessDetails(
+    collection: CollectionAccessDetailsResponse,
+  ): CollectionAdminView {
+    const v = new CollectionAdminView({ ...collection });
+
+    v.groups = collection.groups
+      ? collection.groups.map((g) => new CollectionAccessSelectionView(g))
+      : [];
+
+    v.users = collection.users
+      ? collection.users.map((g) => new CollectionAccessSelectionView(g))
+      : [];
+
+    v.assigned = collection.assigned;
+    v.externalId = collection.externalId;
+
+    return v;
   }
 }

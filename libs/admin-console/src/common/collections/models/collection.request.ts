@@ -1,20 +1,30 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
-
-import { Collection } from "./collection";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
 export class CollectionRequest {
   name: string;
-  externalId: string;
+  externalId: string | undefined;
   groups: SelectionReadOnlyRequest[] = [];
   users: SelectionReadOnlyRequest[] = [];
 
-  constructor(collection?: Collection) {
-    if (collection == null) {
-      return;
+  constructor(c: {
+    name: EncString;
+    users?: SelectionReadOnlyRequest[];
+    groups?: SelectionReadOnlyRequest[];
+    externalId?: string;
+  }) {
+    if (!c.name || !c.name.encryptedString) {
+      throw new Error("Name not provided for CollectionRequest.");
     }
-    this.name = collection.name ? collection.name.encryptedString : null;
-    this.externalId = collection.externalId;
+
+    this.name = c.name.encryptedString;
+    this.externalId = c.externalId;
+
+    if (c.groups) {
+      this.groups = c.groups;
+    }
+    if (c.users) {
+      this.users = c.users;
+    }
   }
 }

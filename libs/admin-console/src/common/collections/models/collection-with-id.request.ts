@@ -10,7 +10,10 @@ export class CollectionWithIdRequest extends CollectionRequest {
     if (collection == null) {
       return;
     }
-    super(collection);
+    super({
+      name: collection.name,
+      externalId: collection.externalId,
+    });
     this.id = collection.id;
   }
 }

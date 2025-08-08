@@ -4,7 +4,7 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { Collection, CollectionView } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -206,10 +206,23 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
     for (const c of data.collections) {
       let collectionView: CollectionView;
       if (data.encrypted) {
-        const collection = CollectionWithIdExport.toDomain(c);
-        collection.organizationId = this.organizationId;
-        collectionView = await firstValueFrom(this.keyService.activeUserOrgKeys$).then((orgKeys) =>
-          collection.decrypt(orgKeys[c.organizationId as OrganizationId]),
+        const collection = CollectionWithIdExport.toDomain(
+          c,
+          new Collection({
+            id: c.id,
+            name: new EncString(c.name),
+            organizationId: this.organizationId,
+          }),
+        );
+        const orgKey = await firstValueFrom(
+          this.keyService.activeUserOrgKeys$.pipe(
+            map((orgKeys) => orgKeys[c.organizationId as OrganizationId]),
+          ),
+        );
+        collectionView = await CollectionView.fromCollection(
+          collection,
+          this.encryptService,
+          orgKey,
         );
       } else {
         collectionView = CollectionWithIdExport.toView(c);

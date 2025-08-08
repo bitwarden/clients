@@ -12,11 +12,7 @@ import {
   switchMap,
 } from "rxjs";
 
-import {
-  CollectionAdminView,
-  CollectionService,
-  CollectionView,
-} from "@bitwarden/admin-console/common";
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -253,14 +249,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     }
 
     collections.forEach((c) => {
-      const collectionCopy = new CollectionView() as CollectionFilter;
-      collectionCopy.id = c.id;
-      collectionCopy.organizationId = c.organizationId;
-      collectionCopy.icon = "bwi-collection-shared";
-      if (c instanceof CollectionAdminView) {
-        collectionCopy.groups = c.groups;
-        collectionCopy.assigned = c.assigned;
-      }
+      const collectionCopy = Object.assign(new CollectionView({ ...c }), c) as CollectionFilter;
       const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
       ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
     });
@@ -274,7 +263,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   }
 
   protected getCollectionFilterHead(): TreeNode<CollectionFilter> {
-    const head = new CollectionView() as CollectionFilter;
+    const head = CollectionView.vaultFilterHead() as CollectionFilter;
     return new TreeNode<CollectionFilter>(head, null, "collections", "AllCollections");
   }
 

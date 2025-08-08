@@ -390,9 +390,11 @@ const collectionDataFactory = (orgId?: OrganizationId) => {
 };
 
 function collectionViewDataFactory(orgId?: OrganizationId): CollectionView {
-  const collectionView = new CollectionView();
-  collectionView.id = Utils.newGuid() as CollectionId;
-  collectionView.organizationId = orgId ?? (Utils.newGuid() as OrganizationId);
-  collectionView.name = "DEC_NAME_" + collectionView.id;
+  const id = Utils.newGuid() as CollectionId;
+  const collectionView = new CollectionView({
+    id,
+    organizationId: orgId ?? (Utils.newGuid() as OrganizationId),
+    name: "DEC_NAME_" + id,
+  });
   return collectionView;
 }

@@ -46,8 +46,11 @@ export class PadlockCsvImporter extends BaseImporter implements Importer {
             }
 
             if (addCollection) {
-              const collection = new CollectionView();
-              collection.name = tag;
+              const collection = new CollectionView({
+                name: tag,
+                organizationId: this.organizationId,
+                id: null,
+              });
               result.collections.push(collection);
             }
 

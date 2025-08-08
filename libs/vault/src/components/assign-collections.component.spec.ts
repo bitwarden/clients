@@ -29,23 +29,27 @@ describe("AssignCollectionsComponent", () => {
   const mockUserId = "mock-user-id" as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
 
-  const editCollection = new CollectionView();
-  editCollection.id = "collection-id" as CollectionId;
-  editCollection.organizationId = "org-id" as OrganizationId;
-  editCollection.name = "Editable Collection";
+  const editCollection = new CollectionView({
+    id: "collection-id" as CollectionId,
+    organizationId: "org-id" as OrganizationId,
+    name: "Editable Collection",
+  });
+
   editCollection.readOnly = false;
   editCollection.manage = true;
 
-  const readOnlyCollection1 = new CollectionView();
-  readOnlyCollection1.id = "read-only-collection-id" as CollectionId;
-  readOnlyCollection1.organizationId = "org-id" as OrganizationId;
-  readOnlyCollection1.name = "Read Only Collection";
+  const readOnlyCollection1 = new CollectionView({
+    id: "read-only-collection-id" as CollectionId,
+    organizationId: "org-id" as OrganizationId,
+    name: "Read Only Collection",
+  });
   readOnlyCollection1.readOnly = true;
 
-  const readOnlyCollection2 = new CollectionView();
-  readOnlyCollection2.id = "read-only-collection-id-2" as CollectionId;
-  readOnlyCollection2.organizationId = "org-id" as OrganizationId;
-  readOnlyCollection2.name = "Read Only Collection 2";
+  const readOnlyCollection2 = new CollectionView({
+    id: "read-only-collection-id-2" as CollectionId,
+    organizationId: "org-id" as OrganizationId,
+    name: "Read Only Collection 2",
+  });
   readOnlyCollection2.readOnly = true;
 
   const params = {

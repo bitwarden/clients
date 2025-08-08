@@ -278,9 +278,11 @@ export abstract class BaseImporter {
   protected moveFoldersToCollections(result: ImportResult) {
     result.folderRelationships.forEach((r) => result.collectionRelationships.push(r));
     result.collections = result.folders.map((f) => {
-      const collection = new CollectionView();
-      collection.name = f.name;
-      collection.id = (f.id as CollectionId) ?? undefined; // folder id may be null, which is not suitable for collections.
+      const collection = new CollectionView({
+        name: f.name,
+        organizationId: this.organizationId,
+        id: f.id as CollectionId,
+      });
       return collection;
     });
     result.folderRelationships = [];

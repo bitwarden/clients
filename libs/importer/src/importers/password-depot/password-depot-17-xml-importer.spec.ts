@@ -487,8 +487,11 @@ describe("Password Depot 17 Xml Importer", () => {
   it("should parse groups nodes into collections when importing into an organization", async () => {
     const importer = new PasswordDepot17XmlImporter();
     importer.organizationId = "someOrgId" as OrganizationId;
-    const collection = new CollectionView();
-    collection.name = "tempDB";
+    const collection = new CollectionView({
+      name: "tempDB",
+      organizationId: importer.organizationId,
+      id: null,
+    });
     const actual = [collection];
 
     const result = await importer.parse(PasswordTestData);

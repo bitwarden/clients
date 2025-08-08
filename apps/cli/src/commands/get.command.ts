@@ -452,6 +452,7 @@ export class GetCommand extends DownloadCommand {
         const orgKeys = await firstValueFrom(this.keyService.activeUserOrgKeys$);
         decCollection = await collection.decrypt(
           orgKeys[collection.organizationId as OrganizationId],
+          this.encryptService,
         );
       }
     } else if (id.trim() !== "") {
@@ -491,7 +492,7 @@ export class GetCommand extends DownloadCommand {
       }
 
       const response = await this.apiService.getCollectionAccessDetails(options.organizationId, id);
-      const decCollection = new CollectionView(response);
+      const decCollection = await CollectionView.fromCollectionAccessDetails(response);
       decCollection.name = await this.encryptService.decryptString(
         new EncString(response.name),
         orgKey,
