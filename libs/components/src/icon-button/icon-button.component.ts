@@ -97,6 +97,12 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   readonly size = model<IconButtonSize>("default");
 
+  /**
+   * label input will be used to set the `aria-label` attributes on the button.
+   * This is for accessibility purposes, as it provides a text alternative for the icon button.
+   *
+   * NOTE: It will also be used to set the `title` attribute on the button if no `title` is provided.
+   */
   readonly label = input<string>();
 
   private originalTitle: string | null;
