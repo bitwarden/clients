@@ -16,6 +16,7 @@ import { BiometricsService } from "@bitwarden/key-management";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
+import { TokenService } from "../../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { MessagingService } from "../../../platform/abstractions/messaging.service";
@@ -45,6 +46,7 @@ describe("VaultTimeoutService", () => {
   let messagingService: MockProxy<MessagingService>;
   let searchService: MockProxy<SearchService>;
   let stateService: MockProxy<StateService>;
+  let tokenService: MockProxy<TokenService>;
   let authService: MockProxy<AuthService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let stateEventRunnerService: MockProxy<StateEventRunnerService>;
@@ -71,6 +73,7 @@ describe("VaultTimeoutService", () => {
     messagingService = mock();
     searchService = mock();
     stateService = mock();
+    tokenService = mock();
     authService = mock();
     vaultTimeoutSettingsService = mock();
     stateEventRunnerService = mock();
@@ -99,6 +102,7 @@ describe("VaultTimeoutService", () => {
       messagingService,
       searchService,
       stateService,
+      tokenService,
       authService,
       vaultTimeoutSettingsService,
       stateEventRunnerService,
@@ -141,10 +145,7 @@ describe("VaultTimeoutService", () => {
     authService.getAuthStatus.mockImplementation((userId) => {
       return Promise.resolve(accounts[userId]?.authStatus);
     });
-    stateService.getIsAuthenticated.mockImplementation((options) => {
-      // Just like actual state service, if no userId is given fallback to active userId
-      return Promise.resolve(accounts[options.userId ?? globalSetups?.userId]?.isAuthenticated);
-    });
+    tokenService.hasAccessToken$.mockReturnValue(of(true));
 
     vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockImplementation((userId) => {
       return new BehaviorSubject<VaultTimeout>(accounts[userId]?.vaultTimeout);
@@ -201,7 +202,7 @@ describe("VaultTimeoutService", () => {
 
   const expectUserToHaveLocked = (userId: string) => {
     // This does NOT assert all the things that the lock process does
-    expect(stateService.getIsAuthenticated).toHaveBeenCalledWith({ userId: userId });
+    expect(tokenService.hasAccessToken$).toHaveBeenCalledWith({ userId: userId });
     expect(vaultTimeoutSettingsService.availableVaultTimeoutActions$).toHaveBeenCalledWith(userId);
     expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, { userId: userId });
     expect(masterPasswordService.mock.clearMasterKey).toHaveBeenCalledWith(userId);
