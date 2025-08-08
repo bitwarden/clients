@@ -11,6 +11,16 @@ app-root {
   min-height: 0;
 }
 
+.test-banner {
+  height: 5%;
+  background-color: #ffe478;
+  color: #000000;
+  padding: 8px 16px;
+  text-align: center;
+  font-weight: 500;
+  border-bottom: 1px solid #e4c76e;
+}
+
 .vault {
   height: 100%;
   display: flex;

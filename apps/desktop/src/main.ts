@@ -350,7 +350,7 @@ export class Main {
           await this.trayMain.hideToTray();
         }
         this.powerMonitorMain.init();
-        await this.updaterMain.init();
+        //await this.updaterMain.init();
 
         const [browserIntegrationEnabled, ddgIntegrationEnabled] = await Promise.all([
           firstValueFrom(this.desktopSettingsService.browserIntegrationEnabled$),
