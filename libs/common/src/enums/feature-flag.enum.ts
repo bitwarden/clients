@@ -53,7 +53,6 @@ export enum FeatureFlag {
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  EndUserNotifications = "pm-10609-end-user-notifications",
   RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
   PM19315EndUserActivationMvp = "pm-19315-end-user-activation-mvp",
 
@@ -97,7 +96,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
