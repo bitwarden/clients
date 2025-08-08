@@ -113,6 +113,26 @@
           aria-readonly="true"
         />
       </bit-form-field>
+      <bit-form-field *ngIf="field.type === fieldType.Date" [disableReadOnlyBorder]="last">
+        <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
+        <input
+          readonly
+          bitInput
+          type="text"
+          [value]="field.value | date: 'mediumDate'"
+          aria-readonly="true"
+        />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [appCopyClick]="field.value"
+          showToast
+          [valueLabel]="field.name"
+          [appA11yTitle]="'copyCustomField' | i18n: field.name"
+          data-testid="copy-custom-field"
+        ></button>
+      </bit-form-field>
     </div>
   </bit-card>
 </section>
