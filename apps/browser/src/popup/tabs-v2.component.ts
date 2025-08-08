@@ -1,11 +1,9 @@
 import { Component } from "@angular/core";
-import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
+import { map, Observable, startWith, switchMap } from "rxjs";
 
 import { NudgesService } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Icons } from "@bitwarden/components";
 
 import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
@@ -19,12 +17,9 @@ export class TabsV2Component {
   private hasActiveBadges$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.nudgesService.hasActiveBadges$(userId)));
-  protected navButtons$: Observable<NavButton[]> = combineLatest([
-    this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
-    this.hasActiveBadges$,
-  ]).pipe(
-    startWith([false, false]),
-    map(([onboardingFeatureEnabled, hasBadges]) => {
+  protected navButtons$: Observable<NavButton[]> = this.hasActiveBadges$.pipe(
+    startWith(false),
+    map((hasBadges) => {
       return [
         {
           label: "vault",
@@ -49,7 +44,7 @@ export class TabsV2Component {
           page: "/tabs/settings",
           icon: Icons.SettingsInactive,
           iconActive: Icons.SettingsActive,
-          showBerry: onboardingFeatureEnabled && hasBadges,
+          showBerry: hasBadges,
         },
       ];
     }),
@@ -57,6 +52,5 @@ export class TabsV2Component {
   constructor(
     private nudgesService: NudgesService,
     private accountService: AccountService,
-    private readonly configService: ConfigService,
   ) {}
 }
