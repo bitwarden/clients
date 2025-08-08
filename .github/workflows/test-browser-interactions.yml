@@ -37,7 +37,7 @@ jobs:
       uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # v3.0.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        repository: "${{ github.event.repository.owner.login }}/browser-interactions-testing"
+        repository: "bitwarden/browser-interactions-testing"
         event-type: trigger-bit-tests
         client-payload: |-
           {
