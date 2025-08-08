@@ -11,7 +11,7 @@ let nextId = 0;
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
   host: {
     "[id]": "this.id()",
-    "[attr.disabled]": "disabled",
+    "[disabled]": "disabled",
   },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
@@ -80,7 +80,7 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   // TODO migrate to computed signal when Angular adds signal support to reactive forms
   // https://bitwarden.atlassian.net/browse/CL-819
   get disabled() {
-    return this.disabledInput() || this.ngControl?.disabled || null;
+    return this.disabledInput() || this.ngControl?.disabled || false;
   }
 
   get required() {

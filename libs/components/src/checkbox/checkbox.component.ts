@@ -8,7 +8,7 @@ import { BitFormControlAbstraction } from "../form-control";
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: CheckboxComponent }],
   host: {
-    "[attr.disabled]": "disabled",
+    "[disabled]": "disabled",
   },
 })
 export class CheckboxComponent implements BitFormControlAbstraction {
@@ -110,7 +110,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
   // TODO migrate to computed signal when Angular adds signal support to reactive forms
   // https://bitwarden.atlassian.net/browse/CL-819
   get disabled() {
-    return this.disabledInput() || this.ngControl?.disabled || null;
+    return this.disabledInput() || this.ngControl?.disabled || false;
   }
 
   get required() {
