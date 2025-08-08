@@ -7,7 +7,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 
 const IdleInterval = 60 * 5; // 5 minutes
 
@@ -18,7 +18,7 @@ export default class IdleBackground {
 
   constructor(
     private vaultTimeoutService: VaultTimeoutService,
-    private notificationsService: NotificationsService,
+    private serverNotificationsService: ServerNotificationsService,
     private accountService: AccountService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
   ) {
@@ -32,9 +32,9 @@ export default class IdleBackground {
 
     const idleHandler = (newState: string) => {
       if (newState === "active") {
-        this.notificationsService.reconnectFromActivity();
+        this.serverNotificationsService.reconnectFromActivity();
       } else {
-        this.notificationsService.disconnectFromInactivity();
+        this.serverNotificationsService.disconnectFromInactivity();
       }
     };
     if (this.idle.onStateChanged && this.idle.setDetectionInterval) {

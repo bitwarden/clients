@@ -35,7 +35,7 @@ class AutofillInit implements AutofillInitInterface {
    * @param domElementVisibilityService - Used to check if an element is viewable.
    * @param autofillOverlayContentService - The autofill overlay content service, potentially undefined.
    * @param autofillInlineMenuContentService - The inline menu content service, potentially undefined.
-   * @param overlayNotificationsContentService - The overlay notifications content service, potentially undefined.
+   * @param overlayNotificationsContentService - The overlay server notifications content service, potentially undefined.
    */
   constructor(
     domQueryService: DomQueryService,

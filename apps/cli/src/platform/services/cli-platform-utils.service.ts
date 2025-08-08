@@ -75,7 +75,7 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
-  isViewOpen() {
+  isPopupOpen() {
     return Promise.resolve(false);
   }
 

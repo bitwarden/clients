@@ -10,7 +10,7 @@ export class WebPushNotificationsApiService {
   ) {}
 
   /**
-   * Posts a device-user association to the server and ensures it's installed for push notifications
+   * Posts a device-user association to the server and ensures it's installed for push server notifications
    */
   async putSubscription(pushSubscription: PushSubscriptionJSON): Promise<void> {
     const request = WebPushRequest.from(pushSubscription);
