@@ -713,7 +713,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private trimAndRemoveNonPrintableText(textContent: string): string {
     return (textContent || "")
-      .replace(/[^\x20-\x7E]+|\s+/g, " ") // Strip out non-primitive characters and replace multiple spaces with a single space
+      .replace(/\p{C}+|\s+/gu, " ") // Strip out non-printable characters and replace multiple spaces with a single space
       .trim(); // Trim leading and trailing whitespace
   }
 
