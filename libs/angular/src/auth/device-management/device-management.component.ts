@@ -16,14 +16,18 @@ import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { ButtonModule, PopoverModule } from "@bitwarden/components";
+import { ButtonModule, DialogService, PopoverModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { LoginApprovalDialogComponent } from "../login-approval";
 
 import { DeviceManagementComponentServiceAbstraction } from "./device-management-component.service.abstraction";
 import { DeviceManagementItemGroupComponent } from "./device-management-item-group.component";
 import { DeviceManagementTableComponent } from "./device-management-table.component";
+import { clearAuthRequestAndResortDevices, resortDevices } from "./resort-devices.helper";
 
 export interface DeviceDisplayData {
+  creationDate: string;
   displayName: string;
   firstLogin: Date;
   icon: string;
@@ -66,6 +70,7 @@ export class DeviceManagementComponent implements OnInit {
     private destroyRef: DestroyRef,
     private deviceManagementComponentService: DeviceManagementComponentServiceAbstraction,
     private devicesService: DevicesServiceAbstraction,
+    private dialogService: DialogService,
     private i18nService: I18nService,
     private messageListener: MessageListener,
     private validationService: ValidationService,
@@ -130,6 +135,7 @@ export class DeviceManagementComponent implements OnInit {
         }
 
         return {
+          creationDate: device.creationDate,
           displayName: this.devicesService.getReadableDeviceTypeName(device.type),
           firstLogin: device.creationDate ? new Date(device.creationDate) : new Date(),
           icon: this.getDeviceIcon(device.type),
@@ -141,7 +147,8 @@ export class DeviceManagementComponent implements OnInit {
           pendingAuthRequest: device.response?.devicePendingAuthRequest ?? null,
         };
       })
-      .filter((device) => device !== null);
+      .filter((device) => device !== null)
+      .sort(resortDevices);
   }
 
   private async upsertDeviceWithPendingAuthRequest(authRequestId: string) {
@@ -151,6 +158,7 @@ export class DeviceManagementComponent implements OnInit {
     }
 
     const upsertDevice: DeviceDisplayData = {
+      creationDate: "",
       displayName: this.devicesService.getReadableDeviceTypeName(
         authRequestResponse.requestDeviceTypeValue,
       ),
@@ -174,8 +182,9 @@ export class DeviceManagementComponent implements OnInit {
       );
 
       if (existingDevice?.id && existingDevice.creationDate) {
-        upsertDevice.id = existingDevice.id;
+        upsertDevice.creationDate = existingDevice.creationDate;
         upsertDevice.firstLogin = new Date(existingDevice.creationDate);
+        upsertDevice.id = existingDevice.id;
       }
     }
 
@@ -186,10 +195,10 @@ export class DeviceManagementComponent implements OnInit {
     if (existingDeviceIndex >= 0) {
       // Update existing device in device list
       this.devices[existingDeviceIndex] = upsertDevice;
-      this.devices = [...this.devices];
+      this.devices = [...this.devices].sort(resortDevices);
     } else {
       // Add new device to device list
-      this.devices = [upsertDevice, ...this.devices];
+      this.devices = [upsertDevice, ...this.devices].sort(resortDevices);
     }
   }
 
@@ -226,5 +235,19 @@ export class DeviceManagementComponent implements OnInit {
 
     const metadata = DeviceTypeMetadata[type];
     return metadata ? (categoryIconMap[metadata.category] ?? defaultIcon) : defaultIcon;
+  }
+
+  protected async handleAuthRequestAnswered(pendingAuthRequest: DevicePendingAuthRequest) {
+    const loginApprovalDialog = LoginApprovalDialogComponent.open(this.dialogService, {
+      notificationId: pendingAuthRequest.id,
+    });
+
+    const result = await firstValueFrom(loginApprovalDialog.closed);
+
+    if (result !== undefined && typeof result === "boolean") {
+      // Auth request was approved or denied, so clear the
+      // pending auth request and re-sort the device array
+      this.devices = clearAuthRequestAndResortDevices(this.devices, pendingAuthRequest);
+    }
   }
 }
