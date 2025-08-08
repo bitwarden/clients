@@ -765,6 +765,7 @@ export class ServiceContainer {
       this.messagingService,
       this.searchService,
       this.stateService,
+      this.tokenService,
       this.authService,
       this.vaultTimeoutSettingsService,
       this.stateEventRunnerService,

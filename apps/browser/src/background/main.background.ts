@@ -948,6 +948,7 @@ export default class MainBackground {
       this.messagingService,
       this.searchService,
       this.stateService,
+      this.tokenService,
       this.authService,
       this.vaultTimeoutSettingsService,
       this.stateEventRunnerService,
@@ -1322,7 +1323,7 @@ export default class MainBackground {
     );
 
     this.mainContextMenuHandler = new MainContextMenuHandler(
-      this.stateService,
+      this.tokenService,
       this.autofillSettingsService,
       this.i18nService,
       this.logService,
