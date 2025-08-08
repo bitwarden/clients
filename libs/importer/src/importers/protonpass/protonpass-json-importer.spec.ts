@@ -2,6 +2,7 @@ import { MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { testData } from "../spec-data/protonpass-json/protonpass.json";
@@ -90,7 +91,7 @@ describe("Protonpass Json Importer", () => {
 
   it("should create collections if part of an organization", async () => {
     const testDataJson = JSON.stringify(testData);
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(testDataJson);
     expect(result != null).toBe(true);
 

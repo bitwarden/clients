@@ -157,6 +157,14 @@ export class AnonLayoutWrapperComponent implements OnInit {
       this.hideCardWrapper = data.hideCardWrapper;
     }
 
+    if (data.hideIcon !== undefined) {
+      this.hideIcon = data.hideIcon;
+    }
+
+    if (data.maxWidth !== undefined) {
+      this.maxWidth = data.maxWidth;
+    }
+
     // Manually fire change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
     // when setting the page data from a service
     this.changeDetectorRef.detectChanges();

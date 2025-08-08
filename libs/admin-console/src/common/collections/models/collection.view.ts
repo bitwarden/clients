@@ -2,6 +2,7 @@ import { Jsonify } from "type-fest";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { View } from "@bitwarden/common/models/view/view";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { Collection, CollectionType, CollectionTypes } from "./collection";
@@ -10,8 +11,8 @@ import { CollectionAccessDetailsResponse } from "./collection.response";
 export const NestingDelimiter = "/";
 
 export class CollectionView implements View, ITreeNodeObject {
-  id: string | undefined;
-  organizationId: string | undefined;
+  id: CollectionId | undefined;
+  organizationId: OrganizationId | undefined;
   name: string = "";
   externalId: string | undefined;
   // readOnly applies to the items within a collection

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -81,6 +81,7 @@ import {
 } from "@bitwarden/vault";
 import { OrganizationResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components/organization-reseller-renewal-warning.component";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/warnings/services/organization-warnings.service";
+import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
 import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
@@ -204,6 +205,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
+  @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<CipherView>;
+
   private readonly unpaidSubscriptionDialog$ = this.accountService.activeAccount$.pipe(
     map((account) => account?.id),
     switchMap((id) =>
@@ -278,9 +281,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     const filter$ = this.routedVaultFilterService.filter$;
+
+    // FIXME: The RoutedVaultFilterModel uses `organizationId: Unassigned` to represent the individual vault,
+    // but that is never used in Admin Console. This function narrows the type so it doesn't pollute our code here,
+    // but really we should change to using our own vault filter model that only represents valid states in AC.
+    const isOrganizationId = (value: OrganizationId | Unassigned): value is OrganizationId =>
+      value !== Unassigned;
     const organizationId$ = filter$.pipe(
       map((filter) => filter.organizationId),
       filter((filter) => filter !== undefined),
+      filter(isOrganizationId),
       distinctUntilChanged(),
     );
 
@@ -373,9 +383,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.allCollectionsWithoutUnassigned$,
     ]).pipe(
       map(([organizationId, allCollections]) => {
+        // FIXME: We should not assert that the Unassigned type is a CollectionId.
+        // Instead we should consider representing the Unassigned collection as a different object, given that
+        // it is not actually a collection.
         const noneCollection = new CollectionAdminView();
         noneCollection.name = this.i18nService.t("unassigned");
-        noneCollection.id = Unassigned;
+        noneCollection.id = Unassigned as CollectionId;
         noneCollection.organizationId = organizationId;
         return allCollections.concat(noneCollection);
       }),
@@ -1420,6 +1433,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private refresh() {
     this.refresh$.next();
+    this.vaultItemsComponent?.clearSelection();
   }
 
   private go(queryParams: any = null) {
