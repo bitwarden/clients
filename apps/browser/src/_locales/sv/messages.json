@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Denna begäran är inte längre giltig."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Försöker du komma åt ditt konto?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggning bekräftad för $EMAIL$ på $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Du har avvisat ett inloggningsförsök från en annan enhet. Om det verkligen var du, försök logga in med enheten igen."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Inloggningsbegäran har redan gått ut."
   },
@@ -5592,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly stöds inte av din webbläsare eller är inte aktiverat. WebAssembly krävs för att använda Bitwarden-appen.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

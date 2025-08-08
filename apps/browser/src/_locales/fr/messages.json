@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Cette demande n'est plus valide."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Essayez-vous d'accéder à votre compte ?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Connexion confirmée pour $EMAIL$ sur $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vraiment vous, essayez de vous reconnecter avec l'appareil."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "La demande de connexion a déjà expiré."
   },
@@ -4601,7 +4582,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copiez $FIELD$, $CIPHERNAME$",
+    "message": "Copier $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -5592,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly n'est pas pris en charge sur votre navigateur ou n'est pas activé. WebAssembly est requis pour utiliser l'application Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

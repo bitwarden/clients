@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Tämä pyyntö ei ole enää voimassa."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Yritätkö kirjautua tilillesi?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Kirjautuminen vahvistettu tunnuksella $EMAIL$ laitteella $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Estit toisen laitteen lähettämän kirjautumispyynnön. Jos kuitenkin tunnistit kirjautumisyrityksen, suorita kirjautuminen uudelleen."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Kirjautumispyyntö on jo vanhentunut."
   },
@@ -5592,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly ei ole tuettu selaimessasi tai se ei ole käytössä. WebAssembly vaaditaan, jotta voi käyttää Bitwardenia.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

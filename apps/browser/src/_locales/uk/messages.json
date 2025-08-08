@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Цей запит більше недійсний."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Ви намагаєтесь отримати доступ до свого облікового запису?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте ввійти з пристроєм знову."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Термін дії запиту на вхід завершився."
   },
@@ -5592,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly не підтримується або не ввімкнено у вашому браузері. WebAssembly є обов'язковою вимогою для програми Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Розгорнути"
+  },
+  "showLess": {
+    "message": "Згорнути"
   }
 }

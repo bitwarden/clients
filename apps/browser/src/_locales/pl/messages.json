@@ -1468,7 +1468,7 @@
     "message": "Konto premium jest wymagane, aby skorzystać z tej funkcji."
   },
   "authenticationTimeout": {
-    "message": "Limit czasu uwierzytelniania"
+    "message": "Przekroczono limit czasu uwierzytelniania"
   },
   "authenticationSessionTimedOut": {
     "message": "Upłynął limit czasu uwierzytelniania. Zaloguj się ponownie."
@@ -1523,7 +1523,7 @@
     "message": "Wybierz metodę logowania dwustopniowego"
   },
   "recoveryCodeDesc": {
-    "message": "Utraciłeś dostęp do wszystkich swoich mechanizmów dwustopniowego logowania? Użyj kodów odzyskiwania, aby wyłączyć dwustopniowe logowanie na Twoim koncie."
+    "message": "Nie masz dostępu do logowania dwustopniowego? Użyj kodu odzyskiwania, aby je wyłączyć."
   },
   "recoveryCodeTitle": {
     "message": "Kod odzyskiwania"
@@ -1681,7 +1681,7 @@
     "message": "Domyślne ustawienie autouzupełniania"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "Po włączeniu autouzupełnianiu po załadowaniu strony możesz włączyć lub wyłączyć tę funkcję dla poszczególnych wpisów."
+    "message": "Możesz wyłączyć autouzupełnianie po załadowaniu strony dla poszczególnych elementów w opcjach konkretnych elementów."
   },
   "itemAutoFillOnPageLoad": {
     "message": "Automatycznie uzupełniaj po załadowaniu strony (jeśli włączono w opcjach)"
@@ -2178,7 +2178,7 @@
     "message": "Kod PIN jest nieprawidłowy."
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "Zbyt wiele nieprawidłowych prób wpisywania PIN. Wylogowywanie."
+    "message": "Zbyt wiele nieprawidłowych prób wpisywania kodu PIN. Trwa wylogowanie"
   },
   "unlockWithBiometrics": {
     "message": "Odblokuj biometrią"
@@ -2476,7 +2476,7 @@
     "message": "Logowanie biometrią nie powiodło się"
   },
   "biometricsFailedDesc": {
-    "message": "Dane biometryczne nie mogę być użyte, rozważ użycie hasła głównego lub wylogowanie. Jeśli się to powtarza, skontaktuj się z pomocą techniczną Bitwarden."
+    "message": "Weryfikacja biometryczna nie powiodła się. Zaloguj się za pomocą hasła głównego. Jeśli problem się powtarza, skontaktuj się z pomocą techniczną Bitwarden."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Uprawnienie nie zostało przyznane"
@@ -2503,7 +2503,7 @@
     "message": "Nie można zaimportować karty"
   },
   "restrictCardTypeImportDesc": {
-    "message": "Polityka ustawiona przez 1 lub więcej organizacji uniemożliwia importowanie kart do sejfów."
+    "message": "Zasada ustawiona przez co najmniej 1 organizację uniemożliwia importowanie kart do sejfów."
   },
   "domainsTitle": {
     "message": "Domeny",
@@ -2631,14 +2631,14 @@
     "message": "Sprawdź zagrożone hasła"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Twoje hasła organizacji są zagrożone, ponieważ są słabe, ponownie używane i/lub narażone.",
+    "message": "Hasła w Twojej organizacji są zagrożone, ponieważ są słabe, identyczne lub ujawnione.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Ilustracja listy danych logowania, które są zagrożone."
   },
   "generatePasswordSlideDesc": {
-    "message": "Szybko wygeneruj silne, unikalne hasło z menu autouzupełniania Bitwarden na stronie narażonej na ryzyko.",
+    "message": "Wygeneruj silne i unikalne hasło dla zagrożonej strony internetowej za pomocą autouzupełniania Bitwarden.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
@@ -3115,7 +3115,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Tylko poszczególne elementy sejfu łącznie z załącznikami powiązanymi z $EMAIL$ zostaną wyeksportowane. Elementy sejfu organizacji nie będą dołączone",
+    "message": "Tylko osobisty sejf $EMAIL$ zostanie wyeksportowany. Elementy organizacji nie zostaną uwzględnione.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3127,7 +3127,7 @@
     "message": "Eksportowanie sejfu organizacji"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Tylko sejf organizacji powiązany z $ORGANIZATION$ zostanie wyeksportowany. Pozycje w poszczególnych sejfach lub innych organizacji nie będą uwzględnione.",
+    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany. Elementy innych sejfów nie zostaną uwzględnione.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3522,7 +3522,7 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "Twoja organizacja włączyła autouzupełnianie podczas wczytywania strony."
+    "message": "Twoja organizacja włączyła autouzupełnianie po załadowaniu strony."
   },
   "howToAutofill": {
     "message": "Jak autouzupełniać"
@@ -3616,7 +3616,7 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Zapytanie oczekuje"
+    "message": "Oczekująca prośba"
   },
   "firstLogin": {
     "message": "Pierwsze logowanie"
@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Prośba nie jest już ważna."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Czy próbujesz uzyskać dostęp do swojego konta?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Logowanie potwierdzone dla $EMAIL$ na $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Prośba logowania wygasła."
   },
@@ -3713,7 +3694,7 @@
     "message": "Poproś administratora o potwierdzenie"
   },
   "unableToCompleteLogin": {
-    "message": "Nie można ukończyć logowania"
+    "message": "Logowanie nie powiodło się"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
     "message": "Musisz zalogować się na zaufanym urządzeniu lub poprosić administratora o przypisanie hasła."
@@ -3747,7 +3728,7 @@
     "description": "European Union"
   },
   "accessDenied": {
-    "message": "Odmowa dostępu. Nie masz uprawnień do przeglądania tej strony."
+    "message": "Odmowa dostępu. Nie masz uprawnień do wyświetlenia tej strony."
   },
   "general": {
     "message": "Ogólne"
@@ -3777,7 +3758,7 @@
     "message": "Nie znaleziono aktywnego adresu e-mail. Trwa wylogowanie."
   },
   "deviceTrusted": {
-    "message": "Zaufano urządzeniu"
+    "message": "Urządzenie zostało zaufane"
   },
   "trustOrganization": {
     "message": "Zaufaj organizacji"
@@ -3935,7 +3916,7 @@
     "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
-    "message": "Automatyczne wypełnianie przy wczytywaniu strony zostało ustawione, aby używać ustawień domyślnych.",
+    "message": "Autouzupełnianie po załadowaniu strony zostało ustawione do domyślnych ustawień.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
@@ -4046,7 +4027,7 @@
     "message": "Błąd importowania"
   },
   "importErrorDesc": {
-    "message": "Wystąpił problem z danymi, które chcesz zaimportować. Rozwiąż poniższe problemy w Twoim pliku i spróbuj ponownie."
+    "message": "Wystąpił problem podczas importowania danych. Usuń poniższe błędy w pliku źródłowym i spróbuj ponownie."
   },
   "resolveTheErrorsBelowAndTryAgain": {
     "message": "Rozwiąż poniższe błędy i spróbuj ponownie."
@@ -4082,7 +4063,7 @@
     "message": "Oczekiwanie na potwierdzenie"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Nie można ukończyć z użyciem biometrii."
+    "message": "Logowanie biometrią nie powiodło się"
   },
   "needADifferentMethod": {
     "message": "Potrzebujesz innej metody?"
@@ -4303,7 +4284,7 @@
     "message": "Wpisz jednorazowy kod z aplikacji uwierzytelniającej"
   },
   "lastPassOOBDesc": {
-    "message": "Zatwierdź żądanie logowania w aplikacji uwierzytelniającej lub wprowadź jednorazowe hasło."
+    "message": "Potwierdź logowanie w aplikacji uwierzytelniającej lub wpisz jednorazowy kod."
   },
   "passcode": {
     "message": "Kod"
@@ -4398,7 +4379,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "Wykrywanie URI polega na tym, jak Bitwarden identyfikuje sugestie autouzupełniania.",
+    "message": "Wykrywanie dopasowania to sposób, w jaki Bitwarden identyfikuje sugestie autouzupełniania.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -5592,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly nie jest obsługiwany w przeglądarce lub jest wyłączony. WebAssembly jest wymagany do korzystania z aplikacji Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Pokaż więcej"
+  },
+  "showLess": {
+    "message": "Pokaż mniej"
   }
 }

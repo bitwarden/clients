@@ -127,45 +127,45 @@
     <value>Dikenal sebagai pengelola sandi terbaik oleh PCMag, WIRED, The Verge, CNET, G2, dan lainnya!
 
 AMANKAN KEHIDUPAN DIGITAL ANDA
-Amankan kehidupan digital Anda dan dapatkan perlindungan dari peretasan data dengan membuat dan menyimpan kata sandi yang unik dan kuat untuk setiap akun. Rawat semuanya dalam brankas kata sandi terenkripsi dari ujung-ke-ujung yang hanya Anda saja yang dapat mengakses.
+Amankan kehidupan digital Anda dan dapatkan perlindungan dari peretasan data dengan membuat dan menyimpan kata sandi yang unik dan kuat untuk setiap akun. Rawat semuanya dalam brankas kata sandi terenkripsi dari ujung-ke-ujung yang hanya bisa diakses oleh Anda.
 
-AKSES DATA ANDA, DI MANA SAJA, KAPAN SAJA, DI PERANGKAT APAPUN
+AKSES DATA ANDA, DI MANA SAJA, KAPAN SAJA, DI PERANGKAT APA PUN
 Kelola, simpan, amankan, dan bagikan tanpa batas dengan mudah kata sandi antar perangkat tak terbatas dan tanpa batasan.
 
-SETIAP ORANG SEBAIKNYA MEMILIKI PERALATAN UNTUK TETAP AMAN KETIKA DARING
-Gunakan Bitwarden secara gratis tanpa iklan atau menjual data. Bitwarden percaya setiap orang sebaiknya memiliki kemampuan untuk tetap aman ketika daring. Rencana premium menawarkan akses ke fitur-fitur yang lebih lanjut.
+SETIAP ORANG HARUS MEMILIKI PERALATAN UNTUK TETAP AMAN KETIKA DARING
+Gunakan Bitwarden secara gratis tanpa iklan atau menjual data. Bitwarden percaya setiap orang harus memiliki kemampuan untuk tetap aman ketika daring. Paket premium menawarkan akses ke fitur-fitur yang lebih lanjut.
 
 BERDAYAKAN TIM ANDA DENGAN BITWARDEN
-Rencana untuk Teams dan Enterprise datang dengan kemampuan bisnis profesional. Beberapa contoh termasuk pemaduan SSO, hosting mandiri, pemaduan direktori dan pembekalan SCIM, kebijakan global, akses API, log kejadian, dan banyak lagi.
+Paket untuk Teams dan Enterprise memiliki kemampuan bisnis profesional, termasuk pemaduan SSO, hosting mandiri, pemaduan direktori dan pembekalan SCIM, kebijakan global, akses API, log kejadian, dan banyak lagi.
 
-Gunakan Bitwarden untuk mengamankan tenaga kerja Anda dan membagikan informasi sensitif kepada rekan kerja.
+Gunakan Bitwarden untuk mengamankan kerja Anda dan membagikan informasi sensitif kepada rekan kerja.
 
 
 Alasan lebih lanjut untuk memilih Bitwarden:
 
 Enkripsi Kelas Dunia
-Kata sandi dilindungi dengan enkripsi ujung-ke-ujung yang lebih lanjut (AES-256 bit, tanda pagar bergaram, dan PBKDF2 SHA-256) sehingga data Anda tetap aman dan privat.
+Semua kata sandi dilindungi dengan enkripsi ujung-ke-ujung yang lebih lanjut (AES-256 bit, tanda pagar bergaram, dan PBKDF2 SHA-256) sehingga data Anda tetap aman dan privat.
 
 Audit Pihak Ketiga
 Bitwarden secara rutin melakukan audit keamanan yang dilakukan pihak ketiga secara menyeluruh dengan perusahaan keamanan terkemuka. Audit tahunan ini termasuk penilaian sumber kode dan pengujian penembusan antar IP, server, dan aplikasi web Bitwarden.
 
 2FA Terdepan
-Amankan login Anda dengan pengotentikasi pihak ketiga, kode yang dikirim ke surel, atau pengenal WebAuthn FIDO2 seperti kunci keamanan perangkat keras atau kunci sandi.
+Amankan proses masuk Anda dengan pengotentikasi pihak ketiga, kode yang dikirim ke surel, atau pengenal WebAuthn FIDO2 seperti kunci keamanan perangkat keras atau kunci sandi.
 
 Bitwarden Send
-Salurkan data ke orang lain secara langsung sembari menjaga keamanan dari ujung-ke-ujung dan membatasi paparan.
+Kirim data ke orang lain secara langsung sembari menjaga keamanan dari ujung-ke-ujung dan membatasi singkapan.
 
-Pembuat Bawaan
-Buat kata sandi yang panjang, rumit, dan beda serta nama pengguna unik untuk setiap situs yang Anda kunjungi. Padukan dengan nama lain surel untuk privasi lebih lanjut.
+Pembuat Sandi Bawaan
+Buat kata sandi yang panjang, rumit, dan berbeda serta nama pengguna unik untuk setiap situs yang Anda kunjungi. Campurkan dengan nama lain surel untuk privasi lebih lanjut.
 
 Terjemahan Global
 Terjemahan Bitwarden hadir dalam lebih dari 60 bahasa, diterjemahkan oleh komunitas global melalui Crowdin.
 
 Aplikasi Lintas Platform
-Amankan dan bagikan data sensitif dalam Brankas Bitwarden Anda dari sebarang peramban, ponsel, atau sistem operasi desktop, dan lebih banyak lagi.
+Amankan dan bagikan data sensitif dalam Brankas Bitwarden Anda dari peramban apa pun, ponsel, atau sistem operasi desktop, dan lebih banyak lagi.
 
 Bitwarden mengamankan lebih dari sekedar kata sandi
-Solusi pengelolaan pengenal terenkripsi ujung-ke-ujung dari Bitwarden memberdayakan organisasi untuk mengamankan segalanya, termasuk rahasia pengembang dan pengalaman kunci sandi. Kunjungi bitwarden.com untuk mempelajari lebih lanjut tentang Pengelola Rahasia Bitwarden dan passwordless.dev Bitwarden!
+Solusi pengelolaan identitas terenkripsi ujung-ke-ujung dari Bitwarden memberdayakan organisasi untuk mengamankan segalanya, termasuk rahasia pengembang dan kunci sandi. Kunjungi bitwarden.com untuk mempelajari lebih lanjut tentang Pengelola Rahasia Bitwarden dan passwordless.dev Bitwarden!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
