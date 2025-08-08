@@ -8,8 +8,12 @@
 import AuthenticationServices
 import os
 
+
 class CredentialProviderViewController: ASCredentialProviderViewController {
     let logger: Logger
+    
+    @IBOutlet weak var statusLabel: NSTextField!
+    @IBOutlet weak var logoImageView: NSImageView!
     
     // There is something a bit strange about the initialization/deinitialization in this class.
     // Sometimes deinit won't be called after a request has successfully finished,
@@ -62,12 +66,56 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         return MacOsProviderClient.connect()
     }()
     
+    // Timer for checking connection status
+    private var connectionMonitorTimer: Timer?
+    private var lastConnectionStatus: ConnectionStatus = .disconnected
+    
+    // Setup the connection monitoring timer
+    private func setupConnectionMonitoring() {
+        // Check connection status every 1 second
+        connectionMonitorTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.checkConnectionStatus()
+        }
+        
+        // Make sure timer runs even when UI is busy
+        RunLoop.current.add(connectionMonitorTimer!, forMode: .common)
+        
+        // Initial check
+        checkConnectionStatus()
+    }
+    
+    // Check the connection status by calling into Rust
+    private func checkConnectionStatus() {
+        // Get the current connection status from Rust
+        let currentStatus = client.getConnectionStatus()
+        
+        // Only post notification if state changed
+        if currentStatus != lastConnectionStatus {
+            if(currentStatus == .connected) {
+                logger.log("[autofill-extension] Connection status changed: Connected")
+            } else {
+                logger.log("[autofill-extension] Connection status changed: Disconnected")
+            }
+            
+            // Save the new status
+            lastConnectionStatus = currentStatus
+            
+            // If we just disconnected, try to cancel the request
+            if currentStatus == .disconnected {
+                self.extensionContext.cancelRequest(withError: BitwardenError.Internal("Bitwarden desktop app disconnected"))
+            }
+        }
+    }
+    
     init() {
         logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
         
         logger.log("[autofill-extension] initializing extension")
         
-        super.init(nibName: nil, bundle: nil)
+        super.init(nibName: "CredentialProviderViewController", bundle: nil)
+        
+        // Setup connection monitoring now that self is available
+        setupConnectionMonitoring()
     }
     
     required init?(coder: NSCoder) {
@@ -76,45 +124,77 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     
     deinit {
         logger.log("[autofill-extension] deinitializing extension")
-    }
-    
-    
-    @IBAction func cancel(_ sender: AnyObject?) {
-        self.extensionContext.cancelRequest(withError: NSError(domain: ASExtensionErrorDomain, code: ASExtensionError.userCanceled.rawValue))
-    }
-    
-    @IBAction func passwordSelected(_ sender: AnyObject?) {
-        let passwordCredential = ASPasswordCredential(user: "j_appleseed", password: "apple1234")
-        self.extensionContext.completeRequest(withSelectedCredential: passwordCredential, completionHandler: nil)
+        
+        // Stop the connection monitor timer
+        connectionMonitorTimer?.invalidate()
+        connectionMonitorTimer = nil
     }
     
     private func getWindowPosition() -> Position {
         let frame = self.view.window?.frame ?? .zero
-        let screenHeight = NSScreen.main?.frame.height ?? 0      
-        
+        let screenHeight = NSScreen.main?.frame.height ?? 0
+        let screenWidth = NSScreen.main?.frame.width ?? 0
+
         // frame.width and frame.height is always 0. Estimating works OK for now.
         let estimatedWidth:CGFloat = 400;
         let estimatedHeight:CGFloat = 200;
-        let centerX = Int32(round(frame.origin.x + estimatedWidth/2))
-        let centerY = Int32(round(screenHeight - (frame.origin.y + estimatedHeight/2)))
-        
-        return Position(x: centerX, y:centerY)
+        // passkey modals are 600x600.
+        let modalHeight: CGFloat = 600;
+        let modalWidth: CGFloat = 600;
+        let centerX = round(frame.origin.x + estimatedWidth/2)
+        let centerY = round(screenHeight - (frame.origin.y + estimatedHeight/2))
+        // Check if centerX or centerY are beyond either edge of the screen.  If they are find the center of the screen, otherwise use the original value.
+        let positionX = centerX + modalWidth >= screenWidth || CGFloat(centerX) - modalWidth <= 0 ? Int32(screenWidth/2) : Int32(centerX)
+        let positionY = centerY + modalHeight >= screenHeight || CGFloat(centerY) - modalHeight <= 0 ? Int32(screenHeight/2) : Int32(centerY)
+        return Position(x: positionX, y: positionY)
     }
     
-    override func loadView() {
-        let view = NSView()
-        // Hide the native window since we only need the IPC connection
-        view.isHidden = true    
-        self.view = view
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Initially hide the view
+        self.view.isHidden = true
     }
-       
+    
+    override func prepareInterfaceForExtensionConfiguration() {
+        // Show the configuration UI
+        self.view.isHidden = false
+        
+        // Set the localized message
+        statusLabel.stringValue = NSLocalizedString("autofillConfigurationMessage", comment: "Message shown when Bitwarden is enabled in system settings")
+        
+        // Send the native status request
+        client.sendNativeStatus(key: "request-sync", value: "")
+        
+        // Complete the configuration after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            self?.extensionContext.completeExtensionConfigurationRequest()
+        }
+    }
+    
+    /*
+     In order to implement this method, we need to query the state of the vault to be unlocked and have one and only one matching credential so that it doesn't need to show ui.
+     If we do show UI, it's going to fail and disconnect after the platform timeout which is 3s.
+     For now we just claim to always need UI displayed.
+     */
     override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
+       let error = ASExtensionError(.userInteractionRequired)
+       self.extensionContext.cancelRequest(withError: error)
+       return
+    }
+    
+    /*
+     Implement this method if provideCredentialWithoutUserInteraction(for:) can fail with
+     ASExtensionError.userInteractionRequired. In this case, the system may present your extension's
+     UI and call this method. Show appropriate UI for authenticating the user then provide the password
+     by completing the extension request with the associated ASPasswordCredential.
+     */
+    override func prepareInterfaceToProvideCredential(for credentialRequest: ASCredentialRequest) {
         let timeoutTimer = createTimer()
-
         if let request = credentialRequest as? ASPasskeyCredentialRequest {
             if let passkeyIdentity = request.credentialIdentity as? ASPasskeyCredentialIdentity {
-                
-                logger.log("[autofill-extension] provideCredentialWithoutUserInteraction2(passkey) called \(request)")
+
+                logger.log("[autofill-extension] prepareInterfaceToProvideCredential (passkey) called \(request)")
                 
                 class CallbackImpl: PreparePasskeyAssertionCallback {
                     let ctx: ASCredentialProviderExtensionContext
@@ -154,6 +234,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     UserVerification.discouraged
                 }
                 
+                /*
+                    We're still using the old request type here, because we're sending the same data, we're expecting a single credential to be used
+                */
                 let req = PasskeyAssertionWithoutUserInterfaceRequest(
                     rpId: passkeyIdentity.relyingPartyIdentifier,
                     credentialId: passkeyIdentity.credentialID,
@@ -175,16 +258,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         logger.log("[autofill-extension] provideCredentialWithoutUserInteraction2 called wrong")
         self.extensionContext.cancelRequest(withError: BitwardenError.Internal("Invalid authentication request"))
     }
-    
-    /*
-     Implement this method if provideCredentialWithoutUserInteraction(for:) can fail with
-     ASExtensionError.userInteractionRequired. In this case, the system may present your extension's
-     UI and call this method. Show appropriate UI for authenticating the user then provide the password
-     by completing the extension request with the associated ASPasswordCredential.
      
-     override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {
-     }
-     */
 
     private func createTimer() -> DispatchWorkItem {
         // Create a timer for 600 second timeout
@@ -246,6 +320,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     UserVerification.discouraged
                 }
                 
+                // Convert excluded credentials to an array of credential IDs
+                var excludedCredentialIds: [Data] = []
+                if #available(macOSApplicationExtension 15.0, *) {
+                    if let excludedCreds = request.excludedCredentials {
+                        excludedCredentialIds = excludedCreds.map { $0.credentialID }
+                    }
+                }
+                
                 let req = PasskeyRegistrationRequest(
                     rpId: passkeyIdentity.relyingPartyIdentifier,
                     userName: passkeyIdentity.userName,
@@ -253,7 +335,8 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     clientDataHash: request.clientDataHash,
                     userVerification: userVerification,
                     supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) },
-                    windowXy: self.getWindowPosition()
+                    windowXy: self.getWindowPosition(),
+                    excludedCredentials: excludedCredentialIds
                 )
                 logger.log("[autofill-extension] prepareInterface(passkey) calling preparePasskeyRegistration")                
                 
