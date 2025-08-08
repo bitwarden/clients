@@ -2,14 +2,14 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { first } from "rxjs/operators";
+import { first, firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { VerifyEmailRequest } from "@bitwarden/common/models/request/verify-email.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ToastService } from "@bitwarden/components";
 
 @Component({
@@ -25,7 +25,7 @@ export class VerifyEmailTokenComponent implements OnInit {
     private route: ActivatedRoute,
     private apiService: ApiService,
     private logService: LogService,
-    private stateService: StateService,
+    private tokenService: TokenService,
     private toastService: ToastService,
   ) {}
 
@@ -37,7 +37,7 @@ export class VerifyEmailTokenComponent implements OnInit {
           await this.apiService.postAccountVerifyEmailToken(
             new VerifyEmailRequest(qParams.userId, qParams.token),
           );
-          if (await this.stateService.getIsAuthenticated()) {
+          if (await firstValueFrom(this.tokenService.hasAccessToken$(qParams.userId))) {
             await this.apiService.refreshIdentityToken();
           }
           this.toastService.showToast({
