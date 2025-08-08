@@ -8,6 +8,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { BaseEventsComponent } from "@bitwarden/web-vault/app/admin-console/common/base.events.component";
 import { EventService } from "@bitwarden/web-vault/app/core";
@@ -24,6 +25,8 @@ export class ServiceAccountEventsComponent
   extends BaseEventsComponent
   implements OnInit, OnDestroy
 {
+  organizationId: OrganizationId;
+  userId: UserId;
   exportFileName = "machine-account-events";
   private destroy$ = new Subject<void>();
   private serviceAccountId: string;
