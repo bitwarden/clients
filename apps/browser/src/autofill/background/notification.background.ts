@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, switchMap, map, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -59,7 +57,7 @@ import {
   OrganizationCategories,
   NotificationCipherData,
 } from "../content/components/cipher/types";
-import { CollectionView } from "../content/components/common-types";
+import { CollectionNotificationView } from "../content/components/common-types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
@@ -106,18 +104,18 @@ export default class NotificationBackground {
     bgGetFolderData: () => this.getFolderData(),
     bgGetCollectionData: ({ message }) => this.getCollectionData(message),
     bgGetOrgData: () => this.getOrgData(),
-    bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
+    bgNeverSave: ({ sender }) => this.saveNever(sender.tab!),
     bgOpenAddEditVaultItemPopout: ({ message, sender }) =>
-      this.openAddEditVaultItem(message, sender.tab),
-    bgOpenViewVaultItemPopout: ({ message, sender }) => this.viewItem(message, sender.tab),
+      this.openAddEditVaultItem(message, sender.tab!),
+    bgOpenViewVaultItemPopout: ({ message, sender }) => this.viewItem(message, sender.tab!),
     bgRemoveTabFromNotificationQueue: ({ sender }) =>
-      this.removeTabFromNotificationQueue(sender.tab),
-    bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
+      this.removeTabFromNotificationQueue(sender.tab!),
+    bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab!),
     bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
     bgHandleReprompt: ({ message, sender }: any) =>
       this.handleCipherUpdateRepromptResponse(message),
-    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
-    checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
+    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab!),
+    checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab!),
     collectPageDetailsResponse: ({ message }) =>
       this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
@@ -399,7 +397,7 @@ export default class NotificationBackground {
 
   private async doNotificationQueueCheck(tab: chrome.tabs.Tab): Promise<void> {
     const queueMessage = this.notificationQueue.find(
-      (message) => message.tab.id === tab.id && this.queueMessageIsFromTabOrigin(message, tab),
+      (message) => message.tab!.id === tab.id && this.queueMessageIsFromTabOrigin(message, tab),
     );
     if (queueMessage) {
       await this.sendNotificationQueueMessage(tab, queueMessage);
@@ -672,7 +670,7 @@ export default class NotificationBackground {
     }
 
     const forms = this.autofillService.getFormsWithPasswordFields(message.details);
-    await BrowserApi.tabSendMessageData(message.tab, "notificationBarPageDetails", {
+    await BrowserApi.tabSendMessageData(message.tab!, "notificationBarPageDetails", {
       details: message.details,
       forms: forms,
     });
@@ -757,7 +755,7 @@ export default class NotificationBackground {
     sender: chrome.runtime.MessageSender,
   ) {
     if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await BrowserApi.tabSendMessageData(sender.tab, "addToLockedVaultPendingNotifications", {
+      await BrowserApi.tabSendMessageData(sender.tab!, "addToLockedVaultPendingNotifications", {
         commandToRetry: {
           message: {
             command: message.command,
@@ -768,18 +766,18 @@ export default class NotificationBackground {
         },
         target: "notification.background",
       } as LockedVaultPendingNotificationsData);
-      await this.openUnlockPopout(sender.tab);
+      await this.openUnlockPopout(sender.tab!);
       return;
     }
 
-    await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
+    await this.saveOrUpdateCredentials(sender.tab!, message.edit, message.folder);
   }
 
   async handleCipherUpdateRepromptResponse(message: NotificationBackgroundExtensionMessage) {
     if (message.success) {
-      await this.saveOrUpdateCredentials(message.tab, false, undefined, true);
+      await this.saveOrUpdateCredentials(message.tab!, false, undefined, true);
     } else {
-      await BrowserApi.tabSendMessageData(message.tab, "saveCipherAttemptCompleted", {
+      await BrowserApi.tabSendMessageData(message.tab!, "saveCipherAttemptCompleted", {
         error: "Password reprompt failed",
       });
       return;
@@ -871,7 +869,7 @@ export default class NotificationBackground {
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-          error: error?.message && String(error.message),
+          error: (error as Error)?.message && String(error.message),
         });
       }
     }
@@ -915,16 +913,16 @@ export default class NotificationBackground {
       const updatedCipherTask = tasks.find((task) => task.cipherId === cipherView?.id);
       const cipherHasTask = !!updatedCipherTask?.id;
 
-      let taskOrgName: string;
+      let orgName = undefined;
       if (cipherHasTask && updatedCipherTask?.organizationId) {
-        const userOrgs = await this.getOrgData();
-        taskOrgName = userOrgs.find(({ id }) => id === updatedCipherTask.organizationId)?.name;
+        const userOrgs = await firstValueFrom(this.getOrgData());
+        orgName = userOrgs.find(({ id }) => id === updatedCipherTask.organizationId)?.name;
       }
 
       const taskData = cipherHasTask
         ? {
             remainingTasksCount: tasks.length - 1,
-            orgName: taskOrgName,
+            orgName,
           }
         : undefined;
 
@@ -955,7 +953,7 @@ export default class NotificationBackground {
       }
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        error: error?.message && String(error.message),
+        error: (error as Error)?.message && String(error.message),
       });
     }
   }
@@ -996,7 +994,9 @@ export default class NotificationBackground {
     if (queueItem?.type === NotificationQueueMessageType.AddLogin) {
       const cipherView = this.convertAddLoginQueueMessageToCipherView(queueItem);
       cipherView.organizationId = organizationId;
-      cipherView.folderId = folder;
+      if (folder) {
+        cipherView.folderId = folder;
+      }
 
       if (userId) {
         await this.cipherService.setAddEditCipherInfo({ cipher: cipherView }, userId);
@@ -1017,7 +1017,7 @@ export default class NotificationBackground {
     await Promise.all([
       this.openViewVaultItemPopout(senderTab, {
         cipherId: message.cipherId,
-        action: null,
+        action: "", // noop, TODO decide if action should be optional
       }),
       BrowserApi.tabSendMessageData(senderTab, "closeNotificationBar", {
         fadeOutNotification: !!message.fadeOutNotification,
@@ -1073,6 +1073,10 @@ export default class NotificationBackground {
    * @param tab - The tab that sent the neverSave message
    */
   private async saveNever(tab: chrome.tabs.Tab) {
+    if (typeof tab.url !== "string") {
+      this.logService.warning("URL not present for tab.");
+      return;
+    }
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
       if (
@@ -1098,21 +1102,19 @@ export default class NotificationBackground {
    * Returns the first value found from the folder service's folderViews$ observable.
    */
   private async getFolderData() {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return await firstValueFrom(this.folderService.folderViews$(activeUserId));
   }
 
   private async getCollectionData(
     message: NotificationBackgroundExtensionMessage,
-  ): Promise<CollectionView[]> {
+  ): Promise<CollectionNotificationView[]> {
     const collections = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
         map((collections) =>
-          collections.reduce<CollectionView[]>((acc, collection) => {
+          collections.reduce<CollectionNotificationView[]>((acc, collection) => {
             if (collection.organizationId === message?.orgId) {
               acc.push({
                 id: collection.id,
@@ -1147,22 +1149,21 @@ export default class NotificationBackground {
   /**
    * Returns the first value found from the organization service organizations$ observable.
    */
-  private async getOrgData() {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
+  private getOrgData() {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.organizationService.organizations$(userId).pipe(
+          map((orgs) =>
+            orgs.map((org) => ({
+              id: org.id,
+              name: org.name,
+              productTierType: org.productTierType,
+            })),
+          ),
+        ),
+      ),
     );
-    const organizations = await firstValueFrom(
-      this.organizationService.organizations$(activeUserId),
-    );
-
-    return organizations.map((org) => {
-      const { id, name, productTierType } = org;
-      return {
-        id,
-        name,
-        productTierType,
-      };
-    });
   }
 
   /**
@@ -1180,7 +1181,7 @@ export default class NotificationBackground {
     const messageData = message.data as LockedVaultPendingNotificationsData;
     const retryCommand = messageData.commandToRetry.message.command as ExtensionCommandType;
     if (this.allowedRetryCommands.has(retryCommand)) {
-      await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
+      await BrowserApi.tabSendMessageData(sender.tab!, "closeNotificationBar");
     }
 
     if (messageData.target !== "notification.background") {
@@ -1207,7 +1208,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
+    await BrowserApi.tabSendMessageData(sender.tab!, "closeNotificationBar", {
       fadeOutNotification: !!message.fadeOutNotification,
     });
   }
@@ -1234,7 +1235,7 @@ export default class NotificationBackground {
 
       await Promise.all([
         this.messagingService.send(VaultMessages.OpenAtRiskPasswords),
-        BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
+        BrowserApi.tabSendMessageData(sender.tab!, "closeNotificationBar", {
           fadeOutNotification: !!message.fadeOutNotification,
         }),
       ]);
@@ -1258,7 +1259,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", message.data);
+    await BrowserApi.tabSendMessageData(sender.tab!, "adjustNotificationBar", message.data);
   }
 
   /**
@@ -1282,10 +1283,12 @@ export default class NotificationBackground {
 
     const cipherView = new CipherView();
     cipherView.name = (Utils.getHostname(message.uri) || message.domain).replace(/^www\./, "");
-    cipherView.folderId = folderId;
     cipherView.type = CipherType.Login;
     cipherView.login = loginView;
-    cipherView.organizationId = null;
+    cipherView.organizationId = undefined;
+    if (folderId) {
+      cipherView.folderId = folderId;
+    }
 
     return cipherView;
   }
@@ -1298,15 +1301,15 @@ export default class NotificationBackground {
     message: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
-  ) => {
+  ): boolean | void => {
     const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
     if (!handler) {
-      return null;
+      return;
     }
 
     const messageResponse = handler({ message, sender });
     if (typeof messageResponse === "undefined") {
-      return null;
+      return;
     }
 
     Promise.resolve(messageResponse)
@@ -1324,7 +1327,12 @@ export default class NotificationBackground {
   private queueMessageIsFromTabOrigin(
     queueMessage: NotificationQueueMessageItem,
     tab: chrome.tabs.Tab,
-  ) {
+  ): boolean | void {
+    if (typeof tab.url !== "string" || typeof queueMessage.tab.url !== "string") {
+      this.logService.warning("URL not present in tab or queue message tab.");
+      return;
+    }
+
     const tabDomain = Utils.getDomain(tab.url);
     return tabDomain === queueMessage.domain || tabDomain === Utils.getDomain(queueMessage.tab.url);
   }

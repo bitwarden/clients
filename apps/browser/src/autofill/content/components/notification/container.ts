@@ -9,7 +9,7 @@ import {
   NotificationType,
 } from "../../../notification/abstractions/notification-bar";
 import { NotificationCipherData } from "../cipher/types";
-import { CollectionView, FolderView, I18n, OrgView } from "../common-types";
+import { CollectionNotificationView, FolderView, I18n, OrgView } from "../common-types";
 import { themes, spacing } from "../constants/styles";
 
 import { NotificationBody, componentClassPrefix as notificationBodyClassPrefix } from "./body";
@@ -25,7 +25,7 @@ export type NotificationContainerProps = NotificationBarIframeInitData & {
   handleEditOrUpdateAction: (e: Event) => void;
 } & {
   ciphers?: NotificationCipherData[];
-  collections?: CollectionView[];
+  collections?: CollectionNotificationView[];
   folders?: FolderView[];
   headerMessage?: string;
   i18n: I18n;

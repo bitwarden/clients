@@ -1,7 +1,9 @@
 import { TemplateResult } from "lit";
 
+import { CollectionView } from "@bitwarden/admin-console/common";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 export type I18n = {
   [key: string]: string;
@@ -27,13 +29,9 @@ export type FolderView = {
 };
 
 export type OrgView = {
-  id: string;
+  id: OrganizationId;
   name: string;
   productTierType?: ProductTierType;
 };
 
-export type CollectionView = {
-  id: string;
-  name: string;
-  organizationId: string;
-};
+export type CollectionNotificationView = Pick<CollectionView, "id" | "organizationId" | "name">;

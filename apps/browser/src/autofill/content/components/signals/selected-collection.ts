@@ -1,3 +1,5 @@
 import { signal } from "@lit-labs/signals";
 
-export const selectedCollection = signal<string>("0");
+import { CollectionId } from "@bitwarden/common/types/guid";
+
+export const selectedCollection = signal<CollectionId>("0" as CollectionId);

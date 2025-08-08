@@ -6,7 +6,7 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
-import { CollectionView, I18n, OrgView } from "../content/components/common-types";
+import { CollectionNotificationView, I18n, OrgView } from "../content/components/common-types";
 import { AtRiskNotification } from "../content/components/notification/at-risk-password/container";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
@@ -308,7 +308,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       new Promise<NotificationCipherData[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, resolve),
       ),
-      new Promise<CollectionView[]>((resolve) =>
+      new Promise<CollectionNotificationView[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetCollectionData", orgId }, resolve),
       ),
     ]).then(([organizations, folders, ciphers, collections]) => {

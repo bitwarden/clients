@@ -3,7 +3,7 @@ import { html } from "lit";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { Option, OrgView, FolderView, I18n, CollectionView } from "../common-types";
+import { Option, OrgView, FolderView, I18n, CollectionNotificationView } from "../common-types";
 import { Business, Family, Folder, User, CollectionShared } from "../icons";
 import { ButtonRow } from "../rows/button-row";
 import { selectedCollection as selectedCollectionSignal } from "../signals/selected-collection";
@@ -28,7 +28,7 @@ function getVaultIconByProductTier(productTierType?: ProductTierType): Option["i
 const defaultNoneSelectValue = "0";
 
 export type NotificationButtonRowProps = {
-  collections?: CollectionView[];
+  collections?: CollectionNotificationView[];
   folders?: FolderView[];
   i18n: I18n;
   organizations?: OrgView[];
@@ -116,7 +116,7 @@ export function NotificationButtonRow({
       collections?.length &&
       selectedCollectionSignal.get() === defaultNoneSelectValue
     ) {
-      selectedCollectionSignal?.set(collections[0].id);
+      selectedCollectionSignal?.set(collections[0].id!);
     }
   }
 
