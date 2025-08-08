@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Ontgrendel Bitwarden op je apparaat of op de "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Probeer je toegang te krijgen tot je account?"
-  },
   "accessAttemptBy": {
     "message": "Inlogpoging door $EMAIL$",
     "placeholders": {
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Dit verzoek is niet langer geldig."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggen voor $EMAIL$ bevestigd op $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
     "placeholders": {
@@ -5443,6 +5424,37 @@
   },
   "organizationDataOwnership": {
     "message": "Gegevenseigendom van organisatie afdwingen"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Verplicht dat items eigendom zijn van een organisatie, dit verwijdert de mogelijkheid van het opslaan van items op accountniveau.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Alle items worden eigendom en opgeslagen bij de organisatie, wat organisatiebrede controle, zichtbaarheid en rapportage mogelijk maakt. Bij inschakelen is er een standaardcollectie beschikbaar voor elk lid voor het opslaan van items. Meer informatie over het beheren van de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "levenscyclus van inloggegevens",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Weet je zeker dat je wilt doorgaan?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "beschikbaar voor leden"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "niet automatisch geselecteerd bij het maken van nieuwe items"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "niet beheerd vanuit de beheerdersconsole totdat de gebruiker is verwijderd"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Met het uitschakelen van dit beleid, wordt de standaardcollectie: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Leer meer over de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Persoonlijk eigendom"
@@ -10980,5 +10992,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Onbeperkte geheimen en projecten"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Abonnement opgezegd"
+  },
+  "providersubCanceledmessage": {
+    "message": "Neem contact op met Bitwarden Customer Support om je opnieuw te abonneren."
+  },
+  "showMore": {
+    "message": "Meer weergeven"
+  },
+  "showLess": {
+    "message": "Minder weergeven"
   }
 }
