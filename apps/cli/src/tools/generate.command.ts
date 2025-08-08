@@ -1,6 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { firstValueFrom, of, switchMap } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import {
   DefaultPasswordGenerationOptions,
   DefaultPassphraseGenerationOptions,
@@ -17,7 +20,8 @@ import { CliUtils } from "../utils";
 export class GenerateCommand {
   constructor(
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
-    private stateService: StateService,
+    private readonly accountService: AccountService,
+    private readonly tokenService: TokenService,
   ) {}
 
   async run(cmdOptions: Record<string, any>): Promise<Response> {
@@ -38,7 +42,18 @@ export class GenerateCommand {
       ambiguous: !normalizedOptions.ambiguous,
     };
 
-    const enforcedOptions = (await this.stateService.getIsAuthenticated())
+    const shouldEnforceOptions = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        switchMap((account) => {
+          if (account == null) {
+            return of(false);
+          }
+
+          return this.tokenService.hasAccessToken$(account.id);
+        }),
+      ),
+    );
+    const enforcedOptions = shouldEnforceOptions
       ? (await this.passwordGenerationService.enforcePasswordGeneratorPoliciesOnOptions(options))[0]
       : options;
 
