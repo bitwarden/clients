@@ -31,19 +31,9 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     private collectionService: CollectionService,
   ) {}
 
-  private orgKeyCache = new Map<UserId, Observable<Record<OrganizationId, OrgKey>>>();
-
-  private orgKey$(userId: UserId): Observable<Record<OrganizationId, OrgKey>> {
-    if (!this.orgKeyCache.get(userId)) {
-      this.orgKeyCache.set(userId, this.keyService.orgKeys$(userId));
-    }
-
-    return this.orgKeyCache.get(userId);
-  }
-
   collectionAdminViews$(organizationId: string, userId: UserId): Observable<CollectionAdminView[]> {
     return combineLatest([
-      this.orgKey$(userId),
+      this.keyService.orgKeys$(userId),
       from(this.apiService.getManyCollectionsWithAccessDetails(organizationId)),
     ]).pipe(
       switchMap(([orgKey, res]) => {
@@ -144,7 +134,9 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
       throw new Error("Collection has no organization id.");
     }
     const key = await firstValueFrom(
-      this.orgKey$(userId).pipe(map((orgKeys) => orgKeys[model.organizationId] ?? null)),
+      this.keyService
+        .orgKeys$(userId)
+        .pipe(map((orgKeys) => orgKeys[model.organizationId] ?? null)),
     );
     if (key == null) {
       throw new Error("No key for this collection's organization.");
