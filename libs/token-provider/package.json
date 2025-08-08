@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/token-provider",
+  "version": "0.0.1",
+  "description": "Auth token provider (Identity and API token flows)",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "auth"
+}
