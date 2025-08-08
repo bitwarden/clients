@@ -1,3 +1,5 @@
+import { MasterPasswordUnlockData, UserDecryption } from "@bitwarden/sdk-internal";
+
 import { BaseResponse } from "../../../../models/response/base.response";
 
 import {
@@ -15,6 +17,7 @@ import {
 
 export interface IUserDecryptionOptionsServerResponse {
   HasMasterPassword: boolean;
+  MasterPasswordUnlock?: MasterPasswordUnlockData;
   TrustedDeviceOption?: ITrustedDeviceUserDecryptionOptionServerResponse;
   KeyConnectorOption?: IKeyConnectorUserDecryptionOptionServerResponse;
   WebAuthnPrfOption?: IWebAuthnPrfDecryptionOptionServerResponse;
@@ -22,6 +25,7 @@ export interface IUserDecryptionOptionsServerResponse {
 
 export class UserDecryptionOptionsResponse extends BaseResponse {
   hasMasterPassword: boolean;
+  masterPasswordUnlock?: MasterPasswordUnlockData;
   trustedDeviceOption?: TrustedDeviceUserDecryptionOptionResponse;
   keyConnectorOption?: KeyConnectorUserDecryptionOptionResponse;
   webAuthnPrfOption?: WebAuthnPrfDecryptionOptionResponse;
@@ -30,6 +34,12 @@ export class UserDecryptionOptionsResponse extends BaseResponse {
     super(response);
 
     this.hasMasterPassword = this.getResponseProperty("HasMasterPassword");
+
+    const masterPasswordUnlock = this.getResponseProperty("MasterPasswordUnlock");
+    if (masterPasswordUnlock != null) {
+      this.masterPasswordUnlock =
+        UserDecryption.get_master_password_unlock_data(masterPasswordUnlock);
+    }
 
     if (response.TrustedDeviceOption) {
       this.trustedDeviceOption = new TrustedDeviceUserDecryptionOptionResponse(

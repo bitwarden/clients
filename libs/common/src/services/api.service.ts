@@ -13,6 +13,7 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -222,6 +223,8 @@ export class ApiService implements ApiServiceAbstraction {
 
     if (responseJson != null) {
       if (response.status === 200) {
+        // Identity response parsing uses SDK
+        await SdkLoadService.Ready;
         return new IdentityTokenResponse(responseJson);
       } else if (
         response.status === 400 &&
@@ -823,6 +826,8 @@ export class ApiService implements ApiServiceAbstraction {
       ? "/sync?excludeDomains=true"
       : "/sync";
     const r = await this.send("GET", path, null, true, true);
+    // Sync response parsing uses SDK
+    await SdkLoadService.Ready;
     return new SyncResponse(r);
   }
 
