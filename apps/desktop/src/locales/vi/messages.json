@@ -1225,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Đăng nhập hai bước"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Đóng kho sau"
   },
   "vaultTimeout1": {
     "message": "Quá hạn"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Chọn thời điểm đóng kho của bạn và thực hiện hành động đã được chọn."
@@ -2511,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Thời gian mở kho vượt quá giới hạn do tổ chức của bạn đặt ra."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Đã chấp nhận lời mời"
   },
@@ -2992,9 +3027,6 @@
     "message": "Bật/tắt hiển thị số ký tự",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Bạn đang cố gắng truy cập tài khoản của mình?"
-  },
   "accessAttemptBy": {
     "message": "Cố gắng truy cập bởi $EMAIL$",
     "placeholders": {
@@ -3003,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Loại thiết bị"
@@ -3018,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Từ chối truy cập"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Đã xác nhận đăng nhập cho $EMAIL$ trên $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu thực sự là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
   },
   "justNow": {
     "message": "Vừa xong"
@@ -4005,6 +4065,12 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   },
   "enableAutotype": {
     "message": "Bật tính năng Tự động nhập liệu"

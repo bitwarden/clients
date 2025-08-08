@@ -1225,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Zwei-Faktor-Authentifizierung"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Tresor-Timeout"
   },
   "vaultTimeout1": {
     "message": "Timeout"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Wähle, wann der Timeout deines Tresors aktiviert werden soll und welche Aktion er bewirken soll."
@@ -2511,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Einladung angenommen"
   },
@@ -2992,9 +3027,6 @@
     "message": "Zeichenanzahl ein-/ausschalten",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Versuchst du auf dein Konto zuzugreifen?"
-  },
   "accessAttemptBy": {
     "message": "Zugriffsversuch von $EMAIL$",
     "placeholders": {
@@ -3003,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Gerätetyp"
@@ -3018,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Zugriff ablehnen"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Anmeldung von $EMAIL$ auf $DEVICE$ bestätigt",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
   },
   "justNow": {
     "message": "Gerade eben"
@@ -4005,6 +4065,12 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   },
   "enableAutotype": {
     "message": "Enable Autotype"
