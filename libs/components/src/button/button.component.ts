@@ -5,43 +5,17 @@ import { debounce, interval } from "rxjs";
 
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
 
-const focusRing = [
-  "focus-visible:tw-ring-2",
-  "focus-visible:tw-ring-offset-2",
-  "focus-visible:tw-ring-primary-600",
-  "focus-visible:tw-z-10",
-];
+const focusRing = ["bit-button-focus-ring"];
 
 const buttonSizeStyles: Record<ButtonSize, string[]> = {
-  small: ["tw-py-1", "tw-px-3", "tw-text-sm"],
-  default: ["tw-py-1.5", "tw-px-3"],
+  small: ["bit-button-size-small"],
+  default: ["bit-button-size-default"],
 };
 
 const buttonStyles: Record<ButtonType, string[]> = {
-  primary: [
-    "tw-border-primary-600",
-    "tw-bg-primary-600",
-    "!tw-text-contrast",
-    "hover:tw-bg-primary-700",
-    "hover:tw-border-primary-700",
-    ...focusRing,
-  ],
-  secondary: [
-    "tw-bg-transparent",
-    "tw-border-primary-600",
-    "!tw-text-primary-600",
-    "hover:tw-bg-hover-default",
-    ...focusRing,
-  ],
-  danger: [
-    "tw-bg-transparent",
-    "tw-border-danger-600",
-    "!tw-text-danger",
-    "hover:tw-bg-danger-600",
-    "hover:tw-border-danger-600",
-    "hover:!tw-text-contrast",
-    ...focusRing,
-  ],
+  primary: ["bit-button-primary", ...focusRing],
+  secondary: ["bit-button-secondary", ...focusRing],
+  danger: ["bit-button-danger", ...focusRing],
   unstyled: [],
 };
 
@@ -56,33 +30,10 @@ const buttonStyles: Record<ButtonType, string[]> = {
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
-    return [
-      "tw-font-semibold",
-      "tw-rounded-full",
-      "tw-transition",
-      "tw-border-2",
-      "tw-border-solid",
-      "tw-text-center",
-      "tw-no-underline",
-      "hover:tw-no-underline",
-      "focus:tw-outline-none",
-    ]
-      .concat(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
+    return ["bit-button"]
+      .concat(this.block() ? ["bit-button-block"] : ["bit-button-inline"])
       .concat(buttonStyles[this.buttonType() ?? "secondary"])
-      .concat(
-        this.showDisabledStyles() || this.disabled()
-          ? [
-              "disabled:tw-bg-secondary-300",
-              "disabled:hover:tw-bg-secondary-300",
-              "disabled:tw-border-secondary-300",
-              "disabled:hover:tw-border-secondary-300",
-              "disabled:!tw-text-muted",
-              "disabled:hover:!tw-text-muted",
-              "disabled:tw-cursor-not-allowed",
-              "disabled:hover:tw-no-underline",
-            ]
-          : [],
-      )
+      .concat(this.showDisabledStyles() || this.disabled() ? ["bit-button-disabled"] : [])
       .concat(buttonSizeStyles[this.size() || "default"]);
   }
 
