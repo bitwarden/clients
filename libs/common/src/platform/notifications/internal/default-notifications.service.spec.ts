@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, Subject } from "rxjs";
+import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -14,6 +14,7 @@ import { NotificationType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
 import { AppIdService } from "../../abstractions/app-id.service";
+import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { MessageSender } from "../../messaging";
@@ -38,6 +39,7 @@ describe("NotificationsService", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
+  let configService: MockProxy<ConfigService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
 
@@ -64,6 +66,9 @@ describe("NotificationsService", () => {
     signalRNotificationConnectionService = mock<SignalRConnectionService>();
     authService = mock<AuthService>();
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
+    configService = mock<ConfigService>();
+
+    configService.getFeatureFlag$.mockReturnValue(of(true));
 
     activeAccount = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(null);
     accountService.activeAccount$ = activeAccount.asObservable();
@@ -104,6 +109,7 @@ describe("NotificationsService", () => {
       signalRNotificationConnectionService,
       authService,
       webPushNotificationConnectionService,
+      configService,
     );
   });
 
@@ -227,13 +233,12 @@ describe("NotificationsService", () => {
   });
 
   it.each([
-    // Temporarily rolling back notifications being connected while locked
-    // { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Unlocked },
-    // { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Locked },
-    // { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Locked },
+    { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Unlocked },
+    { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Locked },
+    { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Locked },
     { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Unlocked },
   ])(
-    "does not re-connect when the user transitions from $initialStatus to $updatedStatus",
+    "does not re-connect when the user transitions from $initialStatus to $updatedStatus when feature flag is enabled",
     async ({ initialStatus, updatedStatus }) => {
       emitActiveUser(mockUser1);
       emitNotificationUrl("http://test.example.com");
@@ -256,12 +261,58 @@ describe("NotificationsService", () => {
   );
 
   it.each([
-    // Temporarily disabling notifications connecting while in a locked state
-    // AuthenticationStatus.Locked,
-    AuthenticationStatus.Unlocked,
+    { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Unlocked },
   ])(
-    "connects when a user transitions from logged out to %s",
+    "does not re-connect when the user transitions from $initialStatus to $updatedStatus when feature flag is disabled",
+    async ({ initialStatus, updatedStatus }) => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      emitActiveUser(mockUser1);
+      emitNotificationUrl("http://test.example.com");
+      authStatusGetter(mockUser1).next(initialStatus);
+      webPushSupportGetter(mockUser1).next({ type: "not-supported", reason: "test" });
+
+      const notificationsSubscriptions = sut.notifications$.subscribe();
+      await awaitAsync(1);
+
+      authStatusGetter(mockUser1).next(updatedStatus);
+      await awaitAsync(1);
+
+      expect(signalRNotificationConnectionService.connect$).toHaveBeenCalledTimes(1);
+      expect(signalRNotificationConnectionService.connect$).toHaveBeenCalledWith(
+        mockUser1,
+        "http://test.example.com",
+      );
+      notificationsSubscriptions.unsubscribe();
+    },
+  );
+
+  it.each([AuthenticationStatus.Locked, AuthenticationStatus.Unlocked])(
+    "connects when a user transitions from logged out to %s when feature flag is enabled",
     async (newStatus: AuthenticationStatus) => {
+      emitActiveUser(mockUser1);
+      emitNotificationUrl("http://test.example.com");
+      authStatusGetter(mockUser1).next(AuthenticationStatus.LoggedOut);
+      webPushSupportGetter(mockUser1).next({ type: "not-supported", reason: "test" });
+
+      const notificationsSubscriptions = sut.notifications$.subscribe();
+      await awaitAsync(1);
+
+      authStatusGetter(mockUser1).next(newStatus);
+      await awaitAsync(1);
+
+      expect(signalRNotificationConnectionService.connect$).toHaveBeenCalledTimes(1);
+      expect(signalRNotificationConnectionService.connect$).toHaveBeenCalledWith(
+        mockUser1,
+        "http://test.example.com",
+      );
+      notificationsSubscriptions.unsubscribe();
+    },
+  );
+
+  it.each([AuthenticationStatus.Unlocked])(
+    "connects when a user transitions from logged out to %s when feature flag is disabled",
+    async (newStatus: AuthenticationStatus) => {
+      configService.getFeatureFlag$.mockReturnValue(of(false));
       emitActiveUser(mockUser1);
       emitNotificationUrl("http://test.example.com");
       authStatusGetter(mockUser1).next(AuthenticationStatus.LoggedOut);
