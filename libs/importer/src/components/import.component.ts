@@ -279,7 +279,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.collections$ = Utils.asyncToObservable(() =>
       this.importCollectionService
-        .getAllAdminCollections(this.organizationId)
+        .getAllAdminCollections(this.organizationId, userId)
         .then((collections) => collections.sort(Utils.getSortFunction(this.i18nService, "name"))),
     );
 

@@ -240,9 +240,15 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         return this.groupService.getAll(orgId);
       }),
     );
+
+    const collections = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.collectionAdminService.collectionAdminViews$(orgId, userId)),
+    );
+
     combineLatest({
       organization: organization$,
-      collections: this.collectionAdminService.getAll(orgId),
+      collections,
       groups: groups$,
       users: this.organizationUserApiService.getAllMiniUserDetails(orgId),
     })

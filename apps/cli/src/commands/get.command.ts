@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -485,7 +485,13 @@ export class GetCommand extends DownloadCommand {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
     try {
-      const orgKey = await this.keyService.getOrgKey(options.organizationId);
+      const orgKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.orgKeys$(userId)),
+          map((orgKeys) => orgKeys[options.organizationId as OrganizationId] ?? null),
+        ),
+      );
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }

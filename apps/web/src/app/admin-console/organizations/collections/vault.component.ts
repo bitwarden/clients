@@ -363,7 +363,12 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.allCollectionsWithoutUnassigned$ = this.refresh$.pipe(
       switchMap(() => organizationId$),
-      switchMap((orgId) => this.collectionAdminService.getAll(orgId)),
+      switchMap((orgId) =>
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.collectionAdminService.collectionAdminViews$(orgId, userId)),
+        ),
+      ),
       shareReplay({ refCount: false, bufferSize: 1 }),
     );
 

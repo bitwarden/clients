@@ -1,5 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionAdminService, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -71,7 +71,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
         { provide: OrganizationService, useValue: { organizations$: () => orgs$ } },
         {
           provide: CollectionAdminService,
-          useValue: { getAll: () => Promise.resolve([collection, collection2]) },
+          useValue: { collectionAdminViews$: () => of([collection, collection2]) },
         },
         {
           provide: PolicyService,
