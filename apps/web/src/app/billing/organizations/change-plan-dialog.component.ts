@@ -64,6 +64,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { BillingNotificationService } from "../services/billing-notification.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
@@ -769,6 +770,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     const doSubmit = async (): Promise<string> => {
+      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       let orgId: string = null;
       const sub = this.sub?.subscription;
       const isCanceled = sub?.status === "canceled";
@@ -776,7 +778,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         sub?.cancelled && this.organization.productTierType === ProductTierType.Free;
 
       if (isCanceled || isCancelledDowngradedToFreeOrg) {
-        await this.restartSubscription();
+        await this.restartSubscription(activeUserId);
         orgId = this.organizationId;
       } else {
         orgId = await this.updateOrganization();
@@ -816,7 +818,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   };
 
-  private async restartSubscription() {
+  private async restartSubscription(activeUserId: UserId) {
     const org = await this.organizationApiService.get(this.organizationId);
     const organization: OrganizationInformation = {
       name: org.name,
@@ -848,11 +850,15 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       billing: this.getBillingInformationFromTaxInfoComponent(),
     };
 
-    await this.organizationBillingService.restartSubscription(this.organization.id, {
-      organization,
-      plan,
-      payment,
-    });
+    await this.organizationBillingService.restartSubscription(
+      this.organization.id,
+      {
+        organization,
+        plan,
+        payment,
+      },
+      activeUserId,
+    );
   }
 
   private async updateOrganization() {
