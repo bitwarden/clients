@@ -369,7 +369,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           switchMap((userId) => this.collectionAdminService.collectionAdminViews$(orgId, userId)),
         ),
       ),
-      //shareReplay({ refCount: false, bufferSize: 1 }),
+      shareReplay({ refCount: false, bufferSize: 1 }),
     );
 
     this.editableCollections$ = this.allCollectionsWithoutUnassigned$.pipe(
