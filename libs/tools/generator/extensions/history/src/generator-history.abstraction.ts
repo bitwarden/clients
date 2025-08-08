@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
@@ -26,12 +24,12 @@ export abstract class GeneratorHistoryService {
    *    may contain several credentials that are better modelled as atomic versions of the
    *    vault item itself.
    */
-  track: (
+  abstract track(
     userId: UserId,
     credential: string,
     category: CredentialType,
     date?: Date,
-  ) => Promise<GeneratedCredential | null>;
+  ): Promise<GeneratedCredential | null>;
 
   /** Removes a matching credential from the history service.
    *  @param userId identifies the user taking the credential.
@@ -40,18 +38,18 @@ export abstract class GeneratorHistoryService {
    *    the promise completes with null.
    *  @remarks this can be used to extract an entry when a credential is stored in the vault.
    */
-  take: (userId: UserId, credential: string) => Promise<GeneratedCredential | null>;
+  abstract take(userId: UserId, credential: string): Promise<GeneratedCredential | null>;
 
   /** Deletes a user's credential history.
    *  @param userId identifies the user taking the credential.
    *  @returns A promise that completes when the history is cleared.
    */
-  clear: (userId: UserId) => Promise<GeneratedCredential[]>;
+  abstract clear(userId: UserId): Promise<GeneratedCredential[]>;
 
   /** Lists all credentials for a user.
    *  @param userId identifies the user listing the credential.
    *  @remarks This field is eventually consistent with `track` and `take` operations.
    *    It is not guaranteed to immediately reflect those changes.
    */
-  credentials$: (userId: UserId) => Observable<GeneratedCredential[]>;
+  abstract credentials$(userId: UserId): Observable<GeneratedCredential[]>;
 }
