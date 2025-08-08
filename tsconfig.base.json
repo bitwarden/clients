@@ -20,6 +20,7 @@
     "paths": {
       "@bitwarden/admin-console/common": ["./libs/admin-console/src/common"],
       "@bitwarden/angular/*": ["./libs/angular/src/*"],
+      "@bitwarden/api": ["libs/api/src/index.ts"],
       "@bitwarden/auth/angular": ["./libs/auth/src/angular"],
       "@bitwarden/auth/common": ["./libs/auth/src/common"],
       "@bitwarden/billing": ["./libs/billing/src"],
@@ -40,6 +41,7 @@
       "@bitwarden/importer-ui": ["./libs/importer/src/components"],
       "@bitwarden/key-management": ["./libs/key-management/src"],
       "@bitwarden/key-management-ui": ["./libs/key-management-ui/src"],
+      "@bitwarden/legacy-api": ["libs/legacy-api/src/index.ts"],
       "@bitwarden/logging": ["libs/logging/src"],
       "@bitwarden/messaging": ["libs/messaging/src/index.ts"],
       "@bitwarden/messaging-internal": ["libs/messaging-internal/src/index.ts"],
