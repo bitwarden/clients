@@ -46,7 +46,7 @@ export const OpenMenu: Story = {
 
       <div class="tw-h-40">
         <div class="cdk-overlay-pane bit-menu-panel">
-          <ng-container *ngTemplateOutlet="myMenu.templateRef"></ng-container>
+          <ng-container *ngTemplateOutlet="myMenu.templateRef()"></ng-container>
         </div>
       </div>
       `,

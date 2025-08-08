@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, HostBinding, input, Optional } from "@angular/core";
 
@@ -32,7 +30,7 @@ export class BitLabel {
   ];
 
   @HostBinding("title") get title() {
-    return this.elementRef.nativeElement.textContent.trim();
+    return this.elementRef.nativeElement.textContent?.trim() ?? "";
   }
 
   readonly id = input(`bit-label-${nextId++}`);
