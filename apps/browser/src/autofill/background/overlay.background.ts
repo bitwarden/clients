@@ -69,7 +69,6 @@ import {
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
-import { InlineMenuFormFieldData } from "../services/abstractions/autofill-overlay-content.service";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
 import {
@@ -82,6 +81,7 @@ import {
 } from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
+import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
   CloseInlineMenuMessage,
@@ -1813,7 +1813,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Triggers a fill of the generated password into the current tab. Will trigger
-   * a  focus of the last focused field after filling the password.
+   * a focus of the last focused field after filling the password.
    *
    * @param port - The port of the sender
    */
@@ -1857,10 +1857,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
 
     globalThis.setTimeout(async () => {
-      if (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab)) {
-        await this.openInlineMenu(port.sender, true);
-      }
-    }, 300);
+      await BrowserApi.tabSendMessage(
+        port.sender.tab,
+        {
+          command: "generatedPasswordModifyLogin",
+        },
+        {
+          frameId: this.focusedFieldData.frameId || 0,
+        },
+      );
+    }, 150);
   }
 
   /**
@@ -1891,7 +1897,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param tab - The tab to get the form field data from
    */
-  private async getInlineMenuFormFieldData(tab: chrome.tabs.Tab): Promise<InlineMenuFormFieldData> {
+  private async getInlineMenuFormFieldData(
+    tab: chrome.tabs.Tab,
+  ): Promise<ModifyLoginCipherFormData> {
     return await BrowserApi.tabSendMessage(
       tab,
       {

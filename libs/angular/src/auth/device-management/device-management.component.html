@@ -30,11 +30,13 @@
   <auth-device-management-table
     ngClass="tw-hidden md:tw-block"
     [devices]="devices"
+    (onAuthRequestAnswered)="handleAuthRequestAnswered($event)"
   ></auth-device-management-table>
 
   <!-- List View: displays on small screens -->
   <auth-device-management-item-group
     ngClass="md:tw-hidden"
     [devices]="devices"
+    (onAuthRequestAnswered)="handleAuthRequestAnswered($event)"
   ></auth-device-management-item-group>
 }
