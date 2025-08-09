@@ -1,0 +1,16 @@
+<bit-dialog>
+  <span bitDialogTitle> De-duplication complete </span>
+  <div bitDialogContent>
+    <p>
+      <strong>{{ data.trashed }}</strong> item{{ data.trashed === 1 ? "" : "s" }} moved to Trash.
+      <br />
+      <strong>{{ data.permanentlyDeleted }}</strong> item{{
+        data.permanentlyDeleted === 1 ? "" : "s"
+      }}
+      permanently deleted.
+    </p>
+  </div>
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose buttonType="primary" type="button">OK</button>
+  </ng-container>
+</bit-dialog>

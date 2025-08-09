@@ -1,0 +1,28 @@
+<app-header></app-header>
+
+<bit-container>
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <h1 bitTypography="h1" class="tw-m-0">De-duplicate vault</h1>
+    <bit-callout type="info" title="De-duplicating vault">
+      Vault items associated that contain matching usernames and passwords, have similar names, and
+      belong to the same organization and folder will be displayed for review and optional deletion.
+      Duplicated items already in the trash will be permanently deleted. Duplicate items not yet in
+      the trash will be moved to the trash.
+    </bit-callout>
+
+    <div class="tw-flex tw-gap-2">
+      <button
+        bitButton
+        buttonType="primary"
+        type="button"
+        [disabled]="loading"
+        (click)="findDuplicates()"
+      >
+        Find Duplicates
+      </button>
+      <div *ngIf="loading" class="tw-self-center tw-text-muted">{{ "loading" | i18n }}</div>
+    </div>
+
+    <div *ngIf="message" class="tw-text-sm tw-text-muted">{{ message }}</div>
+  </div>
+</bit-container>
