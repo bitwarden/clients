@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/legacy-api",
+  "version": "0.0.1",
+  "description": "Legacy API implementation for back-compat during extraction from @bitwarden/common",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}

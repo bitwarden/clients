@@ -24,6 +24,7 @@ apps/web/src/connectors @bitwarden/team-auth-dev
 bitwarden_license/bit-web/src/app/auth @bitwarden/team-auth-dev
 libs/angular/src/auth @bitwarden/team-auth-dev
 libs/common/src/auth @bitwarden/team-auth-dev
+libs/token-provider @bitwarden/team-auth-dev
 
 ## Tools team files ##
 apps/browser/src/tools @bitwarden/team-tools-dev
@@ -102,6 +103,8 @@ libs/client-type @bitwarden/team-platform-dev
 libs/core-test-utils @bitwarden/team-platform-dev
 libs/state @bitwarden/team-platform-dev
 libs/state-test-utils @bitwarden/team-platform-dev
+libs/api @bitwarden/team-platform-dev
+libs/legacy-api @bitwarden/team-platform-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files

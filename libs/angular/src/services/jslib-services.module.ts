@@ -328,6 +328,7 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { TokenApiService, DefaultTokenApiService } from "@bitwarden/token-provider";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -741,6 +742,19 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: HTTP_OPERATIONS,
     useValue: { createRequest: (url, request) => new Request(url, request) },
+  }),
+  safeProvider({
+    provide: TokenApiService,
+    useClass: DefaultTokenApiService,
+    deps: [
+      PlatformUtilsServiceAbstraction,
+      EnvironmentService,
+      AppIdServiceAbstraction,
+      REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
+      LogService,
+      LOGOUT_CALLBACK,
+      VaultTimeoutSettingsService,
+    ],
   }),
   safeProvider({
     provide: ApiServiceAbstraction,

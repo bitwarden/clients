@@ -20,6 +20,7 @@
     "paths": {
       "@bitwarden/admin-console/common": ["./libs/admin-console/src/common"],
       "@bitwarden/angular/*": ["./libs/angular/src/*"],
+      "@bitwarden/api": ["libs/api/src/index.ts"],
       "@bitwarden/auth/angular": ["./libs/auth/src/angular"],
       "@bitwarden/auth/common": ["./libs/auth/src/common"],
       "@bitwarden/billing": ["./libs/billing/src"],
@@ -40,6 +41,7 @@
       "@bitwarden/importer-ui": ["./libs/importer/src/components"],
       "@bitwarden/key-management": ["./libs/key-management/src"],
       "@bitwarden/key-management-ui": ["./libs/key-management-ui/src"],
+      "@bitwarden/legacy-api": ["libs/legacy-api/src/index.ts"],
       "@bitwarden/logging": ["libs/logging/src"],
       "@bitwarden/messaging": ["libs/messaging/src/index.ts"],
       "@bitwarden/messaging-internal": ["libs/messaging-internal/src/index.ts"],
@@ -53,6 +55,7 @@
       "@bitwarden/state-test-utils": ["libs/state-test-utils/src/index.ts"],
       "@bitwarden/storage-core": ["libs/storage-core/src/index.ts"],
       "@bitwarden/storage-test-utils": ["libs/storage-test-utils/src/index.ts"],
+      "@bitwarden/token-provider": ["libs/token-provider/src/index.ts"],
       "@bitwarden/ui-common": ["./libs/ui/common/src"],
       "@bitwarden/ui-common/setup-jest": ["./libs/ui/common/src/setup-jest"],
       "@bitwarden/user-core": ["libs/user-core/src/index.ts"],
