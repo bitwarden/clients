@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { EncString } from "../../key-management/crypto/models/enc-string";
@@ -10,7 +8,7 @@ import { UserId } from "../../types/guid";
  */
 export abstract class UserEncryptor {
   /** Identifies the user bound to the encryptor. */
-  readonly userId: UserId;
+  abstract readonly userId: UserId;
 
   /** Protects secrets in `value` with a user-specific key.
    *  @param secret the object to protect. This object is mutated during encryption.
