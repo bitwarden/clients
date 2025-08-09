@@ -3,14 +3,13 @@ import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
   Component,
-  HostBinding,
   inject,
   viewChild,
   input,
   booleanAttribute,
   ElementRef,
   DestroyRef,
-  HostListener,
+  computed,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";
@@ -29,7 +28,9 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
   host: {
+    "[class]": "classes()",
     "(keydown.esc)": "handleEsc($event)",
+    "(animationend)": "onAnimationEnd()",
   },
   imports: [
     CommonModule,
@@ -87,16 +88,16 @@ export class DialogComponent {
    */
   readonly loading = input(false);
 
-  private animationCompleted = false;
+  private animationCompleted = signal(false);
 
-  @HostBinding("class") get classes() {
+  classes() {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
     return [
       "tw-flex",
       "tw-flex-col",
       "tw-w-screen",
       // Prevent the animation from starting again when the viewport changes since it changes between breakpoints
-      ...(this.animationCompleted ? [] : this.animationClasses),
+      this.animationCompleted() ? [] : this.animationClasses(),
     ]
       .concat(
         this.width,
@@ -128,17 +129,16 @@ export class DialogComponent {
     }
   }
 
-  get animationClasses() {
+  protected animationClasses = computed(() => {
     switch (this.dialogSize()) {
       case "small":
         return ["tw-animate-slide-down"];
       default:
         return ["tw-animate-slide-up", "md:tw-animate-slide-down"];
     }
-  }
+  });
 
-  @HostListener("animationend")
   onAnimationEnd() {
-    this.animationCompleted = true;
+    this.animationCompleted.set(true);
   }
 }

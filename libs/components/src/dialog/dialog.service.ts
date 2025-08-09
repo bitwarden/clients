@@ -61,9 +61,7 @@ export abstract class DialogRef<R = unknown, C = unknown>
 export type DialogConfig<D = unknown, R = unknown> = Pick<
   CdkDialogConfig<D, R>,
   "data" | "disableClose" | "ariaModal" | "positionStrategy" | "height" | "width"
-> & {
-  responsive?: boolean;
-};
+>;
 
 /**
  * A responsive position strategy that adjusts the dialog position based on the screen size.
@@ -173,6 +171,7 @@ export class DialogService {
 
   private backDropClasses = ["tw-fixed", "tw-bg-black", "tw-bg-opacity-30", "tw-inset-0"];
   private defaultScrollStrategy = new CustomBlockScrollStrategy();
+  private defaultPositionStrategy = new ResponsivePositionStrategy();
   private activeDrawer: DrawerDialogRef<any, any> | null = null;
 
   constructor() {
@@ -211,16 +210,12 @@ export class DialogService {
       dialogRef: ref,
     });
 
-    const responsive = config?.responsive ?? true;
-
     // Merge the custom config with the default config
     const _config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
+      positionStrategy: this.defaultPositionStrategy,
       injector,
-      positionStrategy: responsive
-        ? new ResponsivePositionStrategy()
-        : new GlobalPositionStrategy().centerHorizontally().centerVertically(),
       ...config,
     };
 
@@ -274,7 +269,7 @@ export class DialogService {
     return this.open<boolean, SimpleDialogOptions>(SimpleConfigurableDialogComponent, {
       data: simpleDialogOptions,
       disableClose: simpleDialogOptions.disableClose,
-      responsive: false,
+      positionStrategy: new GlobalPositionStrategy().centerHorizontally().centerVertically(),
     });
   }
 
