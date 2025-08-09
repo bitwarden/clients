@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap, of } from "rxjs";
+import { firstValueFrom, Observable, switchMap, of, map } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -209,8 +209,12 @@ export class ViewV2Component {
   }
 
   async getCipherData(id: string, userId: UserId) {
-    const cipher = await this.cipherService.get(id, userId);
-    return await this.cipherService.decrypt(cipher, userId);
+    return await firstValueFrom(
+      this.cipherService.cipherViews$(userId).pipe(
+        filterOutNullish(),
+        map((ciphers) => ciphers.find((c) => c.id === id)),
+      ),
+    );
   }
 
   async editCipher() {
