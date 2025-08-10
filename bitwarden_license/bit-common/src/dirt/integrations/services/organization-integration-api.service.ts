@@ -15,7 +15,7 @@ export class OrganizationIntegrationApiService {
   ): Promise<OrganizationIntegrationResponse[]> {
     const response = await this.apiService.send(
       "GET",
-      `organizations/${orgId}/integrations`,
+      `/organizations/${orgId}/integrations`,
       null,
       true,
       true,
@@ -29,7 +29,7 @@ export class OrganizationIntegrationApiService {
   ): Promise<OrganizationIntegrationResponse> {
     const response = await this.apiService.send(
       "POST",
-      `organizations/${orgId}/integrations`,
+      `/organizations/${orgId}/integrations`,
       request,
       true,
       true,
@@ -44,7 +44,7 @@ export class OrganizationIntegrationApiService {
   ): Promise<OrganizationIntegrationResponse> {
     const response = await this.apiService.send(
       "PUT",
-      `organizations/${orgId}/integrations/${integrationId}`,
+      `/organizations/${orgId}/integrations/${integrationId}`,
       request,
       true,
       true,
@@ -58,7 +58,7 @@ export class OrganizationIntegrationApiService {
   ): Promise<any> {
     await this.apiService.send(
       "DELETE",
-      `organizations/${orgId}/integrations/${integrationId}`,
+      `/organizations/${orgId}/integrations/${integrationId}`,
       null,
       true,
       false,

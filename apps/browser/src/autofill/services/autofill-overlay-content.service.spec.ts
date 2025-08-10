@@ -3,6 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 import AutofillInit from "../content/autofill-init";
 import {
   AutofillOverlayElement,
@@ -1750,6 +1751,29 @@ describe("AutofillOverlayContentService", () => {
   });
 
   describe("extension onMessage handlers", () => {
+    describe("generatedPasswordModifyLogin", () => {
+      it("relays a message regarding password generation to store modified login data", async () => {
+        const formFieldData: ModifyLoginCipherFormData = {
+          newPassword: "newPassword",
+          password: "password",
+          uri: "http://localhost/",
+          username: "username",
+        };
+
+        jest
+          .spyOn(autofillOverlayContentService as any, "getFormFieldData")
+          .mockResolvedValue(formFieldData);
+
+        sendMockExtensionMessage({
+          command: "generatedPasswordModifyLogin",
+        });
+        await flushPromises();
+
+        const resolvedValue = await sendExtensionMessageSpy.mock.calls[0][1];
+        expect(resolvedValue).toEqual(formFieldData);
+      });
+    });
+
     describe("addNewVaultItemFromOverlay message handler", () => {
       it("skips sending the message if the overlay list is not visible", async () => {
         jest

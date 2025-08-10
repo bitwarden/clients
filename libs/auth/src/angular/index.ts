@@ -57,10 +57,6 @@ export * from "./sso/default-sso-component.service";
 // self hosted environment configuration dialog
 export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
 
-// login approval
-export * from "./login-approval/login-approval.component";
-export * from "./login-approval/default-login-approval-component.service";
-
 // two factor auth
 export * from "./two-factor-auth";
 

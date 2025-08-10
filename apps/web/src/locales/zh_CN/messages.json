@@ -569,7 +569,7 @@
     "message": "取消"
   },
   "later": {
-    "message": "Later"
+    "message": "稍后"
   },
   "canceled": {
     "message": "已取消"
@@ -4633,7 +4633,7 @@
     "message": "获取来自 Bitwarden 的建议、公告和调研电子邮件。"
   },
   "subscribe": {
-    "message": "Subscribe"
+    "message": "订阅"
   },
   "unsubscribe": {
     "message": "取消订阅"
@@ -8297,7 +8297,7 @@
     "message": "尝试读取导入的文件时出错"
   },
   "accessedSecretWithId": {
-    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "message": "访问了标识符为 $SECRET_ID$ 的机密",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8315,7 +8315,7 @@
     }
   },
   "editedSecretWithId": {
-    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "message": "编辑了标识符为 $SECRET_ID$ 的机密",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8324,7 +8324,7 @@
     }
   },
   "deletedSecretWithId": {
-    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "message": "删除了标识符为 $SECRET_ID$ 的机密",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8333,7 +8333,7 @@
     }
   },
   "createdSecretWithId": {
-    "message": "Created a new secret with identifier: $SECRET_ID$",
+    "message": "创建了标识符为 $SECRET_ID$ 的新机密",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -9477,6 +9477,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "将事件数据发送到您的 Logscale 实例"
   },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "缺少设备 ID"
   },
@@ -9557,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "创建一个新的客户组织作为提供商来管理。附加席位将反映在下一个计费周期中。"
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "选择一个计划"
@@ -10886,13 +10898,13 @@
     "message": "您的计费地址已更新。"
   },
   "paymentDetails": {
-    "message": "Payment details"
+    "message": "付款详细信息"
   },
   "paymentMethodUpdated": {
-    "message": "Your payment method has been updated."
+    "message": "您的付款方式已更新。"
   },
   "bankAccountVerified": {
-    "message": "Your bank account has been verified."
+    "message": "您的银行账户已验证。"
   },
   "availableCreditAppliedToInvoice": {
     "message": "Any available credit will be automatically applied towards invoices generated for this account."
@@ -10910,13 +10922,43 @@
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   },
   "taxId": {
-    "message": "Tax ID: $TAX_ID$",
+    "message": "税务 ID：$TAX_ID$",
     "placeholders": {
       "tax_id": {
         "content": "$1",
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "未付款账单"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
     "message": "Subscribe to $PLAN$",

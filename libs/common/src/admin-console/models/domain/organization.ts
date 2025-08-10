@@ -3,12 +3,13 @@
 import { Jsonify } from "type-fest";
 
 import { ProductTierType } from "../../../billing/enums";
+import { OrganizationId } from "../../../types/guid";
 import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 
 export class Organization {
-  id: string;
+  id: OrganizationId;
   name: string;
   status: OrganizationUserStatusType;
 
@@ -99,7 +100,7 @@ export class Organization {
       return;
     }
 
-    this.id = obj.id;
+    this.id = obj.id as OrganizationId;
     this.name = obj.name;
     this.status = obj.status;
     this.type = obj.type;

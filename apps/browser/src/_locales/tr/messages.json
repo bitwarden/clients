@@ -462,13 +462,13 @@
     "message": "Parola oluştur"
   },
   "generatePassphrase": {
-    "message": "Parola üret"
+    "message": "Parola cümlesi üret"
   },
   "passwordGenerated": {
     "message": "Parola üretildi"
   },
   "passphraseGenerated": {
-    "message": "Parola ifadesi oluşturuldu"
+    "message": "Parola cümlesi üretildi"
   },
   "usernameGenerated": {
     "message": "Kullanıcı adı üretildi"
@@ -572,7 +572,7 @@
     "message": "Kimlik doğrulama sırrı"
   },
   "passphrase": {
-    "message": "Uzun söz"
+    "message": "Parola cümlesi"
   },
   "favorite": {
     "message": "Favori"
@@ -2220,7 +2220,7 @@
     "message": "Bu parolayı kullan"
   },
   "useThisPassphrase": {
-    "message": "Bu parola ifadesini kullanın"
+    "message": "Bu parola cümlesini kullan"
   },
   "useThisUsername": {
     "message": "Bu kullanıcı adını kullan"
@@ -3183,7 +3183,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": "Güçlü bir parola ifadesi oluşturmak için $RECOMMENDED$ veya daha fazla kelime kullanın.",
+    "message": " Güçlü bir parola cümlesi üretmek için en az $RECOMMENDED$ kelime kullanın.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
