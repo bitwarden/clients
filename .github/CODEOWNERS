@@ -137,6 +137,7 @@ nx.json @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
+.github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
 apps/desktop/src/autofill @bitwarden/team-autofill-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
