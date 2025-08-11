@@ -1226,7 +1226,7 @@
     "message": "Zwei-Faktor-Authentifizierung"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "Tresor-Timeout"
   },
   "vaultTimeout": {
     "message": "Tresor-Timeout"
@@ -1235,7 +1235,7 @@
     "message": "Timeout"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Timeout-Aktion"
   },
   "vaultTimeoutDesc": {
     "message": "Wähle, wann der Timeout deines Tresors aktiviert werden soll und welche Aktion er bewirken soll."
@@ -2518,10 +2518,10 @@
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2534,7 +2534,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Das Timeout überschreitet die von deiner Organisation festgelegte Beschränkung: Maximal $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3037,7 +3037,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Anmeldeanfrage für $EMAIL$ auf $DEVICE$ genehmigt",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3050,17 +3050,17 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Web-App"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Mobile App",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Erweiterung",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -3078,7 +3078,7 @@
     "message": "Server"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Anmeldungsanfrage"
   },
   "deviceType": {
     "message": "Gerätetyp"
@@ -4067,13 +4067,13 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Mehr anzeigen"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Weniger anzeigen"
   },
   "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "Autotype aktivieren"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden überprüft die Eingabestellen nicht. Vergewissere dich, dass du dich im richtigen Fenster und Feld befindest, bevor du die Tastenkombination verwendest."

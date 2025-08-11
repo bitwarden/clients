@@ -1226,7 +1226,7 @@
     "message": "Divpakāpju pieteikšanās"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "Glabātavas noildze"
   },
   "vaultTimeout": {
     "message": "Glabātavas noildze"
@@ -1235,7 +1235,7 @@
     "message": "Noildze"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Noildzes darbība"
   },
   "vaultTimeoutDesc": {
     "message": "Izvēlēties, kad glabātavai iestāsies noildze un tiks izpildīta atlasītā darbība."
@@ -2518,10 +2518,10 @@
     "message": "Glabātavas noildze pārsniedz apvienības uzstādītos ierobežojumus."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "Noildzes iespējām tika piemērotas uzņēmējdarbības nosacījumu prasības"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Apvienības pamatnostādnēs ir iestatīta lielākā pieļaujamā glabātavas noildze: $HOURS$ stunda(s) un $MINUTES$ minūte(s).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2534,7 +2534,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Noildze pārsniedz apvienības iestatīto ierobežojumu: ne vairāk kā $HOURS$ stunda(s) un $MINUTES$ minūte(s)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3037,7 +3037,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3050,21 +3050,21 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas biji Tu, mēģini pieteikties no ierīces vēlreiz!"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Tīmekļa lietotne"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Tālrunis",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Paplašinājums",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Darbvirsma",
     "description": "Desktop app"
   },
   "cli": {
@@ -3075,10 +3075,10 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "Serveris"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Pieteikšanās pieprasījums"
   },
   "deviceType": {
     "message": "Ierīces veids"
@@ -4067,10 +4067,10 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Rādīt vairāk"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Rādīt mazāk"
   },
   "enableAutotype": {
     "message": "Iespējot automātisko ievadi"

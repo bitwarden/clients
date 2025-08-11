@@ -1226,7 +1226,7 @@
     "message": "两步登录"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "密码库超时"
   },
   "vaultTimeout": {
     "message": "密码库超时时间"
@@ -1235,7 +1235,7 @@
     "message": "超时"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "超时动作"
   },
   "vaultTimeoutDesc": {
     "message": "选择您的密码库何时执行密码库超时动作。"
@@ -2518,10 +2518,10 @@
     "message": "您的密码库超时时间超出了组织设置的限制。"
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "企业策略要求已应用到您的超时选项中"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "您的组织策略已将您最大允许的密码库超时时间设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2534,7 +2534,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "超时时间超出了您组织设置的限制：最多 $HOURS$ 小时 $MINUTES$ 分钟",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3037,7 +3037,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "已批准 $EMAIL$ 在 $DEVICE$ 上的登录请求",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3050,21 +3050,21 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请再次使用该设备登录。"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "网页 App"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "移动端",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "扩展",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "桌面端",
     "description": "Desktop app"
   },
   "cli": {
@@ -3075,10 +3075,10 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "服务器"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "登录请求"
   },
   "deviceType": {
     "message": "设备类型"
@@ -3225,7 +3225,7 @@
     "message": "无法完成登录"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "您需要在某个受信任的设备上登录，或要求管理员为您分配一个密码。"
   },
   "region": {
     "message": "区域"
@@ -4067,10 +4067,10 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "显示更多"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "显示更少"
   },
   "enableAutotype": {
     "message": "启用自动类型"

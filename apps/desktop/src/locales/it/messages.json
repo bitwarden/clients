@@ -42,7 +42,7 @@
     "message": "Cerca nella cassaforte"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Svuota ricerca"
   },
   "addItem": {
     "message": "Aggiungi elemento"
@@ -576,7 +576,7 @@
     "message": "Copia codice di verifica (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Copia $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1226,7 +1226,7 @@
     "message": "Verifica in due passaggi"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "Timeout cassaforte"
   },
   "vaultTimeout": {
     "message": "Timeout cassaforte"
@@ -1235,7 +1235,7 @@
     "message": "Tempo limite"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Azione al timeout"
   },
   "vaultTimeoutDesc": {
     "message": "Scegli quando la tua cassaforte eseguirà l'azione di timeout."
@@ -1449,7 +1449,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "numero carta"
   },
   "premiumMembership": {
     "message": "Abbonamento Premium"
@@ -2407,7 +2407,7 @@
     "message": "Questa azione è protetta. Inserisci la tua password principale di nuovo per verificare la tua identità."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Password principale impostata correttamente"
   },
   "updatedMasterPassword": {
     "message": "Password principale aggiornata"
@@ -2422,13 +2422,13 @@
     "message": "La tua password principale non soddisfa uno o più politiche della tua organizzazione. Per accedere alla cassaforte, aggiornala ora. Procedere ti farà uscire dalla sessione corrente, richiedendoti di accedere di nuovo. Le sessioni attive su altri dispositivi potrebbero continuare a rimanere attive per un massimo di un'ora."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Dopo aver cambiato la password, dovrai accedere con quella nuova. Le sessioni attive su altri dispositivi saranno disconnesse entro un'ora."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Cambia la password principale per completare il recupero dell'account."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "La tua password principale non soddisfa i requisiti dell'organizzazione. Aggiornala per continuare."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "La tua organizzazione ha disabilitato la crittografia affidabile del dispositivo. Per favore imposta una password principale per accedere alla tua cassaforte."
@@ -2518,10 +2518,10 @@
     "message": "Il timeout della tua cassaforte supera i limiti impostati dalla tua organizzazione."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "I requisiti di politica aziendale sono stati applicati alle opzioni di timeout"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Le politiche dell'organizzazione hanno impostato il timeout massimo consentito della tua cassaforte su $HOURS$ ore e $MINUTES$ minuti.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2534,7 +2534,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Il timeout supera la restrizione impostata dalla tua organizzazione: massimo $HOURS$ ora/e e $MINUTES$ minuto/i",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3037,7 +3037,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Richiesta di accesso approvata per $EMAIL$ su $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3050,17 +3050,17 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Hai negato un tentativo di accesso da un altro dispositivo. Se eri davvero tu, prova di nuovo ad accedere con il dispositivo."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Bitwarden Web"
   },
   "mobile": {
     "message": "Mobile",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Estensione",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -3068,7 +3068,7 @@
     "description": "Desktop app"
   },
   "cli": {
-    "message": "CLI"
+    "message": "Linea di comando"
   },
   "sdk": {
     "message": "SDK",
@@ -3078,7 +3078,7 @@
     "message": "Server"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Richiesta di accesso"
   },
   "deviceType": {
     "message": "Tipo di dispositivo"
@@ -3222,10 +3222,10 @@
     "message": "Richiedi approvazione dell'amministratore"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Impossibile completare l'accesso"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "È necessario accedere da un dispositivo attendibile oppure chiedere all'amministratore l'assegnazione di una password."
   },
   "region": {
     "message": "Regione"
@@ -3619,27 +3619,27 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "La corrispondenza URL è il metodo predefinito per identificare i suggerimenti di riempimento automatico.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "'Espressione regolare' è un'opzione avanzata con un maggior rischio di esporre le credenziali.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "'Inizia con' è un'opzione con un maggior rischio di esporre le credenziali.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Ulteriori informazioni sulla corrispondenza degli URL",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Opzioni avanzate",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Attenzione",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -4067,15 +4067,15 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Mostra di più"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Mostra di meno"
   },
   "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "Abilita auto immissione"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden non convalida i campi di input: assicurati di essere nella finestra e nel campo di testo corretti prima di usare la scorciatoia."
   }
 }

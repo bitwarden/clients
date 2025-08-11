@@ -3241,7 +3241,7 @@
     "message": "auto-hospedado"
   },
   "accessDenied": {
-    "message": "Acesso negado. Não tem permissão para visualizar esta página."
+    "message": "Acesso negado. Não tem permissão para ver esta página."
   },
   "accountSuccessfullyCreated": {
     "message": "Conta criada com sucesso!"
@@ -4073,7 +4073,7 @@
     "message": "Mostrar menos"
   },
   "enableAutotype": {
-    "message": "Ativar introdução automática"
+    "message": "Ativar digitação automática"
   },
   "enableAutotypeDescription": {
     "message": "O Bitwarden não valida a introdução de localizações. Certifique-se de que está na janela e no campo corretos antes de utilizar o atalho."

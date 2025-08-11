@@ -1226,7 +1226,7 @@
     "message": "Tvåfaktorsautentisering"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "Timeout för valv"
   },
   "vaultTimeout": {
     "message": "Valvets tidsgräns"
@@ -1235,7 +1235,7 @@
     "message": "Tidsgräns"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Åtgärd vid timeout"
   },
   "vaultTimeoutDesc": {
     "message": "Välj när valvets tidsgräns överskrids och den valda åtgärden utförs."
@@ -3037,7 +3037,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Inloggningsbegäran godkänd för $EMAIL$ på $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3050,17 +3050,17 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om detta var du, prova att logga in med den enheten igen."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Webbapp"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Mobil",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Tillägg",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -3078,7 +3078,7 @@
     "message": "Server"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Inloggningsbegäran"
   },
   "deviceType": {
     "message": "Enhetstyp"
@@ -4067,10 +4067,10 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Visa mer"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Visa mindre"
   },
   "enableAutotype": {
     "message": "Aktivera automatisk inmatning"
