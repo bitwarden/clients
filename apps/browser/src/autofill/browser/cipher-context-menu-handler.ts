@@ -26,7 +26,7 @@ export class CipherContextMenuHandler {
       return;
     }
 
-    // a
+    // aa
     const authStatus = await this.authService.getAuthStatus();
     await MainContextMenuHandler.removeAll();
     if (authStatus !== AuthenticationStatus.Unlocked) {
