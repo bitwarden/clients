@@ -14,8 +14,6 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
   LogoutReason,
-  PinService,
-  PinServiceAbstraction,
   UserDecryptionOptionsService,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
@@ -82,6 +80,8 @@ import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarde
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
   DefaultVaultTimeoutSettingsService,
@@ -898,6 +898,7 @@ export default class MainBackground {
       this.accountService,
       this.logService,
       this.cipherEncryptionService,
+      this.messagingService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1257,9 +1258,6 @@ export default class MainBackground {
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
       this.notificationBackground,
-      this.taskService,
-      this.accountService,
-      this.cipherService,
     );
 
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
@@ -1374,6 +1372,7 @@ export default class MainBackground {
     this.badgeService = new BadgeService(
       this.stateProvider,
       new DefaultBadgeBrowserApi(this.platformUtilsService),
+      this.logService,
     );
     this.authStatusBadgeUpdaterService = new AuthStatusBadgeUpdaterService(
       this.badgeService,

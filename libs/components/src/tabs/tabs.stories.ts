@@ -153,7 +153,7 @@ export const PreserveContentTabs: Story = {
 export const KeyboardNavigation: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-tab-group label="Keyboard Navigation Tabs" class="tw-text-main">
         <bit-tab label="Form Tab">
           <p>
@@ -174,7 +174,7 @@ export const KeyboardNavigation: Story = {
           <p>This tab has no focusable content, but the panel should still be focusable</p>
         </bit-tab>
       </bit-tab-group>
-      <button bitButton buttonType="primary" class="tw-mt-5">External Button</button>
+      <button type="button" bitButton buttonType="primary" class="tw-mt-5">External Button</button>
     `,
   }),
 };

@@ -117,7 +117,7 @@ class MockPopoutButtonComponent {}
 @Component({
   selector: "mock-current-account",
   template: `
-    <button class="tw-bg-transparent tw-border-none tw-align-middle" type="button">
+    <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1 tw-align-middle" type="button">
       <bit-avatar text="Ash Ketchum" size="small"></bit-avatar>
     </button>
   `,
@@ -654,7 +654,7 @@ export const WithVirtualScrollChild: Story = {
           <bit-section>
             @defer (on immediate) {
             <bit-item-group aria-label="Mock Vault Items">
-              <cdk-virtual-scroll-viewport itemSize="61" bitScrollLayout>
+              <cdk-virtual-scroll-viewport itemSize="59" bitScrollLayout>
                 <bit-item *cdkVirtualFor="let item of data; index as i">
                   <button type="button" bit-item-content>
                     <i

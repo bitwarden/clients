@@ -9477,6 +9477,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Nosūtīt notikum udatus uz savu Logscale instanci"
   },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Trūkst ierīces Id"
   },
@@ -9557,6 +9560,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Izveidot jaunu klienta apvienību, ko pārvaldīt kā nodrošinātājam. Papildu vietas tiks atspoguļotas nākamajā norēķinu posmā."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Atlasīt plānu"
@@ -10917,6 +10929,36 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Neapmaksāti rēķini"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Tavs abonements nav apmaksāts. Jāsazinās ar sava pakalpojuma sniedzēja pārvaldītāju, lai atjaunotu pakalpojumu sev un saviem klientiem.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ ir apturēts",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Lai atjaunotu piekļuvi savam pakalpojuma sniedzēja portālam, jāsazinās ar Bitwarden klientu atbalstu, lai atjaunotu savu abonementu.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Tavs abonements nav apmaksāts. Lai atjaunotu pakalpojumu sev un saviem klientiem, līdz $CANCELLATION_DATE$ jāpievieno maksājuma veids.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
     "message": "Abonēt $PLAN$",
