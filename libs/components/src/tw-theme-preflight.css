@@ -61,4 +61,8 @@
   html.theme_dark hr {
     border-color: #4c525f;
   }
+
+  select {
+    appearance: none;
+  }
 }
