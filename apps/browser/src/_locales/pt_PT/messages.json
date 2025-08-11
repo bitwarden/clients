@@ -3728,7 +3728,7 @@
     "description": "European Union"
   },
   "accessDenied": {
-    "message": "Acesso negado. Não tem permissão para visualizar esta página."
+    "message": "Acesso negado. Não tem permissão para ver esta página."
   },
   "general": {
     "message": "Geral"
