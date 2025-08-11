@@ -27,6 +27,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
@@ -52,9 +53,10 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
 })
 export class EventsComponent extends BaseEventsComponent implements OnInit, OnDestroy {
   exportFileName = "org-events";
-  organizationId: string;
+  organizationId: OrganizationId;
   organization: Organization;
   organizationSubscription: OrganizationSubscriptionResponse;
+  userId: UserId;
 
   placeholderEvents = placeholderEvents as EventView[];
 
@@ -99,14 +101,14 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   }
 
   async ngOnInit() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.route.params
       .pipe(
         concatMap(async (params) => {
           this.organizationId = params.organizationId;
           this.organization = await firstValueFrom(
             this.organizationService
-              .organizations$(userId)
+              .organizations$(this.userId)
               .pipe(getOrganizationById(this.organizationId)),
           );
 
