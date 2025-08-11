@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Сваляне на прикачените файлове"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Въведете паролата, за да видите това Изпращане",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Преглед на Изпращането",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Изпращането, което се опитвате да достъпите, е изтрито или вече не е налично.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -11000,9 +11008,9 @@
     "message": "Ако искате да се абонирате отново, свържете се с поддръжката на Битуорден."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Показване на повече"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Показване на по-малко"
   }
 }

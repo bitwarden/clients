@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Qoşmaları endir"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Bu Send-ə baxmaq üçün parolu daxil edin",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "\"Send\"ə bax",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Erişməyə çalışdığınız Send yoxdur və ya artıq mövcud deyil.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -11000,9 +11008,9 @@
     "message": "Təkrar abunə olmaq üçün Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Daha çox göstər"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Daha az göstər"
   }
 }

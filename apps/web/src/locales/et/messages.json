@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Lae manused alla"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Send, millele üritad ligi pääseda, ei eksisteeri või see pole enam saadaval.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

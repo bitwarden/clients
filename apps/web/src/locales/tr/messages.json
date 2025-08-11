@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Ekleri indir"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Bu Send'i görüntülemek için parolasını girin",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Send'i görüntüle",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Erişmeye çalıştığınız Send yok veya artık mevcut değil.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

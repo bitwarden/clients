@@ -569,7 +569,7 @@
     "message": "Annulla"
   },
   "later": {
-    "message": "Later"
+    "message": "Più tardi"
   },
   "canceled": {
     "message": "Annullato"
@@ -630,7 +630,7 @@
     "message": "Cerca gruppi"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Svuota ricerca"
   },
   "allItems": {
     "message": "Tutti gli elementi"
@@ -654,7 +654,7 @@
     "message": "Nota sicura"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Nota"
   },
   "typeSshKey": {
     "message": "Chiave SSH"
@@ -871,10 +871,10 @@
     "message": "Copia nome"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "numero carta"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Copia $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -891,7 +891,7 @@
     "message": "Io"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "I miei elementi"
   },
   "myVault": {
     "message": "La mia cassaforte"
@@ -1808,7 +1808,7 @@
     "message": "Procedere ti farà uscire dalla sessione corrente, richiedendoti di accedere di nuovo. Le sessioni attive su altri dispositivi potrebbero continuare a rimanere attive per un massimo di un'ora."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Dopo aver cambiato la password, dovrai accedere con quella nuova. Le sessioni attive su altri dispositivi saranno disconnesse entro un'ora."
   },
   "emailChanged": {
     "message": "Email salvata"
@@ -2254,7 +2254,7 @@
     "message": "Disattiva"
   },
   "orgUserDetailsNotFound": {
-    "message": "Member details not found."
+    "message": "Dettagli utente non trovati."
   },
   "revokeAccess": {
     "message": "Revoca accesso"
@@ -3506,7 +3506,7 @@
     "message": "Cassaforte web"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Bitwarden Web"
   },
   "cli": {
     "message": "CLI"
@@ -3975,7 +3975,7 @@
     "message": "La richiesta non è più valida."
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Richiesta di accesso approvata per $EMAIL$ su $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3988,7 +3988,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Hai negato un tentativo di accesso da un altro dispositivo. Se eri davvero tu, prova di nuovo ad accedere con il dispositivo."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "La richiesta di accesso è già scaduta."
@@ -4135,7 +4135,7 @@
     "message": "Rivedi richiesta di accesso"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Richiesta di accesso"
   },
   "freeTrialEndPromptCount": {
     "message": "Il tuo periodo di prova scade tra $COUNT$ giorni.",
@@ -4614,7 +4614,7 @@
     "message": "Ottieni consigli, annunci e opportunità di ricerca da Bitwarden nella tua casella di posta."
   },
   "subscribe": {
-    "message": "Subscribe"
+    "message": "Ricevi aggiornamenti"
   },
   "unsubscribe": {
     "message": "Annulla iscrizione"
@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Scarica allegati"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Inserisci la password per visualizzare questo Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Visualizza Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Il Send a cui stai provando ad accedere non esiste o non è più disponibile.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5426,34 +5434,34 @@
     "message": "Forza la proprietà dei dati dell'organizzazione"
   },
   "organizationDataOwnershipDesc": {
-    "message": "Require all items to be owned by an organization, removing the option to store items at the account level.",
+    "message": "Richiede che tutti gli elementi siano di proprietà di un'organizzazione. Disabilita per memorizzare gli elementi a livello di account personale.",
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipContent": {
-    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "message": "Tutti gli elementi saranno posseduti e memorizzati dall'organizzazione, e saranno disponibili controlli, visibilità e reporting. Quando attivato, è disponibile una raccolta predefinita per ogni utente. Per sapere di più sulla gestione del ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
-    "message": "credential lifecycle",
+    "message": "ciclo di vita delle credenziali",
     "description": "This will be used as a hyperlink"
   },
   "organizationDataOwnershipWarningTitle": {
-    "message": "Are you sure you want to proceed?"
+    "message": "Confermi di voler procedere?"
   },
   "organizationDataOwnershipWarning1": {
-    "message": "will remain accessible to members"
+    "message": "resterà accessibile agli utenti"
   },
   "organizationDataOwnershipWarning2": {
-    "message": "will not be automatically selected when creating new items"
+    "message": "non sarà selezionato automaticamente alla creazione di nuovi elementi"
   },
   "organizationDataOwnershipWarning3": {
-    "message": "cannot be managed from the Admin Console until the user is offboarded"
+    "message": "non può essere gestito dalla console di amministrazione fino alla disattivazione dell'utente"
   },
   "organizationDataOwnershipWarningContentTop": {
-    "message": "By turning this policy off, the default collection: "
+    "message": "Disattivando questa logica, la raccolta predefinita: "
   },
   "organizationDataOwnershipWarningContentBottom": {
-    "message": "Learn more about the ",
+    "message": "Scopri di più su ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
@@ -6131,7 +6139,7 @@
     "message": "Aggiungi"
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Password principale impostata correttamente"
   },
   "updatedMasterPassword": {
     "message": "Password principale salvata"
@@ -6140,10 +6148,10 @@
     "message": "Aggiorna password principale"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Cambia la password principale per completare il recupero dell'account."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "La tua password principale non soddisfa i requisiti dell'organizzazione. Aggiornala per continuare."
   },
   "updateMasterPasswordWarning": {
     "message": "La tua password principale è stata recentemente modificata da un amministratore nella tua organizzazione. Per accedere alla cassaforte, aggiornala ora. Procedere ti farà uscire dalla sessione corrente, richiedendoti di accedere di nuovo. Le sessioni attive su altri dispositivi potrebbero continuare a rimanere attive per un massimo di un'ora."
@@ -8309,7 +8317,7 @@
     "message": "Si è verificato un errore durante la lettura del file di importazione"
   },
   "accessedSecretWithId": {
-    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "message": "Ha avuto accesso ad un segreto con identificatore $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8327,7 +8335,7 @@
     }
   },
   "editedSecretWithId": {
-    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "message": "Segreto con identificatore $SECRET_ID$ modificato",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8336,7 +8344,7 @@
     }
   },
   "deletedSecretWithId": {
-    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "message": "Segreto con identificatore $SECRET_ID$ eliminato",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8345,7 +8353,7 @@
     }
   },
   "createdSecretWithId": {
-    "message": "Created a new secret with identifier: $SECRET_ID$",
+    "message": "Creato un segreto con identificatore $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8526,10 +8534,10 @@
     "message": "Richiedi approvazione dell'amministratore"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Impossibile completare l'accesso"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "È necessario accedere da un dispositivo attendibile oppure chiedere all'amministratore l'assegnazione di una password."
   },
   "trustedDeviceEncryption": {
     "message": "Crittografia dispositivo fidato"
@@ -8986,27 +8994,27 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "La corrispondenza URL è il metodo predefinito per identificare i suggerimenti di riempimento automatico.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "'Espressione regolare' è un'opzione avanzata con un maggior rischio di esporre le credenziali.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "'Inizia con' è un'opzione con un maggior rischio di esporre le credenziali.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Ulteriori informazioni sulla corrispondenza degli URL",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Opzioni avanzate",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Attenzione",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
@@ -9487,10 +9495,10 @@
     "message": "Configura la gestione dispositivi consultando la guida per la tua piattaforma."
   },
   "crowdstrikeEventIntegrationDesc": {
-    "message": "Send event data to your Logscale instance"
+    "message": "Invia i dati dell'evento all'istanza Logscale"
   },
   "failedToSaveIntegration": {
-    "message": "Failed to save integration. Please try again later."
+    "message": "Impossibile salvare l'integrazione. Riprova più tardi."
   },
   "deviceIdMissing": {
     "message": "ID dispositivo mancante"
@@ -9508,7 +9516,7 @@
     "message": "Riapri questo link dalla tua email su un computer portatile o fisso."
   },
   "connectIntegrationButtonDesc": {
-    "message": "Connect $INTEGRATION$",
+    "message": "Collega $INTEGRATION$",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9577,10 +9585,10 @@
     "message": "URL"
   },
   "bearerToken": {
-    "message": "Bearer Token"
+    "message": "Token portatore"
   },
   "index": {
-    "message": "Index"
+    "message": "Indice"
   },
   "selectAPlan": {
     "message": "Seleziona un piano"
@@ -10331,7 +10339,7 @@
     "message": "L'utente è stato rimosso dall'organizzazione e tutti i dati utente associati sono stati eliminati."
   },
   "deletedUserIdEventMessage": {
-    "message": "Deleted user $ID$",
+    "message": "Utente $ID$ eliminato",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10442,7 +10450,7 @@
     "message": "In attesa di verifica"
   },
   "claimedDomainsDescription": {
-    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
+    "message": "Richiedi un dominio per avere a disposizione account membri. La pagina SSO sarà saltata durante il login per i membri con domini rivendicati e gli amministratori saranno in grado di eliminare gli account rivendicati."
   },
   "invalidDomainNameClaimMessage": {
     "message": "L'input non è in un formato valido. Formato: ilmiodominio.com. I sotto-domini richiedono voci separate."
@@ -10824,13 +10832,13 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "setupExtensionPageTitle": {
-    "message": "Autofill your passwords securely with one click"
+    "message": "Riempi automaticamente i campi password con un clic"
   },
   "setupExtensionPageDescription": {
-    "message": "Get the Bitwarden browser extension and start autofilling today"
+    "message": "Installa l'estensione Bitwarden e goditi l'auto-compilazione"
   },
   "getTheExtension": {
-    "message": "Get the extension"
+    "message": "Installa l'estensione"
   },
   "addItLater": {
     "message": "Add it later"

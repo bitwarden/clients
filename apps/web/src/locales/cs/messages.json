@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Stáhnout přílohy"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Zadejte heslo pro zobrazení tohoto Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Zobrazit Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Send, ke kterému se pokoušíte přistupovat, neexistuje nebo již není k dispozici.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

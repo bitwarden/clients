@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "첨부 파일 다운로드"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "접근하려고 하는 Send가 존재하지 않거나 더이상 제공되지 않습니다.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

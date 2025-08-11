@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Bijlagen downloaden"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Voer het wachtwoord in om deze Send te bekijken",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Send weergeven",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "De Send die je probeert te benaderen is niet (langer) beschikbaar.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

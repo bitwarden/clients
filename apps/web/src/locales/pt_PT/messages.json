@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Transferir anexos"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Introduza a palavra-passe para ver este Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Ver Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "O Send a que está a tentar aceder não existe ou já não está disponível.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6871,7 +6879,7 @@
     }
   },
   "accessDenied": {
-    "message": "Acesso negado. Não tem permissão para visualizar esta página."
+    "message": "Acesso negado. Não tem permissão para ver esta página."
   },
   "masterPassword": {
     "message": "Palavra-passe mestra"

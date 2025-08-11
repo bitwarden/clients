@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Mellékletek letöltése"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Adjuk meg a jelszót a Send elem megtekintéséhez.",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Send megtekintése",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Az elérendő küldés nem létezik vagy már nem elérhető.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -11000,9 +11008,9 @@
     "message": "Az ismételt feliratkozáshoz lépjünk kapcsolatba a Bitwarden Ügyféltámogatással."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Több megjelenítése"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Kevesebb megjelenítése"
   }
 }

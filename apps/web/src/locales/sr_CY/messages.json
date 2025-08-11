@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Преузмите прилоге"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "„Send“ које покушавате да приступите не постоји или више није доступан.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

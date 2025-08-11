@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Ladda ner bilagor"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Ange lösenordet för att visa denna Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Visa Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Den Send du försöker komma åt finns inte eller är inte längre tillgänglig.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5434,23 +5442,23 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
-    "message": "credential lifecycle",
+    "message": "livscykel för inloggningsuppgifter",
     "description": "This will be used as a hyperlink"
   },
   "organizationDataOwnershipWarningTitle": {
     "message": "Är du säker på att du vill fortsätta?"
   },
   "organizationDataOwnershipWarning1": {
-    "message": "will remain accessible to members"
+    "message": "kommer att kvarstå som tillgängliga för medlemmar"
   },
   "organizationDataOwnershipWarning2": {
-    "message": "will not be automatically selected when creating new items"
+    "message": "kommer inte automatiskt att väljas när nya objekt skapas"
   },
   "organizationDataOwnershipWarning3": {
-    "message": "cannot be managed from the Admin Console until the user is offboarded"
+    "message": "kan inte hanteras från administratörskonsollen tills användaren stängs av"
   },
   "organizationDataOwnershipWarningContentTop": {
-    "message": "By turning this policy off, the default collection: "
+    "message": "Genom att stänga av denna policy kommer standardsamlingen att: "
   },
   "organizationDataOwnershipWarningContentBottom": {
     "message": "Läs mer om ",
@@ -10994,15 +11002,15 @@
     "message": "Obegränsade hemligheter och projekt"
   },
   "providersubscriptionCanceled": {
-    "message": "Subscription canceled"
+    "message": "Prenumerationen avbruten"
   },
   "providersubCanceledmessage": {
-    "message": "To resubscribe, contact Bitwarden Customer Support."
+    "message": "Kontakta Bitwardens kundtjänst för att återaktivera prenumerationen."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Visa mer"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Visa mindre"
   }
 }

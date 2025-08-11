@@ -3,28 +3,28 @@
     "message": "Semua aplikasi"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Logo Bitwarden"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "Aplikasi genting"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Tidak ada aplikasi genting berisiko"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Akses Pintar"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "Wawasan Risiko"
   },
   "passwordRisk": {
     "message": "Petunjuk Sandi"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Tinjau sandi berisiko (mis. lemah, tersingkap, atau digunakan ulang) lintas aplikasi. Pilih aplikasi paling genting Anda untuk mengutamakan aksi keamanan untuk pengguna Anda guna menyiasati sandi berisiko."
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "Data terakhir diperbarui pada: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -33,7 +33,7 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Anggota yang diberitahukan"
   },
   "revokeMembers": {
     "message": "Cabut Pengguna"
@@ -42,7 +42,7 @@
     "message": "Pulihkan pengguna"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "Gagal mengembalikan akses organisasi"
   },
   "allApplicationsWithCount": {
     "message": "Semua aplikasi ($COUNT$)",
@@ -54,7 +54,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Buat entri masuk baru"
   },
   "criticalApplicationsWithCount": {
     "message": "Semua aplikasi ($COUNT$)",
@@ -66,7 +66,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "Anggota yang diberitahukan ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2045,10 +2045,10 @@
     "message": "Learn about your import options"
   },
   "selectImportFolder": {
-    "message": "Select a folder"
+    "message": "Pilih folder"
   },
   "selectImportCollection": {
-    "message": "Select a collection"
+    "message": "Pilih koleksi"
   },
   "importTargetHint": {
     "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
@@ -5264,6 +5264,14 @@
   },
   "downloadAttachments": {
     "message": "Download attachments"
+  },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
   },
   "sendAccessUnavailable": {
     "message": "Pengiriman yang Anda coba akses tidak ada atau tidak lagi tersedia.",

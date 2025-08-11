@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "下載附件"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "您嘗試存取的 Send 不存在或無法再使用。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

@@ -5265,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Lejupielādēt pielikumus"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Jāievada parole, lai apskatītu šo Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Apskatīt Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Send, kuram mēģini piekļūt, nepastāv vai vairs nav pieejams.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -11000,9 +11008,9 @@
     "message": "Lai abonētu no jauna, jāsazināš ar Bitwarden klientu atbalstu."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Rādīt vairāk"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Rādīt mazāk"
   }
 }
