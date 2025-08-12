@@ -3068,6 +3068,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param message - The message received from the port
    * @param port - The port that sent the message
+   * test change
    */
   private handleOverlayElementPortMessage = (
     message: OverlayBackgroundExtensionMessage,
