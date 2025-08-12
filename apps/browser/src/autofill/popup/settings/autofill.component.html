@@ -12,7 +12,7 @@
         [subtitle]="'autofillSpotlightDesc' | i18n"
         [buttonText]="spotlightButtonText"
         (onDismiss)="dismissSpotlight()"
-        (onButtonClick)="openURI($event, disablePasswordManagerURI)"
+        (onButtonClick)="disableBrowserAutofillSettingsFromNudge($event)"
         [buttonIcon]="spotlightButtonIcon"
       ></bit-spotlight>
     </div>

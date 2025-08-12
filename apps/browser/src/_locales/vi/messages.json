@@ -5575,9 +5575,9 @@
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Xem thêm"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Thu gọn"
   }
 }

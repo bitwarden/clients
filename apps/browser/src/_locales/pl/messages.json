@@ -3348,7 +3348,7 @@
     }
   },
   "forwarderUnknownForwarder": {
-    "message": "Nieznana usługa przekierowania: '$SERVICENAME$'.",
+    "message": "Usługa „$SERVICENAME$” jest nieznana.",
     "description": "Displayed when the forwarding service is not supported.",
     "placeholders": {
       "servicename": {
@@ -3525,7 +3525,7 @@
     "message": "Twoja organizacja włączyła autouzupełnianie po załadowaniu strony."
   },
   "howToAutofill": {
-    "message": "Jak autouzupełniać"
+    "message": "Jak uzupełniać dane"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Wybierz element, użyj skrótu $COMMAND$ lub zobacz inne opcje w ustawieniach.",
@@ -3652,7 +3652,7 @@
     "message": "Rodzaj urządzenia"
   },
   "loginRequest": {
-    "message": "Żądanie logowania"
+    "message": "Prośba logowania"
   },
   "thisRequestIsNoLongerValid": {
     "message": "Prośba nie jest już ważna."
