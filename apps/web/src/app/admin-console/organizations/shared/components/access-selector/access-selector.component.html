@@ -83,6 +83,7 @@
             <bit-select
               bitInput
               formControlName="permission"
+              aria-label="{{ item.labelName }} {{ 'permission' | i18n }}"
               [id]="'permission' + i"
               (closed)="handleBlur()"
             >
