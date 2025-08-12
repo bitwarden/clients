@@ -1,3 +1,8 @@
+<app-organization-free-trial-warning
+  [organization]="organization"
+  (clicked)="navigateToPaymentMethod()"
+>
+</app-organization-free-trial-warning>
 <app-header>
   <bit-search
     class="tw-grow"
@@ -75,7 +80,7 @@
     </bit-callout>
     <!-- The padding on the bottom of the cdk-virtual-scroll-viewport element is required to prevent table row content
     from overflowing the <main> element. -->
-    <cdk-virtual-scroll-viewport scrollWindow [itemSize]="rowHeight" class="tw-pb-8">
+    <cdk-virtual-scroll-viewport bitScrollLayout [itemSize]="rowHeight" class="tw-pb-8">
       <bit-table [dataSource]="dataSource">
         <ng-container header>
           <tr>

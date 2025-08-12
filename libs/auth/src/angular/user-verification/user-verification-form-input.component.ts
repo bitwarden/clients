@@ -56,7 +56,6 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
       transition(":enter", [style({ opacity: 0 }), animate("100ms", style({ opacity: 1 }))]),
     ]),
   ],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

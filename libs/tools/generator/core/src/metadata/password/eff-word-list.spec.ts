@@ -3,9 +3,10 @@ import { mock } from "jest-mock-extended";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 
-import { PasswordRandomizer } from "../../engine";
+import { PasswordRandomizer, SdkPasswordRandomizer } from "../../engine";
 import { PassphrasePolicyConstraints } from "../../policies";
-import { PassphraseGenerationOptions, GeneratorDependencyProvider } from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { PassphraseGenerationOptions } from "../../types";
 import { Profile } from "../data";
 import { CoreProfileMetadata } from "../profile-metadata";
 import { isCoreProfile } from "../util";
@@ -16,8 +17,18 @@ const dependencyProvider = mock<GeneratorDependencyProvider>();
 
 describe("password - eff words generator metadata", () => {
   describe("engine.create", () => {
-    it("returns an email randomizer", () => {
-      expect(effPassphrase.engine.create(dependencyProvider)).toBeInstanceOf(PasswordRandomizer);
+    it("returns an sdk password randomizer", () => {
+      expect(effPassphrase.engine.create(dependencyProvider)).toBeInstanceOf(SdkPasswordRandomizer);
+    });
+  });
+
+  describe("engine.create", () => {
+    const nonSdkDependencyProvider = mock<GeneratorDependencyProvider>();
+    nonSdkDependencyProvider.sdk = undefined;
+    it("returns a password randomizer", () => {
+      expect(effPassphrase.engine.create(nonSdkDependencyProvider)).toBeInstanceOf(
+        PasswordRandomizer,
+      );
     });
   });
 

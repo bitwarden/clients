@@ -2,24 +2,27 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../../libs/common/spec";
 
 import {
   HasItemsNudgeService,
   EmptyVaultNudgeService,
-  DownloadBitwardenNudgeService,
+  NewAccountNudgeService,
+  AccountSecurityNudgeService,
+  VaultSettingsImportNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
 import { NudgesService, NudgeType } from "./nudges.service";
@@ -33,7 +36,11 @@ describe("Vault Nudges Service", () => {
     getFeatureFlag: jest.fn().mockReturnValue(true),
   };
 
-  const nudgeServices = [EmptyVaultNudgeService, DownloadBitwardenNudgeService];
+  const nudgeServices = [
+    EmptyVaultNudgeService,
+    NewAccountNudgeService,
+    AccountSecurityNudgeService,
+  ];
 
   beforeEach(async () => {
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
@@ -57,12 +64,20 @@ describe("Vault Nudges Service", () => {
           useValue: mock<HasItemsNudgeService>(),
         },
         {
-          provide: DownloadBitwardenNudgeService,
-          useValue: mock<DownloadBitwardenNudgeService>(),
+          provide: NewAccountNudgeService,
+          useValue: mock<NewAccountNudgeService>(),
         },
         {
           provide: EmptyVaultNudgeService,
           useValue: mock<EmptyVaultNudgeService>(),
+        },
+        {
+          provide: AccountSecurityNudgeService,
+          useValue: mock<AccountSecurityNudgeService>(),
+        },
+        {
+          provide: VaultSettingsImportNudgeService,
+          useValue: mock<VaultSettingsImportNudgeService>(),
         },
         {
           provide: ApiService,
@@ -85,6 +100,18 @@ describe("Vault Nudges Service", () => {
         {
           provide: VaultTimeoutSettingsService,
           useValue: mock<VaultTimeoutSettingsService>(),
+        },
+        {
+          provide: BiometricStateService,
+          useValue: mock<BiometricStateService>(),
+        },
+        {
+          provide: PolicyService,
+          useValue: mock<PolicyService>(),
+        },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>(),
         },
       ],
     });

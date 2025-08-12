@@ -22,7 +22,6 @@ import {
 import { CipherFormContainer } from "../../cipher-form-container";
 
 @Component({
-  standalone: true,
   selector: "vault-identity-section",
   templateUrl: "./identity.component.html",
   imports: [

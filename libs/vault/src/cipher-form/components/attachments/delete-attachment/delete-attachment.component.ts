@@ -18,7 +18,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "app-delete-attachment",
   templateUrl: "./delete-attachment.component.html",
   imports: [AsyncActionsModule, CommonModule, JslibModule, ButtonModule, IconButtonModule],

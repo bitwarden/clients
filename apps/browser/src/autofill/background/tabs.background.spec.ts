@@ -73,7 +73,6 @@ describe("TabsBackground", () => {
         triggerWindowOnFocusedChangedEvent(10);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
@@ -91,7 +90,6 @@ describe("TabsBackground", () => {
         triggerTabOnActivatedEvent({ tabId: 10, windowId: 20 });
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
@@ -127,7 +125,6 @@ describe("TabsBackground", () => {
         triggerTabOnReplacedEvent(10, 20);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
@@ -160,7 +157,6 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
@@ -170,7 +166,6 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
@@ -180,7 +175,6 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
@@ -190,7 +184,6 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
       });
 
@@ -205,7 +198,6 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });

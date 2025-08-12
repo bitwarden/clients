@@ -23,8 +23,6 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -79,7 +77,6 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
   selector: "vault-at-risk-passwords",
-  standalone: true,
   templateUrl: "./at-risk-passwords.component.html",
 })
 export class AtRiskPasswordsComponent implements OnInit {
@@ -97,7 +94,6 @@ export class AtRiskPasswordsComponent implements OnInit {
   private platformUtilsService = inject(PlatformUtilsService);
   private dialogService = inject(DialogService);
   private endUserNotificationService = inject(EndUserNotificationService);
-  private configService = inject(ConfigService);
   private destroyRef = inject(DestroyRef);
 
   /**
@@ -156,32 +152,35 @@ export class AtRiskPasswordsComponent implements OnInit {
           (t) =>
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
             t.cipherId != null &&
-            ciphers[t.cipherId] != null,
+            ciphers[t.cipherId] != null &&
+            !ciphers[t.cipherId].isDeleted,
         )
         .map((t) => ciphers[t.cipherId!]),
     ),
   );
 
-  protected pageDescription$ = this.activeUserData$.pipe(
-    switchMap(({ tasks, userId }) => {
-      const orgIds = new Set(tasks.map((t) => t.organizationId));
+  protected pageDescription$ = combineLatest([this.activeUserData$, this.atRiskItems$]).pipe(
+    switchMap(([{ userId }, atRiskCiphers]) => {
+      const orgIds = new Set(
+        atRiskCiphers.filter((c) => c.organizationId).map((c) => c.organizationId),
+      ) as Set<string>;
       if (orgIds.size === 1) {
         const [orgId] = orgIds;
         return this.organizationService.organizations$(userId).pipe(
           getOrganizationById(orgId),
           map((org) =>
             this.i18nService.t(
-              tasks.length === 1
+              atRiskCiphers.length === 1
                 ? "atRiskPasswordDescSingleOrg"
                 : "atRiskPasswordsDescSingleOrgPlural",
               org?.name,
-              tasks.length,
+              atRiskCiphers.length,
             ),
           ),
         );
       }
 
-      return of(this.i18nService.t("atRiskPasswordsDescMultiOrgPlural", tasks.length));
+      return of(this.i18nService.t("atRiskPasswordsDescMultiOrgPlural", atRiskCiphers.length));
     }),
   );
 
@@ -199,9 +198,7 @@ export class AtRiskPasswordsComponent implements OnInit {
       }
     }
 
-    if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
-      this.markTaskNotificationsAsRead();
-    }
+    this.markTaskNotificationsAsRead();
   }
 
   private markTaskNotificationsAsRead() {

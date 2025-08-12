@@ -74,6 +74,7 @@ export const regularImportOptions = [
   { id: "passkyjson", name: "Passky (json)" },
   { id: "passwordxpcsv", name: "Password XP (csv)" },
   { id: "netwrixpasswordsecure", name: "Netwrix Password Secure (csv)" },
+  { id: "passworddepot17xml", name: "Password Depot 17 (xml)" },
 ] as const;
 
 export type ImportType =

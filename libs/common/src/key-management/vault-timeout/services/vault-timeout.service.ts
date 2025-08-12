@@ -12,7 +12,6 @@ import { LogoutReason } from "@bitwarden/auth/common";
 // eslint-disable-next-line no-restricted-imports
 import { BiometricsService } from "@bitwarden/key-management";
 
-import { SearchService } from "../../../abstractions/search.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -25,6 +24,7 @@ import { StateEventRunnerService } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { FolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "../../../vault/abstractions/search.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "../abstractions/vault-timeout.service";
@@ -49,7 +49,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private taskSchedulerService: TaskSchedulerService,
     protected logService: LogService,
     private biometricService: BiometricsService,
-    private lockedCallback: (userId?: string) => Promise<void> = null,
+    private lockedCallback: (userId: UserId) => Promise<void> = null,
     private loggedOutCallback: (
       logoutReason: LogoutReason,
       userId?: string,
@@ -143,10 +143,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
       ),
     );
 
-    if (userId == null || userId === currentUserId) {
-      await this.collectionService.clearActiveUserCache();
-    }
-
     await this.searchService.clearIndex(lockingUserId);
 
     await this.folderService.clearDecryptedFolderState(lockingUserId);
@@ -166,7 +162,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     this.messagingService.send("locked", { userId: lockingUserId });
 
     if (this.lockedCallback != null) {
-      await this.lockedCallback(userId);
+      await this.lockedCallback(lockingUserId);
     }
   }
 

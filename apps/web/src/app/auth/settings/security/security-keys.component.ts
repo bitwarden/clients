@@ -8,12 +8,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 
+import { SharedModule } from "../../../shared";
+
 import { ApiKeyComponent } from "./api-key.component";
+import { ChangeKdfModule } from "./change-kdf/change-kdf.module";
 
 @Component({
-  selector: "app-security-keys",
   templateUrl: "security-keys.component.html",
-  standalone: false,
+  imports: [SharedModule, ChangeKdfModule],
 })
 export class SecurityKeysComponent implements OnInit {
   showChangeKdf = true;

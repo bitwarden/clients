@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, DebugElement } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { ButtonModule } from "./index";
@@ -13,21 +11,18 @@ describe("Button", () => {
   let disabledButtonDebugElement: DebugElement;
   let linkDebugElement: DebugElement;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [ButtonModule],
-      declarations: [TestApp],
+      imports: [TestApp],
     });
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.compileComponents();
+    await TestBed.compileComponents();
     fixture = TestBed.createComponent(TestApp);
     testAppComponent = fixture.debugElement.componentInstance;
     buttonDebugElement = fixture.debugElement.query(By.css("button"));
     disabledButtonDebugElement = fixture.debugElement.query(By.css("button#disabled"));
     linkDebugElement = fixture.debugElement.query(By.css("a"));
-  }));
+  });
 
   it("should not be disabled when loading and disabled are false", () => {
     testAppComponent.loading = false;
@@ -85,10 +80,11 @@ describe("Button", () => {
 
     <button id="disabled" type="button" bitButton disabled>Button</button>
   `,
+  imports: [ButtonModule],
 })
 class TestApp {
-  buttonType: string;
-  block: boolean;
-  disabled: boolean;
-  loading: boolean;
+  buttonType?: string;
+  block?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
 }

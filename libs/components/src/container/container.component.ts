@@ -1,11 +1,10 @@
 import { Component } from "@angular/core";
 
 /**
- * Generic container that constrains page content width.
+ * bit-container is a minimally styled component that limits the max width of its content to the tailwind theme variable '4xl'. '4xl' is equal to the value of 56rem
  */
 @Component({
   selector: "bit-container",
   templateUrl: "container.component.html",
-  standalone: true,
 })
 export class ContainerComponent {}

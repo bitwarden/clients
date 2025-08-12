@@ -3,7 +3,8 @@ import { mock } from "jest-mock-extended";
 import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
 
 import { UsernameRandomizer } from "../../engine";
-import { EffUsernameGenerationOptions, GeneratorDependencyProvider } from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { EffUsernameGenerationOptions } from "../../types";
 import { Profile } from "../data";
 import { CoreProfileMetadata } from "../profile-metadata";
 import { isCoreProfile } from "../util";

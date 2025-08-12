@@ -5,19 +5,19 @@ import {
   AssertCredentialResult,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum MessageType {
-  CredentialCreationRequest,
-  CredentialCreationResponse,
-  CredentialGetRequest,
-  CredentialGetResponse,
-  AbortRequest,
-  DisconnectRequest,
-  ReconnectRequest,
-  AbortResponse,
-  ErrorResponse,
-}
+export const MessageTypes = {
+  CredentialCreationRequest: 0,
+  CredentialCreationResponse: 1,
+  CredentialGetRequest: 2,
+  CredentialGetResponse: 3,
+  AbortRequest: 4,
+  DisconnectRequest: 5,
+  ReconnectRequest: 6,
+  AbortResponse: 7,
+  ErrorResponse: 8,
+} as const;
+
+export type MessageType = (typeof MessageTypes)[keyof typeof MessageTypes];
 
 /**
  * The params provided by the page-script are created in an insecure environment and
@@ -30,12 +30,12 @@ export type InsecureCreateCredentialParams = Omit<
 >;
 
 export type CredentialCreationRequest = {
-  type: MessageType.CredentialCreationRequest;
+  type: typeof MessageTypes.CredentialCreationRequest;
   data: InsecureCreateCredentialParams;
 };
 
 export type CredentialCreationResponse = {
-  type: MessageType.CredentialCreationResponse;
+  type: typeof MessageTypes.CredentialCreationResponse;
   result?: CreateCredentialResult;
 };
 
@@ -50,35 +50,35 @@ export type InsecureAssertCredentialParams = Omit<
 >;
 
 export type CredentialGetRequest = {
-  type: MessageType.CredentialGetRequest;
+  type: typeof MessageTypes.CredentialGetRequest;
   data: InsecureAssertCredentialParams;
 };
 
 export type CredentialGetResponse = {
-  type: MessageType.CredentialGetResponse;
+  type: typeof MessageTypes.CredentialGetResponse;
   result?: AssertCredentialResult;
 };
 
 export type AbortRequest = {
-  type: MessageType.AbortRequest;
+  type: typeof MessageTypes.AbortRequest;
   abortedRequestId: string;
 };
 
 export type DisconnectRequest = {
-  type: MessageType.DisconnectRequest;
+  type: typeof MessageTypes.DisconnectRequest;
 };
 
 export type ReconnectRequest = {
-  type: MessageType.ReconnectRequest;
+  type: typeof MessageTypes.ReconnectRequest;
 };
 
 export type ErrorResponse = {
-  type: MessageType.ErrorResponse;
+  type: typeof MessageTypes.ErrorResponse;
   error: string;
 };
 
 export type AbortResponse = {
-  type: MessageType.AbortResponse;
+  type: typeof MessageTypes.AbortResponse;
   abortedRequestId: string;
 };
 

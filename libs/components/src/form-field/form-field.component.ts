@@ -9,9 +9,10 @@ import {
   ElementRef,
   HostBinding,
   HostListener,
-  Input,
   ViewChild,
   signal,
+  input,
+  Input,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -26,7 +27,6 @@ import { BitFormFieldControl } from "./form-field-control";
 @Component({
   selector: "bit-form-field",
   templateUrl: "./form-field.component.html",
-  standalone: true,
   imports: [CommonModule, BitErrorComponent, I18nPipe],
 })
 export class BitFormFieldComponent implements AfterContentChecked {
@@ -39,10 +39,11 @@ export class BitFormFieldComponent implements AfterContentChecked {
 
   @ViewChild(BitErrorComponent) error: BitErrorComponent;
 
-  @Input({ transform: booleanAttribute })
-  disableMargin = false;
+  readonly disableMargin = input(false, { transform: booleanAttribute });
 
   /** If `true`, remove the bottom border for `readonly` inputs */
+  // TODO: Skipped for signal migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input({ transform: booleanAttribute })
   disableReadOnlyBorder = false;
 
@@ -77,7 +78,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
   @HostBinding("class")
   get classList() {
     return ["tw-block"]
-      .concat(this.disableMargin ? [] : ["tw-mb-4", "bit-compact:tw-mb-3"])
+      .concat(this.disableMargin() ? [] : ["tw-mb-4", "bit-compact:tw-mb-3"])
       .concat(this.readOnly ? [] : "tw-pt-2");
   }
 

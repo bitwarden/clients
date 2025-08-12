@@ -1,5 +1,4 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { autofill } from "desktop_native/napi";
 import {
   Subject,
   distinctUntilChanged,
@@ -33,6 +32,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { autofill } from "@bitwarden/desktop-napi";
 
 import { NativeAutofillStatusCommand } from "../../platform/main/autofill/status.command";
 import {
@@ -209,7 +209,7 @@ export class DesktopAutofillService implements OnDestroy {
           }
 
           request.credentialId = Array.from(
-            parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId),
+            new Uint8Array(parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId)),
           );
         }
 
@@ -336,12 +336,12 @@ export class DesktopAutofillService implements OnDestroy {
     response: Fido2AuthenticatorGetAssertionResult,
   ): autofill.PasskeyAssertionResponse {
     return {
-      userHandle: Array.from(response.selectedCredential.userHandle),
+      userHandle: Array.from(new Uint8Array(response.selectedCredential.userHandle)),
       rpId: request.rpId,
-      signature: Array.from(response.signature),
+      signature: Array.from(new Uint8Array(response.signature)),
       clientDataHash: request.clientDataHash,
-      authenticatorData: Array.from(response.authenticatorData),
-      credentialId: Array.from(response.selectedCredential.id),
+      authenticatorData: Array.from(new Uint8Array(response.authenticatorData)),
+      credentialId: Array.from(new Uint8Array(response.selectedCredential.id)),
     };
   }
 

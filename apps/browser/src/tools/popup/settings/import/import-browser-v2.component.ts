@@ -13,7 +13,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 
 @Component({
   templateUrl: "import-browser-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

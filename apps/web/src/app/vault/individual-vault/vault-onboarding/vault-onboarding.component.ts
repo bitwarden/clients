@@ -24,7 +24,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LinkModule } from "@bitwarden/components";
 
 import { OnboardingModule } from "../../../shared/components/onboarding/onboarding.module";
@@ -33,7 +33,6 @@ import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./s
 import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-onboarding.service";
 
 @Component({
-  standalone: true,
   imports: [OnboardingModule, CommonModule, JslibModule, LinkModule],
   providers: [
     {
@@ -45,7 +44,7 @@ import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-o
   templateUrl: "vault-onboarding.component.html",
 })
 export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() ciphers: CipherView[];
+  @Input() ciphers: CipherViewLike[];
   @Input() orgs: Organization[];
   @Output() onAddCipher = new EventEmitter<CipherType>();
 
@@ -167,7 +166,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
         takeUntil(this.destroy$),
       )

@@ -14,7 +14,6 @@ import {
 
 @Component({
   templateUrl: "file-password-prompt.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

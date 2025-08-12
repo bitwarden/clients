@@ -59,7 +59,7 @@
         </bit-form-field>
       </form>
       <tools-catchall-settings
-        *ngIf="(algorithm$ | async)?.id === 'catchall'"
+        *ngIf="(showAlgorithm$ | async)?.id === Algorithm.catchall"
         [account]="account$ | async"
         (onUpdated)="generate('catchall settings')"
       />
@@ -69,12 +69,12 @@
         [account]="account$ | async"
       />
       <tools-subaddress-settings
-        *ngIf="(algorithm$ | async)?.id === 'subaddress'"
+        *ngIf="(showAlgorithm$ | async)?.id === Algorithm.plusAddress"
         [account]="account$ | async"
         (onUpdated)="generate('subaddress settings')"
       />
       <tools-username-settings
-        *ngIf="(algorithm$ | async)?.id === 'username'"
+        *ngIf="(showAlgorithm$ | async)?.id === Algorithm.username"
         [account]="account$ | async"
         (onUpdated)="generate('username settings')"
       />

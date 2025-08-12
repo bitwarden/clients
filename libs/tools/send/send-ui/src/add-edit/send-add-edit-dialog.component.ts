@@ -54,7 +54,6 @@ export enum SendItemDialogResult {
  */
 @Component({
   templateUrl: "send-add-edit-dialog.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SearchModule,

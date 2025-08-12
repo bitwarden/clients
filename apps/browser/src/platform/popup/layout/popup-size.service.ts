@@ -7,20 +7,10 @@ import {
   POPUP_STYLE_DISK,
 } from "@bitwarden/common/platform/state";
 
-import BrowserPopupUtils from "../browser-popup-utils";
-
-/**
- *
- * Value represents width in pixels
- */
-export const PopupWidthOptions = Object.freeze({
-  default: 380,
-  wide: 480,
-  "extra-wide": 600,
-});
-
-type PopupWidthOptions = typeof PopupWidthOptions;
-export type PopupWidthOption = keyof PopupWidthOptions;
+import BrowserPopupUtils, {
+  PopupWidthOption,
+  PopupWidthOptions,
+} from "../../browser/browser-popup-utils";
 
 const POPUP_WIDTH_KEY_DEF = new KeyDefinition<PopupWidthOption>(POPUP_STYLE_DISK, "popup-width", {
   deserializer: (s) => s,

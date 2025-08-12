@@ -1,7 +1,6 @@
 {
-  "extends": "../libs/shared/tsconfig",
+  "extends": "../tsconfig.base",
   "compilerOptions": {
-    "strict": true,
     "outDir": "dist",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

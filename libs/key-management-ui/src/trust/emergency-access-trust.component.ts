@@ -28,7 +28,6 @@ type EmergencyAccessTrustDialogData = {
 @Component({
   selector: "emergency-access-trust",
   templateUrl: "emergency-access-trust.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

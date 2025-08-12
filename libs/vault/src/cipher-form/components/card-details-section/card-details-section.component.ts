@@ -26,7 +26,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
 @Component({
   selector: "vault-card-details-section",
   templateUrl: "./card-details-section.component.html",
-  standalone: true,
   imports: [
     CardComponent,
     TypographyModule,

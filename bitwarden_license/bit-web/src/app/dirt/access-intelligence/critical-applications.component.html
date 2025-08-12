@@ -29,7 +29,6 @@
   <div class="tw-flex tw-justify-between tw-mb-4">
     <h2 bitTypography="h2">{{ "criticalApplications" | i18n }}</h2>
     <button
-      *ngIf="isNotificationsFeatureEnabled"
       bitButton
       buttonType="primary"
       type="button"
@@ -45,7 +44,7 @@
     </button>
   </div>
   <div class="tw-flex tw-gap-6">
-    <tools-card
+    <dirt-card
       #criticalAppsAtRiskMembers
       class="tw-flex-1 tw-cursor-pointer"
       [ngClass]="{
@@ -56,8 +55,8 @@
       [maxValue]="applicationSummary.totalMemberCount"
       (click)="showOrgAtRiskMembers('criticalAppsAtRiskMembers')"
     >
-    </tools-card>
-    <tools-card
+    </dirt-card>
+    <dirt-card
       #criticalAppsAtRiskApplications
       class="tw-flex-1 tw-cursor-pointer"
       [ngClass]="{
@@ -68,7 +67,7 @@
       [maxValue]="applicationSummary.totalApplicationCount"
       (click)="showOrgAtRiskApps('criticalAppsAtRiskApplications')"
     >
-    </tools-card>
+    </dirt-card>
   </div>
   <div class="tw-flex tw-mt-8 tw-mb-4 tw-gap-4">
     <bit-search
@@ -82,7 +81,6 @@
     [dataSource]="dataSource"
     [showRowCheckBox]="false"
     [showRowMenuForCriticalApps]="true"
-    [isCriticalAppsFeatureEnabled]="true"
     [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
     [showAppAtRiskMembers]="showAppAtRiskMembers"
     [unmarkAsCriticalApp]="unmarkAsCriticalApp"

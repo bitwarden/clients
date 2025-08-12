@@ -10,7 +10,6 @@ import { SharedModule } from "../shared";
 @Component({
   selector: "app-frontend-layout",
   templateUrl: "frontend-layout.component.html",
-  standalone: true,
   imports: [SharedModule, EnvironmentSelectorComponent],
 })
 export class FrontendLayoutComponent implements OnInit, OnDestroy {

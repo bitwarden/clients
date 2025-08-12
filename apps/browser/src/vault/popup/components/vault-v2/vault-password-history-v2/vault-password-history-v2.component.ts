@@ -19,7 +19,6 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
 @Component({
-  standalone: true,
   selector: "vault-password-history-v2",
   templateUrl: "vault-password-history-v2.component.html",
   imports: [

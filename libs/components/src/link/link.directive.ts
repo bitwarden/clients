@@ -1,4 +1,4 @@
-import { Input, HostBinding, Directive } from "@angular/core";
+import { input, HostBinding, Directive } from "@angular/core";
 
 export type LinkType = "primary" | "secondary" | "contrast" | "light";
 
@@ -62,30 +62,35 @@ const commonStyles = [
 
 @Directive()
 abstract class LinkDirective {
-  @Input()
-  linkType: LinkType = "primary";
+  readonly linkType = input<LinkType>("primary");
 }
 
+/**
+  * Text Links and Buttons can use either the `<a>` or `<button>` tags. Choose which based on the action the button takes:
+
+  * - if navigating to a new page, use a `<a>`
+  * - if taking an action on the current page, use a `<button>`
+
+  * Text buttons or links are most commonly used in paragraphs of text or in forms to customize actions or show/hide additional form options.
+ */
 @Directive({
   selector: "a[bitLink]",
-  standalone: true,
 })
 export class AnchorLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.125rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? []);
+      .concat(linkStyles[this.linkType()] ?? []);
   }
 }
 
 @Directive({
   selector: "button[bitLink]",
-  standalone: true,
 })
 export class ButtonLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? []);
+      .concat(linkStyles[this.linkType()] ?? []);
   }
 }

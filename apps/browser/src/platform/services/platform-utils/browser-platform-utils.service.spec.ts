@@ -126,12 +126,11 @@ describe("Browser Utils Service", () => {
         configurable: true,
         value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
       });
-      jest.spyOn(BrowserPlatformUtilsService, "isFirefox");
 
       browserPlatformUtilsService.getDevice();
 
       expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.FirefoxExtension);
-      expect(BrowserPlatformUtilsService.isFirefox).toHaveBeenCalledTimes(1);
+      expect(browserPlatformUtilsService.isFirefox()).toBe(true);
     });
   });
 

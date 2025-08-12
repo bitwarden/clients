@@ -26,7 +26,6 @@ import {
   CollectionResponse,
   CollectionView,
   CollectionService,
-  Collection,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
@@ -38,7 +37,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -87,8 +88,8 @@ enum ButtonType {
 }
 
 export interface CollectionDialogParams {
-  collectionId?: string;
-  organizationId: string;
+  collectionId?: CollectionId;
+  organizationId: OrganizationId;
   initialTab?: CollectionDialogTabType;
   parentCollectionId?: string;
   showOrgSelector?: boolean;
@@ -117,7 +118,6 @@ export enum CollectionDialogAction {
 
 @Component({
   templateUrl: "collection-dialog.component.html",
-  standalone: true,
   imports: [SharedModule, AccessSelectorModule, SelectModule],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
@@ -137,12 +137,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     externalId: { value: "", disabled: true },
     parent: undefined as string | undefined,
     access: [[] as AccessItemValue[]],
-    selectedOrg: "",
+    selectedOrg: "" as OrganizationId,
   });
   protected PermissionMode = PermissionMode;
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
-  protected collections: Collection[];
   protected buttonDisplayName: ButtonType = ButtonType.Save;
   private orgExceedingCollectionLimit!: Organization;
 
@@ -167,14 +166,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     // Opened from the individual vault
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (this.params.showOrgSelector) {
       this.showOrgSelector = true;
       this.formGroup.controls.selectedOrg.valueChanges
         .pipe(takeUntil(this.destroy$))
         .subscribe((id) => this.loadOrg(id));
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
       this.organizations$ = this.organizationService.organizations$(userId).pipe(
         first(),
         map((orgs) =>
@@ -196,9 +193,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     );
 
     if (isBreadcrumbEventLogsEnabled) {
-      this.collections = await this.collectionService.getAll();
       this.organizationSelected.setAsyncValidators(
-        freeOrgCollectionLimitValidator(this.organizations$, this.collections, this.i18nService),
+        freeOrgCollectionLimitValidator(
+          this.organizations$,
+          this.collectionService
+            .encryptedCollections$(userId)
+            .pipe(map((collections) => collections ?? [])),
+          this.i18nService,
+        ),
       );
       this.formGroup.updateValueAndValidity();
     }
@@ -213,7 +215,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
           }
         }),
         filter(() => this.organizationSelected.errors?.cannotCreateCollections),
-        switchMap((value) => this.findOrganizationById(value)),
+        switchMap((organizationId) => this.organizations$.pipe(getById(organizationId))),
         takeUntil(this.destroy$),
       )
       .subscribe((org) => {
@@ -221,11 +223,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         this.organizationSelected.markAsTouched();
         this.formGroup.updateValueAndValidity();
       });
-  }
-
-  async findOrganizationById(orgId: string): Promise<Organization | undefined> {
-    const organizations = await firstValueFrom(this.organizations$);
-    return organizations.find((org) => org.id === orgId);
   }
 
   async loadOrg(orgId: string) {
@@ -414,7 +411,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       collectionView.name = this.formGroup.controls.name.value;
     }
 
-    const savedCollection = await this.collectionAdminService.save(collectionView);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const savedCollection = await this.collectionAdminService.save(collectionView, userId);
 
     this.toastService.showToast({
       variant: "success",
@@ -592,5 +590,5 @@ export function openCollectionDialog(
   dialogService: DialogService,
   config: DialogConfig<CollectionDialogParams, DialogRef<CollectionDialogResult>>,
 ) {
-  return dialogService.open(CollectionDialogComponent, config);
+  return dialogService.open<CollectionDialogResult>(CollectionDialogComponent, config);
 }

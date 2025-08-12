@@ -22,7 +22,6 @@ import { SendFormContainer } from "../../send-form-container";
 @Component({
   selector: "tools-send-file-details",
   templateUrl: "./send-file-details.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,

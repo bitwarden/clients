@@ -27,17 +27,15 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { BannerModule, IconModule } from "@bitwarden/components";
+import { BannerModule, IconModule, AdminConsoleLogo } from "@bitwarden/components";
 
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
-import { AdminConsoleLogo } from "../../icons/admin-console-logo";
 
 @Component({
   selector: "app-organization-layout",
   templateUrl: "organization-layout.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,
@@ -65,6 +63,11 @@ export class OrganizationLayoutComponent implements OnInit {
   protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
   protected canShowPoliciesTab$: Observable<boolean>;
+
+  protected paymentDetailsPageData$: Observable<{
+    route: string;
+    textKey: string;
+  }>;
 
   constructor(
     private route: ActivatedRoute,
@@ -137,6 +140,16 @@ export class OrganizationLayoutComponent implements OnInit {
           ),
       ),
     );
+
+    this.paymentDetailsPageData$ = this.configService
+      .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
+      .pipe(
+        map((managePaymentDetailsOutsideCheckout) =>
+          managePaymentDetailsOutsideCheckout
+            ? { route: "billing/payment-details", textKey: "paymentDetails" }
+            : { route: "billing/payment-method", textKey: "paymentMethod" },
+        ),
+      );
   }
 
   canShowVaultTab(organization: Organization): boolean {

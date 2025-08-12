@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, NgZone } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { Subject, Subscription, debounceTime, filter } from "rxjs";
+import { Subject, Subscription, debounceTime, distinctUntilChanged, filter } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchModule } from "@bitwarden/components";
@@ -13,7 +13,6 @@ const SearchTextDebounceInterval = 200;
 
 @Component({
   imports: [CommonModule, SearchModule, JslibModule, FormsModule],
-  standalone: true,
   selector: "app-vault-v2-search",
   templateUrl: "vault-v2-search.component.html",
 })
@@ -22,13 +21,16 @@ export class VaultV2SearchComponent {
 
   private searchText$ = new Subject<string>();
 
-  constructor(private vaultPopupItemsService: VaultPopupItemsService) {
+  constructor(
+    private vaultPopupItemsService: VaultPopupItemsService,
+    private ngZone: NgZone,
+  ) {
     this.subscribeToLatestSearchText();
     this.subscribeToApplyFilter();
   }
 
   onSearchTextChanged() {
-    this.vaultPopupItemsService.applyFilter(this.searchText);
+    this.searchText$.next(this.searchText);
   }
 
   subscribeToLatestSearchText(): Subscription {
@@ -44,9 +46,13 @@ export class VaultV2SearchComponent {
 
   subscribeToApplyFilter(): Subscription {
     return this.searchText$
-      .pipe(debounceTime(SearchTextDebounceInterval), takeUntilDestroyed())
+      .pipe(debounceTime(SearchTextDebounceInterval), distinctUntilChanged(), takeUntilDestroyed())
       .subscribe((data) => {
-        this.vaultPopupItemsService.applyFilter(data);
+        this.ngZone.runOutsideAngular(() => {
+          this.ngZone.run(() => {
+            this.vaultPopupItemsService.applyFilter(data);
+          });
+        });
       });
   }
 }

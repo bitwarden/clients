@@ -22,7 +22,9 @@
         <span class="tw-sr-only">{{ "loading" | i18n }}</span>
       </div>
       <div [hidden]="loading">
-        <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        @if (policy.showDescription) {
+          <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        }
         <ng-template #policyForm></ng-template>
       </div>
     </ng-container>

@@ -23,7 +23,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   templateUrl: "./password-hint.component.html",
   imports: [
     AsyncActionsModule,

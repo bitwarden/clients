@@ -12,7 +12,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -35,7 +34,6 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 import { AtRiskPasswordsComponent } from "./at-risk-passwords.component";
 
 @Component({
-  standalone: true,
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
 })
@@ -45,7 +43,6 @@ class MockPopupHeaderComponent {
 }
 
 @Component({
-  standalone: true,
   selector: "popup-page",
   template: `<ng-content></ng-content>`,
 })
@@ -54,7 +51,6 @@ class MockPopupPageComponent {
 }
 
 @Component({
-  standalone: true,
   selector: "app-vault-icon",
   template: `<ng-content></ng-content>`,
 })
@@ -77,7 +73,6 @@ describe("AtRiskPasswordsComponent", () => {
   const mockAtRiskPasswordPageService = mock<AtRiskPasswordPageService>();
   const mockChangeLoginPasswordService = mock<ChangeLoginPasswordService>();
   const mockDialogService = mock<DialogService>();
-  const mockConfigService = mock<ConfigService>();
 
   beforeEach(async () => {
     mockTasks$ = new BehaviorSubject<SecurityTask[]>([
@@ -116,7 +111,6 @@ describe("AtRiskPasswordsComponent", () => {
     setInlineMenuVisibility.mockClear();
     mockToastService.showToast.mockClear();
     mockDialogService.open.mockClear();
-    mockConfigService.getFeatureFlag.mockClear();
     mockAtRiskPasswordPageService.isCalloutDismissed.mockReturnValue(calloutDismissed$);
 
     await TestBed.configureTestingModule({
@@ -158,7 +152,6 @@ describe("AtRiskPasswordsComponent", () => {
           },
         },
         { provide: ToastService, useValue: mockToastService },
-        { provide: ConfigService, useValue: mockConfigService },
       ],
     })
       .overrideModule(JslibModule, {
@@ -206,6 +199,20 @@ describe("AtRiskPasswordsComponent", () => {
       expect(items).toHaveLength(1);
       expect(items[0].name).toBe("Item 1");
     });
+
+    it("should not show tasks associated with deleted ciphers", async () => {
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+          isDeleted: true,
+        } as CipherView,
+      ]);
+
+      const items = await firstValueFrom(component["atRiskItems$"]);
+      expect(items).toHaveLength(0);
+    });
   });
 
   describe("pageDescription$", () => {
@@ -248,6 +255,19 @@ describe("AtRiskPasswordsComponent", () => {
           type: SecurityTaskType.UpdateAtRiskCredential,
         } as SecurityTask,
       ]);
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+        } as CipherView,
+        {
+          id: "cipher2",
+          organizationId: "org2",
+          name: "Item 2",
+        } as CipherView,
+      ]);
+
       const description = await firstValueFrom(component["pageDescription$"]);
       expect(description).toBe("atRiskPasswordsDescMultiOrgPlural");
     });

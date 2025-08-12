@@ -21,11 +21,14 @@ import {
   BitwardenClient,
   ClientSettings,
   DeviceType as SdkDeviceType,
+  TokenProvider,
+  UnsignedSharedKey,
 } from "@bitwarden/sdk-internal";
 
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
+import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -35,11 +38,21 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
-import { EncryptedString } from "../../models/domain/enc-string";
 
 // A symbol that represents an overriden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
 const UnsetClient = Symbol("UnsetClient");
+
+/**
+ * A token provider that exposes the access token to the SDK.
+ */
+class JsTokenProvider implements TokenProvider {
+  constructor() {}
+
+  async get_access_token(): Promise<string | undefined> {
+    return undefined;
+  }
+}
 
 export class DefaultSdkService implements SdkService {
   private sdkClientOverrides = new BehaviorSubject<{
@@ -51,7 +64,7 @@ export class DefaultSdkService implements SdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = this.toSettings(env);
-      return await this.sdkClientFactory.createSdkClient(settings);
+      return await this.sdkClientFactory.createSdkClient(new JsTokenProvider(), settings);
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -71,7 +84,7 @@ export class DefaultSdkService implements SdkService {
     private userAgent: string | null = null,
   ) {}
 
-  userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
+  userClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
     return this.sdkClientOverrides.pipe(
       takeWhile((clients) => clients[userId] !== UnsetClient, false),
       map((clients) => {
@@ -88,6 +101,7 @@ export class DefaultSdkService implements SdkService {
 
         return this.internalClient$(userId);
       }),
+      takeWhile((client) => client !== undefined, false),
       throwIfEmpty(() => new UserNotLoggedInError(userId)),
     );
   }
@@ -112,7 +126,7 @@ export class DefaultSdkService implements SdkService {
    * @param userId The user id for which to create the client
    * @returns An observable that emits the client for the user
    */
-  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
+  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
     const cached = this.sdkClientCache.get(userId);
     if (cached !== undefined) {
       return cached;
@@ -150,9 +164,20 @@ export class DefaultSdkService implements SdkService {
             }
 
             const settings = this.toSettings(env);
-            const client = await this.sdkClientFactory.createSdkClient(settings);
+            const client = await this.sdkClientFactory.createSdkClient(
+              new JsTokenProvider(),
+              settings,
+            );
 
-            await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
+            await this.initializeClient(
+              userId,
+              client,
+              account,
+              kdfParams,
+              privateKey,
+              userKey,
+              orgKeys,
+            );
 
             return client;
           };
@@ -171,9 +196,7 @@ export class DefaultSdkService implements SdkService {
           return () => client?.markForDisposal();
         });
       }),
-      tap({
-        finalize: () => this.sdkClientCache.delete(userId),
-      }),
+      tap({ finalize: () => this.sdkClientCache.delete(userId) }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -182,6 +205,7 @@ export class DefaultSdkService implements SdkService {
   }
 
   private async initializeClient(
+    userId: UserId,
     client: BitwardenClient,
     account: AccountInfo,
     kdfParams: KdfConfig,
@@ -190,13 +214,12 @@ export class DefaultSdkService implements SdkService {
     orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
   ) {
     await client.crypto().initialize_user_crypto({
+      userId,
       email: account.email,
       method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
       kdfParams:
         kdfParams.kdfType === KdfType.PBKDF2_SHA256
-          ? {
-              pBKDF2: { iterations: kdfParams.iterations },
-            }
+          ? { pBKDF2: { iterations: kdfParams.iterations } }
           : {
               argon2id: {
                 iterations: kdfParams.iterations,
@@ -205,6 +228,8 @@ export class DefaultSdkService implements SdkService {
               },
             },
       privateKey,
+      signingKey: undefined,
+      securityState: undefined,
     });
 
     // We initialize the org crypto even if the org_keys are
@@ -213,7 +238,7 @@ export class DefaultSdkService implements SdkService {
       organizationKeys: new Map(
         Object.entries(orgKeys ?? {})
           .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [k, v.key]),
+          .map(([k, v]) => [k, v.key as UnsignedSharedKey]),
       ),
     });
   }

@@ -2,22 +2,23 @@ import { DestroyRef, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, fromEvent } from "rxjs";
 
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum BrowserPromptState {
-  Loading = "loading",
-  Error = "error",
-  Success = "success",
-  ManualOpen = "manualOpen",
-  MobileBrowser = "mobileBrowser",
-}
+export const BrowserPromptState = {
+  Loading: "loading",
+  Error: "error",
+  Success: "success",
+  ManualOpen: "manualOpen",
+  MobileBrowser: "mobileBrowser",
+} as const;
 
-type PromptErrorStates = BrowserPromptState.Error | BrowserPromptState.ManualOpen;
+export type BrowserPromptState = UnionOfValues<typeof BrowserPromptState>;
+
+type PromptErrorStates = typeof BrowserPromptState.Error | typeof BrowserPromptState.ManualOpen;
 
 @Injectable({
   providedIn: "root",

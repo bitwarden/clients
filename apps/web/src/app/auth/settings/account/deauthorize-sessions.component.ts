@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
+import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { Verification } from "@bitwarden/common/auth/types/verification";
@@ -9,10 +10,11 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { SharedModule } from "../../../shared";
+
 @Component({
-  selector: "app-deauthorize-sessions",
   templateUrl: "deauthorize-sessions.component.html",
-  standalone: false,
+  imports: [SharedModule, UserVerificationFormInputComponent],
 })
 export class DeauthorizeSessionsComponent {
   deauthForm = this.formBuilder.group({

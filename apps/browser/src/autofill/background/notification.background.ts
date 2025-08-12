@@ -3,7 +3,10 @@
 import { firstValueFrom, switchMap, map, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -38,11 +41,15 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
-import { SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
+import { SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
 import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import {
   openAddEditVaultItemPopout,
   openViewVaultItemPopout,
@@ -55,19 +62,23 @@ import {
 import { CollectionView } from "../content/components/common-types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
+import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
 
 import {
   AddChangePasswordQueueMessage,
   AddLoginQueueMessage,
   AddUnlockVaultQueueMessage,
-  ChangePasswordMessageData,
   AddLoginMessageData,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
 } from "./abstractions/notification.background";
-import { NotificationTypeData } from "./abstractions/overlay-notifications.background";
+import {
+  LoginSecurityTaskInfo,
+  ModifyLoginCipherFormData,
+  NotificationTypeData,
+} from "./abstractions/overlay-notifications.background";
 import { OverlayBackgroundExtensionMessage } from "./abstractions/overlay.background";
 
 export default class NotificationBackground {
@@ -81,14 +92,12 @@ export default class NotificationBackground {
     ExtensionCommand.AutofillIdentity,
   ]);
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
-    bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
-    bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
     bgCloseNotificationBar: ({ message, sender }) =>
       this.handleCloseNotificationBarMessage(message, sender),
-    bgOpenAtRisksPasswords: ({ message, sender }) =>
-      this.handleOpenAtRisksPasswordsMessage(message, sender),
+    bgOpenAtRiskPasswords: ({ message, sender }) =>
+      this.handleOpenAtRiskPasswordsMessage(message, sender),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
@@ -275,6 +284,62 @@ export default class NotificationBackground {
   }
 
   /**
+   * If there is a security task for this cipher at login, return the task, cipher view, and uri.
+   *
+   * @param modifyLoginData - The modified login form data
+   * @param activeUserId - The currently logged in user ID
+   */
+  private async getSecurityTaskAndCipherForLoginData(
+    modifyLoginData: ModifyLoginCipherFormData,
+    activeUserId: UserId,
+  ): Promise<LoginSecurityTaskInfo | null> {
+    const tasks: SecurityTask[] = await this.getSecurityTasks(activeUserId);
+    if (!tasks?.length) {
+      return null;
+    }
+
+    const urlCiphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      modifyLoginData.uri,
+      activeUserId,
+    );
+    if (!urlCiphers?.length) {
+      return null;
+    }
+
+    const securityTaskForLogin = urlCiphers.reduce(
+      (taskInfo: LoginSecurityTaskInfo | null, cipher: CipherView) => {
+        if (
+          // exit early if info was found already
+          taskInfo ||
+          // exit early if the cipher was deleted
+          cipher.deletedDate ||
+          // exit early if the entered login info doesn't match an existing cipher
+          modifyLoginData.username !== cipher.login.username ||
+          modifyLoginData.password !== cipher.login.password
+        ) {
+          return taskInfo;
+        }
+
+        // Find the first security task for the cipherId belonging to the entered login
+        const cipherSecurityTask = tasks.find(
+          ({ cipherId, status }) =>
+            cipher.id === cipherId && // match security task cipher id to url cipher id
+            status === SecurityTaskStatus.Pending, // security task has not been completed
+        );
+
+        if (cipherSecurityTask) {
+          return { securityTask: cipherSecurityTask, cipher, uri: modifyLoginData.uri };
+        }
+
+        return taskInfo;
+      },
+      null,
+    );
+
+    return securityTaskForLogin;
+  }
+
+  /**
    * Gets the active user server config from the config service.
    */
   async getActiveUserServerConfig(): Promise<ServerConfig> {
@@ -290,6 +355,10 @@ export default class NotificationBackground {
     return flagValue;
   }
 
+  /**
+   * Gets the current authentication status of the user.
+   * @returns Promise<AuthenticationStatus> - The current authentication status of the user.
+   */
   private async getAuthStatus() {
     return await firstValueFrom(this.authService.activeAccountStatus$);
   }
@@ -341,12 +410,17 @@ export default class NotificationBackground {
     tab: chrome.tabs.Tab,
     notificationQueueMessage: NotificationQueueMessageItem,
   ) {
-    const notificationType = notificationQueueMessage.type;
+    const {
+      type: notificationType,
+      wasVaultLocked: isVaultLocked,
+      launchTimestamp,
+      ...params
+    } = notificationQueueMessage;
 
     const typeData: NotificationTypeData = {
-      isVaultLocked: notificationQueueMessage.wasVaultLocked,
+      isVaultLocked,
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
-      launchTimestamp: notificationQueueMessage.launchTimestamp,
+      launchTimestamp,
     };
 
     switch (notificationType) {
@@ -358,6 +432,7 @@ export default class NotificationBackground {
     await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
       type: notificationType,
       typeData,
+      params,
     });
   }
 
@@ -376,6 +451,69 @@ export default class NotificationBackground {
   }
 
   /**
+   * Sends a message to trigger the at risk password notification
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  async triggerAtRiskPasswordNotification(
+    data: ModifyLoginCipherFormData,
+    tab: chrome.tabs.Tab,
+  ): Promise<boolean> {
+    const flag = await this.getNotificationFlag();
+    if (!flag) {
+      return false;
+    }
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+
+    if (!activeUserId) {
+      return false;
+    }
+    const loginSecurityTaskInfo = await this.getSecurityTaskAndCipherForLoginData(
+      data,
+      activeUserId,
+    );
+
+    if (!loginSecurityTaskInfo) {
+      return false;
+    }
+
+    const { securityTask, cipher } = loginSecurityTaskInfo;
+    const domain = Utils.getDomain(tab.url);
+    const passwordChangeUri =
+      await new TemporaryNotificationChangeLoginService().getChangePasswordUrl(cipher);
+
+    const authStatus = await this.getAuthStatus();
+
+    const wasVaultLocked = authStatus === AuthenticationStatus.Locked;
+
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(activeUserId)
+        .pipe(getOrganizationById(securityTask.organizationId)),
+    );
+
+    this.removeTabFromNotificationQueue(tab);
+    const launchTimestamp = new Date().getTime();
+    const queueMessage: NotificationQueueMessageItem = {
+      domain,
+      wasVaultLocked,
+      type: NotificationQueueMessageType.AtRiskPassword,
+      passwordChangeUri,
+      organizationName: organization.name,
+      tab: tab,
+      launchTimestamp,
+      expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
+    };
+    this.notificationQueue.push(queueMessage);
+    await this.checkNotificationQueue(tab);
+    return true;
+  }
+
+  /**
    * Adds a login message to the notification queue, prompting the user to save
    * the login if it does not already exist in the vault. If the cipher exists
    * but the password has changed, the user will be prompted to update the password.
@@ -383,46 +521,51 @@ export default class NotificationBackground {
    * @param message - The message to add to the queue
    * @param sender - The contextual sender of the message
    */
-  async addLogin(
-    message: NotificationBackgroundExtensionMessage,
-    sender: chrome.runtime.MessageSender,
-  ) {
+  async triggerAddLoginNotification(
+    data: ModifyLoginCipherFormData,
+    tab: chrome.tabs.Tab,
+  ): Promise<boolean> {
+    const login = {
+      url: data.uri,
+      username: data.username,
+      password: data.password || data.newPassword,
+    };
+
     const authStatus = await this.getAuthStatus();
     if (authStatus === AuthenticationStatus.LoggedOut) {
-      return;
+      return false;
     }
 
-    const loginInfo = message.login;
-    const normalizedUsername = loginInfo.username ? loginInfo.username.toLowerCase() : "";
-    const loginDomain = Utils.getDomain(loginInfo.url);
+    const normalizedUsername = login.username ? login.username.toLowerCase() : "";
+    const loginDomain = Utils.getDomain(login.url);
     if (loginDomain == null) {
-      return;
+      return false;
     }
 
     const addLoginIsEnabled = await this.getEnableAddedLoginPrompt();
 
     if (authStatus === AuthenticationStatus.Locked) {
       if (addLoginIsEnabled) {
-        await this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab, true);
+        await this.pushAddLoginToQueue(loginDomain, login, tab, true);
       }
 
-      return;
+      return false;
     }
 
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId == null) {
-      return;
+      return false;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(loginInfo.url, activeUserId);
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(login.url, activeUserId);
     const usernameMatches = ciphers.filter(
       (c) => c.login.username != null && c.login.username.toLowerCase() === normalizedUsername,
     );
     if (addLoginIsEnabled && usernameMatches.length === 0) {
-      await this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab);
-      return;
+      await this.pushAddLoginToQueue(loginDomain, login, tab);
+      return true;
     }
 
     const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
@@ -430,15 +573,12 @@ export default class NotificationBackground {
     if (
       changePasswordIsEnabled &&
       usernameMatches.length === 1 &&
-      usernameMatches[0].login.password !== loginInfo.password
+      usernameMatches[0].login.password !== login.password
     ) {
-      await this.pushChangePasswordToQueue(
-        usernameMatches[0].id,
-        loginDomain,
-        loginInfo.password,
-        sender.tab,
-      );
+      await this.pushChangePasswordToQueue(usernameMatches[0].id, loginDomain, login.password, tab);
+      return true;
     }
+    return false;
   }
 
   private async pushAddLoginToQueue(
@@ -472,25 +612,24 @@ export default class NotificationBackground {
    * @param message - The message to add to the queue
    * @param sender - The contextual sender of the message
    */
-  async changedPassword(
-    message: NotificationBackgroundExtensionMessage,
-    sender: chrome.runtime.MessageSender,
-  ) {
-    const changeData = message.data as ChangePasswordMessageData;
+  async triggerChangedPasswordNotification(
+    data: ModifyLoginCipherFormData,
+    tab: chrome.tabs.Tab,
+  ): Promise<boolean> {
+    const changeData = {
+      url: data.uri,
+      currentPassword: data.password,
+      newPassword: data.newPassword,
+    };
+
     const loginDomain = Utils.getDomain(changeData.url);
     if (loginDomain == null) {
-      return;
+      return false;
     }
 
     if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await this.pushChangePasswordToQueue(
-        null,
-        loginDomain,
-        changeData.newPassword,
-        sender.tab,
-        true,
-      );
-      return;
+      await this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, tab, true);
+      return true;
     }
 
     let id: string = null;
@@ -498,7 +637,7 @@ export default class NotificationBackground {
       this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId == null) {
-      return;
+      return false;
     }
 
     const ciphers = await this.cipherService.getAllDecryptedForUrl(changeData.url, activeUserId);
@@ -513,8 +652,10 @@ export default class NotificationBackground {
       id = ciphers[0].id;
     }
     if (id != null) {
-      await this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, sender.tab);
+      await this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, tab);
+      return true;
     }
+    return false;
   }
 
   /**
@@ -719,9 +860,10 @@ export default class NotificationBackground {
         return;
       }
 
-      const cipher = await this.cipherService.encrypt(newCipher, activeUserId);
+      const encrypted = await this.cipherService.encrypt(newCipher, activeUserId);
+      const { cipher } = encrypted;
       try {
-        await this.cipherService.createWithServer(cipher);
+        await this.cipherService.createWithServer(encrypted);
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
           itemName: newCipher?.name && String(newCipher?.name),
           cipherId: cipher?.id && String(cipher?.id),
@@ -899,7 +1041,7 @@ export default class NotificationBackground {
     return null;
   }
 
-  private async getSecurityTasks(userId: UserId) {
+  async getSecurityTasks(userId: UserId) {
     let tasks: SecurityTask[] = [];
 
     if (userId) {
@@ -965,18 +1107,23 @@ export default class NotificationBackground {
   private async getCollectionData(
     message: NotificationBackgroundExtensionMessage,
   ): Promise<CollectionView[]> {
-    const collections = (await this.collectionService.getAllDecrypted()).reduce<CollectionView[]>(
-      (acc, collection) => {
-        if (collection.organizationId === message?.orgId) {
-          acc.push({
-            id: collection.id,
-            name: collection.name,
-            organizationId: collection.organizationId,
-          });
-        }
-        return acc;
-      },
-      [],
+    const collections = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+        map((collections) =>
+          collections.reduce<CollectionView[]>((acc, collection) => {
+            if (collection.organizationId === message?.orgId) {
+              acc.push({
+                id: collection.id,
+                name: collection.name,
+                organizationId: collection.organizationId,
+              });
+            }
+            return acc;
+          }, []),
+        ),
+      ),
     );
     return collections;
   }
@@ -991,7 +1138,7 @@ export default class NotificationBackground {
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
       ),
     );
@@ -1073,7 +1220,7 @@ export default class NotificationBackground {
    * @param message - The extension message
    * @param sender - The contextual sender of the message
    */
-  private async handleOpenAtRisksPasswordsMessage(
+  private async handleOpenAtRiskPasswordsMessage(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {

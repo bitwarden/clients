@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Tresor durchsuchen"
   },
+  "resetSearch": {
+    "message": "Suche zurücksetzen"
+  },
   "edit": {
     "message": "Bearbeiten"
   },
@@ -1060,7 +1063,7 @@
     "message": "Soll Bitwarden sich dieses Passwort merken?"
   },
   "notificationAddSave": {
-    "message": "Ja, jetzt speichern"
+    "message": "Speichern"
   },
   "notificationViewAria": {
     "message": "$ITEMNAME$ anzeigen, öffnet sich in neuem Fenster",
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "Oh nein! Das konnten wir nicht speichern. Versuch, die Details manuell einzugeben.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "Nachdem du dein Passwort geändert hast, musst du dich mit deinem neuen Passwort anmelden. Aktive Sitzungen auf anderen Geräten werden innerhalb einer Stunde abgemeldet."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Ändere dein Master-Passwort, um die Kontowiederherstellung abzuschließen."
   },
   "enableChangedPasswordNotification": {
     "message": "Nach dem Aktualisieren bestehender Zugangsdaten fragen"
@@ -1365,8 +1374,8 @@
   "featureUnavailable": {
     "message": "Funktion nicht verfügbar"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Verschlüsselungscode-Migration erforderlich. Bitte melde dich über den Web-Tresor an, um deinen Verschlüsselungscode zu aktualisieren."
+  "legacyEncryptionUnsupported": {
+    "message": "Die veraltete Verschlüsselung wird nicht mehr unterstützt. Bitte kontaktiere den Support, um dein Konto wiederherzustellen."
   },
   "premiumMembership": {
     "message": "Premium-Mitgliedschaft"
@@ -1823,6 +1832,9 @@
   "securityCode": {
     "message": "Sicherheitscode"
   },
+  "cardNumber": {
+    "message": "Kartennummer"
+  },
   "ex": {
     "message": "Bsp."
   },
@@ -1921,6 +1933,9 @@
   },
   "typeSshKey": {
     "message": "SSH-Schlüssel"
+  },
+  "typeNote": {
+    "message": "Notiz"
   },
   "newItemHeader": {
     "message": "Neue $TYPE$",
@@ -2153,8 +2168,8 @@
   "setYourPinCode": {
     "message": "Gebe deinen PIN-Code für das Entsperren von Bitwarden ein. Deine PIN-Einstellungen werden zurückgesetzt, wenn du dich vollständig von der Anwendung abmeldest."
   },
-  "setYourPinCode1": {
-    "message": "Deine PIN wird verwendet, um Bitwarden anstatt deines Master-Passworts zu entsperren. Deine PIN wird zurückgesetzt, wenn du dich jemals vollständig von Bitwarden abgemeldet hast."
+  "setPinCode": {
+    "message": "Du kannst diese PIN verwenden, um Bitwarden zu entsperren. Deine PIN wird zurückgesetzt, wenn du dich vollständig aus der Anwendung abmeldest."
   },
   "pinRequired": {
     "message": "PIN-Code ist erforderlich."
@@ -2203,6 +2218,9 @@
   },
   "useThisPassword": {
     "message": "Dieses Passwort verwenden"
+  },
+  "useThisPassphrase": {
+    "message": "Diese Passphrase verwenden"
   },
   "useThisUsername": {
     "message": "Diesen Benutzernamen verwenden"
@@ -2481,6 +2499,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Eine Organisationsrichtlinie hat das Importieren von Einträgen in deinen persönlichen Tresor deaktiviert."
   },
+  "restrictCardTypeImport": {
+    "message": "Karten-Eintragstypen können nicht importiert werden"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Eine von einer oder mehreren Organisationen festgelegte Richtlinie verhindert, dass du Karten in deinen Tresor importieren kannst."
+  },
   "domainsTitle": {
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
@@ -2512,6 +2536,10 @@
   "change": {
     "message": "Ändern"
   },
+  "changePassword": {
+    "message": "Passwort ändern",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Passwort ändern - $ITEMNAME$",
     "placeholders": {
@@ -2520,6 +2548,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "Gefährdetes Passwort"
   },
   "atRiskPasswords": {
     "message": "Gefährdete Passwörter"
@@ -2554,6 +2585,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Dein Passwort für diese Website ist gefährdet. $ORGANIZATION$ hat darum gebeten, dass du es änderst.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ möchte, dass du dieses Passwort änderst, da es gefährdet ist. Wechsel zu deinen Kontoeinstellungen, um das Passwort zu ändern.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Überprüfe und ändere ein gefährdetes Passwort"
@@ -2673,6 +2724,10 @@
   "allSends": {
     "message": "Alle Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Maximale Zugriffsanzahl erreicht",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Text standardmäßig ausblenden"
@@ -2875,6 +2930,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Du musst deine E-Mail Adresse verifizieren, um diese Funktion nutzen zu können. Du kannst deine E-Mail im Web-Tresor verifizieren."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master-Passwort erfolgreich festgelegt"
   },
   "updatedMasterPassword": {
     "message": "Master-Passwort aktualisiert"
@@ -3408,6 +3466,31 @@
   "logInRequestSent": {
     "message": "Anfrage gesendet"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Anmeldeanfrage für $EMAIL$ auf $DEVICE$ genehmigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+  },
+  "device": {
+    "message": "Gerät"
+  },
+  "loginStatus": {
+    "message": "Anmeldestatus"
+  },
+  "masterPasswordChanged": {
+    "message": "Master-Passwort gespeichert"
+  },
   "exposedMasterPassword": {
     "message": "Kompromittiertes Master-Passwort"
   },
@@ -3501,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Dieses Gerät merken, um zukünftige Anmeldungen reibungslos zu gestalten"
   },
+  "manageDevices": {
+    "message": "Geräte verwalten"
+  },
+  "currentSession": {
+    "message": "Aktuelle Sitzung"
+  },
+  "mobile": {
+    "message": "Mobile App",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Erweiterung",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web-Tresor"
+  },
+  "webApp": {
+    "message": "Web-App"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Anfrage ausstehend"
+  },
+  "firstLogin": {
+    "message": "Erste Anmeldung"
+  },
+  "trusted": {
+    "message": "Vertrauenswürdig"
+  },
+  "needsApproval": {
+    "message": "Benötigt Genehmigung"
+  },
+  "devices": {
+    "message": "Geräte"
+  },
+  "accessAttemptBy": {
+    "message": "Zugriffsversuch von $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Zugriff bestätigen"
+  },
+  "denyAccess": {
+    "message": "Zugriff ablehnen"
+  },
+  "time": {
+    "message": "Zeit"
+  },
+  "deviceType": {
+    "message": "Gerätetyp"
+  },
+  "loginRequest": {
+    "message": "Anmeldungsanfrage"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Diese Anfrage ist nicht mehr gültig."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Anmeldeanfrage ist bereits abgelaufen."
+  },
+  "justNow": {
+    "message": "Gerade eben"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Vor $MINUTES$ Minuten angefordert",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
   },
@@ -3521,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "Admin-Genehmigung anfragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Anmeldung kann nicht abgeschlossen werden"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Du musst dich auf einem vertrauenswürdigen Gerät anmelden oder deinem Administrator bitten, dir ein Passwort zuzuweisen."
   },
   "ssoIdentifierRequired": {
     "message": "SSO-Kennung der Organisation erforderlich."
@@ -3607,20 +3784,12 @@
   "trustUser": {
     "message": "Benutzer vertrauen"
   },
-  "sendsNoItemsTitle": {
-    "message": "Keine aktiven Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Verwende Send, um verschlüsselte Informationen sicher mit anderen zu teilen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendsTitleNoItems": {
     "message": "Sensible Informationen sicher versenden",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben Ende-zu-Ende-Verschlüsselt, während die Verbreitung begrenzt wird.",
+    "message": "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben Ende-zu-Ende-verschlüsselt, während die Verbreitung begrenzt wird.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4209,6 +4378,26 @@
     "message": "Gängigste Formate",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Auto-Ausfüllen-Vorschläge erkennt.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulärer Ausdruck\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Beginnt mit\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Mehr über die Übereinstimmungs-Erkennung",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Erweiterte Optionen",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Weiter zu den Browsereinstellungen?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4392,17 +4581,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "$FIELD$, $VALUE$ kopieren",
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopieren",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5036,6 +5225,9 @@
   "unlockPinSet": {
     "message": "Entsperr-PIN festgelegt"
   },
+  "unlockWithBiometricSet": {
+    "message": "Mit Biometrie entsperren eingerichtet"
+  },
   "authenticating": {
     "message": "Authentifizierung"
   },
@@ -5256,7 +5448,7 @@
     "message": "Tresoroptionen"
   },
   "emptyVaultDescription": {
-    "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sicher Zugangsdaten, Ausweise, Karten und Notizen."
+    "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sicher Zugangsdaten, Identitäten, Karten und Notizen."
   },
   "introCarouselLabel": {
     "message": "Willkommen bei Bitwarden"
@@ -5367,15 +5559,25 @@
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": ", um deine Zugangsdaten sicher aufzubewahren.",
+    "message": ", um dir zu helfen, deine Zugangsdaten sicher zu halten.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Generiere ganz einfach starke und einzigartige Passwörter, indem du auf den \"Passwort generieren\"-Button klickst, um deine Zugangsdaten sicher aufzubewahren.",
+    "message": "Generiere ganz einfach starke und einzigartige Passwörter, indem du auf den \"Passwort generieren\"-Button klickst, um dir zu helfen, deine Zugangsdaten sicher zu halten.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche dich mit einem anderen Konto anzumelden."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly wird von deinem Browser nicht unterstützt oder ist nicht aktiviert. WebAssembly wird benötigt, um die Bitwarden-App nutzen zu können.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Mehr anzeigen"
+  },
+  "showLess": {
+    "message": "Weniger anzeigen"
   }
 }

@@ -14,6 +14,7 @@ import {
   booleanAttribute,
   inject,
   signal,
+  input,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
@@ -33,10 +34,12 @@ export type ChipSelectOption<T> = Option<T> & {
   children?: ChipSelectOption<T>[];
 };
 
+/**
+ * `<bit-chip-select>` is a select element that is commonly used to filter items in lists or tables.
+ */
 @Component({
   selector: "bit-chip-select",
   templateUrl: "chip-select.component.html",
-  standalone: true,
   imports: [SharedModule, ButtonModule, IconButtonModule, MenuModule, TypographyModule],
   providers: [
     {
@@ -52,12 +55,15 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   @ViewChild("chipSelectButton") chipSelectButton: ElementRef<HTMLButtonElement>;
 
   /** Text to show when there is no selected option */
-  @Input({ required: true }) placeholderText: string;
+  readonly placeholderText = input.required<string>();
 
   /** Icon to show when there is no selected option or the selected option does not have an icon */
-  @Input() placeholderIcon: string;
+  readonly placeholderIcon = input<string>();
 
   private _options: ChipSelectOption<T>[];
+
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   /** The select options to render */
   @Input({ required: true })
   get options(): ChipSelectOption<T>[] {
@@ -69,10 +75,12 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   }
 
   /** Disables the entire chip */
+  // TODO: Skipped for signal migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input({ transform: booleanAttribute }) disabled = false;
 
   /** Chip will stretch to full width of its container */
-  @Input({ transform: booleanAttribute }) fullWidth?: boolean;
+  readonly fullWidth = input<boolean, unknown>(undefined, { transform: booleanAttribute });
 
   /**
    * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`
@@ -89,7 +97,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
 
   @HostBinding("class")
   get classList() {
-    return ["tw-inline-block", this.fullWidth ? "tw-w-full" : "tw-max-w-52"];
+    return ["tw-inline-block", this.fullWidth() ? "tw-w-full" : "tw-max-w-52"];
   }
 
   private destroyRef = inject(DestroyRef);
@@ -111,12 +119,12 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
 
   /** The label to show in the chip button */
   protected get label(): string {
-    return this.selectedOption?.label || this.placeholderText;
+    return this.selectedOption?.label || this.placeholderText();
   }
 
   /** The icon to show in the chip button */
   protected get icon(): string {
-    return this.selectedOption?.icon || this.placeholderIcon;
+    return this.selectedOption?.icon || this.placeholderIcon();
   }
 
   /**

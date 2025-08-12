@@ -9,7 +9,6 @@ import { DefaultServerSettingsService } from "@bitwarden/common/platform/service
 import { LinkModule } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   imports: [CommonModule, JslibModule, LinkModule, RouterModule],
   template: `
     <div class="tw-text-center" *ngIf="!(isUserRegistrationDisabled$ | async)">

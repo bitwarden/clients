@@ -20,7 +20,6 @@ import {
   from,
 } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
@@ -30,6 +29,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -100,7 +101,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
   protected loading = true;
   protected organizationEnabled = false;
   protected organization: Organization;
-  protected i18n: I18nPipe;
   protected onboardingTasks$: Observable<SMOnboardingTasks>;
 
   protected view$: Observable<{
@@ -131,6 +131,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private trialFlowService: TrialFlowService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private billingNotificationService: BillingNotificationService,
+    private configService: ConfigService,
   ) {}
 
   ngOnInit() {
@@ -252,12 +253,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   async navigateToPaymentMethod() {
-    await this.router.navigate(
-      ["organizations", `${this.organizationId}`, "billing", "payment-method"],
-      {
-        state: { launchPaymentModalAutomatically: true },
-      },
+    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
+    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
+    await this.router.navigate(["organizations", `${this.organizationId}`, "billing", route], {
+      state: { launchPaymentModalAutomatically: true },
+    });
   }
 
   ngOnDestroy(): void {

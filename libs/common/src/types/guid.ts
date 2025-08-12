@@ -2,7 +2,9 @@ import { Opaque } from "type-fest";
 
 export type Guid = Opaque<string, "Guid">;
 
-export type UserId = Opaque<string, "UserId">;
+// Convenience re-export of UserId from it's original location, any library that
+// wants to be lower level than common should instead import it from user-core.
+export { UserId } from "@bitwarden/user-core";
 export type OrganizationId = Opaque<string, "OrganizationId">;
 export type CollectionId = Opaque<string, "CollectionId">;
 export type ProviderId = Opaque<string, "ProviderId">;
@@ -13,3 +15,13 @@ export type IndexedEntityId = Opaque<string, "IndexedEntityId">;
 export type SecurityTaskId = Opaque<string, "SecurityTaskId">;
 export type NotificationId = Opaque<string, "NotificationId">;
 export type EmergencyAccessId = Opaque<string, "EmergencyAccessId">;
+export type OrganizationIntegrationId = Opaque<string, "OrganizationIntegrationId">;
+export type OrganizationIntegrationConfigurationId = Opaque<
+  string,
+  "OrganizationIntegrationConfigurationId"
+>;
+
+/**
+ * A string representation of an empty guid.
+ */
+export const emptyGuid = "00000000-0000-0000-0000-000000000000";

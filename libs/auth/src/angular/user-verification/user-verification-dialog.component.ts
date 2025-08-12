@@ -32,7 +32,6 @@ import { UserVerificationFormInputComponent } from "./user-verification-form-inp
 
 @Component({
   templateUrl: "user-verification-dialog.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

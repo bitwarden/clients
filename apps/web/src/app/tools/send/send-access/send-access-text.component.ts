@@ -14,7 +14,6 @@ import { SharedModule } from "../../../shared";
   selector: "app-send-access-text",
   templateUrl: "send-access-text.component.html",
   imports: [SharedModule],
-  standalone: true,
 })
 export class SendAccessTextComponent {
   private _send: SendAccessView = null;

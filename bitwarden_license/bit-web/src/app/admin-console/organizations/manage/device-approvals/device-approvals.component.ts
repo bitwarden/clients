@@ -26,7 +26,6 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
 @Component({
   selector: "app-org-device-approvals",
   templateUrl: "./device-approvals.component.html",
-  standalone: true,
   providers: [
     safeProvider({
       provide: OrganizationAuthRequestApiService,

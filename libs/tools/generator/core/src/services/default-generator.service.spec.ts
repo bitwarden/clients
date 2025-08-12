@@ -18,7 +18,7 @@ import { DefaultGeneratorService } from "./default-generator.service";
 function mockPolicyService(config?: { state?: BehaviorSubject<Policy[]> }) {
   const service = mock<PolicyService>();
 
-  const stateValue = config?.state ?? new BehaviorSubject<Policy[]>([null]);
+  const stateValue = config?.state ?? new BehaviorSubject<Policy[]>([]);
   service.policiesByType$.mockReturnValue(stateValue);
 
   return service;
@@ -119,22 +119,22 @@ describe("Password generator service", () => {
 
     it("should update the evaluator when the password generator policy changes", async () => {
       // set up dependencies
-      const state = new BehaviorSubject<Policy[]>([null]);
+      const state = new BehaviorSubject<Policy[]>([]);
       const policy = mockPolicyService({ state });
       const strategy = mockGeneratorStrategy();
       const service = new DefaultGeneratorService(strategy, policy);
 
       // model responses for the observable update. The map is called multiple times,
       // and the array shift ensures reference equality is maintained.
-      const firstEvaluator = mock<PolicyEvaluator<any, any>>();
-      const secondEvaluator = mock<PolicyEvaluator<any, any>>();
+      const firstEvaluator: PolicyEvaluator<any, any> = mock<PolicyEvaluator<any, any>>();
+      const secondEvaluator: PolicyEvaluator<any, any> = mock<PolicyEvaluator<any, any>>();
       const evaluators = [firstEvaluator, secondEvaluator];
-      strategy.toEvaluator.mockReturnValueOnce(pipe(map(() => evaluators.shift())));
+      strategy.toEvaluator.mockReturnValueOnce(pipe(map(() => evaluators.shift()!)));
 
       // act
       const evaluator$ = service.evaluator$(SomeUser);
       const firstResult = await firstValueFrom(evaluator$);
-      state.next([null]);
+      state.next([]);
       const secondResult = await firstValueFrom(evaluator$);
 
       // assert

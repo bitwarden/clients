@@ -19,7 +19,6 @@ import {
 @Component({
   selector: "vault-cipher-form-generator",
   template: "",
-  standalone: true,
 })
 class MockCipherFormGenerator {
   @Input() type: "password" | "username" = "password";

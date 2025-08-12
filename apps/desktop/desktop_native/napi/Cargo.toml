@@ -14,6 +14,7 @@ default = []
 manual_test = []
 
 [dependencies]
+autotype = { path = "../autotype" }
 base64 = { workspace = true }
 hex = { workspace = true }
 anyhow = { workspace = true }

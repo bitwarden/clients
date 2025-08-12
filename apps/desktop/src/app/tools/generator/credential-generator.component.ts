@@ -14,7 +14,6 @@ import {
 } from "@bitwarden/generator-components";
 
 @Component({
-  standalone: true,
   selector: "credential-generator",
   templateUrl: "credential-generator.component.html",
   imports: [DialogModule, ButtonModule, JslibModule, GeneratorModule, ItemModule, LinkModule],

@@ -47,7 +47,6 @@ interface Key {
 @Component({
   selector: "app-two-factor-setup-yubikey",
   templateUrl: "two-factor-setup-yubikey.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

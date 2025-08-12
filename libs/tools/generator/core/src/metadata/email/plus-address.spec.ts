@@ -2,7 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { EmailRandomizer } from "../../engine";
 import { SubaddressConstraints } from "../../policies/subaddress-constraints";
-import { SubaddressGenerationOptions, GeneratorDependencyProvider } from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { SubaddressGenerationOptions } from "../../types";
 import { Profile } from "../data";
 import { CoreProfileMetadata } from "../profile-metadata";
 import { isCoreProfile } from "../util";

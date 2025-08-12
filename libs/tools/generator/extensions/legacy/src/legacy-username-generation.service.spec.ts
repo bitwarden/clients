@@ -1,6 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { AddyIo } from "@bitwarden/common/tools/extension/vendor/addyio";
+import { DuckDuckGo } from "@bitwarden/common/tools/extension/vendor/duckduckgo";
+import { Fastmail } from "@bitwarden/common/tools/extension/vendor/fastmail";
+import { ForwardEmail } from "@bitwarden/common/tools/extension/vendor/forwardemail";
+import { Mozilla } from "@bitwarden/common/tools/extension/vendor/mozilla";
+import { SimpleLogin } from "@bitwarden/common/tools/extension/vendor/simplelogin";
+import { IntegrationId } from "@bitwarden/common/tools/integration";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   ApiOptions,
@@ -13,13 +22,6 @@ import {
   DefaultCatchallOptions,
   DefaultEffUsernameOptions,
   EffUsernameGenerationOptions,
-  DefaultAddyIoOptions,
-  DefaultDuckDuckGoOptions,
-  DefaultFastmailOptions,
-  DefaultFirefoxRelayOptions,
-  DefaultForwardEmailOptions,
-  DefaultSimpleLoginOptions,
-  Forwarders,
   DefaultSubaddressOptions,
   SubaddressGenerationOptions,
   policies,
@@ -169,7 +171,7 @@ describe("LegacyUsernameGenerationService", () => {
       // set up an arbitrary forwarder for the username test; all forwarders tested in their own tests
       const options = {
         type: "forwarded",
-        forwardedService: Forwarders.AddyIo.id,
+        forwardedService: AddyIo.id,
       } as UsernameGeneratorOptions;
       const addyIo = createGenerator<SelfHostedApiOptions & EmailDomainOptions>(null, null);
       addyIo.generate.mockResolvedValue("addyio@example.com");
@@ -249,7 +251,7 @@ describe("LegacyUsernameGenerationService", () => {
   describe("generateForwarded", () => {
     it("should generate a AddyIo username", async () => {
       const options = {
-        forwardedService: Forwarders.AddyIo.id,
+        forwardedService: AddyIo.id,
         forwardedAnonAddyApiToken: "token",
         forwardedAnonAddyBaseUrl: "https://example.com",
         forwardedAnonAddyDomain: "example.com",
@@ -284,7 +286,7 @@ describe("LegacyUsernameGenerationService", () => {
 
     it("should generate a DuckDuckGo username", async () => {
       const options = {
-        forwardedService: Forwarders.DuckDuckGo.id,
+        forwardedService: DuckDuckGo.id,
         forwardedDuckDuckGoToken: "token",
         website: "example.com",
       } as UsernameGeneratorOptions;
@@ -315,7 +317,7 @@ describe("LegacyUsernameGenerationService", () => {
 
     it("should generate a Fastmail username", async () => {
       const options = {
-        forwardedService: Forwarders.Fastmail.id,
+        forwardedService: Fastmail.id,
         forwardedFastmailApiToken: "token",
         website: "example.com",
       } as UsernameGeneratorOptions;
@@ -346,7 +348,7 @@ describe("LegacyUsernameGenerationService", () => {
 
     it("should generate a FirefoxRelay username", async () => {
       const options = {
-        forwardedService: Forwarders.FirefoxRelay.id,
+        forwardedService: Mozilla.id,
         forwardedFirefoxApiToken: "token",
         website: "example.com",
       } as UsernameGeneratorOptions;
@@ -377,7 +379,7 @@ describe("LegacyUsernameGenerationService", () => {
 
     it("should generate a ForwardEmail username", async () => {
       const options = {
-        forwardedService: Forwarders.ForwardEmail.id,
+        forwardedService: ForwardEmail.id,
         forwardedForwardEmailApiToken: "token",
         forwardedForwardEmailDomain: "example.com",
         website: "example.com",
@@ -410,7 +412,7 @@ describe("LegacyUsernameGenerationService", () => {
 
     it("should generate a SimpleLogin username", async () => {
       const options = {
-        forwardedService: Forwarders.SimpleLogin.id,
+        forwardedService: SimpleLogin.id,
         forwardedSimpleLoginApiKey: "token",
         forwardedSimpleLoginBaseUrl: "https://example.com",
         website: "example.com",
@@ -449,7 +451,7 @@ describe("LegacyUsernameGenerationService", () => {
       const navigation = createNavigationGenerator({
         type: "username",
         username: "catchall",
-        forwarder: Forwarders.AddyIo.id,
+        forwarder: AddyIo.id,
       });
 
       const catchall = createGenerator<CatchallGenerationOptions>(
@@ -557,7 +559,7 @@ describe("LegacyUsernameGenerationService", () => {
         subaddressEmail: "foo@example.com",
         catchallType: "random",
         catchallDomain: "example.com",
-        forwardedService: Forwarders.AddyIo.id,
+        forwardedService: AddyIo.id,
         forwardedAnonAddyApiToken: "addyIoToken",
         forwardedAnonAddyDomain: "addyio.example.com",
         forwardedAnonAddyBaseUrl: "https://addyio.api.example.com",
@@ -583,21 +585,36 @@ describe("LegacyUsernameGenerationService", () => {
         null,
         DefaultSubaddressOptions,
       );
-      const addyIo = createGenerator<SelfHostedApiOptions & EmailDomainOptions>(
-        null,
-        DefaultAddyIoOptions,
-      );
-      const duckDuckGo = createGenerator<ApiOptions>(null, DefaultDuckDuckGoOptions);
-      const fastmail = createGenerator<ApiOptions & EmailPrefixOptions>(
-        null,
-        DefaultFastmailOptions,
-      );
-      const firefoxRelay = createGenerator<ApiOptions>(null, DefaultFirefoxRelayOptions);
-      const forwardEmail = createGenerator<ApiOptions & EmailDomainOptions>(
-        null,
-        DefaultForwardEmailOptions,
-      );
-      const simpleLogin = createGenerator<SelfHostedApiOptions>(null, DefaultSimpleLoginOptions);
+      const addyIo = createGenerator<SelfHostedApiOptions & EmailDomainOptions>(null, {
+        website: null,
+        baseUrl: "https://app.addy.io",
+        token: "",
+        domain: "",
+      });
+      const duckDuckGo = createGenerator<ApiOptions>(null, {
+        website: null,
+        token: "",
+      });
+      const fastmail = createGenerator<ApiOptions & EmailPrefixOptions>(null, {
+        website: "",
+        domain: "",
+        prefix: "",
+        token: "",
+      });
+      const firefoxRelay = createGenerator<ApiOptions>(null, {
+        website: null,
+        token: "",
+      });
+      const forwardEmail = createGenerator<ApiOptions & EmailDomainOptions>(null, {
+        website: null,
+        token: "",
+        domain: "",
+      });
+      const simpleLogin = createGenerator<SelfHostedApiOptions>(null, {
+        website: null,
+        baseUrl: "https://app.simplelogin.io",
+        token: "",
+      });
 
       const generator = new LegacyUsernameGenerationService(
         account,
@@ -624,16 +641,16 @@ describe("LegacyUsernameGenerationService", () => {
         subaddressType: DefaultSubaddressOptions.subaddressType,
         subaddressEmail: DefaultSubaddressOptions.subaddressEmail,
         forwardedService: DefaultGeneratorNavigation.forwarder,
-        forwardedAnonAddyApiToken: DefaultAddyIoOptions.token,
-        forwardedAnonAddyDomain: DefaultAddyIoOptions.domain,
-        forwardedAnonAddyBaseUrl: DefaultAddyIoOptions.baseUrl,
-        forwardedDuckDuckGoToken: DefaultDuckDuckGoOptions.token,
-        forwardedFastmailApiToken: DefaultFastmailOptions.token,
-        forwardedFirefoxApiToken: DefaultFirefoxRelayOptions.token,
-        forwardedForwardEmailApiToken: DefaultForwardEmailOptions.token,
-        forwardedForwardEmailDomain: DefaultForwardEmailOptions.domain,
-        forwardedSimpleLoginApiKey: DefaultSimpleLoginOptions.token,
-        forwardedSimpleLoginBaseUrl: DefaultSimpleLoginOptions.baseUrl,
+        forwardedAnonAddyApiToken: "",
+        forwardedAnonAddyDomain: "",
+        forwardedAnonAddyBaseUrl: "https://app.addy.io",
+        forwardedDuckDuckGoToken: "",
+        forwardedFastmailApiToken: "",
+        forwardedFirefoxApiToken: "",
+        forwardedForwardEmailApiToken: "",
+        forwardedForwardEmailDomain: "",
+        forwardedSimpleLoginApiKey: "",
+        forwardedSimpleLoginBaseUrl: "https://app.simplelogin.io",
       });
     });
   });
@@ -678,7 +695,7 @@ describe("LegacyUsernameGenerationService", () => {
         subaddressEmail: "foo@example.com",
         catchallType: "random",
         catchallDomain: "example.com",
-        forwardedService: Forwarders.AddyIo.id,
+        forwardedService: AddyIo.id as IntegrationId,
         forwardedAnonAddyApiToken: "addyIoToken",
         forwardedAnonAddyDomain: "addyio.example.com",
         forwardedAnonAddyBaseUrl: "https://addyio.api.example.com",
@@ -697,7 +714,7 @@ describe("LegacyUsernameGenerationService", () => {
       expect(navigation.saveOptions).toHaveBeenCalledWith(SomeUser, {
         type: "password",
         username: "catchall",
-        forwarder: Forwarders.AddyIo.id,
+        forwarder: AddyIo.id,
       });
 
       expect(catchall.saveOptions).toHaveBeenCalledWith(SomeUser, {

@@ -30,7 +30,6 @@ const DEFAULT_COLOR: Record<SimpleDialogType, string> = {
 
 @Component({
   templateUrl: "./simple-configurable-dialog.component.html",
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     BitSubmitDirective,
@@ -69,7 +68,9 @@ export class SimpleConfigurableDialogComponent {
       await this.simpleDialogOpts.acceptAction();
     }
 
-    this.dialogRef.close(true);
+    if (!this.simpleDialogOpts.disableClose) {
+      this.dialogRef.close(true);
+    }
   };
 
   private localizeText() {

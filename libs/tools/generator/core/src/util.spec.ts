@@ -1,5 +1,6 @@
 import { DefaultPassphraseGenerationOptions } from "./data";
-import { optionsToEffWordListRequest, optionsToRandomAsciiRequest, sum } from "./util";
+import { GeneratorConstraints, PassphraseGenerationOptions } from "./types";
+import { optionsToEffWordListRequest, optionsToRandomAsciiRequest, sum, equivalent } from "./util";
 
 describe("sum", () => {
   it("returns 0 when the list is empty", () => {
@@ -422,5 +423,92 @@ describe("optionsToEffWordListRequest", () => {
       number: true,
       separator: DefaultPassphraseGenerationOptions.wordSeparator,
     });
+  });
+});
+
+describe("equivalent", () => {
+  // constructs a partial constraints object; only the properties compared
+  // by `equivalent` are included.
+  function createConstraints(
+    policyInEffect: boolean,
+    numWordsMin?: number,
+    capitalize?: boolean,
+  ): GeneratorConstraints<PassphraseGenerationOptions> {
+    return {
+      constraints: {
+        policyInEffect,
+        numWords: numWordsMin !== undefined ? { min: numWordsMin } : undefined,
+        capitalize: capitalize !== undefined ? { requiredValue: capitalize } : undefined,
+      },
+    } as unknown as GeneratorConstraints<PassphraseGenerationOptions>;
+  }
+
+  it("should return true for identical constraints", () => {
+    const lhs = createConstraints(false, 3, true);
+    const rhs = createConstraints(false, 3, true);
+
+    expect(equivalent(lhs, rhs)).toBe(true);
+  });
+
+  it("should return false when policy effects differ", () => {
+    const lhs = createConstraints(true, 3);
+    const rhs = createConstraints(false, 3);
+
+    expect(equivalent(lhs, rhs)).toBe(false);
+  });
+
+  it("should return false when constraint values differ", () => {
+    const lhs = createConstraints(false, 3);
+    const rhs = createConstraints(false, 4);
+
+    expect(equivalent(lhs, rhs)).toBe(false);
+  });
+
+  it("should return false when one has additional constraints", () => {
+    const lhs = createConstraints(false, 3, true);
+    const rhs = createConstraints(false, 3);
+
+    expect(equivalent(lhs, rhs)).toBe(false);
+  });
+
+  it("should handle undefined constraints", () => {
+    const lhs = createConstraints(false);
+    const rhs = createConstraints(false);
+
+    expect(equivalent(lhs, rhs)).toBe(true);
+  });
+
+  it("should handle empty constraint objects", () => {
+    const lhs = {
+      constraints: {
+        policyInEffect: false,
+        numWords: {},
+      },
+    } as unknown as GeneratorConstraints<PassphraseGenerationOptions>;
+    const rhs = {
+      constraints: {
+        policyInEffect: false,
+        numWords: {},
+      },
+    } as unknown as GeneratorConstraints<PassphraseGenerationOptions>;
+
+    expect(equivalent(lhs, rhs)).toBe(true);
+  });
+
+  it("should return false when inner constraint properties differ", () => {
+    const lhs = {
+      constraints: {
+        policyInEffect: false,
+        numWords: { min: 3, max: 5 },
+      },
+    } as any;
+    const rhs = {
+      constraints: {
+        policyInEffect: false,
+        numWords: { min: 3, max: 6 },
+      },
+    } as unknown as GeneratorConstraints<PassphraseGenerationOptions>;
+
+    expect(equivalent(lhs, rhs)).toBe(false);
   });
 });

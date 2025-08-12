@@ -13,7 +13,7 @@
   --color-background: 255 255 255;
   --color-background-alt: 243 246 249;
   --color-background-alt2: 23 92 219;
-  --color-background-alt3: 26 65 172;
+  --color-background-alt3: 22 55 146;
   --color-background-alt4: 2 15 102;
 
   --color-primary-100: 219 229 246;
@@ -29,23 +29,24 @@
 
   --color-info-100: 219 229 246;
   --color-info-600: 121 161 233;
-  --color-info-700: 26 65 172;
+  --color-info-700: 13 36 123;
 
-  --color-warning-100: 255 248 228;
+  --color-warning-100: 255 244 212;
   --color-warning-600: 255 191 0;
-  --color-warning-700: 172 88 0;
+  --color-warning-700: 142 64 0;
 
   --color-danger-100: 255 236 239;
   --color-danger-600: 203 38 58;
   --color-danger-700: 149 27 42;
 
-  --color-success-100: 191 236 195;
+  --color-success-100: 213 243 216;
   --color-success-600: 12 128 24;
-  --color-success-700: 11 111 21;
+  --color-success-700: 8 81 15;
 
   --color-notification-100: 255 225 247;
   --color-notification-600: 192 17 118;
 
+  /*art styles deprecated, use 'illustration' instead*/
   --color-art-primary: 2 15 102;
   --color-art-accent: 44 221 223;
 
@@ -55,9 +56,21 @@
   --color-text-alt2: 255 255 255;
   --color-text-code: 192 17 118;
 
+  --color-hover-default: rgb(26 65 172 / 0.1);
+  --color-hover-contrast: rgb(255 255 255 / 0.15);
+
   --color-marketing-logo: 23 93 220;
 
   --tw-ring-offset-color: #ffffff;
+
+  --tw-sm-breakpoint: 640px;
+
+  --color-illustration-outline: 2 15 102;
+  --color-illustration-bg-primary: 219 229 246;
+  --color-illustration-bg-secondary: 170 195 239;
+  --color-illustration-bg-tertiary: 255 255 255;
+  --color-illustration-tertiary: 255 191 0;
+  --color-illustration-logo: 23 93 220;
 }
 
 .theme_light {
@@ -74,7 +87,7 @@
   --color-background-alt3: 48 57 70;
   --color-background-alt4: 18 26 39;
 
-  --color-primary-100: 26 39 78;
+  --color-primary-100: 29 46 99;
   --color-primary-300: 26 65 172;
   --color-primary-600: 101 171 255;
   --color-primary-700: 170 195 239;
@@ -85,25 +98,26 @@
   --color-secondary-600: 143 152 166;
   --color-secondary-700: 158 167 181;
 
-  --color-success-100: 11 111 21;
+  --color-success-100: 8 81 15;
   --color-success-600: 107 241 120;
-  --color-success-700: 191 236 195;
+  --color-success-700: 213 243 216;
 
   --color-danger-100: 149 27 42;
   --color-danger-600: 255 78 99;
   --color-danger-700: 255 236 239;
 
-  --color-warning-100: 172 88 0;
+  --color-warning-100: 142 64 0;
   --color-warning-600: 255 191 0;
-  --color-warning-700: 255 248 228;
+  --color-warning-700: 255 244 212;
 
-  --color-info-100: 26 65 172;
+  --color-info-100: 13 36 123;
   --color-info-600: 121 161 233;
   --color-info-700: 219 229 246;
 
   --color-notification-100: 117 37 83;
   --color-notification-600: 255 143 208;
 
+  /*art styles deprecated, use 'illustration' instead*/
   --color-art-primary: 243 246 249;
   --color-art-accent: 44 221 233;
 
@@ -113,9 +127,19 @@
   --color-text-alt2: 255 255 255;
   --color-text-code: 255 143 208;
 
+  --color-hover-default: rgb(170 195 239 / 0.1);
+  --color-hover-contrast: rgb(0 0 0 / 0.15);
+
   --color-marketing-logo: 255 255 255;
 
   --tw-ring-offset-color: #1f242e;
+
+  --color-illustration-outline: 23 93 220;
+  --color-illustration-bg-primary: 170 195 239;
+  --color-illustration-bg-secondary: 121 161 233;
+  --color-illustration-bg-tertiary: 243 246 249;
+  --color-illustration-tertiary: 255 191 0;
+  --color-illustration-logo: 255 255 255;
 }
 
 /**

@@ -26,7 +26,6 @@ import { PopupRouterCacheService } from "../../../../../platform/popup/view-cach
 import { AttachmentsV2Component } from "./attachments-v2.component";
 
 @Component({
-  standalone: true,
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
 })
@@ -36,7 +35,6 @@ class MockPopupHeaderComponent {
 }
 
 @Component({
-  standalone: true,
   selector: "popup-footer",
   template: `<ng-content></ng-content>`,
 })

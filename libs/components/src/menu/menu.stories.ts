@@ -57,7 +57,7 @@ export const ClosedMenu: Story = {
     props: args,
     template: /*html*/ `
       <div class="tw-h-40">
-        <button bitButton buttonType="secondary" [bitMenuTriggerFor]="myMenu">Open menu</button>
+        <button type="button" bitButton buttonType="secondary" [bitMenuTriggerFor]="myMenu">Open menu</button>
       </div>
 
       <bit-menu #myMenu>

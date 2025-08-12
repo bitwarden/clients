@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Identitāte"
   },
+  "typeNote": {
+    "message": "Piezīme"
+  },
   "typeSecureNote": {
     "message": "Droša piezīme"
   },
@@ -37,6 +40,9 @@
   },
   "searchVault": {
     "message": "Meklēt glabātavā"
+  },
+  "resetSearch": {
+    "message": "Atiestatīt meklēšanu"
   },
   "addItem": {
     "message": "Pievienot vienumu"
@@ -351,12 +357,6 @@
   "other": {
     "message": "Cits"
   },
-  "generatePassword": {
-    "message": "Veidot paroli"
-  },
-  "generatePassphrase": {
-    "message": "Izveidot paroles vārdkopu"
-  },
   "type": {
     "message": "Veids"
   },
@@ -575,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Ievietot Apliecinājuma kodu (TOTP) starpliktuvē"
   },
+  "copyFieldCipherName": {
+    "message": "Ievietot starpliktuvē $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Garums"
   },
@@ -697,8 +711,8 @@
   "maxFileSize": {
     "message": "Lielākais pieļaujamais datnes izmērs ir 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Nepieciešama šifrēšanas atslēgas nomaiņa. Lūgums pieteikties tīmekļa glabātavā, lai atjauninātu savu šifrēšanas atslēgu."
+  "legacyEncryptionUnsupported": {
+    "message": "Mantota šifrēšana vairs netiek atbalstīta. Lūgums sazināties ar atbalstu, lai atkoptu savu kontu."
   },
   "editedFolder": {
     "message": "Mape labota"
@@ -1211,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Divpakāpju pieteikšanās"
   },
+  "vaultTimeoutHeader": {
+    "message": "Glabātavas noildze"
+  },
   "vaultTimeout": {
     "message": "Glabātavas noildze"
   },
   "vaultTimeout1": {
     "message": "Noildze"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Noildzes darbība"
   },
   "vaultTimeoutDesc": {
     "message": "Izvēlēties, kad glabātavai iestāsies noildze un tiks izpildīta atlasītā darbība."
@@ -1427,6 +1447,9 @@
   "copySecurityCode": {
     "message": "Ievietot drošības kodu starpliktuvē",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kartes numurs"
   },
   "premiumMembership": {
     "message": "Premium dalība"
@@ -1719,6 +1742,12 @@
   "accountRestricted": {
     "message": "Konts ir ierobežots"
   },
+  "restrictCardTypeImport": {
+    "message": "Nevar ievietot karšu vienumu veidus"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Pamatnostādne, ko ir iestatījusi viena vai vairākas apvienības, liedz karšu ievietošanu savās glabātavās."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Datnes parole\" un \"Apstiprināt datnes paroli\" vērtības nesakrīt."
   },
@@ -1793,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Atslēgt ar Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Windows Hello papildu iestatījumi"
-  },
   "unlockWithPolkit": {
     "message": "Atslēgt ar sistēmas autentifikāciju"
   },
@@ -1811,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "atslēgt glabātavu"
   },
-  "autoPromptWindowsHello": {
-    "message": "Palaišanā vaicāt pēc Windows Hello"
-  },
-  "autoPromptPolkit": {
-    "message": "Palaišanas laikā vaicāt pēc autentifikācijas"
-  },
   "autoPromptTouchId": {
     "message": "Palaišanā vaicāt pēc Touch ID"
   },
@@ -1825,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Pieprasīt paroli pēc lietotnes palaišanas"
-  },
-  "recommendedForSecurity": {
-    "message": "Ieteicams drošībai."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Aizslēgt ar galveno paroli pēc pārsāknēšanas"
@@ -2389,6 +2406,9 @@
   "passwordConfirmationDesc": {
     "message": "Šī darbība ir aizsargāta. Lai turpinātu, ir jāievada galvenā parole, lai apliecinātu savu identitāti."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Galvenā parole sekmīgi iestatīta"
+  },
   "updatedMasterPassword": {
     "message": "Galvenā parole atjaunināta"
   },
@@ -2400,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Galvenā parole neatbilst vienam vai vairākiem apvienības nosacījumiem. Ir jāatjaunina galvenā parole, lai varētu piekļūt glabātavai. Turpinot notiks atteikšanās no pašreizējās sesijas, un būs nepieciešams pieteikties no jauna. Citās ierīcēs esošās sesijas var turpināt darboties līdz vienai stundai."
+  },
+  "changePasswordWarning": {
+    "message": "Pēc savas paroles nomainīšanas būs nepieciešams pieteikties ar jauno paroli. Spēkā esošajās sesijās citās ierīcēs stundas laikā notiks atteikšanās."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Jānomaina sava galvenā'parole, lai pabeigtu konta atkopi."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Galvenā parole neatbilst šīs apvienības prasībām. Jānomaina sava galvenā parole, lai turpinātu."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Tava apvienība ir atspējojusi uzticamo ierīču šifrēšanu. Lūgums iestatīt galveno paroli, lai piekļūtu savai glabātavai."
@@ -2487,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Glabātavas noildze pārsniedz apvienības uzstādītos ierobežojumus."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Noildzes iespējām tika piemērotas uzņēmējdarbības nosacījumu prasības"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Apvienības pamatnostādnēs ir iestatīta lielākā pieļaujamā glabātavas noildze: $HOURS$ stunda(s) un $MINUTES$ minūte(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Noildze pārsniedz apvienības iestatīto ierobežojumu: ne vairāk kā $HOURS$ stunda(s) un $MINUTES$ minūte(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Uzaicinājums apstiprināts"
@@ -2633,6 +2691,24 @@
   "usernameGenerator": {
     "message": "Lietotājvārdu veidotājs"
   },
+  "generatePassword": {
+    "message": "Veidot paroli"
+  },
+  "generatePassphrase": {
+    "message": "Izveidot paroles vārdkopu"
+  },
+  "passwordGenerated": {
+    "message": "Parole izveidota"
+  },
+  "passphraseGenerated": {
+    "message": "Paroles vārdkopa izveidota"
+  },
+  "usernameGenerated": {
+    "message": "Lietotājvārds izveidots"
+  },
+  "emailGenerated": {
+    "message": "E-pasta adrese izveidota"
+  },
   "spinboxBoundariesHint": {
     "message": "Vērtībai jābūt starp $MIN$ un $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2761,15 @@
   },
   "useThisEmail": {
     "message": "Izmantot šo e-pasta adresi"
+  },
+  "useThisPassword": {
+    "message": "Izmantot šo paroli"
+  },
+  "useThisPassphrase": {
+    "message": "Izmantot šo paroles vārdkopu"
+  },
+  "useThisUsername": {
+    "message": "Izmantot šo lietotājvārdu"
   },
   "random": {
     "message": "Nejauši"
@@ -2942,9 +3027,6 @@
     "message": "Pārslēgt rakstzīmju skaita attēlošanu",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Vai mēģini piekļūt savam kontam?"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ piekļuves mēģinājums",
     "placeholders": {
@@ -2953,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas biji Tu, mēģini pieteikties no ierīces vēlreiz!"
+  },
+  "webApp": {
+    "message": "Tīmekļa lietotne"
+  },
+  "mobile": {
+    "message": "Tālrunis",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Paplašinājums",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Darbvirsma",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Serveris"
+  },
+  "loginRequest": {
+    "message": "Pieteikšanās pieprasījums"
   },
   "deviceType": {
     "message": "Ierīces veids"
@@ -2968,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Noraidīt piekļuvi"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
   },
   "justNow": {
     "message": "Tikko"
@@ -3051,12 +3161,6 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Noteikta vāja parole, un tā ir atrasta datu noplūdē. Jāizmanto spēcīga un neatkārtojama parole, lai aizsargātu savu kontu. Vai tiešām izmantot šo paroli?"
   },
-  "useThisPassword": {
-    "message": "Izmantot šo paroli"
-  },
-  "useThisUsername": {
-    "message": "Izmantot šo lietotājvārdu"
-  },
   "checkForBreaches": {
     "message": "Meklēt šo paroli zināmās datu noplūdēs"
   },
@@ -3116,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "Pieprasīt pārvaldītāja apstiprinājumu"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nevar pabeigt pieteikšanos"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Nepieciešams pieteikties uzticamā ierīcē vai vaicāt pārvaldītājam, lai piešķir paroli."
   },
   "region": {
     "message": "Apgabals"
@@ -3508,6 +3618,30 @@
     "message": "Izplatīti veidoli",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI atbilstības noteikšana ir veids, kā Bitwarden atpazīst automātiskās aizpildes ieteikumus.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulārā izteiksme\" ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Sākas ar' ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Vairāk par atbilstības noteikšanu",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Papildu iespējas",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Brīdinājums",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "Izdevās"
   },
@@ -3704,7 +3838,7 @@
     "message": "Mainīt riskam pakļautu paroli"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3723,6 +3857,31 @@
   },
   "folderHintText": {
     "message": "Apakšmapes var izveidot, ja pievieno iekļaujošās mapes nosaukumu, aiz kura ir \"/\". Piemēram: Tīklošanās/Forumi"
+  },
+  "sendsTitleNoItems": {
+    "message": "Drošā veidā nosūti jūtīgu informāciju",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Kopīgo datnes un datus drošā veidā ar ikvienu jebkurā platformā! Tava informācija paliks pilnībā šifrēta, vienlaikus ierobežojot riskantumu.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Ātra paroļu izveidošana"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": ", lai palīdzētu uzturērt pieteikšanās vienumus drošus.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar pogu \"Izveidot paroli\", lai palīdzētu uzturēt pieteikšanās vienumus drošus.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Laika ietaupīšana ar automātisko aizpildi"
@@ -3772,5 +3931,151 @@
     "message": "Uzzināt vairāk par SSH aģentu",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Piešķirt krājumiem"
+  },
+  "assignToTheseCollections": {
+    "message": "Piešķirt šiem krājumiem"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Vienumu varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Vienumus varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
+  },
+  "noCollectionsAssigned": {
+    "message": "Neviens krājums nav piešķirts"
+  },
+  "assign": {
+    "message": "Piešķirt"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Vienumus varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Ir atlasīti $TOTAL_COUNT$ vienumi. Nevar atjaunināt $READONLY_COUNT$ no vienumiem, jo trūkst labošanas atļaujas.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Atlasīt krājumus, lai piešķirtu"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ tiks neatgriezeniski nodoti atlasītajai apvienībai. Šie vienumi Tev vairs nepiederēs.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ tiks neatgriezeniski nodoti $ORG$. Šie vienumi Tev vairs nepiederēs.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 vienums tiks neatgriezeniski nodots atlasītajai apvienībai. Šis vienums Tev vairs nepiederēs."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 vienums tiks neatgriezeniski nodots $ORG$. Šis vienums Tev vairs nepiederēs.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Krājumi veiksmīgi piešķirti"
+  },
+  "nothingSelected": {
+    "message": "Nekas nav atlasīts."
+  },
+  "itemsMovedToOrg": {
+    "message": "Vienumi pārvietoti uz $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Vienums pārvietots uz $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Atlasītie vienumi pārvietoti uz $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
+  },
+  "showMore": {
+    "message": "Rādīt vairāk"
+  },
+  "showLess": {
+    "message": "Rādīt mazāk"
+  },
+  "enableAutotype": {
+    "message": "Iespējot automātisko ievadi"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden nepārbauda ievades atrašanās vietas, jāpārliecinās, ka atrodies pareizajā logā un laukā, pirms saīsnes izmantošanas."
   }
 }

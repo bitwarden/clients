@@ -1,7 +1,16 @@
 import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
-export abstract class AuthRequestApiService {
+export abstract class AuthRequestApiServiceAbstraction {
+  /**
+   * Gets a list of pending auth requests based on the user. There will only be one AuthRequest per device and the
+   * AuthRequest will be the most recent pending request.
+   *
+   * @returns A promise that resolves to a list response containing auth request responses.
+   */
+  abstract getPendingAuthRequests(): Promise<ListResponse<AuthRequestResponse>>;
+
   /**
    * Gets an auth request by its ID.
    *

@@ -11,7 +11,6 @@ export type FingerprintDialogData = {
 
 @Component({
   templateUrl: "fingerprint-dialog.component.html",
-  standalone: true,
   imports: [JslibModule, ButtonModule, DialogModule],
 })
 export class FingerprintDialogComponent {

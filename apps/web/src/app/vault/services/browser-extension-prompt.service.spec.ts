@@ -1,9 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 
 import {
   BrowserExtensionPromptService,

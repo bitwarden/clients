@@ -9,7 +9,6 @@ export type VerifyNativeMessagingDialogData = {
 
 @Component({
   templateUrl: "verify-native-messaging-dialog.component.html",
-  standalone: true,
   imports: [JslibModule, ButtonModule, DialogModule],
 })
 export class VerifyNativeMessagingDialogComponent {

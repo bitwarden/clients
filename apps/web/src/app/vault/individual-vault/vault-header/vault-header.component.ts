@@ -1,14 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -31,6 +22,7 @@ import {
   MenuModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
+import { NewCipherMenuComponent } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -42,7 +34,6 @@ import {
 } from "../vault-filter/shared/models/routed-vault-filter.model";
 
 @Component({
-  standalone: true,
   selector: "app-vault-header",
   templateUrl: "./vault-header.component.html",
   imports: [
@@ -53,10 +44,11 @@ import {
     HeaderModule,
     PipesModule,
     JslibModule,
+    NewCipherMenuComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultHeaderComponent implements OnInit {
+export class VaultHeaderComponent {
   protected Unassigned = Unassigned;
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
@@ -66,10 +58,10 @@ export class VaultHeaderComponent implements OnInit {
    * Boolean to determine the loading state of the header.
    * Shows a loading spinner if set to true
    */
-  @Input() loading: boolean;
+  @Input() loading: boolean = true;
 
   /** Current active filter */
-  @Input() filter: RoutedVaultFilterModel;
+  @Input() filter: RoutedVaultFilterModel | undefined;
 
   /** All organizations that can be shown */
   @Input() organizations: Organization[] = [];
@@ -78,7 +70,7 @@ export class VaultHeaderComponent implements OnInit {
   @Input() collection?: TreeNode<CollectionView>;
 
   /** Whether 'Collection' option is shown in the 'New' dropdown */
-  @Input() canCreateCollections: boolean;
+  @Input() canCreateCollections: boolean = false;
 
   /** Emits an event when the new item button is clicked in the header */
   @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
@@ -103,8 +95,6 @@ export class VaultHeaderComponent implements OnInit {
     private configService: ConfigService,
   ) {}
 
-  async ngOnInit() {}
-
   /**
    * The id of the organization that is currently being filtered on.
    * This can come from a collection filter or organization filter, if applied.
@@ -114,7 +104,7 @@ export class VaultHeaderComponent implements OnInit {
       return this.collection.node.organizationId;
     }
 
-    if (this.filter.organizationId !== undefined) {
+    if (this.filter?.organizationId !== undefined) {
       return this.filter.organizationId;
     }
 
@@ -127,10 +117,14 @@ export class VaultHeaderComponent implements OnInit {
   }
 
   protected get showBreadcrumbs() {
-    return this.filter.collectionId !== undefined && this.filter.collectionId !== All;
+    return this.filter?.collectionId !== undefined && this.filter.collectionId !== All;
   }
 
   protected get title() {
+    if (this.filter === undefined) {
+      return "";
+    }
+
     if (this.filter.collectionId === Unassigned) {
       return this.i18nService.t("unassigned");
     }
@@ -152,7 +146,7 @@ export class VaultHeaderComponent implements OnInit {
   }
 
   protected get icon() {
-    return this.filter.collectionId && this.filter.collectionId !== All
+    return this.filter?.collectionId && this.filter.collectionId !== All
       ? "bwi-collection-shared"
       : "";
   }
