@@ -5,6 +5,7 @@ on:
     workflows: ["Build Browser"]
     types:
       - completed
+  pull_request:
 
 jobs:
   check-files:
