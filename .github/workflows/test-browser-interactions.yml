@@ -12,8 +12,9 @@ jobs:
     name: Check files
     runs-on: ubuntu-22.04
     permissions:
-      contents: read
       actions: read
+      contents: read
+      id-token: write
     steps:
     - name: Log in to Azure
       uses: bitwarden/gh-actions/azure-login@main
