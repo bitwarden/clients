@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { catchError, debounceTime, exhaustMap, finalize, of, tap } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -10,22 +10,13 @@ import {
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
-  ApplicationHealthReportDetail,
-  ApplicationHealthReportDetailWithCriticalFlag,
-  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
+  ApplicationHealthReportDetailEnriched,
   ApplicationHealthReportSummary,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/risk-insights-encryption.service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   IconButtonModule,
@@ -59,12 +50,9 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
   ],
 })
 export class AllApplicationsComponent implements OnInit {
-  protected dataSource =
-    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
+  protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
-  protected loading = true;
-  protected organization = new Organization();
   noItemsIcon = Icons.Security;
   protected markingAsCritical = false;
   protected applicationSummary: ApplicationHealthReportSummary = {
@@ -75,65 +63,6 @@ export class AllApplicationsComponent implements OnInit {
   };
 
   destroyRef = inject(DestroyRef);
-  isLoading$: Observable<boolean> = of(false);
-
-  async ngOnInit() {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    if (organizationId) {
-      const organization$ = this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(organizationId));
-
-      combineLatest([
-        this.dataService.applications$,
-        this.criticalAppsService.getAppsListForOrg(organizationId),
-        organization$,
-      ])
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          map(([applications, criticalApps, organization]) => {
-            if (applications && applications.length === 0 && criticalApps && criticalApps) {
-              const criticalUrls = criticalApps.map((ca) => ca.uri);
-              const data = applications?.map((app) => ({
-                ...app,
-                isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-              })) as ApplicationHealthReportDetailWithCriticalFlag[];
-              return { data, organization };
-            }
-
-            return { data: applications, organization };
-          }),
-          switchMap(async ({ data, organization }) => {
-            if (data && organization) {
-              const dataWithCiphers = await this.reportService.identifyCiphers(
-                data,
-                organization.id as OrganizationId,
-              );
-
-              return {
-                data: dataWithCiphers,
-                organization,
-              };
-            }
-
-            return { data: [], organization };
-          }),
-        )
-        .subscribe(({ data, organization }) => {
-          if (data) {
-            this.dataSource.data = data;
-            this.applicationSummary = this.reportService.generateApplicationsSummary(data);
-          }
-          if (organization) {
-            this.organization = organization;
-          }
-        });
-
-      this.isLoading$ = this.dataService.isLoading$;
-    }
-  }
 
   constructor(
     protected cipherService: CipherService,
@@ -144,13 +73,27 @@ export class AllApplicationsComponent implements OnInit {
     protected dataService: RiskInsightsDataService,
     protected organizationService: OrganizationService,
     protected reportService: RiskInsightsReportService,
-    private accountService: AccountService,
     protected criticalAppsService: CriticalAppsService,
     protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
       .subscribe((v) => (this.dataSource.filter = v));
+  }
+
+  async ngOnInit() {
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+
+    if (organizationId) {
+      this.dataService.reportResults$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((report) => {
+          if (report) {
+            this.dataSource.data = report.data;
+            // this.applicationSummary = this.reportService.generateApplicationsSummary(report.data);
+          }
+        });
+    }
   }
 
   goToCreateNewLoginItem = async () => {
@@ -162,33 +105,36 @@ export class AllApplicationsComponent implements OnInit {
     });
   };
 
-  isMarkedAsCriticalItem(applicationName: string) {
-    return this.selectedUrls.has(applicationName);
-  }
-
-  markAppsAsCritical = async () => {
-    this.markingAsCritical = true;
-
-    try {
-      await this.criticalAppsService.setCriticalApps(
-        this.organization.id,
-        Array.from(this.selectedUrls),
-      );
-
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("applicationsMarkedAsCriticalSuccess"),
-      });
-    } finally {
-      this.selectedUrls.clear();
-      this.markingAsCritical = false;
-    }
+  markAppsAsCritical = () => {
+    of(Array.from(this.selectedUrls))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        exhaustMap((urls) =>
+          this.dataService.saveCriticalApps(urls).pipe(
+            catchError((error: unknown) => {
+              this.toastService.showToast({
+                variant: "error",
+                title: "",
+                message: this.i18nService.t("applicationsMarkedAsCriticalFail"),
+              });
+              throw error;
+            }),
+          ),
+        ),
+        tap(() => {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("applicationsMarkedAsCriticalSuccess"),
+          });
+        }),
+        finalize(() => {
+          this.selectedUrls.clear();
+          this.markingAsCritical = false;
+        }),
+      )
+      .subscribe();
   };
-
-  trackByFunction(_: number, item: ApplicationHealthReportDetail) {
-    return item.applicationName;
-  }
 
   showAppAtRiskMembers = async (applicationName: string) => {
     const info = {
@@ -217,11 +163,5 @@ export class AllApplicationsComponent implements OnInit {
     } else {
       this.selectedUrls.delete(applicationName);
     }
-  };
-
-  getSelectedUrls = () => Array.from(this.selectedUrls);
-
-  isDrawerOpenForTableRow = (applicationName: string): boolean => {
-    return this.dataService.drawerInvokerId === applicationName;
   };
 }

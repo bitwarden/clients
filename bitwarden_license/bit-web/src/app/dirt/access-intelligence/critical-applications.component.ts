@@ -4,20 +4,16 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, debounceTime, map, switchMap } from "rxjs";
+import { debounceTime } from "rxjs";
 
 import {
-  CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
-  ApplicationHealthReportDetailWithCriticalFlag,
-  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
+  ApplicationHealthReportDetailEnriched,
   ApplicationHealthReportSummary,
-} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+} from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
@@ -54,57 +50,42 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   providers: [DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {
-  protected dataSource =
-    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
-  protected selectedIds: Set<number> = new Set<number>();
-  protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
-  protected loading = false;
+
+  protected dataSource = new TableDataSource<ApplicationHealthReportDetailEnriched>();
+
+  protected searchControl = new FormControl("", { nonNullable: true });
   protected organizationId: OrganizationId;
-  protected applicationSummary = {} as ApplicationHealthReportSummary;
+  protected summary = {} as ApplicationHealthReportSummary;
+
   noItemsIcon = Icons.Security;
-  isNotificationsFeatureEnabled: boolean = false;
   enableRequestPasswordChange = false;
 
-  async ngOnInit() {
-    this.isNotificationsFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.EnableRiskInsightsNotifications,
-    );
+  constructor(
+    protected activatedRoute: ActivatedRoute,
+    protected router: Router,
+    protected toastService: ToastService,
+    protected dataService: RiskInsightsDataService,
+    protected reportService: RiskInsightsReportService,
+    protected i18nService: I18nService,
+    private adminTaskService: DefaultAdminTaskService,
+  ) {
+    this.searchControl.valueChanges
+      .pipe(debounceTime(200), takeUntilDestroyed())
+      .subscribe((v) => (this.dataSource.filter = v));
+  }
 
+  async ngOnInit() {
     this.organizationId = this.activatedRoute.snapshot.paramMap.get(
       "organizationId",
     ) as OrganizationId;
-
-    combineLatest([
-      this.dataService.applications$,
-      this.criticalAppsService.getAppsListForOrg(this.organizationId),
-    ])
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        map(([applications, criticalApps]) => {
-          const criticalUrls = criticalApps.map((ca) => ca.uri);
-          const data = applications?.map((app) => ({
-            ...app,
-            isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-          })) as ApplicationHealthReportDetailWithCriticalFlag[];
-          return data?.filter((app) => app.isMarkedAsCritical);
-        }),
-        switchMap(async (data) => {
-          if (data) {
-            const dataWithCiphers = await this.reportService.identifyCiphers(
-              data,
-              this.organizationId,
-            );
-            return dataWithCiphers;
-          }
-          return null;
-        }),
-      )
-      .subscribe((applications) => {
-        if (applications) {
-          this.dataSource.data = applications;
-          this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
-          this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
+    this.dataService
+      .getCriticalReport$(this.dataService.reportResults$)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((criticalReport) => {
+        if (criticalReport) {
+          this.summary = this.reportService.generateApplicationsSummary(criticalReport.data);
+          this.dataSource.data = criticalReport.data;
         }
       });
   }
@@ -119,12 +100,9 @@ export class CriticalApplicationsComponent implements OnInit {
     );
   };
 
-  unmarkAsCriticalApp = async (hostname: string) => {
+  removeCriticalApp = async (hostname: string) => {
     try {
-      await this.criticalAppsService.dropCriticalApp(
-        this.organizationId as OrganizationId,
-        hostname,
-      );
+      await this.dataService.dropCriticalApp(hostname);
     } catch {
       this.toastService.showToast({
         message: this.i18nService.t("unexpectedError"),
@@ -171,22 +149,7 @@ export class CriticalApplicationsComponent implements OnInit {
     }
   }
 
-  constructor(
-    protected activatedRoute: ActivatedRoute,
-    protected router: Router,
-    protected toastService: ToastService,
-    protected dataService: RiskInsightsDataService,
-    protected criticalAppsService: CriticalAppsService,
-    protected reportService: RiskInsightsReportService,
-    protected i18nService: I18nService,
-    private configService: ConfigService,
-    private adminTaskService: DefaultAdminTaskService,
-  ) {
-    this.searchControl.valueChanges
-      .pipe(debounceTime(200), takeUntilDestroyed())
-      .subscribe((v) => (this.dataSource.filter = v));
-  }
-
+  // Open side drawer to show at risk members for an application
   showAppAtRiskMembers = async (applicationName: string) => {
     const data = {
       members:
@@ -197,6 +160,7 @@ export class CriticalApplicationsComponent implements OnInit {
     this.dataService.setDrawerForAppAtRiskMembers(data, applicationName);
   };
 
+  // Open side drawer to show at risk members for the entire organization
   showOrgAtRiskMembers = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskMemberList(this.dataSource.data);
     this.dataService.setDrawerForOrgAtRiskMembers(data, invokerId);
@@ -205,12 +169,5 @@ export class CriticalApplicationsComponent implements OnInit {
   showOrgAtRiskApps = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
     this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
-  };
-
-  trackByFunction(_: number, item: ApplicationHealthReportDetailWithCriticalFlag) {
-    return item.applicationName;
-  }
-  isDrawerOpenForTableRow = (applicationName: string) => {
-    return this.dataService.drawerInvokerId === applicationName;
   };
 }

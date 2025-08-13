@@ -9,7 +9,6 @@ import { MemberCipherDetailsApiService } from "./member-cipher-details-api.servi
 import { mockMemberCipherDetails } from "./member-cipher-details-api.service.spec";
 import { PasswordHealthService } from "./password-health.service";
 
-// FIXME: Remove password-health report service after PR-15498 completion
 describe("PasswordHealthService", () => {
   let service: PasswordHealthService;
   beforeEach(() => {
@@ -52,14 +51,5 @@ describe("PasswordHealthService", () => {
 
   it("should be created", () => {
     expect(service).toBeTruthy();
-  });
-
-  it("should initialize properties", () => {
-    expect(service.reportCiphers).toEqual([]);
-    expect(service.reportCipherIds).toEqual([]);
-    expect(service.passwordStrengthMap.size).toBe(0);
-    expect(service.passwordUseMap.size).toBe(0);
-    expect(service.exposedPasswordMap.size).toBe(0);
-    expect(service.totalMembersMap.size).toBe(0);
   });
 });

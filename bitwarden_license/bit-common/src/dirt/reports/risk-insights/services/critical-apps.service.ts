@@ -4,12 +4,9 @@ import {
   firstValueFrom,
   forkJoin,
   from,
-  map,
   Observable,
   of,
-  Subject,
   switchMap,
-  takeUntil,
   zip,
 } from "rxjs";
 
@@ -22,7 +19,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
 
 import { CriticalAppsApiService } from "./critical-apps-api.service";
 
@@ -30,16 +27,14 @@ import { CriticalAppsApiService } from "./critical-apps-api.service";
  *  Encrypts and saves data for a given organization
  */
 export class CriticalAppsService {
-  private orgId = new BehaviorSubject<OrganizationId | null>(null);
-  private criticalAppsList = new BehaviorSubject<PasswordHealthReportApplicationsResponse[]>([]);
-  private teardown = new Subject<void>();
+  // The organization ID of the organization the user is currently viewing
+  private organizationId = new BehaviorSubject<OrganizationId | null>(null);
+  organizationId$ = this.organizationId.asObservable();
 
-  private fetchOrg$ = this.orgId
-    .pipe(
-      switchMap((orgId) => this.retrieveCriticalApps(orgId)),
-      takeUntil(this.teardown),
-    )
-    .subscribe((apps) => this.criticalAppsList.next(apps));
+  private criticalAppsListSubject = new BehaviorSubject<PasswordHealthReportApplicationsResponse[]>(
+    [],
+  );
+  criticalAppsList$ = this.criticalAppsListSubject.asObservable();
 
   constructor(
     private keyService: KeyService,
@@ -47,16 +42,23 @@ export class CriticalAppsService {
     private criticalAppsApiService: CriticalAppsApiService,
   ) {}
 
-  // Get a list of critical apps for a given organization
-  getAppsListForOrg(orgId: string): Observable<PasswordHealthReportApplicationsResponse[]> {
-    return this.criticalAppsList
-      .asObservable()
-      .pipe(map((apps) => apps.filter((app) => app.organizationId === orgId)));
+  async initialize(organizationId: OrganizationId) {
+    this.organizationId.next(organizationId);
+    if (organizationId) {
+      this.retrieveCriticalApps(organizationId).subscribe({
+        next: (result) => {
+          this.criticalAppsListSubject.next(result);
+        },
+        error: (error: unknown) => {
+          throw error;
+        },
+      });
+    }
   }
 
   // Reset the critical apps list
   setAppsInListForOrg(apps: PasswordHealthReportApplicationsResponse[]) {
-    this.criticalAppsList.next(apps);
+    this.criticalAppsListSubject.next(apps);
   }
 
   // Save the selected critical apps for a given organization
@@ -79,7 +81,7 @@ export class CriticalAppsService {
     );
 
     // add the new entries to the criticalAppsList
-    const updatedList = [...this.criticalAppsList.value];
+    const updatedList = [...this.criticalAppsListSubject.value];
     for (const responseItem of dbResponse) {
       const decryptedUrl = await this.encryptService.decryptString(
         new EncString(responseItem.uri),
@@ -93,18 +95,19 @@ export class CriticalAppsService {
         } as PasswordHealthReportApplicationsResponse);
       }
     }
-    this.criticalAppsList.next(updatedList);
+
+    this.criticalAppsListSubject.next(updatedList);
   }
 
   // Get the critical apps for a given organization
   setOrganizationId(orgId: OrganizationId) {
-    this.orgId.next(orgId);
+    this.organizationId.next(orgId);
   }
 
   // Drop a critical app for a given organization
   // Only one app may be dropped at a time
   async dropCriticalApp(orgId: OrganizationId, selectedUrl: string) {
-    const app = this.criticalAppsList.value.find(
+    const app = this.criticalAppsListSubject.value.find(
       (f) => f.organizationId === orgId && f.uri === selectedUrl,
     );
 
@@ -117,7 +120,9 @@ export class CriticalAppsService {
       passwordHealthReportApplicationIds: [app.id],
     });
 
-    this.criticalAppsList.next(this.criticalAppsList.value.filter((f) => f.uri !== selectedUrl));
+    this.criticalAppsListSubject.next(
+      this.criticalAppsListSubject.value.filter((f) => f.uri !== selectedUrl),
+    );
   }
 
   private retrieveCriticalApps(
@@ -155,7 +160,7 @@ export class CriticalAppsService {
   }
 
   private async filterNewEntries(orgId: OrganizationId, selectedUrls: string[]): Promise<string[]> {
-    return await firstValueFrom(this.criticalAppsList).then((criticalApps) => {
+    return await firstValueFrom(this.criticalAppsListSubject).then((criticalApps) => {
       const criticalAppsUri = criticalApps
         .filter((f) => f.organizationId === orgId)
         .map((f) => f.uri);

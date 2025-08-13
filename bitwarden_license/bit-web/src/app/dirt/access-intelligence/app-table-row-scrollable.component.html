@@ -13,7 +13,7 @@
       <td
         bitCell
         *ngIf="showRowCheckBox"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
       >
         <input
           bitCheckbox
@@ -27,7 +27,7 @@
       <td
         bitCell
         *ngIf="!showRowCheckBox"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
       >
         <i class="bwi bwi-star-f" *ngIf="row.isMarkedAsCritical"></i>
       </td>
@@ -36,33 +36,24 @@
       </td>
       <td
         class="tw-cursor-pointer"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
         (keypress)="showAppAtRiskMembers(row.applicationName)"
         bitCell
       >
         <span>{{ row.applicationName }}</span>
       </td>
-      <td
-        bitCell
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
-      >
+      <td bitCell [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }">
         <span>
           {{ row.atRiskPasswordCount }}
         </span>
       </td>
-      <td
-        bitCell
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
-      >
+      <td bitCell [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }">
         <span>
           {{ row.passwordCount }}
         </span>
       </td>
-      <td
-        bitCell
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
-      >
+      <td bitCell [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }">
         <span>
           {{ row.atRiskMemberCount }}
         </span>
@@ -70,14 +61,14 @@
       <td
         bitCell
         data-testid="total-membership"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
       >
         {{ row.memberCount }}
       </td>
       <td
         bitCell
         *ngIf="showRowMenuForCriticalApps"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
       >
         <button
           [bitMenuTriggerFor]="rowMenu"

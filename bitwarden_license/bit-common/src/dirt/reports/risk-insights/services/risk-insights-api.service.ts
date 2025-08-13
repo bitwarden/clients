@@ -1,3 +1,4 @@
+import { Injectable } from "@angular/core";
 import { from, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -7,12 +8,13 @@ import {
   GetRiskInsightsReportResponse,
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
-} from "../models/password-health";
+} from "../models/api-models.types";
 
+@Injectable()
 export class RiskInsightsApiService {
   constructor(private apiService: ApiService) {}
 
-  saveRiskInsightsReport(
+  saveRiskInsightsReport$(
     request: SaveRiskInsightsReportRequest,
   ): Observable<SaveRiskInsightsReportResponse> {
     const dbResponse = this.apiService.send(
@@ -26,7 +28,7 @@ export class RiskInsightsApiService {
     return from(dbResponse as Promise<SaveRiskInsightsReportResponse>);
   }
 
-  getRiskInsightsReport(orgId: OrganizationId): Observable<GetRiskInsightsReportResponse | null> {
+  getRiskInsightsReport$(orgId: OrganizationId): Observable<GetRiskInsightsReportResponse | null> {
     const dbResponse = this.apiService
       .send("GET", `/reports/organization-reports/latest/${orgId.toString()}`, null, true, true)
       .catch((error: any): any => {

@@ -9,6 +9,9 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { EncryptedDataWithKey } from "../models/password-health";
 
+/**
+ * Service for encrypting and decrypting risk insights report data.
+ */
 export class RiskInsightsEncryptionService {
   constructor(
     private keyService: KeyService,
@@ -16,6 +19,13 @@ export class RiskInsightsEncryptionService {
     private keyGeneratorService: KeyGenerationService,
   ) {}
 
+  /**
+   * Encrypts the risk insights report data for a specific organization.
+   * @param organizationId The ID of the organization.
+   * @param userId The ID of the user.
+   * @param data The data to encrypt.
+   * @returns A promise that resolves to the encrypted data with the encryption key.
+   */
   async encryptRiskInsightsReport<T>(
     organizationId: OrganizationId,
     userId: UserId,
@@ -55,14 +65,23 @@ export class RiskInsightsEncryptionService {
     const encryptionKey = wrappedEncryptionKey.encryptedString;
 
     const encryptedDataPacket = {
-      organizationId: organizationId,
-      encryptedData: encryptedData,
-      encryptionKey: encryptionKey,
+      organizationId,
+      encryptedData,
+      contentEncryptionKey: encryptionKey,
     };
 
     return encryptedDataPacket;
   }
 
+  /**
+   * Decrypts the risk insights report data for a specific organization.
+   * @param organizationId The ID of the organization.
+   * @param userId The ID of the user.
+   * @param encryptedData The encrypted data to decrypt.
+   * @param wrappedKey The wrapped encryption key.
+   * @param parser A function to parse the decrypted JSON data.
+   * @returns A promise that resolves to the decrypted data or null if decryption fails.
+   */
   async decryptRiskInsightsReport<T>(
     organizationId: OrganizationId,
     userId: UserId,

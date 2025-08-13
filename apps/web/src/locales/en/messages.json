@@ -75,7 +75,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "No application reports found in $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -100,6 +100,9 @@
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
+  },
+  "applicationsMarkedAsCriticalFail": {
+    "message": "Failed to mark applications as critical"
   },
   "application": {
     "message": "Application"
@@ -10850,5 +10853,8 @@
         "example": "12-3456789"
       }
     }
+  },
+  "runRiskInsightsReport": {
+    "message": "Run Report"
   }
 }

@@ -4,7 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { SaveRiskInsightsReportRequest } from "../models/password-health";
+import { SaveRiskInsightsReportRequest } from "../models/api-models.types";
 
 import { RiskInsightsApiService } from "./risk-insights-api.service";
 
@@ -47,7 +47,7 @@ describe("RiskInsightsApiService", () => {
   it("should call apiService.send with correct parameters for saveRiskInsightsReport", (done) => {
     apiService.send.mockReturnValue(Promise.resolve(saveRiskInsightsReportResponse));
 
-    service.saveRiskInsightsReport(saveRiskInsightsReportRequest).subscribe((result) => {
+    service.saveRiskInsightsReport$(saveRiskInsightsReportRequest).subscribe((result) => {
       expect(result).toEqual(saveRiskInsightsReportResponse);
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
@@ -63,7 +63,7 @@ describe("RiskInsightsApiService", () => {
   it("should call apiService.send with correct parameters and return the response for saveRiskInsightsReport ", (done) => {
     apiService.send.mockReturnValue(Promise.resolve(saveRiskInsightsReportResponse));
 
-    service.saveRiskInsightsReport(saveRiskInsightsReportRequest).subscribe((result) => {
+    service.saveRiskInsightsReport$(saveRiskInsightsReportRequest).subscribe((result) => {
       expect(result).toEqual(saveRiskInsightsReportResponse);
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
@@ -80,7 +80,7 @@ describe("RiskInsightsApiService", () => {
     const error = { statusCode: 500, message: "Internal Server Error" };
     apiService.send.mockReturnValue(Promise.reject(error));
 
-    service.saveRiskInsightsReport(saveRiskInsightsReportRequest).subscribe({
+    service.saveRiskInsightsReport$(saveRiskInsightsReportRequest).subscribe({
       next: () => {
         fail("Expected error to be thrown");
       },
@@ -104,7 +104,7 @@ describe("RiskInsightsApiService", () => {
     const error = new Error("Network error");
     apiService.send.mockReturnValue(Promise.reject(error));
 
-    service.saveRiskInsightsReport(saveRiskInsightsReportRequest).subscribe({
+    service.saveRiskInsightsReport$(saveRiskInsightsReportRequest).subscribe({
       next: () => {
         fail("Expected error to be thrown");
       },
@@ -127,7 +127,7 @@ describe("RiskInsightsApiService", () => {
   it("should call apiService.send with correct parameters and return the response for getRiskInsightsReport ", (done) => {
     apiService.send.mockReturnValue(Promise.resolve(getRiskInsightsReportResponse));
 
-    service.getRiskInsightsReport(orgId).subscribe((result) => {
+    service.getRiskInsightsReport$(orgId).subscribe((result) => {
       expect(result).toEqual(getRiskInsightsReportResponse);
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",
@@ -144,7 +144,7 @@ describe("RiskInsightsApiService", () => {
     const error = { statusCode: 404 };
     apiService.send.mockReturnValue(Promise.reject(error));
 
-    service.getRiskInsightsReport(orgId).subscribe((result) => {
+    service.getRiskInsightsReport$(orgId).subscribe((result) => {
       expect(result).toBeNull();
       done();
     });
@@ -154,7 +154,7 @@ describe("RiskInsightsApiService", () => {
     const error = { statusCode: 500, message: "Server error" };
     apiService.send.mockReturnValue(Promise.reject(error));
 
-    service.getRiskInsightsReport(orgId).subscribe({
+    service.getRiskInsightsReport$(orgId).subscribe({
       next: () => {
         // Should not reach here
         fail("Expected error to be thrown");
