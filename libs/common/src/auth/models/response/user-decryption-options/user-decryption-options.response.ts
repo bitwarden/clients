@@ -36,7 +36,7 @@ export class UserDecryptionOptionsResponse extends BaseResponse {
     this.hasMasterPassword = this.getResponseProperty("HasMasterPassword");
 
     const masterPasswordUnlock = this.getResponseProperty("MasterPasswordUnlock");
-    if (masterPasswordUnlock != null) {
+    if (masterPasswordUnlock != null && typeof masterPasswordUnlock === "object") {
       this.masterPasswordUnlock =
         UserDecryption.get_master_password_unlock_data(masterPasswordUnlock);
     }

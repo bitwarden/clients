@@ -12,7 +12,6 @@ import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 
 export class SyncResponse extends BaseResponse {
-  userDecryption?: UserDecryptionData;
   profile?: ProfileResponse;
   folders: FolderResponse[] = [];
   collections: CollectionDetailsResponse[] = [];
@@ -20,14 +19,10 @@ export class SyncResponse extends BaseResponse {
   domains?: DomainsResponse;
   policies?: PolicyResponse[] = [];
   sends: SendResponse[] = [];
+  userDecryption?: UserDecryptionData;
 
   constructor(response: any) {
     super(response);
-
-    const userDecryption = this.getResponseProperty("UserDecryption");
-    if (userDecryption != null) {
-      this.userDecryption = UserDecryption.get_user_decryption_data(userDecryption);
-    }
 
     const profile = this.getResponseProperty("Profile");
     if (profile != null) {
@@ -62,6 +57,11 @@ export class SyncResponse extends BaseResponse {
     const sends = this.getResponseProperty("Sends");
     if (sends != null) {
       this.sends = sends.map((s: any) => new SendResponse(s));
+    }
+
+    const userDecryption = this.getResponseProperty("UserDecryption");
+    if (userDecryption != null && typeof userDecryption === "object") {
+      this.userDecryption = UserDecryption.get_user_decryption_data(userDecryption);
     }
   }
 }
