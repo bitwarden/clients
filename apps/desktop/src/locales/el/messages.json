@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Αναζήτηση κρύπτης"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "Προσθήκη στοιχείου"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Αντιγραφή κωδικού επαλήθευσης (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Μήκος"
@@ -1208,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Σύνδεση δύο βημάτων"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Χρονικό όριο λήξης κρύπτης"
   },
   "vaultTimeout1": {
     "message": "Χρονικό όριο"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Επιλέξτε πότε η κρύπτη σας θα αναλάβει τη δράση χρονικού ορίου λήξης κρύπτης."
@@ -1424,6 +1447,9 @@
   "copySecurityCode": {
     "message": "Αντιγραφή κωδικού ασφαλείας",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "Συνδρομή Premium"
@@ -1796,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Ξεκλειδώστε με το Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Πρόσθετες ρυθμίσεις του Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Ξεκλείδωμα με αυθεντικοποίηση συστήματος"
   },
@@ -1814,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "Ξεκλειδώστε το vault σας"
   },
-  "autoPromptWindowsHello": {
-    "message": "Να ζητείται Windows Hello κατά την εκκίνηση της εφαρμογής"
-  },
-  "autoPromptPolkit": {
-    "message": "Ρώτησε με για αυθεντικοποίηση συστήματος κατά την εκκίνηση"
-  },
   "autoPromptTouchId": {
     "message": "Ερώτηση για το Touch ID κατά την εκκίνηση"
   },
@@ -1828,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "Συνίσταται για ασφάλεια."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Κλείδωμα με τον κύριο κωδικό πρόσβασης κατά την επανεκκίνηση"
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Το χρονικό όριο του vault σας υπερβαίνει τους περιορισμούς που έχει ορίσει ο οργανισμός σας."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Η πρόσκληση έγινε αποδεκτή"
   },
@@ -2984,9 +3027,6 @@
     "message": "Εναλλαγή αριθμού χαρακτήρων",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Προσπαθείτε να αποκτήσετε πρόσβαση στο λογαριασμό σας;"
-  },
   "accessAttemptBy": {
     "message": "Προσπάθεια πρόσβασης από το $EMAIL$",
     "placeholders": {
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Τύπος Συσκευής"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Άρνηση πρόσβασης"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Επιβεβαιώθηκε η σύνδεση του $EMAIL$ στη συσκευή $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Απορρίψατε μια προσπάθεια σύνδεσης από μια άλλη συσκευή. Αν πραγματικά ήσασταν εσείς, προσπαθήστε να συνδεθείτε ξανά με τη συσκευή."
   },
   "justNow": {
     "message": "Μόλις τώρα"
@@ -3997,5 +4065,17 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

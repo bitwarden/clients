@@ -48,7 +48,7 @@ export default class RuntimeBackground {
     private platformUtilsService: BrowserPlatformUtilsService,
     private notificationsService: NotificationsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    private processReloadSerivce: ProcessReloadServiceAbstraction,
+    private processReloadService: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
@@ -241,7 +241,7 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        this.processReloadSerivce.cancelProcessReload();
+        this.processReloadService.cancelProcessReload();
 
         if (item) {
           await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);

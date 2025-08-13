@@ -28,6 +28,7 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -156,7 +157,11 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  private orgCollections$ = from(this.collectionAdminService.getAll(this.organizationId)).pipe(
+  private orgCollections$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.collectionAdminService.collectionAdminViews$(this.organizationId, userId),
+    ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 

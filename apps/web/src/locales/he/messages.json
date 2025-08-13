@@ -568,6 +568,9 @@
   "cancel": {
     "message": "בטל"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "בוטל"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "חפש קבוצות"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "allItems": {
     "message": "כל הפריטים"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "הערה מאובטחת"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "typeSshKey": {
     "message": "מפתח SSH"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "העתק שם"
+  },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "אני"
@@ -1401,9 +1427,6 @@
   },
   "notificationSentDevicePart1": {
     "message": "בטל נעילת Bitwarden במכשיר שלך או ב"
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "האם אתה מנסה לגשת לחשבון שלך?"
   },
   "accessAttemptBy": {
     "message": "ניסיון גישה על ידי $EMAIL$",
@@ -3482,6 +3505,9 @@
   "webVault": {
     "message": "כספת רשת"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3948,8 +3974,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "בקשה זו אינה תקפה עוד."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "הכניסה אושרה עבור $EMAIL$ ב־$DEVICE$",
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3957,12 +3983,12 @@
       },
       "device": {
         "content": "$2",
-        "example": "iOS"
+        "example": "Web app - Chrome"
       }
     }
   },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "דחית ניסיון כניסה ממכשיר אחר. אם זה באמת היית אתה, נסה להיכנס עם המכשיר שוב."
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "כבר פג תוקפה של בקשת הכניסה."
@@ -4107,6 +4133,9 @@
   },
   "reviewLoginRequest": {
     "message": "סקור בקשת כניסה"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "הניסיון החינמי שלך מסתיים בעוד $COUNT$ ימים.",
@@ -4583,6 +4612,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "קבל עצות, הכרזות, והזדמנויות מחקר מאת Bitwarden בדואר הנכנס שלך."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "בטל הרשמה"
@@ -5233,6 +5265,14 @@
   "downloadAttachments": {
     "message": "הורד צרופות"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "הסֵנְד שאליו אתה מנסה לגשת אינו קיים או לא זמין יותר.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5392,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Require all items to be owned by an organization, removing the option to store items at the account level.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "credential lifecycle",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Are you sure you want to proceed?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "will remain accessible to members"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "will not be automatically selected when creating new items"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "cannot be managed from the Admin Console until the user is offboarded"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "By turning this policy off, the default collection: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Learn more about the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "הסר כספת אישית"
@@ -9423,6 +9494,12 @@
   "deviceManagementDesc": {
     "message": "קבע תצורת ניהול מכשירים עבור Bitwarden באמצעות מדריך היישום עבור הפלטפורמה שלך."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "מזהה המכשיר חסר"
   },
@@ -9437,6 +9514,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "פתח מחדש קישור זה מהדוא\"ל שלך בשולחן עבודה."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "פתח מדריך יישום $INTEGRATION$.",
@@ -9494,6 +9580,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "צור ארגון לקוחות חדש כדי לנהל כספק. מקומות נוספים ישתקפו במחזור החיוב הבא."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "בחר תוכנית"
@@ -10243,8 +10338,8 @@
   "organizationUserDeletedDesc": {
     "message": "המשתמש הוסר מהארגון וכל נתוני המשתמש המשויכים נמחקו."
   },
-  "deletedUserId": {
-    "message": "משתמש $ID$ נמחק - בעלים / מנהל מחק את חשבון המשתמש",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10449,8 @@
   "domainStatusUnderVerification": {
     "message": "תחת אימות"
   },
-  "claimedDomainsDesc": {
-    "message": "דרוש דומיין כדי להחזיק בכל חשבונות החברים אשר כתובת הדוא\"ל שלהם תואמת את הדומיין. חברים יוכלו לדלג על מזהה ה־SSO בעת כניסה. מנהלים גם יוכלו למחוק חשבונות חברים."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "הקלט אינו בפורמט תקין. פורמט: mydomain.com. תת-דומיינים דורשים שרשומות נפרדות ידרשו."
@@ -10854,5 +10949,68 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Unpaid invoices"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Subscription canceled"
+  },
+  "providersubCanceledmessage": {
+    "message": "To resubscribe, contact Bitwarden Customer Support."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

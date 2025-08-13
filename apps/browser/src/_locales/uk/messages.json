@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Пошук"
   },
+  "resetSearch": {
+    "message": "Скинути пошук"
+  },
   "edit": {
     "message": "Змінити"
   },
@@ -1828,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Код безпеки"
+  },
+  "cardNumber": {
+    "message": "номер картки"
   },
   "ex": {
     "message": "зразок"
@@ -3460,6 +3466,28 @@
   "logInRequestSent": {
     "message": "Запит надіслано"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Запит входу підтверджено для $EMAIL$ на $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були ви, спробуйте ввійти з пристроєм знову."
+  },
+  "device": {
+    "message": "Пристрій"
+  },
+  "loginStatus": {
+    "message": "Стан входу в систему"
+  },
   "masterPasswordChanged": {
     "message": "Головний пароль збережено"
   },
@@ -3555,6 +3583,94 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Запам'ятайте цей пристрій, щоб спростити майбутні входи в систему"
+  },
+  "manageDevices": {
+    "message": "Керувати пристроями"
+  },
+  "currentSession": {
+    "message": "Поточний сеанс"
+  },
+  "mobile": {
+    "message": "Мобільний",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Розширення",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Комп'ютер",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Вебсховище"
+  },
+  "webApp": {
+    "message": "Вебпрограма"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Запит в очікуванні"
+  },
+  "firstLogin": {
+    "message": "Перший вхід"
+  },
+  "trusted": {
+    "message": "Надійний"
+  },
+  "needsApproval": {
+    "message": "Потребує підтвердження"
+  },
+  "devices": {
+    "message": "Пристрої"
+  },
+  "accessAttemptBy": {
+    "message": "Спроба доступу з $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Підтвердити доступ"
+  },
+  "denyAccess": {
+    "message": "Заборонити доступ"
+  },
+  "time": {
+    "message": "Час"
+  },
+  "deviceType": {
+    "message": "Тип пристрою"
+  },
+  "loginRequest": {
+    "message": "Запит входу"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Цей запит більше недійсний."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Термін дії запиту на вхід завершився."
+  },
+  "justNow": {
+    "message": "Щойно"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Запитано $MINUTES$ хвилин тому",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Необхідне підтвердження пристрою. Виберіть варіант підтвердження нижче:"
@@ -4465,17 +4581,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Копіювати $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Копіювати $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5457,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly не підтримується або не ввімкнено у вашому браузері. WebAssembly є обов'язковою вимогою для програми Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Розгорнути"
+  },
+  "showLess": {
+    "message": "Згорнути"
   }
 }

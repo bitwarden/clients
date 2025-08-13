@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Pretraži trezor"
   },
+  "resetSearch": {
+    "message": "Ponovno postavljanje pretraživanja"
+  },
   "edit": {
     "message": "Uredi"
   },
@@ -1828,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Sigurnosni kôd"
+  },
+  "cardNumber": {
+    "message": "broj kartice"
   },
   "ex": {
     "message": "npr."
@@ -3460,6 +3466,28 @@
   "logInRequestSent": {
     "message": "Zahtjev poslan"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
+  },
+  "device": {
+    "message": "Uređaj"
+  },
+  "loginStatus": {
+    "message": "Status prijave"
+  },
   "masterPasswordChanged": {
     "message": "Glavna lozinka promijenjena"
   },
@@ -3555,6 +3583,94 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Zapamti ovaj uređaj kako bi buduće prijave bile brže"
+  },
+  "manageDevices": {
+    "message": "Upravljaj uređajima"
+  },
+  "currentSession": {
+    "message": "Trenutna sesija"
+  },
+  "mobile": {
+    "message": "Mobitel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Proširenje",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web trezor"
+  },
+  "webApp": {
+    "message": "Web aplikacija"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Zahtjev u tijeku"
+  },
+  "firstLogin": {
+    "message": "Prva prijava"
+  },
+  "trusted": {
+    "message": "Pouzdan"
+  },
+  "needsApproval": {
+    "message": "Zahtijeva odobrenje"
+  },
+  "devices": {
+    "message": "Uređaji"
+  },
+  "accessAttemptBy": {
+    "message": "$EMAIL$ pokušava pristupiti",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Potvrdi pristup"
+  },
+  "denyAccess": {
+    "message": "Odbij pristup"
+  },
+  "time": {
+    "message": "Vrijeme"
+  },
+  "deviceType": {
+    "message": "Vrsta uređaja"
+  },
+  "loginRequest": {
+    "message": "Zahtjev za prijavu"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Ovaj zahtjev više nije valjan."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Zahtjev za prijavu je već istekao."
+  },
+  "justNow": {
+    "message": "Upravo"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Zatraženo prije $MINUTES$ minute/a",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Potrebno je odobriti uređaj. Odaberi metodu odobravanja:"
@@ -4465,17 +4581,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Kopiraj $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Kopiraj $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5457,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly ili nije podržan ili nije omogućen u tvom pregledniku. WebAssembly je potreban za korištenje Bitwarden aplikacije.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

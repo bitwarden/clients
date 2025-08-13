@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "搜索密码库"
   },
+  "resetSearch": {
+    "message": "重置搜索"
+  },
   "edit": {
     "message": "编辑"
   },
@@ -1828,6 +1831,9 @@
   },
   "securityCode": {
     "message": "安全码"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "ex": {
     "message": "例如"
@@ -3460,6 +3466,28 @@
   "logInRequestSent": {
     "message": "请求已发送"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
+  },
+  "device": {
+    "message": "设备"
+  },
+  "loginStatus": {
+    "message": "登录状态"
+  },
   "masterPasswordChanged": {
     "message": "主密码已保存"
   },
@@ -3555,6 +3583,94 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "记住此设备以便将来无缝登录"
+  },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "当前会话"
+  },
+  "mobile": {
+    "message": "移动端",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "扩展",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "桌面端",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "网页密码库"
+  },
+  "webApp": {
+    "message": "网页 App"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "请求待处理"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "此请求已失效。"
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "登录请求已过期。"
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "请求于 $MINUTES$ 分钟前",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "需要设备批准。请在下面选择一个批准选项："
@@ -4275,7 +4391,7 @@
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "更多关于匹配检测",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
@@ -4465,17 +4581,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "复制 $FIELD$，$VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5457,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。使用 Bitwarden App 需要 WebAssembly。",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "显示更多"
+  },
+  "showLess": {
+    "message": "显示更少"
   }
 }

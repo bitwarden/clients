@@ -117,7 +117,7 @@ class MockPopoutButtonComponent {}
 @Component({
   selector: "mock-current-account",
   template: `
-    <button class="tw-bg-transparent tw-border-none" type="button">
+    <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1 tw-align-middle" type="button">
       <bit-avatar text="Ash Ketchum" size="small"></bit-avatar>
     </button>
   `,
@@ -557,7 +557,10 @@ export const CenteredContent: Story = {
         <popup-tab-navigation>
           <popup-page>
             <popup-header slot="header" pageTitle="Centered Content"></popup-header>
-            <div class="tw-h-full tw-flex tw-items-center tw-justify-center tw-text-main">
+            <div
+              class="tw-h-full tw-flex tw-items-center tw-justify-center tw-text-main tw-flex-col"
+            >
+              <h2 bitTypography="h2" class="tw-mb-6">Page with no content</h2>
               <bit-no-items>
                 <ng-container slot="title">Before centering a div</ng-container>
                 <ng-container slot="description">One must first center oneself</ng-container>
@@ -651,7 +654,7 @@ export const WithVirtualScrollChild: Story = {
           <bit-section>
             @defer (on immediate) {
             <bit-item-group aria-label="Mock Vault Items">
-              <cdk-virtual-scroll-viewport itemSize="61" bitScrollLayout>
+              <cdk-virtual-scroll-viewport itemSize="59" bitScrollLayout>
                 <bit-item *cdkVirtualFor="let item of data; index as i">
                   <button type="button" bit-item-content>
                     <i

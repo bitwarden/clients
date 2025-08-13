@@ -1,27 +1,26 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { View } from "@bitwarden/common/models/view/view";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 
-import { Collection, CollectionType } from "./collection";
+import { Collection, CollectionType, CollectionTypes } from "./collection";
 import { CollectionAccessDetailsResponse } from "./collection.response";
 
 export const NestingDelimiter = "/";
 
 export class CollectionView implements View, ITreeNodeObject {
-  id: string = null;
-  organizationId: string = null;
-  name: string = null;
-  externalId: string = null;
+  id: CollectionId | undefined;
+  organizationId: OrganizationId | undefined;
+  name: string = "";
+  externalId: string | undefined;
   // readOnly applies to the items within a collection
-  readOnly: boolean = null;
-  hidePasswords: boolean = null;
-  manage: boolean = null;
-  assigned: boolean = null;
-  type: CollectionType = null;
+  readOnly: boolean = false;
+  hidePasswords: boolean = false;
+  manage: boolean = false;
+  assigned: boolean = false;
+  type: CollectionType = CollectionTypes.SharedCollection;
 
   constructor(c?: Collection | CollectionAccessDetailsResponse) {
     if (!c) {
@@ -57,7 +56,11 @@ export class CollectionView implements View, ITreeNodeObject {
    * Returns true if the user can edit a collection (including user and group access) from the individual vault.
    * Does not include admin permissions - see {@link CollectionAdminView.canEdit}.
    */
-  canEdit(org: Organization): boolean {
+  canEdit(org: Organization | undefined): boolean {
+    if (this.isDefaultCollection) {
+      return false;
+    }
+
     if (org != null && org.id !== this.organizationId) {
       throw new Error(
         "Id of the organization provided does not match the org id of the collection.",
@@ -71,7 +74,7 @@ export class CollectionView implements View, ITreeNodeObject {
    * Returns true if the user can delete a collection from the individual vault.
    * Does not include admin permissions - see {@link CollectionAdminView.canDelete}.
    */
-  canDelete(org: Organization): boolean {
+  canDelete(org: Organization | undefined): boolean {
     if (org != null && org.id !== this.organizationId) {
       throw new Error(
         "Id of the organization provided does not match the org id of the collection.",
@@ -81,7 +84,7 @@ export class CollectionView implements View, ITreeNodeObject {
     const canDeleteManagedCollections = !org?.limitCollectionDeletion || org.isAdmin;
 
     // Only use individual permissions, not admin permissions
-    return canDeleteManagedCollections && this.manage;
+    return canDeleteManagedCollections && this.manage && !this.isDefaultCollection;
   }
 
   /**
@@ -93,5 +96,9 @@ export class CollectionView implements View, ITreeNodeObject {
 
   static fromJSON(obj: Jsonify<CollectionView>) {
     return Object.assign(new CollectionView(new Collection()), obj);
+  }
+
+  get isDefaultCollection() {
+    return this.type == CollectionTypes.DefaultUserCollection;
   }
 }

@@ -490,6 +490,26 @@ describe("PolicyService", () => {
       expect(result).toBe(true);
     });
 
+    test.each([
+      PolicyType.PasswordGenerator,
+      PolicyType.FreeFamiliesSponsorshipPolicy,
+      PolicyType.RestrictedItemTypes,
+      PolicyType.RemoveUnlockWithPin,
+    ])("returns true and owners are not exempt from policy %s", async (policyType) => {
+      singleUserState.nextState(
+        arrayToRecord([
+          policyData("policy1", "org2", PolicyType.PasswordGenerator, true),
+          policyData("policy2", "org2", PolicyType.FreeFamiliesSponsorshipPolicy, true),
+          policyData("policy3", "org2", PolicyType.RestrictedItemTypes, true),
+          policyData("policy4", "org2", PolicyType.RemoveUnlockWithPin, true),
+        ]),
+      );
+
+      const result = await firstValueFrom(policyService.policyAppliesToUser$(policyType, userId));
+
+      expect(result).toBe(true);
+    });
+
     it("returns false when policyType is disabled", async () => {
       singleUserState.nextState(
         arrayToRecord([

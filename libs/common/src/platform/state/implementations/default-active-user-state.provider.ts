@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Observable, distinctUntilChanged, map } from "rxjs";
+import { Observable, distinctUntilChanged } from "rxjs";
 
-import { AccountService } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
+import { ActiveUserAccessor } from "../active-user.accessor";
 import { UserKeyDefinition } from "../user-key-definition";
 import { ActiveUserState } from "../user-state";
 import { ActiveUserStateProvider, SingleUserStateProvider } from "../user-state.provider";
@@ -14,11 +14,10 @@ export class DefaultActiveUserStateProvider implements ActiveUserStateProvider {
   activeUserId$: Observable<UserId | undefined>;
 
   constructor(
-    private readonly accountService: AccountService,
+    private readonly activeAccountAccessor: ActiveUserAccessor,
     private readonly singleUserStateProvider: SingleUserStateProvider,
   ) {
-    this.activeUserId$ = this.accountService.activeAccount$.pipe(
-      map((account) => account?.id),
+    this.activeUserId$ = this.activeAccountAccessor.activeUserId$.pipe(
       // To avoid going to storage when we don't need to, only get updates when there is a true change.
       distinctUntilChanged((a, b) => (a == null || b == null ? a == b : a === b)), // Treat null and undefined as equal
     );

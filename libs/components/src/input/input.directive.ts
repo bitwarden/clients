@@ -9,6 +9,8 @@ import {
   NgZone,
   Optional,
   Self,
+  input,
+  model,
 } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
@@ -30,13 +32,20 @@ export function inputBorderClasses(error: boolean) {
 @Directive({
   selector: "input[bitInput], select[bitInput], textarea[bitInput]",
   providers: [{ provide: BitFormFieldControl, useExisting: BitInputDirective }],
+  host: {
+    "[class]": "classList()",
+    "[id]": "id()",
+    "[attr.type]": "type()",
+    "[attr.spellcheck]": "spellcheck()",
+  },
 })
 export class BitInputDirective implements BitFormFieldControl {
-  @HostBinding("class") @Input() get classList() {
+  classList() {
     const classes = [
       "tw-block",
       "tw-w-full",
       "tw-h-full",
+      "tw-px-1",
       "tw-text-main",
       "tw-placeholder-text-muted",
       "tw-bg-background",
@@ -52,7 +61,7 @@ export class BitInputDirective implements BitFormFieldControl {
     return classes.filter((s) => s != "");
   }
 
-  @HostBinding() @Input() id = `bit-input-${nextId++}`;
+  readonly id = input(`bit-input-${nextId++}`);
 
   @HostBinding("attr.aria-describedby") ariaDescribedBy: string;
 
@@ -60,10 +69,12 @@ export class BitInputDirective implements BitFormFieldControl {
     return this.hasError ? true : undefined;
   }
 
-  @HostBinding("attr.type") @Input() type?: InputTypes;
+  readonly type = model<InputTypes>();
 
-  @HostBinding("attr.spellcheck") @Input() spellcheck?: boolean;
+  readonly spellcheck = model<boolean>();
 
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding()
   @Input()
   get required() {
@@ -74,13 +85,13 @@ export class BitInputDirective implements BitFormFieldControl {
   }
   private _required: boolean;
 
-  @Input() hasPrefix = false;
-  @Input() hasSuffix = false;
+  readonly hasPrefix = input(false);
+  readonly hasSuffix = input(false);
 
-  @Input() showErrorsWhenDisabled? = false;
+  readonly showErrorsWhenDisabled = input<boolean>(false);
 
   get labelForId(): string {
-    return this.id;
+    return this.id();
   }
 
   @HostListener("input")
@@ -89,7 +100,7 @@ export class BitInputDirective implements BitFormFieldControl {
   }
 
   get hasError() {
-    if (this.showErrorsWhenDisabled) {
+    if (this.showErrorsWhenDisabled()) {
       return (
         (this.ngControl?.status === "INVALID" || this.ngControl?.status === "DISABLED") &&
         this.ngControl?.touched &&

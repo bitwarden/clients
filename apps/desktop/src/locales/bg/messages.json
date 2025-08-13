@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Търсене в трезора"
   },
+  "resetSearch": {
+    "message": "Нулиране на търсенето"
+  },
   "addItem": {
     "message": "Добавяне на елемент"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Код за потвърждаване (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Копиране на $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Дължина"
@@ -1208,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Двустепенно удостоверяване"
   },
+  "vaultTimeoutHeader": {
+    "message": "Време за достъп до трезора"
+  },
   "vaultTimeout": {
     "message": "Време за достъп"
   },
   "vaultTimeout1": {
     "message": "Време за достъп"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Действие при изтичането на времето за достъп"
   },
   "vaultTimeoutDesc": {
     "message": "Изберете колко да е времето за достъп и какво ще е действието след това."
@@ -1424,6 +1447,9 @@
   "copySecurityCode": {
     "message": "Копиране на кода за сигурност",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "номер на карта"
   },
   "premiumMembership": {
     "message": "Платен абонамент"
@@ -1796,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Отключване с Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Допълнителни настройки на Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Отключване чрез системно удостоверяване"
   },
@@ -1814,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "отключете трезора си"
   },
-  "autoPromptWindowsHello": {
-    "message": "Питане за Windows Hello при пускане"
-  },
-  "autoPromptPolkit": {
-    "message": "Питане за системно удостоверяване при стартиране"
-  },
   "autoPromptTouchId": {
     "message": "Питане за Touch ID при пускане"
   },
@@ -1828,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Изискване на парола при стартиране на приложението"
-  },
-  "recommendedForSecurity": {
-    "message": "Препоръчително от гледна точка на сигурността."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Настройките на организацията Ви са задали максималното разрешено време за достъп до трезора на $HOURS$ час(а) и $MINUTES$ минута/и.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Времето за достъп превишава ограничението, зададено от Вашата организация: максимум $HOURS$ час(а) и $MINUTES$ минута/и",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Поканата е приета"
   },
@@ -2984,9 +3027,6 @@
     "message": "Превключване на броя знаци",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Опитвате ли се да получите достъп до акаунта си?"
-  },
   "accessAttemptBy": {
     "message": "Опит за достъп от $EMAIL$",
     "placeholders": {
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Заявката за вписване за $EMAIL$ на $DEVICE$ е одобрена",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Вие отказахте опит за вписване от друго устройство. Ако това сте били Вие, опитайте да се впишете от устройството отново."
+  },
+  "webApp": {
+    "message": "Приложение по уеб"
+  },
+  "mobile": {
+    "message": "Мобилно приложение",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Добавка за браузър",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Работен плот",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Сървър"
+  },
+  "loginRequest": {
+    "message": "Заявка за вписване"
   },
   "deviceType": {
     "message": "Вид устройство"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Отказване на достъпа"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Вписването за $EMAIL$ на $DEVICE$ е одобрено",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Вие отказахте опит за вписване от друго устройство. Ако това наистина сте били Вие, опитайте да се впишете от устройството отново."
   },
   "justNow": {
     "message": "Току-що"
@@ -3997,5 +4065,17 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Показване на повече"
+  },
+  "showLess": {
+    "message": "Показване на по-малко"
+  },
+  "enableAutotype": {
+    "message": "Включване на автоматичното въвеждане"
+  },
+  "enableAutotypeDescription": {
+    "message": "Битуорден не проверява местата за въвеждане, така че се уверете, че сте в правилния прозорец, преди да ползвате клавишната комбинация."
   }
 }

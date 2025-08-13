@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Pesquisar no Cofre"
   },
+  "resetSearch": {
+    "message": "Redefinir pesquisa"
+  },
   "addItem": {
     "message": "Adicionar Item"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Copiar Código de Verificação (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Comprimento"
@@ -1208,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Autenticação em duas etapas"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Tempo Limite do Cofre"
   },
   "vaultTimeout1": {
     "message": "Tempo esgotado"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Escolha quando o tempo limite do seu cofre irá se esgotar e execute a ação selecionada."
@@ -1424,6 +1447,9 @@
   "copySecurityCode": {
     "message": "Copiar Código de Segurança",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "número do cartão"
   },
   "premiumMembership": {
     "message": "Assinatura Premium"
@@ -1796,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Desbloquear com o Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Configurações adicionais do Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Desbloquear com autenticação de sistema"
   },
@@ -1814,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "desbloquear o seu cofre"
   },
-  "autoPromptWindowsHello": {
-    "message": "Perguntar para iniciar o Hello do Windows"
-  },
-  "autoPromptPolkit": {
-    "message": "Pedir autenticação do sistema na inicialização"
-  },
   "autoPromptTouchId": {
     "message": "Pedir pelo Touch ID ao iniciar"
   },
@@ -1828,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Exigir senha ao iniciar o app"
-  },
-  "recommendedForSecurity": {
-    "message": "Recomendado para segurança."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com senha mestra ao reiniciar"
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "O tempo limite do seu cofre excede as restrições definidas por sua organização."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Convite aceito"
   },
@@ -2984,9 +3027,6 @@
     "message": "Ativar/Desativar contagem de caracteres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Você está tentando acessar sua conta?"
-  },
   "accessAttemptBy": {
     "message": "Tentativa de acesso por $EMAIL$",
     "placeholders": {
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Tipo de dispositivo"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Negar acesso"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Acesso confirmado para $EMAIL$ em $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Você negou uma tentativa de acesso de outro dispositivo. Se isso realmente foi você, tente fazer login com o dispositivo novamente."
   },
   "justNow": {
     "message": "Agora há pouco"
@@ -3997,5 +4065,17 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "enableAutotype": {
+    "message": "Habilitar Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden não valida localizações de entrada, tenha certeza de estar na janela e campo corretos antes de utilizar o atalho."
   }
 }

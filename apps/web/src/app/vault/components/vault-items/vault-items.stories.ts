@@ -29,6 +29,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -36,6 +37,7 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LayoutComponent } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
@@ -138,6 +140,7 @@ export default {
           provide: RestrictedItemTypesService,
           useValue: {
             restricted$: of([]), // No restricted item types for this story
+            isCipherRestricted: () => false, // No restrictions for this story
           },
         },
       ],
@@ -158,7 +161,7 @@ export default {
   argTypes: { onEvent: { action: "onEvent" } },
 } as Meta;
 
-type Story = StoryObj<VaultItemsComponent>;
+type Story = StoryObj<VaultItemsComponent<CipherViewLike>>;
 
 export const Individual: Story = {
   args: {
@@ -260,7 +263,7 @@ export const OrganizationTrash: Story = {
 };
 
 const unassignedCollection = new CollectionAdminView();
-unassignedCollection.id = Unassigned;
+unassignedCollection.id = Unassigned as CollectionId;
 unassignedCollection.name = "Unassigned";
 export const OrganizationTopLevelCollection: Story = {
   args: {
@@ -325,7 +328,7 @@ function createCollectionView(i: number): CollectionAdminView {
   const organization = organizations[i % (organizations.length + 1)];
   const group = groups[i % (groups.length + 1)];
   const view = new CollectionAdminView();
-  view.id = `collection-${i}`;
+  view.id = `collection-${i}` as CollectionId;
   view.name = `Collection ${i}`;
   view.organizationId = organization?.id;
   view.manage = true;
@@ -355,7 +358,7 @@ function createGroupView(i: number): GroupView {
 
 function createOrganization(i: number): Organization {
   const organization = new Organization();
-  organization.id = `organization-${i}`;
+  organization.id = `organization-${i}` as OrganizationId;
   organization.name = `Organization ${i}`;
   organization.type = OrganizationUserType.Owner;
   organization.permissions = new PermissionsApi();

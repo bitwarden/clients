@@ -4,8 +4,6 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -14,6 +12,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
@@ -33,12 +32,13 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -69,6 +69,7 @@ describe("SettingsComponent", () => {
   const messagingService = mock<MessagingService>();
   const keyService = mock<KeyService>();
   const dialogService = mock<DialogService>();
+  const desktopAutotypeService = mock<DesktopAutotypeService>();
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -90,7 +91,7 @@ describe("SettingsComponent", () => {
     i18nService.supportedTranslationLocales = [];
 
     await TestBed.configureTestingModule({
-      declarations: [SettingsComponent, I18nPipe],
+      imports: [],
       providers: [
         {
           provide: AutofillSettingsServiceAbstraction,
@@ -124,9 +125,25 @@ describe("SettingsComponent", () => {
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: ValidationService, useValue: validationService },
         { provide: MessagingService, useValue: messagingService },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
+
+    TestBed.overrideComponent(SettingsComponent, {
+      add: {
+        providers: [
+          {
+            provide: DialogService,
+            useValue: dialogService,
+          },
+        ],
+      },
+      remove: {
+        providers: [DialogService],
+      },
+    });
 
     fixture = TestBed.createComponent(SettingsComponent);
     component = fixture.componentInstance;
@@ -160,6 +177,8 @@ describe("SettingsComponent", () => {
     themeStateService.selectedTheme$ = of(ThemeType.System);
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+    policyService.policiesByType$.mockReturnValue(of([null]));
+    desktopAutotypeService.autotypeEnabled$ = of(false);
   });
 
   afterEach(() => {
@@ -267,74 +286,46 @@ describe("SettingsComponent", () => {
       vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(true);
     });
 
-    it("require password or pin on app start message when RemoveUnlockWithPin policy is disabled and pin set and windows desktop", async () => {
-      const policy = new Policy();
-      policy.type = PolicyType.RemoveUnlockWithPin;
-      policy.enabled = false;
-      policyService.policiesByType$.mockReturnValue(of([policy]));
-      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      i18nService.t.mockImplementation((id: string) => {
-        if (id === "requirePasswordOnStart") {
-          return "Require password or pin on app start";
-        } else if (id === "requirePasswordWithoutPinOnStart") {
-          return "Require password on app start";
-        }
-        return "";
+    describe("windows desktop", () => {
+      beforeEach(() => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+
+        // Recreate component to apply the correct device
+        fixture = TestBed.createComponent(SettingsComponent);
+        component = fixture.componentInstance;
       });
-      pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
-      await component.ngOnInit();
-      fixture.detectChanges();
+      it("require password or pin on app start not visible when RemoveUnlockWithPin policy is disabled and pin set and windows desktop", async () => {
+        const policy = new Policy();
+        policy.type = PolicyType.RemoveUnlockWithPin;
+        policy.enabled = false;
+        policyService.policiesByType$.mockReturnValue(of([policy]));
+        pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
-      const requirePasswordOnStartLabelElement = fixture.debugElement.query(
-        By.css("label[for='requirePasswordOnStart']"),
-      );
-      expect(requirePasswordOnStartLabelElement).not.toBeNull();
-      expect(requirePasswordOnStartLabelElement.children).toHaveLength(1);
-      expect(requirePasswordOnStartLabelElement.children[0].name).toBe("input");
-      expect(requirePasswordOnStartLabelElement.children[0].attributes).toMatchObject({
-        id: "requirePasswordOnStart",
-        type: "checkbox",
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        const requirePasswordOnStartLabelElement = fixture.debugElement.query(
+          By.css("label[for='requirePasswordOnStart']"),
+        );
+        expect(requirePasswordOnStartLabelElement).toBeNull();
       });
-      const textNodes = requirePasswordOnStartLabelElement.childNodes
-        .filter((node) => node.nativeNode.nodeType === Node.TEXT_NODE)
-        .map((node) => node.nativeNode.wholeText?.trim());
-      expect(textNodes).toContain("Require password or pin on app start");
-    });
 
-    it("require password on app start message when RemoveUnlockWithPin policy is enabled and pin set and windows desktop", async () => {
-      const policy = new Policy();
-      policy.type = PolicyType.RemoveUnlockWithPin;
-      policy.enabled = true;
-      policyService.policiesByType$.mockReturnValue(of([policy]));
-      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      i18nService.t.mockImplementation((id: string) => {
-        if (id === "requirePasswordOnStart") {
-          return "Require password or pin on app start";
-        } else if (id === "requirePasswordWithoutPinOnStart") {
-          return "Require password on app start";
-        }
-        return "";
+      it("require password on app start not visible when RemoveUnlockWithPin policy is enabled and pin set and windows desktop", async () => {
+        const policy = new Policy();
+        policy.type = PolicyType.RemoveUnlockWithPin;
+        policy.enabled = true;
+        policyService.policiesByType$.mockReturnValue(of([policy]));
+        pinServiceAbstraction.isPinSet.mockResolvedValue(true);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        const requirePasswordOnStartLabelElement = fixture.debugElement.query(
+          By.css("label[for='requirePasswordOnStart']"),
+        );
+        expect(requirePasswordOnStartLabelElement).toBeNull();
       });
-      pinServiceAbstraction.isPinSet.mockResolvedValue(true);
-
-      await component.ngOnInit();
-      fixture.detectChanges();
-
-      const requirePasswordOnStartLabelElement = fixture.debugElement.query(
-        By.css("label[for='requirePasswordOnStart']"),
-      );
-      expect(requirePasswordOnStartLabelElement).not.toBeNull();
-      expect(requirePasswordOnStartLabelElement.children).toHaveLength(1);
-      expect(requirePasswordOnStartLabelElement.children[0].name).toBe("input");
-      expect(requirePasswordOnStartLabelElement.children[0].attributes).toMatchObject({
-        id: "requirePasswordOnStart",
-        type: "checkbox",
-      });
-      const textNodes = requirePasswordOnStartLabelElement.childNodes
-        .filter((node) => node.nativeNode.nodeType === Node.TEXT_NODE)
-        .map((node) => node.nativeNode.wholeText?.trim());
-      expect(textNodes).toContain("Require password on app start");
     });
   });
 
@@ -604,7 +595,6 @@ describe("SettingsComponent", () => {
       component["form"].controls.vaultTimeoutAction.setValue(DEFAULT_VAULT_TIMEOUT_ACTION, {
         emitEvent: false,
       });
-      component["previousVaultTimeout"] = DEFAULT_VAULT_TIMEOUT;
     });
 
     it.each([
@@ -618,14 +608,13 @@ describe("SettingsComponent", () => {
     ])("should save vault timeout", async (vaultTimeout: VaultTimeout) => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
-      await component.saveVaultTimeout(vaultTimeout);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, vaultTimeout);
 
       expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
         mockUserId,
         vaultTimeout,
         DEFAULT_VAULT_TIMEOUT_ACTION,
       );
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
     });
 
     it("should save vault timeout when vault timeout action is disabled", async () => {
@@ -634,24 +623,25 @@ describe("SettingsComponent", () => {
       });
       component["form"].controls.vaultTimeoutAction.disable({ emitEvent: false });
 
-      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, DEFAULT_VAULT_TIMEOUT);
 
       expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
         mockUserId,
         DEFAULT_VAULT_TIMEOUT,
         VaultTimeoutAction.LogOut,
       );
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
     });
 
     it("should not save vault timeout when vault timeout is 'never' and dialog is cancelled", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await component.saveVaultTimeout(VaultTimeoutStringType.Never);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, VaultTimeoutStringType.Never);
 
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
-      expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
+        mockUserId,
+        VaultTimeoutStringType.Never,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
         title: { key: "warning" },
         content: { key: "neverLockWarning" },
@@ -661,21 +651,27 @@ describe("SettingsComponent", () => {
 
     it("should not save vault timeout when vault timeout is 0", async () => {
       component["form"].controls.vaultTimeout.setValue(0, { emitEvent: false });
-      await component.saveVaultTimeout(0);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 0);
 
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
+        mockUserId,
+        0,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
       expect(component["form"].getRawValue().vaultTimeout).toEqual(0);
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
     });
 
     it("should not save vault timeout when vault timeout is invalid", async () => {
       i18nService.t.mockReturnValue("Number too large test error");
       component["form"].controls.vaultTimeout.setErrors({}, { emitEvent: false });
-      await component.saveVaultTimeout(999_999_999);
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 999_999_999);
 
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
+        mockUserId,
+        999_999_999,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
       expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
-      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
       expect(platformUtilsService.showToast).toHaveBeenCalledWith(
         "error",
         null,

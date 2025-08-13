@@ -4,7 +4,6 @@ import { Injectable } from "@angular/core";
 import {
   BehaviorSubject,
   combineLatest,
-  combineLatestWith,
   filter,
   firstValueFrom,
   map,
@@ -29,7 +28,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -38,6 +37,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import {
   CipherTypeFilter,
@@ -85,7 +85,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     switchMap((userId) =>
       combineLatest([
         this.folderService.folderViews$(userId),
-        this.cipherService.cipherViews$(userId),
+        this.cipherService.cipherListViews$(userId),
         this._organizationFilter,
       ]),
     ),
@@ -99,13 +99,13 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     map((folders) => this.buildFolderTree(folders)),
   );
 
-  filteredCollections$: Observable<CollectionView[]> =
-    this.collectionService.decryptedCollections$.pipe(
-      combineLatestWith(this._organizationFilter),
-      switchMap(([collections, org]) => {
-        return this.filterCollections(collections, org);
-      }),
-    );
+  filteredCollections$: Observable<CollectionView[]> = combineLatest([
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+    ),
+    this._organizationFilter,
+  ]).pipe(switchMap(([collections, org]) => this.filterCollections(collections, org)));
 
   collectionTree$: Observable<TreeNode<CollectionFilter>> = combineLatest([
     this.filteredCollections$,
@@ -209,7 +209,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected getOrganizationFilterMyVault(): TreeNode<OrganizationFilter> {
     const myVault = new Organization() as OrganizationFilter;
-    myVault.id = "MyVault";
+    myVault.id = "MyVault" as OrganizationId;
     myVault.icon = "bwi-user";
     myVault.enabled = true;
     myVault.hideOptions = true;
@@ -280,7 +280,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected async filterFolders(
     storedFolders: FolderView[],
-    ciphers: CipherView[],
+    ciphers: CipherView[] | CipherListView[],
     org?: Organization,
   ): Promise<FolderView[]> {
     // If no org or "My Vault" is selected, show all folders

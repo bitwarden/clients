@@ -31,7 +31,7 @@ const template = /*html*/ `
 @Component({
   selector: "app-example",
   template,
-  imports: [CheckboxModule, FormFieldModule, ReactiveFormsModule],
+  imports: [FormControlModule, CheckboxModule, FormsModule, FormFieldModule, ReactiveFormsModule],
 })
 class ExampleComponent {
   protected formObj = this.formBuilder.group({
@@ -218,7 +218,10 @@ export const Indeterminate: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <input type="checkbox" bitCheckbox [indeterminate]="true">
+      <label>
+        Indeterminate
+        <input type="checkbox" bitCheckbox [indeterminate]="true">
+      </label>
     `,
   }),
 };
@@ -256,6 +259,9 @@ export const InTableRow: Story = {
                 bitCheckbox
                 id="checkOne"
               />
+              <label for="checkOne" class="tw-sr-only">
+                Check row 0
+              </label>
             </td>
             <td bitCell>Lorem</td>
             <td bitCell>Ipsum</td>

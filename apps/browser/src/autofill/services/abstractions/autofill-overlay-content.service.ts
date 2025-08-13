@@ -1,3 +1,4 @@
+import { ModifyLoginCipherFormData } from "../../background/abstractions/overlay-notifications.background";
 import { SubFrameOffsetData } from "../../background/abstractions/overlay.background";
 import { AutofillExtensionMessageParam } from "../../content/abstractions/autofill-init";
 import AutofillField from "../../models/autofill-field";
@@ -6,13 +7,6 @@ import { ElementWithOpId, FormFieldElement } from "../../types";
 
 export type SubFrameDataFromWindowMessage = SubFrameOffsetData & {
   subFrameDepth: number;
-};
-
-export type InlineMenuFormFieldData = {
-  uri: string;
-  username: string;
-  password: string;
-  newPassword: string;
 };
 
 export type AutofillOverlayContentExtensionMessageHandlers = {
@@ -32,7 +26,7 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   destroyAutofillInlineMenuListeners: () => void;
   getInlineMenuFormFieldData: ({
     message,
-  }: AutofillExtensionMessageParam) => Promise<InlineMenuFormFieldData>;
+  }: AutofillExtensionMessageParam) => Promise<ModifyLoginCipherFormData>;
 };
 
 export interface AutofillOverlayContentService {

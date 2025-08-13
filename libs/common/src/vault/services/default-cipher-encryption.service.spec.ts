@@ -1,20 +1,25 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserKey } from "@bitwarden/common/types/key";
+import { Fido2Credential } from "@bitwarden/common/vault/models/domain/fido2-credential";
 import {
-  Fido2Credential,
+  Fido2Credential as SdkFido2Credential,
   Cipher as SdkCipher,
   CipherType as SdkCipherType,
   CipherView as SdkCipherView,
   CipherListView,
   AttachmentView as SdkAttachmentView,
+  Fido2CredentialFullView,
 } from "@bitwarden/sdk-internal";
 
 import { mockEnc } from "../../../spec";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
-import { UserId } from "../../types/guid";
+import { UserId, CipherId, OrganizationId } from "../../types/guid";
 import { CipherRepromptType, CipherType } from "../enums";
 import { CipherPermissionsApi } from "../models/api/cipher-permissions.api";
 import { CipherData } from "../models/data/cipher.data";
@@ -25,10 +30,15 @@ import { Fido2CredentialView } from "../models/view/fido2-credential.view";
 
 import { DefaultCipherEncryptionService } from "./default-cipher-encryption.service";
 
+const cipherId = "bdc4ef23-1116-477e-ae73-247854af58cb" as CipherId;
+const orgId = "c5e9654f-6cc5-44c4-8e09-3d323522668c" as OrganizationId;
+const folderId = "a3e9654f-6cc5-44c4-8e09-3d323522668c";
+const userId = "59fbbb44-8cc8-4279-ab40-afc5f68704f4" as UserId;
+
 const cipherData: CipherData = {
-  id: "id",
-  organizationId: "orgId",
-  folderId: "folderId",
+  id: cipherId,
+  organizationId: orgId,
+  folderId: folderId,
   edit: true,
   viewPassword: true,
   organizationUseTotp: true,
@@ -78,13 +88,18 @@ describe("DefaultCipherEncryptionService", () => {
   const sdkService = mock<SdkService>();
   const logService = mock<LogService>();
   let sdkCipherView: SdkCipherView;
+  let sdkCipher: SdkCipher;
 
   const mockSdkClient = {
     vault: jest.fn().mockReturnValue({
       ciphers: jest.fn().mockReturnValue({
+        encrypt: jest.fn(),
+        encrypt_cipher_for_rotation: jest.fn(),
+        set_fido2_credentials: jest.fn(),
         decrypt: jest.fn(),
         decrypt_list: jest.fn(),
         decrypt_fido2_credentials: jest.fn(),
+        move_to_organization: jest.fn(),
       }),
       attachments: jest.fn().mockReturnValue({
         decrypt_buffer: jest.fn(),
@@ -99,21 +114,25 @@ describe("DefaultCipherEncryptionService", () => {
     take: jest.fn().mockReturnValue(mockRef),
   };
 
-  const userId = "user-id" as UserId;
-
   let cipherObj: Cipher;
+  let cipherViewObj: CipherView;
 
   beforeEach(() => {
     sdkService.userClient$ = jest.fn((userId: UserId) => of(mockSdk)) as any;
     cipherEncryptionService = new DefaultCipherEncryptionService(sdkService, logService);
     cipherObj = new Cipher(cipherData);
+    cipherViewObj = new CipherView(cipherObj);
 
     jest.spyOn(cipherObj, "toSdkCipher").mockImplementation(() => {
       return { id: cipherData.id } as SdkCipher;
     });
 
+    jest.spyOn(cipherViewObj, "toSdkCipherView").mockImplementation(() => {
+      return { id: cipherData.id } as SdkCipherView;
+    });
+
     sdkCipherView = {
-      id: "test-id",
+      id: cipherId as string,
       type: SdkCipherType.Login,
       name: "test-name",
       login: {
@@ -121,16 +140,236 @@ describe("DefaultCipherEncryptionService", () => {
         password: "test-password",
       },
     } as SdkCipherView;
+
+    sdkCipher = {
+      id: cipherId,
+      type: SdkCipherType.Login,
+      name: "encrypted-name",
+      login: {
+        username: "encrypted-username",
+        password: "encrypted-password",
+      },
+    } as unknown as SdkCipher;
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
+  describe("encrypt", () => {
+    it("should encrypt a cipher successfully", async () => {
+      const expectedCipher: Cipher = {
+        id: cipherId as string,
+        type: CipherType.Login,
+        name: "encrypted-name",
+        login: {
+          username: "encrypted-username",
+          password: "encrypted-password",
+        },
+      } as unknown as Cipher;
+
+      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+      });
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValue(expectedCipher);
+
+      const result = await cipherEncryptionService.encrypt(cipherViewObj, userId);
+
+      expect(result).toBeDefined();
+      expect(result!.cipher).toEqual(expectedCipher);
+      expect(result!.encryptedFor).toBe(userId);
+      expect(cipherViewObj.toSdkCipherView).toHaveBeenCalled();
+      expect(mockSdkClient.vault().ciphers().encrypt).toHaveBeenCalledWith({ id: cipherData.id });
+    });
+
+    it("should encrypt FIDO2 credentials if present", async () => {
+      const fidoCredentialView = new Fido2CredentialView();
+      fidoCredentialView.credentialId = "credentialId";
+
+      cipherViewObj.login.fido2Credentials = [fidoCredentialView];
+
+      jest.spyOn(fidoCredentialView, "toSdkFido2CredentialFullView").mockImplementation(
+        () =>
+          ({
+            credentialId: "credentialId",
+          }) as Fido2CredentialFullView,
+      );
+      jest.spyOn(cipherViewObj, "toSdkCipherView").mockImplementation(
+        () =>
+          ({
+            id: cipherId as string,
+            login: {
+              fido2Credentials: undefined,
+            },
+          }) as unknown as SdkCipherView,
+      );
+
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .set_fido2_credentials.mockReturnValue({
+          id: cipherId as string,
+          login: {
+            fido2Credentials: [
+              {
+                credentialId: "encrypted-credentialId",
+              },
+            ],
+          },
+        });
+
+      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+      });
+
+      cipherObj.login!.fido2Credentials = [
+        { credentialId: "encrypted-credentialId" } as unknown as Fido2Credential,
+      ];
+
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValue(cipherObj);
+
+      const result = await cipherEncryptionService.encrypt(cipherViewObj, userId);
+
+      expect(result).toBeDefined();
+      expect(result!.cipher.login!.fido2Credentials).toHaveLength(1);
+
+      // Ensure set_fido2_credentials was called with correct parameters
+      expect(mockSdkClient.vault().ciphers().set_fido2_credentials).toHaveBeenCalledWith(
+        expect.objectContaining({ id: cipherId }),
+        [{ credentialId: "credentialId" }],
+      );
+
+      // Encrypted fido2 credential should be in the cipher passed to encrypt
+      expect(mockSdkClient.vault().ciphers().encrypt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: cipherId,
+          login: { fido2Credentials: [{ credentialId: "encrypted-credentialId" }] },
+        }),
+      );
+    });
+  });
+
+  describe("encryptCipherForRotation", () => {
+    it("should call the sdk method to encrypt the cipher with a new key for rotation", async () => {
+      mockSdkClient.vault().ciphers().encrypt_cipher_for_rotation.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+      });
+
+      const newUserKey: UserKey = new SymmetricCryptoKey(
+        Utils.fromUtf8ToArray("00000000000000000000000000000000"),
+      ) as UserKey;
+
+      const result = await cipherEncryptionService.encryptCipherForRotation(
+        cipherViewObj,
+        userId,
+        newUserKey,
+      );
+
+      expect(result).toBeDefined();
+      expect(mockSdkClient.vault().ciphers().encrypt_cipher_for_rotation).toHaveBeenCalledWith(
+        expect.objectContaining({ id: cipherId }),
+        newUserKey.toBase64(),
+      );
+    });
+  });
+
+  describe("moveToOrganization", () => {
+    it("should call the sdk method to move a cipher to an organization", async () => {
+      const expectedCipher: Cipher = {
+        id: cipherId as string,
+        type: CipherType.Login,
+        name: "encrypted-name",
+        organizationId: orgId,
+        login: {
+          username: "encrypted-username",
+          password: "encrypted-password",
+        },
+      } as unknown as Cipher;
+
+      mockSdkClient.vault().ciphers().move_to_organization.mockReturnValue({
+        id: cipherId,
+        organizationId: orgId,
+      });
+      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+      });
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValue(expectedCipher);
+
+      const result = await cipherEncryptionService.moveToOrganization(cipherViewObj, orgId, userId);
+
+      expect(result).toBeDefined();
+      expect(result!.cipher).toEqual(expectedCipher);
+      expect(result!.encryptedFor).toBe(userId);
+      expect(cipherViewObj.toSdkCipherView).toHaveBeenCalled();
+      expect(mockSdkClient.vault().ciphers().move_to_organization).toHaveBeenCalledWith(
+        { id: cipherData.id },
+        orgId,
+      );
+    });
+
+    it("should re-encrypt any fido2 credentials when moving to an organization", async () => {
+      const mockSdkCredentialView = {
+        username: "username",
+      } as unknown as Fido2CredentialFullView;
+      const mockCredentialView = mock<Fido2CredentialView>();
+      mockCredentialView.toSdkFido2CredentialFullView.mockReturnValue(mockSdkCredentialView);
+      cipherViewObj.login.fido2Credentials = [mockCredentialView];
+      const expectedCipher: Cipher = {
+        id: cipherId as string,
+        type: CipherType.Login,
+        name: "encrypted-name",
+        organizationId: orgId,
+        login: {
+          username: "encrypted-username",
+          password: "encrypted-password",
+          fido2Credentials: [{ username: "encrypted-username" }],
+        },
+      } as unknown as Cipher;
+
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .set_fido2_credentials.mockReturnValue({
+          id: cipherId as string,
+          login: {
+            fido2Credentials: [mockSdkCredentialView],
+          },
+        } as SdkCipherView);
+      mockSdkClient.vault().ciphers().move_to_organization.mockReturnValue({
+        id: cipherId,
+        organizationId: orgId,
+      });
+      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+      });
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValue(expectedCipher);
+
+      const result = await cipherEncryptionService.moveToOrganization(cipherViewObj, orgId, userId);
+
+      expect(result).toBeDefined();
+      expect(result!.cipher).toEqual(expectedCipher);
+      expect(result!.encryptedFor).toBe(userId);
+      expect(cipherViewObj.toSdkCipherView).toHaveBeenCalled();
+      expect(mockSdkClient.vault().ciphers().set_fido2_credentials).toHaveBeenCalledWith(
+        expect.objectContaining({ id: cipherId }),
+        expect.arrayContaining([mockSdkCredentialView]),
+      );
+      expect(mockSdkClient.vault().ciphers().move_to_organization).toHaveBeenCalledWith(
+        { id: cipherData.id, login: { fido2Credentials: [mockSdkCredentialView] } },
+        orgId,
+      );
+    });
+  });
+
   describe("decrypt", () => {
     it("should decrypt a cipher successfully", async () => {
       const expectedCipherView: CipherView = {
-        id: "test-id",
+        id: cipherId as string,
         type: CipherType.Login,
         name: "test-name",
         login: {
@@ -168,12 +407,12 @@ describe("DefaultCipherEncryptionService", () => {
           discoverable: mockEnc("true"),
           creationDate: new Date("2023-01-01T12:00:00.000Z"),
         },
-      ] as unknown as Fido2Credential[];
+      ] as unknown as SdkFido2Credential[];
 
       sdkCipherView.login!.fido2Credentials = fido2Credentials;
 
       const expectedCipherView: CipherView = {
-        id: "test-id",
+        id: cipherId,
         type: CipherType.Login,
         name: "test-name",
         login: {
@@ -228,13 +467,15 @@ describe("DefaultCipherEncryptionService", () => {
     it("should decrypt multiple ciphers successfully", async () => {
       const ciphers = [new Cipher(cipherData), new Cipher(cipherData)];
 
+      const cipherId2 = "bdc4ef23-2222-477e-ae73-247854af58cb" as CipherId;
+
       const expectedViews = [
         {
-          id: "test-id-1",
+          id: cipherId as string,
           name: "test-name-1",
         } as CipherView,
         {
-          id: "test-id-2",
+          id: cipherId2 as string,
           name: "test-name-2",
         } as CipherView,
       ];
@@ -242,8 +483,11 @@ describe("DefaultCipherEncryptionService", () => {
       mockSdkClient
         .vault()
         .ciphers()
-        .decrypt.mockReturnValueOnce({ id: "test-id-1", name: "test-name-1" } as SdkCipherView)
-        .mockReturnValueOnce({ id: "test-id-2", name: "test-name-2" } as SdkCipherView);
+        .decrypt.mockReturnValueOnce({
+          id: cipherId,
+          name: "test-name-1",
+        } as unknown as SdkCipherView)
+        .mockReturnValueOnce({ id: cipherId2, name: "test-name-2" } as unknown as SdkCipherView);
 
       jest
         .spyOn(CipherView, "fromSdkCipherView")

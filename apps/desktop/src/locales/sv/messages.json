@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Sök i valv"
   },
+  "resetSearch": {
+    "message": "Nollställ sökning"
+  },
   "addItem": {
     "message": "Lägg till objekt"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Kopiera verifieringskod (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopiera $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Längd"
@@ -1208,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Tvåfaktorsautentisering"
   },
+  "vaultTimeoutHeader": {
+    "message": "Timeout för valv"
+  },
   "vaultTimeout": {
     "message": "Valvets tidsgräns"
   },
   "vaultTimeout1": {
     "message": "Tidsgräns"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Åtgärd vid timeout"
   },
   "vaultTimeoutDesc": {
     "message": "Välj när valvets tidsgräns överskrids och den valda åtgärden utförs."
@@ -1425,6 +1448,9 @@
     "message": "Kopiera säkerhetskod",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "kortnummer"
+  },
   "premiumMembership": {
     "message": "Premium-medlemskap"
   },
@@ -1489,7 +1515,7 @@
     "message": "Lösenordshistorik"
   },
   "generatorHistory": {
-    "message": "Generatorns historia"
+    "message": "Generatorns historik"
   },
   "clearGeneratorHistoryTitle": {
     "message": "Rensa generatorhistorik"
@@ -1796,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Lås upp med Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Ytterligare inställningar för Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Lås upp med systemautentisering"
   },
@@ -1814,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "lås upp ditt valv"
   },
-  "autoPromptWindowsHello": {
-    "message": "Be om Windows Hello vid appstart"
-  },
-  "autoPromptPolkit": {
-    "message": "Be om systemautentisering vid start"
-  },
   "autoPromptTouchId": {
     "message": "Be om Touch ID vid appstart"
   },
@@ -1828,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Kräv lösenord vid appstart"
-  },
-  "recommendedForSecurity": {
-    "message": "Rekommenderas för säkerhet."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lås med huvudlösenord vid omstart"
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Ditt valvs tid för timeout överskrider de begränsningar som fastställts av din organisation."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Inbjudan accepterad"
   },
@@ -2984,9 +3027,6 @@
     "message": "Växla teckenantal",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Försöker du komma åt ditt konto?"
-  },
   "accessAttemptBy": {
     "message": "Åtkomstförsök via $EMAIL$",
     "placeholders": {
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggningsbegäran godkänd för $EMAIL$ på $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om detta var du, prova att logga in med den enheten igen."
+  },
+  "webApp": {
+    "message": "Webbapp"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Tillägg",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Inloggningsbegäran"
   },
   "deviceType": {
     "message": "Enhetstyp"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Neka åtkomst"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggning bekräftad för $EMAIL$ på $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om detta verkligen var du, försök att logga in med enheten igen."
   },
   "justNow": {
     "message": "Just nu"
@@ -3333,10 +3401,10 @@
     "message": "Nyckel"
   },
   "passkeyNotCopied": {
-    "message": "Nyckeln kommer inte att kopieras"
+    "message": "Inloggningsnyckeln kommer inte att kopieras"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Nyckeln kommer inte att kopieras till det klonade objektet. Vill du klona det här objektet?"
+    "message": "Inloggningsnyckeln kommer inte att kopieras till det klonade objektet. Vill du klona det här objektet?"
   },
   "aliasDomain": {
     "message": "Aliasdomän"
@@ -3587,10 +3655,10 @@
     "message": "Inaktivera hårdvaruacceleration och starta om"
   },
   "removePasskey": {
-    "message": "Ta bort nyckel"
+    "message": "Ta bort inloggningsnyckel"
   },
   "passkeyRemoved": {
-    "message": "Nyckel borttagen"
+    "message": "Inloggningsnyckel borttagen"
   },
   "errorAssigningTargetCollection": {
     "message": "Fel vid tilldelning av målsamling."
@@ -3997,5 +4065,17 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Visa mer"
+  },
+  "showLess": {
+    "message": "Visa mindre"
+  },
+  "enableAutotype": {
+    "message": "Aktivera automatisk inmatning"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
   }
 }

@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "ವಾಲ್ಟ್ ಹುಡುಕಿ"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "ಐಟಂ ಸೇರಿಸಿ"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "ನಕಲಿಸಿ ಪರಿಶೀಲನೆ ಕೋಡ್ (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "ಉದ್ದ"
@@ -1208,11 +1225,17 @@
   "twoStepLogin": {
     "message": "ಎರಡು ಹಂತದ ಲಾಗಿನ್"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "ವಾಲ್ಟ್ ಕಾಲಾವಧಿ"
   },
   "vaultTimeout1": {
     "message": "Timeout"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "ನಿಮ್ಮ ಕಮಾನು ಸಮಯ ಮೀರಲಿ ಮತ್ತು ಆಯ್ದ ಕ್ರಮವನ್ನು ನಿರ್ವಹಿಸುವಾಗ ಆರಿಸಿಕೊಳ್ಳಿ."
@@ -1424,6 +1447,9 @@
   "copySecurityCode": {
     "message": "ಭದ್ರತಾ ಕೋಡ್ ಅನ್ನು ನಕಲಿಸಿ",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "ಪ್ರೀಮಿಯಂ ಸದಸ್ಯತ್ವ"
@@ -1796,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "ವಿಂಡೋಸ್ ಹಲೋನೊಂದಿಗೆ ಅನ್ಲಾಕ್ ಮಾಡಿ"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Additional Windows Hello settings"
-  },
   "unlockWithPolkit": {
     "message": "Unlock with system authentication"
   },
@@ -1814,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "ನಿಮ್ಮ ವಾಲ್ಟ್ ಅನ್ನು ಅನ್ಲಾಕ್ ಮಾಡಿ"
   },
-  "autoPromptWindowsHello": {
-    "message": "Ask for Windows Hello on app start"
-  },
-  "autoPromptPolkit": {
-    "message": "Ask for system authentication on launch"
-  },
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"
   },
@@ -1828,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "Recommended for security."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Invitation accepted"
   },
@@ -2984,9 +3027,6 @@
     "message": "Toggle character count",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
     "placeholders": {
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Device Type"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Deny access"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
   "justNow": {
     "message": "Just now"
@@ -3997,5 +4065,17 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

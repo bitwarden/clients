@@ -42,6 +42,9 @@ jobs:
       release_channel: ${{ steps.release_channel.outputs.channel }}
       tag_name: ${{ steps.version.outputs.tag_name }}
       deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: Branch check
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -106,14 +109,21 @@ jobs:
     name: Electron blob publish
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+      deployments: write
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -123,6 +133,9 @@ jobs:
           secrets: "aws-electron-access-id,
             aws-electron-access-key,
             aws-electron-bucket-name"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Create artifacts directory
         run: mkdir -p apps/desktop/artifacts
@@ -176,6 +189,9 @@ jobs:
     name: Deploy Snap
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     if: inputs.snap_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
@@ -184,10 +200,12 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -195,6 +213,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "snapcraft-store-token"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Snap
         uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641 # v2.1.1
@@ -220,6 +241,9 @@ jobs:
     name: Deploy Choco
     runs-on: windows-2022
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     if: inputs.choco_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
@@ -233,10 +257,12 @@ jobs:
           dotnet --version
           dotnet nuget --version
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -244,6 +270,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "cli-choco-api-key"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Setup Chocolatey
         run: choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
@@ -271,6 +300,9 @@ jobs:
       - electron-blob
       - snap
       - choco
+    permissions:
+      contents: read
+      deployments: write
     if: ${{ always() && inputs.publish_type != 'Dry Run' }}
     steps:
       - name: Check if any job failed

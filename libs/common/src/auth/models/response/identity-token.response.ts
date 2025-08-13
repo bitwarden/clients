@@ -4,8 +4,8 @@
 // eslint-disable-next-line no-restricted-imports
 import { KdfType } from "@bitwarden/key-management";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { BaseResponse } from "../../../models/response/base.response";
-import { EncString } from "../../../platform/models/domain/enc-string";
 
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
 import { UserDecryptionOptionsResponse } from "./user-decryption-options/user-decryption-options.response";

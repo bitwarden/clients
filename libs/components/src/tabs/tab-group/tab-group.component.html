@@ -2,7 +2,7 @@
   <div
     bitTabListContainer
     role="tablist"
-    [attr.aria-label]="label"
+    [attr.aria-label]="label()"
     (keydown)="keyManager.onKeydown($event)"
   >
     @for (tab of tabs; track tab; let i = $index) {
@@ -12,7 +12,7 @@
         role="tab"
         [id]="getTabLabelId(i)"
         [active]="tab.isActive"
-        [disabled]="tab.disabled"
+        [disabled]="tab.disabled()"
         [attr.aria-selected]="selectedIndex === i"
         [attr.tabindex]="selectedIndex === i ? 0 : -1"
         (click)="selectTab(i)"
@@ -22,23 +22,23 @@
           @if (tab.templateLabel) {
             <ng-container [ngTemplateOutlet]="tab.templateLabel.templateRef"></ng-container>
           } @else {
-            {{ tab.textLabel }}
+            {{ tab.textLabel() }}
           }
         </ng-template>
       </button>
     }
   </div>
 </bit-tab-header>
-<div class="tw-px-4 tw-pt-5">
+<div class="tw-px-6 tw-pt-5">
   @for (tab of tabs; track tab; let i = $index) {
     <bit-tab-body
       role="tabpanel"
       [id]="getTabContentId(i)"
-      [attr.tabindex]="tab.contentTabIndex"
+      [attr.tabindex]="tab.contentTabIndex()"
       [attr.labeledby]="getTabLabelId(i)"
       [active]="tab.isActive"
       [content]="tab.content"
-      [preserveContent]="preserveContent"
+      [preserveContent]="preserveContent()"
     >
     </bit-tab-body>
   }

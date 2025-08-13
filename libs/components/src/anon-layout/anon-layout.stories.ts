@@ -19,17 +19,7 @@ class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
   getClientType = () => ClientType.Web;
 }
 
-type StoryArgs = Pick<
-  AnonLayoutComponent,
-  | "title"
-  | "subtitle"
-  | "showReadonlyHostname"
-  | "hideCardWrapper"
-  | "hideIcon"
-  | "hideLogo"
-  | "hideFooter"
-  | "maxWidth"
-> & {
+type StoryArgs = AnonLayoutComponent & {
   contentLength: "normal" | "long" | "thin";
   showSecondary: boolean;
   useDefaultIcon: boolean;
@@ -72,15 +62,14 @@ export default {
       ],
     }),
   ],
-
-  render: (args: StoryArgs) => {
+  render: (args) => {
     const { useDefaultIcon, icon, ...rest } = args;
     return {
       props: {
         ...rest,
         icon: useDefaultIcon ? null : icon,
       },
-      template: `
+      template: /*html*/ `
         <auth-anon-layout
           [title]="title"
           [subtitle]="subtitle"
@@ -109,7 +98,7 @@ export default {
             <div class="tw-font-bold tw-mb-2">
               Secondary Projected Content (optional)
             </div>
-            <button bitButton>Perform Action</button>
+            <button type="button" bitButton>Perform Action</button>
           </div>
         </auth-anon-layout>
       `,
@@ -160,7 +149,7 @@ export default {
     contentLength: "normal",
     showSecondary: false,
   },
-} as Meta<StoryArgs>;
+} satisfies Meta<StoryArgs>;
 
 type Story = StoryObj<StoryArgs>;
 

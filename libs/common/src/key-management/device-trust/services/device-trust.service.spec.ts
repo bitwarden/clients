@@ -32,7 +32,6 @@ import { AbstractStorageService } from "../../../platform/abstractions/storage.s
 import { StorageLocation } from "../../../platform/enums";
 import { EncryptionType } from "../../../platform/enums/encryption-type.enum";
 import { Utils } from "../../../platform/misc/utils";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../../types/csprng";
@@ -40,6 +39,7 @@ import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
+import { EncString } from "../../crypto/models/enc-string";
 
 import {
   SHOULD_TRUST_DEVICE,

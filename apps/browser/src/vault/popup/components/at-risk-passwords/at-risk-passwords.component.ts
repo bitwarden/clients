@@ -23,8 +23,6 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -96,7 +94,6 @@ export class AtRiskPasswordsComponent implements OnInit {
   private platformUtilsService = inject(PlatformUtilsService);
   private dialogService = inject(DialogService);
   private endUserNotificationService = inject(EndUserNotificationService);
-  private configService = inject(ConfigService);
   private destroyRef = inject(DestroyRef);
 
   /**
@@ -201,9 +198,7 @@ export class AtRiskPasswordsComponent implements OnInit {
       }
     }
 
-    if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
-      this.markTaskNotificationsAsRead();
-    }
+    this.markTaskNotificationsAsRead();
   }
 
   private markTaskNotificationsAsRead() {

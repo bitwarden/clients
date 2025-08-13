@@ -12,15 +12,21 @@ import { ProviderStatusType, ProviderType } from "@bitwarden/common/admin-consol
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { Icon, IconModule } from "@bitwarden/components";
-import { BusinessUnitPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/business-unit-portal-logo.icon";
-import { ProviderPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/provider-portal-logo";
+import {
+  Icon,
+  IconModule,
+  ProviderPortalLogo,
+  BusinessUnitPortalLogo,
+} from "@bitwarden/components";
 import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
+
+import { ProviderWarningsService } from "../../billing/providers/services/provider-warnings.service";
 
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
   imports: [CommonModule, RouterModule, JslibModule, WebLayoutModule, IconModule],
+  providers: [ProviderWarningsService],
 })
 export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected readonly logo = ProviderPortalLogo;
@@ -35,18 +41,24 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
 
   protected clientsTranslationKey$: Observable<string>;
   protected managePaymentDetailsOutsideCheckout$: Observable<boolean>;
+  protected providerPortalTakeover$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,
     private configService: ConfigService,
+    private providerWarningsService: ProviderWarningsService,
   ) {}
 
   ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
-    this.provider$ = this.route.params.pipe(
-      switchMap((params) => this.providerService.get$(params.providerId)),
+    const providerId$: Observable<string> = this.route.params.pipe(
+      map((params) => params.providerId),
+    );
+
+    this.provider$ = providerId$.pipe(
+      switchMap((providerId) => this.providerService.get$(providerId)),
       takeUntil(this.destroy$),
     );
 
@@ -76,6 +88,19 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
 
     this.managePaymentDetailsOutsideCheckout$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    );
+
+    providerId$
+      .pipe(
+        switchMap((providerId) =>
+          this.providerWarningsService.showProviderSuspendedDialog$(providerId),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.providerPortalTakeover$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM21821_ProviderPortalTakeover,
     );
   }
 

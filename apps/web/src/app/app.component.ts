@@ -35,12 +35,14 @@ import {
   MasterPasswordPolicy,
   PasswordGeneratorPolicy,
   OrganizationDataOwnershipPolicy,
+  vNextOrganizationDataOwnershipPolicy,
   RequireSsoPolicy,
   ResetPasswordPolicy,
   SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
   RemoveUnlockWithPinPolicy,
+  RestrictedItemTypesPolicy,
 } from "./admin-console/organizations/policies";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -244,8 +246,10 @@ export class AppComponent implements OnDestroy, OnInit {
       new SingleOrgPolicy(),
       new RequireSsoPolicy(),
       new OrganizationDataOwnershipPolicy(),
+      new vNextOrganizationDataOwnershipPolicy(),
       new DisableSendPolicy(),
       new SendOptionsPolicy(),
+      new RestrictedItemTypesPolicy(),
     ]);
   }
 
@@ -285,7 +289,6 @@ export class AppComponent implements OnDestroy, OnInit {
       this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
-      this.collectionService.clear(userId),
       this.biometricStateService.logout(userId),
     ]);
 

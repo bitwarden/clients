@@ -22,41 +22,48 @@
   </bit-breadcrumbs>
 
   <ng-container slot="title-suffix">
-    <ng-container *ngIf="collection != null && (canEditCollection || canDeleteCollection)">
-      <button
-        bitIconButton="bwi-angle-down"
-        [bitMenuTriggerFor]="editCollectionMenu"
-        size="small"
-        type="button"
-        aria-haspopup="true"
-      ></button>
-      <bit-menu #editCollectionMenu>
+    @if (collection != null && (canEditCollection || canDeleteCollection)) {
+      <ng-container>
         <button
+          bitIconButton="bwi-angle-down"
+          [bitMenuTriggerFor]="editCollectionMenu"
+          size="small"
           type="button"
-          *ngIf="canEditCollection"
-          bitMenuItem
-          (click)="editCollection(CollectionDialogTabType.Info)"
-        >
-          <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-          {{ "editInfo" | i18n }}
-        </button>
-        <button
-          type="button"
-          *ngIf="canEditCollection"
-          bitMenuItem
-          (click)="editCollection(CollectionDialogTabType.Access)"
-        >
-          <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-          {{ "access" | i18n }}
-        </button>
-        <button type="button" *ngIf="canDeleteCollection" bitMenuItem (click)="deleteCollection()">
-          <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-            {{ "delete" | i18n }}
-          </span>
-        </button>
-      </bit-menu>
-    </ng-container>
+          aria-haspopup="true"
+        ></button>
+        <bit-menu #editCollectionMenu>
+          <button
+            type="button"
+            *ngIf="canEditCollection"
+            bitMenuItem
+            (click)="editCollection(CollectionDialogTabType.Info)"
+          >
+            <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+            {{ "editInfo" | i18n }}
+          </button>
+          <button
+            type="button"
+            *ngIf="canEditCollection"
+            bitMenuItem
+            (click)="editCollection(CollectionDialogTabType.Access)"
+          >
+            <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+            {{ "access" | i18n }}
+          </button>
+          <button
+            type="button"
+            *ngIf="canDeleteCollection"
+            bitMenuItem
+            (click)="deleteCollection()"
+          >
+            <span class="tw-text-danger">
+              <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+              {{ "delete" | i18n }}
+            </span>
+          </button>
+        </bit-menu>
+      </ng-container>
+    }
     <small *ngIf="loading">
       <i
         class="bwi bwi-spinner bwi-spin tw-text-muted"
@@ -68,35 +75,14 @@
   </ng-container>
 
   <div *ngIf="filter.type !== 'trash'" class="tw-shrink-0">
-    <div appListDropdown>
-      <button
-        bitButton
-        buttonType="primary"
-        type="button"
-        [bitMenuTriggerFor]="addOptions"
-        id="newItemDropdown"
-        appA11yTitle="{{ 'new' | i18n }}"
-      >
-        <i class="bwi bwi-plus" aria-hidden="true"></i>
-        {{ "new" | i18n }}<i class="bwi tw-ml-2" aria-hidden="true"></i>
-      </button>
-      <bit-menu #addOptions aria-labelledby="newItemDropdown">
-        @for (item of cipherMenuItems$ | async; track item.type) {
-          <button type="button" bitMenuItem (click)="addCipher(item.type)">
-            <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
-            {{ item.labelKey | i18n }}
-          </button>
-        }
-        <bit-menu-divider />
-        <button type="button" bitMenuItem (click)="addFolder()">
-          <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-          {{ "folder" | i18n }}
-        </button>
-        <button *ngIf="canCreateCollections" type="button" bitMenuItem (click)="addCollection()">
-          <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-          {{ "collection" | i18n }}
-        </button>
-      </bit-menu>
-    </div>
+    <vault-new-cipher-menu
+      [canCreateCipher]="true"
+      [canCreateFolder]="true"
+      [canCreateSshKey]="true"
+      [canCreateCollection]="canCreateCollections"
+      (cipherAdded)="addCipher($event)"
+      (folderAdded)="addFolder()"
+      (collectionAdded)="addCollection()"
+    />
   </div>
 </app-header>

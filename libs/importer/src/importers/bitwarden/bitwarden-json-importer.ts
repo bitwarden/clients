@@ -5,16 +5,15 @@ import { firstValueFrom, map } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   CipherWithIdExport,
   CollectionWithIdExport,
   FolderWithIdExport,
 } from "@bitwarden/common/models/export";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -40,7 +39,6 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
     protected cipherService: CipherService,
-    protected pinService: PinServiceAbstraction,
     protected accountService: AccountService,
   ) {
     super();
@@ -74,11 +72,9 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
         keyForDecryption = await this.keyService.getUserKey();
       }
       const encKeyValidation = new EncString(results.encKeyValidation_DO_NOT_EDIT);
-      const encKeyValidationDecrypt = await this.encryptService.decryptString(
-        encKeyValidation,
-        keyForDecryption,
-      );
-      if (encKeyValidationDecrypt === null) {
+      try {
+        await this.encryptService.decryptString(encKeyValidation, keyForDecryption);
+      } catch {
         this.result.success = false;
         this.result.errorMessage = this.i18nService.t("importEncKeyError");
         return;

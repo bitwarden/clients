@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Procurar no cofre"
   },
+  "resetSearch": {
+    "message": "Repor pesquisa"
+  },
   "addItem": {
     "message": "Adicionar item"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Copiar código de verificação (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Comprimento"
@@ -1208,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Verificação de dois passos"
   },
+  "vaultTimeoutHeader": {
+    "message": "Tempo limite do cofre"
+  },
   "vaultTimeout": {
     "message": "Tempo limite do cofre"
   },
   "vaultTimeout1": {
     "message": "Tempo limite"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Ação de tempo limite"
   },
   "vaultTimeoutDesc": {
     "message": "Escolha quando é que o seu cofre executará a ação de tempo limite do cofre."
@@ -1424,6 +1447,9 @@
   "copySecurityCode": {
     "message": "Copiar código de segurança",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "número do cartão"
   },
   "premiumMembership": {
     "message": "Subscrição Premium"
@@ -1796,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Desbloquear com o Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Definições adicionais do Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Desbloqueio com autenticação do sistema"
   },
@@ -1814,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "desbloquear o cofre"
   },
-  "autoPromptWindowsHello": {
-    "message": "Pedir o Windows Hello ao iniciar a app"
-  },
-  "autoPromptPolkit": {
-    "message": "Pedir a autenticação do sistema no arranque"
-  },
   "autoPromptTouchId": {
     "message": "Pedir o Touch ID ao iniciar a app"
   },
@@ -1828,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Exigir palavra-passe ao iniciar a app"
-  },
-  "recommendedForSecurity": {
-    "message": "Recomendado por segurança."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com a palavra-passe mestra ao reiniciar"
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "As políticas da sua organização definiram o tempo limite máximo permitido do cofre de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "O tempo limite excede a restrição definida pela sua organização: $HOURS$ hora(s) e $MINUTES$ minuto(s) no máximo",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Convite aceite"
   },
@@ -2984,9 +3027,6 @@
     "message": "Mostrar/ocultar contagem de carateres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Está a tentar aceder à sua conta?"
-  },
   "accessAttemptBy": {
     "message": "Tentativa de acesso por $EMAIL$",
     "placeholders": {
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Pedido de início de sessão aprovado para $EMAIL$ no $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+  },
+  "webApp": {
+    "message": "Aplicação web"
+  },
+  "mobile": {
+    "message": "Móvel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensão",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Computador",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Servidor"
+  },
+  "loginRequest": {
+    "message": "Pedido de início de sessão"
   },
   "deviceType": {
     "message": "Tipo de dispositivo"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Recusar acesso"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Início de sessão confirmado para $EMAIL$ no $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
   "justNow": {
     "message": "Agora mesmo"
@@ -3173,7 +3241,7 @@
     "message": "auto-hospedado"
   },
   "accessDenied": {
-    "message": "Acesso negado. Não tem permissão para visualizar esta página."
+    "message": "Acesso negado. Não tem permissão para ver esta página."
   },
   "accountSuccessfullyCreated": {
     "message": "Conta criada com sucesso!"
@@ -3997,5 +4065,17 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Mostrar mais"
+  },
+  "showLess": {
+    "message": "Mostrar menos"
+  },
+  "enableAutotype": {
+    "message": "Ativar digitação automática"
+  },
+  "enableAutotypeDescription": {
+    "message": "O Bitwarden não valida a introdução de localizações. Certifique-se de que está na janela e no campo corretos antes de utilizar o atalho."
   }
 }

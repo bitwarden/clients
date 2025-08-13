@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Cancelar"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Cancelado"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Buscar grupos"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "allItems": {
     "message": "Todos os Itens"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Nota Segura"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "typeSshKey": {
     "message": "Chave SSH"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "Copiar nome"
+  },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Eu"
@@ -1401,9 +1427,6 @@
   },
   "notificationSentDevicePart1": {
     "message": "Desbloqueie o Bitwarden no seu dispositivo ou na "
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Você está tentando acessar sua conta?"
   },
   "accessAttemptBy": {
     "message": "Tentativa de acesso por $EMAIL$",
@@ -3482,6 +3505,9 @@
   "webVault": {
     "message": "Cofre Web"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3948,8 +3974,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Este pedido não é mais válido."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Acesso confirmado para $EMAIL$ no $DEVICE$",
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3957,12 +3983,12 @@
       },
       "device": {
         "content": "$2",
-        "example": "iOS"
+        "example": "Web app - Chrome"
       }
     }
   },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Você negou uma tentativa de acesso de outro dispositivo. Se isso realmente foi você, tente fazer login com o dispositivo novamente."
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "O pedido de login já expirou."
@@ -4107,6 +4133,9 @@
   },
   "reviewLoginRequest": {
     "message": "Revisar solicitação de login"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Seu teste gratuito termina em $COUNT$ dias.",
@@ -4583,6 +4612,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Obtenha conselhos, novidades, e oportunidades de pesquisa do Bitwarden em sua caixa de entrada."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "Cancelar subscrição"
@@ -5233,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Baixar anexos"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "O Send que você está tentando acessar não existe ou não está mais disponível.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5392,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Require all items to be owned by an organization, removing the option to store items at the account level.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "credential lifecycle",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Are you sure you want to proceed?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "will remain accessible to members"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "will not be automatically selected when creating new items"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "cannot be managed from the Admin Console until the user is offboarded"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "By turning this policy off, the default collection: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Learn more about the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Propriedade Pessoal"
@@ -9423,6 +9494,12 @@
   "deviceManagementDesc": {
     "message": "Configure o gerenciamento de dispositivos para o Bitwarden usando o guia de implementação da sua plataforma."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "ID do dispositivo está faltando"
   },
@@ -9437,6 +9514,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Reabra este link a partir do seu e-mail em um desktop."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Inicie o guia de implementação $INTEGRATION$.",
@@ -9494,6 +9580,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Crie uma nova organização de cliente para gerenciar como um Provedor. Posições adicionais serão refletidas no próximo ciclo de faturamento."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Selecione um plano"
@@ -10243,8 +10338,8 @@
   "organizationUserDeletedDesc": {
     "message": "O usuário foi removido da organização e todos os dados de usuários associados foram excluídos."
   },
-  "deletedUserId": {
-    "message": "Usuário excluído $ID$ - um proprietário / administrador excluiu a conta do usuário",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10449,8 @@
   "domainStatusUnderVerification": {
     "message": "Em verificação"
   },
-  "claimedDomainsDesc": {
-    "message": "Reivindique um domínio para se apropriar de todas as contas de membros cujo endereço de e-mail corresponde ao domínio. Os membros serão capazes de pular o identificador SSO ao fazer o login. Administradores também serão capazes de excluir contas de membros."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Entrada não é um formato válido. Formato: meudominio.com. Subdomínios requerem entradas separadas para serem reivindicados."
@@ -10854,5 +10949,68 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Unpaid invoices"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Subscription canceled"
+  },
+  "providersubCanceledmessage": {
+    "message": "To resubscribe, contact Bitwarden Customer Support."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

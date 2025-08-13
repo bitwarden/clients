@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "חיפוש בכספת"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "הוסף פריט"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "העתקת קוד אימות (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "אורך"
@@ -1208,11 +1225,17 @@
   "twoStepLogin": {
     "message": "אימות דו שלבי להתחברות"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "סגירת כספת אוטומטית"
   },
   "vaultTimeout1": {
     "message": "פסק זמן"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "בחר כמה זמן יעבור כדי שהכספת תסגר לאחר חוסר פעילות ותבצע את הפעולה שנבחרה."
@@ -1424,6 +1447,9 @@
   "copySecurityCode": {
     "message": "העתק קוד אבטחה",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "חברות פרימיום"
@@ -1796,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "שחרור נעילה עם Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "הגדרות Windows Hello נוספות"
-  },
   "unlockWithPolkit": {
     "message": "בטל נעילה עם אימות מערכת"
   },
@@ -1814,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "פתח את הכספת שלך"
   },
-  "autoPromptWindowsHello": {
-    "message": "הצג את Windows Hello בפתיחת האפליקציה"
-  },
-  "autoPromptPolkit": {
-    "message": "בקש אימות מערכת בפתיחה"
-  },
   "autoPromptTouchId": {
     "message": "הצג בקשה של Touch ID בפתיחת האפליקציה"
   },
@@ -1828,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "דרוש סיסמה בפתיחת היישום"
-  },
-  "recommendedForSecurity": {
-    "message": "מומלץ לאבטחה."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "נעל בעזרת הסיסמה הראשית בהפעלה מחדש"
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "פסק הזמן לכספת שלך חורג מהמגבלות שנקבעו על ידי הארגון שלך."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "ההזמנה התקבלה"
   },
@@ -2984,9 +3027,6 @@
     "message": "החלף מצב מונה תווים",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "האם אתה מנסה לגשת לחשבון שלך?"
-  },
   "accessAttemptBy": {
     "message": "ניסיון גישה על ידי $EMAIL$",
     "placeholders": {
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "סוג מכשיר"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "דחה גישה"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "הכניסה אושרה עבור $EMAIL$ ב־$DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "דחית ניסיון כניסה ממכשיר אחר. אם זה באמת היית אתה, נסה להיכנס עם המכשיר שוב."
   },
   "justNow": {
     "message": "זה עתה"
@@ -3997,5 +4065,17 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden לא מאמת את מקומות הקלט, נא לוודא שזה החלון והשדה הנכונים בטרם שימוש בקיצור הדרך."
   }
 }
