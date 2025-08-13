@@ -294,7 +294,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       map(([refreshing, processing]) => refreshing || processing),
     );
 
-    this.organization$ = combineLatest([this.getOrganizationId(), this.userId$]).pipe(
+    this.organization$ = combineLatest([this.getOrganizationId$(), this.userId$]).pipe(
       switchMap(([orgId, userId]) =>
         this.organizationService.organizations$(userId).pipe(getOrganizationById(orgId)),
       ),
@@ -312,13 +312,13 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.allCollectionsWithoutUnassigned$ = this.refresh$.pipe(
-      switchMap(() => this.getOrganizationId()),
+      switchMap(() => this.getOrganizationId$()),
       switchMap((orgId) => this.collectionAdminService.getAll(orgId)),
       shareReplay({ refCount: false, bufferSize: 1 }),
     );
 
     this.allCollections$ = combineLatest([
-      this.getOrganizationId(),
+      this.getOrganizationId$(),
       this.allCollectionsWithoutUnassigned$,
     ]).pipe(
       map(([organizationId, allCollections]) => {
@@ -338,7 +338,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    this.allGroups$ = this.getOrganizationId().pipe(
+    this.allGroups$ = this.getOrganizationId$().pipe(
       switchMap((organizationId) => this.groupService.getAll(organizationId)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -508,7 +508,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
   }
 
-  getOrganizationId(): Observable<OrganizationId> {
+  getOrganizationId$(): Observable<OrganizationId> {
     // FIXME: The RoutedVaultFilterModel uses `organizationId: Unassigned` to represent the individual vault,
     // but that is never used in Admin Console. This function narrows the type so it doesn't pollute our code here,
     // but really we should change to using our own vault filter model that only represents valid states in AC.
@@ -775,7 +775,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
     const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
-    const organizationId = await firstValueFrom(this.getOrganizationId());
+    const organizationId = await firstValueFrom(this.getOrganizationId$());
     await this.router.navigate(["organizations", `${organizationId}`, "billing", route], {
       state: { launchPaymentModalAutomatically: true },
     });
