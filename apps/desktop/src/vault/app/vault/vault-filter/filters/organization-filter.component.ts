@@ -12,10 +12,13 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-organization-filter",
   templateUrl: "organization-filter.component.html",
+  standalone: false,
 })
 export class OrganizationFilterComponent extends BaseOrganizationFilterComponent {
   get show() {
-    const hiddenDisplayModes: DisplayMode[] = ["singleOrganizationAndPersonalOwnershipPolicies"];
+    const hiddenDisplayModes: DisplayMode[] = [
+      "singleOrganizationAndOrganizatonDataOwnershipPolicies",
+    ];
     return (
       !this.hide &&
       this.organizations.length > 0 &&

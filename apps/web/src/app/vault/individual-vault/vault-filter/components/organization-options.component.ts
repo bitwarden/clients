@@ -1,14 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import {
-  combineLatest,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { combineLatest, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -25,13 +16,13 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "../../../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
@@ -42,6 +33,7 @@ import { OrganizationFilter } from "../shared/models/vault-filter.type";
 @Component({
   selector: "app-organization-options",
   templateUrl: "organization-options.component.html",
+  standalone: false,
 })
 export class OrganizationOptionsComponent implements OnInit, OnDestroy {
   protected actionPromise?: Promise<void | boolean>;
@@ -70,6 +62,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
+    private keyService: KeyService,
     private accountService: AccountService,
     private linkSsoService: LinkSsoService,
   ) {}
@@ -81,22 +74,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       map((policies) => policies.filter((p) => p.type == PolicyType.ResetPassword)),
     );
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const managingOrg$ = this.configService
-      .getFeatureFlag$(FeatureFlag.AccountDeprovisioning)
-      .pipe(
-        switchMap((isAccountDeprovisioningEnabled) =>
-          isAccountDeprovisioningEnabled
-            ? this.organizationService
-                .organizations$(userId)
-                .pipe(
-                  map((organizations) =>
-                    organizations.find((o) => o.userIsManagedByOrganization === true),
-                  ),
-                )
-            : of(null),
-        ),
-      );
+    const managingOrg$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      map((organizations) => organizations.find((o) => o.userIsManagedByOrganization === true)),
+    );
 
     combineLatest([
       this.organization$,
@@ -221,12 +203,14 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         { organization: org },
         this.resetPasswordService,
         this.organizationUserApiService,
-        this.platformUtilsService,
         this.i18nService,
         this.syncService,
         this.logService,
         this.userVerificationService,
         this.toastService,
+        this.keyService,
+        this.accountService,
+        this.organizationApiService,
       );
     } else {
       // Remove reset password

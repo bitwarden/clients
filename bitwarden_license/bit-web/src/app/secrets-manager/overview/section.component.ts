@@ -3,6 +3,7 @@ import { Component, Input } from "@angular/core";
 @Component({
   selector: "sm-section",
   templateUrl: "./section.component.html",
+  standalone: false,
 })
 export class SectionComponent {
   @Input() open = true;

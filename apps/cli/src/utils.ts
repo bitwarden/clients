@@ -161,7 +161,6 @@ export class CliUtils {
 
       process.stdin.setEncoding("utf8");
       process.stdin.on("readable", () => {
-        // eslint-disable-next-line
         while (true) {
           const chunk = process.stdin.read();
           if (chunk == null) {

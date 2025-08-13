@@ -1,0 +1,138 @@
+<div resizeObserver (resize)="handleResize($event)">
+  @if (orientation === "horizontal") {
+    <div role="tablist">
+      <div class="tw-flex tw-gap-8 tw-justify-between">
+        @for (step of steps; track $index; let isLast = $last) {
+          @let isCurrentStepDisabled = isStepDisabled($index);
+          <button
+            type="button"
+            [disabled]="isCurrentStepDisabled"
+            (click)="selectStepByIndex($index)"
+            class="tw-flex tw-p-3 tw-items-center tw-border-none tw-bg-transparent tw-shrink-0"
+            [ngClass]="{
+              'hover:tw-bg-secondary-100': !isCurrentStepDisabled && step.editable,
+            }"
+            [attr.aria-selected]="selectedIndex === $index"
+            [attr.aria-controls]="contentId + $index"
+            role="tab"
+          >
+            @if (step.completed) {
+              <span
+                class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-bold tw-leading-9 tw-text-contrast"
+              >
+                <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+              </span>
+            } @else {
+              <span
+                class="tw-me-3.5 tw-size-9 tw-rounded-full tw-font-bold tw-leading-9"
+                [ngClass]="{
+                  'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
+                  'tw-bg-secondary-300 tw-text-main':
+                    selectedIndex !== $index && !isCurrentStepDisabled && step.editable,
+                  'tw-bg-transparent tw-text-muted': isCurrentStepDisabled,
+                }"
+              >
+                {{ $index + 1 }}
+              </span>
+            }
+            <div class="tw-leading-snug tw-text-left">
+              <p
+                bitTypography="body1"
+                class="tw-m-0"
+                [ngClass]="{ 'tw-text-muted': isCurrentStepDisabled }"
+              >
+                {{ step.label }}
+              </p>
+
+              @if (step.subLabel()) {
+                <p bitTypography="body2" class="tw-m-0 tw-mt-1 tw-text-muted">
+                  {{ step.subLabel() }}
+                </p>
+              }
+            </div>
+          </button>
+          @if (!isLast) {
+            <div
+              class="after:tw-left-0 after:tw-top-[50%] after:-tw-translate-y-[50%] after:tw-h-[2px] after:tw-w-full after:tw-absolute after:tw-bg-secondary-300 after:tw-content-[''] tw-relative tw-w-full"
+            ></div>
+          }
+        }
+      </div>
+    </div>
+    @for (step of steps; track $index; let isLast = $last) {
+      <div role="tabpanel" [attr.id]="contentId + $index" [hidden]="!selected">
+        @if (selectedIndex === $index) {
+          <div [ngTemplateOutlet]="selected.content"></div>
+        }
+      </div>
+    }
+  } @else {
+    @for (step of steps; track $index; let isLast = $last) {
+      @let isCurrentStepDisabled = isStepDisabled($index);
+      <button
+        type="button"
+        [disabled]="isCurrentStepDisabled"
+        (click)="selectStepByIndex($index)"
+        class="tw-flex tw-p-3 tw-w-full tw-items-center tw-border-none tw-bg-transparent"
+        [ngClass]="{
+          'hover:tw-bg-secondary-100': !isCurrentStepDisabled && step.editable,
+        }"
+        [attr.id]="contentId + 'accordion' + $index"
+        [attr.aria-expanded]="selectedIndex === $index"
+        [attr.aria-controls]="contentId + $index"
+      >
+        @if (step.completed) {
+          <span
+            class="tw-me-3.5 tw-size-9 tw-rounded-full tw-bg-primary-600 tw-font-bold tw-leading-9 tw-text-contrast"
+          >
+            <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+          </span>
+        } @else {
+          <span
+            class="tw-me-3.5 tw-size-9 tw-rounded-full tw-font-bold tw-leading-9"
+            [ngClass]="{
+              'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
+              'tw-bg-secondary-300 tw-text-main':
+                selectedIndex !== $index && !isCurrentStepDisabled && step.editable,
+              'tw-bg-transparent tw-text-muted': isCurrentStepDisabled,
+            }"
+          >
+            {{ $index + 1 }}
+          </span>
+        }
+        <div class="tw-leading-snug tw-text-left">
+          <p
+            bitTypography="body1"
+            class="tw-m-0"
+            [ngClass]="{ 'tw-text-muted': isCurrentStepDisabled }"
+          >
+            {{ step.label }}
+          </p>
+
+          @if (step.subLabel()) {
+            <div bitTypography="body2" class="tw-m-0 tw-mt-1 tw-text-muted">
+              {{ step.subLabel() }}
+            </div>
+          }
+        </div>
+      </button>
+      <div
+        [attr.id]="contentId + $index"
+        [hidden]="!selected"
+        [attr.aria-labelledby]="contentId + 'accordion' + $index"
+        role="region"
+      >
+        <div
+          class="tw-ms-7 tw-border-solid tw-border-0 tw-border-s tw-border-secondary-300"
+          [ngClass]="{ 'tw-min-h-6': !isLast }"
+        >
+          @if (selectedIndex === $index) {
+            <div class="tw-ps-8 tw-py-2">
+              <div [ngTemplateOutlet]="selected.content"></div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

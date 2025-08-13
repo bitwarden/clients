@@ -1,5 +1,5 @@
+import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { BrowserModule } from "@angular/platform-browser";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeprecatedVaultFilterService as DeprecatedVaultFilterServiceAbstraction } from "@bitwarden/angular/vault/abstractions/deprecated-vault-filter.service";
@@ -13,7 +13,7 @@ import { TypeFilterComponent } from "./filters/type-filter.component";
 import { VaultFilterComponent } from "./vault-filter.component";
 
 @NgModule({
-  imports: [BrowserModule, JslibModule],
+  imports: [CommonModule, JslibModule],
   declarations: [
     VaultFilterComponent,
     CollectionFilterComponent,

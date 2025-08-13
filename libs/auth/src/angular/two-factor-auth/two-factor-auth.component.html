@@ -13,11 +13,13 @@
   >
     <app-two-factor-auth-email
       [tokenFormControl]="tokenFormControl"
+      (tokenChange)="saveFormDataWithPartialData($event)"
       *ngIf="selectedProviderType === providerType.Email"
     />
 
     <app-two-factor-auth-authenticator
       [tokenFormControl]="tokenFormControl"
+      (tokenChange)="saveFormDataWithPartialData($event)"
       *ngIf="selectedProviderType === providerType.Authenticator"
     />
     <app-two-factor-auth-yubikey
@@ -36,7 +38,7 @@
     />
     <bit-form-control *ngIf="!hideRememberMe()">
       <bit-label>{{ "dontAskAgainOnThisDeviceFor30Days" | i18n }}</bit-label>
-      <input type="checkbox" bitCheckbox formControlName="remember" />
+      <input type="checkbox" bitCheckbox formControlName="remember" (change)="onRememberChange()" />
     </bit-form-control>
 
     <app-two-factor-auth-webauthn

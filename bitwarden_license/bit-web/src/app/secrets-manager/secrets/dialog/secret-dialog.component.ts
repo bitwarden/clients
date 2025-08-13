@@ -44,11 +44,15 @@ import { SecretService } from "../secret.service";
 
 import { SecretDeleteDialogComponent, SecretDeleteOperation } from "./secret-delete.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum OperationType {
   Add,
   Edit,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum SecretDialogTabType {
   NameValuePair = 0,
   People = 1,
@@ -65,6 +69,7 @@ export interface SecretOperation {
 
 @Component({
   templateUrl: "./secret-dialog.component.html",
+  standalone: false,
 })
 export class SecretDialogComponent implements OnInit, OnDestroy {
   loading = true;

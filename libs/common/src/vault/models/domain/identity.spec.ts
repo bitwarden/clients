@@ -1,5 +1,5 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { IdentityData } from "../../models/data/identity.data";
 import { Identity } from "../../models/domain/identity";
 
@@ -182,6 +182,34 @@ describe("Identity", () => {
 
     it("returns null if object is null", () => {
       expect(Identity.fromJSON(null)).toBeNull();
+    });
+  });
+
+  describe("toSdkIdentity", () => {
+    it("returns the correct SDK Identity object", () => {
+      const identity = new Identity(data);
+      const sdkIdentity = identity.toSdkIdentity();
+
+      expect(sdkIdentity).toEqual({
+        title: "enctitle",
+        firstName: "encfirstName",
+        middleName: "encmiddleName",
+        lastName: "enclastName",
+        address1: "encaddress1",
+        address2: "encaddress2",
+        address3: "encaddress3",
+        city: "enccity",
+        state: "encstate",
+        postalCode: "encpostalCode",
+        country: "enccountry",
+        company: "enccompany",
+        email: "encemail",
+        phone: "encphone",
+        ssn: "encssn",
+        username: "encusername",
+        passportNumber: "encpassportNumber",
+        licenseNumber: "enclicenseNumber",
+      });
     });
   });
 });

@@ -2,7 +2,11 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricsService,
   BiometricsStatus,
@@ -10,10 +14,8 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { HashPurpose } from "../../../platform/enums";
 import { UserId } from "../../../types/guid";
@@ -117,7 +119,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
         masterKey = await this.keyService.makeMasterKey(
           verification.secret,
           email,
-          await this.kdfConfigService.getKdfConfig(),
+          await this.kdfConfigService.getKdfConfig(userId),
         );
       }
       request.masterPasswordHash = alreadyHashed
@@ -186,7 +188,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       throw new Error("Email is required. Cannot verify user by master password.");
     }
 
-    const kdfConfig = await this.kdfConfigService.getKdfConfig();
+    const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     if (!kdfConfig) {
       throw new Error("KDF config is required. Cannot verify user by master password.");
     }

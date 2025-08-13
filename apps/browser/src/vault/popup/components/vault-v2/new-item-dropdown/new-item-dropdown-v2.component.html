@@ -1,36 +1,14 @@
-<button bitButton [bitMenuTriggerFor]="itemOptions" buttonType="primary" type="button">
-  <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+<button bitButton size="small" [bitMenuTriggerFor]="itemOptions" buttonType="primary" type="button">
+  <i class="bwi bwi-plus" aria-hidden="true"></i>
   {{ "new" | i18n }}
 </button>
 <bit-menu #itemOptions>
-  <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(cipherType.Login)">
-    <i class="bwi bwi-globe" slot="start" aria-hidden="true"></i>
-    {{ "typeLogin" | i18n }}
-  </a>
-  <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(cipherType.Card)">
-    <i class="bwi bwi-credit-card" slot="start" aria-hidden="true"></i>
-    {{ "typeCard" | i18n }}
-  </a>
-  <a
-    bitMenuItem
-    [routerLink]="['/add-cipher']"
-    [queryParams]="buildQueryParams(cipherType.Identity)"
-  >
-    <i class="bwi bwi-id-card" slot="start" aria-hidden="true"></i>
-    {{ "typeIdentity" | i18n }}
-  </a>
-  <a
-    bitMenuItem
-    [routerLink]="['/add-cipher']"
-    [queryParams]="buildQueryParams(cipherType.SecureNote)"
-  >
-    <i class="bwi bwi-sticky-note" slot="start" aria-hidden="true"></i>
-    {{ "note" | i18n }}
-  </a>
-  <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(cipherType.SshKey)">
-    <i class="bwi bwi-key" slot="start" aria-hidden="true"></i>
-    {{ "typeSshKey" | i18n }}
-  </a>
+  @for (menuItem of cipherMenuItems$ | async; track menuItem.type) {
+    <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(menuItem.type)">
+      <i [class]="`bwi ${menuItem.icon}`" slot="start" aria-hidden="true"></i>
+      {{ menuItem.labelKey | i18n }}
+    </a>
+  }
   <bit-menu-divider></bit-menu-divider>
   <button type="button" bitMenuItem (click)="openFolderDialog()">
     <i class="bwi bwi-folder" slot="start" aria-hidden="true"></i>

@@ -10,23 +10,23 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom, firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   LoginStrategyServiceAbstraction,
-  LoginEmailServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
   TrustedDeviceUserDecryptionOption,
   UserDecryptionOptions,
   LoginSuccessHandlerService,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -37,7 +37,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -46,7 +49,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import {
   TwoFactorAuthAuthenticatorIcon,
   TwoFactorAuthEmailIcon,
@@ -55,14 +57,17 @@ import {
   TwoFactorAuthDuoIcon,
 } from "../icons/two-factor-auth";
 
-import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator.component";
+import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
 import { TwoFactorAuthDuoComponent } from "./child-components/two-factor-auth-duo/two-factor-auth-duo.component";
 import { TwoFactorAuthEmailComponent } from "./child-components/two-factor-auth-email/two-factor-auth-email.component";
 import { TwoFactorAuthWebAuthnComponent } from "./child-components/two-factor-auth-webauthn/two-factor-auth-webauthn.component";
-import { TwoFactorAuthYubikeyComponent } from "./child-components/two-factor-auth-yubikey.component";
+import { TwoFactorAuthYubikeyComponent } from "./child-components/two-factor-auth-yubikey/two-factor-auth-yubikey.component";
+import {
+  TwoFactorAuthComponentCacheService,
+  TwoFactorAuthComponentData,
+} from "./two-factor-auth-component-cache.service";
 import {
   DuoLaunchAction,
-  LegacyKeyMigrationAction,
   TwoFactorAuthComponentService,
 } from "./two-factor-auth-component.service";
 import {
@@ -71,7 +76,6 @@ import {
 } from "./two-factor-options.component";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth",
   templateUrl: "two-factor-auth.component.html",
   imports: [
@@ -80,17 +84,19 @@ import {
     ReactiveFormsModule,
     FormFieldModule,
     AsyncActionsModule,
-    RouterLink,
     CheckboxModule,
     ButtonModule,
-    TwoFactorOptionsComponent, // used as dialog
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthEmailComponent,
     TwoFactorAuthDuoComponent,
     TwoFactorAuthYubikeyComponent,
     TwoFactorAuthWebAuthnComponent,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: TwoFactorAuthComponentCacheService,
+    },
+  ],
 })
 export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   @ViewChild("continueButton", { read: ElementRef, static: false }) continueButton:
@@ -147,7 +153,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private logService: LogService,
     private twoFactorService: TwoFactorService,
-    private loginEmailService: LoginEmailServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -160,6 +165,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private environmentService: EnvironmentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
+    private authService: AuthService,
   ) {}
 
   async ngOnInit() {
@@ -168,7 +175,30 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
 
     this.listenForAuthnSessionTimeout();
 
-    await this.setSelected2faProviderType();
+    // Load cached form data if available
+    let loadedCachedProviderType = false;
+    const cachedData = this.twoFactorAuthComponentCacheService.getCachedData();
+    if (cachedData) {
+      if (cachedData.token) {
+        this.form.patchValue({ token: cachedData.token });
+      }
+      if (cachedData.remember !== undefined) {
+        this.form.patchValue({ remember: cachedData.remember });
+      }
+      if (cachedData.selectedProviderType !== undefined) {
+        this.selectedProviderType = cachedData.selectedProviderType;
+        loadedCachedProviderType = true;
+      }
+    }
+
+    // If we don't have a cached provider type, set it to the default and cache it
+    if (!loadedCachedProviderType) {
+      this.selectedProviderType = await this.initializeSelected2faProviderType();
+      this.twoFactorAuthComponentCacheService.cacheData({
+        selectedProviderType: this.selectedProviderType,
+      });
+    }
+
     await this.set2faProvidersAndData();
     await this.setAnonLayoutDataByTwoFactorProviderType();
 
@@ -181,7 +211,29 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     this.loading = false;
   }
 
-  private async setSelected2faProviderType() {
+  /**
+   * Save specific form data fields to the cache
+   */
+  async saveFormDataWithPartialData(data: Partial<TwoFactorAuthComponentData>) {
+    // Get current cached data
+    const currentData = this.twoFactorAuthComponentCacheService.getCachedData();
+
+    this.twoFactorAuthComponentCacheService.cacheData({
+      token: data?.token ?? currentData?.token ?? "",
+      remember: data?.remember ?? currentData?.remember ?? false,
+      selectedProviderType: data?.selectedProviderType ?? currentData?.selectedProviderType,
+    });
+  }
+
+  /**
+   * Save the remember value to the cache when the checkbox is checked or unchecked
+   */
+  async onRememberChange() {
+    const rememberValue = !!this.rememberFormControl.value;
+    await this.saveFormDataWithPartialData({ remember: rememberValue });
+  }
+
+  private async initializeSelected2faProviderType(): Promise<TwoFactorProviderType> {
     const webAuthnSupported = this.platformUtilsService.supportsWebAuthn(this.win);
 
     if (
@@ -190,23 +242,26 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     ) {
       const webAuthn2faResponse = this.activatedRoute.snapshot.paramMap.get("webAuthnResponse");
       if (webAuthn2faResponse) {
-        this.selectedProviderType = TwoFactorProviderType.WebAuthn;
-        return;
+        return TwoFactorProviderType.WebAuthn;
       }
     }
 
-    this.selectedProviderType = await this.twoFactorService.getDefaultProvider(webAuthnSupported);
+    return await this.twoFactorService.getDefaultProvider(webAuthnSupported);
   }
 
   private async set2faProvidersAndData() {
     this.twoFactorProviders = await this.twoFactorService.getProviders();
-    const providerData = this.twoFactorProviders?.get(this.selectedProviderType);
-    this.selectedProviderData = providerData;
+    if (this.selectedProviderType !== undefined) {
+      const providerData = this.twoFactorProviders?.get(this.selectedProviderType);
+      this.selectedProviderData = providerData;
+    }
   }
 
   private listenForAuthnSessionTimeout() {
     this.loginStrategyService.authenticationSessionTimeout$
       .pipe(takeUntilDestroyed(this.destroyRef))
+      // TODO: Fix this!
+      // eslint-disable-next-line rxjs/no-async-subscribe
       .subscribe(async (expired) => {
         if (!expired) {
           return;
@@ -267,13 +322,20 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     // In all flows but WebAuthn, the remember value is taken from the form.
     const rememberValue = remember ?? this.rememberFormControl.value ?? false;
 
+    // Cache form data before submitting
+    this.twoFactorAuthComponentCacheService.cacheData({
+      token: tokenValue,
+      remember: rememberValue,
+      selectedProviderType: this.selectedProviderType,
+    });
+
     try {
       this.formPromise = this.loginStrategyService.logInTwoFactor(
         new TokenTwoFactorRequest(this.selectedProviderType, tokenValue, rememberValue),
-        "", // TODO: PM-15162 - deprecate captchaResponse
       );
       const authResult: AuthResult = await this.formPromise;
       this.logService.info("Successfully submitted two factor token");
+
       await this.handleAuthResult(authResult);
     } catch {
       this.logService.error("Error submitting two factor token");
@@ -299,6 +361,13 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       this.selectedProviderType = response.type;
       await this.setAnonLayoutDataByTwoFactorProviderType();
 
+      // Update the cached provider type when a new one is chosen
+      this.twoFactorAuthComponentCacheService.cacheData({
+        token: "",
+        remember: false,
+        selectedProviderType: response.type,
+      });
+
       this.form.reset();
       this.form.updateValueAndValidity();
     }
@@ -314,22 +383,12 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     if (!result.requiresEncryptionKeyMigration) {
       return false;
     }
-    // Migration is forced so prevent login via return
-    const legacyKeyMigrationAction: LegacyKeyMigrationAction =
-      this.twoFactorAuthComponentService.determineLegacyKeyMigrationAction();
 
-    switch (legacyKeyMigrationAction) {
-      case LegacyKeyMigrationAction.NAVIGATE_TO_MIGRATION_COMPONENT:
-        await this.router.navigate(["migrate-legacy-encryption"]);
-        break;
-      case LegacyKeyMigrationAction.PREVENT_LOGIN_AND_SHOW_REQUIRE_MIGRATION_WARNING:
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccured"),
-          message: this.i18nService.t("encryptionKeyMigrationRequired"),
-        });
-        break;
-    }
+    this.toastService.showToast({
+      variant: "error",
+      title: this.i18nService.t("errorOccurred"),
+      message: this.i18nService.t("legacyEncryptionUnsupported"),
+    });
     return true;
   }
 
@@ -362,7 +421,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
         break;
       case TwoFactorProviderType.WebAuthn:
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-          pageSubtitle: this.i18nService.t("followTheStepsBelowToFinishLoggingIn"),
+          pageSubtitle: this.i18nService.t("followTheStepsBelowToFinishLoggingInWithSecurityKey"),
           pageIcon: TwoFactorAuthWebAuthnIcon,
         });
         break;
@@ -376,13 +435,15 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private async handleAuthResult(authResult: AuthResult) {
+    // Clear form cache
+    this.twoFactorAuthComponentCacheService.clearCachedData();
+
     if (await this.handleMigrateEncryptionKey(authResult)) {
       return; // stop login process
     }
 
     // User is fully logged in so handle any post login logic before executing navigation
     await this.loginSuccessHandlerService.run(authResult.userId);
-    this.loginEmailService.clearValues();
 
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
@@ -425,7 +486,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const defaultSuccessRoute = await this.determineDefaultSuccessRoute();
+    const defaultSuccessRoute = await this.determineDefaultSuccessRoute(authResult.userId);
 
     await this.router.navigate([defaultSuccessRoute], {
       queryParams: {
@@ -434,10 +495,22 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async determineDefaultSuccessRoute(): Promise<string> {
-    const authType = await firstValueFrom(this.loginStrategyService.currentAuthType$);
-    if (authType == AuthenticationType.Sso || authType == AuthenticationType.UserApiKey) {
+  private async determineDefaultSuccessRoute(userId: UserId): Promise<string> {
+    const activeAccountStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    if (activeAccountStatus === AuthenticationStatus.Locked) {
       return "lock";
+    }
+
+    // TODO: PM-22663 use the new service to handle routing.
+    const forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(userId),
+    );
+
+    if (
+      forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
+      forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
+    ) {
+      return "change-password";
     }
 
     return "vault";
@@ -493,30 +566,12 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private async handleChangePasswordRequired(orgIdentifier: string | undefined) {
-    await this.router.navigate(["set-password"], {
+    const route = "set-initial-password";
+    await this.router.navigate([route], {
       queryParams: {
         identifier: orgIdentifier,
       },
     });
-  }
-
-  /**
-   * Determines if a user needs to reset their password based on certain conditions.
-   * Users can be forced to reset their password via an admin or org policy disallowing weak passwords.
-   * Note: this is different from the SSO component login flow as a user can
-   * login with MP and then have to pass 2FA to finish login and we can actually
-   * evaluate if they have a weak password at that time.
-   *
-   * @param {AuthResult} authResult - The authentication result.
-   * @returns {boolean} Returns true if a password reset is required, false otherwise.
-   */
-  private isForcePasswordResetRequired(authResult: AuthResult): boolean {
-    const forceResetReasons = [
-      ForceSetPasswordReason.AdminForcePasswordReset,
-      ForceSetPasswordReason.WeakMasterPassword,
-    ];
-
-    return forceResetReasons.includes(authResult.forcePasswordReset);
   }
 
   showContinueButton() {

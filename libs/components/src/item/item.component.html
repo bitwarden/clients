@@ -1,10 +1,10 @@
-<bit-item-action class="item-main-content tw-flex tw-flex-1 tw-overflow-hidden">
+<bit-item-action class="tw-flex tw-flex-1 tw-overflow-hidden" data-item-main-content>
   <ng-content></ng-content>
 </bit-item-action>
 
 <div
   #endSlot
-  class="tw-p-2 tw-flex tw-gap-1 tw-items-center"
+  class="tw-px-2 tw-flex tw-items-center tw-gap-2 [&_button[biticonbutton]]:-tw-mx-1"
   [hidden]="endSlot.childElementCount === 0"
 >
   <ng-content select="[slot=end]"></ng-content>

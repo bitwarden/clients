@@ -1,9 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
-import { Observable } from "rxjs";
 
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
 import { EncryptionType } from "../src/platform/enums";
 import { Utils } from "../src/platform/misc/utils";
@@ -65,56 +64,17 @@ export function makeSymmetricCryptoKey<T extends SymmetricCryptoKey>(
 export const mockFromJson = (stub: any) => (stub + "_fromJSON") as any;
 
 /**
- * Tracks the emissions of the given observable.
- *
- * Call this function before you expect any emissions and then use code that will cause the observable to emit values,
- * then assert after all expected emissions have occurred.
- * @param observable
- * @returns An array that will be populated with all emissions of the observable.
+ * Use to mock a return value of a static fromSdk method.
  */
-export function trackEmissions<T>(observable: Observable<T>): T[] {
-  const emissions: T[] = [];
-  observable.subscribe((value) => {
-    switch (value) {
-      case undefined:
-      case null:
-        emissions.push(value);
-        return;
-      default:
-        // process by type
-        break;
-    }
-
-    switch (typeof value) {
-      case "string":
-      case "number":
-      case "boolean":
-        emissions.push(value);
-        break;
-      case "symbol":
-        // Cheating types to make symbols work at all
-        emissions.push(value.toString() as T);
-        break;
-      default: {
-        emissions.push(clone(value));
-      }
-    }
-  });
-  return emissions;
-}
-
-function clone(value: any): any {
-  if (global.structuredClone != undefined) {
-    return structuredClone(value);
-  } else {
-    return JSON.parse(JSON.stringify(value));
+export const mockFromSdk = (stub: any) => {
+  if (typeof stub === "object") {
+    return {
+      ...stub,
+      __fromSdk: true,
+    };
   }
-}
 
-export async function awaitAsync(ms = 1) {
-  if (ms < 1) {
-    await Promise.resolve();
-  } else {
-    await new Promise((resolve) => setTimeout(resolve, ms));
-  }
-}
+  return `${stub}_fromSdk`;
+};
+
+export { trackEmissions, awaitAsync } from "@bitwarden/core-test-utils";

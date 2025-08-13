@@ -2,7 +2,7 @@ import { makeSymmetricCryptoKey, mockEnc } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 
-import { Collection } from "./collection";
+import { Collection, CollectionTypes } from "./collection";
 import { CollectionData } from "./collection.data";
 
 describe("Collection", () => {
@@ -17,6 +17,7 @@ describe("Collection", () => {
       readOnly: true,
       manage: true,
       hidePasswords: true,
+      type: CollectionTypes.DefaultUserCollection,
     };
   });
 
@@ -32,6 +33,7 @@ describe("Collection", () => {
       organizationId: null,
       readOnly: null,
       manage: null,
+      type: null,
     });
   });
 
@@ -46,18 +48,20 @@ describe("Collection", () => {
       readOnly: true,
       manage: true,
       hidePasswords: true,
+      type: CollectionTypes.DefaultUserCollection,
     });
   });
 
   it("Decrypt", async () => {
     const collection = new Collection();
-    collection.id = "id";
+    collection.id = "id" as CollectionId;
     collection.organizationId = "orgId" as OrganizationId;
     collection.name = mockEnc("encName");
     collection.externalId = "extId";
     collection.readOnly = false;
     collection.hidePasswords = false;
     collection.manage = true;
+    collection.type = CollectionTypes.DefaultUserCollection;
 
     const key = makeSymmetricCryptoKey<OrgKey>();
 
@@ -72,6 +76,7 @@ describe("Collection", () => {
       readOnly: false,
       manage: true,
       assigned: true,
+      type: CollectionTypes.DefaultUserCollection,
     });
   });
 });

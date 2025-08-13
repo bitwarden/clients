@@ -1,10 +1,11 @@
+@let isAdminOrServiceUser = isAdminOrServiceUser$ | async;
 <app-header>
   <bit-search
     class="tw-grow"
     [formControl]="searchControl"
     [placeholder]="'search' | i18n"
   ></bit-search>
-  <a bitButton routerLink="create" *ngIf="manageOrganizations" buttonType="primary">
+  <a bitButton routerLink="create" *ngIf="isAdminOrServiceUser" buttonType="primary">
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "newClient" | i18n }}
   </a>
@@ -12,7 +13,7 @@
     type="button"
     bitButton
     (click)="addExistingOrganization()"
-    *ngIf="manageOrganizations && showAddExisting"
+    *ngIf="isAdminOrServiceUser && showAddExisting"
   >
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "addExistingOrganization" | i18n }}
@@ -52,14 +53,11 @@
           <span>{{ row.plan }}</span>
           <div appListDropdown>
             <button
-              *ngIf="manageOrganizations"
+              *ngIf="isAdminOrServiceUser"
               [bitMenuTriggerFor]="removeMenu"
               bitMenuItem
               buttonType="secondary"
               type="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
               appA11yTitle="{{ 'options' | i18n }}"
             >
               <i class="bwi bwi-cog bwi-lg" aria-hidden="true"></i>

@@ -1,46 +1,76 @@
-import { combineLatest, map, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  map,
+  merge,
+  Observable,
+  of,
+  Subscription,
+  switchMap,
+  distinctUntilChanged,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { NotificationType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
+import {
+  filterOutNullish,
+  perUserCache$,
+} from "@bitwarden/common/vault/utils/observable-utilities";
 
-import { filterOutNullish, perUserCache$ } from "../../utils/observable-utilities";
 import { TaskService } from "../abstractions/task.service";
 import { SecurityTaskStatus } from "../enums";
 import { SecurityTask, SecurityTaskData, SecurityTaskResponse } from "../models";
 import { SECURITY_TASKS } from "../state/security-task.state";
+
+const getUnlockedUserIds = map<Record<UserId, AuthenticationStatus>, UserId[]>((authStatuses) =>
+  Object.entries(authStatuses ?? {})
+    .filter(([, status]) => status >= AuthenticationStatus.Unlocked)
+    .map(([userId]) => userId as UserId),
+);
 
 export class DefaultTaskService implements TaskService {
   constructor(
     private stateProvider: StateProvider,
     private apiService: ApiService,
     private organizationService: OrganizationService,
-    private configService: ConfigService,
+    private authService: AuthService,
+    private notificationService: NotificationsService,
+    private messageListener: MessageListener,
   ) {}
 
   tasksEnabled$ = perUserCache$((userId) => {
-    return combineLatest([
-      this.organizationService
-        .organizations$(userId)
-        .pipe(map((orgs) => orgs.some((o) => o.useRiskInsights))),
-      this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks),
-    ]).pipe(map(([atLeastOneOrgEnabled, flagEnabled]) => atLeastOneOrgEnabled && flagEnabled));
+    return this.organizationService.organizations$(userId).pipe(
+      map((orgs) => orgs.some((o) => o.useRiskInsights)),
+      distinctUntilChanged(),
+    );
   });
 
   tasks$ = perUserCache$((userId) => {
-    return this.taskState(userId).state$.pipe(
-      switchMap(async (tasks) => {
-        if (tasks == null) {
-          await this.fetchTasksFromApi(userId);
+    return this.tasksEnabled$(userId).pipe(
+      switchMap((enabled) => {
+        if (!enabled) {
+          return of([]);
         }
-        return tasks;
+        return this.taskState(userId).state$.pipe(
+          switchMap(async (tasks) => {
+            if (tasks == null) {
+              await this.fetchTasksFromApi(userId);
+              return null;
+            }
+            return tasks;
+          }),
+          filterOutNullish(),
+          map((tasks) => tasks.map((t) => new SecurityTask(t))),
+        );
       }),
-      filterOutNullish(),
-      map((tasks) => tasks.map((t) => new SecurityTask(t))),
     );
   });
 
@@ -96,5 +126,67 @@ export class DefaultTaskService implements TaskService {
     tasks: SecurityTaskData[],
   ): Promise<SecurityTaskData[] | null> {
     return this.taskState(userId).update(() => tasks);
+  }
+
+  /**
+   * Helper observable that filters the list of unlocked user IDs to only those with tasks enabled.
+   * @private
+   */
+  private getOnlyTaskEnabledUsers = switchMap<UserId[], Observable<UserId[]>>((unlockedUserIds) => {
+    if (unlockedUserIds.length === 0) {
+      return of([]);
+    }
+
+    return combineLatest(
+      unlockedUserIds.map((userId) =>
+        this.tasksEnabled$(userId).pipe(map((enabled) => (enabled ? userId : null))),
+      ),
+    ).pipe(map((userIds) => userIds.filter((userId) => userId !== null) as UserId[]));
+  });
+
+  /**
+   * Helper observable that emits whenever a security task notification is received for a user in the provided list.
+   * @private
+   */
+  private securityTaskNotifications$(filterByUserIds: UserId[]) {
+    return this.notificationService.notifications$.pipe(
+      filter(
+        ([notification, userId]) =>
+          notification.type === NotificationType.RefreshSecurityTasks &&
+          filterByUserIds.includes(userId),
+      ),
+      map(([, userId]) => userId),
+    );
+  }
+
+  /**
+   * Helper observable that emits whenever a sync is completed for a user in the provided list.
+   */
+  private syncCompletedMessage$(filterByUserIds: UserId[]) {
+    return this.messageListener.allMessages$.pipe(
+      filter((msg) => msg.command === "syncCompleted" && !!msg.successfully && !!msg.userId),
+      map((msg) => msg.userId as UserId),
+      filter((userId) => filterByUserIds.includes(userId)),
+    );
+  }
+
+  /**
+   * Creates a subscription for pending security task notifications or completed syncs for unlocked users.
+   */
+  listenForTaskNotifications(): Subscription {
+    return this.authService.authStatuses$
+      .pipe(
+        getUnlockedUserIds,
+        this.getOnlyTaskEnabledUsers,
+        filter((allowedUserIds) => allowedUserIds.length > 0),
+        switchMap((allowedUserIds) =>
+          merge(
+            this.securityTaskNotifications$(allowedUserIds),
+            this.syncCompletedMessage$(allowedUserIds),
+          ),
+        ),
+        switchMap((userId) => this.refreshTasks(userId)),
+      )
+      .subscribe();
   }
 }

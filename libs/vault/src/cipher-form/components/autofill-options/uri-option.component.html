@@ -1,12 +1,12 @@
 <ng-container [formGroup]="uriForm">
-  <div class="tw-mb-4 pt-1">
+  <div class="tw-mb-4 tw-pt-1">
     <div class="tw-flex tw-pt-2" [class.!tw-mb-1]="showMatchDetection">
       <bit-form-field disableMargin class="tw-flex-1 !tw-pt-0">
         <bit-label>{{ uriLabel }}</bit-label>
         <input bitInput formControlName="uri" #uriInput />
         <button
           type="button"
-          bitIconButton="bwi-cog"
+          [bitIconButton]="showMatchDetection ? 'bwi-cog-f' : 'bwi-cog'"
           bitSuffix
           [appA11yTitle]="toggleTitle"
           (click)="toggleMatchDetection()"
@@ -26,7 +26,7 @@
       <div class="tw-flex tw-items-center tw-ml-1.5">
         <button
           type="button"
-          bitIconButton="bwi-hamburger"
+          bitIconButton="bwi-drag-and-drop"
           class="!tw-py-0 !tw-px-1"
           cdkDragHandle
           [appA11yTitle]="'reorderToggleButton' | i18n: uriLabel"
@@ -43,8 +43,16 @@
           *ngFor="let o of uriMatchOptions"
           [label]="o.label"
           [value]="o.value"
+          [disabled]="o.disabled"
         ></bit-option>
       </bit-select>
+      <bit-hint *ngIf="getMatchHints() as hints">
+        {{ hints[0] | i18n }}
+        <ng-container *ngIf="hints.length > 1">
+          <b>{{ "warningCapitalized" | i18n }}:</b>
+          {{ hints[1] | i18n }}
+        </ng-container>
+      </bit-hint>
     </bit-form-field>
   </div>
 </ng-container>

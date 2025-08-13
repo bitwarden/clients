@@ -75,7 +75,7 @@ export const LabelWrap: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <code>fullWidth=false</code>
+      <code class="tw-text-danger-700">fullWidth=false</code>
       <bit-toggle-group
         [(selected)]="selected"
         aria-label="People list filter"
@@ -92,7 +92,7 @@ export const LabelWrap: Story = {
         <bit-toggle value="deactivated">Deactivatedinvitationswraplabel</bit-toggle>
       </bit-toggle-group>
       <br />
-      <code>fullWidth=true</code>
+      <code class="tw-text-danger-700">fullWidth=true</code>
       <bit-toggle-group
         [(selected)]="selected"
         aria-label="People list filter"

@@ -29,6 +29,7 @@ import {
 @Component({
   selector: "sm-new-menu",
   templateUrl: "./new-menu.component.html",
+  standalone: false,
 })
 export class NewMenuComponent implements OnInit, OnDestroy {
   private organizationId: string;

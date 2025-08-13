@@ -1,5 +1,5 @@
 // @ts-check
-
+import { fixupPluginRules } from "@eslint/compat";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import angular from "angular-eslint";
@@ -31,8 +31,8 @@ export default tseslint.config(
       reportUnusedDisableDirectives: "error",
     },
     plugins: {
-      rxjs: rxjs,
-      "rxjs-angular": angularRxjs,
+      rxjs: fixupPluginRules(rxjs),
+      "rxjs-angular": fixupPluginRules(angularRxjs),
       "@bitwarden/platform": platformPlugins,
     },
     languageOptions: {
@@ -70,9 +70,11 @@ export default tseslint.config(
       "@angular-eslint/no-output-on-prefix": 0,
       "@angular-eslint/no-output-rename": 0,
       "@angular-eslint/no-outputs-metadata-property": 0,
+      "@angular-eslint/prefer-standalone": 0,
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
       "@bitwarden/platform/required-using": "error",
+      "@bitwarden/platform/no-enums": "error",
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
       "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
       "@typescript-eslint/no-floating-promises": "error",
@@ -277,14 +279,305 @@ export default tseslint.config(
       ]),
     },
   },
-
-  /// Team overrides
+  // Browser background and content scripts are not allowed to import from the popup directory
   {
-    files: ["**/src/platform/**/*.ts"],
+    files: ["apps/browser/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([], true),
+      "no-restricted-imports": buildNoRestrictedImports([
+        "@angular",
+        "bitwarden_license/**",
+        "@bitwarden/bit-common/*",
+        "@bitwarden/bit-web/*",
+
+        "**/popup/*",
+      ]),
     },
   },
+  // This removes the previous rule forbidding imports from the popup directory
+  {
+    files: ["apps/browser/src/**/popup/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "bitwarden_license/**",
+        "@bitwarden/bit-common/*",
+        "@bitwarden/bit-web/*",
+      ]),
+    },
+  },
+  {
+    files: ["libs/nx-plugin/**/*.ts", "libs/nx-plugin/**/*.js"],
+    rules: {
+      "no-console": "off",
+    },
+  },
+  // Tailwind migrated clients & libs
+  {
+    files: ["apps/web/**/*.html", "bitwarden_license/bit-web/**/*.html", "libs/**/*.html"],
+    rules: {
+      "tailwindcss/no-custom-classname": [
+        "error",
+        {
+          // In migrated clients we only allow tailwind classes plus the following exceptions
+          whitelist: [
+            "((bwi)\\-?).*", // Font icons
+            "logo",
+            "logo-themed",
+            "file-selector",
+            "mfaType.*",
+            "filter.*", // Temporary until filters are migrated
+          ],
+        },
+      ],
+    },
+  },
+  /// Bandaids for keeping existing circular dependencies from getting worse and new ones from being created
+  /// Will be removed after Nx is implemented and existing circular dependencies are removed.
+  {
+    files: ["libs/common/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Common is at the base level - should not import from other libs except shared
+        "@bitwarden/admin-console",
+        "@bitwarden/angular",
+        "@bitwarden/auth",
+        "@bitwarden/billing",
+        "@bitwarden/components",
+        "@bitwarden/importer",
+        "@bitwarden/key-management",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/node",
+        "@bitwarden/platform",
+        "@bitwarden/tools",
+        "@bitwarden/ui",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/shared/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Shared shouldnt have deps
+        "@bitwarden/admin-console",
+        "@bitwarden/angular",
+        "@bitwarden/auth",
+        "@bitwarden/billing",
+        "@bitwarden/common",
+        "@bitwarden/components",
+        "@bitwarden/importer",
+        "@bitwarden/key-management",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/node",
+        "@bitwarden/platform",
+        "@bitwarden/tools",
+        "@bitwarden/ui",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/auth/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Auth can only depend on common, shared, angular, node, platform, eslint
+        "@bitwarden/admin-console",
+        "@bitwarden/billing",
+        "@bitwarden/components",
+        "@bitwarden/importer",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/tools",
+        "@bitwarden/ui",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/key-management/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Key management can depend on common, node, angular, components, eslint, platform, ui
+        "@bitwarden/auth",
+        "@bitwarden/admin-console",
+        "@bitwarden/billing",
+        "@bitwarden/importer",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/tools",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/billing/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Billing can depend on auth, common, angular, components, eslint, node, platform, ui
+        "@bitwarden/admin-console",
+        "@bitwarden/importer",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/tools",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/components/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Components can depend on common, shared
+        "@bitwarden/admin-console",
+        "@bitwarden/auth",
+        "@bitwarden/billing",
+        "@bitwarden/eslint",
+        "@bitwarden/importer",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/node",
+        "@bitwarden/tools",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/ui/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // UI can depend on common, shared, auth
+        "@bitwarden/admin-console",
+        "@bitwarden/billing",
+        "@bitwarden/importer",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/node",
+        "@bitwarden/platform",
+        "@bitwarden/tools",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/key-management-ui/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Key-management-ui can depend on key-management, common, angular, shared, auth, components, ui, eslint
+        "@bitwarden/admin-console",
+        "@bitwarden/billing",
+        "@bitwarden/importer",
+        "@bitwarden/node",
+        "@bitwarden/platform",
+        "@bitwarden/tools",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/angular/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Angular can depend on common, shared, components, ui
+        "@bitwarden/admin-console",
+        "@bitwarden/auth",
+        "@bitwarden/billing",
+        "@bitwarden/importer",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/node",
+        "@bitwarden/platform",
+        "@bitwarden/tools",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/vault/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Vault can depend on most libs
+        "@bitwarden/admin-console",
+        "@bitwarden/importer",
+        "@bitwarden/tools",
+      ]),
+    },
+  },
+  {
+    files: ["libs/admin-console/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Admin console can depend on all libs
+      ]),
+    },
+  },
+  {
+    files: ["libs/tools/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Tools can depend on most libs
+        "@bitwarden/admin-console",
+      ]),
+    },
+  },
+  {
+    files: ["libs/platform/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Platform cant depend on most libs
+        "@bitwarden/admin-console",
+        "@bitwarden/auth",
+        "@bitwarden/billing",
+        "@bitwarden/importer",
+        "@bitwarden/key-management",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/tools",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/importer/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Importer can depend on most libs but not other domain libs
+        "@bitwarden/admin-console",
+        "@bitwarden/tools",
+      ]),
+    },
+  },
+  {
+    files: ["libs/eslint/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // ESLint should not depend on app code
+        "@bitwarden/admin-console",
+        "@bitwarden/angular",
+        "@bitwarden/auth",
+        "@bitwarden/billing",
+        "@bitwarden/components",
+        "@bitwarden/importer",
+        "@bitwarden/key-management",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/node",
+        "@bitwarden/platform",
+        "@bitwarden/tools",
+        "@bitwarden/ui",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+  {
+    files: ["libs/node/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        // Node can depend on common, shared, auth
+        "@bitwarden/admin-console",
+        "@bitwarden/angular",
+        "@bitwarden/components",
+        "@bitwarden/importer",
+        "@bitwarden/key-management-ui",
+        "@bitwarden/platform",
+        "@bitwarden/tools",
+        "@bitwarden/ui",
+        "@bitwarden/vault",
+      ]),
+    },
+  },
+
+  /// Team overrides
   {
     files: [
       "apps/cli/src/admin-console/**/*.ts",
@@ -362,6 +655,7 @@ export default tseslint.config(
       "libs/components/tailwind.config.js",
 
       "scripts/*.js",
+      "jest.preset.js",
     ],
   },
 );

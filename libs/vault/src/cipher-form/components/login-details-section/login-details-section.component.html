@@ -1,4 +1,4 @@
-<bit-section [formGroup]="loginDetailsForm">
+<section [formGroup]="loginDetailsForm" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">
       {{ "loginCredentials" | i18n }}
@@ -103,7 +103,9 @@
           <i class="bwi bwi-sm bwi-question-circle" aria-hidden="true"></i>
         </button>
         <bit-popover #totpPopover [title]="'totpHelperTitle' | i18n">
-          <p>{{ (canCaptureTotp ? "totpHelperWithCapture" : "totpHelper") | i18n }}</p>
+          <p class="tw-mb-0">
+            {{ (canCaptureTotp ? "totpHelperWithCapture" : "totpHelper") | i18n }}
+          </p>
         </bit-popover>
       </bit-label>
       <input bitInput formControlName="totp" type="password" class="tw-font-mono" />
@@ -127,6 +129,6 @@
       ></button>
     </bit-form-field>
   </bit-card>
-</bit-section>
+</section>
 
 <vault-autofill-options></vault-autofill-options>

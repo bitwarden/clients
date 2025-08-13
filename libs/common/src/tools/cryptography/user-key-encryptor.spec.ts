@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
@@ -22,8 +22,10 @@ describe("UserKeyEncryptor", () => {
     // on this property--that the facade treats its data like a opaque objects--to trace
     // the data through several function calls. Should the encryptor interact with the
     // objects themselves, these mocks will break.
-    encryptService.encrypt.mockImplementation((p) => Promise.resolve(p as unknown as EncString));
-    encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c as unknown as string));
+    encryptService.encryptString.mockImplementation((p) =>
+      Promise.resolve(p as unknown as EncString),
+    );
+    encryptService.decryptString.mockImplementation((c) => Promise.resolve(c as unknown as string));
     dataPacker.pack.mockImplementation((v) => v as string);
     dataPacker.unpack.mockImplementation(<T>(v: string) => v as T);
   });
@@ -95,7 +97,7 @@ describe("UserKeyEncryptor", () => {
 
       // these are data flow expectations; the operations all all pass-through mocks
       expect(dataPacker.pack).toHaveBeenCalledWith(value);
-      expect(encryptService.encrypt).toHaveBeenCalledWith(value, userKey);
+      expect(encryptService.encryptString).toHaveBeenCalledWith(value, userKey);
       expect(result).toBe(value);
     });
   });
@@ -117,7 +119,7 @@ describe("UserKeyEncryptor", () => {
       const result = await encryptor.decrypt(secret);
 
       // these are data flow expectations; the operations all all pass-through mocks
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(secret, userKey);
+      expect(encryptService.decryptString).toHaveBeenCalledWith(secret, userKey);
       expect(dataPacker.unpack).toHaveBeenCalledWith(secret);
       expect(result).toBe(secret);
     });

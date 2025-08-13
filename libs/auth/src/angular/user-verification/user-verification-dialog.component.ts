@@ -10,6 +10,8 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   DIALOG_DATA,
   DialogRef,
@@ -30,7 +32,6 @@ import { UserVerificationFormInputComponent } from "./user-verification-form-inp
 
 @Component({
   templateUrl: "user-verification-dialog.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

@@ -26,7 +26,8 @@ import {
 } from "@bitwarden/vault";
 
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 
@@ -51,6 +52,7 @@ describe("AddEditV2Component", () => {
   const disable = jest.fn();
   const navigate = jest.fn();
   const back = jest.fn().mockResolvedValue(null);
+  const setHistory = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
 
   beforeEach(async () => {
@@ -70,7 +72,7 @@ describe("AddEditV2Component", () => {
       providers: [
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
-        { provide: PopupRouterCacheService, useValue: { back } },
+        { provide: PopupRouterCacheService, useValue: { back, setHistory } },
         { provide: PopupCloseWarningService, useValue: { disable } },
         { provide: Router, useValue: { navigate } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
@@ -308,6 +310,19 @@ describe("AddEditV2Component", () => {
       expect(navigate).not.toHaveBeenCalled();
       expect(back).toHaveBeenCalled();
     });
+
+    it.each<CipherFormMode>(["add", "edit", "partial-edit"])(
+      "sends the addEditCipherSubmitted message when a cipher is edited, added or partially edited",
+      async (mode) => {
+        const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage");
+        component.config.mode = mode;
+
+        await component.onCipherSaved({ id: "123-456-789" } as CipherView);
+
+        expect(sendMessageSpy).toHaveBeenCalled();
+        expect(sendMessageSpy).toHaveBeenCalledWith("addEditCipherSubmitted");
+      },
+    );
   });
 
   describe("handleBackButton", () => {

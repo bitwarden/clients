@@ -329,8 +329,11 @@ describe("OverlayNotificationsBackground", () => {
         tab: { id: 1 },
         url: "https://example.com",
       });
-      notificationChangedPasswordSpy = jest.spyOn(notificationBackground, "changedPassword");
-      notificationAddLoginSpy = jest.spyOn(notificationBackground, "addLogin");
+      notificationChangedPasswordSpy = jest.spyOn(
+        notificationBackground,
+        "triggerChangedPasswordNotification",
+      );
+      notificationAddLoginSpy = jest.spyOn(notificationBackground, "triggerAddLoginNotification");
 
       sendMockExtensionMessage(
         { command: "collectPageDetailsResponse", details: pageDetails },

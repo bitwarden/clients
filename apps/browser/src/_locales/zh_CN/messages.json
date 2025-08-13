@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "extName": {
     "message": "Bitwarden 密码管理器",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -297,7 +300,7 @@
     "message": "前往帮助中心吗？"
   },
   "continueToHelpCenterDesc": {
-    "message": "在帮助中心进一步了解如何使用 Bitwarden。"
+    "message": "访问帮助中心进一步了解如何使用 Bitwarden。"
   },
   "continueToBrowserExtensionStore": {
     "message": "前往浏览器扩展商店吗？"
@@ -543,6 +546,9 @@
   },
   "searchVault": {
     "message": "搜索密码库"
+  },
+  "resetSearch": {
+    "message": "重置搜索"
   },
   "edit": {
     "message": "编辑"
@@ -842,10 +848,10 @@
     "message": "无缝两步验证"
   },
   "totpHelper": {
-    "message": "Bitwarden 可以存储并填充两步验证码。复制并粘贴密钥到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。将密钥复制并粘贴到此字段。"
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来截取此网站的验证器二维码，或者手动复制并粘贴密钥到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
   },
   "learnMoreAboutAuthenticators": {
     "message": "进一步了解验证器"
@@ -882,6 +888,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "按照以下步骤完成登录。"
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "请按照下面的步骤，使用您的安全密钥完成登录。"
   },
   "restartRegistration": {
     "message": "重启注册"
@@ -1056,23 +1065,55 @@
   "notificationAddSave": {
     "message": "保存"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ 已保存到 Bitwarden。",
+  "notificationViewAria": {
+    "message": "在新窗口中查看 $ITEMNAME$",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ 已在 Bitwarden 中更新。",
+  "notificationNewItemAria": {
+    "message": "新增项目（在新窗口中打开）",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "保存前编辑",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "新通知"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$：新通知",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
-        "content": "$1"
+      "label": {
+        "content": "$1",
+        "example": "Login"
       }
-    },
-    "description": "Shown to user after login is updated."
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "已保存到 Bitwarden。",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "已更新到 Bitwarden。",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "选择 $ITEMTYPE$，$ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "保存为新的登录",
@@ -1082,12 +1123,16 @@
     "message": "更新登录",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "保存登录吗？",
+  "unlockToSave": {
+    "message": "解锁以保存此登录",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "保存登录",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "更新现有的登录吗？",
+  "updateLogin": {
+    "message": "更新现有的登录",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1098,6 +1143,31 @@
     "message": "登录已更新",
     "description": "Message displayed when login details are successfully updated."
   },
+  "loginUpdateTaskSuccess": {
+    "message": "干得好！您采取了使您和 $ORGANIZATION$ 更加安全的步骤。",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "感谢您使 $ORGANIZATION$ 更加安全。您还有 $TASK_COUNT$ 个密码需要更新。",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "更改下一个密码",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
   "saveFailure": {
     "message": "保存时出错",
     "description": "Error message shown when the system fails to save login details."
@@ -1105,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "哦不！我们无法保存它。请尝试手动输入详细信息。",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "更改密码后，您需要使用新密码登录。 在其他设备上的活动会话将在一小时内注销。"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "更改您的主密码以完成账户恢复。"
   },
   "enableChangedPasswordNotification": {
     "message": "询问更新现有的登录"
@@ -1188,16 +1264,16 @@
     "message": "此密码将用于导出和导入此文件"
   },
   "accountRestrictedOptionDescription": {
-    "message": "使用衍生自您账户的用户名和主密码的账户加密密钥，以加密此导出并限制只能导入到当前的 Bitwarden 账户。"
+    "message": "使用衍生自您账户用户名和主密码的加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
   },
   "passwordProtectedOptionDescription": {
-    "message": "设置一个文件密码用来加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
+    "message": "设置一个文件密码以加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
   },
   "exportTypeHeading": {
     "message": "导出类型"
   },
   "accountRestricted": {
-    "message": "账户受限"
+    "message": "账户限制"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「文件密码」与「确认文件密码」不一致。"
@@ -1298,8 +1374,8 @@
   "featureUnavailable": {
     "message": "功能不可用"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "需要迁移加密密钥。请登录网页版密码库来更新您的加密密钥。"
+  "legacyEncryptionUnsupported": {
+    "message": "旧版加密方式已不再受支持。请联系客服恢复您的账户。"
   },
   "premiumMembership": {
     "message": "高级会员"
@@ -1532,6 +1608,24 @@
   "autofillSuggestionsSectionTitle": {
     "message": "自动填充建议"
   },
+  "autofillSpotlightTitle": {
+    "message": "轻松找到自动填充建议"
+  },
+  "autofillSpotlightDesc": {
+    "message": "关闭浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
+  },
+  "turnOffBrowserAutofill": {
+    "message": "关闭 $BROWSER$ 的自动填充",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "关闭自动填充"
+  },
   "showInlineMenuLabel": {
     "message": "在表单字段中显示自动填充建议"
   },
@@ -1738,6 +1832,9 @@
   "securityCode": {
     "message": "安全码"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "ex": {
     "message": "例如"
   },
@@ -1836,6 +1933,9 @@
   },
   "typeSshKey": {
     "message": "SSH 密钥"
+  },
+  "typeNote": {
+    "message": "笔记"
   },
   "newItemHeader": {
     "message": "新增 $TYPE$",
@@ -2068,11 +2168,11 @@
   "setYourPinCode": {
     "message": "设定您用来解锁 Bitwarden 的 PIN 码。您的 PIN 设置将在您完全注销此应用程序时被重置。"
   },
-  "setYourPinCode1": {
-    "message": "您的 PIN 码将代替主密码用于解锁 Bitwarden。如果您完全注销 Bitwarden，PIN 码将被重置。"
+  "setPinCode": {
+    "message": "您可以使用此 PIN 码解锁 Bitwarden。您的 PIN 码将在您完全注销此应用程序时被重置。"
   },
   "pinRequired": {
-    "message": "需要 PIN 码。"
+    "message": "必须填写 PIN 码。"
   },
   "invalidPin": {
     "message": "无效 PIN 码。"
@@ -2119,18 +2219,21 @@
   "useThisPassword": {
     "message": "使用此密码"
   },
+  "useThisPassphrase": {
+    "message": "使用此密码短语"
+  },
   "useThisUsername": {
     "message": "使用此用户名"
   },
   "securePasswordGenerated": {
-    "message": "安全密码生成好了！别忘了也在网站上更新一下您的密码。"
+    "message": "安全的密码已生成！不要忘记在网站上更新您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
     "message": "使用生成器",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "创建一个强大且唯一的密码",
+    "message": "创建强大且唯一的密码",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
@@ -2141,15 +2244,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "超时动作"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "新的自定义选项"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "自定义您的密码库体验，包括快速复制操作、紧凑模式等！"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "查看所有外观设置"
   },
   "lock": {
     "message": "锁定",
@@ -2280,7 +2374,7 @@
     "message": "随时。"
   },
   "byContinuingYouAgreeToThe": {
-    "message": "若继续，代表您同意"
+    "message": "若继续，表示您同意"
   },
   "and": {
     "message": "和"
@@ -2296,6 +2390,9 @@
   },
   "privacyPolicy": {
     "message": "隐私政策"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "您的新密码不能与当前密码相同。"
   },
   "hintEqualsPassword": {
     "message": "您的密码提示不能与您的密码相同。"
@@ -2402,6 +2499,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "某个组织策略已阻止将项目导入您的个人密码库。"
   },
+  "restrictCardTypeImport": {
+    "message": "无法导入支付卡项目类型"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入密码库。"
+  },
   "domainsTitle": {
     "message": "域名",
     "description": "A category title describing the concept of web domains"
@@ -2433,6 +2536,10 @@
   "change": {
     "message": "更改"
   },
+  "changePassword": {
+    "message": "更改密码",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "更改密码 - $ITEMNAME$",
     "placeholders": {
@@ -2441,6 +2548,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "存在风险的密码"
   },
   "atRiskPasswords": {
     "message": "存在风险的密码"
@@ -2475,6 +2585,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "该网站密码存在风险，$ORGANIZATION$ 要求您更改此密码。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ 希望您更改此密码，因为它存在风险。请前往账户设置更改此密码。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "审查并更改 1 个存在风险的密码"
@@ -2594,6 +2724,10 @@
   "allSends": {
     "message": "所有 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "已达最大访问次数",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "默认隐藏文本"
@@ -2797,6 +2931,9 @@
   "emailVerificationRequiredDesc": {
     "message": "您必须验证电子邮箱才能使用此功能。您可以在网页密码库中验证您的电子邮箱。"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "主密码设置成功"
+  },
   "updatedMasterPassword": {
     "message": "已更新主密码"
   },
@@ -2822,7 +2959,7 @@
     "message": "选择文件夹..."
   },
   "noFoldersFound": {
-    "message": "找不到文件夹",
+    "message": "未找到任何文件夹",
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -2935,14 +3072,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "未找到唯一的标识符。"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ 使用自托管密钥服务器 SSO。这个组织的成员登录时将不再需要主密码。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。"
+  },
+  "organizationName": {
+    "message": "组织名称"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector 域名"
   },
   "leaveOrganization": {
     "message": "退出组织"
@@ -3306,13 +3443,13 @@
     "message": "通知已发送到您的设备。"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "解锁您设备上的 Bitwarden 或通过"
   },
   "notificationSentDeviceAnchor": {
     "message": "网页 App"
   },
   "notificationSentDevicePart2": {
-    "message": "在批准前，请确保指纹短语与下面的相匹配。"
+    "message": "批准前，请确保指纹短语与下面的相匹配。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
@@ -3329,6 +3466,31 @@
   "logInRequestSent": {
     "message": "请求已发送"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
+  },
+  "device": {
+    "message": "设备"
+  },
+  "loginStatus": {
+    "message": "登录状态"
+  },
+  "masterPasswordChanged": {
+    "message": "主密码已保存"
+  },
   "exposedMasterPassword": {
     "message": "已暴露的主密码"
   },
@@ -3342,7 +3504,7 @@
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "checkForBreaches": {
-    "message": "检查已知的数据泄露是否包含此密码。"
+    "message": "检查已知的数据泄露是否包含此密码"
   },
   "important": {
     "message": "重要："
@@ -3422,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "记住此设备以便将来无缝登录"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "当前会话"
+  },
+  "mobile": {
+    "message": "移动端",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "扩展",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "桌面端",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "网页密码库"
+  },
+  "webApp": {
+    "message": "网页 App"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "请求待处理"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "此请求已失效。"
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "登录请求已过期。"
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "请求于 $MINUTES$ 分钟前",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "需要设备批准。请在下面选择一个批准选项："
   },
@@ -3442,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "请求管理员批准"
+  },
+  "unableToCompleteLogin": {
+    "message": "无法完成登录"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "必须填写组织 SSO 标识符。"
@@ -3504,12 +3760,36 @@
   "deviceTrusted": {
     "message": "设备已信任"
   },
-  "sendsNoItemsTitle": {
-    "message": "没有活跃的 Send",
+  "trustOrganization": {
+    "message": "信任组织"
+  },
+  "trust": {
+    "message": "信任"
+  },
+  "doNotTrust": {
+    "message": "不信任"
+  },
+  "organizationNotTrusted": {
+    "message": "组织未被信任"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "为了您的账户安全，确认前请先确认：您已授予该用户紧急访问权限，以及其指纹与其账户中显示的指纹相匹配"
+  },
+  "orgTrustWarning": {
+    "message": "为了您的账户安全，继续前请先确认：您是启用了账户恢复功能的该组织的成员，以及下方显示的指纹与此组织的指纹相匹配。"
+  },
+  "orgTrustWarning1": {
+    "message": "此组织有一个企业策略，将为您注册账户恢复。注册后将允许组织管理员更改您的主密码。继续前请先确认：您认识此组织，以及下方显示的指纹短语与此组织的指纹相匹配。"
+  },
+  "trustUser": {
+    "message": "信任用户"
+  },
+  "sendsTitleNoItems": {
+    "message": "安全地发送敏感信息",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "使用 Send 与任何人安全地分享加密信息。",
+  "sendsBodyNoItems": {
+    "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3926,7 +4206,7 @@
     "message": "此应用程序已存在一个通行密钥。"
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "没有找到此应用程序的通行密钥。"
+    "message": "未找到此应用程序的通行密钥。"
   },
   "noMatchingPasskeyLogin": {
     "message": "您没有匹配此站点的登录。"
@@ -4097,6 +4377,26 @@
   "commonImportFormats": {
     "message": "常规格式",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "更多关于匹配检测",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "高级选项",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "前往浏览器设置吗？",
@@ -4281,17 +4581,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "复制 $FIELD$，$VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4390,13 +4690,13 @@
     "message": "项目历史记录"
   },
   "lastEdited": {
-    "message": "上次编辑"
+    "message": "最后编辑于"
   },
   "ownerYou": {
     "message": "所有者：您"
   },
   "linked": {
-    "message": "链接型"
+    "message": "已链接"
   },
   "copySuccessful": {
     "message": "复制成功"
@@ -4408,7 +4708,7 @@
     "message": "添加附件"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "最大文件大小为 500 MB"
+    "message": "文件最大为 500 MB"
   },
   "deleteAttachmentName": {
     "message": "删除附件 $NAME$",
@@ -4427,6 +4727,33 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadBitwarden": {
+    "message": "下载 Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "在所有设备上下载 Bitwarden"
+  },
+  "getTheMobileApp": {
+    "message": "获取移动 App"
+  },
+  "getTheMobileAppDesc": {
+    "message": "使用 Bitwarden 移动 App，随时随地访问您的密码。"
+  },
+  "getTheDesktopApp": {
+    "message": "获取桌面 App"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "无需使用浏览器访问您的密码库，然后在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
+  },
+  "downloadFromBitwardenNow": {
+    "message": "立即从 bitwarden.com 下载"
+  },
+  "getItOnGooglePlay": {
+    "message": "从 Google Play 获取"
+  },
+  "downloadOnTheAppStore": {
+    "message": "从 App Store 下载"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "您确定要永久删除此附件吗？"
@@ -4543,7 +4870,7 @@
     "message": "过期的支付卡"
   },
   "cardExpiredMessage": {
-    "message": "如果您的支付卡已续期，请更新该卡的信息。"
+    "message": "如果您的支付卡已续期，请更新该卡的信息"
   },
   "cardDetails": {
     "message": "支付卡详细信息"
@@ -4732,7 +5059,7 @@
     "message": "成功分配了集合"
   },
   "nothingSelected": {
-    "message": "您尚未选择任何内容。"
+    "message": "您没有选择任何内容。"
   },
   "itemsMovedToOrg": {
     "message": "项目已移动到 $ORGNAME$",
@@ -4830,7 +5157,7 @@
     "message": "自定义超时时间最小为 1 分钟。"
   },
   "additionalContentAvailable": {
-    "message": "有更多内容可用"
+    "message": "更多内容可用"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -4889,6 +5216,18 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "由于某个未知的原因，生物识别解锁当前不可用。"
   },
+  "unlockVault": {
+    "message": "数秒内解锁您的密码库"
+  },
+  "unlockVaultDesc": {
+    "message": "您可以自定义解锁和超时设置，以便更快速地访问您的密码库。"
+  },
+  "unlockPinSet": {
+    "message": "解锁 PIN 设置"
+  },
+  "unlockWithBiometricSet": {
+    "message": "生物识别解锁设置"
+  },
   "authenticating": {
     "message": "正在验证"
   },
@@ -4900,8 +5239,8 @@
     "message": "密码已重新生成",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "将登录保存到 Bitwarden 吗？",
+  "saveToBitwarden": {
+    "message": "保存到 Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5051,42 +5390,6 @@
   "beta": {
     "message": "Beta 版"
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "设置两步登录"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
-  },
-  "remindMeLater": {
-    "message": "稍后提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您可以正常访问您的电子邮箱 $EMAIL$ 吗？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不能"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以正常访问我的电子邮箱"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
-  },
-  "changeAcctEmail": {
-    "message": "更改账户电子邮箱"
-  },
   "extensionWidth": {
     "message": "扩展宽度"
   },
@@ -5124,7 +5427,7 @@
     "message": "SSH 密钥导入成功"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -5140,5 +5443,141 @@
   },
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
+  },
+  "settingsVaultOptions": {
+    "message": "密码库选项"
+  },
+  "emptyVaultDescription": {
+    "message": "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。"
+  },
+  "introCarouselLabel": {
+    "message": "欢迎使用 Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "安全优先"
+  },
+  "securityPrioritizedBody": {
+    "message": "将登录、支付卡和身份保存到您的安全密码库。Bitwarden 使用零知识、端到端的加密来保护您的重要信息。"
+  },
+  "quickLogin": {
+    "message": "快速便捷的登录"
+  },
+  "quickLoginBody": {
+    "message": "设置生物识别解锁和自动填充，无需输入任何字符即可登录您的账户。"
+  },
+  "secureUser": {
+    "message": "提升您的登录体验"
+  },
+  "secureUserBody": {
+    "message": "使用生成器创建并保存强大且唯一的密码，以保护您的所有账户。"
+  },
+  "secureDevices": {
+    "message": "随时随地在您需要时获取您的数据"
+  },
+  "secureDevicesBody": {
+    "message": "使用 Bitwarden 移动端、浏览器和桌面 App 在无限制的设备上保存无限数量的密码。"
+  },
+  "nudgeBadgeAria": {
+    "message": "1 个通知"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "导入现有密码"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "使用导入器快速将登录传输到 Bitwarden 而无需手动添加。"
+  },
+  "emptyVaultNudgeButton": {
+    "message": "立即导入"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "欢迎来到您的密码库！"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "为当前页面自动填充项目"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "收藏项目以便轻松访问"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "在密码库中搜索其他内容"
+  },
+  "newLoginNudgeTitle": {
+    "message": "使用自动填充节省时间"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "包含",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "网站",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "以便将此登录显示为自动填充建议。",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "无缝在线结账"
+  },
+  "newCardNudgeBody": {
+    "message": "使用支付卡，安全准确地轻松自动填充付款表单。"
+  },
+  "newIdentityNudgeTitle": {
+    "message": "简化账户的创建"
+  },
+  "newIdentityNudgeBody": {
+    "message": "使用身份，快速自动填充冗长的注册或联系表单。"
+  },
+  "newNoteNudgeTitle": {
+    "message": "保持您的敏感数据的安全"
+  },
+  "newNoteNudgeBody": {
+    "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
+  },
+  "newSshNudgeTitle": {
+    "message": "开发人员友好的 SSH 访问权限"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "进一步了解 SSH 代理",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "快速创建密码"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "一键创建强大且唯一的密码",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "帮助您保持登录安全。",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "点击「生成密码」按钮，轻松创建强大且唯一的密码，帮助您保持登录安全。",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
+  },
+  "wasmNotSupported": {
+    "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。使用 Bitwarden App 需要 WebAssembly。",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "显示更多"
+  },
+  "showLess": {
+    "message": "显示更少"
   }
 }

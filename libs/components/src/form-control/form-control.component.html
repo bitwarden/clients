@@ -1,5 +1,5 @@
 <label
-  class="tw-transition tw-select-none tw-mb-0 tw-inline-flex tw-rounded tw-p-0.5 has-[:focus-visible]:tw-ring has-[:focus-visible]:tw-ring-primary-600"
+  class="tw-transition tw-items-start [&:has(input[type='checkbox'])]:tw-gap-[.25rem] [&:has(input[type='radio'])]:tw-gap-1.5 tw-select-none tw-mb-0 tw-inline-flex tw-rounded has-[:focus-visible]:tw-ring has-[:focus-visible]:tw-ring-primary-600"
   [ngClass]="[formControl.disabled ? 'tw-cursor-auto' : 'tw-cursor-pointer']"
 >
   <ng-content></ng-content>
@@ -14,12 +14,14 @@
       }
     </span>
     @if (!hasError) {
-      <ng-content select="bit-hint"></ng-content>
+      <span class="[&_bit-hint]:tw-mt-0 tw-leading-none">
+        <ng-content select="bit-hint"></ng-content>
+      </span>
     }
   </span>
 </label>
 @if (hasError) {
-  <div class="tw-mt-1 tw-text-danger tw-text-xs tw-ml-0.5">
+  <div class="tw-mt-1 tw-text-danger tw-text-xs tw-ms-0.5">
     <i class="bwi bwi-error"></i> {{ displayError }}
   </div>
 }

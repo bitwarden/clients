@@ -19,6 +19,7 @@ import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export"
 @Component({
   selector: "provider-events",
   templateUrl: "events.component.html",
+  standalone: false,
 })
 export class EventsComponent extends BaseEventsComponent implements OnInit {
   exportFileName = "provider-events";

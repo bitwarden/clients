@@ -11,7 +11,6 @@ import { ButtonModule } from "@bitwarden/components";
  */
 @Component({
   selector: "app-authentication-timeout",
-  standalone: true,
   imports: [CommonModule, JslibModule, ButtonModule, RouterModule],
   template: `
     <p class="tw-text-center">

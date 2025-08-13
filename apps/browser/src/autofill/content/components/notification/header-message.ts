@@ -19,7 +19,7 @@ const notificationHeaderMessageStyles = (theme: Theme) => css`
   line-height: 28px;
   white-space: nowrap;
   color: ${themes[theme].text.main};
-  font-family: "DM Sans", sans-serif;
+  font-family: Roboto, sans-serif;
   font-size: 18px;
   font-weight: 600;
 `;

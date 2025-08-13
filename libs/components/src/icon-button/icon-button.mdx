@@ -1,4 +1,4 @@
-import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
 
 import * as stories from "./icon-button.stories";
 
@@ -8,16 +8,8 @@ import * as stories from "./icon-button.stories";
 import { IconButtonModule } from "@bitwarden/components";
 ```
 
-# Icon Button
-
-Icon buttons are used when no text accompanies the button. It consists of an icon that may be
-updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label`.
-
-The most common use of the icon button is in the banner, toast, and modal components as a close
-button. It can also be found in tables as the 3 dot option menu, or on navigation list items when
-there are options that need to be collapsed into a menu.
-
-Similar to the main button components, spacing between multiple icon buttons should be .5rem.
+<Title />
+<Description />
 
 <Primary />
 <Controls />
@@ -30,9 +22,6 @@ Icon buttons can be found in other components such as: the
 [table](?path=/docs/component-library-table--docs).
 
 ## Styles
-
-There are 4 common styles for button main, muted, contrast, and danger. The other styles follow the
-button component styles.
 
 ### Main
 
@@ -67,22 +56,11 @@ square.
 
 <Canvas of={stories.Primary} />
 
-### Secondary
+### Nav Contrast
 
-Used in place of the main button component if no text is used. This allows the button to display
-square.
+Used on the side nav background that is dark in both light theme and dark theme.
 
-<Canvas of={stories.Secondary} />
-
-### Light
-
-Used on a background that is dark in both light theme and dark theme. Example: end user navigation
-styles.
-
-<Canvas of={stories.Light} />
-
-**Note:** Main and contrast styles appear on backgrounds where using `primary-700` as a focus
-indicator does not meet WCAG graphic contrast guidelines.
+<Canvas of={stories.NavContrast} />
 
 ## Sizes
 

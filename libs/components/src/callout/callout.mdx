@@ -1,4 +1,4 @@
-import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
 
 import * as stories from "./callout.stories";
 
@@ -8,11 +8,11 @@ import { CalloutModule } from "@bitwarden/components";
 
 <Meta of={stories} />
 
-# Callouts
+<Title />
+<Description />
 
-Callouts are used to communicate important information to the user. Callouts should be used
-sparingly, as they command a large amount of visual attention. Avoid using more than 1 callout in
-the same location.
+<Primary />
+<Controls />
 
 ## Styles
 

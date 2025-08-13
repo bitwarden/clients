@@ -3,11 +3,15 @@
 import { matches, mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   UserDecryptionOptionsServiceAbstraction,
   UserDecryptionOptions,
 } from "@bitwarden/auth/common";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
@@ -20,7 +24,6 @@ import { ProtectedDeviceResponse } from "../../../auth/models/response/protected
 import { DeviceType } from "../../../enums";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
@@ -29,13 +32,14 @@ import { AbstractStorageService } from "../../../platform/abstractions/storage.s
 import { StorageLocation } from "../../../platform/enums";
 import { EncryptionType } from "../../../platform/enums/encryption-type.enum";
 import { Utils } from "../../../platform/misc/utils";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../../types/csprng";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
+import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
+import { EncString } from "../../crypto/models/enc-string";
 
 import {
   SHOULD_TRUST_DEVICE,
@@ -346,8 +350,6 @@ describe("deviceTrustService", () => {
 
       const deviceRsaKeyLength = 2048;
       let mockDeviceRsaKeyPair: [Uint8Array, Uint8Array];
-      let mockDevicePrivateKey: Uint8Array;
-      let mockDevicePublicKey: Uint8Array;
       let mockDevicePublicKeyEncryptedUserKey: EncString;
       let mockUserKeyEncryptedDevicePublicKey: EncString;
       let mockDeviceKeyEncryptedDevicePrivateKey: EncString;
@@ -366,7 +368,8 @@ describe("deviceTrustService", () => {
       let rsaGenerateKeyPairSpy: jest.SpyInstance;
       let cryptoSvcGetUserKeySpy: jest.SpyInstance;
       let cryptoSvcRsaEncryptSpy: jest.SpyInstance;
-      let encryptServiceEncryptSpy: jest.SpyInstance;
+      let encryptServiceWrapDecapsulationKeySpy: jest.SpyInstance;
+      let encryptServiceWrapEncapsulationKeySpy: jest.SpyInstance;
       let appIdServiceGetAppIdSpy: jest.SpyInstance;
       let devicesApiServiceUpdateTrustedDeviceKeysSpy: jest.SpyInstance;
 
@@ -383,9 +386,6 @@ describe("deviceTrustService", () => {
           new Uint8Array(deviceRsaKeyLength),
           new Uint8Array(deviceRsaKeyLength),
         ];
-
-        mockDevicePublicKey = mockDeviceRsaKeyPair[0];
-        mockDevicePrivateKey = mockDeviceRsaKeyPair[1];
 
         mockDevicePublicKeyEncryptedUserKey = new EncString(
           EncryptionType.Rsa2048_OaepSha1_B64,
@@ -416,16 +416,20 @@ describe("deviceTrustService", () => {
           .mockResolvedValue(mockUserKey);
 
         cryptoSvcRsaEncryptSpy = jest
-          .spyOn(encryptService, "rsaEncrypt")
+          .spyOn(encryptService, "encapsulateKeyUnsigned")
           .mockResolvedValue(mockDevicePublicKeyEncryptedUserKey);
 
-        encryptServiceEncryptSpy = jest
-          .spyOn(encryptService, "encrypt")
+        encryptServiceWrapEncapsulationKeySpy = jest
+          .spyOn(encryptService, "wrapEncapsulationKey")
           .mockImplementation((plainValue, key) => {
-            if (plainValue === mockDevicePublicKey && key === mockUserKey) {
+            if (plainValue instanceof Uint8Array && key instanceof SymmetricCryptoKey) {
               return Promise.resolve(mockUserKeyEncryptedDevicePublicKey);
             }
-            if (plainValue === mockDevicePrivateKey && key === mockDeviceKey) {
+          });
+        encryptServiceWrapDecapsulationKeySpy = jest
+          .spyOn(encryptService, "wrapDecapsulationKey")
+          .mockImplementation((plainValue, key) => {
+            if (plainValue instanceof Uint8Array && key instanceof SymmetricCryptoKey) {
               return Promise.resolve(mockDeviceKeyEncryptedDevicePrivateKey);
             }
           });
@@ -449,10 +453,11 @@ describe("deviceTrustService", () => {
         expect(cryptoSvcRsaEncryptSpy).toHaveBeenCalledTimes(1);
 
         // RsaEncrypt must be called w/ a user key array buffer of 64 bytes
-        const userKeyKey: Uint8Array = cryptoSvcRsaEncryptSpy.mock.calls[0][0];
-        expect(userKeyKey.byteLength).toBe(64);
+        const userKey = cryptoSvcRsaEncryptSpy.mock.calls[0][0];
+        expect(userKey.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
 
-        expect(encryptServiceEncryptSpy).toHaveBeenCalledTimes(2);
+        expect(encryptServiceWrapDecapsulationKeySpy).toHaveBeenCalledTimes(1);
+        expect(encryptServiceWrapEncapsulationKeySpy).toHaveBeenCalledTimes(1);
 
         expect(appIdServiceGetAppIdSpy).toHaveBeenCalledTimes(1);
         expect(devicesApiServiceUpdateTrustedDeviceKeysSpy).toHaveBeenCalledTimes(1);
@@ -508,9 +513,14 @@ describe("deviceTrustService", () => {
           errorText: "rsaEncrypt error",
         },
         {
-          method: "encryptService.encrypt",
-          spy: () => encryptServiceEncryptSpy,
-          errorText: "encryptService.encrypt error",
+          method: "encryptService.wrapEncapsulationKey",
+          spy: () => encryptServiceWrapEncapsulationKeySpy,
+          errorText: "encryptService.wrapEncapsulationKey error",
+        },
+        {
+          method: "encryptService.wrapDecapsulationKey",
+          spy: () => encryptServiceWrapDecapsulationKeySpy,
+          errorText: "encryptService.wrapDecapsulationKey error",
         },
       ];
 
@@ -610,19 +620,19 @@ describe("deviceTrustService", () => {
           mockUserId,
           mockEncryptedDevicePrivateKey,
           mockEncryptedUserKey,
-          mockDeviceKey,
+          null,
         );
 
         expect(result).toBeNull();
       });
 
       it("successfully returns the user key when provided keys (including device key) can decrypt it", async () => {
-        const decryptToBytesSpy = jest
-          .spyOn(encryptService, "decryptToBytes")
-          .mockResolvedValue(new Uint8Array(userKeyBytesLength));
+        const unwrapDecapsulationKeySpy = jest
+          .spyOn(encryptService, "unwrapDecapsulationKey")
+          .mockResolvedValue(new Uint8Array(2048));
         const rsaDecryptSpy = jest
-          .spyOn(encryptService, "rsaDecrypt")
-          .mockResolvedValue(new Uint8Array(userKeyBytesLength));
+          .spyOn(encryptService, "decapsulateKeyUnsigned")
+          .mockResolvedValue(new SymmetricCryptoKey(new Uint8Array(userKeyBytesLength)));
 
         const result = await deviceTrustService.decryptUserKeyWithDeviceKey(
           mockUserId,
@@ -632,13 +642,13 @@ describe("deviceTrustService", () => {
         );
 
         expect(result).toEqual(mockUserKey);
-        expect(decryptToBytesSpy).toHaveBeenCalledTimes(1);
+        expect(unwrapDecapsulationKeySpy).toHaveBeenCalledTimes(1);
         expect(rsaDecryptSpy).toHaveBeenCalledTimes(1);
       });
 
       it("returns null and removes device key when the decryption fails", async () => {
-        const decryptToBytesSpy = jest
-          .spyOn(encryptService, "decryptToBytes")
+        const unwrapDecapsulationKeySpy = jest
+          .spyOn(encryptService, "unwrapDecapsulationKey")
           .mockRejectedValue(new Error("Decryption error"));
         const setDeviceKeySpy = jest.spyOn(deviceTrustService as any, "setDeviceKey");
 
@@ -650,7 +660,7 @@ describe("deviceTrustService", () => {
         );
 
         expect(result).toBeNull();
-        expect(decryptToBytesSpy).toHaveBeenCalledTimes(1);
+        expect(unwrapDecapsulationKeySpy).toHaveBeenCalledTimes(1);
         expect(setDeviceKeySpy).toHaveBeenCalledTimes(1);
         expect(setDeviceKeySpy).toHaveBeenCalledWith(mockUserId, null);
       });
@@ -679,6 +689,54 @@ describe("deviceTrustService", () => {
         ).rejects.toThrow("New user key is required. Cannot get rotated data.");
       });
 
+      it("untrusts devices that failed to decrypt", async () => {
+        const deviceResponse = {
+          id: "id",
+          userId: "",
+          name: "",
+          identifier: "",
+          type: DeviceType.Android,
+          creationDate: "",
+          revisionDate: "",
+          isTrusted: true,
+        };
+        devicesApiService.getDevices.mockResolvedValue(
+          new ListResponse(
+            {
+              data: [deviceResponse],
+            },
+            DeviceResponse,
+          ),
+        );
+        encryptService.decryptBytes.mockResolvedValue(null);
+        encryptService.encryptString.mockResolvedValue(new EncString("test_encrypted_data"));
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue(
+          new EncString("test_encrypted_data"),
+        );
+
+        const protectedDeviceResponse = new ProtectedDeviceResponse({
+          id: "id",
+          creationDate: "",
+          identifier: "test_device_identifier",
+          name: "Firefox",
+          type: DeviceType.FirefoxBrowser,
+          encryptedPublicKey: "",
+          encryptedUserKey: "",
+        });
+        devicesApiService.getDeviceKeys.mockResolvedValue(protectedDeviceResponse);
+
+        const fakeOldUserKeyData = new Uint8Array(64);
+        fakeOldUserKeyData.fill(5, 0, 1);
+        fakeOldUserKey = new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey;
+        const fakeNewUserKeyData = new Uint8Array(64);
+        fakeNewUserKeyData.fill(1, 0, 1);
+        fakeNewUserKey = new SymmetricCryptoKey(fakeNewUserKeyData) as UserKey;
+
+        await deviceTrustService.getRotatedData(fakeOldUserKey, fakeNewUserKey, userId);
+
+        expect(devicesApiService.untrustDevices).toHaveBeenCalledWith(["id"]);
+      });
+
       it("returns the expected data when all required parameters are provided", async () => {
         const deviceResponse = {
           id: "",
@@ -698,9 +756,11 @@ describe("deviceTrustService", () => {
             DeviceResponse,
           ),
         );
-        encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(64));
-        encryptService.encrypt.mockResolvedValue(new EncString("test_encrypted_data"));
-        encryptService.rsaEncrypt.mockResolvedValue(new EncString("test_encrypted_data"));
+        encryptService.unwrapEncapsulationKey.mockResolvedValue(new Uint8Array(64));
+        encryptService.wrapEncapsulationKey.mockResolvedValue(new EncString("test_encrypted_data"));
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue(
+          new EncString("test_encrypted_data"),
+        );
 
         const protectedDeviceResponse = new ProtectedDeviceResponse({
           id: "",
@@ -808,29 +868,31 @@ describe("deviceTrustService", () => {
           });
 
           // Mock the decryption of the public key with the old user key
-          encryptService.decryptToBytes.mockImplementationOnce((_encValue, privateKeyValue) => {
-            expect(privateKeyValue.key.byteLength).toBe(64);
-            expect(new Uint8Array(privateKeyValue.key)[0]).toBe(FakeOldUserKeyMarker);
-            const data = new Uint8Array(250);
-            data.fill(FakeDecryptedPublicKeyMarker, 0, 1);
-            return Promise.resolve(data);
-          });
+          encryptService.unwrapEncapsulationKey.mockImplementationOnce(
+            (_encValue, privateKeyValue) => {
+              expect(privateKeyValue.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
+              expect(new Uint8Array(privateKeyValue.toEncoded())[0]).toBe(FakeOldUserKeyMarker);
+              const data = new Uint8Array(250);
+              data.fill(FakeDecryptedPublicKeyMarker, 0, 1);
+              return Promise.resolve(data);
+            },
+          );
 
           // Mock the encryption of the new user key with the decrypted public key
-          encryptService.rsaEncrypt.mockImplementationOnce((data, publicKey) => {
-            expect(data.byteLength).toBe(64); // New key should also be 64 bytes
-            expect(new Uint8Array(data)[0]).toBe(FakeNewUserKeyMarker); // New key should have the first byte be '1';
+          encryptService.encapsulateKeyUnsigned.mockImplementationOnce((data, publicKey) => {
+            expect(data.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64); // New key should also be 64 bytes
+            expect(new Uint8Array(data.toEncoded())[0]).toBe(FakeNewUserKeyMarker); // New key should have the first byte be '1';
 
             expect(new Uint8Array(publicKey)[0]).toBe(FakeDecryptedPublicKeyMarker);
             return Promise.resolve(new EncString("4.ZW5jcnlwdGVkdXNlcg=="));
           });
 
           // Mock the reencryption of the device public key with the new user key
-          encryptService.encrypt.mockImplementationOnce((plainValue, key) => {
+          encryptService.wrapEncapsulationKey.mockImplementationOnce((plainValue, key) => {
             expect(plainValue).toBeInstanceOf(Uint8Array);
             expect(new Uint8Array(plainValue as Uint8Array)[0]).toBe(FakeDecryptedPublicKeyMarker);
 
-            expect(new Uint8Array(key.key)[0]).toBe(FakeNewUserKeyMarker);
+            expect(new Uint8Array(key.toEncoded())[0]).toBe(FakeNewUserKeyMarker);
             return Promise.resolve(
               new EncString("2.ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj"),
             );

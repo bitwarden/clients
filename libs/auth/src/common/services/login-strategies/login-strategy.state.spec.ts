@@ -47,7 +47,6 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
     actual.password.tokenRequest = new PasswordTokenRequest(
       "EMAIL",
       "LOCAL_PASSWORD_HASH",
-      "CAPTCHA_TOKEN",
       twoFactorRequest,
       deviceRequest,
     );
@@ -116,7 +115,7 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
       deviceResponse,
       deviceRequest,
     );
-    actual.webAuthn.captchaBypassToken = "CAPTCHA_BYPASS_TOKEN";
+
     actual.webAuthn.tokenRequest.setTwoFactor(
       new TokenTwoFactorRequest(TwoFactorProviderType.Email, "TOKEN", false),
     );

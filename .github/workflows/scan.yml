@@ -7,76 +7,50 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches-ignore:
+      - "main"
   pull_request_target:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
+    branches:
+      - "main"
+
+permissions: {}
 
 jobs:
   check-run:
     name: Check PR run
     uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+    permissions:
+      contents: read
 
   sast:
-    name: SAST scan
-    runs-on: ubuntu-22.04
+    name: Checkmarx
+    uses: bitwarden/gh-actions/.github/workflows/_checkmarx.yml@main
     needs: check-run
+    secrets:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
     permissions:
       contents: read
       pull-requests: write
       security-events: write
-
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{  github.event.pull_request.head.sha }}
-
-      - name: Scan with Checkmarx
-        uses: checkmarx/ast-github-action@184bf2f64f55d1c93fd6636d539edf274703e434 # 2.0.41
-        env:
-          INCREMENTAL: "${{ contains(github.event_name, 'pull_request') && '--sast-incremental' || '' }}"
-        with:
-          project_name: ${{ github.repository }}
-          cx_tenant: ${{ secrets.CHECKMARX_TENANT }}
-          base_uri: https://ast.checkmarx.net/
-          cx_client_id: ${{ secrets.CHECKMARX_CLIENT_ID }}
-          cx_client_secret: ${{ secrets.CHECKMARX_SECRET }}
-          additional_params: |
-            --report-format sarif \
-            --filter "state=TO_VERIFY;PROPOSED_NOT_EXPLOITABLE;CONFIRMED;URGENT" \
-            --output-path . ${{ env.INCREMENTAL }}
-
-      - name: Upload Checkmarx results to GitHub
-        uses: github/codeql-action/upload-sarif@d68b2d4edb4189fd2a5366ac14e72027bd4b37dd # v3.28.2
-        with:
-          sarif_file: cx_result.sarif
-          sha: ${{ contains(github.event_name, 'pull_request') && github.event.pull_request.head.sha || github.sha }}
-          ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
+      id-token: write
 
   quality:
-    name: Quality scan
-    runs-on: ubuntu-22.04
+    name: Sonar
+    uses: bitwarden/gh-actions/.github/workflows/_sonar.yml@main
     needs: check-run
+    secrets:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
     permissions:
       contents: read
       pull-requests: write
-
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0
-          ref: ${{  github.event.pull_request.head.sha }}
-
-      - name: Scan with SonarCloud
-        uses: sonarsource/sonarqube-scan-action@bfd4e558cda28cda6b5defafb9232d191be8c203 # v4.2.1
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.organization=${{ github.repository_owner }}
-            -Dsonar.projectKey=${{ github.repository_owner }}_${{ github.event.repository.name }}
-            -Dsonar.tests=.
-            -Dsonar.sources=.
-            -Dsonar.test.inclusions=**/*.spec.ts
-            -Dsonar.exclusions=**/*.spec.ts
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
+      id-token: write
+    with:
+      sonar-test-inclusions: "**/*.spec.ts"
+      sonar-exclusions: "**/*.spec.ts"

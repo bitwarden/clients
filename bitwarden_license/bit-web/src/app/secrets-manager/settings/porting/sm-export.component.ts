@@ -29,6 +29,7 @@ type ExportFormat = {
 @Component({
   selector: "sm-export",
   templateUrl: "./sm-export.component.html",
+  standalone: false,
 })
 export class SecretsManagerExportComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

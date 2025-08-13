@@ -6,7 +6,6 @@ import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -17,6 +16,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { invokeMenu, RendererMenuItem } from "../../../utils";
@@ -25,6 +25,8 @@ import { SearchBarService } from "../../layout/search/search-bar.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum Action {
   None = "",
   Add = "add",
@@ -36,7 +38,6 @@ const BroadcasterSubscriptionId = "SendComponent";
 @Component({
   selector: "app-send",
   templateUrl: "send.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, FormsModule, NavComponent, AddEditComponent],
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {

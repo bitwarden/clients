@@ -1,9 +1,14 @@
 import { mock } from "jest-mock-extended";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
 
+import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
 import { CsprngArray } from "../../types/csprng";
-import { CryptoFunctionService } from "../abstractions/crypto-function.service";
+import { SdkLoadService } from "../abstractions/sdk/sdk-load.service";
+import { EncryptionType } from "../enums";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 import { KeyGenerationService } from "./key-generation.service";
 
@@ -52,7 +57,7 @@ describe("KeyGenerationService", () => {
 
         expect(salt).toEqual(inputSalt);
         expect(material).toEqual(inputMaterial);
-        expect(derivedKey.key.length).toEqual(64);
+        expect(derivedKey.inner().type).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
       },
     );
   });
@@ -67,34 +72,56 @@ describe("KeyGenerationService", () => {
 
       const key = await sut.deriveKeyFromMaterial(material, salt, purpose);
 
-      expect(key.key.length).toEqual(64);
+      expect(key.inner().type).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
     });
   });
 
   describe("deriveKeyFromPassword", () => {
     it("should derive a 32 byte key from a password using pbkdf2", async () => {
-      const password = "password";
-      const salt = "salt";
+      const password = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+      const salt = new Uint8Array([9, 10, 11, 12]);
       const kdfConfig = new PBKDF2KdfConfig(600_000);
 
-      cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
+      Object.defineProperty(SdkLoadService, "Ready", {
+        value: Promise.resolve(),
+        configurable: true,
+      });
 
       const key = await sut.deriveKeyFromPassword(password, salt, kdfConfig);
-
-      expect(key.key.length).toEqual(32);
+      expect(key.inner().type).toEqual(EncryptionType.AesCbc256_B64);
     });
 
     it("should derive a 32 byte key from a password using argon2id", async () => {
-      const password = "password";
-      const salt = "salt";
+      const password = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+      const salt = new Uint8Array([9, 10, 11, 12]);
       const kdfConfig = new Argon2KdfConfig(3, 16, 4);
 
-      cryptoFunctionService.hash.mockResolvedValue(new Uint8Array(32));
-      cryptoFunctionService.argon2.mockResolvedValue(new Uint8Array(32));
+      Object.defineProperty(SdkLoadService, "Ready", {
+        value: Promise.resolve(),
+        configurable: true,
+      });
 
       const key = await sut.deriveKeyFromPassword(password, salt, kdfConfig);
+      expect(key.inner().type).toEqual(EncryptionType.AesCbc256_B64);
+    });
+  });
 
-      expect(key.key.length).toEqual(32);
+  describe("stretchKey", () => {
+    it("should stretch a key", async () => {
+      const key = new SymmetricCryptoKey(new Uint8Array(32));
+
+      cryptoFunctionService.hkdf.mockResolvedValue(new Uint8Array(64));
+
+      const stretchedKey = await sut.stretchKey(key);
+
+      expect(stretchedKey.inner().type).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+    });
+    it("should throw if key is not 32 bytes", async () => {
+      const key = new SymmetricCryptoKey(new Uint8Array(64));
+
+      await expect(sut.stretchKey(key)).rejects.toThrow(
+        "Key passed into stretchKey is not a 256-bit key.",
+      );
     });
   });
 });

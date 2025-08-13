@@ -5,6 +5,7 @@ import { Component, EventEmitter, Inject, OnInit } from "@angular/core";
 import { firstValueFrom, map, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -19,10 +20,11 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
-  DialogConfig,
   DialogRef,
+  DialogConfig,
   AsyncActionsModule,
   DialogModule,
   DialogService,
@@ -31,8 +33,7 @@ import {
 import { CipherViewComponent } from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";
-import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";
-import { WebViewPasswordHistoryService } from "../services/web-view-password-history.service";
+import { WebVaultPremiumUpgradePromptService } from "../../vault/services/web-premium-upgrade-prompt.service";
 
 export interface ViewCipherDialogParams {
   cipher: CipherView;
@@ -54,11 +55,13 @@ export interface ViewCipherDialogParams {
   disableEdit?: boolean;
 }
 
-export enum ViewCipherDialogResult {
-  Edited = "edited",
-  Deleted = "deleted",
-  PremiumUpgrade = "premiumUpgrade",
-}
+export const ViewCipherDialogResult = {
+  Edited: "edited",
+  Deleted: "deleted",
+  PremiumUpgrade: "premiumUpgrade",
+} as const;
+
+type ViewCipherDialogResult = UnionOfValues<typeof ViewCipherDialogResult>;
 
 export interface ViewCipherDialogCloseResult {
   action: ViewCipherDialogResult;
@@ -71,10 +74,9 @@ export interface ViewCipherDialogCloseResult {
 @Component({
   selector: "app-vault-view",
   templateUrl: "view.component.html",
-  standalone: true,
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
   providers: [
-    { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
+    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
   ],
 })
@@ -121,9 +123,7 @@ export class ViewComponent implements OnInit {
       );
     }
 
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
-      this.params.activeCollectionId,
-    ]);
+    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher);
   }
 
   /**

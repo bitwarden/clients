@@ -14,6 +14,7 @@ import {
   ButtonModule,
   FormFieldModule,
   IconButtonModule,
+  SelectModule,
   TableModule,
   TabsModule,
 } from "@bitwarden/components";
@@ -71,6 +72,7 @@ describe("AccessSelectorComponent", () => {
         PreloadedEnglishI18nModule,
         JslibModule,
         IconButtonModule,
+        SelectModule,
       ],
       declarations: [TestableAccessSelectorComponent, UserTypePipe],
       providers: [],

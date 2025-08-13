@@ -2,11 +2,15 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
-  CollectionService,
   CollectionData,
   CollectionDetailsResponse,
+  CollectionService,
 } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
@@ -54,9 +58,20 @@ import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
+import { SyncResponse } from "./sync.response";
+import { SyncOptions } from "./sync.service";
 
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
+
+  /** The promises associated with any in-flight api calls. */
+  private inFlightApiCalls: {
+    refreshToken: Promise<void> | null;
+    sync: Promise<SyncResponse> | null;
+  } = {
+    refreshToken: null,
+    sync: null,
+  };
 
   constructor(
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -102,12 +117,20 @@ export class DefaultSyncService extends CoreSyncService {
     );
   }
 
-  override async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
+  override async fullSync(
+    forceSync: boolean,
+    allowThrowOnErrorOrOptions?: boolean | SyncOptions,
+  ): Promise<boolean> {
+    const { allowThrowOnError = false, skipTokenRefresh = false } =
+      typeof allowThrowOnErrorOrOptions === "boolean"
+        ? { allowThrowOnError: allowThrowOnErrorOrOptions }
+        : (allowThrowOnErrorOrOptions ?? {});
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
     if (authStatus === AuthenticationStatus.LoggedOut) {
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     const now = new Date();
@@ -116,19 +139,36 @@ export class DefaultSyncService extends CoreSyncService {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       }
     }
 
     if (!needsSync) {
       await this.setLastSync(now, userId);
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     try {
-      await this.apiService.refreshIdentityToken();
-      const response = await this.apiService.getSync();
+      if (!skipTokenRefresh) {
+        // Store the promise so multiple calls to refresh the token are not made
+        if (this.inFlightApiCalls.refreshToken === null) {
+          this.inFlightApiCalls.refreshToken = this.apiService.refreshIdentityToken();
+        }
+
+        await this.inFlightApiCalls.refreshToken;
+      }
+
+      // Store the promise so multiple calls to sync are not made
+      if (this.inFlightApiCalls.sync === null) {
+        this.inFlightApiCalls.sync = this.apiService.getSync();
+      } else {
+        this.logService.debug(
+          "Sync: Sync network call already in progress, returning existing promise",
+        );
+      }
+
+      const response = await this.inFlightApiCalls.sync;
 
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
@@ -139,14 +179,17 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncPolicies(response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
-      return this.syncCompleted(true);
+      return this.syncCompleted(true, userId);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       } else {
-        return this.syncCompleted(false);
+        return this.syncCompleted(false, userId);
       }
+    } finally {
+      this.inFlightApiCalls.refreshToken = null;
+      this.inFlightApiCalls.sync = null;
     }
   }
 
@@ -182,7 +225,10 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    // Users with no master password will not have a key.
+    if (response?.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    }
     await this.keyService.setPrivateKey(response.privateKey, response.id);
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
@@ -213,13 +259,8 @@ export class DefaultSyncService extends CoreSyncService {
 
     await this.syncProfileOrganizations(response, response.id);
 
-    if (await this.keyConnectorService.userNeedsMigration(response.id)) {
-      await this.keyConnectorService.setConvertAccountRequired(true, response.id);
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       this.messageSender.send("convertAccountToKeyConnector");
-    } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.keyConnectorService.removeConvertAccountRequired(response.id);
     }
   }
 

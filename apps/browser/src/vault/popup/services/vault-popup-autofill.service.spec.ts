@@ -28,7 +28,7 @@ import {
 } from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 
@@ -353,7 +353,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should add a URI to the cipher and save with the server", async () => {
-        const mockEncryptedCipher = {} as Cipher;
+        const mockEncryptedCipher = { cipher: {} as Cipher, encryptedFor: mockUserId };
         mockCipherService.encrypt.mockResolvedValue(mockEncryptedCipher);
         const result = await service.doAutofillAndSave(mockCipher);
         expect(result).toBe(true);

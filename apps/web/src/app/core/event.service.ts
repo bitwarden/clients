@@ -9,9 +9,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DeviceType, EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 @Injectable()
@@ -21,8 +19,7 @@ export class EventService {
   constructor(
     private i18nService: I18nService,
     policyService: PolicyService,
-    private configService: ConfigService,
-    private accountService: AccountService,
+    accountService: AccountService,
   ) {
     accountService.activeAccount$
       .pipe(
@@ -345,9 +342,9 @@ export class EventService {
         );
         break;
       case EventType.OrganizationUser_Deleted:
-        msg = this.i18nService.t("deletedUserId", this.formatOrgUserId(ev));
+        msg = this.i18nService.t("deletedUserIdEventMessage", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
-          "deletedUserId",
+          "deletedUserIdEventMessage",
           this.getShortId(ev.organizationUserId),
         );
         break;
@@ -463,25 +460,27 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("removedDomain", ev.domainName);
         break;
       case EventType.OrganizationDomain_Verified:
-        msg = humanReadableMsg = this.i18nService.t(
-          (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning))
-            ? "domainClaimedEvent"
-            : "domainVerifiedEvent",
-          ev.domainName,
-        );
+        msg = humanReadableMsg = this.i18nService.t("domainClaimedEvent", ev.domainName);
         break;
       case EventType.OrganizationDomain_NotVerified:
-        msg = humanReadableMsg = this.i18nService.t(
-          (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning))
-            ? "domainNotClaimedEvent"
-            : "domainNotVerifiedEvent",
-          ev.domainName,
-        );
+        msg = humanReadableMsg = this.i18nService.t("domainNotClaimedEvent", ev.domainName);
         break;
       // Secrets Manager
       case EventType.Secret_Retrieved:
-        msg = this.i18nService.t("accessedSecret", this.formatSecretId(ev));
-        humanReadableMsg = this.i18nService.t("accessedSecret", this.getShortId(ev.secretId));
+        msg = this.i18nService.t("accessedSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("accessedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Created:
+        msg = this.i18nService.t("createdSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("createdSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Deleted:
+        msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("deletedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Edited:
+        msg = this.i18nService.t("editedSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("editedSecretWithId", this.getShortId(ev.secretId));
         break;
       default:
         break;

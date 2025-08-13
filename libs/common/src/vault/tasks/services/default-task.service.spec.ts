@@ -1,9 +1,14 @@
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { NotificationType } from "@bitwarden/common/enums";
+import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
+import { Message, MessageListener } from "@bitwarden/common/platform/messaging";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
@@ -16,29 +21,31 @@ import { DefaultTaskService } from "./default-task.service";
 describe("Default task service", () => {
   let fakeStateProvider: FakeStateProvider;
 
+  const userId = "user-id" as UserId;
   const mockApiSend = jest.fn();
   const mockGetAllOrgs$ = jest.fn();
-  const mockGetFeatureFlag$ = jest.fn();
-
+  const mockAuthStatuses$ = new BehaviorSubject<Record<UserId, AuthenticationStatus>>({});
+  const mockNotifications$ = new Subject<readonly [NotificationResponse, UserId]>();
+  const mockMessages$ = new Subject<Message<Record<string, unknown>>>();
   let service: DefaultTaskService;
 
   beforeEach(async () => {
     mockApiSend.mockClear();
     mockGetAllOrgs$.mockClear();
-    mockGetFeatureFlag$.mockClear();
 
-    fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
+    fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     service = new DefaultTaskService(
       fakeStateProvider,
       { send: mockApiSend } as unknown as ApiService,
       { organizations$: mockGetAllOrgs$ } as unknown as OrganizationService,
-      { getFeatureFlag$: mockGetFeatureFlag$ } as unknown as ConfigService,
+      { authStatuses$: mockAuthStatuses$.asObservable() } as unknown as AuthService,
+      { notifications$: mockNotifications$.asObservable() } as unknown as NotificationsService,
+      { allMessages$: mockMessages$.asObservable() } as unknown as MessageListener,
     );
   });
 
   describe("tasksEnabled$", () => {
     it("should emit true if any organization uses risk insights", async () => {
-      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(true));
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
@@ -58,7 +65,6 @@ describe("Default task service", () => {
     });
 
     it("should emit false if no organization uses risk insights", async () => {
-      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(true));
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
@@ -66,23 +72,6 @@ describe("Default task service", () => {
           },
           {
             useRiskInsights: false,
-          },
-        ] as Organization[]),
-      );
-
-      const { tasksEnabled$ } = service;
-
-      const result = await firstValueFrom(tasksEnabled$("user-id" as UserId));
-
-      expect(result).toBe(false);
-    });
-
-    it("should emit false if the feature flag is off", async () => {
-      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(false));
-      mockGetAllOrgs$.mockReturnValue(
-        new BehaviorSubject([
-          {
-            useRiskInsights: true,
           },
         ] as Organization[]),
       );
@@ -96,6 +85,33 @@ describe("Default task service", () => {
   });
 
   describe("tasks$", () => {
+    beforeEach(() => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: true,
+          },
+        ] as Organization[]),
+      );
+    });
+
+    it("should return an empty array if tasks are not enabled", async () => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: false,
+          },
+        ] as Organization[]),
+      );
+
+      const { tasks$ } = service;
+
+      const result = await firstValueFrom(tasks$("user-id" as UserId));
+
+      expect(result.length).toBe(0);
+      expect(mockApiSend).not.toHaveBeenCalled();
+    });
+
     it("should fetch tasks from the API when the state is null", async () => {
       mockApiSend.mockResolvedValue({
         data: [
@@ -141,6 +157,33 @@ describe("Default task service", () => {
   });
 
   describe("pendingTasks$", () => {
+    beforeEach(() => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: true,
+          },
+        ] as Organization[]),
+      );
+    });
+
+    it("should return an empty array if tasks are not enabled", async () => {
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: false,
+          },
+        ] as Organization[]),
+      );
+
+      const { pendingTasks$ } = service;
+
+      const result = await firstValueFrom(pendingTasks$("user-id" as UserId));
+
+      expect(result.length).toBe(0);
+      expect(mockApiSend).not.toHaveBeenCalled();
+    });
+
     it("should filter tasks to only pending tasks", async () => {
       fakeStateProvider.singleUser.mockFor("user-id" as UserId, SECURITY_TASKS, [
         {
@@ -255,6 +298,237 @@ describe("Default task service", () => {
           id: "new-task-id",
         } as SecurityTaskData,
       ]);
+    });
+  });
+
+  describe("listenForTaskNotifications()", () => {
+    it("should not subscribe to notifications when there are no unlocked users", () => {
+      mockAuthStatuses$.next({
+        [userId]: AuthenticationStatus.Locked,
+      });
+
+      service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
+      const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn());
+      const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn());
+
+      const subscription = service.listenForTaskNotifications();
+
+      expect(notificationHelper$).not.toHaveBeenCalled();
+      expect(syncCompletedHelper$).not.toHaveBeenCalled();
+      subscription.unsubscribe();
+    });
+
+    it("should not subscribe to notifications when no users have tasks enabled", () => {
+      mockAuthStatuses$.next({
+        [userId]: AuthenticationStatus.Unlocked,
+      });
+
+      service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(false));
+      const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn());
+      const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn());
+
+      const subscription = service.listenForTaskNotifications();
+
+      expect(notificationHelper$).not.toHaveBeenCalled();
+      expect(syncCompletedHelper$).not.toHaveBeenCalled();
+      subscription.unsubscribe();
+    });
+
+    it("should subscribe to notifications when there are unlocked users with tasks enabled", () => {
+      mockAuthStatuses$.next({
+        [userId]: AuthenticationStatus.Unlocked,
+      });
+      service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
+
+      const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn());
+      const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn());
+
+      const subscription = service.listenForTaskNotifications();
+
+      expect(notificationHelper$).toHaveBeenCalled();
+      expect(syncCompletedHelper$).toHaveBeenCalled();
+      subscription.unsubscribe();
+    });
+
+    describe("notification handling", () => {
+      it("should refresh tasks when a notification is received for an allowed user", async () => {
+        mockAuthStatuses$.next({
+          [userId]: AuthenticationStatus.Unlocked,
+        });
+        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
+
+        const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn(
+          () => new Subject(),
+        ));
+        const refreshTasks = jest.spyOn(service, "refreshTasks");
+
+        const subscription = service.listenForTaskNotifications();
+
+        const notification = {
+          type: NotificationType.RefreshSecurityTasks,
+        } as NotificationResponse;
+        mockNotifications$.next([notification, userId]);
+
+        await new Promise(process.nextTick);
+
+        expect(syncCompletedHelper$).toHaveBeenCalled();
+        expect(refreshTasks).toHaveBeenCalledWith(userId);
+        subscription.unsubscribe();
+      });
+
+      it("should ignore notifications for other users", async () => {
+        mockAuthStatuses$.next({
+          [userId]: AuthenticationStatus.Unlocked,
+        });
+        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
+
+        const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn(
+          () => new Subject(),
+        ));
+        const refreshTasks = jest.spyOn(service, "refreshTasks");
+
+        const subscription = service.listenForTaskNotifications();
+
+        const notification = {
+          type: NotificationType.RefreshSecurityTasks,
+        } as NotificationResponse;
+        mockNotifications$.next([notification, "other-user-id" as UserId]);
+
+        await new Promise(process.nextTick);
+
+        expect(syncCompletedHelper$).toHaveBeenCalled();
+        expect(refreshTasks).not.toHaveBeenCalledWith(userId);
+        subscription.unsubscribe();
+      });
+
+      it("should ignore other notifications types", async () => {
+        mockAuthStatuses$.next({
+          [userId]: AuthenticationStatus.Unlocked,
+        });
+        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
+
+        const syncCompletedHelper$ = (service["syncCompletedMessage$"] = jest.fn(
+          () => new Subject(),
+        ));
+        const refreshTasks = jest.spyOn(service, "refreshTasks");
+
+        const subscription = service.listenForTaskNotifications();
+
+        const notification = {
+          type: NotificationType.SyncSettings,
+        } as NotificationResponse;
+        mockNotifications$.next([notification, userId]);
+
+        await new Promise(process.nextTick);
+
+        expect(syncCompletedHelper$).toHaveBeenCalled();
+        expect(refreshTasks).not.toHaveBeenCalledWith(userId);
+        subscription.unsubscribe();
+      });
+    });
+
+    describe("sync completed handling", () => {
+      it("should refresh tasks when a sync completed message is received for an allowed user", async () => {
+        mockAuthStatuses$.next({
+          [userId]: AuthenticationStatus.Unlocked,
+        });
+        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
+
+        const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn(
+          () => new Subject(),
+        ));
+        const refreshTasks = jest.spyOn(service, "refreshTasks");
+
+        const subscription = service.listenForTaskNotifications();
+
+        mockMessages$.next({
+          command: "syncCompleted",
+          userId,
+          successfully: true,
+        });
+
+        await new Promise(process.nextTick);
+
+        expect(notificationHelper$).toHaveBeenCalled();
+        expect(refreshTasks).toHaveBeenCalledWith(userId);
+        subscription.unsubscribe();
+      });
+
+      it("should ignore non syncCompleted messages", async () => {
+        mockAuthStatuses$.next({
+          [userId]: AuthenticationStatus.Unlocked,
+        });
+        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
+
+        const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn(
+          () => new Subject(),
+        ));
+        const refreshTasks = jest.spyOn(service, "refreshTasks");
+
+        const subscription = service.listenForTaskNotifications();
+
+        mockMessages$.next({
+          command: "other-command",
+        });
+
+        await new Promise(process.nextTick);
+
+        expect(notificationHelper$).toHaveBeenCalled();
+        expect(refreshTasks).not.toHaveBeenCalledWith(userId);
+        subscription.unsubscribe();
+      });
+
+      it("should ignore failed sync messages", async () => {
+        mockAuthStatuses$.next({
+          [userId]: AuthenticationStatus.Unlocked,
+        });
+        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
+
+        const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn(
+          () => new Subject(),
+        ));
+        const refreshTasks = jest.spyOn(service, "refreshTasks");
+
+        const subscription = service.listenForTaskNotifications();
+
+        mockMessages$.next({
+          command: "syncCompleted",
+          userId,
+          successfully: false,
+        });
+
+        await new Promise(process.nextTick);
+
+        expect(notificationHelper$).toHaveBeenCalled();
+        expect(refreshTasks).not.toHaveBeenCalledWith(userId);
+        subscription.unsubscribe();
+      });
+
+      it("should ignore sync messages for other users", async () => {
+        mockAuthStatuses$.next({
+          [userId]: AuthenticationStatus.Unlocked,
+        });
+        service.tasksEnabled$ = jest.fn(() => new BehaviorSubject(true));
+
+        const notificationHelper$ = (service["securityTaskNotifications$"] = jest.fn(
+          () => new Subject(),
+        ));
+        const refreshTasks = jest.spyOn(service, "refreshTasks");
+
+        const subscription = service.listenForTaskNotifications();
+
+        mockMessages$.next({
+          command: "syncCompleted",
+          userId: "other-user-id" as UserId,
+          successfully: true,
+        });
+
+        await new Promise(process.nextTick);
+
+        expect(notificationHelper$).toHaveBeenCalled();
+        expect(refreshTasks).not.toHaveBeenCalledWith(userId);
+        subscription.unsubscribe();
+      });
     });
   });
 });

@@ -1,17 +1,16 @@
 @for (breadcrumb of beforeOverflow; track breadcrumb; let last = $last) {
-  @if (breadcrumb.route) {
+  @if (breadcrumb.route(); as route) {
     <a
       bitLink
       linkType="primary"
       class="tw-my-2 tw-inline-block"
-      [routerLink]="breadcrumb.route"
-      [queryParams]="breadcrumb.queryParams"
-      [queryParamsHandling]="breadcrumb.queryParamsHandling"
+      [routerLink]="route"
+      [queryParams]="breadcrumb.queryParams()"
+      [queryParamsHandling]="breadcrumb.queryParamsHandling()"
     >
       <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
     </a>
-  }
-  @if (!breadcrumb.route) {
+  } @else {
     <button
       type="button"
       bitLink
@@ -36,22 +35,20 @@
     bitIconButton="bwi-ellipsis-h"
     [bitMenuTriggerFor]="overflowMenu"
     size="small"
-    aria-haspopup
   ></button>
   <bit-menu #overflowMenu>
     @for (breadcrumb of overflow; track breadcrumb) {
-      @if (breadcrumb.route) {
+      @if (breadcrumb.route(); as route) {
         <a
           bitMenuItem
           linkType="primary"
-          [routerLink]="breadcrumb.route"
-          [queryParams]="breadcrumb.queryParams"
-          [queryParamsHandling]="breadcrumb.queryParamsHandling"
+          [routerLink]="route"
+          [queryParams]="breadcrumb.queryParams()"
+          [queryParamsHandling]="breadcrumb.queryParamsHandling()"
         >
           <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
         </a>
-      }
-      @if (!breadcrumb.route) {
+      } @else {
         <button type="button" bitMenuItem linkType="primary" (click)="breadcrumb.onClick($event)">
           <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
         </button>
@@ -60,19 +57,18 @@
   </bit-menu>
   <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
   @for (breadcrumb of afterOverflow; track breadcrumb; let last = $last) {
-    @if (breadcrumb.route) {
+    @if (breadcrumb.route(); as route) {
       <a
         bitLink
         linkType="primary"
         class="tw-my-2 tw-inline-block"
-        [routerLink]="breadcrumb.route"
-        [queryParams]="breadcrumb.queryParams"
-        [queryParamsHandling]="breadcrumb.queryParamsHandling"
+        [routerLink]="route"
+        [queryParams]="breadcrumb.queryParams()"
+        [queryParamsHandling]="breadcrumb.queryParamsHandling()"
       >
         <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
       </a>
-    }
-    @if (!breadcrumb.route) {
+    } @else {
       <button
         type="button"
         bitLink

@@ -21,6 +21,7 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -75,6 +76,7 @@ describe("LoginStrategyService", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
+  let configService: MockProxy<ConfigService>;
 
   let stateProvider: FakeGlobalStateProvider;
   let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
@@ -107,6 +109,7 @@ describe("LoginStrategyService", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     taskSchedulerService = mock<TaskSchedulerService>();
+    configService = mock<ConfigService>();
 
     sut = new LoginStrategyService(
       accountService,
@@ -134,6 +137,7 @@ describe("LoginStrategyService", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       taskSchedulerService,
+      configService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
@@ -248,7 +252,7 @@ describe("LoginStrategyService", () => {
       premium: false,
     });
 
-    const result = await sut.logInTwoFactor(twoFactorToken, "CAPTCHA");
+    const result = await sut.logInTwoFactor(twoFactorToken);
 
     expect(result).toBeInstanceOf(AuthResult);
   });
@@ -285,7 +289,7 @@ describe("LoginStrategyService", () => {
       true,
     );
 
-    await expect(sut.logInTwoFactor(twoFactorToken, "CAPTCHA")).rejects.toThrow();
+    await expect(sut.logInTwoFactor(twoFactorToken)).rejects.toThrow();
   });
 
   it("throw error on too low kdf config", async () => {

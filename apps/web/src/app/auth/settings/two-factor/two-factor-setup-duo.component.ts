@@ -1,7 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -13,18 +12,40 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  AsyncActionsModule,
+  ButtonModule,
+  CalloutModule,
   DIALOG_DATA,
   DialogConfig,
+  DialogModule,
   DialogRef,
   DialogService,
+  FormFieldModule,
+  IconModule,
+  InputModule,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-base.component";
 
 @Component({
   selector: "app-two-factor-setup-duo",
   templateUrl: "two-factor-setup-duo.component.html",
+  imports: [
+    CommonModule,
+    DialogModule,
+    FormFieldModule,
+    InputModule,
+    TypographyModule,
+    ButtonModule,
+    IconModule,
+    I18nPipe,
+    ReactiveFormsModule,
+    AsyncActionsModule,
+    CalloutModule,
+  ],
 })
 export class TwoFactorSetupDuoComponent
   extends TwoFactorSetupMethodBaseComponent
@@ -63,23 +84,23 @@ export class TwoFactorSetupDuoComponent
     );
   }
 
-  get clientId() {
-    return this.formGroup.get("clientId").value;
+  get clientId(): string {
+    return this.formGroup.get("clientId")?.value || "";
   }
-  get clientSecret() {
-    return this.formGroup.get("clientSecret").value;
+  get clientSecret(): string {
+    return this.formGroup.get("clientSecret")?.value || "";
   }
-  get host() {
-    return this.formGroup.get("host").value;
+  get host(): string {
+    return this.formGroup.get("host")?.value || "";
   }
   set clientId(value: string) {
-    this.formGroup.get("clientId").setValue(value);
+    this.formGroup.get("clientId")?.setValue(value);
   }
   set clientSecret(value: string) {
-    this.formGroup.get("clientSecret").setValue(value);
+    this.formGroup.get("clientSecret")?.setValue(value);
   }
   set host(value: string) {
-    this.formGroup.get("host").setValue(value);
+    this.formGroup.get("host")?.setValue(value);
   }
 
   async ngOnInit() {
@@ -147,7 +168,10 @@ export class TwoFactorSetupDuoComponent
     dialogService: DialogService,
     config: DialogConfig<TwoFactorDuoComponentConfig>,
   ) => {
-    return dialogService.open<boolean>(TwoFactorSetupDuoComponent, config);
+    return dialogService.open<boolean, TwoFactorDuoComponentConfig>(
+      TwoFactorSetupDuoComponent,
+      config as DialogConfig<TwoFactorDuoComponentConfig, DialogRef<boolean>>,
+    );
   };
 }
 

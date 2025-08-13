@@ -8,6 +8,7 @@ import { takeUntil } from "rxjs/operators";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { TokenizedPaymentSourceRequest } from "@bitwarden/common/billing/models/request/tokenized-payment-source.request";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { SharedModule } from "../../../shared";
 import { BillingServicesModule, BraintreeService, StripeService } from "../../services";
@@ -21,7 +22,6 @@ import { PaymentLabelComponent } from "./payment-label.component";
 @Component({
   selector: "app-payment",
   templateUrl: "./payment.component.html",
-  standalone: true,
   imports: [BillingServicesModule, SharedModule, PaymentLabelComponent],
 })
 export class PaymentComponent implements OnInit, OnDestroy {
@@ -36,6 +36,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   @Input() private initialPaymentMethod: PaymentMethodType = PaymentMethodType.Card;
   /** If provided, will be invoked with the tokenized payment source during form submission. */
   @Input() protected onSubmit?: (request: TokenizedPaymentSourceRequest) => Promise<void>;
+
+  @Input() private bankAccountWarningOverride?: string;
 
   @Output() submitted = new EventEmitter<PaymentMethodType>();
 
@@ -56,6 +58,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
     private braintreeService: BraintreeService,
+    private i18nService: I18nService,
     private stripeService: StripeService,
   ) {}
 
@@ -95,6 +98,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
     const { type, token } = await this.tokenize();
     await this.onSubmit?.({ type, token });
     this.submitted.emit(type);
+  };
+
+  validate = () => {
+    if (!this.usingBankAccount) {
+      return true;
+    }
+
+    this.formGroup.controls.bankInformation.markAllAsTouched();
+    return this.formGroup.controls.bankInformation.valid;
   };
 
   /**
@@ -199,5 +211,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   private get usingStripe(): boolean {
     return this.usingBankAccount || this.usingCard;
+  }
+
+  get bankAccountWarning(): string {
+    if (this.bankAccountWarningOverride) {
+      return this.bankAccountWarningOverride;
+    } else {
+      return this.i18nService.t("verifyBankAccountWithStatementDescriptorWarning");
+    }
   }
 }

@@ -10,9 +10,12 @@ import {
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
+import { SharedModule } from "../../shared";
+
 @Component({
   selector: "environment-selector",
   templateUrl: "environment-selector.component.html",
+  imports: [SharedModule],
 })
 export class EnvironmentSelectorComponent implements OnInit {
   constructor(

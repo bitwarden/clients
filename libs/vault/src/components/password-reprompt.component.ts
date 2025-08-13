@@ -23,7 +23,6 @@ import { KeyService } from "@bitwarden/key-management";
  * See UserVerificationComponent for any other situation where you need to verify the user's identity.
  */
 @Component({
-  standalone: true,
   selector: "vault-password-reprompt",
   imports: [
     JslibModule,

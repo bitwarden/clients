@@ -1,36 +1,36 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
+import { IconProps } from "../../common-types";
 import * as Icons from "../../icons";
 
-type Args = {
-  color?: string;
-  disabled?: boolean;
-  theme: Theme;
+const { Spinner, ...StaticIcons } = Icons;
+
+type Args = IconProps & {
   size: number;
-  iconLink: URL;
 };
 
 export default {
-  title: "Components/Icons/Icons",
+  title: "Components/Icons",
   argTypes: {
-    iconLink: { control: "text" },
     color: { control: "color" },
     disabled: { control: "boolean" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
     size: { control: "number", min: 10, max: 100, step: 1 },
   },
   args: {
-    iconLink: new URL("https://bitwarden.com"),
     disabled: false,
     theme: ThemeTypes.Light,
     size: 50,
   },
 } as Meta<Args>;
 
-const Template = (args: Args, IconComponent: (props: Args) => ReturnType<typeof html>) => html`
+const Template = (
+  args: Args,
+  IconComponent: (props: IconProps & { disableSpin?: boolean }) => ReturnType<typeof html>,
+) => html`
   <div
     style="width: ${args.size}px; height: ${args.size}px; display: flex; align-items: center; justify-content: center;"
   >
@@ -38,29 +38,37 @@ const Template = (args: Args, IconComponent: (props: Args) => ReturnType<typeof 
   </div>
 `;
 
-const createIconStory = (iconName: keyof typeof Icons): StoryObj<Args> => {
+const createIconStory = (
+  iconName: keyof typeof StaticIcons,
+): StoryObj<Args & { disableSpin?: boolean }> => {
   const story = {
-    render: (args) => Template(args, Icons[iconName]),
+    render: (args) => Template(args, StaticIcons[iconName]),
   } as StoryObj<Args>;
-
-  if (iconName !== "BrandIconContainer") {
-    story.argTypes = {
-      iconLink: { table: { disable: true } },
-    };
-  }
 
   return story;
 };
 
+const SpinnerIconStory: StoryObj<Args & { disableSpin: boolean }> = {
+  render: (args) => Template(args, Spinner),
+  argTypes: {
+    disableSpin: { control: "boolean" },
+  },
+  args: {
+    disableSpin: false,
+  },
+};
+
 export const AngleDownIcon = createIconStory("AngleDown");
+export const AngleUpIcon = createIconStory("AngleUp");
 export const BusinessIcon = createIconStory("Business");
-export const BrandIcon = createIconStory("BrandIconContainer");
 export const CloseIcon = createIconStory("Close");
+export const CollectionSharedIcon = createIconStory("CollectionShared");
 export const ExclamationTriangleIcon = createIconStory("ExclamationTriangle");
+export const ExternalLinkIcon = createIconStory("ExternalLink");
 export const FamilyIcon = createIconStory("Family");
 export const FolderIcon = createIconStory("Folder");
 export const GlobeIcon = createIconStory("Globe");
-export const PartyHornIcon = createIconStory("PartyHorn");
 export const PencilSquareIcon = createIconStory("PencilSquare");
 export const ShieldIcon = createIconStory("Shield");
+export const SpinnerIcon = SpinnerIconStory;
 export const UserIcon = createIconStory("User");

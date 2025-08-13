@@ -1,12 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 import { CollectionAccessSelectionView } from "./collection-access-selection.view";
 import { CollectionAccessDetailsResponse } from "./collection.response";
 import { CollectionView } from "./collection.view";
 
+// TODO: this is used to represent the pseudo "Unassigned" collection as well as
+// the user's personal vault (as a pseudo organization). This should be separated out into different values.
 export const Unassigned = "unassigned";
+export type Unassigned = typeof Unassigned;
 
 export class CollectionAdminView extends CollectionView {
   groups: CollectionAccessSelectionView[] = [];
@@ -16,12 +17,12 @@ export class CollectionAdminView extends CollectionView {
    * Flag indicating the collection has no active user or group assigned to it with CanManage permissions
    * In this case, the collection can be managed by admins/owners or custom users with appropriate permissions
    */
-  unmanaged: boolean;
+  unmanaged: boolean = false;
 
   /**
    * Flag indicating the user has been explicitly assigned to this Collection
    */
-  assigned: boolean;
+  assigned: boolean = false;
 
   constructor(response?: CollectionAccessDetailsResponse) {
     super(response);
@@ -45,6 +46,10 @@ export class CollectionAdminView extends CollectionView {
    * Returns true if the user can edit a collection (including user and group access) from the Admin Console.
    */
   override canEdit(org: Organization): boolean {
+    if (this.isDefaultCollection) {
+      return false;
+    }
+
     return (
       org?.canEditAnyCollection ||
       (this.unmanaged && org?.canEditUnmanagedCollections) ||
@@ -56,6 +61,10 @@ export class CollectionAdminView extends CollectionView {
    * Returns true if the user can delete a collection from the Admin Console.
    */
   override canDelete(org: Organization): boolean {
+    if (this.isDefaultCollection) {
+      return false;
+    }
+
     return org?.canDeleteAnyCollection || super.canDelete(org);
   }
 
@@ -63,6 +72,10 @@ export class CollectionAdminView extends CollectionView {
    * Whether the user can modify user access to this collection
    */
   canEditUserAccess(org: Organization): boolean {
+    if (this.isDefaultCollection) {
+      return false;
+    }
+
     return (
       (org.permissions.manageUsers && org.allowAdminAccessToAllCollectionItems) || this.canEdit(org)
     );
@@ -72,6 +85,10 @@ export class CollectionAdminView extends CollectionView {
    * Whether the user can modify group access to this collection
    */
   canEditGroupAccess(org: Organization): boolean {
+    if (this.isDefaultCollection) {
+      return false;
+    }
+
     return (
       (org.permissions.manageGroups && org.allowAdminAccessToAllCollectionItems) ||
       this.canEdit(org)
@@ -82,11 +99,13 @@ export class CollectionAdminView extends CollectionView {
    * Returns true if the user can view collection info and access in a read-only state from the Admin Console
    */
   override canViewCollectionInfo(org: Organization | undefined): boolean {
-    if (this.isUnassignedCollection) {
+    if (this.isUnassignedCollection || this.isDefaultCollection) {
       return false;
     }
+    const isAdmin = org?.isAdmin ?? false;
+    const permissions = org?.permissions.editAnyCollection ?? false;
 
-    return this.manage || org?.isAdmin || org?.permissions.editAnyCollection;
+    return this.manage || isAdmin || permissions;
   }
 
   /**

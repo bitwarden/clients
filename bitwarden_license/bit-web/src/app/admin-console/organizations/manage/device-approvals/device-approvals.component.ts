@@ -8,8 +8,10 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { OrganizationAuthRequestApiService } from "@bitwarden/bit-common/admin-console/auth-requests/organization-auth-request-api.service";
 import { OrganizationAuthRequestService } from "@bitwarden/bit-common/admin-console/auth-requests/organization-auth-request.service";
+import { PendingAuthRequestWithFingerprintView } from "@bitwarden/bit-common/admin-console/auth-requests/pending-auth-request-with-fingerprint.view";
 import { PendingAuthRequestView } from "@bitwarden/bit-common/admin-console/auth-requests/pending-auth-request.view";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,7 +27,6 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
 @Component({
   selector: "app-org-device-approvals",
   templateUrl: "./device-approvals.component.html",
-  standalone: true,
   providers: [
     safeProvider({
       provide: OrganizationAuthRequestApiService,
@@ -38,13 +39,14 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
         KeyService,
         EncryptService,
         OrganizationUserApiService,
+        AccountService,
       ],
     }),
   ] satisfies SafeProvider[],
   imports: [SharedModule, NoItemsModule, LooseComponentsModule],
 })
 export class DeviceApprovalsComponent implements OnInit, OnDestroy {
-  tableDataSource = new TableDataSource<PendingAuthRequestView>();
+  tableDataSource = new TableDataSource<PendingAuthRequestWithFingerprintView>();
   organizationId: string;
   loading = true;
   actionInProgress = false;
@@ -73,7 +75,9 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
           this.refresh$.pipe(
             tap(() => (this.loading = true)),
             switchMap(() =>
-              this.organizationAuthRequestService.listPendingRequests(this.organizationId),
+              this.organizationAuthRequestService.listPendingRequestsWithFingerprint(
+                this.organizationId,
+              ),
             ),
           ),
         ),

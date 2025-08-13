@@ -7,6 +7,7 @@ import { OnboardingTaskComponent } from "./onboarding-task.component";
 @Component({
   selector: "app-onboarding",
   templateUrl: "./onboarding.component.html",
+  standalone: false,
 })
 export class OnboardingComponent {
   @ContentChildren(OnboardingTaskComponent) tasks: QueryList<OnboardingTaskComponent>;

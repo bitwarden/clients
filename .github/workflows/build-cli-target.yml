@@ -7,11 +7,10 @@
 name: Build CLI on PR Target
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
     paths:
       - 'apps/cli/**'
       - 'libs/**'
@@ -29,6 +28,8 @@ jobs:
   check-run:
     name: Check PR run
     uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+    permissions:
+      contents: read
 
   run-workflow:
     name: Build CLI
@@ -36,4 +37,7 @@ jobs:
     if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
     uses: ./.github/workflows/build-cli.yml
     secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
 

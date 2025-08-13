@@ -10,8 +10,8 @@ import { Observable, combineLatest, filter, first, map, switchMap } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -29,7 +29,6 @@ import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 
 @Component({
-  standalone: true,
   selector: "app-assign-collections",
   templateUrl: "./assign-collections.component.html",
   imports: [
@@ -66,20 +65,21 @@ export class AssignCollections {
         route.queryParams.pipe(
           switchMap(async ({ cipherId }) => {
             const cipherDomain = await this.cipherService.get(cipherId, userId);
-            const key: UserKey | OrgKey = await this.cipherService.getKeyForCipherKeyDecryption(
-              cipherDomain,
-              userId,
-            );
-            return cipherDomain.decrypt(key);
+            return await this.cipherService.decrypt(cipherDomain, userId);
           }),
         ),
       ),
     );
 
-    combineLatest([cipher$, this.collectionService.decryptedCollections$])
+    const decryptedCollection$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+    );
+
+    combineLatest([cipher$, decryptedCollection$])
       .pipe(takeUntilDestroyed(), first())
       .subscribe(([cipherView, collections]) => {
-        let availableCollections = collections.filter((c) => !c.readOnly);
+        let availableCollections = collections;
         const organizationId = (cipherView?.organizationId as OrganizationId) ?? null;
 
         // If the cipher is already a part of an organization,

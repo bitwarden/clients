@@ -6,4 +6,5 @@ import { OrganizationNoPaymentMethodCreateRequest } from "../../../billing/model
 export class OrganizationCreateRequest extends OrganizationNoPaymentMethodCreateRequest {
   paymentMethodType: PaymentMethodType;
   paymentToken: string;
+  skipTrial?: boolean;
 }

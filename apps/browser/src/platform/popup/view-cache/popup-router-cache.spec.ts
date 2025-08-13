@@ -13,7 +13,10 @@ import { PopupRouterCacheService, popupRouterCacheGuard } from "./popup-router-c
 
 const flushPromises = async () => await new Promise(process.nextTick);
 
-@Component({ template: "" })
+@Component({
+  template: "",
+  standalone: false,
+})
 export class EmptyComponent {}
 
 describe("Popup router cache guard", () => {

@@ -4,14 +4,19 @@ import { html } from "lit";
 import { IconProps } from "../common-types";
 import { buildIconColorRule, ruleNames, themes } from "../constants/styles";
 
-export function User({ color, disabled, theme }: IconProps) {
+export function User({ ariaHidden = true, color, disabled, theme }: IconProps) {
   const shapeColor = disabled ? themes[theme].secondary["300"] : color || themes[theme].text.main;
 
   return html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" fill="none">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 14 15"
+      fill="none"
+      aria-hidden="${ariaHidden}"
+    >
       <path
         class=${css(buildIconColorRule(shapeColor, ruleNames.fill))}
-        d="M13.51 12.189a6.616 6.616 0 0 0-4.524-4.915 3.87 3.87 0 0 0 1.968-3.348 3.926 3.926 0 1 0-7.852 0 3.864 3.864 0 0 0 1.95 3.338A6.61 6.61 0 0 0 .49 12.189 1.499 1.499 0 0 0 1.962 14h10.077a1.503 1.503 0 0 0 1.471-1.812ZM4.044 3.926A2.987 2.987 0 0 1 7.592.963a2.985 2.985 0 0 1-.563 5.916 2.973 2.973 0 0 1-2.985-2.953Zm8.427 8.938a.548.548 0 0 1-.436.204H1.962a.548.548 0 0 1-.432-.204.576.576 0 0 1-.119-.486 5.724 5.724 0 0 1 9.175-3.23 5.723 5.723 0 0 1 2.003 3.23.571.571 0 0 1-.118.486Z"
+        d="M9.203 7.339a4 4 0 1 0-4.407 0A7.033 7.033 0 0 0 2.05 8.953a6.655 6.655 0 0 0-1.517 2.162A6.393 6.393 0 0 0 0 13.667C0 14.403.597 15 1.333 15h11.334c.736 0 1.333-.597 1.333-1.333 0-.876-.181-1.743-.533-2.552a6.654 6.654 0 0 0-1.517-2.162 7.032 7.032 0 0 0-2.747-1.614ZM9.5 4a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm2.592 7.714c.247.57.384 1.175.405 1.786H1.503a4.897 4.897 0 0 1 .405-1.786 5.156 5.156 0 0 1 1.177-1.675 5.534 5.534 0 0 1 1.787-1.136A5.805 5.805 0 0 1 7 8.5c.732 0 1.456.137 2.128.403.673.265 1.28.652 1.787 1.136a5.156 5.156 0 0 1 1.177 1.675Z"
       />
     </svg>
   `;

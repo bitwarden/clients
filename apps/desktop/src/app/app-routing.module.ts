@@ -2,10 +2,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
-import {
-  DesktopDefaultOverlayPosition,
-  EnvironmentSelectorComponent,
-} from "@bitwarden/angular/auth/components/environment-selector.component";
+import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
 import {
   authGuard,
   lockGuard,
@@ -14,13 +11,10 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
-import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import {
-  AnonLayoutWrapperComponent,
-  AnonLayoutWrapperData,
   LoginComponent,
   LoginSecondaryContentComponent,
-  LockIcon,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -29,7 +23,6 @@ import {
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
   RegistrationUserAddIcon,
-  SetPasswordJitComponent,
   UserLockIcon,
   VaultIcon,
   LoginDecryptionOptionsComponent,
@@ -41,19 +34,12 @@ import {
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
-import {
-  NewDeviceVerificationNoticePageOneComponent,
-  NewDeviceVerificationNoticePageTwoComponent,
-  VaultIcons,
-} from "@bitwarden/vault";
 
-import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
-import { RemovePasswordComponent } from "../auth/remove-password.component";
-import { SetPasswordComponent } from "../auth/set-password.component";
-import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
-import { VaultComponent } from "../vault/app/vault/vault.component";
+import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
+import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 
 import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
 import { SendComponent } from "./tools/send/send.component";
@@ -106,47 +92,13 @@ const routes: Routes = [
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
   },
   {
-    path: "new-device-notice",
-    component: AnonLayoutWrapperComponent,
-    canActivate: [],
-    children: [
-      {
-        path: "",
-        component: NewDeviceVerificationNoticePageOneComponent,
-        data: {
-          pageIcon: VaultIcons.ExclamationTriangle,
-          pageTitle: {
-            key: "importantNotice",
-          },
-        },
-      },
-      {
-        path: "setup",
-        component: NewDeviceVerificationNoticePageTwoComponent,
-        data: {
-          pageIcon: VaultIcons.UserLock,
-          pageTitle: {
-            key: "setupTwoStepLogin",
-          },
-        },
-      },
-    ],
-  },
-  {
     path: "vault",
-    component: VaultComponent,
-    canActivate: [authGuard, NewDeviceVerificationNoticeGuard],
-  },
-  { path: "accessibility-cookie", component: AccessibilityCookieComponent },
-  { path: "set-password", component: SetPasswordComponent },
-  {
-    path: "send",
-    component: SendComponent,
+    component: VaultV2Component,
     canActivate: [authGuard],
   },
   {
-    path: "update-temp-password",
-    component: UpdateTempPasswordComponent,
+    path: "send",
+    component: SendComponent,
     canActivate: [authGuard],
   },
   {
@@ -219,9 +171,6 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: DesktopDefaultOverlayPosition,
-            },
           },
         ],
       },
@@ -311,7 +260,7 @@ const routes: Routes = [
         path: "lock",
         canActivate: [lockGuard()],
         data: {
-          pageIcon: LockIcon,
+          pageIcon: Icons.LockIcon,
           pageTitle: {
             key: "yourVaultIsLockedV2",
           },
@@ -323,18 +272,6 @@ const routes: Routes = [
             component: LockComponent,
           },
         ],
-      },
-      {
-        path: "set-password-jit",
-        component: SetPasswordJitComponent,
-        data: {
-          pageTitle: {
-            key: "joinOrganization",
-          },
-          pageSubtitle: {
-            key: "finishJoiningThisOrganizationBySettingAMasterPassword",
-          },
-        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "2fa",
@@ -351,6 +288,11 @@ const routes: Routes = [
           },
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
+      {
+        path: "change-password",
+        component: ChangePasswordComponent,
+        canActivate: [authGuard],
+      },
     ],
   },
 ];
@@ -359,7 +301,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, {
       useHash: true,
-      /*enableTracing: true,*/
+      // enableTracing: true,
     }),
   ],
   exports: [RouterModule],

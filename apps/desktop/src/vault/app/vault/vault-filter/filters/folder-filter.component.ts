@@ -5,5 +5,6 @@ import { FolderFilterComponent as BaseFolderFilterComponent } from "@bitwarden/a
 @Component({
   selector: "app-folder-filter",
   templateUrl: "folder-filter.component.html",
+  standalone: false,
 })
 export class FolderFilterComponent extends BaseFolderFilterComponent {}

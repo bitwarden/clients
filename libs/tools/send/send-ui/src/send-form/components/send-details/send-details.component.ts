@@ -30,6 +30,8 @@ import { SendFileDetailsComponent } from "./send-file-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
 
 // Value = hours
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DatePreset {
   OneHour = 1,
   OneDay = 24,
@@ -48,7 +50,6 @@ export interface DatePresetSelectOption {
 @Component({
   selector: "tools-send-details",
   templateUrl: "./send-details.component.html",
-  standalone: true,
   imports: [
     SectionComponent,
     SectionHeaderComponent,

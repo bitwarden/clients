@@ -2,20 +2,25 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { UserId, EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, DialogRef, DIALOG_DATA } from "@bitwarden/components";
 import { ChangeLoginPasswordService } from "@bitwarden/vault";
@@ -28,14 +33,15 @@ describe("EmergencyViewDialogComponent", () => {
 
   const open = jest.fn();
   const close = jest.fn();
+  const emergencyAccessId = "emergency-access-id" as EmergencyAccessId;
 
   const mockCipher = {
     id: "cipher1",
     name: "Cipher",
     type: CipherType.Login,
-    login: { uris: [] },
+    login: { uris: [] } as Partial<LoginView>,
     card: {},
-  } as CipherView;
+  } as Partial<CipherView> as CipherView;
 
   const accountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
 
@@ -56,6 +62,12 @@ describe("EmergencyViewDialogComponent", () => {
         { provide: DIALOG_DATA, useValue: { cipher: mockCipher } },
         { provide: AccountService, useValue: accountService },
         { provide: TaskService, useValue: mock<TaskService>() },
+        { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
       ],
     })
       .overrideComponent(EmergencyViewDialogComponent, {
@@ -94,18 +106,24 @@ describe("EmergencyViewDialogComponent", () => {
   });
 
   it("opens dialog", () => {
-    EmergencyViewDialogComponent.open({ open } as unknown as DialogService, { cipher: mockCipher });
+    EmergencyViewDialogComponent.open({ open } as unknown as DialogService, {
+      cipher: mockCipher,
+      emergencyAccessId,
+    });
 
     expect(open).toHaveBeenCalled();
   });
 
   it("closes the dialog", () => {
-    EmergencyViewDialogComponent.open({ open } as unknown as DialogService, { cipher: mockCipher });
+    EmergencyViewDialogComponent.open({ open } as unknown as DialogService, {
+      cipher: mockCipher,
+      emergencyAccessId,
+    });
     fixture.detectChanges();
 
     const cancelButton = fixture.debugElement.queryAll(By.css("button")).pop();
 
-    cancelButton.nativeElement.click();
+    cancelButton!.nativeElement.click();
 
     expect(close).toHaveBeenCalled();
   });

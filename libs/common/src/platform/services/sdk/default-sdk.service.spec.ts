@@ -1,11 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { ObservableTracker } from "../../../../spec";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
+import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -14,7 +17,6 @@ import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
-import { EncryptedString } from "../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
 import { DefaultSdkService } from "./default-sdk.service";
@@ -130,15 +132,13 @@ describe("DefaultSdkService", () => {
           );
           keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
 
-          const subject = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-          service.userClient$(userId).subscribe(subject);
-          await new Promise(process.nextTick);
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+          await userClientTracker.pauseUntilReceived(1);
 
           userKey$.next(undefined);
-          await new Promise(process.nextTick);
+          await userClientTracker.expectCompletion();
 
           expect(mockClient.free).toHaveBeenCalledTimes(1);
-          expect(subject.value).toBe(undefined);
         });
       });
 

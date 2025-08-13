@@ -104,6 +104,6 @@ impl super::BiometricTrait for Biometric {
 
 fn random_challenge() -> [u8; 16] {
     let mut challenge = [0u8; 16];
-    rand::thread_rng().fill_bytes(&mut challenge);
+    rand::rng().fill_bytes(&mut challenge);
     challenge
 }

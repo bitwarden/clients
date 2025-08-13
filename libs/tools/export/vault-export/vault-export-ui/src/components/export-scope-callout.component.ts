@@ -16,7 +16,6 @@ import { CalloutModule } from "@bitwarden/components";
 @Component({
   selector: "tools-export-scope-callout",
   templateUrl: "export-scope-callout.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, CalloutModule],
 })
 export class ExportScopeCalloutComponent {

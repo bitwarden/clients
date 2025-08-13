@@ -1,6 +1,6 @@
 <a
   bitTabListItem
-  [routerLink]="disabled ? null : route"
+  [routerLink]="disabled ? null : route()"
   routerLinkActive
   [routerLinkActiveOptions]="routerLinkMatchOptions"
   #rla="routerLinkActive"
@@ -14,7 +14,7 @@
   <div class="group-hover/tab:tw-underline">
     <ng-content></ng-content>
   </div>
-  <div class="tw-font-normal tw-ml-2 empty:tw-ml-0">
+  <div class="tw-font-normal tw-ms-2 empty:tw-ms-0">
     <ng-content select="[slot=end]"></ng-content>
   </div>
 </a>

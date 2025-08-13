@@ -1,4 +1,12 @@
-import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+import {
+  Markdown,
+  Meta,
+  Canvas,
+  Primary,
+  Controls,
+  Title,
+  Description,
+} from "@storybook/addon-docs";
 
 import * as stories from "./button.stories";
 
@@ -8,10 +16,9 @@ import * as stories from "./button.stories";
 import { ButtonModule } from "@bitwarden/components";
 ```
 
-# Button
+<Title />
 
-Buttons are interactive elements that can be triggered using a mouse, keyboard, or touch. They are
-used to indicate actions that can be performed by a user such as submitting a form.
+### Default / Secondary
 
 <Primary />
 
@@ -30,7 +37,7 @@ takes:
 
 ### Groups
 
-Groups of buttons should be seperated by a `0.5` rem gap. Usually acomplished by using the
+Groups of buttons should be separated by a `0.5` rem gap. Usually accomplished by using the
 `tw-gap-2` class in the button group container.
 
 Groups within page content, dialog footers or forms should have the `primary` call to action placed
@@ -41,26 +48,24 @@ right.
 
 There are 3 main styles for the button: Primary, Secondary, and Danger.
 
-### Primary
+### Default / Secondary
 
-<Canvas of={stories.Primary} />
+The secondary styling(shown above) should be used for secondary calls to action. An action is
+"secondary" if it relates indirectly to the purpose of a page. There may be multiple secondary
+buttons next to each other; however, generally there should only be 1 or 2 calls to action per page.
+
+### Primary
 
 Use the primary button styling for all Primary call to actions. An action is "primary" if it relates
 to the main purpose of a page. There should never be 2 primary styled buttons next to each other.
 
-### Secondary
-
-<Canvas of={stories.Secondary} />
-
-The secondary styling should be used for secondary calls to action. An action is "secondary" if it
-relates indirectly to the purpose of a page. There may be multiple secondary buttons next to each
-other; however, generally there should only be 1 or 2 calls to action per page.
+<Canvas of={stories.Primary} />
 
 ### Danger
 
-<Canvas of={stories.Danger} />
+Use the danger styling only in settings when the user may perform a permanent destructive action.
 
-Use the danger styling only in settings when the user may preform a permanent action.
+<Canvas of={stories.Danger} />
 
 ## Disabled UI
 
@@ -72,6 +77,27 @@ Typically button widths expand with their text. In some causes though buttons ma
 where the width is fixed and the text wraps to 2 lines if exceeding the button’s width.
 
 <Canvas of={stories.Block} />
+
+## With Icon
+
+To ensure consistent icon spacing, the icon should have .5rem spacing on left or right(depending on
+placement).
+
+> NOTE: Use logical css properties to ensure LTR/RTL support.
+
+**If icon is placed before button label**
+
+```html
+<i class="bwi bwi-plus tw-me-2"></i>
+```
+
+**If icon is placed after button label**
+
+```html
+<i class="bwi bwi-plus tw-ms-2"></i>
+```
+
+<Canvas of={stories.WithIcon} />
 
 ## Accessibility
 
@@ -93,7 +119,7 @@ success toast).
 ### Submit and async actions
 
 Both submit and async action buttons use a loading button state while an action is taken. If your
-button is preforming a long running task in the background like a server API call, be sure to review
+button is performing a long running task in the background like a server API call, be sure to review
 the [Async Actions Directive](?path=/story/component-library-async-actions-overview--page).
 
 <Canvas of={stories.Loading} />

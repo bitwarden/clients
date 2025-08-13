@@ -1,3 +1,4 @@
+<vault-new-item-nudge *ngIf="!loading" [configType]="config.cipherType"> </vault-new-item-nudge>
 <form [id]="formId" [formGroup]="cipherForm" [bitSubmit]="submit">
   <!-- TODO: Should we show a loading spinner here? Or emit a ready event for the container to handle loading state -->
   <ng-container *ngIf="!loading">

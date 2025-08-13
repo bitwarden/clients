@@ -12,11 +12,11 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
-import { NewDeviceVerificationNoticeService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-recover-two-factor",
   templateUrl: "recover-two-factor.component.html",
+  standalone: false,
 })
 export class RecoverTwoFactorComponent implements OnInit {
   protected formGroup = new FormGroup({
@@ -37,7 +37,6 @@ export class RecoverTwoFactorComponent implements OnInit {
     private toastService: ToastService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private logService: LogService,
-    private newDeviceVerificationNoticeService: NewDeviceVerificationNoticeService,
   ) {}
 
   async ngOnInit() {
@@ -82,12 +81,7 @@ export class RecoverTwoFactorComponent implements OnInit {
       remember: false,
     };
 
-    const credentials = new PasswordLoginCredentials(
-      email,
-      this.masterPassword,
-      "",
-      twoFactorRequest,
-    );
+    const credentials = new PasswordLoginCredentials(email, this.masterPassword, twoFactorRequest);
 
     try {
       const authResult = await this.loginStrategyService.logIn(credentials);
@@ -103,13 +97,6 @@ export class RecoverTwoFactorComponent implements OnInit {
       });
 
       await this.loginSuccessHandlerService.run(authResult.userId);
-
-      // Before routing, set the state to skip the new device notification. This is a temporary
-      // fix and will be cleaned up in PM-18485.
-      await this.newDeviceVerificationNoticeService.updateNewDeviceVerificationSkipNoticeState(
-        authResult.userId,
-        true,
-      );
 
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error) {

@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, ValidatorFn, Validators } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, takeUntil } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 import {
   KdfConfigService,
@@ -19,6 +21,7 @@ import { ChangeKdfConfirmationComponent } from "./change-kdf-confirmation.compon
 @Component({
   selector: "app-change-kdf",
   templateUrl: "change-kdf.component.html",
+  standalone: false,
 })
 export class ChangeKdfComponent implements OnInit, OnDestroy {
   kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
@@ -43,6 +46,7 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
   constructor(
     private dialogService: DialogService,
     private kdfConfigService: KdfConfigService,
+    private accountService: AccountService,
     private formBuilder: FormBuilder,
   ) {
     this.kdfOptions = [
@@ -52,7 +56,8 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.kdfConfig = await this.kdfConfigService.getKdfConfig();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     this.formGroup.get("kdf").setValue(this.kdfConfig.kdfType);
     this.setFormControlValues(this.kdfConfig);
 

@@ -16,6 +16,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
+import { NotificationView } from "@bitwarden/common/vault/notifications/models";
 import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
@@ -32,7 +34,6 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 import { AtRiskPasswordsComponent } from "./at-risk-passwords.component";
 
 @Component({
-  standalone: true,
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
 })
@@ -42,7 +43,6 @@ class MockPopupHeaderComponent {
 }
 
 @Component({
-  standalone: true,
   selector: "popup-page",
   template: `<ng-content></ng-content>`,
 })
@@ -51,7 +51,6 @@ class MockPopupPageComponent {
 }
 
 @Component({
-  standalone: true,
   selector: "app-vault-icon",
   template: `<ng-content></ng-content>`,
 })
@@ -66,6 +65,7 @@ describe("AtRiskPasswordsComponent", () => {
   let mockTasks$: BehaviorSubject<SecurityTask[]>;
   let mockCiphers$: BehaviorSubject<CipherView[]>;
   let mockOrgs$: BehaviorSubject<Organization[]>;
+  let mockNotifications$: BehaviorSubject<NotificationView[]>;
   let mockInlineMenuVisibility$: BehaviorSubject<InlineMenuVisibilitySetting>;
   let calloutDismissed$: BehaviorSubject<boolean>;
   const setInlineMenuVisibility = jest.fn();
@@ -101,6 +101,7 @@ describe("AtRiskPasswordsComponent", () => {
         name: "Org 1",
       } as Organization,
     ]);
+    mockNotifications$ = new BehaviorSubject<NotificationView[]>([]);
 
     mockInlineMenuVisibility$ = new BehaviorSubject<InlineMenuVisibilitySetting>(
       AutofillOverlayVisibility.Off,
@@ -131,6 +132,12 @@ describe("AtRiskPasswordsComponent", () => {
           provide: CipherService,
           useValue: {
             cipherViews$: () => mockCiphers$,
+          },
+        },
+        {
+          provide: EndUserNotificationService,
+          useValue: {
+            unreadNotifications$: () => mockNotifications$,
           },
         },
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -192,6 +199,20 @@ describe("AtRiskPasswordsComponent", () => {
       expect(items).toHaveLength(1);
       expect(items[0].name).toBe("Item 1");
     });
+
+    it("should not show tasks associated with deleted ciphers", async () => {
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+          isDeleted: true,
+        } as CipherView,
+      ]);
+
+      const items = await firstValueFrom(component["atRiskItems$"]);
+      expect(items).toHaveLength(0);
+    });
   });
 
   describe("pageDescription$", () => {
@@ -234,6 +255,19 @@ describe("AtRiskPasswordsComponent", () => {
           type: SecurityTaskType.UpdateAtRiskCredential,
         } as SecurityTask,
       ]);
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+        } as CipherView,
+        {
+          id: "cipher2",
+          organizationId: "org2",
+          name: "Item 2",
+        } as CipherView,
+      ]);
+
       const description = await firstValueFrom(component["pageDescription$"]);
       expect(description).toBe("atRiskPasswordsDescMultiOrgPlural");
     });

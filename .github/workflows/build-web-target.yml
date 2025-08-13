@@ -7,11 +7,10 @@
 name: Build Web on PR Target
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
     paths:
       - 'apps/web/**'
       - 'libs/**'
@@ -28,6 +27,8 @@ jobs:
   check-run:
     name: Check PR run
     uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+    permissions:
+      contents: read
 
   run-workflow:
     name: Build Web
@@ -35,4 +36,9 @@ jobs:
     if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
     uses: ./.github/workflows/build-web.yml
     secrets: inherit
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      security-events: write
 

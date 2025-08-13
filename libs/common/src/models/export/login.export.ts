@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Login as LoginDomain } from "../../vault/models/domain/login";
 import { LoginView } from "../../vault/models/view/login.view";
 
@@ -15,7 +15,7 @@ export class LoginExport {
     req.username = "jdoe";
     req.password = "myp@ssword123";
     req.totp = "JBSWY3DPEHPK3PXP";
-    req.fido2Credentials = [Fido2CredentialExport.template()];
+    req.fido2Credentials = [];
     return req;
   }
 
@@ -48,7 +48,7 @@ export class LoginExport {
   username: string;
   password: string;
   totp: string;
-  fido2Credentials: Fido2CredentialExport[] = [];
+  fido2Credentials: Fido2CredentialExport[];
 
   constructor(o?: LoginView | LoginDomain) {
     if (o == null) {

@@ -1,12 +1,14 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
-  PinLockType,
-  PinServiceAbstraction,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricsService,
   BiometricsStatus,
@@ -17,6 +19,8 @@ import {
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
+import { PinLockType } from "../../../key-management/pin/pin.service.implementation";
 import { VaultTimeoutSettingsService } from "../../../key-management/vault-timeout";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { HashPurpose } from "../../../platform/enums";

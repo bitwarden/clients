@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   first,
   firstValueFrom,
@@ -12,7 +12,6 @@ import {
   switchMap,
 } from "rxjs";
 
-import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -32,7 +31,10 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, ItemModule } from "@bitwarden/components";
+
+import { LooseComponentsModule } from "../../../shared/loose-components.module";
+import { SharedModule } from "../../../shared/shared.module";
 
 import { TwoFactorRecoveryComponent } from "./two-factor-recovery.component";
 import { TwoFactorSetupAuthenticatorComponent } from "./two-factor-setup-authenticator.component";
@@ -45,11 +47,9 @@ import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
+  imports: [ItemModule, LooseComponentsModule, SharedModule],
 })
 export class TwoFactorSetupComponent implements OnInit, OnDestroy {
-  @ViewChild("yubikeyTemplate", { read: ViewContainerRef, static: true })
-  yubikeyModalRef: ViewContainerRef;
-
   organizationId: string;
   organization: Organization;
   providers: any[] = [];
@@ -57,7 +57,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   recoveryCodeWarningMessage: string;
   showPolicyWarning = false;
   loading = true;
-  modal: ModalRef;
   formPromise: Promise<any>;
 
   tabbedHeader = true;
@@ -273,14 +272,11 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     return this.apiService.getTwoFactorProviders();
   }
 
-  protected filterProvider(type: TwoFactorProviderType) {
+  protected filterProvider(type: TwoFactorProviderType): boolean {
     return type === TwoFactorProviderType.OrganizationDuo;
   }
 
   protected updateStatus(enabled: boolean, type: TwoFactorProviderType) {
-    if (!enabled && this.modal != null) {
-      this.modal.close();
-    }
     this.providers.forEach((p) => {
       if (p.type === type && enabled !== undefined) {
         p.enabled = enabled;

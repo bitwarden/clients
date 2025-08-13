@@ -1,6 +1,12 @@
 @let usePlaceHolderEvents = !organization?.useEvents && (isBreadcrumbEventLogsEnabled$ | async);
 <app-header>
-  <span bitBadge variant="primary" slot="title-suffix" *ngIf="usePlaceHolderEvents">
+  <span
+    bitBadge
+    variant="primary"
+    slot="title-suffix"
+    class="tw-ml-2 tw-mt-1.5 tw-inline-flex tw-items-center"
+    *ngIf="usePlaceHolderEvents"
+  >
     {{ "upgrade" | i18n }}
   </span>
 </app-header>
@@ -57,7 +63,7 @@
 </div>
 <bit-callout
   type="info"
-  [title]="'upgradeEventLogTitle' | i18n"
+  [title]="'upgradeEventLogTitleMessage' | i18n"
   *ngIf="loaded && usePlaceHolderEvents"
 >
   {{ "upgradeEventLogMessage" | i18n }}
@@ -119,10 +125,10 @@
       <i class="bwi bwi-2x bwi-business tw-text-primary-600"></i>
 
       <p class="tw-font-bold tw-mt-2">
-        {{ "limitedEventLogs" | i18n: ProductTierType[organization?.productTierType] }}
+        {{ "upgradeEventLogTitleMessage" | i18n }}
       </p>
       <p>
-        {{ "upgradeForFullEvents" | i18n }}
+        {{ "upgradeForFullEventsMessage" | i18n }}
       </p>
 
       <button type="button" class="tw-mt-1" bitButton buttonType="primary" (click)="changePlan()">

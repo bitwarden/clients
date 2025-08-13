@@ -1,6 +1,10 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { credentialsData } from "../spec-data/netwrix-csv/login-export.csv";
+import {
+  credentialsData,
+  credentialsDataWithFolders,
+} from "../spec-data/netwrix-csv/login-export.csv";
 
 import { NetwrixPasswordSecureCsvImporter } from "./netwrix-passwordsecure-csv-importer";
 
@@ -76,7 +80,7 @@ describe("Netwrix Password Secure CSV Importer", () => {
   });
 
   it("should parse an item and create a collection when importing into an organization", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(credentialsData);
 
     expect(result).not.toBeNull();
@@ -87,5 +91,19 @@ describe("Netwrix Password Secure CSV Importer", () => {
     expect(result.collectionRelationships[0]).toEqual([0, 0]);
     expect(result.collectionRelationships[1]).toEqual([1, 1]);
     expect(result.collectionRelationships[2]).toEqual([2, 0]);
+  });
+
+  it("should parse multiple collections", async () => {
+    importer.organizationId = Utils.newGuid() as OrganizationId;
+    const result = await importer.parse(credentialsDataWithFolders);
+
+    expect(result).not.toBeNull();
+    expect(result.success).toBe(true);
+    expect(result.collections.length).toBe(3);
+    expect(result.collections[0].name).toBe("folder1/folder2/folder3");
+    expect(result.collections[1].name).toBe("folder1/folder2");
+    expect(result.collections[2].name).toBe("folder1");
+    expect(result.collectionRelationships.length).toBe(1);
+    expect(result.collectionRelationships[0]).toEqual([0, 0]);
   });
 });

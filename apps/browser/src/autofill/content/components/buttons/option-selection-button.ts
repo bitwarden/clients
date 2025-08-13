@@ -10,6 +10,7 @@ import { AngleUp, AngleDown } from "../icons";
 export type OptionSelectionButtonProps = {
   disabled: boolean;
   icon?: Option["icon"];
+  id: string;
   text?: string;
   theme: Theme;
   toggledOn: boolean;
@@ -19,6 +20,7 @@ export type OptionSelectionButtonProps = {
 export function OptionSelectionButton({
   disabled,
   icon,
+  id,
   text,
   theme,
   toggledOn,
@@ -31,8 +33,12 @@ export function OptionSelectionButton({
   return html`
     <button
       class=${selectionButtonStyles({ disabled, toggledOn, theme })}
+      data-testid="${id}-option-selection"
       title=${text}
       type="button"
+      aria-haspopup="menu"
+      aria-expanded=${toggledOn}
+      aria-controls="option-menu"
       @click=${handleButtonClick}
     >
       ${buttonIcon ?? nothing}
@@ -44,7 +50,7 @@ export function OptionSelectionButton({
   `;
 }
 
-const iconSize = "15px";
+const iconSize = "16px";
 
 const selectionButtonStyles = ({
   disabled,
@@ -94,7 +100,8 @@ const selectionButtonStyles = ({
 
   > svg {
     max-width: ${iconSize};
-    height: fit-content;
+    max-height: ${iconSize};
+    height: auto;
   }
 `;
 

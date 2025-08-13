@@ -1,6 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 import { debounceTime } from "rxjs/operators";
@@ -11,8 +20,9 @@ import { CountryListItem, TaxInformation } from "@bitwarden/common/billing/model
 @Component({
   selector: "app-manage-tax-information",
   templateUrl: "./manage-tax-information.component.html",
+  standalone: false,
 })
-export class ManageTaxInformationComponent implements OnInit, OnDestroy {
+export class ManageTaxInformationComponent implements OnInit, OnDestroy, OnChanges {
   @Input() startWith: TaxInformation;
   @Input() onSubmit?: (taxInformation: TaxInformation) => Promise<void>;
   @Input() showTaxIdField: boolean = true;
@@ -55,7 +65,7 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy {
   }
 
   submit = async () => {
-    this.formGroup.markAllAsTouched();
+    this.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
     }
@@ -64,12 +74,8 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy {
   };
 
   validate(): boolean {
-    if (this.formGroup.dirty) {
-      this.formGroup.markAllAsTouched();
-      return this.formGroup.valid;
-    } else {
-      return this.formGroup.valid;
-    }
+    this.markAllAsTouched();
+    return this.formGroup.valid;
   }
 
   markAllAsTouched() {
@@ -143,6 +149,13 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy {
           this.taxInformationChanged.emit(this.taxInformation);
         }
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Clear the value of the tax-id if states have been changed in the parent component
+    if (!changes.showTaxIdField.currentValue) {
+      this.formGroup.controls.taxId.setValue(null);
+    }
   }
 
   ngOnDestroy() {

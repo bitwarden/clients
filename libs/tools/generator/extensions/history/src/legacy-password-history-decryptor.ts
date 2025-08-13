@@ -1,5 +1,5 @@
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -19,7 +19,7 @@ export class LegacyPasswordHistoryDecryptor {
 
     const promises = (history ?? []).map(async (item) => {
       const encrypted = new EncString(item.password);
-      const decrypted = await this.encryptService.decryptToUtf8(encrypted, key);
+      const decrypted = await this.encryptService.decryptString(encrypted, key);
       return new GeneratedPasswordHistory(decrypted, item.date);
     });
 

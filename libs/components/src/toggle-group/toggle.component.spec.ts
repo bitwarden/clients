@@ -1,75 +1,60 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { Component, DebugElement } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 import { ToggleGroupModule } from "./toggle-group.module";
 
-describe("Button", () => {
-  let mockGroupComponent: MockedButtonGroupComponent;
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
-  let radioButton: HTMLInputElement;
+describe("Toggle", () => {
+  let fixture: ComponentFixture<TestComponent>;
+  let toggleGroup: ToggleGroupComponent;
+  let toggleButtons: DebugElement[];
 
-  beforeEach(waitForAsync(() => {
-    mockGroupComponent = new MockedButtonGroupComponent();
-
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [ToggleGroupModule],
-      declarations: [TestApp],
-      providers: [{ provide: ToggleGroupComponent, useValue: mockGroupComponent }],
+      imports: [TestComponent],
     });
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
-    testAppComponent = fixture.debugElement.componentInstance;
-    radioButton = fixture.debugElement.query(By.css("input[type=radio]")).nativeElement;
-  }));
+    await TestBed.compileComponents();
+    fixture = TestBed.createComponent(TestComponent);
+    fixture.detectChanges();
+    toggleGroup = fixture.debugElement.query(By.directive(ToggleGroupComponent)).componentInstance;
+    toggleButtons = fixture.debugElement.queryAll(By.css("input[type=radio]"));
+  });
 
   it("should emit value when clicking on radio button", () => {
-    testAppComponent.value = "value";
+    const spyFn = jest.spyOn(toggleGroup, "onInputInteraction");
+
+    toggleButtons[1].triggerEventHandler("change");
     fixture.detectChanges();
 
-    radioButton.click();
-    fixture.detectChanges();
-
-    expect(mockGroupComponent.onInputInteraction).toHaveBeenCalledWith("value");
+    expect(spyFn).toHaveBeenCalledWith(1);
   });
 
-  it("should check radio button when selected matches value", () => {
-    testAppComponent.value = "value";
+  it("should select toggle button only when selected matches value", () => {
     fixture.detectChanges();
 
-    mockGroupComponent.selected = "value";
+    expect(toggleButtons[0].nativeElement.checked).toBe(true);
+    expect(toggleButtons[1].nativeElement.checked).toBe(false);
+
+    toggleButtons[1].triggerEventHandler("change");
     fixture.detectChanges();
 
-    expect(radioButton.checked).toBe(true);
-  });
-
-  it("should not check radio button when selected does not match value", () => {
-    testAppComponent.value = "value";
-    fixture.detectChanges();
-
-    mockGroupComponent.selected = "nonMatchingValue";
-    fixture.detectChanges();
-
-    expect(radioButton.checked).toBe(false);
+    expect(toggleButtons[0].nativeElement.checked).toBe(false);
+    expect(toggleButtons[1].nativeElement.checked).toBe(true);
   });
 });
 
-class MockedButtonGroupComponent implements Partial<ToggleGroupComponent> {
-  onInputInteraction = jest.fn();
-  selected = null;
-}
-
 @Component({
-  selector: "test-app",
-  template: ` <bit-toggle [value]="value">Element</bit-toggle>`,
+  selector: "test-component",
+  template: `
+    <bit-toggle-group [(selected)]="selected">
+      <bit-toggle [value]="0">Zero</bit-toggle>
+      <bit-toggle [value]="1">One</bit-toggle>
+    </bit-toggle-group>
+  `,
+  imports: [ToggleGroupModule],
 })
-class TestApp {
-  value?: string;
+class TestComponent {
+  selected = 0;
 }
