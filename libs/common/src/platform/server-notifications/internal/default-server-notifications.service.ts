@@ -4,6 +4,7 @@ import {
   distinctUntilChanged,
   EMPTY,
   filter,
+  firstValueFrom,
   map,
   mergeMap,
   Observable,
@@ -14,6 +15,9 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
@@ -55,6 +59,8 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly signalRConnectionService: SignalRConnectionService,
     private readonly authService: AuthService,
     private readonly webPushConnectionService: WebPushConnectionService,
+    private readonly authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
+    private readonly configService: ConfigService,
   ) {
     this.notifications$ = this.accountService.activeAccount$.pipe(
       map((account) => account?.id),
@@ -213,8 +219,16 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
       case NotificationType.AuthRequest:
-        // create notification
-
+        if (
+          await firstValueFrom(
+            this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
+          )
+        ) {
+          await this.authRequestAnsweringService.receivedPendingAuthRequest(
+            notification.payload.userId,
+            notification.payload.id,
+          );
+        }
         this.messagingService.send("openLoginApproval", {
           notificationId: notification.payload.id,
         });

@@ -26,7 +26,7 @@ export class BrowserActionsService implements ActionsService {
             return;
           } else {
             this.logService.warning(
-              `No openPopup function found on browser actions. On browser: ${deviceType} and manifest version: ${BrowserApi.manifestVersion}`,
+              `No openPopup function found on browser actions. On browser: ${DeviceType[deviceType]} and manifest version: ${BrowserApi.manifestVersion}`,
             );
           }
           break;
@@ -36,7 +36,7 @@ export class BrowserActionsService implements ActionsService {
           return;
         default:
           this.logService.warning(
-            `Tried to open the popup from an unsupported device type: ${deviceType}`,
+            `Tried to open the popup from an unsupported device type: ${DeviceType[deviceType]}`,
           );
       }
     } catch (e) {
