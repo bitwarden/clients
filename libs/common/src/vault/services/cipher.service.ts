@@ -672,13 +672,14 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
-    const response = await this.apiService.send(
+    const r = await this.apiService.send(
       "GET",
       "/ciphers/organization-details/assigned?organizationId=" + organizationId,
       null,
       true,
       true,
     );
+    const response = new ListResponse(r, CipherResponse);
     return this.decryptOrganizationCiphersResponse(response, organizationId);
   }
 
