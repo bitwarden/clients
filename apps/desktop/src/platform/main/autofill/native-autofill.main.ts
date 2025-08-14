@@ -6,6 +6,7 @@ import { autofill } from "@bitwarden/desktop-napi";
 import { WindowMain } from "../../../main/window.main";
 
 import { CommandDefinition } from "./command";
+import { NativeAutofillWindowsMain } from "./native-autofill.windows.main";
 
 export type RunCommandParams<C extends CommandDefinition> = {
   namespace: C["namespace"];
@@ -17,13 +18,22 @@ export type RunCommandResult<C extends CommandDefinition> = C["output"];
 
 export class NativeAutofillMain {
   private ipcServer: autofill.IpcServer | null;
+  private windowsMain: NativeAutofillWindowsMain;
 
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
-  ) {}
+  ) {
+    this.windowsMain = new NativeAutofillWindowsMain(logService, windowMain);
+  }
 
   async init() {
+    const enableWindowsPasskeyProvider = true;
+    if (enableWindowsPasskeyProvider) {
+      this.windowsMain.initWindows();
+      this.windowsMain.setupWindowsRendererIPCHandlers();
+    }
+
     ipcMain.handle(
       "autofill.runCommand",
       <C extends CommandDefinition>(

@@ -1,4 +1,6 @@
 {
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+
   "extraMetadata": {
     "name": "bitwarden"
   },
@@ -88,9 +90,10 @@
   },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
-    "target": ["portable", "nsis-web", "appx"],
+    "target": ["appx"],
     "signtoolOptions": {
-      "sign": "./sign.js"
+      "sign": "./sign.js",
+      "publisherName": "CN=com.bitwarden.localdevelopment"
     },
     "extraFiles": [
       {
@@ -162,8 +165,9 @@
     "artifactName": "${productName}-Portable-${version}.${ext}"
   },
   "appx": {
-    "artifactName": "${productName}-${version}-${arch}.${ext}",
-    "customManifestPath": "./custom-appx-manifest.xml"
+    "artifactName": "${productName}-${arch}.${ext}",
+    "customManifestPath": "./custom-appx-manifest.xml",
+    "publisher": "CN=com.bitwarden.localdevelopment"
   },
   "deb": {
     "artifactName": "${productName}-${version}-${arch}.${ext}",

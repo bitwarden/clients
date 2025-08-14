@@ -186,7 +186,29 @@ export declare namespace crypto {
   export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>
 }
 export declare namespace passkey_authenticator {
+  export interface PasskeyRequestEvent {
+    requestType: string
+    requestJson: string
+  }
+  export interface SyncedCredential {
+    credentialId: string
+    rpId: string
+    userName: string
+    userHandle: string
+  }
+  export interface PasskeySyncRequest {
+    rpId: string
+  }
+  export interface PasskeySyncResponse {
+    credentials: Array<SyncedCredential>
+  }
+  export interface PasskeyErrorResponse {
+    message: string
+  }
   export function register(): void
+  export function onRequest(callback: (error: null | Error, event: PasskeyRequestEvent) => Promise<string>): Promise<string>
+  export function syncCredentialsToWindows(credentials: Array<SyncedCredential>): void
+  export function getCredentialsFromWindows(): Array<SyncedCredential>
 }
 export declare namespace logging {
   export const enum LogLevel {
