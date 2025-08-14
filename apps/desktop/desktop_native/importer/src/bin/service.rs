@@ -1,11 +1,11 @@
-use anyhow::{Result, anyhow};
-use base64::{Engine as _, engine::general_purpose};
+use anyhow::{anyhow, Result};
+use base64::{engine::general_purpose, Engine as _};
 use env_logger::Target;
 use log::debug;
 use std::{ffi::OsString, fs::OpenOptions, ptr, sync::mpsc, time::Duration};
 use windows::Win32::{
-    Foundation::{HLOCAL, LocalFree},
-    Security::Cryptography::{CRYPT_INTEGER_BLOB, CRYPTPROTECT_UI_FORBIDDEN, CryptUnprotectData},
+    Foundation::{LocalFree, HLOCAL},
+    Security::Cryptography::{CryptUnprotectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB},
 };
 use windows_service::{
     define_windows_service,
