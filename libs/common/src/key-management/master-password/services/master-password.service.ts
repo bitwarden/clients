@@ -149,7 +149,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     if (userId == null) {
       throw new Error("User ID is required.");
     }
-    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update(() => masterKeyHash, {
+    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => masterKeyHash, {
       shouldUpdate: (previousValue) => previousValue !== masterKeyHash,
     });
   }
@@ -158,7 +158,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     if (userId == null) {
       throw new Error("User ID is required.");
     }
-    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update(() => null, {
+    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => null, {
       shouldUpdate: (previousValue) => previousValue !== null,
     });
   }

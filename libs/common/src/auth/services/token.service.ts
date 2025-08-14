@@ -356,7 +356,7 @@ export class TokenService implements TokenServiceAbstraction {
           // Save the encrypted access token to disk
           await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
-            .update(() => encryptedAccessToken.encryptedString, {
+            .update((_) => encryptedAccessToken.encryptedString, {
               shouldUpdate: (previousValue) =>
                 previousValue !== encryptedAccessToken.encryptedString,
             });
@@ -368,7 +368,7 @@ export class TokenService implements TokenServiceAbstraction {
           // TODO: PM-6408
           // 2024-02-20: Remove access token from memory so that we migrate to encrypt the access token over time.
           // Remove this call to remove the access token from memory after 3 months.
-          await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update(() => null);
+          await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
         } catch (error) {
           this.logService.error(
             `SetAccessToken: storing encrypted access token in secure storage failed. Falling back to disk storage.`,
@@ -378,7 +378,7 @@ export class TokenService implements TokenServiceAbstraction {
           // Fall back to disk storage for unecrypted access token
           decryptedAccessToken = await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
-            .update(() => accessToken, {
+            .update((_) => accessToken, {
               shouldUpdate: (previousValue) => previousValue !== accessToken,
             });
         }
@@ -389,14 +389,14 @@ export class TokenService implements TokenServiceAbstraction {
         // Access token stored on disk unencrypted as platform does not support secure storage
         return await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_DISK)
-          .update(() => accessToken, {
+          .update((_) => accessToken, {
             shouldUpdate: (previousValue) => previousValue !== accessToken,
           });
       case TokenStorageLocation.Memory:
         // Access token stored in memory due to vault timeout settings
         return await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_MEMORY)
-          .update(() => accessToken);
+          .update((_) => accessToken);
     }
   }
 
@@ -446,10 +446,10 @@ export class TokenService implements TokenServiceAbstraction {
     }
 
     // Platform doesn't support secure storage, so use state provider implementation
-    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).update(() => null, {
+    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).update((_) => null, {
       shouldUpdate: (previousValue) => previousValue !== null,
     });
-    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update(() => null);
+    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
   }
 
   async getAccessToken(userId?: UserId): Promise<string | null> {
@@ -595,10 +595,10 @@ export class TokenService implements TokenServiceAbstraction {
           // TODO: PM-6408
           // 2024-02-20: Remove refresh token from memory and disk so that we migrate to secure storage over time.
           // Remove these 2 calls to remove the refresh token from memory and disk after 3 months.
-          await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update(() => null, {
+          await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
             shouldUpdate: (previousValue) => previousValue !== null,
           });
-          await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update(() => null);
+          await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update((_) => null);
         } catch (error) {
           // This case could be hit for both Linux users who don't have secure storage configured
           // or for Windows users who have intermittent issues with secure storage.
@@ -610,7 +610,7 @@ export class TokenService implements TokenServiceAbstraction {
           // Fall back to disk storage for refresh token
           decryptedRefreshToken = await this.singleUserStateProvider
             .get(userId, REFRESH_TOKEN_DISK)
-            .update(() => refreshToken, {
+            .update((_) => refreshToken, {
               shouldUpdate: (previousValue) => previousValue !== refreshToken,
             });
         }
@@ -620,14 +620,14 @@ export class TokenService implements TokenServiceAbstraction {
       case TokenStorageLocation.Disk:
         return await this.singleUserStateProvider
           .get(userId, REFRESH_TOKEN_DISK)
-          .update(() => refreshToken, {
+          .update((_) => refreshToken, {
             shouldUpdate: (previousValue) => previousValue !== refreshToken,
           });
 
       case TokenStorageLocation.Memory:
         return await this.singleUserStateProvider
           .get(userId, REFRESH_TOKEN_MEMORY)
-          .update(() => refreshToken);
+          .update((_) => refreshToken);
     }
   }
 
@@ -701,8 +701,8 @@ export class TokenService implements TokenServiceAbstraction {
     }
 
     // Platform doesn't support secure storage, so use state provider implementation
-    await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update(() => null);
-    await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update(() => null, {
+    await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update((_) => null);
+    await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
       shouldUpdate: (previousValue) => previousValue !== null,
     });
   }
