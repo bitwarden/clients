@@ -171,7 +171,7 @@
     "@nx/jest": "21.1.2",
     "@nx/js": "21.1.2",
     "big-integer": "1.6.52",
-    "braintree-web-drop-in": "1.44.0",
+    "braintree-web-drop-in": "1.45.1",
     "buffer": "6.0.3",
     "bufferutil": "4.0.9",
     "chalk": "4.1.2",
