@@ -300,7 +300,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
       map((organization) => {
         if (!organization) {
-          throw new Error("@TODO");
+          throw new Error("Organization not found.");
         }
         return organization;
       }),
@@ -461,7 +461,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
             map((paymentSource) => {
               if (paymentSource == null) {
-                throw new Error("@TODO");
+                throw new Error("Payment source not found.");
               }
               return paymentSource;
             }),
@@ -620,7 +620,7 @@ export class VaultComponent implements OnInit, OnDestroy {
               (collection) => collection.name,
               (collection) => {
                 if (!collection.id) {
-                  throw new Error("@TODO");
+                  throw new Error("Collection does not have an ID.");
                 }
                 return collection.id;
               },
@@ -1050,10 +1050,11 @@ export class VaultComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("restoredItem"),
       });
       this.refresh();
+      return true;
     } catch (e) {
       this.logService.error(e);
+      return false;
     }
-    return true;
   };
 
   async bulkRestore(ciphers: CipherView[]) {
@@ -1147,10 +1148,11 @@ export class VaultComponent implements OnInit, OnDestroy {
         message: this.i18nService.t(permanent ? "permanentlyDeletedItem" : "deletedItem"),
       });
       this.refresh();
+      return true;
     } catch (e) {
       this.logService.error(e);
+      return false;
     }
-    return true;
   }
 
   async deleteCollection(collection: CollectionAdminView): Promise<void> {
