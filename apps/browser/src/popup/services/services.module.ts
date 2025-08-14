@@ -47,6 +47,7 @@ import {
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import {
   AutofillSettingsService,
@@ -333,7 +334,7 @@ const safeProviders: SafeProvider[] = [
     provide: SyncService,
     useClass: ForegroundSyncService,
     deps: [
-      StateService,
+      TokenService,
       InternalFolderService,
       FolderApiServiceAbstraction,
       MessageSender,

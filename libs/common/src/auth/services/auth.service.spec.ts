@@ -13,7 +13,7 @@ import {
 } from "../../../spec";
 import { ApiService } from "../../abstractions/api.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
-import { StateService } from "../../platform/abstractions/state.service";
+import { StateService } from "../../../../state/src/legacy/state.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";

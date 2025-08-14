@@ -108,14 +108,11 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
-import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
-import { Account } from "@bitwarden/common/platform/models/domain/account";
-import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
@@ -141,11 +138,11 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
-import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import {
   ActiveUserStateProvider,
+  DefaultStateService,
   DerivedStateProvider,
   GlobalStateProvider,
   SingleUserStateProvider,
@@ -385,6 +382,7 @@ export default class MainBackground {
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
+  migrationRunner: MigrationRunner;
   taskSchedulerService: BrowserTaskSchedulerService;
   fido2Background: Fido2BackgroundAbstraction;
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
@@ -590,8 +588,9 @@ export default class MainBackground {
       this.globalStateProvider,
       this.singleUserStateProvider,
     );
+    const activeUserAccessor = new DefaultActiveUserAccessor(this.accountService);
     this.activeUserStateProvider = new DefaultActiveUserStateProvider(
-      new DefaultActiveUserAccessor(this.accountService),
+      activeUserAccessor,
       this.singleUserStateProvider,
     );
     this.derivedStateProvider = new InlineDerivedStateProvider();
@@ -637,23 +636,17 @@ export default class MainBackground {
       this.taskSchedulerService,
     );
 
-    const migrationRunner = new MigrationRunner(
+    this.migrationRunner = new MigrationRunner(
       this.storageService,
       this.logService,
       new MigrationBuilderService(),
       ClientType.Browser,
     );
 
-    this.stateService = new StateService(
+    this.stateService = new DefaultStateService(
       this.storageService,
       this.secureStorageService,
-      this.memoryStorageService,
-      this.logService,
-      new StateFactory(GlobalState, Account),
-      this.accountService,
-      this.environmentService,
-      this.tokenService,
-      migrationRunner,
+      activeUserAccessor,
     );
 
     this.masterPasswordService = new MasterPasswordService(
@@ -888,7 +881,6 @@ export default class MainBackground {
       this.apiService,
       this.i18nService,
       this.searchService,
-      this.stateService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
@@ -947,6 +939,7 @@ export default class MainBackground {
       this.messagingService,
       this.searchService,
       this.stateService,
+      this.tokenService,
       this.authService,
       this.vaultTimeoutSettingsService,
       this.stateEventRunnerService,
@@ -990,7 +983,6 @@ export default class MainBackground {
       this.sendService,
       this.logService,
       this.keyConnectorService,
-      this.stateService,
       this.providerService,
       this.folderApiService,
       this.organizationService,
@@ -1321,7 +1313,7 @@ export default class MainBackground {
     );
 
     this.mainContextMenuHandler = new MainContextMenuHandler(
-      this.stateService,
+      this.tokenService,
       this.autofillSettingsService,
       this.i18nService,
       this.logService,
@@ -1388,7 +1380,7 @@ export default class MainBackground {
 
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
-    await this.stateService.init({ runMigrations: true });
+    await this.migrationRunner.run();
 
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
@@ -1608,6 +1600,7 @@ export default class MainBackground {
     const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
 
     await this.stateService.clean({ userId: userBeingLoggedOut });
+    await this.tokenService.clearAccessToken(userBeingLoggedOut);
     await this.accountService.clean(userBeingLoggedOut);
 
     await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);

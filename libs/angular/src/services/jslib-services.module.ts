@@ -193,13 +193,10 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
-import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
-import { Account } from "@bitwarden/common/platform/models/domain/account";
-import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
@@ -226,13 +223,13 @@ import { KeyGenerationService } from "@bitwarden/common/platform/services/key-ge
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
-import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import {
   ActiveUserAccessor,
   ActiveUserStateProvider,
+  DefaultStateService,
   DerivedStateProvider,
   GlobalStateProvider,
   SingleUserStateProvider,
@@ -369,12 +366,10 @@ import {
   LOCKED_CALLBACK,
   LOG_MAC_FAILURES,
   LOGOUT_CALLBACK,
-  MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
   REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
   SECURE_STORAGE,
-  STATE_FACTORY,
   SUPPORTS_SECURE_STORAGE,
   SYSTEM_LANGUAGE,
   SYSTEM_THEME_OBSERVABLE,
@@ -411,10 +406,6 @@ const safeProviders: SafeProvider[] = [
     provide: SYSTEM_LANGUAGE,
     useFactory: (window: Window) => window.navigator.language,
     deps: [WINDOW],
-  }),
-  safeProvider({
-    provide: STATE_FACTORY,
-    useValue: new StateFactory(GlobalState, Account),
   }),
   // TODO: PM-21212 - Deprecate LogoutCallback in favor of LogoutService
   safeProvider({
@@ -528,7 +519,6 @@ const safeProviders: SafeProvider[] = [
       apiService: ApiServiceAbstraction,
       i18nService: I18nServiceAbstraction,
       searchService: SearchServiceAbstraction,
-      stateService: StateServiceAbstraction,
       autofillSettingsService: AutofillSettingsServiceAbstraction,
       encryptService: EncryptService,
       fileUploadService: CipherFileUploadServiceAbstraction,
@@ -545,7 +535,6 @@ const safeProviders: SafeProvider[] = [
         apiService,
         i18nService,
         searchService,
-        stateService,
         autofillSettingsService,
         encryptService,
         fileUploadService,
@@ -562,7 +551,6 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       I18nServiceAbstraction,
       SearchServiceAbstraction,
-      StateServiceAbstraction,
       AutofillSettingsServiceAbstraction,
       EncryptService,
       CipherFileUploadServiceAbstraction,
@@ -799,7 +787,6 @@ const safeProviders: SafeProvider[] = [
       InternalSendService,
       LogService,
       KeyConnectorServiceAbstraction,
-      StateServiceAbstraction,
       ProviderServiceAbstraction,
       FolderApiServiceAbstraction,
       InternalOrganizationServiceAbstraction,
@@ -847,6 +834,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       SearchServiceAbstraction,
       StateServiceAbstraction,
+      TokenServiceAbstraction,
       AuthServiceAbstraction,
       VaultTimeoutSettingsService,
       StateEventRunnerService,
@@ -867,23 +855,9 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider, LogService],
   }),
   safeProvider({
-    provide: STATE_FACTORY,
-    useValue: new StateFactory(GlobalState, Account),
-  }),
-  safeProvider({
     provide: StateServiceAbstraction,
-    useClass: StateService,
-    deps: [
-      AbstractStorageService,
-      SECURE_STORAGE,
-      MEMORY_STORAGE,
-      LogService,
-      STATE_FACTORY,
-      AccountServiceAbstraction,
-      EnvironmentService,
-      TokenServiceAbstraction,
-      MigrationRunner,
-    ],
+    useClass: DefaultStateService,
+    deps: [AbstractStorageService, SECURE_STORAGE, ActiveUserAccessor],
   }),
   safeProvider({
     provide: IndividualVaultExportServiceAbstraction,

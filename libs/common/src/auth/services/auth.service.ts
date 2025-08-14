@@ -16,7 +16,7 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
-import { StateService } from "../../platform/abstractions/state.service";
+import { StateService } from "../../../../state/src/legacy/state.service";
 import { MessageSender } from "../../platform/messaging";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
