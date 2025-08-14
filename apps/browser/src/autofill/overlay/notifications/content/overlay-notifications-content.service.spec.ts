@@ -1,6 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import AutofillInit from "../../../content/autofill-init";
+import {
+  INIT_NOTIFICATION_BAR,
+  SAVE_CIPHER_ATTEMPT_COMPLETED,
+} from "../../../notification/abstractions/notification-bar";
 import { DomQueryService } from "../../../services/abstractions/dom-query.service";
 import DomElementVisibilityService from "../../../services/dom-element-visibility.service";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
@@ -171,7 +175,7 @@ describe("OverlayNotificationsContentService", () => {
       );
       globalThis.dispatchEvent(
         new MessageEvent("message", {
-          data: { command: "initNotificationBar" },
+          data: { command: INIT_NOTIFICATION_BAR },
           source: overlayNotificationsContentService["notificationBarIframeElement"]?.contentWindow,
         }),
       );
@@ -180,7 +184,7 @@ describe("OverlayNotificationsContentService", () => {
       expect(postMessageSpy).toHaveBeenCalledTimes(1);
       expect(postMessageSpy).toHaveBeenCalledWith(
         {
-          command: "initNotificationBar",
+          command: INIT_NOTIFICATION_BAR,
           initData: expect.any(Object),
         },
         "*",
@@ -277,7 +281,7 @@ describe("OverlayNotificationsContentService", () => {
       expect(
         overlayNotificationsContentService["notificationBarIframeElement"].contentWindow
           .postMessage,
-      ).toHaveBeenCalledWith({ command: "saveCipherAttemptCompleted", error: undefined }, "*");
+      ).toHaveBeenCalledWith({ command: SAVE_CIPHER_ATTEMPT_COMPLETED, error: undefined }, "*");
     });
   });
 

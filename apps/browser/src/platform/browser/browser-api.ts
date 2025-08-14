@@ -267,7 +267,7 @@ export class BrowserApi {
 
   static tabSendMessageData(
     tab: chrome.tabs.Tab,
-    command: string,
+    command: string | symbol,
     data: any = null,
   ): Promise<void> {
     const obj: any = {

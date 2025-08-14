@@ -21,6 +21,8 @@ import {
   NotificationBarIframeInitData,
   NotificationType,
   NotificationTypes,
+  INIT_NOTIFICATION_BAR,
+  SAVE_CIPHER_ATTEMPT_COMPLETED,
 } from "./abstractions/notification-bar";
 
 const logService = new ConsoleLogService(false);
@@ -29,8 +31,8 @@ let windowMessageOrigin: string;
 let useComponentBar = false;
 
 const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers = {
-  initNotificationBar: ({ message }) => initNotificationBar(message),
-  saveCipherAttemptCompleted: ({ message }) =>
+  [INIT_NOTIFICATION_BAR]: ({ message }) => initNotificationBar(message),
+  [SAVE_CIPHER_ATTEMPT_COMPLETED]: ({ message }) =>
     useComponentBar
       ? handleSaveCipherConfirmation(message)
       : handleSaveCipherAttemptCompletedMessage(message),
@@ -51,7 +53,7 @@ function applyNotificationBarStyle() {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./bar.scss");
   }
-  postMessageToParent({ command: "initNotificationBar" });
+  postMessageToParent({ command: INIT_NOTIFICATION_BAR });
 }
 
 function getI18n() {

@@ -61,6 +61,7 @@ import {
 } from "../content/components/cipher/types";
 import { CollectionView } from "../content/components/common-types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
+import { SAVE_CIPHER_ATTEMPT_COMPLETED } from "../notification/abstractions/notification-bar";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
 
@@ -779,7 +780,7 @@ export default class NotificationBackground {
     if (message.success) {
       await this.saveOrUpdateCredentials(message.tab, false, undefined, true);
     } else {
-      await BrowserApi.tabSendMessageData(message.tab, "saveCipherAttemptCompleted", {
+      await BrowserApi.tabSendMessageData(message.tab, SAVE_CIPHER_ATTEMPT_COMPLETED, {
         error: "Password reprompt failed",
       });
       return;
@@ -864,13 +865,13 @@ export default class NotificationBackground {
       const { cipher } = encrypted;
       try {
         await this.cipherService.createWithServer(encrypted);
-        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        await BrowserApi.tabSendMessageData(tab, SAVE_CIPHER_ATTEMPT_COMPLETED, {
           itemName: newCipher?.name && String(newCipher?.name),
           cipherId: cipher?.id && String(cipher?.id),
         });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
-        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        await BrowserApi.tabSendMessageData(tab, SAVE_CIPHER_ATTEMPT_COMPLETED, {
           error: error?.message && String(error.message),
         });
       }
@@ -936,7 +937,7 @@ export default class NotificationBackground {
 
       await this.cipherService.updateWithServer(cipher);
 
-      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+      await BrowserApi.tabSendMessageData(tab, SAVE_CIPHER_ATTEMPT_COMPLETED, {
         itemName: cipherView?.name && String(cipherView?.name),
         cipherId: cipherView?.id && String(cipherView.id),
         task: taskData,
@@ -954,7 +955,7 @@ export default class NotificationBackground {
         );
       }
     } catch (error) {
-      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+      await BrowserApi.tabSendMessageData(tab, SAVE_CIPHER_ATTEMPT_COMPLETED, {
         error: error?.message && String(error.message),
       });
     }

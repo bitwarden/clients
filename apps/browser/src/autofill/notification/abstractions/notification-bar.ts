@@ -36,7 +36,7 @@ type NotificationBarIframeInitData = {
 };
 
 type NotificationBarWindowMessage = {
-  command: string;
+  command: symbol;
   data?: {
     cipherId?: string;
     task?: NotificationTaskInfo;
@@ -46,10 +46,13 @@ type NotificationBarWindowMessage = {
   initData?: NotificationBarIframeInitData;
 };
 
+export const INIT_NOTIFICATION_BAR = Symbol("initNotificationBar");
+export const SAVE_CIPHER_ATTEMPT_COMPLETED = Symbol("saveCipherAttemptCompleted");
+
 type NotificationBarWindowMessageHandlers = {
-  [key: string]: CallableFunction;
-  initNotificationBar: ({ message }: { message: NotificationBarWindowMessage }) => void;
-  saveCipherAttemptCompleted: ({ message }: { message: NotificationBarWindowMessage }) => void;
+  [key: symbol]: CallableFunction;
+  [INIT_NOTIFICATION_BAR]: ({ message }: { message: NotificationBarWindowMessage }) => void;
+  [SAVE_CIPHER_ATTEMPT_COMPLETED]: ({ message }: { message: NotificationBarWindowMessage }) => void;
 };
 
 type AtRiskPasswordNotificationParams = {

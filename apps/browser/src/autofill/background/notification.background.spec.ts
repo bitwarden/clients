@@ -27,6 +27,7 @@ import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
+import { SAVE_CIPHER_ATTEMPT_COMPLETED } from "../notification/abstractions/notification-bar";
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
 import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
@@ -834,7 +835,7 @@ describe("NotificationBackground", () => {
           expect(updateWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
             sender.tab,
-            "saveCipherAttemptCompleted",
+            SAVE_CIPHER_ATTEMPT_COMPLETED,
             {
               itemName: "testItemName",
               cipherId: cipherView.id,
@@ -883,7 +884,7 @@ describe("NotificationBackground", () => {
           expect(updateWithServerSpy).not.toHaveBeenCalled();
           expect(tabSendMessageDataSpy).not.toHaveBeenCalledWith(
             sender.tab,
-            "saveCipherAttemptCompleted",
+            SAVE_CIPHER_ATTEMPT_COMPLETED,
             {
               itemName: "testItemName",
               cipherId: cipherView.id,
@@ -962,7 +963,7 @@ describe("NotificationBackground", () => {
           expect(updateWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
             sender.tab,
-            "saveCipherAttemptCompleted",
+            SAVE_CIPHER_ATTEMPT_COMPLETED,
             {
               cipherId: "testId",
               itemName: "Test Item",
@@ -1144,7 +1145,7 @@ describe("NotificationBackground", () => {
           expect(createWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
             sender.tab,
-            "saveCipherAttemptCompleted",
+            SAVE_CIPHER_ATTEMPT_COMPLETED,
             {
               cipherId: cipherView.id,
               itemName: cipherView.name,
@@ -1198,7 +1199,7 @@ describe("NotificationBackground", () => {
           });
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
             sender.tab,
-            "saveCipherAttemptCompleted",
+            SAVE_CIPHER_ATTEMPT_COMPLETED,
             {
               error: errorMessage,
             },
@@ -1233,7 +1234,7 @@ describe("NotificationBackground", () => {
           expect(updateWithServerSpy).toThrow(errorMessage);
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
             sender.tab,
-            "saveCipherAttemptCompleted",
+            SAVE_CIPHER_ATTEMPT_COMPLETED,
             {
               error: errorMessage,
             },

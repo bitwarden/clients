@@ -3,9 +3,11 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import {
+  INIT_NOTIFICATION_BAR,
   NotificationBarIframeInitData,
   NotificationType,
   NotificationTypes,
+  SAVE_CIPHER_ATTEMPT_COMPLETED,
 } from "../../../notification/abstractions/notification-bar";
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
@@ -155,7 +157,7 @@ export class OverlayNotificationsContentService
     const { error, ...otherData } = message?.data || {};
 
     this.sendMessageToNotificationBarIframe({
-      command: "saveCipherAttemptCompleted",
+      command: SAVE_CIPHER_ATTEMPT_COMPLETED,
       data: Object.keys(otherData).length ? otherData : undefined,
       error,
     });
@@ -253,12 +255,12 @@ export class OverlayNotificationsContentService
       const { source, data } = event;
       if (
         source !== this.notificationBarIframeElement.contentWindow ||
-        data?.command !== "initNotificationBar"
+        data?.command !== INIT_NOTIFICATION_BAR
       ) {
         return;
       }
 
-      this.sendMessageToNotificationBarIframe({ command: "initNotificationBar", initData });
+      this.sendMessageToNotificationBarIframe({ command: INIT_NOTIFICATION_BAR, initData });
       globalThis.removeEventListener("message", handleInitNotificationBarMessage);
     };
 
