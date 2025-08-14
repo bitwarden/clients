@@ -12,6 +12,7 @@ import { LogoutReason } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricsService } from "@bitwarden/key-management";
+import { StateService } from "@bitwarden/state";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
@@ -21,7 +22,6 @@ import { AuthenticationStatus } from "../../../auth/enums/authentication-status"
 import { LogService } from "../../../platform/abstractions/log.service";
 import { MessagingService } from "../../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
-import { StateService } from "../../../../../state/src/legacy/state.service";
 import { Utils } from "../../../platform/misc/utils";
 import { TaskSchedulerService } from "../../../platform/scheduling";
 import { StateEventRunnerService } from "../../../platform/state";
