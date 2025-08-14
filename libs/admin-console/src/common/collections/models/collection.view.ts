@@ -1,8 +1,11 @@
 import { Jsonify } from "type-fest";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { View } from "@bitwarden/common/models/view/view";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { Collection, CollectionType, CollectionTypes } from "./collection";
@@ -11,8 +14,8 @@ import { CollectionAccessDetailsResponse } from "./collection.response";
 export const NestingDelimiter = "/";
 
 export class CollectionView implements View, ITreeNodeObject {
-  id: CollectionId | undefined;
-  organizationId: OrganizationId | undefined;
+  id: CollectionId;
+  organizationId: OrganizationId;
   externalId: string | undefined;
   // readOnly applies to the items within a collection
   readOnly: boolean = false;
@@ -22,27 +25,12 @@ export class CollectionView implements View, ITreeNodeObject {
   type: CollectionType = CollectionTypes.SharedCollection;
   defaultUserCollectionEmail: string | undefined;
 
-  private _name: string | undefined;
+  private _name: string;
 
-  constructor(c?: Collection | CollectionAccessDetailsResponse) {
-    if (!c) {
-      return;
-    }
-
+  constructor(c: { id: CollectionId; organizationId: OrganizationId; name: string }) {
     this.id = c.id;
     this.organizationId = c.organizationId;
-    this.externalId = c.externalId;
-    if (c instanceof Collection) {
-      this.readOnly = c.readOnly;
-      this.hidePasswords = c.hidePasswords;
-      this.manage = c.manage;
-      this.assigned = true;
-    }
-    if (c instanceof CollectionAccessDetailsResponse) {
-      this.assigned = c.assigned;
-    }
-    this.type = c.type;
-    this.defaultUserCollectionEmail = c.defaultUserCollectionEmail;
+    this._name = c.name;
   }
 
   set name(name: string) {
@@ -117,11 +105,54 @@ export class CollectionView implements View, ITreeNodeObject {
     return this.canEdit(org) && !this.defaultUserCollectionEmail;
   }
 
-  static fromJSON(obj: Jsonify<CollectionView>) {
-    return Object.assign(new CollectionView(new Collection()), obj);
-  }
-
   get isDefaultCollection() {
     return this.type == CollectionTypes.DefaultUserCollection;
+  }
+
+  // FIXME: we should not use a CollectionView object for the vault filter header because it is not a real
+  // CollectionView and this violates ts-strict rules.
+  static vaultFilterHead(): CollectionView {
+    return new CollectionView({
+      id: "" as CollectionId,
+      organizationId: "" as OrganizationId,
+      name: "",
+    });
+  }
+
+  static async fromCollection(
+    collection: Collection,
+    encryptService: EncryptService,
+    key: OrgKey,
+  ): Promise<CollectionView> {
+    const view: CollectionView = Object.assign(
+      new CollectionView({ ...collection, name: "" }),
+      collection,
+    );
+    view.name = await encryptService.decryptString(collection.name, key);
+    view.assigned = true;
+    return view;
+  }
+
+  static async fromCollectionAccessDetails(
+    collection: CollectionAccessDetailsResponse,
+    encryptService: EncryptService,
+    orgKey: OrgKey,
+  ): Promise<CollectionView> {
+    const view = new CollectionView({ ...collection });
+
+    view.name = await encryptService.decryptString(new EncString(collection.name), orgKey);
+    view.externalId = collection.externalId;
+    view.type = collection.type;
+    view.assigned = collection.assigned;
+    view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    return view;
+  }
+
+  static fromJSON(obj: Jsonify<CollectionView>) {
+    return Object.assign(new CollectionView({ ...obj }), obj);
+  }
+
+  encrypt(orgKey: OrgKey, encryptService: EncryptService): Promise<Collection> {
+    return Collection.fromCollectionView(this, encryptService, orgKey);
   }
 }

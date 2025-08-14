@@ -7,7 +7,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { Collection, CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -33,9 +33,11 @@ const createMockCollection = (
   readOnly = false,
   canEdit = true,
 ): CollectionView => {
-  const cv = new CollectionView(new Collection());
-  cv.id = id as CollectionId;
-  cv.organizationId = organizationId as OrganizationId;
+  const cv = new CollectionView({
+    name,
+    organizationId: organizationId as OrganizationId,
+    id: id as CollectionId,
+  });
   cv.readOnly = readOnly;
   cv.manage = true;
   cv.type = CollectionTypes.DefaultUserCollection;
@@ -47,7 +49,6 @@ const createMockCollection = (
   cv.canEdit = jest.fn();
   cv.canDelete = jest.fn();
   cv.canViewCollectionInfo = jest.fn();
-  cv.name = name;
 
   return cv;
 };

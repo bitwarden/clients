@@ -68,7 +68,6 @@ import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -1258,9 +1257,6 @@ export default class MainBackground {
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
       this.notificationBackground,
-      this.taskService,
-      this.accountService,
-      this.cipherService,
     );
 
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
@@ -1375,6 +1371,7 @@ export default class MainBackground {
     this.badgeService = new BadgeService(
       this.stateProvider,
       new DefaultBadgeBrowserApi(this.platformUtilsService),
+      this.logService,
     );
     this.authStatusBadgeUpdaterService = new AuthStatusBadgeUpdaterService(
       this.badgeService,
@@ -1448,10 +1445,7 @@ export default class MainBackground {
         this.notificationsService.startListening();
 
         this.taskService.listenForTaskNotifications();
-
-        if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
-          this.endUserNotificationService.listenForEndUserNotifications();
-        }
+        this.endUserNotificationService.listenForEndUserNotifications();
         resolve();
       }, 500);
     });

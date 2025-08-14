@@ -2,15 +2,15 @@ import { SelectionReadOnlyResponse } from "@bitwarden/common/admin-console/model
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 
-import { CollectionType } from "./collection";
+import { CollectionType, CollectionTypes } from "./collection";
 
 export class CollectionResponse extends BaseResponse {
   id: CollectionId;
   organizationId: OrganizationId;
   name: string;
-  externalId: string;
-  type: CollectionType;
-  defaultUserCollectionEmail: string;
+  defaultUserCollectionEmail: string | undefined;
+  externalId: string | undefined;
+  type: CollectionType = CollectionTypes.SharedCollection;
 
   constructor(response: any) {
     super(response);
@@ -18,8 +18,8 @@ export class CollectionResponse extends BaseResponse {
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.name = this.getResponseProperty("Name");
     this.externalId = this.getResponseProperty("ExternalId");
-    this.type = this.getResponseProperty("Type");
     this.defaultUserCollectionEmail = this.getResponseProperty("DefaultUserCollectionEmail");
+    this.type = this.getResponseProperty("Type") ?? CollectionTypes.SharedCollection;
   }
 }
 

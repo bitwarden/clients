@@ -1225,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Tvåfaktorsautentisering"
   },
+  "vaultTimeoutHeader": {
+    "message": "Timeout för valv"
+  },
   "vaultTimeout": {
     "message": "Valvets tidsgräns"
   },
   "vaultTimeout1": {
     "message": "Tidsgräns"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Åtgärd vid timeout"
   },
   "vaultTimeoutDesc": {
     "message": "Välj när valvets tidsgräns överskrids och den valda åtgärden utförs."
@@ -2511,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Ditt valvs tid för timeout överskrider de begränsningar som fastställts av din organisation."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Inbjudan accepterad"
   },
@@ -2992,9 +3027,6 @@
     "message": "Växla teckenantal",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Försöker du komma åt ditt konto?"
-  },
   "accessAttemptBy": {
     "message": "Åtkomstförsök via $EMAIL$",
     "placeholders": {
@@ -3003,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggningsbegäran godkänd för $EMAIL$ på $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om detta var du, prova att logga in med den enheten igen."
+  },
+  "webApp": {
+    "message": "Webbapp"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Tillägg",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Inloggningsbegäran"
   },
   "deviceType": {
     "message": "Enhetstyp"
@@ -3018,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Neka åtkomst"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggning bekräftad för $EMAIL$ på $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om detta verkligen var du, försök att logga in med enheten igen."
   },
   "justNow": {
     "message": "Just nu"
@@ -4005,6 +4065,12 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Visa mer"
+  },
+  "showLess": {
+    "message": "Visa mindre"
   },
   "enableAutotype": {
     "message": "Aktivera automatisk inmatning"
