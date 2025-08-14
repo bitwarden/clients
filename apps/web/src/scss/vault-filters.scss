@@ -68,6 +68,12 @@
   display: flex;
   align-items: center;
 
+  button,
+  a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .contents {
     display: contents;
   }
