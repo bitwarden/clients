@@ -200,7 +200,7 @@ export function getNotificationTestId(
     [NotificationTypes.Unlock]: "unlock-notification-bar",
     [NotificationTypes.Add]: "save-notification-bar",
     [NotificationTypes.Change]: "update-notification-bar",
-    [NotificationTypes.AtRiskPassword]: "at-risk-password-notification-bar",
+    [NotificationTypes.AtRiskPassword]: "at-risk-notification-bar",
   }[notificationType];
 }
 
@@ -287,6 +287,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
           type: notificationBarIframeInitData.type as NotificationType,
           theme: resolvedTheme,
           i18n,
+          notificationTestId,
           params: initData.params,
           handleCloseNotification,
         }),

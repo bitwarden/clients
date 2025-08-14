@@ -170,41 +170,6 @@ describe("keyService", () => {
     });
   });
 
-  describe("getUserKeyWithLegacySupport", () => {
-    let mockUserKey: UserKey;
-    let mockMasterKey: MasterKey;
-    let getMasterKey: jest.SpyInstance;
-
-    beforeEach(() => {
-      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-      mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-      mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as MasterKey;
-
-      getMasterKey = jest.spyOn(masterPasswordService, "masterKey$");
-    });
-
-    it("returns the User Key if available", async () => {
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
-      const getKeySpy = jest.spyOn(keyService, "getUserKey");
-
-      const userKey = await keyService.getUserKeyWithLegacySupport(mockUserId);
-
-      expect(getKeySpy).toHaveBeenCalledWith(mockUserId);
-      expect(getMasterKey).not.toHaveBeenCalled();
-
-      expect(userKey).toEqual(mockUserKey);
-    });
-
-    it("returns the user's master key when User Key is not available", async () => {
-      masterPasswordService.masterKeySubject.next(mockMasterKey);
-
-      const userKey = await keyService.getUserKeyWithLegacySupport(mockUserId);
-
-      expect(getMasterKey).toHaveBeenCalledWith(mockUserId);
-      expect(userKey).toEqual(mockMasterKey);
-    });
-  });
-
   describe("everHadUserKey$", () => {
     let everHadUserKeyState: FakeSingleUserState<boolean>;
 

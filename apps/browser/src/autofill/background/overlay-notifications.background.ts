@@ -2,11 +2,8 @@
 // @ts-strict-ignore
 import { Subject, switchMap, timer } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { TaskService } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationType, NotificationTypes } from "../notification/abstractions/notification-bar";
@@ -31,6 +28,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private notificationFallbackTimeout: number | NodeJS.Timeout | null;
   private readonly formSubmissionRequestMethods: Set<string> = new Set(["POST", "PUT", "PATCH"]);
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
+    generatedPasswordFilled: ({ message, sender }) =>
+      this.storeModifiedLoginFormData(message, sender),
     formFieldSubmitted: ({ message, sender }) => this.storeModifiedLoginFormData(message, sender),
     collectPageDetailsResponse: ({ message, sender }) =>
       this.handleCollectPageDetailsResponse(message, sender),
@@ -39,9 +38,6 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   constructor(
     private logService: LogService,
     private notificationBackground: NotificationBackground,
-    private taskService: TaskService,
-    private accountService: AccountService,
-    private cipherService: CipherService,
   ) {}
 
   /**
@@ -442,7 +438,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       }
     }
 
-    this.clearCompletedWebRequest(requestId, tab);
+    this.clearCompletedWebRequest(requestId, tab.id);
     return results.join(" ");
   };
 
@@ -482,11 +478,11 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private clearCompletedWebRequest = (
     requestId: chrome.webRequest.ResourceRequest["requestId"],
-    tab: chrome.tabs.Tab,
+    tabId: chrome.tabs.Tab["id"],
   ) => {
     this.activeFormSubmissionRequests.delete(requestId);
-    this.modifyLoginCipherFormData.delete(tab.id);
-    this.websiteOriginsWithFields.delete(tab.id);
+    this.modifyLoginCipherFormData.delete(tabId);
+    this.websiteOriginsWithFields.delete(tabId);
     this.setupWebRequestsListeners();
   };
 

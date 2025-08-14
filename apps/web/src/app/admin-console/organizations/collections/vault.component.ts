@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -81,6 +81,7 @@ import {
 } from "@bitwarden/vault";
 import { OrganizationResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components/organization-reseller-renewal-warning.component";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/warnings/services/organization-warnings.service";
+import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
 import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
@@ -203,6 +204,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
+
+  @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<CipherView>;
 
   private readonly unpaidSubscriptionDialog$ = this.accountService.activeAccount$.pipe(
     map((account) => account?.id),
@@ -360,7 +363,12 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.allCollectionsWithoutUnassigned$ = this.refresh$.pipe(
       switchMap(() => organizationId$),
-      switchMap((orgId) => this.collectionAdminService.getAll(orgId)),
+      switchMap((orgId) =>
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.collectionAdminService.collectionAdminViews$(orgId, userId)),
+        ),
+      ),
       shareReplay({ refCount: false, bufferSize: 1 }),
     );
 
@@ -1430,6 +1438,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private refresh() {
     this.refresh$.next();
+    this.vaultItemsComponent?.clearSelection();
   }
 
   private go(queryParams: any = null) {
