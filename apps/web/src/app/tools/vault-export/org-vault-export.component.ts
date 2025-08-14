@@ -1,8 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { ExportComponent } from "@bitwarden/vault-export-ui";
 
 import { LooseComponentsModule, SharedModule } from "../../shared";
@@ -12,18 +11,18 @@ import { LooseComponentsModule, SharedModule } from "../../shared";
   imports: [SharedModule, ExportComponent, LooseComponentsModule],
 })
 export class OrganizationVaultExportComponent implements OnInit {
-  protected routeOrgId: string = null;
+  protected routeOrgId: OrganizationId | undefined = undefined;
   protected loading = false;
   protected disabled = false;
 
   constructor(private route: ActivatedRoute) {}
 
   async ngOnInit() {
-    this.routeOrgId = this.route.snapshot.paramMap.get("organizationId");
+    this.routeOrgId = this.route.snapshot.paramMap.get("organizationId") as OrganizationId;
   }
 
   /**
    * Callback that is called after a successful export.
    */
-  protected async onSuccessfulExport(organizationId: string): Promise<void> {}
+  protected async onSuccessfulExport(organizationId: OrganizationId): Promise<void> {}
 }
