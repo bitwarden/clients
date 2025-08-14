@@ -166,6 +166,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     );
   }
 
+  clearSelection() {
+    this.selection.clear();
+  }
+
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
   }
@@ -220,7 +224,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   protected canEditCollection(collection: CollectionView): boolean {
-    // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
+    // Only allow deletion if collection editing is enabled and not deleting "Unassigned"
     if (collection.id === Unassigned) {
       return false;
     }
@@ -231,7 +235,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   protected canDeleteCollection(collection: CollectionView): boolean {
-    // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
+    // Only allow deletion if collection editing is enabled and not deleting "Unassigned"
     if (collection.id === Unassigned) {
       return false;
     }

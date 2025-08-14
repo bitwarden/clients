@@ -98,3 +98,11 @@ export function cleanUserAgent(userAgent: string): string {
     .replace(userAgentItem("Bitwarden", " "), "")
     .replace(userAgentItem("Electron", " "), "");
 }
+
+/**
+ * Returns `true` if the provided string is not undefined, not null, and not empty.
+ * Otherwise, returns `false`.
+ */
+export function stringIsNotUndefinedNullAndEmpty(str: string): boolean {
+  return str?.length > 0;
+}

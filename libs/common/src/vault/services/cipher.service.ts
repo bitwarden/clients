@@ -1,9 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, filter, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  Subject,
+  switchMap,
+  tap,
+} from "rxjs";
 import { SemVer } from "semver";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessageSender } from "@bitwarden/common/platform/messaging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -109,6 +119,7 @@ export class CipherService implements CipherServiceAbstraction {
     private accountService: AccountService,
     private logService: LogService,
     private cipherEncryptionService: CipherEncryptionService,
+    private messageSender: MessageSender,
   ) {}
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
@@ -174,6 +185,10 @@ export class CipherService implements CipherServiceAbstraction {
     ]).pipe(
       filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
       switchMap(() => this.getAllDecrypted(userId)),
+      tap(async (decrypted) => {
+        await this.searchService.indexCiphers(userId, decrypted);
+        this.messageSender.send("updateOverlayCiphers");
+      }),
     );
   }, this.clearCipherViewsForUser$);
 
@@ -657,13 +672,14 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
-    const response = await this.apiService.send(
+    const r = await this.apiService.send(
       "GET",
       "/ciphers/organization-details/assigned?organizationId=" + organizationId,
       null,
       true,
       true,
     );
+    const response = new ListResponse(r, CipherResponse);
     return this.decryptOrganizationCiphersResponse(response, organizationId);
   }
 

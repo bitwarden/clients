@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -122,7 +120,7 @@ class AutofillInit implements AutofillInitInterface {
    * @param {AutofillExtensionMessage} message
    */
   private async fillForm({ fillScript, pageDetailsUrl }: AutofillExtensionMessage) {
-    if ((document.defaultView || window).location.href !== pageDetailsUrl) {
+    if ((document.defaultView || window).location.href !== pageDetailsUrl || !fillScript) {
       return;
     }
 
@@ -177,7 +175,7 @@ class AutofillInit implements AutofillInitInterface {
     message: AutofillExtensionMessage,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
-  ): boolean => {
+  ): boolean | null => {
     const command: string = message.command;
     const handler: CallableFunction | undefined = this.getExtensionMessageHandler(command);
     if (!handler) {

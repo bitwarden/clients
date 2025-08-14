@@ -90,7 +90,7 @@ export class ProviderWarningsService {
             type: "danger",
             title: this.i18nService.t("providerSuspended", provider.name),
             content: this.i18nService.t("restoreProviderPortalAccessViaCustomerSupport"),
-            disableClose: true,
+            disableClose: false,
             acceptButtonText: this.i18nService.t("contactSupportShort"),
             cancelButtonText: null,
             acceptAction: async () => {

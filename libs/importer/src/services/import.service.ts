@@ -19,6 +19,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
@@ -130,7 +131,7 @@ export class ImportService implements ImportServiceAbstraction {
   async import(
     importer: Importer,
     fileContents: string,
-    organizationId: string = null,
+    organizationId: OrganizationId = null,
     selectedImportTarget: FolderView | CollectionView = null,
     canAccessImportExport: boolean,
   ): Promise<ImportResult> {
@@ -204,7 +205,7 @@ export class ImportService implements ImportServiceAbstraction {
   getImporter(
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
-    organizationId: string = null,
+    organizationId: OrganizationId = null,
   ): Importer {
     if (promptForPassword_callback == null) {
       return null;
@@ -393,7 +394,10 @@ export class ImportService implements ImportServiceAbstraction {
     return await this.importApiService.postImportCiphers(request);
   }
 
-  private async handleOrganizationalImport(importResult: ImportResult, organizationId: string) {
+  private async handleOrganizationalImport(
+    importResult: ImportResult,
+    organizationId: OrganizationId,
+  ) {
     const request = new ImportOrganizationCiphersRequest();
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -497,7 +501,7 @@ export class ImportService implements ImportServiceAbstraction {
       const collections: CollectionView[] = [...importResult.collections];
       importResult.collections = [importTarget as CollectionView];
       collections.map((x) => {
-        const f = new CollectionView();
+        const f = new CollectionView(x);
         f.name = `${importTarget.name}/${x.name}`;
         importResult.collections.push(f);
       });
