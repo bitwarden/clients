@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, effect, signal, Signal, WritableSignal } from "@angular/core";
+import { Component, inject, effect, signal, Signal, WritableSignal, computed } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 
@@ -47,28 +47,37 @@ export class AtRiskPasswordCalloutComponent {
   currentPendingTasks: Signal<SecurityTask[] | null> = toSignal(
     this.atRiskPasswordCalloutService.pendingTasks$(this.userIdSignal()!),
     {
-      initialValue: null,
+      initialValue: [],
     },
   );
 
-  showTasksResolvedBanner: WritableSignal<boolean> = signal(false);
+  dismissedClicked: WritableSignal<boolean> = signal(false);
+
+  showTasksResolvedBanner = computed(() => {
+    if (this.dismissedClicked()) {
+      return false;
+    }
+
+    if (
+      (this.atRiskPasswordStateSignal()?.showTasksCompleteBanner &&
+        this.currentPendingTasks()?.length === 0 &&
+        !this.atRiskPasswordStateSignal()?.hadPendingTasks) ||
+      (this.atRiskPasswordStateSignal()?.hadPendingTasks &&
+        this.currentPendingTasks()?.length === 0)
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  });
 
   constructor() {
     effect(() => {
-      // If the user had the banner showing and left the extension, when they come back the banner should still appear
-      if (this.currentPendingTasks() === null) {
-        this.showTasksResolvedBanner.set(false);
-      } else if (
-        this.atRiskPasswordStateSignal()?.showTasksCompleteBanner &&
-        this.currentPendingTasks()?.length === 0 &&
-        !this.atRiskPasswordStateSignal()?.hadPendingTasks
-      ) {
-        this.showTasksResolvedBanner.set(true);
-      } else if (
+      // If the user has resolved all tasks, we will show the banner
+      if (
         this.atRiskPasswordStateSignal()?.hadPendingTasks &&
         this.currentPendingTasks()?.length === 0
       ) {
-        // If the user has resolved all tasks, we will show the banner
         const updateObject: AtRiskPasswordCalloutData = {
           hadPendingTasks: false,
           showTasksCompleteBanner: true,
@@ -78,9 +87,10 @@ export class AtRiskPasswordCalloutComponent {
           this.userIdSignal()!,
           updateObject,
         );
-        this.showTasksResolvedBanner.set(true);
-      } else if (this.currentPendingTasks()?.length > 0) {
-        // Will show callout, will remove any previous dismissed banner state
+      }
+
+      // Will show callout, will remove any previous dismissed banner state
+      if (this.currentPendingTasks()?.length > 0) {
         const updateObject: AtRiskPasswordCalloutData = {
           hadPendingTasks: true,
           showTasksCompleteBanner: false,
@@ -102,6 +112,7 @@ export class AtRiskPasswordCalloutComponent {
       tasksBannerDismissed: true,
     };
     this.atRiskPasswordCalloutService.updateAtRiskPasswordState(this.userIdSignal()!, updateObject);
-    this.showTasksResolvedBanner.set(false);
+
+    this.dismissedClicked.set(true);
   }
 }

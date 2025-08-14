@@ -17,7 +17,7 @@ export type AtRiskPasswordCalloutData = {
   tasksBannerDismissed: boolean;
 };
 
-const AT_RISK_PASSWORD_CALLOUT_KEY = new UserKeyDefinition<AtRiskPasswordCalloutData>(
+export const AT_RISK_PASSWORD_CALLOUT_KEY = new UserKeyDefinition<AtRiskPasswordCalloutData>(
   VAULT_AT_RISK_PASSWORDS_DISK,
   "atRiskPasswords",
   {
