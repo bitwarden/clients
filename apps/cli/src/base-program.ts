@@ -182,6 +182,7 @@ export abstract class BaseProgram {
         this.serviceContainer.organizationApiService,
         this.serviceContainer.logout,
         this.serviceContainer.i18nService,
+        this.serviceContainer.encryptedMigrator,
       );
       const response = await command.run(null, null);
       if (!response.success) {

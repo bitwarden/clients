@@ -27,6 +27,7 @@ import { MasterKey, UserKey } from "../../../types/key";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../crypto/models/enc-string";
+import { USES_KEY_CONNECTOR } from "../../key-connector/services/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -78,6 +79,19 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     private cryptoFunctionService: CryptoFunctionService,
     private accountService: AccountService,
   ) {}
+
+  async userHasMasterPassword(userId: UserId): Promise<boolean> {
+    assertNonNullish(userId, "userId");
+    // A user has a master-password if they have a master-key encrypted user key *but* are not a key connector user
+    // Note: We can't use the key connector service as an abstraction here because it causes a run-time dependency injection cycle between KC service and MP service.
+    const usesKeyConnector = await firstValueFrom(
+      this.stateProvider.getUser(userId, USES_KEY_CONNECTOR).state$,
+    );
+    const usesMasterKey = await firstValueFrom(
+      this.stateProvider.getUser(userId, MASTER_KEY_ENCRYPTED_USER_KEY).state$,
+    );
+    return usesMasterKey && !usesKeyConnector;
+  }
 
   saltForUser$(userId: UserId): Observable<MasterPasswordSalt> {
     assertNonNullish(userId, "userId");
@@ -256,6 +270,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       kdf,
     )) as MasterKey;
 
+    const start = performance.now();
     const masterPasswordAuthenticationHash = Utils.fromBufferToB64(
       await this.cryptoFunctionService.pbkdf2(
         masterKey.toEncoded(),
@@ -264,6 +279,12 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
         SERVER_AUTHENTICATION_HASH_ITERATIONS,
       ),
     ) as MasterPasswordAuthenticationHash;
+    this.logService.measure(
+      start,
+      "[Crypto]",
+      "MasterPasswordService",
+      "makeMasterPasswordAuthenticationData",
+    );
 
     return {
       salt,
@@ -289,6 +310,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     // We don't trust callers to use masterpasswordsalt correctly. They may type assert incorrectly.
     salt = salt.toLowerCase().trim() as MasterPasswordSalt;
 
+    const start = performance.now();
     await SdkLoadService.Ready;
     const masterKeyWrappedUserKey = PureCrypto.encrypt_user_key_with_master_password(
       userKey.toEncoded(),
@@ -296,6 +318,13 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       salt,
       kdf.toSdkConfig(),
     ) as MasterKeyWrappedUserKey;
+    this.logService.measure(
+      start,
+      "[Crypto]",
+      "MasterPasswordService",
+      "makeMasterPasswordUnlockData",
+    );
+
     return {
       salt,
       kdf,
@@ -310,6 +339,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(password, "password");
     assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
 
+    const start = performance.now();
     await SdkLoadService.Ready;
     const userKey = new SymmetricCryptoKey(
       PureCrypto.decrypt_user_key_with_master_password(
@@ -319,6 +349,13 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
         masterPasswordUnlockData.kdf.toSdkConfig(),
       ),
     );
+    this.logService.measure(
+      start,
+      "[Crypto]",
+      "MasterPasswordService",
+      "unwrapUserKeyFromMasterPasswordUnlockData",
+    );
+
     return userKey as UserKey;
   }
 }

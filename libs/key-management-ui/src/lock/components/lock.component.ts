@@ -30,6 +30,7 @@ import {
 } from "@bitwarden/common/auth/types/verification";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -160,6 +161,8 @@ export class LockComponent implements OnInit, OnDestroy {
     private logoutService: LogoutService,
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private encryptedMigrator: EncryptedMigrator,
+
     // desktop deps
     private broadcasterService: BroadcasterService,
   ) {}
@@ -568,10 +571,14 @@ export class LockComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.setUserKeyAndContinue(userKey, true);
+    await this.setUserKeyAndContinue(userKey, true, masterPassword);
   }
 
-  private async setUserKeyAndContinue(key: UserKey, evaluatePasswordAfterUnlock = false) {
+  private async setUserKeyAndContinue(
+    key: UserKey,
+    evaluatePasswordAfterUnlock = false,
+    masterPassword?: string,
+  ) {
     if (this.activeAccount == null) {
       throw new Error("No active user.");
     }
@@ -585,15 +592,24 @@ export class LockComponent implements OnInit, OnDestroy {
     // need to establish trust on the current device
     await this.deviceTrustService.trustDeviceIfRequired(this.activeAccount.id);
 
-    await this.doContinue(evaluatePasswordAfterUnlock);
+    await this.doContinue(evaluatePasswordAfterUnlock, masterPassword);
   }
 
-  private async doContinue(evaluatePasswordAfterUnlock: boolean) {
+  /**
+   * Continues the unlock process after the decrypted user-key has been set to state.
+   * @param evaluatePasswordAfterUnlock If true, the master password will be evaluated after unlocking
+   * @param masterPassword The master password that was used to unlock, if the unlock method was master password
+   * @returns
+   */
+  private async doContinue(evaluatePasswordAfterUnlock: boolean, masterPassword?: string) {
     if (this.activeAccount == null) {
       throw new Error("No active user.");
     }
 
     await this.biometricStateService.resetUserPromptCancelled();
+
+    await this.encryptedMigrator.runMigrations(this.activeAccount.id, masterPassword);
+
     this.messagingService.send("unlocked");
 
     if (evaluatePasswordAfterUnlock) {

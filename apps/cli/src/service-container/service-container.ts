@@ -63,6 +63,8 @@ import { ClientType } from "@bitwarden/common/enums";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.service";
+import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/services/change-kdf-service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
@@ -293,6 +295,7 @@ export class ServiceContainer {
   cipherEncryptionService: CipherEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
+  encryptedMigrator: EncryptedMigrator;
 
   constructor() {
     let p = null;
@@ -888,6 +891,18 @@ export class ServiceContainer {
     );
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
+    const changeKdfService = new ChangeKdfService(
+      this.apiService,
+      this.masterPasswordService,
+      this.keyService,
+      this.kdfConfigService,
+      this.logService,
+    );
+    this.encryptedMigrator = new EncryptedMigrator(
+      this.kdfConfigService,
+      changeKdfService,
+      this.logService,
+    );
   }
 
   async logout() {

@@ -155,6 +155,8 @@ import { EncryptServiceImplementation } from "@bitwarden/common/key-management/c
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
+import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { DefaultChangeKdfApiService } from "@bitwarden/common/key-management/kdf/change-kdf-api.service";
 import { ChangeKdfApiService } from "@bitwarden/common/key-management/kdf/change-kdf-api.service.abstraction";
 import { DefaultChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf-service";
@@ -475,6 +477,27 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateServiceAbstraction,
       TokenServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: ChangeKdfService,
+    useClass: DefaultChangeKdfService,
+    deps: [
+      InternalMasterPasswordServiceAbstraction,
+      KeyService,
+      KdfConfigService,
+      ChangeKdfApiService,
+    ],
+  }),
+  safeProvider({
+    provide: EncryptedMigrator,
+    useClass: DefaultEncryptedMigrator,
+    deps: [
+      KdfConfigService,
+      ChangeKdfService,
+      LogService,
+      ConfigService,
+      MasterPasswordServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -1541,7 +1564,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
-    deps: [SyncService, UserAsymmetricKeysRegenerationService, LoginEmailService],
+    deps: [
+      SyncService,
+      UserAsymmetricKeysRegenerationService,
+      LoginEmailService,
+      EncryptedMigrator,
+    ],
   }),
   safeProvider({
     provide: TaskService,
