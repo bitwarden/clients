@@ -4073,7 +4073,7 @@
     "message": "Show less"
   },
   "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "Enable autotype shortcut (Ctrl + Shift + B)"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

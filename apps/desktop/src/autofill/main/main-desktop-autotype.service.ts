@@ -7,7 +7,7 @@ import { WindowMain } from "../../main/window.main";
 import { stringIsNotUndefinedNullAndEmpty } from "../../utils";
 
 export class MainDesktopAutotypeService {
-  keySequence: string = "Alt+CommandOrControl+I";
+  keySequence: string = "CommandOrControl+Shift+B";
 
   constructor(
     private logService: LogService,
