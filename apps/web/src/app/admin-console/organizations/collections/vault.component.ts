@@ -312,8 +312,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.allCollectionsWithoutUnassigned$ = this.refresh$.pipe(
-      switchMap(() => this.getOrganizationId$()),
-      switchMap((orgId) => this.collectionAdminService.getAll(orgId)),
+      switchMap(() => combineLatest([this.getOrganizationId$(), this.userId$])),
+      switchMap(([orgId, userId]) =>
+        this.collectionAdminService.collectionAdminViews$(orgId, userId),
+      ),
       shareReplay({ refCount: false, bufferSize: 1 }),
     );
 
@@ -325,10 +327,11 @@ export class VaultComponent implements OnInit, OnDestroy {
         // FIXME: We should not assert that the Unassigned type is a CollectionId.
         // Instead we should consider representing the Unassigned collection as a different object, given that
         // it is not actually a collection.
-        const noneCollection = new CollectionAdminView();
-        noneCollection.name = this.i18nService.t("unassigned");
-        noneCollection.id = Unassigned as CollectionId;
-        noneCollection.organizationId = organizationId;
+        const noneCollection = new CollectionAdminView({
+          name: this.i18nService.t("unassigned"),
+          id: Unassigned as CollectionId,
+          organizationId: organizationId,
+        });
         return allCollections.concat(noneCollection);
       }),
     );
