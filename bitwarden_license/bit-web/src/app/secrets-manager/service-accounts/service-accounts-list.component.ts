@@ -22,7 +22,6 @@ import {
   ServiceAccountView,
 } from "../models/view/service-account.view";
 
-
 @Component({
   selector: "sm-service-accounts-list",
   templateUrl: "./service-accounts-list.component.html",
