@@ -10,6 +10,11 @@
     font-size: 1rem;
   }
 
+  button {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   h3,
   button.filter-button {
     margin: 0;
