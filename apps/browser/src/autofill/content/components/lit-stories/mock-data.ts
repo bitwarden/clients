@@ -1,42 +1,45 @@
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 
-export const mockOrganizations = [
+import { CollectionNotificationView, OrgView } from "../common-types";
+
+export const mockOrganizations: OrgView[] = [
   {
-    id: "unique-id0",
+    id: "unique-id0" as OrganizationId,
     name: "Another personal vault",
   },
   {
-    id: "unique-id1",
+    id: "unique-id1" as OrganizationId,
     name: "Acme, inc",
     productTierType: ProductTierType.Teams,
   },
   {
-    id: "unique-id2",
+    id: "unique-id2" as OrganizationId,
     name: "A Really Long Business Name That Just Kinda Goes On For A Really Long Time",
     productTierType: ProductTierType.TeamsStarter,
   },
   {
-    id: "unique-id3",
+    id: "unique-id3" as OrganizationId,
     name: "Family Vault",
     productTierType: ProductTierType.Families,
   },
   {
-    id: "unique-id4",
+    id: "unique-id4" as OrganizationId,
     name: "Family Vault Trial",
     productTierType: ProductTierType.Free,
   },
   {
-    id: "unique-id5",
+    id: "unique-id5" as OrganizationId,
     name: "Exciting Enterprises, LLC",
     productTierType: ProductTierType.Enterprise,
   },
 ];
 
-export const mockCollections = [
+export const mockCollections: CollectionNotificationView[] = [
   {
-    id: "collection-id-01",
+    id: "collection-id-01" as CollectionId,
     name: "A collection for stuff",
     organizationId: mockOrganizations[0].id,
   },

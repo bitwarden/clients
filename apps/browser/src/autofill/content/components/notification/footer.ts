@@ -7,13 +7,13 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
-import { OrgView, FolderView, I18n, CollectionView } from "../common-types";
+import { OrgView, FolderView, I18n, CollectionNotificationView } from "../common-types";
 import { spacing } from "../constants/styles";
 
 import { NotificationButtonRow } from "./button-row";
 
 export type NotificationFooterProps = {
-  collections?: CollectionView[];
+  collections?: CollectionNotificationView[];
   folders?: FolderView[];
   i18n: I18n;
   isLoading?: boolean;

@@ -514,7 +514,7 @@ describe("NotificationBackground", () => {
         await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
-          null,
+          "",
           "example.com",
           data?.newPassword,
           sender.tab,
@@ -1138,7 +1138,7 @@ describe("NotificationBackground", () => {
 
           expect(convertAddLoginQueueMessageToCipherViewSpy).toHaveBeenCalledWith(
             queueMessage,
-            null,
+            undefined,
           );
           expect(cipherEncryptSpy).toHaveBeenCalledWith(cipherView, "testId");
           expect(createWithServerSpy).toHaveBeenCalled();
@@ -1485,17 +1485,17 @@ describe("NotificationBackground", () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "checkNotificationQueue",
         };
-        const currenTab = createChromeTabMock({ id: 2 });
+        const currentTab = createChromeTabMock({ id: 2 });
         notificationBackground["notificationQueue"] = [
-          mock<AddLoginQueueMessage>({ tab: currenTab }),
+          mock<AddLoginQueueMessage>({ tab: currentTab }),
         ];
-        getTabFromCurrentWindowSpy.mockResolvedValueOnce(currenTab);
+        getTabFromCurrentWindowSpy.mockResolvedValueOnce(currentTab);
 
-        sendMockExtensionMessage(message, mock<chrome.runtime.MessageSender>({ tab: null }));
+        sendMockExtensionMessage(message, mock<chrome.runtime.MessageSender>({ tab: undefined }));
         await flushPromises();
 
         expect(getTabFromCurrentWindowSpy).toHaveBeenCalledWith();
-        expect(doNotificationQueueCheckSpy).toHaveBeenCalledWith(currenTab);
+        expect(doNotificationQueueCheckSpy).toHaveBeenCalledWith(currentTab);
       });
     });
 

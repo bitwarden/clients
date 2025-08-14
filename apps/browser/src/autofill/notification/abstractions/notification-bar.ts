@@ -4,7 +4,7 @@ import { NotificationCipherData } from "../../../autofill/content/components/cip
 import {
   FolderView,
   OrgView,
-  CollectionView,
+  CollectionNotificationView,
 } from "../../../autofill/content/components/common-types";
 
 const NotificationTypes = {
@@ -24,7 +24,7 @@ type NotificationTaskInfo = {
 type NotificationBarIframeInitData = {
   ciphers?: NotificationCipherData[];
   folders?: FolderView[];
-  collections?: CollectionView[];
+  collections?: CollectionNotificationView[];
   importType?: string;
   isVaultLocked?: boolean;
   launchTimestamp?: number;

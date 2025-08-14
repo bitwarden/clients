@@ -3,7 +3,7 @@ import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/ser
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { CollectionView } from "../../content/components/common-types";
+import { CollectionNotificationView } from "../../content/components/common-types";
 import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
 import AutofillPageDetails from "../../models/autofill-page-details";
 
@@ -99,7 +99,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgGetCollectionData: ({
     message,
     sender,
-  }: BackgroundOnMessageHandlerParams) => Promise<CollectionView[]>;
+  }: BackgroundOnMessageHandlerParams) => Promise<CollectionNotificationView[]>;
   bgCloseNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgOpenAtRiskPasswords: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
@@ -121,7 +121,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgGetEnableChangedPasswordPrompt: () => Promise<boolean>;
   bgGetEnableAddedLoginPrompt: () => Promise<boolean>;
   bgGetExcludedDomains: () => Promise<NeverDomains>;
-  bgGetActiveUserServerConfig: () => Promise<ServerConfig>;
+  bgGetActiveUserServerConfig: () => Promise<ServerConfig | null>;
   getWebVaultUrlForNotification: () => Promise<string>;
 };
 
