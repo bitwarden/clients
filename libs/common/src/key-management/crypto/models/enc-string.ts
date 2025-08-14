@@ -1,17 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Jsonify, Opaque } from "type-fest";
+import { Jsonify } from "type-fest";
+
+import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../platform/enums";
-import { Encrypted } from "../../../platform/interfaces/encrypted";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { EncryptService } from "../abstractions/encrypt.service";
 
 export const DECRYPT_ERROR = "[error: cannot decrypt]";
 
-export class EncString implements Encrypted {
-  encryptedString?: EncryptedString;
+export class EncString {
+  encryptedString?: SdkEncString;
   encryptionType?: EncryptionType;
   decryptedValue?: string;
   data?: string;
@@ -43,7 +43,11 @@ export class EncString implements Encrypted {
     return this.data == null ? null : Utils.fromB64ToArray(this.data);
   }
 
-  toJSON() {
+  toSdk(): SdkEncString {
+    return this.encryptedString;
+  }
+
+  toJSON(): string {
     return this.encryptedString as string;
   }
 
@@ -57,14 +61,14 @@ export class EncString implements Encrypted {
 
   private initFromData(encType: EncryptionType, data: string, iv: string, mac: string) {
     if (iv != null) {
-      this.encryptedString = (encType + "." + iv + "|" + data) as EncryptedString;
+      this.encryptedString = (encType + "." + iv + "|" + data) as SdkEncString;
     } else {
-      this.encryptedString = (encType + "." + data) as EncryptedString;
+      this.encryptedString = (encType + "." + data) as SdkEncString;
     }
 
     // mac
     if (mac != null) {
-      this.encryptedString = (this.encryptedString + "|" + mac) as EncryptedString;
+      this.encryptedString = (this.encryptedString + "|" + mac) as SdkEncString;
     }
 
     this.encryptionType = encType;
@@ -74,7 +78,7 @@ export class EncString implements Encrypted {
   }
 
   private initFromEncryptedString(encryptedString: string) {
-    this.encryptedString = encryptedString as EncryptedString;
+    this.encryptedString = encryptedString as SdkEncString;
     if (!this.encryptedString) {
       return;
     }
@@ -153,6 +157,10 @@ export class EncString implements Encrypted {
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
 
+  /**
+   * @deprecated - This function is deprecated. Use EncryptService.decryptString instead.
+   * @returns - The decrypted string, or `[error: cannot decrypt]` if decryption fails.
+   */
   async decrypt(
     orgId: string | null,
     key: SymmetricCryptoKey | null = null,
@@ -180,31 +188,14 @@ export class EncString implements Encrypted {
     return this.decryptedValue;
   }
 
-  async decryptWithKey(
-    key: SymmetricCryptoKey,
-    encryptService: EncryptService,
-    decryptTrace: string = "domain-withkey",
-  ): Promise<string> {
-    try {
-      if (key == null) {
-        throw new Error("No key to decrypt EncString");
-      }
-
-      this.decryptedValue = await encryptService.decryptString(this, key);
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      this.decryptedValue = DECRYPT_ERROR;
-    }
-
-    return this.decryptedValue;
-  }
   private async getKeyForDecryption(orgId: string) {
     const keyService = Utils.getContainerService().getKeyService();
-    return orgId != null
-      ? await keyService.getOrgKey(orgId)
-      : await keyService.getUserKeyWithLegacySupport();
+    return orgId != null ? await keyService.getOrgKey(orgId) : await keyService.getUserKey();
   }
 }
 
-export type EncryptedString = Opaque<string, "EncString">;
+/**
+ * Temporary type mapping until consumers are moved over.
+ * @deprecated - Use SdkEncString directly
+ */
+export type EncryptedString = SdkEncString;

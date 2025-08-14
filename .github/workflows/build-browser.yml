@@ -41,7 +41,8 @@ defaults:
   run:
     shell: bash
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   setup:
@@ -77,10 +78,8 @@ jobs:
 
       - name: Check secrets
         id: check-secrets
-        env:
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
         run: |
-          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
           echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
 
@@ -270,19 +269,19 @@ jobs:
           # Declare variable as indexed array
           declare -a FILES
 
-          # Search for source files that are greater than 4M
+          # Search for source files that are greater than 5M
           TARGET_DIR='./browser-source/apps/browser'
           while IFS=' ' read -r RESULT; do
               FILES+=("$RESULT")
-          done < <(find $TARGET_DIR -size +4M)
+          done < <(find $TARGET_DIR -size +5M)
 
           # Validate results and provide messaging
           if [[ ${#FILES[@]} -ne 0 ]]; then
-              echo "File(s) exceeds size limit: 4MB"
+              echo "File(s) exceeds size limit: 5MB"
               for FILE in ${FILES[@]}; do
                   echo "- $(du --si $FILE)"
               done
-              echo "ERROR Firefox rejects extension uploads that contain files larger than 4MB"
+              echo "ERROR Firefox rejects extension uploads that contain files larger than 5MB"
               # Invoke failure
               exit 1
           fi
@@ -302,6 +301,9 @@ jobs:
   build-safari:
     name: Build Safari
     runs-on: macos-13
+    permissions:
+      contents: read
+      id-token: write
     needs:
       - setup
       - locales-test
@@ -327,10 +329,19 @@ jobs:
           node --version
           npm --version
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD"
 
       - name: Download Provisioning Profiles secrets
         env:
@@ -366,9 +377,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -440,6 +454,10 @@ jobs:
     name: Crowdin Push
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
     needs:
       - build
       - build-safari
@@ -449,10 +467,12 @@ jobs:
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -460,6 +480,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
         uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
@@ -478,6 +501,9 @@ jobs:
     name: Check for failures
     if: always()
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      id-token: write
     needs:
       - setup
       - locales-test
@@ -493,11 +519,13 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Login to Azure - Prod Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
         if: failure()
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -506,6 +534,10 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
+
+      - name: Log out from Azure
+        if: failure()
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0

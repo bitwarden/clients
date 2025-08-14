@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
@@ -28,8 +28,8 @@ import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
-export const RowHeight = 75.5;
-export const RowHeightClass = `tw-h-[75.5px]`;
+export const RowHeight = 75;
+export const RowHeightClass = `tw-h-[75px]`;
 
 const MaxSelectionCount = 500;
 
@@ -64,6 +64,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   @Input() addAccessToggle: boolean;
   @Input() activeCollection: CollectionView | undefined;
 
+  private restrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
+
   private _ciphers?: C[] = [];
   @Input() get ciphers(): C[] {
     return this._ciphers;
@@ -94,7 +96,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
-    private restrictedItemTypesService: RestrictedItemTypesService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
@@ -162,6 +164,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
         );
       }),
     );
+  }
+
+  clearSelection() {
+    this.selection.clear();
   }
 
   get showExtraColumn() {
@@ -281,6 +287,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   // TODO: PM-13944 Refactor to use cipherAuthorizationService.canClone$ instead
   protected canClone(vaultItem: VaultItem<C>) {
+    // This will check for restrictions from org policies before allowing cloning.
+    const isItemRestricted = this.restrictedPolicies().some(
+      (rt) => rt.cipherType === CipherViewLikeUtils.getType(vaultItem.cipher),
+    );
+    if (isItemRestricted) {
+      return false;
+    }
+
     if (vaultItem.cipher.organizationId == null) {
       return true;
     }
@@ -556,7 +570,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   private hasPersonalItems(): boolean {
-    return this.selection.selected.some(({ cipher }) => cipher?.organizationId === null);
+    return this.selection.selected.some(({ cipher }) => !cipher?.organizationId);
   }
 
   private allCiphersHaveEditAccess(): boolean {

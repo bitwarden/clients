@@ -14,8 +14,6 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
   LogoutReason,
-  PinService,
-  PinServiceAbstraction,
   UserDecryptionOptionsService,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
@@ -43,6 +41,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
+import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
@@ -69,14 +68,10 @@ import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { BulkEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/bulk-encrypt.service.implementation";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
-import { FallbackBulkEncryptService } from "@bitwarden/common/key-management/crypto/services/fallback-bulk-encrypt.service";
-import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/multithread-encrypt.service.implementation";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
@@ -84,6 +79,8 @@ import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarde
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
   DefaultVaultTimeoutSettingsService,
@@ -363,7 +360,6 @@ export default class MainBackground {
   vaultFilterService: VaultFilterService;
   usernameGenerationService: UsernameGenerationServiceAbstraction;
   encryptService: EncryptService;
-  bulkEncryptService: FallbackBulkEncryptService;
   folderApiService: FolderApiServiceAbstraction;
   policyApiService: PolicyApiServiceAbstraction;
   sendApiService: SendApiServiceAbstraction;
@@ -577,13 +573,11 @@ export default class MainBackground {
       storageServiceProvider,
     );
 
-    this.encryptService = BrowserApi.isManifestVersion(2)
-      ? new MultithreadEncryptServiceImplementation(
-          this.cryptoFunctionService,
-          this.logService,
-          true,
-        )
-      : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
+    this.encryptService = new EncryptServiceImplementation(
+      this.cryptoFunctionService,
+      this.logService,
+      true,
+    );
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
@@ -597,7 +591,7 @@ export default class MainBackground {
       this.singleUserStateProvider,
     );
     this.activeUserStateProvider = new DefaultActiveUserStateProvider(
-      this.accountService,
+      new DefaultActiveUserAccessor(this.accountService),
       this.singleUserStateProvider,
     );
     this.derivedStateProvider = new InlineDerivedStateProvider();
@@ -668,6 +662,8 @@ export default class MainBackground {
       this.keyGenerationService,
       this.encryptService,
       this.logService,
+      this.cryptoFunctionService,
+      this.accountService,
     );
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
@@ -881,8 +877,6 @@ export default class MainBackground {
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
 
-    this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
-
     this.cipherEncryptionService = new DefaultCipherEncryptionService(
       this.sdkService,
       this.logService,
@@ -897,13 +891,13 @@ export default class MainBackground {
       this.stateService,
       this.autofillSettingsService,
       this.encryptService,
-      this.bulkEncryptService,
       this.cipherFileUploadService,
       this.configService,
       this.stateProvider,
       this.accountService,
       this.logService,
       this.cipherEncryptionService,
+      this.messagingService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1070,6 +1064,7 @@ export default class MainBackground {
       this.pinService,
       this.accountService,
       this.sdkService,
+      this.restrictedItemTypesService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1262,9 +1257,6 @@ export default class MainBackground {
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
       this.notificationBackground,
-      this.taskService,
-      this.accountService,
-      this.cipherService,
     );
 
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
@@ -1379,6 +1371,7 @@ export default class MainBackground {
     this.badgeService = new BadgeService(
       this.stateProvider,
       new DefaultBadgeBrowserApi(this.platformUtilsService),
+      this.logService,
     );
     this.authStatusBadgeUpdaterService = new AuthStatusBadgeUpdaterService(
       this.badgeService,
@@ -1396,13 +1389,6 @@ export default class MainBackground {
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
-
-    this.configService.serverConfig$.subscribe((newConfig) => {
-      if (newConfig != null) {
-        this.encryptService.onServerConfigChange(newConfig);
-        this.bulkEncryptService.onServerConfigChange(newConfig);
-      }
-    });
 
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
@@ -1436,15 +1422,6 @@ export default class MainBackground {
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
 
-    if (
-      BrowserApi.isManifestVersion(2) &&
-      (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService))
-    ) {
-      await this.bulkEncryptService.setFeatureFlagEncryptService(
-        new BulkEncryptServiceImplementation(this.cryptoFunctionService, this.logService),
-      );
-    }
-
     // If the user is logged out, switch to the next account
     const active = await firstValueFrom(this.accountService.activeAccount$);
     if (active != null) {
@@ -1468,10 +1445,7 @@ export default class MainBackground {
         this.notificationsService.startListening();
 
         this.taskService.listenForTaskNotifications();
-
-        if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
-          this.endUserNotificationService.listenForEndUserNotifications();
-        }
+        this.endUserNotificationService.listenForEndUserNotifications();
         resolve();
       }, 500);
     });
@@ -1619,7 +1593,6 @@ export default class MainBackground {
       this.keyService.clearKeys(userBeingLoggedOut),
       this.cipherService.clear(userBeingLoggedOut),
       this.folderService.clear(userBeingLoggedOut),
-      this.collectionService.clear(userBeingLoggedOut),
       this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
       this.vaultFilterService.clear(),
       this.biometricStateService.logout(userBeingLoggedOut),

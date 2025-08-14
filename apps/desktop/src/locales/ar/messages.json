@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "البحث في الخزانة"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "إضافة عنصر"
   },
@@ -1222,11 +1225,17 @@
   "twoStepLogin": {
     "message": "تسجيل الدخول بخطوتين"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "مهلة الخزانة"
   },
   "vaultTimeout1": {
     "message": "المهلة"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "اختر وقت انتهاء مهلة خزانتك وقم بتنفيذ الإجراء المحدد."
@@ -1813,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "فتح مع Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "إعدادات Windows Hello إضافية"
-  },
   "unlockWithPolkit": {
     "message": "فتح مع مصادقة النظام"
   },
@@ -1831,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "فتح خزانتك"
   },
-  "autoPromptWindowsHello": {
-    "message": "اسأل عن Windows Hello عند التشغيل"
-  },
-  "autoPromptPolkit": {
-    "message": "طلب مصادقة النظام عند التشغيل"
-  },
   "autoPromptTouchId": {
     "message": "اطلب معرف اللمس عند التشغيل"
   },
@@ -1845,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "موصى به للأمان."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "قفل مع كلمة المرور الرئيسية عند إعادة تشغيل"
@@ -2520,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "مهلة خزانتك تتجاوز القيود التي تضعها مؤسستك."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "تم قبول الدعوة"
   },
@@ -3001,9 +3027,6 @@
     "message": "تبديل عدد الأحرف",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
     "placeholders": {
@@ -3012,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "نوع الجهاز"
@@ -3027,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Deny access"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "تم تأكيد تسجيل الدخول لـ $EMAIL$ في $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "لقد رفضت محاولة تسجيل الدخول من جهاز آخر. إذا كان هذا بالفعل أنت ، حاول تسجيل الدخول مرة أخرى باستخدام الجهاز."
   },
   "justNow": {
     "message": "للتو الآن"
@@ -4015,8 +4066,14 @@
       }
     }
   },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."

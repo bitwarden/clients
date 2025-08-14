@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Keresés a széfben"
   },
+  "resetSearch": {
+    "message": "Keresés visszaállítása"
+  },
   "addItem": {
     "message": "Elem hozzáadása"
   },
@@ -1222,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Kétlépcsős bejelentkezés"
   },
+  "vaultTimeoutHeader": {
+    "message": "Széf időkifutás"
+  },
   "vaultTimeout": {
     "message": "Széf időkifutás"
   },
   "vaultTimeout1": {
     "message": "Időkifutás"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Időkifutási művelet"
   },
   "vaultTimeoutDesc": {
     "message": "Válasszuk ki, hogy a széfnél mikor legyen időkifutás és a kiválasztott művelet végrehajtása."
@@ -1813,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Feloldás Windows Hello segítségével"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Kiegészítő Windows Hello beállítások"
-  },
   "unlockWithPolkit": {
     "message": "Feloldás rendszer hitelesítéssel"
   },
@@ -1831,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "Bitwarden feloldás"
   },
-  "autoPromptWindowsHello": {
-    "message": "Windows Hello kérése indításkor"
-  },
-  "autoPromptPolkit": {
-    "message": "Rendszer hiteletesítés bekérése indításkor"
-  },
   "autoPromptTouchId": {
     "message": "Érintés AZ kérése indításkor"
   },
@@ -1845,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Jelszó szükséges az alkalmazás indításakor"
-  },
-  "recommendedForSecurity": {
-    "message": "Biztonsági szempontból ajánlott."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lezárás mesterjelszóval újraindításkor"
@@ -2520,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "A széf időkorlátja túllépi a szervezet által beállított korlátozást."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "A vállalkozáspolitikai követelményeket alkalmazra kerültek az időkifutási opciókra.."
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "A szervezeti szabályzata $HOURS$ órára és $MINUTES$ percre állította be a maximálisan megengedett széf időkifutást.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Az időkifutás meghaladja a szervezet által beállított korlátozást: $HOURS$ óra és $MINUTES$ perc maximum.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "A meghívás elfogadásra került."
   },
@@ -3001,9 +3027,6 @@
     "message": "Karakterszámláló váltás",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "A fiókhoz próbálunk hozzáférni?"
-  },
   "accessAttemptBy": {
     "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
     "placeholders": {
@@ -3012,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "A bejelentkezési kérelem jóváhagyásra került: $EMAIL$ - $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
+  },
+  "webApp": {
+    "message": "Webalkalmazás"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Kiterjesztés",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Asztali",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Szerver"
+  },
+  "loginRequest": {
+    "message": "Bejelentkezés kérés"
   },
   "deviceType": {
     "message": "Eszköz típus"
@@ -3027,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Hozzáférés megtagadása"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
   "justNow": {
     "message": "Éppen most"
@@ -4015,8 +4066,14 @@
       }
     }
   },
+  "showMore": {
+    "message": "Több megjelenítése"
+  },
+  "showLess": {
+    "message": "Kevesebb megjelenítése"
+  },
   "enableAutotype": {
-    "message": "Automatikus típusú parancsikon engedélyezése"
+    "message": "Autotípus engedélyezése"
   },
   "enableAutotypeDescription": {
     "message": "A Bitwarden nem érvényesíti a beviteli helyeket, győződjünk meg róla, hogy a megfelelő ablakban és mezőben vagyunk, mielőtt a parancsikont használnánk."

@@ -39,8 +39,8 @@ export class AtRiskPasswordCalloutService {
       this.taskService.pendingTasks$(userId),
       this.cipherService.cipherViews$(userId),
     ]).pipe(
-      map(([tasks, ciphers]) =>
-        tasks.filter((t: SecurityTask) => {
+      map(([tasks, ciphers]) => {
+        return tasks.filter((t: SecurityTask) => {
           const associatedCipher = ciphers.find((c) => c.id === t.cipherId);
 
           return (
@@ -48,8 +48,8 @@ export class AtRiskPasswordCalloutService {
             associatedCipher &&
             !associatedCipher.isDeleted
           );
-        }),
-      ),
+        });
+      }),
     );
   }
 

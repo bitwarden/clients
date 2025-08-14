@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "搜索密码库"
   },
+  "resetSearch": {
+    "message": "重置搜索"
+  },
   "addItem": {
     "message": "添加项目"
   },
@@ -1222,11 +1225,17 @@
   "twoStepLogin": {
     "message": "两步登录"
   },
+  "vaultTimeoutHeader": {
+    "message": "密码库超时"
+  },
   "vaultTimeout": {
     "message": "密码库超时时间"
   },
   "vaultTimeout1": {
     "message": "超时"
+  },
+  "vaultTimeoutAction1": {
+    "message": "超时动作"
   },
   "vaultTimeoutDesc": {
     "message": "选择您的密码库何时执行密码库超时动作。"
@@ -1813,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "使用 Windows Hello 解锁"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "额外的 Windows Hello 设置"
-  },
   "unlockWithPolkit": {
     "message": "使用系统身份验证解锁"
   },
@@ -1831,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "解锁您的密码库"
   },
-  "autoPromptWindowsHello": {
-    "message": "应用程序启动时提示 Windows Hello"
-  },
-  "autoPromptPolkit": {
-    "message": "启动时提示系统身份验证"
-  },
   "autoPromptTouchId": {
     "message": "应用程序启动时提示触控 ID"
   },
@@ -1845,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "应用程序启动时要求密码"
-  },
-  "recommendedForSecurity": {
-    "message": "安全起见，推荐设置。"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "重启后使用主密码锁定"
@@ -2520,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "您的密码库超时时间超出了组织设置的限制。"
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "企业策略要求已应用到您的超时选项中"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "您的组织策略已将您最大允许的密码库超时时间设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "超时时间超出了您组织设置的限制：最多 $HOURS$ 小时 $MINUTES$ 分钟",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "邀请已接受"
   },
@@ -3001,9 +3027,6 @@
     "message": "字符计数开关",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "您正在尝试访问您的账户吗？"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ 的访问尝试",
     "placeholders": {
@@ -3012,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "已批准 $EMAIL$ 在 $DEVICE$ 上的登录请求",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请再次使用该设备登录。"
+  },
+  "webApp": {
+    "message": "网页 App"
+  },
+  "mobile": {
+    "message": "移动端",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "扩展",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "桌面端",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "服务器"
+  },
+  "loginRequest": {
+    "message": "登录请求"
   },
   "deviceType": {
     "message": "设备类型"
@@ -3028,27 +3095,11 @@
   "denyAccess": {
     "message": "拒绝访问"
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "已确认 $EMAIL$ 在 $DEVICE$ 上的登录",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
-  },
   "justNow": {
     "message": "刚刚"
   },
   "requestedXMinutesAgo": {
-    "message": "$MINUTES$ 分钟前已发出请求",
+    "message": "请求于 $MINUTES$ 分钟前",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -3174,7 +3225,7 @@
     "message": "无法完成登录"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "您需要在某个受信任的设备上登录，或要求管理员为您分配一个密码。"
   },
   "region": {
     "message": "区域"
@@ -3568,15 +3619,15 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Bitwarden 根据 URI 匹配检测来识别自动填充建议。",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「正则表达方式」是一种高级选项，会增加暴露凭据的风险。",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「开始于」是一种高级选项，会增加暴露凭据的风险。",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -4015,10 +4066,16 @@
       }
     }
   },
+  "showMore": {
+    "message": "显示更多"
+  },
+  "showLess": {
+    "message": "显示更少"
+  },
   "enableAutotype": {
-    "message": "启用自动类型快捷方式"
+    "message": "启用自动类型"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden 不验证输入位置，请确保您在使用快捷键之前在正确的窗口和字段中。"
+    "message": "Bitwarden 不会验证输入位置，在使用快捷键之前，请确保您位于正确的窗口和字段中。"
   }
 }

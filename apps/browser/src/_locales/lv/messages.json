@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Meklēt glabātavā"
   },
+  "resetSearch": {
+    "message": "Atiestatīt meklēšanu"
+  },
   "edit": {
     "message": "Labot"
   },
@@ -3654,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Šis pieprasījums vairs nav derīgs."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Vai mēģini piekļūt savam kontam?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Pieteikšanās pieprasījuma derīgums jau ir beidzies."
   },
@@ -5589,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly šajā pārlūkā netiek atbalstīts vai nav iespējots. WebAssebly ir nepieciešams, lai izmantotu Bitwarden lietotni.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Rādīt vairāk"
+  },
+  "showLess": {
+    "message": "Rādīt mazāk"
   }
 }

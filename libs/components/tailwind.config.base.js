@@ -74,7 +74,6 @@ module.exports = {
         contrast: rgba("--color-text-contrast"),
         alt2: rgba("--color-text-alt2"),
         code: rgba("--color-text-code"),
-        headers: rgba("--color-text-headers"),
       },
       background: {
         DEFAULT: rgba("--color-background"),
@@ -101,7 +100,6 @@ module.exports = {
       main: rgba("--color-text-main"),
       muted: rgba("--color-text-muted"),
       contrast: rgba("--color-text-contrast"),
-      headers: rgba("--color-text-headers"),
       alt2: rgba("--color-text-alt2"),
       code: rgba("--color-text-code"),
       black: colors.black,
@@ -138,6 +136,28 @@ module.exports = {
         600: rgba("--color-notification-600"),
       },
     },
+    fontFamily: {
+      sans: [
+        "Roboto",
+        '"Helvetica Neue"',
+        "Helvetica",
+        "Arial",
+        "sans-serif",
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ],
+      serif: ["ui-serif", "Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
+      mono: [
+        "Menlo",
+        "SFMono-Regular",
+        "Monaco",
+        "Consolas",
+        '"Liberation Mono"',
+        '"Courier New"',
+        "monospace",
+      ],
+    },
     ringOffsetColor: ({ theme }) => ({
       DEFAULT: theme("colors.background"),
       ...theme("colors"),
@@ -155,6 +175,7 @@ module.exports = {
         "90vw": "90vw",
       }),
       fontSize: {
+        xs: [".8125rem", "1rem"],
         "3xl": ["1.75rem", "2rem"],
       },
     },

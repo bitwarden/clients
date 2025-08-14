@@ -8,12 +8,6 @@ export const Algorithm = Object.freeze({
   /** A password composed of random words from the EFF word list */
   passphrase: "passphrase",
 
-  /** A password composed of random characters, retrieved from SDK */
-  sdkPassword: "sdkPassword",
-
-  /** A password composed of random words from the EFF word list, retrieved from SDK */
-  sdkPassphrase: "sdkPassphrase",
-
   /** A username composed of words from the EFF word list */
   username: "username",
 
@@ -44,12 +38,7 @@ export const Profile = Object.freeze({
 /** Credential generation algorithms grouped by purpose. */
 export const AlgorithmsByType = deepFreeze({
   /** Algorithms that produce passwords */
-  [Type.password]: [
-    Algorithm.password,
-    Algorithm.passphrase,
-    Algorithm.sdkPassword,
-    Algorithm.sdkPassphrase,
-  ] as const,
+  [Type.password]: [Algorithm.password, Algorithm.passphrase] as const,
 
   /** Algorithms that produce usernames */
   [Type.username]: [Algorithm.username] as const,

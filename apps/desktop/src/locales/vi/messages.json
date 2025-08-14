@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Tìm kiếm trong Kho"
   },
+  "resetSearch": {
+    "message": "Đặt lại tìm kiếm"
+  },
   "addItem": {
     "message": "Thêm mục"
   },
@@ -334,13 +337,13 @@
     "message": "Bà"
   },
   "ms": {
-    "message": "Chị"
+    "message": "Cô"
   },
   "mx": {
     "message": "Mx"
   },
   "dr": {
-    "message": "Tiến sĩ"
+    "message": "Tiến sĩ/Bác sĩ"
   },
   "expirationMonth": {
     "message": "Tháng hết hạn"
@@ -488,7 +491,7 @@
     "message": "Văn bản"
   },
   "cfTypeHidden": {
-    "message": "Ẩn"
+    "message": "Bí ẩn"
   },
   "cfTypeBoolean": {
     "message": "Đúng/Sai"
@@ -700,7 +703,7 @@
     "message": "Đã lưu tệp đính kèm"
   },
   "file": {
-    "message": "Tập tin"
+    "message": "Tệp"
   },
   "selectFile": {
     "message": "Chọn tập tin"
@@ -1171,7 +1174,7 @@
     "message": "Đi đến Bitwarden bản web"
   },
   "getMobileApp": {
-    "message": "Tải ứng dụng điện thoại"
+    "message": "Tải ứng dụng di động"
   },
   "getBrowserExtension": {
     "message": "Cài tiện ích mở rộng cho trình duyệt"
@@ -1222,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Đăng nhập hai bước"
   },
+  "vaultTimeoutHeader": {
+    "message": "Thời gian mở kho"
+  },
   "vaultTimeout": {
     "message": "Đóng kho sau"
   },
   "vaultTimeout1": {
     "message": "Quá hạn"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Hành động sau khi đóng kho"
   },
   "vaultTimeoutDesc": {
     "message": "Chọn thời điểm đóng kho của bạn và thực hiện hành động đã được chọn."
@@ -1360,7 +1369,7 @@
     "message": "Ngôn ngữ"
   },
   "languageDesc": {
-    "message": "Thay đổi ngôn ngữ được ứng dụng sử dụng. Cần khởi động lại."
+    "message": "Thay đổi ngôn ngữ hiển thị của ứng dụng. Cần khởi động lại."
   },
   "theme": {
     "message": "Chủ đề"
@@ -1693,7 +1702,7 @@
     "description": "ex. Date this item was updated"
   },
   "dateCreated": {
-    "message": "Ngày tạo",
+    "message": "Tạo lúc",
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
@@ -1813,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Mở khóa với Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Cài đặt bổ sung cho Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Mở khóa bằng bảo mật hệ thống"
   },
@@ -1831,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "mở khoá kho của bạn"
   },
-  "autoPromptWindowsHello": {
-    "message": "Yêu cầu xác minh Windows Hello khi mở ứng dụng"
-  },
-  "autoPromptPolkit": {
-    "message": "Yêu cầu xác thực hệ thống khi khởi động"
-  },
   "autoPromptTouchId": {
     "message": "Yêu cầu xác minh Touch ID khi mở ứng dụng"
   },
@@ -1845,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Yêu cầu mật khẩu khi khởi động ứng dụng"
-  },
-  "recommendedForSecurity": {
-    "message": "Khuyến nghị để bảo mật."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"
@@ -1990,7 +1987,7 @@
     "message": "Thông tin thẻ"
   },
   "cardBrandDetails": {
-    "message": "Chi tiết của $BRAND$",
+    "message": "Chi tiết thẻ $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -2221,7 +2218,7 @@
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeFile": {
-    "message": "Tập tin"
+    "message": "Tệp"
   },
   "sendTypeText": {
     "message": "Văn bản"
@@ -2241,7 +2238,7 @@
     "message": "Văn bản"
   },
   "deletionDate": {
-    "message": "Ngày xóa"
+    "message": "Xóa sau"
   },
   "deletionDateDesc": {
     "message": "Send sẽ được xóa vĩnh viễn vào ngày và giờ chỉ định.",
@@ -2519,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Thời gian mở kho vượt quá giới hạn do tổ chức của bạn đặt ra."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Các yêu cầu chính sách của doanh nghiệp đã được áp dụng cho các tùy chọn thời gian mở kho của bạn"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Tổ chức của bạn đã đặt thời gian mở kho tối đa là $HOURS$ giờ và $MINUTES$ phút.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Thời gian mở kho đã vượt quá giới hạn do tổ chức của bạn đặt ra: Tối đa $HOURS$ giờ và $MINUTES$ phút",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Đã chấp nhận lời mời"
@@ -3001,9 +3027,6 @@
     "message": "Bật/tắt hiển thị số ký tự",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Bạn đang cố gắng truy cập tài khoản của mình?"
-  },
   "accessAttemptBy": {
     "message": "Cố gắng truy cập bởi $EMAIL$",
     "placeholders": {
@@ -3012,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Đã phê duyệt yêu cầu đăng nhập cho $EMAIL$ trên $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu đó là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
+  },
+  "webApp": {
+    "message": "Ứng dụng web"
+  },
+  "mobile": {
+    "message": "Di động",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Tiện ích mở rộng",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Máy tính",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "Giao diện dòng lệnh (CLI)"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Máy chủ"
+  },
+  "loginRequest": {
+    "message": "Yêu cầu đăng nhập"
   },
   "deviceType": {
     "message": "Loại thiết bị"
@@ -3027,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Từ chối truy cập"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Đã xác nhận đăng nhập cho $EMAIL$ trên $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu thực sự là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
   },
   "justNow": {
     "message": "Vừa xong"
@@ -3180,7 +3231,7 @@
     "message": "Khu vực"
   },
   "ssoIdentifierRequired": {
-    "message": "Cần có mã định danh Đăng nhập một lần của tổ chức."
+    "message": "Cần có mã định danh SSO của tổ chức."
   },
   "eu": {
     "message": "Châu Âu",
@@ -3539,7 +3590,7 @@
     "message": "Yêu cầu xác thực LastPass"
   },
   "awaitingSSO": {
-    "message": "Đang chờ xác thực Đăng nhập một lần"
+    "message": "Đang chờ xác thực SSO"
   },
   "awaitingSSODesc": {
     "message": "Vui lòng tiếp tục đăng nhập bằng thông tin đăng nhập của công ty bạn."
@@ -4015,8 +4066,14 @@
       }
     }
   },
+  "showMore": {
+    "message": "Xem thêm"
+  },
+  "showLess": {
+    "message": "Thu gọn"
+  },
   "enableAutotype": {
-    "message": "Bật phím tắt tự động điền"
+    "message": "Bật tính năng Tự động nhập liệu"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."

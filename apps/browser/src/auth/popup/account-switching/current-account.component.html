@@ -1,8 +1,8 @@
-<div class="tw-mr-[5px] tw-mt-1">
+<div class="tw-me-2 tw-mt-1">
   <button
     *ngIf="currentAccount$ | async as currentAccount; else defaultButton"
     type="button"
-    class="tw-rounded-full hover:tw-outline hover:tw-outline-1 hover:tw-outline-offset-1"
+    class="tw-rounded-full hover:tw-outline hover:tw-outline-1 hover:tw-outline-offset-1 hover:tw-outline-primary-600"
     (click)="currentAccountClicked()"
   >
     <span class="tw-sr-only"> {{ "bitwardenAccount" | i18n }} {{ currentAccount.email }}</span>

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { BehaviorSubject, startWith, Subject, takeUntil } from "rxjs";
+import { map, Observable, of, startWith, Subject, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -48,7 +48,7 @@ type PaymentMethodFormGroup = FormGroup<{
               {{ "creditCard" | i18n }}
             </bit-label>
           </bit-radio-button>
-          @if (showBankAccount) {
+          @if (showBankAccount$ | async) {
             <bit-radio-button id="bank-payment-method" [value]="'bankAccount'">
               <bit-label>
                 <i class="bwi bwi-fw bwi-billing" aria-hidden="true"></i>
@@ -108,7 +108,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   <i class="bwi bwi-question-circle tw-text-lg" aria-hidden="true"></i>
                 </button>
                 <bit-popover [title]="'cardSecurityCode' | i18n" #cardSecurityCodePopover>
-                  <p>{{ "cardSecurityCodeDescription" | i18n }}</p>
+                  <p class="tw-mb-0">{{ "cardSecurityCodeDescription" | i18n }}</p>
                 </bit-popover>
               </app-payment-label>
               <div id="stripe-card-cvc" class="tw-stripe-form-control"></div>
@@ -226,20 +226,12 @@ type PaymentMethodFormGroup = FormGroup<{
 export class EnterPaymentMethodComponent implements OnInit {
   @Input({ required: true }) group!: PaymentMethodFormGroup;
 
-  private showBankAccountSubject = new BehaviorSubject<boolean>(true);
-  showBankAccount$ = this.showBankAccountSubject.asObservable();
-  @Input()
-  set showBankAccount(value: boolean) {
-    this.showBankAccountSubject.next(value);
-  }
-  get showBankAccount(): boolean {
-    return this.showBankAccountSubject.value;
-  }
+  @Input() private showBankAccount = true;
+  @Input() showPayPal = true;
+  @Input() showAccountCredit = false;
+  @Input() includeBillingAddress = false;
 
-  @Input() showPayPal: boolean = true;
-  @Input() showAccountCredit: boolean = false;
-  @Input() includeBillingAddress: boolean = false;
-
+  protected showBankAccount$!: Observable<boolean>;
   protected selectableCountries = selectableCountries;
 
   private destroy$ = new Subject<void>();
@@ -267,7 +259,16 @@ export class EnterPaymentMethodComponent implements OnInit {
     }
 
     if (!this.includeBillingAddress) {
+      this.showBankAccount$ = of(this.showBankAccount);
       this.group.controls.billingAddress.disable();
+    } else {
+      this.group.controls.billingAddress.patchValue({
+        country: "US",
+      });
+      this.showBankAccount$ = this.group.controls.billingAddress.controls.country.valueChanges.pipe(
+        startWith(this.group.controls.billingAddress.controls.country.value),
+        map((country) => this.showBankAccount && country === "US"),
+      );
     }
 
     this.group.controls.type.valueChanges

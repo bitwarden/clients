@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Atcelt"
   },
+  "later": {
+    "message": "Vēlāk"
+  },
   "canceled": {
     "message": "Atcelts"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Meklēt kopas"
+  },
+  "resetSearch": {
+    "message": "Atiestatīt meklēšanu"
   },
   "allItems": {
     "message": "Visi vienumi"
@@ -1421,9 +1427,6 @@
   },
   "notificationSentDevicePart1": {
     "message": "Bitwarden jāatslēdz savā ierīcē vai "
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Vai mēģini piekļūt savam kontam?"
   },
   "accessAttemptBy": {
     "message": "$EMAIL$ piekļuves mēģinājums",
@@ -3971,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Šis pieprasījums vairs nav derīgs."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
     "placeholders": {
@@ -4625,6 +4612,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden."
+  },
+  "subscribe": {
+    "message": "Abonēt"
   },
   "unsubscribe": {
     "message": "Atteikt abonēšanu"
@@ -5275,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Lejupielādēt pielikumus"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Jāievada parole, lai apskatītu šo Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Apskatīt Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Send, kuram mēģini piekļūt, nepastāv vai vairs nav pieejams.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5434,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "Uzspiest apvienības datu īpašumtiesības"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Visiem vienumiem jāpieder apvienībai, tādējādi noņemot iespēju glabāt tos konta līmenī.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "credential lifecycle",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Vai tiešām turpināt?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "turpinās būt pieejams dalībniekiem"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "netiks automātiski atlasīts, kad tiks izveidoti jauni vienumi"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "nav pārvaldāms pārvaldītāja konsolē, līdz lietotājs ir atstājis apvienību"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Pēc šīs pamatnostādnes izslēgšanas noklusējuma krājums: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Uzzināt vairāk par ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Personīgās īpašumtiesības"
@@ -9465,6 +9494,12 @@
   "deviceManagementDesc": {
     "message": "Konfigurēt ierīču pārvaldību Bitwarden, izmantojot operētājsistēmai atbilstošas ieviešanas norādes."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Nosūtīt notikum udatus uz savu Logscale instanci"
+  },
+  "failedToSaveIntegration": {
+    "message": "Neizdevās saglabāt iekļaušanu. Lūgums vēlāk mēģināt vēlreiz."
+  },
   "deviceIdMissing": {
     "message": "Trūkst ierīces Id"
   },
@@ -9479,6 +9514,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Šī saite e-pastā atkārtoti jāatver datorā."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Pieslēgt $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Palaist $INTEGRATION$ ieviešanas norādes.",
@@ -9536,6 +9580,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Izveidot jaunu klienta apvienību, ko pārvaldīt kā nodrošinātājam. Papildu vietas tiks atspoguļotas nākamajā norēķinu posmā."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Uzrādītāja pilnvara"
+  },
+  "index": {
+    "message": "Indekss"
   },
   "selectAPlan": {
     "message": "Atlasīt plānu"
@@ -10285,8 +10338,8 @@
   "organizationUserDeletedDesc": {
     "message": "Lietotājs tika noņemts no apvienības, un visa saistītā lietotāja informācija tika izdzēsta."
   },
-  "deletedUserId": {
-    "message": "Izdzēsts lietotājs $ID$ - īpašnieks/pārvaldītājs izdzēsa lietotāja kontu",
+  "deletedUserIdEventMessage": {
+    "message": "Izdzēsts lietotājs $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10449,8 @@
   "domainStatusUnderVerification": {
     "message": "Apliecināšanā"
   },
-  "claimedDomainsDesc": {
-    "message": "Pieteikt domēnu, lai iegūtu visu dalībnieku kontu, kuru e-pasta adrese atbilst domēnam, īpašumtiesības. Dalībnieki piesakoties varēs izlaist SSO identifikatoru. Pārvaldītāji varēs arī izdzēst dalībnieku kontus."
+  "claimedDomainsDescription": {
+    "message": "Iegūsti domēna piederību, lai iegūtu dalībnieku kontu īpašumtiesības. SSO identificētāja lapa tiks izlaista, kad pieteiksies dalībnieki, kuru kontu piederība ir atkarīga no domēna, un pārvaldītāji varēs izdzēst šāda veida kontus."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Ievadītā vērtība ir nederīga. Piemēram: mansdomens.lv. Apakšdomēnu pieteikšanai ir nepieciešami atsevišķi ieraksti."
@@ -10896,5 +10949,68 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Neapmaksāti rēķini"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Tavs abonements nav apmaksāts. Jāsazinās ar sava pakalpojuma sniedzēja pārvaldītāju, lai atjaunotu pakalpojumu sev un saviem klientiem.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ ir apturēts",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Lai atjaunotu piekļuvi savam pakalpojuma sniedzēja portālam, jāsazinās ar Bitwarden klientu atbalstu, lai atjaunotu savu abonementu.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Tavs abonements nav apmaksāts. Lai atjaunotu pakalpojumu sev un saviem klientiem, līdz $CANCELLATION_DATE$ jāpievieno maksājuma veids.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Abonēt $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Tavs $PLAN$ 7 dienu izmēģinājums sākas šodien. Tagad pievieno maksājumu veidu, lai turpinātu izmantot šīs iespējas pēc izmēģinājuma laika beigām: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Neierobežoti noslēpumi un projekti"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Abonements atcelts"
+  },
+  "providersubCanceledmessage": {
+    "message": "Lai abonētu no jauna, jāsazināš ar Bitwarden klientu atbalstu."
+  },
+  "showMore": {
+    "message": "Rādīt vairāk"
+  },
+  "showLess": {
+    "message": "Rādīt mazāk"
   }
 }

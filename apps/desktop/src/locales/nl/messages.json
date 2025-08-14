@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Kluis doorzoeken"
   },
+  "resetSearch": {
+    "message": "Zoekopdracht resetten"
+  },
   "addItem": {
     "message": "Item toevoegen"
   },
@@ -1222,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Tweestapsaanmelding"
   },
+  "vaultTimeoutHeader": {
+    "message": "Time-out van de kluis"
+  },
   "vaultTimeout": {
     "message": "Time-out van de kluis"
   },
   "vaultTimeout1": {
     "message": "Time-out"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Time-out actie"
   },
   "vaultTimeoutDesc": {
     "message": "Stel de time-out van de kluis en de bijbehorende actie in."
@@ -1813,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Ontgrendelen met Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Extra Windows Hello-instellingen"
-  },
   "unlockWithPolkit": {
     "message": "Ontgrendel met systeemauthenticatie"
   },
@@ -1831,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "ontgrendel je kluis"
   },
-  "autoPromptWindowsHello": {
-    "message": "Vraag om Windows Hello bij opstarten"
-  },
-  "autoPromptPolkit": {
-    "message": "Vraag naar systeemverificatie bij het opstarten"
-  },
   "autoPromptTouchId": {
     "message": "Vraag om Touch ID bij opstarten"
   },
@@ -1845,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Wachtwoord vereisen bij starten van de app"
-  },
-  "recommendedForSecurity": {
-    "message": "Aanbevolen voor veiligheid."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bij herstart vergrendelen met hoofdwachtwoord"
@@ -2520,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane kluis time-out is $HOURS$ uur en $MINUTES$ minuten.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Time-out overschrijdt de beperking van je organisatie: $HOURS$ uur en $MINUTES$ minu(u) t(en) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
   },
@@ -3001,9 +3027,6 @@
     "message": "Tekentelling in-/uitschakelen",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Probeer je toegang te krijgen tot je account?"
-  },
   "accessAttemptBy": {
     "message": "Inlogpoging door $EMAIL$",
     "placeholders": {
@@ -3012,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
+  },
+  "webApp": {
+    "message": "Web-app"
+  },
+  "mobile": {
+    "message": "Mobiel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensie",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Log-inverzoek"
   },
   "deviceType": {
     "message": "Apparaattype"
@@ -3027,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Toegang weigeren"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggen voor $EMAIL$ bevestigd op $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
   },
   "justNow": {
     "message": "Zojuist"
@@ -4015,8 +4066,14 @@
       }
     }
   },
+  "showMore": {
+    "message": "Meer weergeven"
+  },
+  "showLess": {
+    "message": "Minder weergeven"
+  },
   "enableAutotype": {
-    "message": "Snelkoppeling autotype inschakelen"
+    "message": "Autotypen inschakelen"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden valideert de invoerlocaties niet, zorg ervoor dat je je in het juiste venster en veld bevindt voordat je de snelkoppeling gebruikt."

@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Buscar en caja fuerte"
   },
+  "resetSearch": {
+    "message": "Restablecer búsqueda"
+  },
   "addItem": {
     "message": "Añadir elemento"
   },
@@ -1222,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Autenticación en dos pasos"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Tiempo de espera de la caja fuerte excedido"
   },
   "vaultTimeout1": {
     "message": "Tiempo de espera"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Elige cuando se agotará el tiempo de espera de tu caja fuerte y se ejecutará la acción seleccionada."
@@ -1813,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Desbloquear con Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Ajustes adicionales de Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Desbloquear con la autenticación del sistema"
   },
@@ -1831,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "Verificar para Bitwarden."
   },
-  "autoPromptWindowsHello": {
-    "message": "Solicitar Windows Hello al iniciar"
-  },
-  "autoPromptPolkit": {
-    "message": "Solicitar autenticación de sistema al iniciar"
-  },
   "autoPromptTouchId": {
     "message": "Solicitar Touch ID al iniciar"
   },
@@ -1845,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Solicitar contraseña al iniciar la aplicación"
-  },
-  "recommendedForSecurity": {
-    "message": "Recomendado por seguridad."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear con contraseña maestra al reiniciar"
@@ -2139,10 +2136,10 @@
     "message": "Por desgracia la integración del navegador sólo está soportada por ahora en la versión de la Mac App Store."
   },
   "browserIntegrationWindowsStoreDesc": {
-    "message": "Por desgracia la integración del navegador sólo está soportada por ahora en la versión de Microsoft Store."
+    "message": "Lamentablemente, la integración del navegador no está actualmente soportada en la versión de Microsoft Store."
   },
   "browserIntegrationLinuxDesc": {
-    "message": "Por desgracia la integración con el navegador actualmente sólo está soportada en la versión de Microsoft Store."
+    "message": "Lamentablemente, la integración del navegador no está actualmente soportada en la versión de linux."
   },
   "enableBrowserIntegrationFingerprint": {
     "message": "Requiere verificación para la integración del navegador"
@@ -2519,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "El tiempo de espera de tu caja fuerte excede las restricciones establecidas por tu organización."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Invitación aceptada"
@@ -3001,9 +3027,6 @@
     "message": "Activar recuento de caracteres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "¿Estás intentando acceder a tu cuenta?"
-  },
   "accessAttemptBy": {
     "message": "Intento de acceso de $EMAIL$",
     "placeholders": {
@@ -3012,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Tipo de dispositivo"
@@ -3027,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Denegar acceso"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inicio de sesión confirmado para $EMAIL$ en $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Has denegado un intento de inicio de sesión desde otro dispositivo. Si realmente fuiste tú, intenta iniciar sesión con el dispositivo de nuevo."
   },
   "justNow": {
     "message": "Justo ahora"
@@ -4015,8 +4066,14 @@
       }
     }
   },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
   "enableAutotype": {
-    "message": "Activar atajo de autoescritura"
+    "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden no valida las ubicaciones de entrada, asegúrate de que estás en la ventana y en el capo correctos antes de usar el atajo."

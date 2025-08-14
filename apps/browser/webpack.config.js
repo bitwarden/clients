@@ -199,7 +199,6 @@ const mainConfig = {
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
     "overlay/menu":
       "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
-    "encrypt-worker": "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
     "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
   },

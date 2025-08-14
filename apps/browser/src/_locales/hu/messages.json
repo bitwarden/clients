@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Keresés a széfben"
   },
+  "resetSearch": {
+    "message": "Keresés visszaállítása"
+  },
   "edit": {
     "message": "Szerkesztés"
   },
@@ -3654,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "A kérés a továbbiakban már nem érvényes."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "A fiókhoz próbálunk hozzáférni?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "A bejelentkezési kérés már lejárt."
   },
@@ -5589,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "A WebAssembly nem támogatott a böngészőben vagy nincs engedélyezve. A WebAssembly szükséges a Bitwarden alkalmazás használatához.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Több megjelenítése"
+  },
+  "showLess": {
+    "message": "Kevesebb megjelenítése"
   }
 }

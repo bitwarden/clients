@@ -1,5 +1,4 @@
 import { ClientType } from "../../../../enums";
-import { Utils } from "../../../../platform/misc/utils";
 
 import { DeviceRequest } from "./device.request";
 import { TokenTwoFactorRequest } from "./token-two-factor.request";
@@ -28,10 +27,6 @@ export class PasswordTokenRequest extends TokenRequest {
     }
 
     return obj;
-  }
-
-  alterIdentityTokenHeaders(headers: Headers) {
-    headers.set("Auth-Email", Utils.fromUtf8ToUrlB64(this.email));
   }
 
   static fromJSON(json: any) {

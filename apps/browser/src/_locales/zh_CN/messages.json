@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "搜索密码库"
   },
+  "resetSearch": {
+    "message": "重置搜索"
+  },
   "edit": {
     "message": "编辑"
   },
@@ -3477,7 +3480,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
   },
   "device": {
     "message": "设备"
@@ -3585,25 +3588,25 @@
     "message": "Manage devices"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "当前会话"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "移动端",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "扩展",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "桌面端",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "网页密码库"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "网页 App"
   },
   "cli": {
     "message": "CLI"
@@ -3613,7 +3616,7 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "请求待处理"
   },
   "firstLogin": {
     "message": "First login"
@@ -3654,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "此请求已失效。"
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "您正在尝试访问您的账户吗？"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "已确认 $EMAIL$ 在 $DEVICE$ 上的登录",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "您拒绝了另一台设备的登录尝试。如果真的是您，请尝试再次使用该设备登录。"
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "登录请求已过期。"
   },
@@ -3680,7 +3664,7 @@
     "message": "Just now"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "请求于 $MINUTES$ 分钟前",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4407,7 +4391,7 @@
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "更多关于匹配检测",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
@@ -5589,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。使用 Bitwarden App 需要 WebAssembly。",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "显示更多"
+  },
+  "showLess": {
+    "message": "显示更少"
   }
 }

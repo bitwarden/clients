@@ -14,6 +14,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
 
@@ -33,9 +34,9 @@ const createMockCollection = (
   canEdit = true,
 ): CollectionView => {
   return {
-    id,
+    id: id as CollectionId,
     name,
-    organizationId,
+    organizationId: organizationId as OrganizationId,
     externalId: "",
     readOnly,
     hidePasswords: false,
@@ -572,6 +573,7 @@ describe("ItemDetailsSectionComponent", () => {
     it("returns matching default when flag & policy match", async () => {
       const def = createMockCollection("def1", "Def", "orgA");
       component.config.collections = [def] as CollectionView[];
+      component.config.organizationDataOwnershipDisabled = false;
       component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));

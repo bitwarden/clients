@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Pesquisar no Cofre"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Editar"
   },
@@ -1932,7 +1935,7 @@
     "message": "Chave SSH"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Nota"
   },
   "newItemHeader": {
     "message": "Nova $TYPE$",
@@ -3654,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
@@ -3801,11 +3785,11 @@
     "message": "Trust user"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Envie informações sensíveis com segurança",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Compartilhe arquivos e dados com segurança, com qualquer pessoa e em qualquer plataforma. Suas informações ficarão sempre criptografadas de ponta a ponta, garantindo exposição mínima.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4745,25 +4729,25 @@
     }
   },
   "downloadBitwarden": {
-    "message": "Download Bitwarden"
+    "message": "Baixar o Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "Baixar o Bitwarden em todos os dispositivos"
   },
   "getTheMobileApp": {
-    "message": "Get the mobile app"
+    "message": "Baixar o aplicativo para dispositivos móveis"
   },
   "getTheMobileAppDesc": {
-    "message": "Access your passwords on the go with the Bitwarden mobile app."
+    "message": "Acesse as suas senhas em qualquer lugar com o aplicativo móvel Bitwarden."
   },
   "getTheDesktopApp": {
     "message": "Get the desktop app"
   },
   "getTheDesktopAppDesc": {
-    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+    "message": "Acesse o seu cofre sem um navegador e, em seguida, configure o desbloqueio com dados biométricos para facilitar o desbloqueio tanto no aplicativo desktop quanto na extensão do navegador."
   },
   "downloadFromBitwardenNow": {
-    "message": "Download from bitwarden.com now"
+    "message": "Baixar em bitwarden.com agora"
   },
   "getItOnGooglePlay": {
     "message": "Get it on Google Play"
@@ -5461,7 +5445,7 @@
     "message": "Alterar senhas vulneráveis"
   },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "Opções do cofre"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
@@ -5589,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

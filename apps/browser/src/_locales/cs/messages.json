@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Vyhledat v trezoru"
   },
+  "resetSearch": {
+    "message": "Resetovat hledání"
+  },
   "edit": {
     "message": "Upravit"
   },
@@ -3654,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Tento požadavek již není platný."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokoušíte se získat přístup k Vašemu účtu?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Přihlášení bylo potvrzeno z $EMAIL$ pro $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to opravdu Vy, zkuste se znovu přihlásit do zařízení."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Požadavek na přihlášení již vypršel."
   },
@@ -5589,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly není ve Vašem prohlížeči podporováno nebo není povoleno. WebAssembly je vyžadováno pro použití aplikace Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Zobrazit více"
+  },
+  "showLess": {
+    "message": "Zobrazit méně"
   }
 }

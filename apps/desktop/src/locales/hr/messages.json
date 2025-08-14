@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Pretraživanje trezora"
   },
+  "resetSearch": {
+    "message": "Ponovno postavljanje pretraživanja"
+  },
   "addItem": {
     "message": "Dodaj stavku"
   },
@@ -241,7 +244,7 @@
     "message": "SSH agent je servis namijenjen developerima koji omogućuje potpisivanje SSH zahtjeva izravno iz tvojeg Bitwarden trezora."
   },
   "sshAgentPromptBehavior": {
-    "message": "Zahtjevaj autorizaciju pri korištenju SSH agenta"
+    "message": "Traži autorizaciju pri korištenju SSH agenta"
   },
   "sshAgentPromptBehaviorDesc": {
     "message": "Odaberi kako će se postupati sa zahtjevima za autorizaciju SSH agenta."
@@ -573,7 +576,7 @@
     "message": "Kopiraj kôd za provjeru (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopiraj $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1222,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Prijava dvostrukom autentifikacijom"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Istek trezora"
   },
   "vaultTimeout1": {
     "message": "Vrijeme isteka"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Odaberi kada će isteći trezor i koja će se radnja izvršiti."
@@ -1440,7 +1449,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "broj kartice"
   },
   "premiumMembership": {
     "message": "Premium članstvo"
@@ -1813,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Otključaj koristeći Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Dodatne Windows Hello postavke"
-  },
   "unlockWithPolkit": {
     "message": "Otključaj autentifikacijom sustava"
   },
@@ -1831,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "Otključaj trezor"
   },
-  "autoPromptWindowsHello": {
-    "message": "Zahtijevaj Windows Hello pri pokretanju"
-  },
-  "autoPromptPolkit": {
-    "message": "Traži autentifikaciju sustava pri pokretanju"
-  },
   "autoPromptTouchId": {
     "message": "Zahtijevaj Touch ID pri pokretanju"
   },
@@ -1845,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Zahtijevaj lozinku pri pokretanju"
-  },
-  "recommendedForSecurity": {
-    "message": "Preporučeno za sigurnost."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"
@@ -2520,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Vrijeme isteka premašuje ograničenje koju je postavila tvoja organizacija."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Pozivnica prihvaćena"
   },
@@ -3001,9 +3027,6 @@
     "message": "Prikaži/Sakrij broj znakova",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokušavaš li pristupiti svom računu?"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ pokušava pristupiti",
     "placeholders": {
@@ -3012,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Vrsta uređaja"
@@ -3027,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Odbij pristup"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
   "justNow": {
     "message": "Upravo"
@@ -4015,10 +4066,16 @@
       }
     }
   },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
   "enableAutotype": {
-    "message": "Enable autotype shortcut"
+    "message": "Omogući automatski unos"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
   }
 }
