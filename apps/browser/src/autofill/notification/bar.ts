@@ -200,7 +200,7 @@ export function getNotificationTestId(
     [NotificationTypes.Unlock]: "unlock-notification-bar",
     [NotificationTypes.Add]: "save-notification-bar",
     [NotificationTypes.Change]: "update-notification-bar",
-    [NotificationTypes.AtRiskPassword]: "at-risk-notification-bar",
+    [NotificationTypes.AtRiskPassword]: "at-risk-password-notification-bar",
   }[notificationType];
 }
 
@@ -288,6 +288,21 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
           theme: resolvedTheme,
           i18n,
           notificationTestId,
+          params: initData.params,
+          handleCloseNotification,
+        }),
+        document.body,
+      );
+    }
+
+    // Handle AtRiskPasswordNotification render
+    if (notificationBarIframeInitData.type === NotificationTypes.AtRiskPassword) {
+      return render(
+        AtRiskNotification({
+          ...notificationBarIframeInitData,
+          type: notificationBarIframeInitData.type as NotificationType,
+          theme: resolvedTheme,
+          i18n,
           params: initData.params,
           handleCloseNotification,
         }),

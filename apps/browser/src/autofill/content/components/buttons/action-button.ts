@@ -33,8 +33,7 @@ export function ActionButton({
 
   return html`
     <button
-      class=${actionButtonStyles({ disabled, fullWidth, isLoading, theme })}
-      data-testid="${dataTestId}"
+      class=${actionButtonStyles({ disabled, theme, fullWidth })}
       title=${buttonText}
       type="button"
       @click=${handleButtonClick}
@@ -46,14 +45,12 @@ export function ActionButton({
 
 const actionButtonStyles = ({
   disabled,
-  fullWidth,
-  isLoading,
   theme,
+  fullWidth,
 }: {
   disabled: boolean;
-  fullWidth: boolean;
-  isLoading: boolean;
   theme: Theme;
+  fullWidth: boolean;
 }) => css`
   ${typography.body2}
 

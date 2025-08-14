@@ -2,8 +2,6 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { NotificationTypes } from "../../../../../notification/abstractions/notification-bar";
-import { getNotificationTestId } from "../../../../../notification/bar";
 import {
   AtRiskNotification,
   AtRiskNotificationProps,
@@ -19,7 +17,7 @@ export default {
     theme: ThemeTypes.Light,
     handleCloseNotification: () => alert("Close notification action triggered"),
     params: {
-      passwordChangeUri: "https://webtests.dev/.well-known/change-password", // Remove to see "navigate" version of notification
+      passwordChangeUri: "webtests.dev", // Remove to see "navigate" version of notification
       organizationName: "Acme Co.",
     },
     i18n: mockI18n,
@@ -32,10 +30,8 @@ export default {
   },
 } as Meta<AtRiskNotificationProps>;
 
-const Template = (args: AtRiskNotificationProps) => {
-  const notificationTestId = getNotificationTestId(NotificationTypes.AtRiskPassword);
-  return AtRiskNotification({ ...args, notificationTestId });
-};
+const Template = (args: AtRiskNotificationProps) => AtRiskNotification({ ...args });
+
 export const Default: StoryObj<AtRiskNotificationProps> = {
   render: Template,
 };

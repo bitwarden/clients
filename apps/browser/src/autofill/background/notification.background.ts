@@ -73,6 +73,12 @@ import {
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
+  BasicNotificationData,
+  BasicNotificationQueueMessage,
+  AtRiskPasswordNotificationsData,
+  UnlockVaultMessageData,
+  AdjustNotificationBarMessageData,
+  StandardNotificationType,
 } from "./abstractions/notification.background";
 import {
   LoginSecurityTaskInfo,
@@ -94,10 +100,14 @@ export default class NotificationBackground {
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
+    bgTriggerAddLoginNotification: ({ message, sender }) =>
+      this.triggerAddLoginNotification(message, sender),
+    bgTriggerChangedPasswordNotification: ({ message, sender }) =>
+      this.triggerChangedPasswordNotification(message, sender),
+    bgTriggerAtRiskPasswordNotification: ({ message, sender }) =>
+      this.triggerAtRiskPasswordNotification(message, sender),
     bgCloseNotificationBar: ({ message, sender }) =>
       this.handleCloseNotificationBarMessage(message, sender),
-    bgOpenAtRiskPasswords: ({ message, sender }) =>
-      this.handleOpenAtRiskPasswordsMessage(message, sender),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
@@ -451,38 +461,46 @@ export default class NotificationBackground {
   }
 
   /**
+   * Open the basic notification
+   *
+   * @param message NotificationBackgroundExtensionMessage
+   * @param sender chrome.runtime.MessageSender
+   */
+  async triggerBasicNotification(
+    message: NotificationBackgroundExtensionMessage<BasicNotificationData>,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    this.removeTabFromNotificationQueue(sender.tab);
+    const launchTimestamp = new Date().getTime();
+    const addLoginIsEnabled = await this.getEnableAddedLoginPrompt();
+    const wasVaultLocked = AuthenticationStatus.Locked && addLoginIsEnabled;
+
+    const queueMessage: BasicNotificationQueueMessage = {
+      domain: Utils.getDomain(sender.tab.url),
+      type: StandardNotificationType.Basic,
+      tab: sender.tab,
+      launchTimestamp,
+      wasVaultLocked,
+      data: message.data,
+      expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
+    };
+
+    this.notificationQueue.push(queueMessage);
+    await this.checkNotificationQueue(sender.tab);
+  }
+
+  /**
    * Sends a message to trigger the at risk password notification
    *
    * @param message - The extension message
    * @param sender - The contextual sender of the message
    */
   async triggerAtRiskPasswordNotification(
-    data: ModifyLoginCipherFormData,
-    tab: chrome.tabs.Tab,
+    message: NotificationBackgroundExtensionMessage<AtRiskPasswordNotificationsData>,
+    sender: chrome.runtime.MessageSender,
   ): Promise<boolean> {
-    const flag = await this.getNotificationFlag();
-    if (!flag) {
-      return false;
-    }
-
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId),
-    );
-
-    if (!activeUserId) {
-      return false;
-    }
-    const loginSecurityTaskInfo = await this.getSecurityTaskAndCipherForLoginData(
-      data,
-      activeUserId,
-    );
-
-    if (!loginSecurityTaskInfo) {
-      return false;
-    }
-
-    const { securityTask, cipher } = loginSecurityTaskInfo;
-    const domain = Utils.getDomain(tab.url);
+    const { activeUserId, securityTask, cipher } = message.data;
+    const domain = Utils.getDomain(sender.tab.url);
     const passwordChangeUri =
       await new TemporaryNotificationChangeLoginService().getChangePasswordUrl(cipher);
 
@@ -496,7 +514,7 @@ export default class NotificationBackground {
         .pipe(getOrganizationById(securityTask.organizationId)),
     );
 
-    this.removeTabFromNotificationQueue(tab);
+    this.removeTabFromNotificationQueue(sender.tab);
     const launchTimestamp = new Date().getTime();
     const queueMessage: NotificationQueueMessageItem = {
       domain,
@@ -504,12 +522,12 @@ export default class NotificationBackground {
       type: NotificationQueueMessageType.AtRiskPassword,
       passwordChangeUri,
       organizationName: organization.name,
-      tab: tab,
+      tab: sender.tab,
       launchTimestamp,
       expires: new Date(launchTimestamp + NOTIFICATION_BAR_LIFESPAN_MS),
     };
     this.notificationQueue.push(queueMessage);
-    await this.checkNotificationQueue(tab);
+    await this.checkNotificationQueue(sender.tab);
     return true;
   }
 
@@ -522,15 +540,9 @@ export default class NotificationBackground {
    * @param sender - The contextual sender of the message
    */
   async triggerAddLoginNotification(
-    data: ModifyLoginCipherFormData,
-    tab: chrome.tabs.Tab,
+    message: NotificationBackgroundExtensionMessage<AddLoginMessageData>,
+    sender: chrome.runtime.MessageSender,
   ): Promise<boolean> {
-    const login = {
-      url: data.uri,
-      username: data.username,
-      password: data.password || data.newPassword,
-    };
-
     const authStatus = await this.getAuthStatus();
     if (authStatus === AuthenticationStatus.LoggedOut) {
       return false;
@@ -564,7 +576,7 @@ export default class NotificationBackground {
       (c) => c.login.username != null && c.login.username.toLowerCase() === normalizedUsername,
     );
     if (addLoginIsEnabled && usernameMatches.length === 0) {
-      await this.pushAddLoginToQueue(loginDomain, login, tab);
+      await this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab);
       return true;
     }
 
@@ -575,7 +587,12 @@ export default class NotificationBackground {
       usernameMatches.length === 1 &&
       usernameMatches[0].login.password !== login.password
     ) {
-      await this.pushChangePasswordToQueue(usernameMatches[0].id, loginDomain, login.password, tab);
+      await this.pushChangePasswordToQueue(
+        usernameMatches[0].id,
+        loginDomain,
+        loginInfo.password,
+        sender.tab,
+      );
       return true;
     }
     return false;
@@ -613,22 +630,23 @@ export default class NotificationBackground {
    * @param sender - The contextual sender of the message
    */
   async triggerChangedPasswordNotification(
-    data: ModifyLoginCipherFormData,
-    tab: chrome.tabs.Tab,
-  ): Promise<boolean> {
-    const changeData = {
-      url: data.uri,
-      currentPassword: data.password,
-      newPassword: data.newPassword,
-    };
-
+    message: NotificationBackgroundExtensionMessage<ChangePasswordMessageData>,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const changeData = message.data as ChangePasswordMessageData;
     const loginDomain = Utils.getDomain(changeData.url);
     if (loginDomain == null) {
       return false;
     }
 
     if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, tab, true);
+      await this.pushChangePasswordToQueue(
+        null,
+        loginDomain,
+        changeData.newPassword,
+        sender.tab,
+        true,
+      );
       return true;
     }
 
@@ -652,7 +670,7 @@ export default class NotificationBackground {
       id = ciphers[0].id;
     }
     if (id != null) {
-      await this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, tab);
+      await this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, sender.tab);
       return true;
     }
     return false;
@@ -665,7 +683,7 @@ export default class NotificationBackground {
    * @param message - The extension message
    */
   private async handleCollectPageDetailsResponseMessage(
-    message: NotificationBackgroundExtensionMessage,
+    message: NotificationBackgroundExtensionMessage<void>,
   ) {
     if (message.sender !== "notificationBar") {
       return;
@@ -685,8 +703,12 @@ export default class NotificationBackground {
    * @param message - Extension message, determines if the notification should be skipped
    * @param tab - The tab that the message was sent from
    */
-  private async unlockVault(message: NotificationBackgroundExtensionMessage, tab: chrome.tabs.Tab) {
+  private async unlockVault(
+    message: NotificationBackgroundExtensionMessage<UnlockVaultMessageData>,
+    tab: chrome.tabs.Tab,
+  ) {
     const notificationRefreshFlagEnabled = await this.getNotificationFlag();
+
     if (message.data?.skipNotification) {
       return;
     }
@@ -753,7 +775,7 @@ export default class NotificationBackground {
    * @param sender - The contextual sender of the message
    */
   private async handleSaveCipherMessage(
-    message: NotificationBackgroundExtensionMessage,
+    message: NotificationBackgroundExtensionMessage<void>,
     sender: chrome.runtime.MessageSender,
   ) {
     if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
@@ -981,7 +1003,7 @@ export default class NotificationBackground {
   }
 
   private async openAddEditVaultItem(
-    message: NotificationBackgroundExtensionMessage,
+    message: NotificationBackgroundExtensionMessage<void>,
     senderTab: chrome.tabs.Tab,
   ) {
     const { cipherId, organizationId, folder } = message;
@@ -1011,7 +1033,7 @@ export default class NotificationBackground {
   }
 
   private async viewItem(
-    message: NotificationBackgroundExtensionMessage,
+    message: NotificationBackgroundExtensionMessage<void>,
     senderTab: chrome.tabs.Tab,
   ) {
     await Promise.all([
@@ -1105,7 +1127,7 @@ export default class NotificationBackground {
   }
 
   private async getCollectionData(
-    message: NotificationBackgroundExtensionMessage,
+    message: NotificationBackgroundExtensionMessage<void>,
   ): Promise<CollectionView[]> {
     const collections = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
@@ -1174,7 +1196,7 @@ export default class NotificationBackground {
    * @param sender - The contextual sender of the message
    */
   private async handleUnlockCompleted(
-    message: NotificationBackgroundExtensionMessage,
+    message: NotificationBackgroundExtensionMessage<LockedVaultPendingNotificationsData>,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
     const messageData = message.data as LockedVaultPendingNotificationsData;
@@ -1204,7 +1226,7 @@ export default class NotificationBackground {
    * @param sender - The contextual sender of the message
    */
   private async handleCloseNotificationBarMessage(
-    message: NotificationBackgroundExtensionMessage,
+    message: NotificationBackgroundExtensionMessage<void>,
     sender: chrome.runtime.MessageSender,
   ) {
     await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar", {
@@ -1220,8 +1242,8 @@ export default class NotificationBackground {
    * @param message - The extension message
    * @param sender - The contextual sender of the message
    */
-  private async handleOpenAtRiskPasswordsMessage(
-    message: NotificationBackgroundExtensionMessage,
+  private async handleOpenAtRisksPasswordsMessage(
+    message: NotificationBackgroundExtensionMessage<void>,
     sender: chrome.runtime.MessageSender,
   ) {
     const browserAction = BrowserApi.getBrowserAction();
@@ -1255,7 +1277,7 @@ export default class NotificationBackground {
    * @param sender - The contextual sender of the message
    */
   private async handleAdjustNotificationBarMessage(
-    message: NotificationBackgroundExtensionMessage,
+    message: NotificationBackgroundExtensionMessage<AdjustNotificationBarMessageData>,
     sender: chrome.runtime.MessageSender,
   ) {
     await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", message.data);

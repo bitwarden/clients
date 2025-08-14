@@ -1,9 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Subject, switchMap, timer } from "rxjs";
+import { firstValueFrom, Subject, switchMap, timer } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { SecurityTask, SecurityTaskStatus, TaskService } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationType, NotificationTypes } from "../notification/abstractions/notification-bar";
@@ -19,6 +25,12 @@ import {
   WebsiteOriginsWithFields,
 } from "./abstractions/overlay-notifications.background";
 import NotificationBackground from "./notification.background";
+
+type LoginSecurityTaskInfo = {
+  securityTask: SecurityTask;
+  cipher: CipherView;
+  uri: ModifyLoginCipherFormData["uri"];
+};
 
 export class OverlayNotificationsBackground implements OverlayNotificationsBackgroundInterface {
   private websiteOriginsWithFields: WebsiteOriginsWithFields = new Map();
@@ -38,6 +50,9 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   constructor(
     private logService: LogService,
     private notificationBackground: NotificationBackground,
+    private taskService: TaskService,
+    private accountService: AccountService,
+    private cipherService: CipherService,
   ) {}
 
   /**
@@ -262,8 +277,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     const modifyLoginData = this.modifyLoginCipherFormData.get(tabId);
     return (
       !modifyLoginData ||
-      !this.shouldAttemptNotification(modifyLoginData, NotificationTypes.Add) ||
-      !this.shouldAttemptNotification(modifyLoginData, NotificationTypes.Change)
+      !this.shouldAttemptAddLoginNotification(modifyLoginData) ||
+      !this.shouldAttemptChangedPasswordNotification(modifyLoginData)
     );
   };
 
@@ -364,6 +379,17 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.clearNotificationFallbackTimeout();
 
     const tab = await BrowserApi.getTab(tabId);
+
+    await this.notificationBackground.triggerBasicNotification(
+      {
+        command: "bgOpenBasicNotification",
+        data: {
+          message: "message",
+        },
+      },
+      { tab },
+    );
+
     if (tab.status !== "complete") {
       await this.delayNotificationInitUntilTabIsComplete(tabId, requestId, modifyLoginData);
       return;
@@ -408,38 +434,87 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     tab: chrome.tabs.Tab,
     config: { skippable: NotificationType[] } = { skippable: [] },
   ) => {
-    const notificationCandidates = [
-      {
-        type: NotificationTypes.Change,
-        trigger: this.notificationBackground.triggerChangedPasswordNotification,
-      },
-      {
-        type: NotificationTypes.Add,
-        trigger: this.notificationBackground.triggerAddLoginNotification,
-      },
-      {
-        type: NotificationTypes.AtRiskPassword,
-        trigger: this.notificationBackground.triggerAtRiskPasswordNotification,
-      },
-    ].filter(
-      (candidate) =>
-        this.shouldAttemptNotification(modifyLoginData, candidate.type) ||
-        config.skippable.includes(candidate.type),
-    );
-
-    const results: string[] = [];
-    for (const { trigger, type } of notificationCandidates) {
-      const success = await trigger.bind(this.notificationBackground)(modifyLoginData, tab);
-      if (success) {
-        results.push(`Success: ${type}`);
-        break;
-      } else {
-        results.push(`Unqualified ${type} notification attempt.`);
+    let result: string;
+    if (this.shouldAttemptChangedPasswordNotification(modifyLoginData)) {
+      // These notifications are temporarily setup as "messages" to the notification background.
+      // This will be structured differently in a future refactor.
+      const success = await this.notificationBackground.triggerChangedPasswordNotification(
+        {
+          command: "bgChangedPassword",
+          data: {
+            url: modifyLoginData.uri,
+            currentPassword: modifyLoginData.password,
+            newPassword: modifyLoginData.newPassword,
+          },
+        },
+        { tab },
+      );
+      if (!success) {
+        result = "Unqualified changedPassword notification attempt.";
       }
     }
 
-    this.clearCompletedWebRequest(requestId, tab.id);
-    return results.join(" ");
+    if (this.shouldAttemptAddLoginNotification(modifyLoginData)) {
+      const success = await this.notificationBackground.triggerAddLoginNotification(
+        {
+          command: "bgTriggerAddLoginNotification",
+          login: {
+            url: modifyLoginData.uri,
+            username: modifyLoginData.username,
+            password: modifyLoginData.password || modifyLoginData.newPassword,
+          },
+        },
+        { tab },
+      );
+      if (!success) {
+        result = "Unqualified addLogin notification attempt.";
+      }
+    }
+
+    const shouldGetTasks =
+      (await this.notificationBackground.getNotificationFlag()) && !modifyLoginData.newPassword;
+
+    if (shouldGetTasks) {
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(getOptionalUserId),
+      );
+
+      if (activeUserId) {
+        const loginSecurityTaskInfo = await this.getSecurityTaskAndCipherForLoginData(
+          modifyLoginData,
+          activeUserId,
+        );
+
+        if (loginSecurityTaskInfo) {
+          await this.notificationBackground.triggerAtRiskPasswordNotification(
+            {
+              command: "bgTriggerAtRiskPasswordNotification",
+              data: {
+                activeUserId,
+                cipher: loginSecurityTaskInfo.cipher,
+                securityTask: loginSecurityTaskInfo.securityTask,
+              },
+            },
+            { tab },
+          );
+        } else {
+          result = "Unqualified atRiskPassword notification attempt.";
+        }
+      }
+    }
+    this.clearCompletedWebRequest(requestId, tab);
+    return result;
+  };
+
+  /**
+   * Determines if the change password notification should be triggered.
+   *
+   * @param modifyLoginData - The modified login form data
+   */
+  private shouldAttemptChangedPasswordNotification = (
+    modifyLoginData: ModifyLoginCipherFormData,
+  ) => {
+    return modifyLoginData?.newPassword && !modifyLoginData.username;
   };
 
   /**
@@ -448,27 +523,65 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    * @param notificationType The type of notification to be triggered
    * @returns true if the notification should be attempted, false otherwise
    */
-  private shouldAttemptNotification = (
-    modifyLoginData: ModifyLoginCipherFormData,
-    notificationType: NotificationType,
-  ): boolean => {
-    switch (notificationType) {
-      case NotificationTypes.Change:
-        return modifyLoginData?.newPassword && !modifyLoginData.username;
-      case NotificationTypes.Add:
-        return (
-          modifyLoginData?.username && !!(modifyLoginData.password || modifyLoginData.newPassword)
-        );
-      case NotificationTypes.AtRiskPassword:
-        return !modifyLoginData.newPassword;
-      case NotificationTypes.Unlock:
-        // Unlock notifications are handled separately and do not require form data
-        return false;
-      default:
-        this.logService.error(`Unknown notification type: ${notificationType}`);
-        return false;
-    }
+  private shouldAttemptAddLoginNotification = (modifyLoginData: ModifyLoginCipherFormData) => {
+    return modifyLoginData?.username && (modifyLoginData.password || modifyLoginData.newPassword);
   };
+
+  /**
+   * If there is a security task for this cipher at login, return the task, cipher view, and uri.
+   *
+   * @param modifyLoginData - The modified login form data
+   * @param activeUserId - The currently logged in user ID
+   */
+  private async getSecurityTaskAndCipherForLoginData(
+    modifyLoginData: ModifyLoginCipherFormData,
+    activeUserId: UserId,
+  ): Promise<LoginSecurityTaskInfo | null> {
+    const tasks: SecurityTask[] = await this.notificationBackground.getSecurityTasks(activeUserId);
+    if (!tasks?.length) {
+      return null;
+    }
+
+    const urlCiphers: CipherView[] = await this.cipherService.getAllDecryptedForUrl(
+      modifyLoginData.uri,
+      activeUserId,
+    );
+    if (!urlCiphers?.length) {
+      return null;
+    }
+
+    const securityTaskForLogin = urlCiphers.reduce(
+      (taskInfo: LoginSecurityTaskInfo | null, cipher: CipherView) => {
+        if (
+          // exit early if info was found already
+          taskInfo ||
+          // exit early if the cipher was deleted
+          cipher.deletedDate ||
+          // exit early if the entered login info doesn't match an existing cipher
+          modifyLoginData.username !== cipher.login.username ||
+          modifyLoginData.password !== cipher.login.password
+        ) {
+          return taskInfo;
+        }
+
+        // Find the first security task for the cipherId belonging to the entered login
+        const cipherSecurityTask = tasks.find(
+          ({ cipherId, status }) =>
+            cipher.id === cipherId && // match security task cipher id to url cipher id
+            status === SecurityTaskStatus.Pending, // security task has not been completed
+        );
+
+        if (cipherSecurityTask) {
+          return { securityTask: cipherSecurityTask, cipher, uri: modifyLoginData.uri };
+        }
+
+        return taskInfo;
+      },
+      null,
+    );
+
+    return securityTaskForLogin;
+  }
 
   /**
    * Clears the completed web request and removes the modified login form data for the tab.
