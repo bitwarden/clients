@@ -126,7 +126,7 @@ class MockPopoutButtonComponent {}
 @Component({
   selector: "mock-current-account",
   template: `
-    <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1" type="button">
+    <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1 tw-align-middle" type="button">
       <bit-avatar text="Ash Ketchum" size="small"></bit-avatar>
     </button>
   `,
