@@ -120,7 +120,7 @@ struct MacCryptoService {
 impl MacCryptoService {
     fn new(config: &'static KeychainConfig) -> Self {
         Self {
-            config: config,
+            config,
             master_key: None,
         }
     }
@@ -142,7 +142,7 @@ impl CryptoService for MacCryptoService {
         }
 
         let plaintext =
-            util::decrypt_aes_128_cbc(&self.master_key.as_ref().unwrap(), &IV, no_prefix)
+            util::decrypt_aes_128_cbc(self.master_key.as_ref().unwrap(), &IV, no_prefix)
                 .map_err(|e| anyhow!("Failed to decrypt: {}", e))?;
 
         String::from_utf8(plaintext).map_err(|e| anyhow!("Invalid UTF-8: {}", e))
