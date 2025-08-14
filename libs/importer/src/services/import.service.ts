@@ -502,7 +502,7 @@ export class ImportService implements ImportServiceAbstraction {
       const collections: CollectionView[] = [...importResult.collections];
       importResult.collections = [importTarget as CollectionView];
       collections.map((x) => {
-        const f = new CollectionView();
+        const f = new CollectionView(x);
         f.name = `${importTarget.name}/${x.name}`;
         importResult.collections.push(f);
       });
