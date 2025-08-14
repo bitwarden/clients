@@ -157,7 +157,6 @@ describe("SettingsComponent", () => {
     );
     vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(false);
     biometricStateService.promptAutomatically$ = of(false);
-    biometricStateService.requirePasswordOnStart$ = of(false);
     autofillSettingsServiceAbstraction.clearClipboardDelay$ = of(null);
     desktopSettingsService.minimizeOnCopy$ = of(false);
     desktopSettingsService.trayEnabled$ = of(false);
@@ -378,48 +377,14 @@ describe("SettingsComponent", () => {
     });
 
     describe("when updating to false", () => {
-      let updateRequirePasswordOnStartSpy: jest.SpyInstance;
-
-      beforeEach(() => {
-        updateRequirePasswordOnStartSpy = jest
-          .spyOn(component, "updateRequirePasswordOnStart")
-          .mockImplementation(() => Promise.resolve());
-      });
-
-      it("updates requires password on start when the user doesn't have a MP and has requirePasswordOnStart on", async () => {
+      it("sets the pin form control to false and clears vault timeout", async () => {
         await component.ngOnInit();
-        component.form.controls.requirePasswordOnStart.setValue(true, { emitEvent: false });
-        component.userHasMasterPassword = false;
         await component.updatePinHandler(false);
 
         expect(component.form.controls.pin.value).toBe(false);
-        expect(component.form.controls.requirePasswordOnStart.value).toBe(false);
-        expect(updateRequirePasswordOnStartSpy).toHaveBeenCalled();
         expect(vaultTimeoutSettingsService.clear).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
-
-      test.each([
-        [true, true],
-        [false, true],
-        [false, false],
-      ])(
-        `doesn't updates requires password on start when the user's requirePasswordOnStart is %s and userHasMasterPassword is %s`,
-        async (requirePasswordOnStart, userHasMasterPassword) => {
-          await component.ngOnInit();
-          component.form.controls.requirePasswordOnStart.setValue(requirePasswordOnStart, {
-            emitEvent: false,
-          });
-          component.userHasMasterPassword = userHasMasterPassword;
-          await component.updatePinHandler(false);
-
-          expect(component.form.controls.pin.value).toBe(false);
-          expect(component.form.controls.requirePasswordOnStart.value).toBe(requirePasswordOnStart);
-          expect(updateRequirePasswordOnStartSpy).not.toHaveBeenCalled();
-          expect(vaultTimeoutSettingsService.clear).toHaveBeenCalled();
-          expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
-        },
-      );
     });
   });
 
@@ -512,11 +477,8 @@ describe("SettingsComponent", () => {
         await component.updateBiometricHandler(true);
 
         expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
-        expect(component.form.controls.requirePasswordOnStart.value).toBe(true);
         expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
         expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
-        expect(biometricStateService.setRequirePasswordOnStart).toHaveBeenCalledWith(true);
-        expect(biometricStateService.setDismissedRequirePasswordOnStartCallout).toHaveBeenCalled();
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
         expect(component.form.controls.biometric.value).toBe(true);
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -533,11 +495,8 @@ describe("SettingsComponent", () => {
         await component.updateBiometricHandler(true);
 
         expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
-        expect(component.form.controls.requirePasswordOnStart.value).toBe(true);
         expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
         expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
-        expect(biometricStateService.setRequirePasswordOnStart).toHaveBeenCalledWith(true);
-        expect(biometricStateService.setDismissedRequirePasswordOnStartCallout).toHaveBeenCalled();
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
         expect(component.form.controls.biometric.value).toBe(true);
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");

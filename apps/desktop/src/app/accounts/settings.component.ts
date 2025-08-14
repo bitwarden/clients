@@ -135,7 +135,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     pin: [null as boolean | null],
     biometric: false,
     autoPromptBiometrics: false,
-    requirePasswordOnStart: false,
     // Account Preferences
     clearClipboard: [null],
     minimizeOnCopyToClipboard: false,
@@ -350,9 +349,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       pin: this.userHasPinSet,
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
       autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
-      requirePasswordOnStart: await firstValueFrom(
-        this.biometricStateService.requirePasswordOnStart$,
-      ),
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
@@ -557,16 +553,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       this.userHasPinSet = await firstValueFrom(dialogRef.closed);
       this.form.controls.pin.setValue(this.userHasPinSet, { emitEvent: false });
-    }
-
-    if (!value) {
-      // If user turned off PIN without having a MP and has biometric + require MP/PIN on restart enabled
-      if (this.form.value.requirePasswordOnStart && !this.userHasMasterPassword) {
-        // then must turn that off to prevent user from getting into bad state
-        this.form.controls.requirePasswordOnStart.setValue(false);
-        await this.updateRequirePasswordOnStart();
-      }
-
+    } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.vaultTimeoutSettingsService.clear(userId);
     }
@@ -617,18 +604,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.biometricStateService.setBiometricUnlockEnabled(true);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
-      this.form.controls.requirePasswordOnStart.setValue(true);
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false);
-      await this.biometricStateService.setRequirePasswordOnStart(true);
-      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
     } else if (this.isLinux) {
       // Similar to Windows
-      this.form.controls.requirePasswordOnStart.setValue(true);
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false);
-      await this.biometricStateService.setRequirePasswordOnStart(true);
-      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
     }
     await this.keyService.refreshAdditionalKeys(activeUserId);
 
@@ -644,28 +625,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async updateAutoPromptBiometrics() {
     if (this.form.value.autoPromptBiometrics) {
-      // require password on start must be disabled if auto prompt biometrics is enabled
-      this.form.controls.requirePasswordOnStart.setValue(false);
-      await this.updateRequirePasswordOnStart();
       await this.biometricStateService.setPromptAutomatically(true);
     } else {
       await this.biometricStateService.setPromptAutomatically(false);
     }
-  }
-
-  async updateRequirePasswordOnStart() {
-    if (this.form.value.requirePasswordOnStart) {
-      // auto prompt biometrics must be disabled if require password on start is enabled
-      this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.updateAutoPromptBiometrics();
-
-      await this.biometricStateService.setRequirePasswordOnStart(true);
-    } else {
-      await this.biometricStateService.setRequirePasswordOnStart(false);
-    }
-    await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.keyService.refreshAdditionalKeys(userId);
   }
 
   async saveFavicons() {
