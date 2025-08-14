@@ -1,5 +1,7 @@
+import { Observable, defer, firstValueFrom, from } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { SendAccessTokenApiErrorResponse, SendAccessTokenRequest } from "@bitwarden/sdk-internal";
 import {
   GlobalState,
   GlobalStateProvider,
@@ -47,7 +49,7 @@ export const SEND_ACCESS_TOKEN_DICT = KeyDefinition.record<SendAccessToken, stri
 //   );
 // }
 
-// export type TryGetSendAccessTokenError = "expired" | CredentialsRequiredApiError;
+export type TryGetSendAccessTokenError = "expired" | SendAccessTokenApiErrorResponse;
 
 // export type GetSendAcccessTokenError = Extract<
 //   SendTokenApiError,
@@ -73,50 +75,58 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     this.sendAccessTokenDictGlobalState = this.globalStateProvider.get(SEND_ACCESS_TOKEN_DICT);
   }
 
-  // tryGetSendAccessToken$(sendId: string): Observable<SendAccessToken | TryGetSendAccessTokenError> {
-  //   // Defer the execution to ensure that a cold observable is returned.
-  //   return defer(() => from(this._tryGetSendAccessToken(sendId)));
-  // }
+  tryGetSendAccessToken$(sendId: string): Observable<SendAccessToken | TryGetSendAccessTokenError> {
+    // Defer the execution to ensure that a cold observable is returned.
+    return defer(() => from(this._tryGetSendAccessToken(sendId)));
+  }
 
-  // private async _tryGetSendAccessToken(
-  //   sendId: string,
-  // ): Promise<SendAccessToken | TryGetSendAccessTokenError> {
-  //   // Validate the sendId is a non-empty string.
-  //   this.validateSendId(sendId);
+  private async _tryGetSendAccessToken(
+    sendId: string,
+  ): Promise<SendAccessToken | TryGetSendAccessTokenError> {
+    // Validate the sendId is a non-empty string.
+    this.validateSendId(sendId);
 
-  //   // Check in storage for the access token for the given sendId.
-  //   const sendAccessTokenFromStorage = await this.getSendAccessTokenFromStorage(sendId);
+    // Check in storage for the access token for the given sendId.
+    const sendAccessTokenFromStorage = await this.getSendAccessTokenFromStorage(sendId);
 
-  //   if (sendAccessTokenFromStorage != null) {
-  //     // If it is expired, we return expired token error.
-  //     if (sendAccessTokenFromStorage.isExpired()) {
-  //       return "expired";
-  //     } else {
-  //       // If it is not expired, we return it
-  //       return sendAccessTokenFromStorage;
-  //     }
-  //   }
+    if (sendAccessTokenFromStorage != null) {
+      // If it is expired, we return expired token error.
+      if (sendAccessTokenFromStorage.isExpired()) {
+        return "expired";
+      } else {
+        // If it is not expired, we return it
+        return sendAccessTokenFromStorage;
+      }
+    }
 
-  //   // If we don't have a token in storage, we can try to request a new token from the server.
-  //   const request = new SendAccessTokenRequest(sendId);
+    // If we don't have a token in storage, we can try to request a new token from the server.
+    const request: SendAccessTokenRequest = {
+      sendId: sendId,
+      sendAccessCredentials: undefined,
+    };
 
-  //   const result = await this.sendTokenApiService.requestSendAccessToken(request);
+    const anonSdkClient = await firstValueFrom(this.sdkService.client$);
 
-  //   if (result instanceof SendAccessToken) {
-  //     // If we get a token back, we need to store it in the global state.
-  //     await this.setSendAccessTokenInStorage(sendId, result);
-  //     return result;
-  //   }
+    if (anonSdkClient === undefined) {
+      throw new Error("SDK client is undefined");
+    }
+    const result = await anonSdkClient.auth().send_access().request_send_access_token(request);
 
-  //   if (isCredentialsRequiredApiError(result)) {
-  //     // If we get an expected API error, we return it.
-  //     // Typically, this will be a "password-required" or "email-and-otp-required" error to communicate that the send requires credentials to access.
-  //     return result;
-  //   }
+    if (result instanceof SendAccessToken) {
+      // If we get a token back, we need to store it in the global state.
+      await this.setSendAccessTokenInStorage(sendId, result);
+      return result;
+    }
 
-  //   // If we get an unexpected error, we throw.
-  //   throw new Error(`Unexpected and unhandled API error retrieving send access token: ${result}`);
-  // }
+    if (isCredentialsRequiredApiError(result)) {
+      // If we get an expected API error, we return it.
+      // Typically, this will be a "password-required" or "email-and-otp-required" error to communicate that the send requires credentials to access.
+      return result;
+    }
+
+    // If we get an unexpected error, we throw.
+    throw new Error(`Unexpected and unhandled API error retrieving send access token: ${result}`);
+  }
 
   // getSendAccessToken$(
   //   sendId: string,
@@ -189,33 +199,33 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     return sendHashedPasswordB64;
   }
 
-  // private async getSendAccessTokenFromStorage(
-  //   sendId: string,
-  // ): Promise<SendAccessToken | undefined> {
-  //   if (this.sendAccessTokenDictGlobalState != null) {
-  //     const sendAccessTokenDict = await firstValueFrom(this.sendAccessTokenDictGlobalState.state$);
-  //     return sendAccessTokenDict?.[sendId];
-  //   }
-  //   return undefined;
-  // }
+  private async getSendAccessTokenFromStorage(
+    sendId: string,
+  ): Promise<SendAccessToken | undefined> {
+    if (this.sendAccessTokenDictGlobalState != null) {
+      const sendAccessTokenDict = await firstValueFrom(this.sendAccessTokenDictGlobalState.state$);
+      return sendAccessTokenDict?.[sendId];
+    }
+    return undefined;
+  }
 
-  // private async setSendAccessTokenInStorage(
-  //   sendId: string,
-  //   sendAccessToken: SendAccessToken,
-  // ): Promise<void> {
-  //   if (this.sendAccessTokenDictGlobalState != null) {
-  //     await this.sendAccessTokenDictGlobalState.update((sendAccessTokenDict) => {
-  //       sendAccessTokenDict ??= {}; // Initialize if undefined
+  private async setSendAccessTokenInStorage(
+    sendId: string,
+    sendAccessToken: SendAccessToken,
+  ): Promise<void> {
+    if (this.sendAccessTokenDictGlobalState != null) {
+      await this.sendAccessTokenDictGlobalState.update((sendAccessTokenDict) => {
+        sendAccessTokenDict ??= {}; // Initialize if undefined
 
-  //       sendAccessTokenDict[sendId] = sendAccessToken;
-  //       return sendAccessTokenDict;
-  //     });
-  //   }
-  // }
+        sendAccessTokenDict[sendId] = sendAccessToken;
+        return sendAccessTokenDict;
+      });
+    }
+  }
 
-  // private validateSendId(sendId: string): void {
-  //   if (sendId == null || sendId.trim() === "") {
-  //     throw new Error("sendId must be provided.");
-  //   }
-  // }
+  private validateSendId(sendId: string): void {
+    if (sendId == null || sendId.trim() === "") {
+      throw new Error("sendId must be provided.");
+    }
+  }
 }
