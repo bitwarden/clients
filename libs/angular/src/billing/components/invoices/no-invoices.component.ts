@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 
-import { partnerTrustIcon } from "@bitwarden/assets/svg";
+import { PartnerTrustIcon } from "@bitwarden/assets/svg";
 
 @Component({
   selector: "app-no-invoices",
@@ -11,5 +11,5 @@ import { partnerTrustIcon } from "@bitwarden/assets/svg";
   standalone: false,
 })
 export class NoInvoicesComponent {
-  icon = partnerTrustIcon;
+  icon = PartnerTrustIcon;
 }

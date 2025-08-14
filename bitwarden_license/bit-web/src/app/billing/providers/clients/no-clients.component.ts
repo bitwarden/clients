@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
-import { gearIcon } from "@bitwarden/assets/svg";
+import { GearIcon } from "@bitwarden/assets/svg";
 import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/shared";
 
 @Component({
@@ -23,7 +23,7 @@ import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console
   </div>`,
 })
 export class NoClientsComponent {
-  icon = gearIcon;
+  icon = GearIcon;
   @Input() showAddOrganizationButton = true;
   @Input() disableAddOrganizationButton = false;
   @Output() addNewOrganizationClicked = new EventEmitter();

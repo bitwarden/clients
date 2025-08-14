@@ -1,6 +1,6 @@
 import { svgIcon } from "../icon-service";
 
-export const partnerTrustIcon = svgIcon`
+export const PartnerTrustIcon = svgIcon`
 <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M69 43.6511C70.1025 44.1328 71.32 44.4 72.6 44.4C77.5706 44.4 81.6 40.3706 81.6 35.4C81.6 30.4294 77.5706 26.4 72.6 26.4C67.6295 26.4 63.6 30.4294 63.6 35.4C63.6 36.0164 63.662 36.6184 63.7801 37.2" stroke="#CED4DC" stroke-width="2"/>
     <path d="M69 44.8416C70.1522 44.553 71.3559 44.4 72.5943 44.4C80.1533 44.4 86.4194 50.0998 87.5598 57.5529C87.7996 59.1204 86.9541 60 85.3451 60C79.7231 60 75.6474 60 71.4 60" stroke="#CED4DC" stroke-width="2"/>

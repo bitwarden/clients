@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: "icons",
+  displayName: "assets",
   preset: "../../jest.preset.js",
   testEnvironment: "node",
   transform: {
