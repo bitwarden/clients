@@ -2,9 +2,8 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { KdfRequest } from "@bitwarden/common/models/request/kdf.request";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
@@ -25,11 +24,10 @@ describe("ChangeKdfService", () => {
   const masterPasswordService = mock<MasterPasswordServiceAbstraction>();
   const keyService = mock<KeyService>();
   const kdfConfigService = mock<KdfConfigService>();
+  const sdkService = mock<SdkService>();
 
-  let sut: DefaultChangeKdfService = mock<DefaultChangeKdfService>();
+  let sut: DefaultChangeKdfService;
 
-  const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-  const mockOldKdfConfig = new PBKDF2KdfConfig(100000);
   const mockNewKdfConfig = new PBKDF2KdfConfig(200000);
   const mockOldHash = "oldHash" as MasterPasswordAuthenticationHash;
   const mockNewHash = "newHash" as MasterPasswordAuthenticationHash;
@@ -37,20 +35,54 @@ describe("ChangeKdfService", () => {
   const mockSalt = "test@bitwarden.com" as MasterPasswordSalt;
   const mockWrappedUserKey: EncString = makeEncString("wrappedUserKey");
 
+  const mockSdkClient = {
+    crypto: jest.fn().mockReturnValue({
+      update_kdf: jest.fn(),
+    }),
+  };
+  const mockRef = {
+    value: mockSdkClient,
+    [Symbol.dispose]: jest.fn(),
+  };
+  const mockSdk = {
+    take: jest.fn().mockReturnValue(mockRef),
+  };
+
   beforeEach(() => {
+    sdkService.userClient$ = jest.fn((userId: UserId) => of(mockSdk)) as any;
     sut = new DefaultChangeKdfService(
       masterPasswordService,
       keyService,
       kdfConfigService,
       changeKdfApiService,
+      sdkService,
     );
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   describe("updateUserKdfParams", () => {
+    const mockUpdateKdfResult = {
+      masterPasswordAuthenticationData: {
+        salt: mockSalt,
+        masterPasswordAuthenticationHash: mockNewHash,
+      },
+      masterPasswordUnlockData: {
+        salt: mockSalt,
+        masterKeyWrappedUserKey: mockWrappedUserKey.encryptedString,
+      },
+      oldMasterPasswordAuthenticationData: {
+        salt: mockSalt,
+        masterPasswordAuthenticationHash: mockOldHash,
+      },
+    };
+
+    beforeEach(() => {
+      mockSdkClient.crypto().update_kdf.mockReturnValue(mockUpdateKdfResult);
+    });
+
     it("should throw an error if masterPassword is null", async () => {
       await expect(
         sut.updateUserKdfParams(null as unknown as string, mockNewKdfConfig, mockUserId),
@@ -91,76 +123,73 @@ describe("ChangeKdfService", () => {
       ).rejects.toThrow("userId");
     });
 
-    it("should throw an error if userKey is null", async () => {
-      keyService.userKey$.mockReturnValueOnce(of(null));
-      masterPasswordService.saltForUser$.mockReturnValueOnce(of(mockSalt));
-      kdfConfigService.getKdfConfig$.mockReturnValueOnce(of(mockOldKdfConfig));
+    it("should throw an error if SDK is not available", async () => {
+      sdkService.userClient$ = jest.fn().mockReturnValue(of(null)) as any;
+
       await expect(
         sut.updateUserKdfParams("masterPassword", mockNewKdfConfig, mockUserId),
-      ).rejects.toThrow();
+      ).rejects.toThrow("SDK not available");
     });
 
-    it("should throw an error if salt is null", async () => {
-      keyService.userKey$.mockReturnValueOnce(of(mockUserKey));
-      masterPasswordService.saltForUser$.mockReturnValueOnce(of(null));
-      kdfConfigService.getKdfConfig$.mockReturnValueOnce(of(mockOldKdfConfig));
-      await expect(
-        sut.updateUserKdfParams("masterPassword", mockNewKdfConfig, mockUserId),
-      ).rejects.toThrow("Failed to get salt");
+    it("should call SDK update_kdf with correct parameters", async () => {
+      const masterPassword = "masterPassword";
+      jest.spyOn(mockNewKdfConfig, "toSdkConfig").mockReturnValue({} as any);
+
+      await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
+
+      expect(mockSdkClient.crypto().update_kdf).toHaveBeenCalledWith(
+        masterPassword,
+        expect.any(Object), // the SDK config
+      );
     });
 
-    it("should throw an error if oldKdfConfig is null", async () => {
-      keyService.userKey$.mockReturnValueOnce(of(mockUserKey));
-      masterPasswordService.saltForUser$.mockReturnValueOnce(of(mockSalt));
-      kdfConfigService.getKdfConfig$.mockReturnValueOnce(of(null));
-      await expect(
-        sut.updateUserKdfParams("masterPassword", mockNewKdfConfig, mockUserId),
-      ).rejects.toThrow("Failed to get oldKdfConfig");
-    });
+    it("should call changeKdfApiService.updateUserKdfParams with correct request", async () => {
+      const masterPassword = "masterPassword";
+      jest.spyOn(mockNewKdfConfig, "toSdkConfig").mockReturnValue({} as any);
 
-    it("should call apiService.send with correct parameters", async () => {
-      keyService.userKey$.mockReturnValueOnce(of(mockUserKey));
-      masterPasswordService.saltForUser$.mockReturnValueOnce(of(mockSalt));
-      kdfConfigService.getKdfConfig$.mockReturnValueOnce(of(mockOldKdfConfig));
+      await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
 
-      masterPasswordService.makeMasterPasswordAuthenticationData
-        .mockResolvedValueOnce({
-          salt: mockSalt,
-          kdf: mockOldKdfConfig,
-          masterPasswordAuthenticationHash: mockOldHash,
-        })
-        .mockResolvedValueOnce({
-          salt: mockSalt,
-          kdf: mockNewKdfConfig,
-          masterPasswordAuthenticationHash: mockNewHash,
-        });
-
-      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValueOnce({
-        kdf: mockNewKdfConfig,
-        salt: mockSalt,
-        masterKeyWrappedUserKey: mockWrappedUserKey.encryptedString as MasterKeyWrappedUserKey,
-      });
-
-      await sut.updateUserKdfParams("masterPassword", mockNewKdfConfig, mockUserId);
-
-      const expected = new KdfRequest(
+      const expectedRequest = new KdfRequest(
         {
           salt: mockSalt,
           kdf: mockNewKdfConfig,
           masterPasswordAuthenticationHash: mockNewHash,
         },
         {
-          kdf: mockNewKdfConfig,
           salt: mockSalt,
+          kdf: mockNewKdfConfig,
           masterKeyWrappedUserKey: mockWrappedUserKey.encryptedString as MasterKeyWrappedUserKey,
         },
-      ).authenticateWith({
+      );
+      expectedRequest.authenticateWith({
         salt: mockSalt,
-        kdf: mockOldKdfConfig,
+        kdf: mockNewKdfConfig,
         masterPasswordAuthenticationHash: mockOldHash,
       });
 
-      expect(changeKdfApiService.updateUserKdfParams).toHaveBeenCalledWith(expected);
+      expect(changeKdfApiService.updateUserKdfParams).toHaveBeenCalledWith(expectedRequest);
+    });
+
+    it("should properly dispose of SDK resources", async () => {
+      const masterPassword = "masterPassword";
+      jest.spyOn(mockNewKdfConfig, "toSdkConfig").mockReturnValue({} as any);
+
+      await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
+
+      expect(mockRef[Symbol.dispose]).toHaveBeenCalled();
+    });
+
+    it("should handle SDK errors properly", async () => {
+      const masterPassword = "masterPassword";
+      const sdkError = new Error("SDK update_kdf failed");
+      jest.spyOn(mockNewKdfConfig, "toSdkConfig").mockReturnValue({} as any);
+      mockSdkClient.crypto().update_kdf.mockImplementation(() => {
+        throw sdkError;
+      });
+
+      await expect(
+        sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId),
+      ).rejects.toThrow("SDK update_kdf failed");
     });
   });
 });
