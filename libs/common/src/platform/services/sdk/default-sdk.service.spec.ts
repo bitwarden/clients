@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -36,6 +37,7 @@ describe("DefaultSdkService", () => {
     let accountService!: MockProxy<AccountService>;
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
+    let securityStateService!: MockProxy<SecurityStateService>;
     let service!: DefaultSdkService;
 
     beforeEach(async () => {
@@ -47,6 +49,7 @@ describe("DefaultSdkService", () => {
       accountService = mock<AccountService>();
       kdfConfigService = mock<KdfConfigService>();
       keyService = mock<KeyService>();
+      securityStateService = mock<SecurityStateService>();
 
       // Can't use `of(mock<Environment>())` for some reason
       environmentService.environment$ = new BehaviorSubject(mock<Environment>());
@@ -58,6 +61,7 @@ describe("DefaultSdkService", () => {
         accountService,
         kdfConfigService,
         keyService,
+        securityStateService,
       );
     });
 
@@ -80,6 +84,8 @@ describe("DefaultSdkService", () => {
           .calledWith(userId)
           .mockReturnValue(of("private-key" as EncryptedString));
         keyService.encryptedOrgKeys$.calledWith(userId).mockReturnValue(of({}));
+        keyService.userSigningKey$.calledWith(userId).mockReturnValue(of(null));
+        securityStateService.accountSecurityState$.calledWith(userId).mockReturnValue(of(null));
       });
 
       describe("given no client override has been set for the user", () => {
