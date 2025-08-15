@@ -98,9 +98,13 @@ export class SshKeySectionComponent implements OnInit {
 
     // Disable the form if the cipher form container is enabled
     // to prevent user interaction
-    this.cipherFormContainer.formEnabled$
+    this.cipherFormContainer.formStatusChange$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.sshKeyForm.disable());
+      .subscribe((status) => {
+        if (status === "enabled") {
+          this.sshKeyForm.disable();
+        }
+      });
   }
 
   /** Set form initial form values from the current cipher */

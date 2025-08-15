@@ -3,7 +3,7 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
 import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
-import { Component, OnInit, QueryList, ViewChildren } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, QueryList, ViewChildren } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { filter, Subject, switchMap, take } from "rxjs";
@@ -88,6 +88,7 @@ export class AutofillOptionsComponent implements OnInit {
    * Emits when a new URI input is added to the form and should be focused.
    */
   private focusOnNewInput$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
@@ -102,7 +103,7 @@ export class AutofillOptionsComponent implements OnInit {
 
     this.autofillOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.cipherFormContainer.patchCipher((cipher) => {
-        cipher.login.uris = value.uris.map((uri: UriField) =>
+        cipher.login.uris = value.uris?.map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
             uri: uri.uri,
             match: uri.matchDetection,
@@ -139,6 +140,15 @@ export class AutofillOptionsComponent implements OnInit {
     if (this.cipherFormContainer.config.mode === "partial-edit") {
       this.autofillOptionsForm.disable();
     }
+
+    // Disable adding new URIs when the cipher form is disabled
+    this.cipherFormContainer.formStatusChange$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => {
+        if (status === "disabled") {
+          this.autofillOptionsForm.disable();
+        }
+      });
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {

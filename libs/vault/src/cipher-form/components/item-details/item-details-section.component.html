@@ -11,6 +11,7 @@
       [attr.aria-checked]="itemDetailsForm.value.favorite"
       [appA11yTitle]="'favorite' | i18n"
       (click)="toggleFavorite()"
+      [disabled]="isFavoriteButtonDisabled"
     ></button>
   </bit-section-header>
   <bit-card>

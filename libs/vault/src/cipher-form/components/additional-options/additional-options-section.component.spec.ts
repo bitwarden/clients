@@ -29,11 +29,12 @@ describe("AdditionalOptionsSectionComponent", () => {
   let passwordRepromptEnabled$: BehaviorSubject<boolean>;
 
   const getInitialCipherView = jest.fn(() => null);
+  const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();
 
-    cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView });
+    cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView, formStatusChange$ });
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
