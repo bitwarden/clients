@@ -1,7 +1,5 @@
 import { ipcMain } from "electron";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { autofill } from "@bitwarden/desktop-napi";
 
@@ -30,25 +28,12 @@ export class NativeAutofillMain {
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
-    private configService: ConfigService,
   ) {}
 
   /**
    * Safely sends a message to the renderer, buffering it if the server isn't ready yet
-   * @returns true if successful, false if feature flag is disabled
    */
-  private async safeSend(channel: string, data: any): Promise<boolean> {
-    const featureFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.MacOsNativeCredentialSync,
-    );
-
-    if (!featureFlagEnabled) {
-      this.logService.debug(
-        `exiting safeSend(${channel}): MacOsNativeCredentialSync feature flag is disabled`,
-      );
-      return false;
-    }
-
+  private safeSend(channel: string, data: any) {
     if (this.listenerReady && this.windowMain.win?.webContents) {
       this.windowMain.win.webContents.send(channel, data);
     } else {
@@ -57,29 +42,6 @@ export class NativeAutofillMain {
       );
       this.messageBuffer.push({ channel, data });
     }
-
-    return true;
-  }
-
-  /**
-   * Checks if the MacOsNativeCredentialSync feature flag is enabled, and if not, completes the request with an error
-   * @param data The IPC data containing clientId and sequenceNumber
-   * @returns true if feature flag is enabled, false if disabled (and error was sent)
-   */
-  private async checkFeatureFlagOrError(data: {
-    clientId: number;
-    sequenceNumber: number;
-  }): Promise<boolean> {
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
-      const { clientId, sequenceNumber } = data;
-      this.ipcServer.completeError(
-        clientId,
-        sequenceNumber,
-        "MacOsNativeCredentialSync feature flag is disabled",
-      );
-      return false;
-    }
-    return true;
   }
 
   /**
@@ -103,17 +65,10 @@ export class NativeAutofillMain {
   async init() {
     ipcMain.handle(
       "autofill.runCommand",
-      async <C extends CommandDefinition>(
+      <C extends CommandDefinition>(
         _event: any,
         params: RunCommandParams<C>,
       ): Promise<RunCommandResult<C>> => {
-        if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
-          return {
-            type: "error",
-            error: "MacOsNativeCredentialSync feature flag is disabled",
-          } as RunCommandResult<C>;
-        }
-
         return this.runCommand(params);
       },
     );
@@ -121,92 +76,60 @@ export class NativeAutofillMain {
     this.ipcServer = await autofill.IpcServer.listen(
       "autofill",
       // RegistrationCallback
-      async (error, clientId, sequenceNumber, request) => {
+      (error, clientId, sequenceNumber, request) => {
         if (error) {
           this.logService.error("autofill.IpcServer.registration", error);
           this.ipcServer.completeError(clientId, sequenceNumber, String(error));
           return;
         }
-        const success = await this.safeSend("autofill.passkeyRegistration", {
+        this.safeSend("autofill.passkeyRegistration", {
           clientId,
           sequenceNumber,
           request,
         });
-        if (!success) {
-          this.ipcServer.completeError(
-            clientId,
-            sequenceNumber,
-            "MacOsNativeCredentialSync feature flag is disabled",
-          );
-        }
       },
       // AssertionCallback
-      async (error, clientId, sequenceNumber, request) => {
+      (error, clientId, sequenceNumber, request) => {
         if (error) {
           this.logService.error("autofill.IpcServer.assertion", error);
           this.ipcServer.completeError(clientId, sequenceNumber, String(error));
           return;
         }
-        const success = await this.safeSend("autofill.passkeyAssertion", {
+        this.safeSend("autofill.passkeyAssertion", {
           clientId,
           sequenceNumber,
           request,
         });
-        if (!success) {
-          this.ipcServer.completeError(
-            clientId,
-            sequenceNumber,
-            "MacOsNativeCredentialSync feature flag is disabled",
-          );
-        }
       },
       // AssertionWithoutUserInterfaceCallback
-      async (error, clientId, sequenceNumber, request) => {
+      (error, clientId, sequenceNumber, request) => {
         if (error) {
           this.logService.error("autofill.IpcServer.assertion", error);
           this.ipcServer.completeError(clientId, sequenceNumber, String(error));
           return;
         }
-        const success = await this.safeSend("autofill.passkeyAssertionWithoutUserInterface", {
+        this.safeSend("autofill.passkeyAssertionWithoutUserInterface", {
           clientId,
           sequenceNumber,
           request,
         });
-        if (!success) {
-          this.ipcServer.completeError(
-            clientId,
-            sequenceNumber,
-            "MacOsNativeCredentialSync feature flag is disabled",
-          );
-        }
       },
       // NativeStatusCallback
-      async (error, clientId, sequenceNumber, status) => {
+      (error, clientId, sequenceNumber, status) => {
         if (error) {
           this.logService.error("autofill.IpcServer.nativeStatus", error);
           this.ipcServer.completeError(clientId, sequenceNumber, String(error));
           return;
         }
-        const success = await this.safeSend("autofill.nativeStatus", {
+        this.safeSend("autofill.nativeStatus", {
           clientId,
           sequenceNumber,
           status,
         });
-        if (!success) {
-          this.ipcServer.completeError(
-            clientId,
-            sequenceNumber,
-            "MacOsNativeCredentialSync feature flag is disabled",
-          );
-        }
       },
     );
 
-    ipcMain.on("autofill.listenerReady", async () => {
-      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
-        return;
-      }
-
+    ipcMain.on("autofill.listenerReady", () => {
       this.listenerReady = true;
       this.logService.info(
         `Listener is ready, flushing ${this.messageBuffer.length} buffered messages`,
@@ -214,31 +137,19 @@ export class NativeAutofillMain {
       this.flushMessageBuffer();
     });
 
-    ipcMain.on("autofill.completePasskeyRegistration", async (event, data) => {
-      if (!(await this.checkFeatureFlagOrError(data))) {
-        return;
-      }
-
+    ipcMain.on("autofill.completePasskeyRegistration", (event, data) => {
       this.logService.warning("autofill.completePasskeyRegistration", data);
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer.completeRegistration(clientId, sequenceNumber, response);
     });
 
-    ipcMain.on("autofill.completePasskeyAssertion", async (event, data) => {
-      if (!(await this.checkFeatureFlagOrError(data))) {
-        return;
-      }
-
+    ipcMain.on("autofill.completePasskeyAssertion", (event, data) => {
       this.logService.warning("autofill.completePasskeyAssertion", data);
       const { clientId, sequenceNumber, response } = data;
       this.ipcServer.completeAssertion(clientId, sequenceNumber, response);
     });
 
-    ipcMain.on("autofill.completeError", async (event, data) => {
-      if (!(await this.checkFeatureFlagOrError(data))) {
-        return;
-      }
-
+    ipcMain.on("autofill.completeError", (event, data) => {
       this.logService.warning("autofill.completeError", data);
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer.completeError(clientId, sequenceNumber, String(error));
