@@ -1,9 +1,22 @@
-import { BaseResponse } from "../../../models/response/base.response";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { TaxIdWarningResponse } from "@bitwarden/web-vault/app/billing/warnings/types";
+
+export type OrganizationFreeTrialWarning = {
+  organization: Pick<Organization, "id" & "name">;
+  message: string;
+};
+
+export type OrganizationResellerRenewalWarning = {
+  type: "info" | "warning";
+  message: string;
+};
 
 export class OrganizationWarningsResponse extends BaseResponse {
   freeTrial?: FreeTrialWarningResponse;
   inactiveSubscription?: InactiveSubscriptionWarningResponse;
   resellerRenewal?: ResellerRenewalWarningResponse;
+  taxId?: TaxIdWarningResponse;
 
   constructor(response: any) {
     super(response);
@@ -20,6 +33,10 @@ export class OrganizationWarningsResponse extends BaseResponse {
     const resellerWarning = this.getResponseProperty("ResellerRenewal");
     if (resellerWarning) {
       this.resellerRenewal = new ResellerRenewalWarningResponse(resellerWarning);
+    }
+    const taxIdWarning = this.getResponseProperty("TaxId");
+    if (taxIdWarning) {
+      this.taxId = new TaxIdWarningResponse(taxIdWarning);
     }
   }
 }

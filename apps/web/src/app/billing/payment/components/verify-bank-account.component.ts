@@ -3,10 +3,10 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 
 import { SharedModule } from "../../../shared";
-import { BillingClient } from "../../services";
-import { BillableEntity } from "../../types";
+import { BitwardenSubscriber } from "../../types";
 import { MaskedPaymentMethod } from "../types";
 
 @Component({
@@ -32,10 +32,10 @@ import { MaskedPaymentMethod } from "../types";
   `,
   standalone: true,
   imports: [SharedModule],
-  providers: [BillingClient],
+  providers: [SubscriberBillingClient],
 })
 export class VerifyBankAccountComponent {
-  @Input({ required: true }) owner!: BillableEntity;
+  @Input({ required: true }) subscriber!: BitwardenSubscriber;
   @Output() verified = new EventEmitter<MaskedPaymentMethod>();
 
   protected formGroup = new FormGroup({
@@ -47,7 +47,7 @@ export class VerifyBankAccountComponent {
   });
 
   constructor(
-    private billingClient: BillingClient,
+    private billingClient: SubscriberBillingClient,
     private i18nService: I18nService,
     private toastService: ToastService,
   ) {}
@@ -60,7 +60,7 @@ export class VerifyBankAccountComponent {
     }
 
     const result = await this.billingClient.verifyBankAccount(
-      this.owner,
+      this.subscriber,
       this.formGroup.value.descriptorCode!,
     );
 

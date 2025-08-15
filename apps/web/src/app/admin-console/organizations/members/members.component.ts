@@ -10,10 +10,10 @@ import {
   from,
   lastValueFrom,
   map,
+  merge,
   Observable,
   shareReplay,
   switchMap,
-  tap,
 } from "rxjs";
 
 import {
@@ -57,12 +57,12 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "../../../billing/organizations/change-plan-dialog.component";
-import { OrganizationWarningsService } from "../../../billing/warnings/services";
 import { BaseMembersComponent } from "../../common/base-members.component";
 import { PeopleTableDataSource } from "../../common/people-table-data-source";
 import { GroupApiService } from "../core";
@@ -253,11 +253,16 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     this.showUserManagementControls$ = organization$.pipe(
       map((organization) => organization.canManageUsers),
     );
+
     organization$
       .pipe(
+        switchMap((organization) =>
+          merge(
+            this.organizationWarningsService.showInactiveSubscriptionDialog$(organization),
+            this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+          ),
+        ),
         takeUntilDestroyed(),
-        tap((org) => (this.organization = org)),
-        switchMap((org) => this.organizationWarningsService.showInactiveSubscriptionDialog$(org)),
       )
       .subscribe();
   }

@@ -150,6 +150,12 @@
     >
       {{ "accessingUsingProvider" | i18n: organization.providerName }}
     </bit-banner>
+    <app-tax-id-warning
+      [subscriber]="subscriber$ | async"
+      [getWarning$]="getTaxIdWarning$"
+      (billingAddressUpdated)="refreshTaxIdWarning()"
+    >
+    </app-tax-id-warning>
   </ng-container>
 
   <router-outlet></router-outlet>

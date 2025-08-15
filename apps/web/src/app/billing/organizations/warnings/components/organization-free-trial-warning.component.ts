@@ -1,12 +1,9 @@
-import { AsyncPipe } from "@angular/common";
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { Observable, Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Observable } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationId } from "@bitwarden/common/types/guid";
-import { AnchorLinkDirective, BannerComponent } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
+import { BannerModule } from "@bitwarden/components";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { OrganizationWarningsService } from "../services";
 import { OrganizationFreeTrialWarning } from "../types";
@@ -37,33 +34,17 @@ import { OrganizationFreeTrialWarning } from "../types";
       </bit-banner>
     }
   `,
-  imports: [AnchorLinkDirective, AsyncPipe, BannerComponent, I18nPipe],
+  imports: [BannerModule, SharedModule],
 })
-export class OrganizationFreeTrialWarningComponent implements OnInit, OnDestroy {
+export class OrganizationFreeTrialWarningComponent implements OnInit {
   @Input({ required: true }) organization!: Organization;
   @Output() clicked = new EventEmitter<void>();
 
-  warning$!: Observable<OrganizationFreeTrialWarning>;
-  private destroy$ = new Subject<void>();
+  warning$!: Observable<OrganizationFreeTrialWarning | null>;
 
   constructor(private organizationWarningsService: OrganizationWarningsService) {}
 
   ngOnInit() {
     this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization);
-    this.organizationWarningsService
-      .refreshWarningsForOrganization$(this.organization.id as OrganizationId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.refresh();
-      });
   }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  refresh = () => {
-    this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization, true);
-  };
 }
