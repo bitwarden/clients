@@ -82,12 +82,16 @@ export class LoginView extends ItemView {
     targetUri: string,
     equivalentDomains: Set<string>,
     defaultUriMatch: UriMatchStrategySetting = null,
+    /** When present, will override the match strategy for the cipher if it is `Never` with `Domain` */
+    overrideNeverMatchStrategy?: true,
   ): boolean {
     if (this.uris == null) {
       return false;
     }
 
-    return this.uris.some((uri) => uri.matchesUri(targetUri, equivalentDomains, defaultUriMatch));
+    return this.uris.some((uri) =>
+      uri.matchesUri(targetUri, equivalentDomains, defaultUriMatch, overrideNeverMatchStrategy),
+    );
   }
 
   static fromJSON(obj: Partial<DeepJsonify<LoginView>>): LoginView {

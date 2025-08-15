@@ -111,6 +111,33 @@ describe("LoginUriView", () => {
 
         expect(actual).toBe(false);
       });
+
+      it("overrides Never match strategy with Domain when parameter is set", () => {
+        const loginUri = new LoginUriView();
+        loginUri.uri = "https://example.org";
+        loginUri.match = UriMatchStrategy.Never;
+
+        expect(loginUri.matchesUri("https://example.org", new Set(), undefined, true)).toBe(true);
+        expect(loginUri.matchesUri("https://example.org", new Set(), undefined)).toBe(false);
+      });
+
+      it("overrides Never match strategy when passed in as default strategy", () => {
+        const loginUriNoMatch = new LoginUriView();
+        loginUriNoMatch.uri = "https://example.org";
+
+        expect(
+          loginUriNoMatch.matchesUri(
+            "https://example.org",
+            new Set(),
+            UriMatchStrategy.Never,
+            true,
+          ),
+        ).toBe(true);
+
+        expect(
+          loginUriNoMatch.matchesUri("https://example.org", new Set(), UriMatchStrategy.Never),
+        ).toBe(false);
+      });
     });
 
     describe("using host matching", () => {
