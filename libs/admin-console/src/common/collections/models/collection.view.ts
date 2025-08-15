@@ -133,6 +133,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.hidePasswords = collection.hidePasswords;
     view.manage = collection.manage;
     view.type = collection.type;
+    view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
     return view;
   }
 
