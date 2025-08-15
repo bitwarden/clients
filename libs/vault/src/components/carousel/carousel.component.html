@@ -16,6 +16,7 @@
       type="button"
       bitIconButton="bwi-angle-left"
       (click)="prevSlide()"
+      [disabled]="selectedIndex <= 0"
       appA11yTitle="{{ 'back' | i18n }}"
     ></button>
     <vault-carousel-button
@@ -27,7 +28,8 @@
     <button
       type="button"
       bitIconButton="bwi-angle-right"
-      (click)="prevSlide()"
+      (click)="nextSlide()"
+      [disabled]="selectedIndex >= slides.length - 1"
       appA11yTitle="{{ 'next' | i18n }}"
     ></button>
   </div>

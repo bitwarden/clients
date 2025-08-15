@@ -103,11 +103,15 @@ export class VaultCarouselComponent implements AfterViewInit {
   }
 
   protected nextSlide() {
-    this.selectedIndex = Math.min(this.slides.length - 1, this.selectedIndex + 1);
+    if (this.selectedIndex < this.slides.length - 1) {
+      this.selectSlide(this.selectedIndex + 1);
+    }
   }
 
   protected prevSlide() {
-    this.selectedIndex = Math.max(0, this.selectedIndex - 1);
+    if (this.selectedIndex > 0) {
+      this.selectSlide(this.selectedIndex - 1);
+    }
   }
 
   async ngAfterViewInit() {

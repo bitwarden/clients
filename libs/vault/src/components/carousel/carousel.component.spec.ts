@@ -4,6 +4,7 @@ import { By } from "@angular/platform-browser";
 
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
 import { VaultCarouselComponent } from "./carousel.component";
+import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 @Component({
   selector: "app-test-carousel-slide",
@@ -32,7 +33,7 @@ describe("VaultCarouselComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
+      imports: [VaultCarouselComponent, VaultCarouselSlideComponent, PreloadedEnglishI18nModule],
     }).compileComponents();
   });
 
@@ -48,7 +49,7 @@ describe("VaultCarouselComponent", () => {
 
   it("shows the active slides content", () => {
     // Set the second slide as active
-    fixture.debugElement.queryAll(By.css("button"))[1].nativeElement.click();
+    fixture.debugElement.queryAll(By.css("button"))[2].nativeElement.click();
     fixture.detectChanges();
 
     const heading = fixture.debugElement.query(By.css("h1")).nativeElement;
@@ -63,7 +64,7 @@ describe("VaultCarouselComponent", () => {
   it('emits "slideChange" event when slide changes', () => {
     jest.spyOn(component.slideChange, "emit");
 
-    const thirdSlideButton = fixture.debugElement.queryAll(By.css("button"))[2];
+    const thirdSlideButton = fixture.debugElement.queryAll(By.css("button"))[3];
 
     thirdSlideButton.nativeElement.click();
 
