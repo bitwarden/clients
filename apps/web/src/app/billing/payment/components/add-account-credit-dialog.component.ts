@@ -145,13 +145,13 @@ export class AddAccountCreditDialogComponent {
     map((cloudRegion) => {
       switch (this.dialogParams.subscriber.type) {
         case "account": {
-          return `user_id=${this.dialogParams.subscriber.data.id},account_credit=1,region=${cloudRegion}`;
+          return `user_id:${this.dialogParams.subscriber.data.id},account_credit:1,region:${cloudRegion}`;
         }
         case "organization": {
-          return `organization_id=${this.dialogParams.subscriber.data.id},account_credit=1,region=${cloudRegion}`;
+          return `organization_id:${this.dialogParams.subscriber.data.id},account_credit:1,region:${cloudRegion}`;
         }
         case "provider": {
-          return `provider_id=${this.dialogParams.subscriber.data.id},account_credit=1,region=${cloudRegion}`;
+          return `provider_id:${this.dialogParams.subscriber.data.id},account_credit:1,region:${cloudRegion}`;
         }
       }
     }),

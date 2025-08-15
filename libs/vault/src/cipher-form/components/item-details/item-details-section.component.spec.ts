@@ -48,6 +48,7 @@ const createMockCollection = (
     canEdit: jest.fn(),
     canDelete: jest.fn(),
     canViewCollectionInfo: jest.fn(),
+    encrypt: jest.fn(),
   };
 };
 

@@ -48,7 +48,6 @@ export enum FeatureFlag {
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
 
   /* Vault */
-  PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
@@ -93,7 +92,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
 
   /* Vault */
-  [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
