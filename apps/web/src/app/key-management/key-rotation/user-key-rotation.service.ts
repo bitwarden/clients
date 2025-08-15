@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -7,6 +7,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { firstValueFromOrThrow } from "@bitwarden/common/key-management/utils";
 import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -103,18 +104,18 @@ export class UserKeyRotationService {
     }
 
     // Read current cryptographic state / settings
-    const masterKeyKdfConfig: KdfConfig = (await this.firstValueFromOrThrow(
+    const masterKeyKdfConfig: KdfConfig = (await firstValueFromOrThrow(
       this.kdfConfigService.getKdfConfig$(user.id),
       "KDF config",
     ))!;
     // The masterkey salt used for deriving the masterkey always needs to be trimmed and lowercased.
     const masterKeySalt = user.email.trim().toLowerCase();
-    const currentUserKey: UserKey = (await this.firstValueFromOrThrow(
+    const currentUserKey: UserKey = (await firstValueFromOrThrow(
       this.keyService.userKey$(user.id),
       "User key",
     ))!;
     const currentUserKeyWrappedPrivateKey = new EncString(
-      (await this.firstValueFromOrThrow(
+      (await firstValueFromOrThrow(
         this.keyService.userEncryptedPrivateKey$(user.id),
         "User encrypted private key",
       ))!,
@@ -514,13 +515,5 @@ export class UserKeyRotationService {
       masterKey,
       HashPurpose.ServerAuthorization,
     );
-  }
-
-  async firstValueFromOrThrow<T>(value: Observable<T>, name: string): Promise<T> {
-    const result = await firstValueFrom(value);
-    if (result == null) {
-      throw new Error(`Failed to get ${name}`);
-    }
-    return result;
   }
 }

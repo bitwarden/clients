@@ -121,7 +121,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     return EncString.fromJSON(key);
   }
 
-  private emailToSalt(email: string): MasterPasswordSalt {
+  emailToSalt(email: string): MasterPasswordSalt {
     return email.toLowerCase().trim() as MasterPasswordSalt;
   }
 
@@ -241,6 +241,9 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(password, "password");
     assertNonNullish(kdf, "kdf");
     assertNonNullish(salt, "salt");
+    if (password === "") {
+      throw new Error("Master password cannot be empty.");
+    }
 
     // We don't trust callers to use masterpasswordsalt correctly. They may type assert incorrectly.
     salt = salt.toLowerCase().trim() as MasterPasswordSalt;
@@ -279,18 +282,19 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(kdf, "kdf");
     assertNonNullish(salt, "salt");
     assertNonNullish(userKey, "userKey");
+    if (password === "") {
+      throw new Error("Master password cannot be empty.");
+    }
 
     // We don't trust callers to use masterpasswordsalt correctly. They may type assert incorrectly.
     salt = salt.toLowerCase().trim() as MasterPasswordSalt;
 
     await SdkLoadService.Ready;
-    const masterKeyWrappedUserKey = new EncString(
-      PureCrypto.encrypt_user_key_with_master_password(
-        userKey.toEncoded(),
-        password,
-        salt,
-        kdf.toSdkConfig(),
-      ),
+    const masterKeyWrappedUserKey = PureCrypto.encrypt_user_key_with_master_password(
+      userKey.toEncoded(),
+      password,
+      salt,
+      kdf.toSdkConfig(),
     ) as MasterKeyWrappedUserKey;
     return {
       salt,
@@ -309,7 +313,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     await SdkLoadService.Ready;
     const userKey = new SymmetricCryptoKey(
       PureCrypto.decrypt_user_key_with_master_password(
-        masterPasswordUnlockData.masterKeyWrappedUserKey.encryptedString,
+        masterPasswordUnlockData.masterKeyWrappedUserKey,
         password,
         masterPasswordUnlockData.salt,
         masterPasswordUnlockData.kdf.toSdkConfig(),

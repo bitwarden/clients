@@ -131,8 +131,7 @@ describe("WebSetInitialPasswordService", () => {
         credentials.newPasswordHint,
         credentials.orgSsoIdentifier,
         keysRequest,
-        credentials.kdfConfig.kdfType,
-        credentials.kdfConfig.iterations,
+        credentials.kdfConfig,
       );
     });
 
