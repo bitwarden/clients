@@ -90,7 +90,7 @@ export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordSer
     const env = await firstValueFrom(this.environmentService.environment$);
     const iconsUrl = env.getIconsUrl();
 
-    const url = new URL(`/change-password-uri?${searchParams.toString()}`, iconsUrl);
+    const url = new URL(`${iconsUrl}/change-password-uri?${searchParams.toString()}`);
 
     return new Request(url, {
       method: "GET",
