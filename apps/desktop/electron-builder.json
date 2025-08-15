@@ -88,7 +88,7 @@
   },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
-    "target": ["portable", "nsis-web", "appx"],
+    "target": ["portable", "nsis-web", "appx", "msi"],
     "signtoolOptions": {
       "sign": "./sign.js"
     },
@@ -160,6 +160,10 @@
   },
   "portable": {
     "artifactName": "${productName}-Portable-${version}.${ext}"
+  },
+  "msi": {
+    "artifactName": "${productName}-${version}.${ext}",
+    "runAfterFinish": false
   },
   "appx": {
     "artifactName": "${productName}-${version}-${arch}.${ext}",
