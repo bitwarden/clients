@@ -18,6 +18,8 @@ jobs:
     steps:
     - name: Check for job requirements
       if: ${{ !(github.event.workflow_run.pull_requests && github.event.workflow_run.pull_requests.length > 0 && github.event.workflow_run.head_branch) }}
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         gh run cancel ${{ github.run_id }}
         gh run watch ${{ github.run_id }}
