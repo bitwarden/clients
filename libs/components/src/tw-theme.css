@@ -192,3 +192,23 @@
     overflow: hidden;
   }
 }
+
+/* Date input theming for custom fields */
+input[type="date"] {
+  color-scheme: light;
+}
+
+.theme_dark input[type="date"] {
+  color-scheme: dark;
+}
+
+/* Keep date picker calendar icon consistent with other icon buttons - don't invert in dark mode */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  cursor: pointer;
+}
+
+.theme_dark input[type="date"]::-webkit-calendar-picker-indicator {
+  /* Keep the calendar icon light like other bitIconButton elements */
+  filter: none;
+}

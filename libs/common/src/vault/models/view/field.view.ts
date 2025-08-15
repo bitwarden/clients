@@ -55,10 +55,20 @@ export class FieldView implements View {
    * Converts the FieldView to an SDK FieldView.
    */
   toSdkFieldView(): SdkFieldView {
+    // Map our FieldType to SDK FieldType, falling back to Text for unsupported types
+    let sdkFieldType: SdkFieldType;
+    if (this.type === FieldType.Date) {
+      // SDK doesn't support Date fields yet, treat as Text
+      sdkFieldType = SdkFieldType.Text;
+    } else {
+      // For other types, cast to SDK type (they should be compatible)
+      sdkFieldType = (this.type ?? SdkFieldType.Text) as SdkFieldType;
+    }
+
     return {
       name: this.name ?? undefined,
       value: this.value ?? undefined,
-      type: this.type ?? SdkFieldType.Text,
+      type: sdkFieldType,
       linkedId: this.linkedId ?? undefined,
     };
   }
