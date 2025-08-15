@@ -312,7 +312,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   async getCollectionNameMap() {
     const response = from(this.apiService.getCollections(this.organization.id)).pipe(
       map((res) =>
-        res.data.map((r) => new Collection(new CollectionData(r as CollectionDetailsResponse))),
+        res.data.map((r) =>
+          Collection.fromCollectionData(new CollectionData(r as CollectionDetailsResponse)),
+        ),
       ),
     );
 
