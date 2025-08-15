@@ -10,6 +10,7 @@ import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.ser
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { ApiService } from "@bitwarden/common/services/api.service";
 
 (global as any).fetch = fe.default;
@@ -28,6 +29,7 @@ export class NodeApiService extends ApiService {
     logService: LogService,
     logoutCallback: () => Promise<void>,
     vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    stateProvider: StateProvider,
     customUserAgent: string = null,
   ) {
     super(
@@ -40,6 +42,7 @@ export class NodeApiService extends ApiService {
       logoutCallback,
       vaultTimeoutSettingsService,
       { createRequest: (url, request) => new Request(url, request) },
+      stateProvider,
       customUserAgent,
     );
   }
