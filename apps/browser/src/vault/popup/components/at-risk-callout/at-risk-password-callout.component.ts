@@ -90,7 +90,7 @@ export class AtRiskPasswordCalloutComponent {
       }
 
       // If user has pending tasks set state hadPendingTasks to true
-      if (this.currentPendingTasks()?.length > 0) {
+      if ((this.currentPendingTasks()?.length ?? 0) > 0) {
         const updateObject: AtRiskPasswordCalloutData = {
           hadPendingTasks: true,
           showTasksCompleteBanner: false,
