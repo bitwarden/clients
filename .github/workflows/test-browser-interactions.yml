@@ -11,10 +11,16 @@ jobs:
     name: Check files
     runs-on: ubuntu-22.04
     permissions:
-      actions: read
+      actions: write
       contents: read
       id-token: write
     steps:
+    - name: Check for job requirements
+      if: ${{ !(github.event.workflow_run.pull_requests && github.event.workflow_run.pull_requests.length > 0 && github.event.workflow_run.head_branch) }}
+      run: |
+        gh run cancel ${{ github.run_id }}
+        gh run watch ${{ github.run_id }}
+
     - name: Log in to Azure
       uses: bitwarden/gh-actions/azure-login@main
       with:
