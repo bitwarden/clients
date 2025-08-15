@@ -318,14 +318,14 @@ export abstract class KeyService {
   ): Observable<{ privateKey: UserPrivateKey; publicKey: UserPublicKey } | null>;
 
   /**
-   * Generates a fingerprint phrase for the user based on their public key
+   * Generates a fingerprint phrase for the public key provided.
    *
-   * @throws Error when publicKey is null and there is no active user, or the active user does not have a public key
+   * @throws Error when publicKey is null or undefined.
    * @param fingerprintMaterial Fingerprint material
-   * @param publicKey The user's public key
-   * @returns The user's fingerprint phrase
+   * @param publicKey The public key to generate the fingerprint phrase for.
+   * @returns The fingerprint phrase
    */
-  abstract getFingerprint(fingerprintMaterial: string, publicKey?: Uint8Array): Promise<string[]>;
+  abstract getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]>;
   /**
    * Generates a new keypair
    * @param key A key to encrypt the private key with. If not provided,

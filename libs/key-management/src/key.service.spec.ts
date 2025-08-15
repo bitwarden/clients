@@ -1227,6 +1227,63 @@ describe("keyService", () => {
     });
   });
 
+  describe("getFingerprint", () => {
+    const mockFingerprintMaterial = "test@example.com";
+    const mockPublicKey = new Uint8Array(256);
+    const mockKeyFingerprint = Utils.fromB64ToArray("nfG2jTrJilBEsSrg7ffe9exE9PlClem4P2bxlQ6rNbs=");
+    const mockUserFingerprint = Utils.fromB64ToArray(
+      "V5AQSk83YXd6kZqCncC6d9J72R7UZ60Xl1eIoDoWgTc=",
+    );
+    const expectedFingerprint = ["predefine", "hunting", "pastime", "enrich", "unhearing"];
+
+    beforeEach(() => {
+      cryptoFunctionService.hash.mockResolvedValue(mockKeyFingerprint);
+      cryptoFunctionService.hkdfExpand.mockResolvedValue(mockUserFingerprint);
+    });
+
+    test.each([null as unknown as Uint8Array, undefined as unknown as Uint8Array])(
+      "throws when publicKey is %s",
+      async (publicKey) => {
+        await expect(keyService.getFingerprint(mockFingerprintMaterial, publicKey)).rejects.toThrow(
+          "Public key is required to generate a fingerprint.",
+        );
+        expect(cryptoFunctionService.hash).not.toHaveBeenCalled();
+        expect(cryptoFunctionService.hkdfExpand).not.toHaveBeenCalled();
+      },
+    );
+
+    it("generates fingerprint successfully", async () => {
+      const result = await keyService.getFingerprint(mockFingerprintMaterial, mockPublicKey);
+
+      expect(result).toEqual(expectedFingerprint);
+      expect(cryptoFunctionService.hash).toHaveBeenCalledWith(mockPublicKey, "sha256");
+      expect(cryptoFunctionService.hkdfExpand).toHaveBeenCalledWith(
+        mockKeyFingerprint,
+        mockFingerprintMaterial,
+        32,
+        "sha256",
+      );
+    });
+
+    it("throws when entropy of hash function is too small", async () => {
+      const keyFingerprint = new Uint8Array(3);
+      cryptoFunctionService.hash.mockResolvedValue(keyFingerprint);
+      cryptoFunctionService.hkdfExpand.mockResolvedValue(new Uint8Array(3));
+
+      await expect(
+        keyService.getFingerprint(mockFingerprintMaterial, mockPublicKey),
+      ).rejects.toThrow("Output entropy of hash function is too small");
+
+      expect(cryptoFunctionService.hash).toHaveBeenCalledWith(mockPublicKey, "sha256");
+      expect(cryptoFunctionService.hkdfExpand).toHaveBeenCalledWith(
+        keyFingerprint,
+        mockFingerprintMaterial,
+        32,
+        "sha256",
+      );
+    });
+  });
+
   describe("makeKeyPair", () => {
     test.each([null as unknown as SymmetricCryptoKey, undefined as unknown as SymmetricCryptoKey])(
       "throws when the provided key is %s",
