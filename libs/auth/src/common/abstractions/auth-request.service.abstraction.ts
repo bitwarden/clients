@@ -109,9 +109,9 @@ export abstract class AuthRequestServiceAbstraction {
   ): Promise<{ masterKey: MasterKey; masterKeyHash: string }>;
 
   /**
-   * Handles incoming auth request push notifications.
+   * Handles incoming auth request push server notifications.
    * @param notification push notification.
-   * @remark We should only be receiving approved push notifications to prevent enumeration.
+   * @remark We should only be receiving approved push server notifications to prevent enumeration.
    */
   abstract sendAuthRequestPushNotification(notification: AuthRequestPushNotification): void;
 

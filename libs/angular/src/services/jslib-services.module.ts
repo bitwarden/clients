@@ -196,6 +196,8 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ActionsService } from "@bitwarden/common/platform/actions";
+import { UnsupportedActionsService } from "@bitwarden/common/platform/actions/unsupported-actions.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
@@ -203,20 +205,20 @@ import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/inter
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
-// eslint-disable-next-line no-restricted-imports -- Needed for service creation
-import {
-  DefaultNotificationsService,
-  NoopNotificationsService,
-  SignalRConnectionService,
-  UnsupportedWebPushConnectionService,
-  WebPushConnectionService,
-  WebPushNotificationsApiService,
-} from "@bitwarden/common/platform/notifications/internal";
 import {
   DefaultTaskSchedulerService,
   TaskSchedulerService,
 } from "@bitwarden/common/platform/scheduling";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
+// eslint-disable-next-line no-restricted-imports -- Needed for service creation
+import {
+  DefaultServerNotificationsService,
+  NoopServerNotificationsService,
+  SignalRConnectionService,
+  UnsupportedWebPushConnectionService,
+  WebPushConnectionService,
+  WebPushNotificationsApiService,
+} from "@bitwarden/common/platform/server-notifications/internal";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -945,10 +947,15 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: NotificationsService,
+    provide: ActionsService,
+    useClass: UnsupportedActionsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: ServerNotificationsService,
     useClass: devFlagEnabled("noopNotifications")
-      ? NoopNotificationsService
-      : DefaultNotificationsService,
+      ? NoopServerNotificationsService
+      : DefaultServerNotificationsService,
     deps: [
       LogService,
       SyncService,
@@ -1539,7 +1546,7 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       OrganizationServiceAbstraction,
       AuthServiceAbstraction,
-      NotificationsService,
+      ServerNotificationsService,
       MessageListener,
     ],
   }),
@@ -1549,7 +1556,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       StateProvider,
       ApiServiceAbstraction,
-      NotificationsService,
+      ServerNotificationsService,
       AuthServiceAbstraction,
       LogService,
     ],

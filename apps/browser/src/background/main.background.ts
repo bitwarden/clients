@@ -111,6 +111,7 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
+import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
@@ -120,15 +121,15 @@ import { Lazy } from "@bitwarden/common/platform/misc/lazy";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
-  DefaultNotificationsService,
+  DefaultServerNotificationsService,
   SignalRConnectionService,
   UnsupportedWebPushConnectionService,
   WebPushNotificationsApiService,
   WorkerWebPushConnectionService,
-} from "@bitwarden/common/platform/notifications/internal";
+} from "@bitwarden/common/platform/server-notifications/internal";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -167,6 +168,8 @@ import { WindowStorageService } from "@bitwarden/common/platform/storage/window-
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
+import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications/";
+import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
@@ -267,6 +270,7 @@ import { InlineMenuFieldQualificationService } from "../autofill/services/inline
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
+import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -295,6 +299,7 @@ import { BackgroundMemoryStorageService } from "../platform/storage/background-m
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
 import { OffscreenStorageService } from "../platform/storage/offscreen-storage.service";
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
+import { BrowserSystemNotificationService } from "../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
@@ -340,7 +345,9 @@ export default class MainBackground {
   importService: ImportServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
-  notificationsService: NotificationsService;
+  serverNotificationsService: ServerNotificationsService;
+  systemNotificationService: SystemNotificationsService;
+  actionsService: ActionsService;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -441,7 +448,6 @@ export default class MainBackground {
   private webRequestBackground: WebRequestBackground;
 
   private syncTimeout: any;
-  private isSafari: boolean;
   private nativeMessagingBackground: NativeMessagingBackground;
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
@@ -1120,7 +1126,18 @@ export default class MainBackground {
       this.webPushConnectionService = new UnsupportedWebPushConnectionService();
     }
 
-    this.notificationsService = new DefaultNotificationsService(
+    this.actionsService = new BrowserActionsService(this.logService, this.platformUtilsService);
+
+    if ("notifications" in chrome) {
+      this.systemNotificationService = new BrowserSystemNotificationService(
+        this.logService,
+        this.platformUtilsService,
+      );
+    } else {
+      this.systemNotificationService = new UnsupportedSystemNotificationsService();
+    }
+
+    this.serverNotificationsService = new DefaultServerNotificationsService(
       this.logService,
       this.syncService,
       this.appIdService,
@@ -1174,9 +1191,6 @@ export default class MainBackground {
       this.logService,
     );
 
-    // Other fields
-    this.isSafari = this.platformUtilsService.isSafari();
-
     // Background
 
     this.fido2Background = new Fido2Background(
@@ -1194,7 +1208,6 @@ export default class MainBackground {
       this,
       this.autofillService,
       this.platformUtilsService as BrowserPlatformUtilsService,
-      this.notificationsService,
       this.autofillSettingsService,
       this.processReloadService,
       this.environmentService,
@@ -1233,7 +1246,7 @@ export default class MainBackground {
       this.apiService,
       this.organizationService,
       this.authService,
-      this.notificationsService,
+      this.serverNotificationsService,
       messageListener,
     );
 
@@ -1307,7 +1320,7 @@ export default class MainBackground {
 
     this.idleBackground = new IdleBackground(
       this.vaultTimeoutService,
-      this.notificationsService,
+      this.serverNotificationsService,
       this.accountService,
       this.vaultTimeoutSettingsService,
     );
@@ -1365,7 +1378,7 @@ export default class MainBackground {
     this.endUserNotificationService = new DefaultEndUserNotificationService(
       this.stateProvider,
       this.apiService,
-      this.notificationsService,
+      this.serverNotificationsService,
       this.authService,
       this.logService,
     );
@@ -1444,7 +1457,7 @@ export default class MainBackground {
       setTimeout(async () => {
         await this.fullSync(false);
         this.backgroundSyncService.init();
-        this.notificationsService.startListening();
+        this.serverNotificationsService.startListening();
 
         this.taskService.listenForTaskNotifications();
         this.endUserNotificationService.listenForEndUserNotifications();
@@ -1666,6 +1679,11 @@ export default class MainBackground {
     );
   }
 
+  /**
+   * Opens the popup.
+   *
+   * @deprecated Migrating to the browser actions service.
+   */
   async openPopup() {
     const browserAction = BrowserApi.getBrowserAction();
 
@@ -1674,7 +1692,7 @@ export default class MainBackground {
       return;
     }
 
-    if (this.isSafari) {
+    if (this.platformUtilsService.isSafari()) {
       await SafariApp.sendMessageToApp("showPopover", null, true);
     }
   }
@@ -1701,7 +1719,9 @@ export default class MainBackground {
 
   /**
    * Opens the popup to the given page
+   *
    * @default ExtensionPageUrls.Index
+   * @deprecated Migrating to the browser actions service.
    */
   async openTheExtensionToPage(url: ExtensionPageUrls = ExtensionPageUrls.Index) {
     const isValidUrl = Object.values(ExtensionPageUrls).includes(url);

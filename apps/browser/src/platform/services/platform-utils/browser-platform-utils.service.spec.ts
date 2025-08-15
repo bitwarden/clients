@@ -150,7 +150,7 @@ describe("Browser Utils Service", () => {
         callback(undefined);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(false);
     });
@@ -160,7 +160,7 @@ describe("Browser Utils Service", () => {
         callback(message.command === "checkVaultPopupHeartbeat");
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(true);
     });
@@ -173,7 +173,7 @@ describe("Browser Utils Service", () => {
         callback(undefined);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(false);
 

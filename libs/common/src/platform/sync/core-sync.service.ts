@@ -230,7 +230,7 @@ export abstract class CoreSyncService implements SyncService {
         }),
       ),
     );
-    // Process only notifications for currently active user when user is not logged out
+    // Process only server notifications for currently active user when user is not logged out
     // TODO: once send service allows data manipulation of non-active users, this should process any received notification
     if (activeUserId === notification.userId && status !== AuthenticationStatus.LoggedOut) {
       try {

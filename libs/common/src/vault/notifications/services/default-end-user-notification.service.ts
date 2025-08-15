@@ -6,7 +6,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { NotificationType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { NotificationId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -36,7 +36,7 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
   constructor(
     private stateProvider: StateProvider,
     private apiService: ApiService,
-    private notificationService: NotificationsService,
+    private notificationService: ServerNotificationsService,
     private authService: AuthService,
     private logService: LogService,
   ) {}
