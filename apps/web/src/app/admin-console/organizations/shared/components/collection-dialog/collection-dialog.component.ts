@@ -498,14 +498,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.controls.access.disable();
       this.formGroup.controls.name.disable();
       this.formGroup.controls.parent.disable();
-    } else {
-      if (this.collection.canEditName(this.organization)) {
-        this.formGroup.controls.name.enable();
-        this.formGroup.controls.parent.enable();
-      }
-
-      this.formGroup.controls.access.enable();
+      return;
     }
+
+    this.formGroup.controls.access.enable();
+
+    const canEditName = this.collection.canEditName(this.organization);
+    this.formGroup.controls.name[canEditName ? "enable" : "disable"]();
+    this.formGroup.controls.parent[canEditName ? "enable" : "disable"]();
   }
 
   private close(action: CollectionDialogAction, collection?: CollectionResponse | CollectionView) {
