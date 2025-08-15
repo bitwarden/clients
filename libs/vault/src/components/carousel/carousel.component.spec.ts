@@ -70,4 +70,31 @@ describe("VaultCarouselComponent", () => {
 
     expect(component.slideChange.emit).toHaveBeenCalledWith(2);
   });
+
+  it('advances to the next slide when the "next" button is pressed', () => {
+    const middleSlideButton = fixture.debugElement.queryAll(By.css("button"))[2];
+    const nextButton = fixture.debugElement.queryAll(By.css("button"))[4];
+
+    middleSlideButton.nativeElement.click();
+
+    jest.spyOn(component.slideChange, "emit");
+
+    nextButton.nativeElement.click();
+
+    expect(component.slideChange.emit).toHaveBeenCalledWith(2);
+  });
+
+  it('advances to the previous slide when the "back" button is pressed', async () => {
+    const middleSlideButton = fixture.debugElement.queryAll(By.css("button"))[2];
+    const backButton = fixture.debugElement.queryAll(By.css("button"))[0];
+
+    middleSlideButton.nativeElement.click();
+    await new Promise((r) => setTimeout(r, 100)); // Give time for the DOM to update.
+
+    jest.spyOn(component.slideChange, "emit");
+
+    backButton.nativeElement.click();
+
+    expect(component.slideChange.emit).toHaveBeenCalledWith(0);
+  });
 });
