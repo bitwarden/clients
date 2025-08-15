@@ -74,7 +74,7 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.CreateDefaultLocation]: FALSE,
+  [FeatureFlag.CreateDefaultLocation]: true,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,

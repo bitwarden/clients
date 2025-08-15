@@ -1,6 +1,10 @@
 import { combineLatest, firstValueFrom, from, map, Observable, of, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -10,13 +14,15 @@ import { KeyService } from "@bitwarden/key-management";
 import { CollectionAdminService, CollectionService } from "../abstractions";
 import {
   CollectionData,
-  CollectionRequest,
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
   BulkCollectionAccessRequest,
   CollectionAccessSelectionView,
   CollectionAdminView,
+  BaseCollectionRequest,
+  UpdateCollectionRequest,
+  CreateCollectionRequest,
 } from "../models";
 
 export class DefaultCollectionAdminService implements CollectionAdminService {
@@ -25,6 +31,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     private keyService: KeyService,
     private encryptService: EncryptService,
     private collectionService: CollectionService,
+    private organizationService: OrganizationService,
   ) {}
 
   collectionAdminViews$(organizationId: string, userId: UserId): Observable<CollectionAdminView[]> {
@@ -45,8 +52,12 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     );
   }
 
-  async save(collection: CollectionAdminView, userId: UserId): Promise<CollectionDetailsResponse> {
-    const request = await this.encrypt(collection, userId);
+  async save(
+    collection: CollectionAdminView,
+    userId: UserId,
+    editMode: boolean,
+  ): Promise<CollectionDetailsResponse> {
+    const request = await this.encrypt(collection, userId, editMode);
 
     let response: CollectionDetailsResponse;
     if (collection.id == null) {
@@ -122,7 +133,11 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     return r;
   }
 
-  private async encrypt(model: CollectionAdminView, userId: UserId): Promise<CollectionRequest> {
+  private async encrypt(
+    model: CollectionAdminView,
+    userId: UserId,
+    editMode: boolean = false,
+  ): Promise<BaseCollectionRequest> {
     if (!model.organizationId) {
       throw new Error("Collection has no organization id.");
     }
@@ -155,14 +170,31 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
         new SelectionReadOnlyRequest(user.id, user.readOnly, user.hidePasswords, user.manage),
     );
 
-    const collectionRequest = new CollectionRequest({
+    if (editMode) {
+      const org = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(model.organizationId)),
+      );
+      if (org == null) {
+        throw new Error("No Organization found.");
+      }
+      return new UpdateCollectionRequest({
+        name: model.canEditName(org)
+          ? await this.encryptService.encryptString(model.name, key)
+          : null,
+        externalId: model.externalId,
+        users,
+        groups,
+      });
+    }
+
+    return new CreateCollectionRequest({
       name: await this.encryptService.encryptString(model.name, key),
       externalId: model.externalId,
       users,
       groups,
     });
-
-    return collectionRequest;
   }
 }
 

@@ -424,7 +424,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       .map(convertToSelectionView);
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const savedCollection = await this.collectionAdminService.save(collectionView, userId);
+    const savedCollection = await this.collectionAdminService.save(
+      collectionView,
+      userId,
+      this.editMode,
+    );
 
     this.toastService.showToast({
       variant: "success",
