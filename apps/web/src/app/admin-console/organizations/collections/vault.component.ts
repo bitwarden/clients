@@ -676,9 +676,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.organizationWarningsService
-      .showSubscribeBeforeFreeTrialEndsDialog$(this.organization)
-      .pipe(takeUntil(this.destroy$))
+    organization$
+      .pipe(
+        switchMap((organization) =>
+          this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe();
 
     const freeTrial$ = combineLatest([
