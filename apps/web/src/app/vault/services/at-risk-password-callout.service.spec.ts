@@ -32,7 +32,7 @@ describe("AtRiskPasswordCalloutService", () => {
   const mockTaskService = { pendingTasks$: jest.fn() };
   const mockCipherService = { cipherViews$: jest.fn() };
   const mockStateProvider = { getUser: jest.fn().mockReturnValue(fakeUserState()) };
-  const userId: UserId = "user-123" as UserId;
+  const userId: UserId = "user1" as UserId;
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
@@ -60,7 +60,7 @@ describe("AtRiskPasswordCalloutService", () => {
   });
 
   describe("pendingTasks$", () => {
-    it("filters tasks to only UpdateAtRiskCredential with a non-deleted cipher", async () => {
+    it("filters tasks to only items with UpdateAtRiskCredential types and not deleted cipher", async () => {
       const tasks: SecurityTask[] = [
         { id: "t1", cipherId: "c1", type: SecurityTaskType.UpdateAtRiskCredential } as any,
         { id: "t2", cipherId: "c2", type: null } as any,
@@ -83,7 +83,7 @@ describe("AtRiskPasswordCalloutService", () => {
   });
 
   describe("atRiskPasswordState", () => {
-    it("calls stateProvider.getUser and returns its value", () => {
+    it("calls stateProvider.getUser with proper values", () => {
       service.atRiskPasswordState(userId);
       expect(mockStateProvider.getUser).toHaveBeenCalledWith(userId, AT_RISK_PASSWORD_CALLOUT_KEY);
     });

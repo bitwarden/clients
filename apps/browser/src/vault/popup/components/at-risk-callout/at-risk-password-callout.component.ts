@@ -89,7 +89,7 @@ export class AtRiskPasswordCalloutComponent {
         );
       }
 
-      // Will show callout, will remove any previous dismissed banner state
+      // If user has pending tasks set state hadPendingTasks to true
       if (this.currentPendingTasks()?.length > 0) {
         const updateObject: AtRiskPasswordCalloutData = {
           hadPendingTasks: true,
