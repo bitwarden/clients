@@ -145,17 +145,33 @@ class BrowserPopupUtils {
       ),
       height: 630,
     };
-    const offsetRight = 15;
-    const offsetTop = 90;
-    const popupWidth = defaultPopoutWindowOptions.width;
+
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
-    const popoutWindowOptions = {
-      left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
-      top: senderWindow.top + offsetTop,
-      ...defaultPopoutWindowOptions,
-      ...windowOptions,
-      url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
-    };
+    const waylandLike = senderWindow.left === 0 && senderWindow.top === 0;
+
+    let popoutWindowOptions: chrome.windows.CreateData;
+
+    if (waylandLike) {
+      popoutWindowOptions = {
+        ...defaultPopoutWindowOptions,
+        ...windowOptions,
+        url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
+      };
+      delete popoutWindowOptions.left;
+      delete popoutWindowOptions.top;
+    } else {
+      const offsetRight = 15;
+      const offsetTop = 90;
+      const popupWidth = defaultPopoutWindowOptions.width;
+
+      popoutWindowOptions = {
+        left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
+        top: senderWindow.top + offsetTop,
+        ...defaultPopoutWindowOptions,
+        ...windowOptions,
+        url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
+      };
+    }
 
     if (
       (await BrowserPopupUtils.isSingleActionPopoutOpen(
