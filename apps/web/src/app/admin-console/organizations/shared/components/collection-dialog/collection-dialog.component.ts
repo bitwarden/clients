@@ -335,7 +335,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         this.formGroup.controls.access.updateValueAndValidity();
 
         this.handleFormGroupReadonly(this.dialogReadonly);
-        this.formGroup.controls.parent.disable();
 
         this.loading = false;
         this.showAddAccessWarning = this.handleAddAccessWarning();
