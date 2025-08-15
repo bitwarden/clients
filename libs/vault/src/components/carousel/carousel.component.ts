@@ -20,7 +20,9 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { take } from "rxjs";
 
-import { ButtonModule } from "@bitwarden/components";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ButtonModule, IconButtonModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultCarouselButtonComponent } from "./carousel-button/carousel-button.component";
 import { VaultCarouselContentComponent } from "./carousel-content/carousel-content.component";
@@ -32,9 +34,12 @@ import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.com
   imports: [
     CdkPortalOutlet,
     CommonModule,
+    JslibModule,
+    IconButtonModule,
     ButtonModule,
     VaultCarouselContentComponent,
     VaultCarouselButtonComponent,
+    I18nPipe,
   ],
 })
 export class VaultCarouselComponent implements AfterViewInit {
@@ -95,6 +100,14 @@ export class VaultCarouselComponent implements AfterViewInit {
   protected selectSlide(index: number) {
     this.selectedIndex = index;
     this.slideChange.emit(index);
+  }
+
+  protected nextSlide() {
+    this.selectedIndex = Math.min(this.slides.length - 1, this.selectedIndex + 1);
+  }
+
+  protected prevSlide() {
+    this.selectedIndex = Math.max(0, this.selectedIndex - 1);
   }
 
   async ngAfterViewInit() {

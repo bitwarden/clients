@@ -12,12 +12,24 @@
     (keydown)="keyManager.onKeydown($event)"
     #carouselButtonWrapper
   >
+    <button
+      type="button"
+      bitIconButton="bwi-angle-left"
+      (click)="prevSlide()"
+      appA11yTitle="{{ 'back' | i18n }}"
+    ></button>
     <vault-carousel-button
       *ngFor="let slide of slides; let i = index"
       [slide]="slide"
       [isActive]="i === selectedIndex"
       (onClick)="selectSlide(i)"
     ></vault-carousel-button>
+    <button
+      type="button"
+      bitIconButton="bwi-angle-right"
+      (click)="prevSlide()"
+      appA11yTitle="{{ 'next' | i18n }}"
+    ></button>
   </div>
   <div class="tw-absolute tw-invisible" #tempSlideContainer *ngIf="minHeight === null">
     <ng-template cdkPortalOutlet></ng-template>
