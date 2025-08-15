@@ -5579,5 +5579,8 @@
   },
   "showLess": {
     "message": "Visa mindre"
+  },
+  "next": {
+    "message": "Nästa"
   }
 }

@@ -5579,5 +5579,8 @@
   },
   "showLess": {
     "message": "Меньше"
+  },
+  "next": {
+    "message": "Далее"
   }
 }
