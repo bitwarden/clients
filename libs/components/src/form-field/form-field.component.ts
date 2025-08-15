@@ -1,18 +1,16 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   booleanAttribute,
   Component,
-  ContentChild,
   ElementRef,
   HostBinding,
   HostListener,
-  ViewChild,
   signal,
   input,
   Input,
+  contentChild,
+  viewChild,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -30,14 +28,14 @@ import { BitFormFieldControl } from "./form-field-control";
   imports: [CommonModule, BitErrorComponent, I18nPipe],
 })
 export class BitFormFieldComponent implements AfterContentChecked {
-  @ContentChild(BitFormFieldControl) input: BitFormFieldControl;
-  @ContentChild(BitHintComponent) hint: BitHintComponent;
-  @ContentChild(BitLabel) label: BitLabel;
+  readonly input = contentChild.required(BitFormFieldControl);
+  readonly hint = contentChild(BitHintComponent);
+  readonly label = contentChild(BitLabel);
 
-  @ViewChild("prefixContainer") prefixContainer: ElementRef<HTMLDivElement>;
-  @ViewChild("suffixContainer") suffixContainer: ElementRef<HTMLDivElement>;
+  readonly prefixContainer = viewChild<ElementRef<HTMLDivElement>>("prefixContainer");
+  readonly suffixContainer = viewChild<ElementRef<HTMLDivElement>>("suffixContainer");
 
-  @ViewChild(BitErrorComponent) error: BitErrorComponent;
+  readonly error = viewChild(BitErrorComponent);
 
   readonly disableMargin = input(false, { transform: booleanAttribute });
 
@@ -54,7 +52,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
     const shouldFocusBorderAppear = this.defaultContentIsFocused();
 
     const groupClasses = [
-      this.input.hasError
+      this.input().hasError
         ? "group-hover/bit-form-field:tw-border-danger-700"
         : "group-hover/bit-form-field:tw-border-primary-600",
       // the next 2 selectors override the above hover selectors when the input (or text area) is non-interactive (i.e. readonly, disabled)
@@ -68,7 +66,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
         : "",
     ];
 
-    const baseInputBorderClasses = inputBorderClasses(this.input.hasError);
+    const baseInputBorderClasses = inputBorderClasses(this.input().hasError);
 
     const borderClasses = baseInputBorderClasses.concat(groupClasses);
 
@@ -100,19 +98,21 @@ export class BitFormFieldComponent implements AfterContentChecked {
   }
 
   protected get readOnly(): boolean {
-    return this.input.readOnly;
+    return !!this.input().readOnly;
   }
 
   ngAfterContentChecked(): void {
-    if (this.error) {
-      this.input.ariaDescribedBy = this.error.id;
-    } else if (this.hint) {
-      this.input.ariaDescribedBy = this.hint.id;
+    const error = this.error();
+    const hint = this.hint();
+    if (error) {
+      this.input().ariaDescribedBy = error.id;
+    } else if (hint) {
+      this.input().ariaDescribedBy = hint.id;
     } else {
-      this.input.ariaDescribedBy = undefined;
+      this.input().ariaDescribedBy = undefined;
     }
 
-    this.prefixHasChildren.set(this.prefixContainer?.nativeElement.childElementCount > 0);
-    this.suffixHasChildren.set(this.suffixContainer?.nativeElement.childElementCount > 0);
+    this.prefixHasChildren.set((this.prefixContainer()?.nativeElement.childElementCount ?? 0) > 0);
+    this.suffixHasChildren.set((this.suffixContainer()?.nativeElement.childElementCount ?? 0) > 0);
   }
 }

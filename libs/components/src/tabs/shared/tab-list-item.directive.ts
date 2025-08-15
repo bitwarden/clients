@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FocusableOption } from "@angular/cdk/a11y";
 import { Directive, ElementRef, HostBinding, Input, input } from "@angular/core";
 
@@ -15,7 +13,7 @@ export class TabListItemDirective implements FocusableOption {
   // TODO: Skipped for signal migration because:
   //  This input overrides a field from a superclass, while the superclass field
   //  is not migrated.
-  @Input() disabled: boolean;
+  @Input() disabled = false;
 
   @HostBinding("attr.disabled")
   get disabledAttr() {

@@ -2,14 +2,13 @@ import { CommonModule } from "@angular/common";
 import {
   booleanAttribute,
   Component,
-  ContentChildren,
   EventEmitter,
   Optional,
   Output,
-  QueryList,
   SkipSelf,
   input,
   model,
+  contentChildren,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -30,10 +29,7 @@ import { SideNavService } from "./side-nav.service";
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
 })
 export class NavGroupComponent extends NavBaseComponent {
-  @ContentChildren(NavBaseComponent, {
-    descendants: true,
-  })
-  nestedNavComponents!: QueryList<NavBaseComponent>;
+  readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: true });
 
   /** When the side nav is open, the parent nav item should not show active styles when open. */
   protected get parentHideActiveStyles(): boolean {

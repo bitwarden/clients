@@ -136,7 +136,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   protected toggleMatchDetection() {
     this.showMatchDetection = !this.showMatchDetection;
     if (this.showMatchDetection) {
-      setTimeout(() => this.matchDetectionSelect?.select?.focus(), 0);
+      setTimeout(() => this.matchDetectionSelect?.select()?.focus(), 0);
     }
   }
 

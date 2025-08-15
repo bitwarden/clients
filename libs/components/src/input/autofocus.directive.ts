@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   AfterContentChecked,
   booleanAttribute,
@@ -73,11 +71,13 @@ export class AutofocusDirective implements AfterContentChecked {
   private focus() {
     const el = this.getElement();
 
-    el.focus();
-    this.focused = el === document.activeElement;
+    if (el) {
+      el.focus();
+      this.focused = el === document.activeElement;
+    }
   }
 
-  private getElement() {
+  private getElement(): HTMLElement | undefined {
     if (this.focusableElement) {
       return this.focusableElement.getFocusTarget();
     }

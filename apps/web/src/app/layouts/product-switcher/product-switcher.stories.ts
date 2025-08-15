@@ -179,7 +179,7 @@ type Story = StoryObj<
 const Template: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <router-outlet [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></router-outlet>
     <div class="tw-flex tw-gap-[200px]">
       <div>
@@ -191,7 +191,7 @@ const Template: Story = {
         <product-switcher-content #content></product-switcher-content>
         <div class="tw-h-40">
           <div class="cdk-overlay-pane bit-menu-panel">
-            <ng-container *ngTemplateOutlet="content?.menu?.templateRef"></ng-container>
+            <ng-container *ngTemplateOutlet="content?.menu?.templateRef()"></ng-container>
           </div>
         </div>
       </div>
