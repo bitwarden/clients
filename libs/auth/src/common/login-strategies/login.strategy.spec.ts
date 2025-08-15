@@ -378,7 +378,7 @@ describe("LoginStrategy", () => {
       const result = await passwordLoginStrategy.logIn(credentials);
 
       expect(environmentService.seedUserEnvironment).not.toHaveBeenCalled();
-      expect(accountService.switchAccount).not.toHaveBeenCalled();
+      expect(accountService.mock.switchAccount).not.toHaveBeenCalled();
       expect(messagingService.send).not.toHaveBeenCalled();
       expect(tokenService.clearTwoFactorToken).toHaveBeenCalled();
 
