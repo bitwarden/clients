@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IsActiveMatchOptions, Router, RouterModule } from "@angular/router";
-import { Observable, filter, firstValueFrom, map, merge, race, take, timer } from "rxjs";
+import { Observable, firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -39,7 +39,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, LinkModule, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { AuthRequestApiService } from "../../common/abstractions/auth-request-api.service";
+import { AuthRequestApiServiceAbstraction } from "../../common/abstractions/auth-request-api.service";
 import { LoginViaAuthRequestCacheService } from "../../common/services/auth-request/default-login-via-auth-request-cache.service";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -85,7 +85,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private anonymousHubService: AnonymousHubService,
     private appIdService: AppIdService,
-    private authRequestApiService: AuthRequestApiService,
+    private authRequestApiService: AuthRequestApiServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
     private authService: AuthService,
     private cryptoFunctionService: CryptoFunctionService,
@@ -185,17 +185,15 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       this.accountService.activeAccount$.pipe(map((a) => a?.email));
     const loginEmail$: Observable<string | null> = this.loginEmailService.loginEmail$;
 
-    // Use merge as we want to get the first value from either observable.
-    const firstEmail$ = merge(loginEmail$, activeAccountEmail$).pipe(
-      filter((e): e is string => !!e), // convert null/undefined to false and filter out so we narrow type to string
-      take(1), // complete after first value
-    );
+    let loginEmail: string | undefined = (await firstValueFrom(loginEmail$)) ?? undefined;
 
-    const emailRetrievalTimeout$ = timer(2500).pipe(map(() => undefined as undefined));
+    if (!loginEmail) {
+      loginEmail = (await firstValueFrom(activeAccountEmail$)) ?? undefined;
+    }
 
     // Wait for either the first email or the timeout to occur so we can proceed
     // neither above observable will complete, so we have to add a timeout
-    this.email = await firstValueFrom(race(firstEmail$, emailRetrievalTimeout$));
+    this.email = loginEmail;
 
     if (!this.email) {
       await this.handleMissingEmail();

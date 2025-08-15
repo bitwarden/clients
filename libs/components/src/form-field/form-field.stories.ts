@@ -72,6 +72,7 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [
+        A11yTitleDirective,
         FormsModule,
         ReactiveFormsModule,
         FormFieldModule,
@@ -87,8 +88,8 @@ export default {
         SectionComponent,
         TextFieldModule,
         BadgeModule,
+        A11yTitleDirective,
       ],
-      declarations: [A11yTitleDirective],
       providers: [
         {
           provide: I18nService,
@@ -171,7 +172,7 @@ export const LabelWithIcon: Story = {
         <bit-form-field>
           <bit-label>
             Label
-            <a href="#" slot="end" bitLink>
+            <a href="#" slot="end" bitLink aria-label="More info" title="More info">
               <i class="bwi bwi-question-circle" aria-hidden="true"></i>
             </a>
           </bit-label>
@@ -202,7 +203,7 @@ export const LongLabel: Story = {
         <bit-form-field>
           <bit-label>
             Hello I am a very long label with lots of very cool helpful information
-            <a href="#" slot="end" bitLink>
+            <a href="#" slot="end" bitLink aria-label="More info" title="More info">
               <i class="bwi bwi-question-circle" aria-hidden="true"></i>
             </a>
           </bit-label>
@@ -345,13 +346,11 @@ export const ButtonInputGroup: Story = {
             <i class="bwi bwi-question-circle" aria-hidden="true"></i>
           </a>
         </bit-label>
-        <button bitPrefix bitIconButton="bwi-star" [appA11yTitle]="'Favorite Label'"></button>
+        <button type="button" bitPrefix bitIconButton="bwi-star" [appA11yTitle]="'Favorite Label'"></button>
         <input bitInput placeholder="Placeholder" />
-        <button bitSuffix bitIconButton="bwi-eye" [appA11yTitle]="'Hide Label'"></button>
-        <button bitSuffix bitIconButton="bwi-clone" [appA11yTitle]="'Clone Label'"></button>
-        <button bitSuffix bitLink>
-          Apply
-        </button>
+        <button type="button" bitSuffix bitIconButton="bwi-eye" [appA11yTitle]="'Hide Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" [appA11yTitle]="'Clone Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-ellipsis-v" [appA11yTitle]="'Menu Label'"></button>
       </bit-form-field>
     `,
   }),
@@ -364,13 +363,12 @@ export const DisabledButtonInputGroup: Story = {
     template: /*html*/ `
       <bit-form-field>
         <bit-label>Label</bit-label>
-        <button bitPrefix bitIconButton="bwi-star" disabled [appA11yTitle]="'Favorite Label'"></button>
+        <button type="button" bitPrefix bitIconButton="bwi-star" disabled [appA11yTitle]="'Favorite Label'"></button>
         <input bitInput placeholder="Placeholder" disabled />
-        <button bitSuffix bitIconButton="bwi-eye" disabled [appA11yTitle]="'Hide Label'"></button>
-        <button bitSuffix bitIconButton="bwi-clone" disabled [appA11yTitle]="'Clone Label'"></button>
-        <button bitSuffix bitLink disabled>
-          Apply
-        </button>
+        <button type="button" bitSuffix bitIconButton="bwi-eye" disabled [appA11yTitle]="'Hide Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" disabled [appA11yTitle]="'Clone Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-ellipsis-v" disabled [appA11yTitle]="'Menu Label'"></button>
+
       </bit-form-field>
     `,
   }),
@@ -384,11 +382,9 @@ export const PartiallyDisabledButtonInputGroup: Story = {
       <bit-form-field>
         <bit-label>Label</bit-label>
         <input bitInput placeholder="Placeholder" disabled />
-        <button bitSuffix bitIconButton="bwi-eye" [appA11yTitle]="'Hide Label'"></button>
-        <button bitSuffix bitIconButton="bwi-clone" [appA11yTitle]="'Clone Label'"></button>
-        <button bitSuffix bitLink disabled>
-          Apply
-        </button>
+        <button type="button" bitSuffix bitIconButton="bwi-eye" [appA11yTitle]="'Hide Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" [appA11yTitle]="'Clone Label'"></button>
+        <button type="button" bitSuffix bitIconButton="bwi-ellipsis-v" disabled [appA11yTitle]="'Menu Label'"></button>
       </bit-form-field>
     `,
   }),
@@ -413,13 +409,18 @@ export const Select: Story = {
 
 export const AdvancedSelect: Story = {
   render: (args) => ({
-    props: args,
+    props: {
+      formObj: fb.group({
+        select: "value1",
+      }),
+      ...args,
+    },
     template: /*html*/ `
-      <bit-form-field>
+      <bit-form-field [formGroup]="formObj">
         <bit-label>Label</bit-label>
-        <bit-select>
-          <bit-option label="Select"></bit-option>
-          <bit-option label="Other"></bit-option>
+        <bit-select formControlName="select">
+          <bit-option label="Select" value="value1"></bit-option>
+          <bit-option label="Other" value="value2"></bit-option>
         </bit-select>
       </bit-form-field>
     `,

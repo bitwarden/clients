@@ -6,7 +6,7 @@ import { Component, OnInit } from "@angular/core";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CalloutModule } from "@bitwarden/components";
 
-import { BrowserPopupUtils } from "../../../platform/browser/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 
 @Component({

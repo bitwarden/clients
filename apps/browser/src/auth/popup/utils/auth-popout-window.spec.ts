@@ -1,6 +1,6 @@
 import { createChromeTabMock } from "../../../autofill/spec/autofill-mocks";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import { BrowserPopupUtils } from "../../../platform/browser/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 import {
   AuthPopoutType,

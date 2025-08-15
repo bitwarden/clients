@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, Input, OnDestroy, OnInit, Optional } from "@angular/core";
+import { Directive, OnInit, Optional, input, inject, DestroyRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormGroupDirective } from "@angular/forms";
-import { BehaviorSubject, catchError, filter, of, Subject, switchMap, takeUntil } from "rxjs";
+import { BehaviorSubject, catchError, filter, of, switchMap } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -15,14 +16,15 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
 @Directive({
   selector: "[formGroup][bitSubmit]",
 })
-export class BitSubmitDirective implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class BitSubmitDirective implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   private _loading$ = new BehaviorSubject<boolean>(false);
   private _disabled$ = new BehaviorSubject<boolean>(false);
 
-  @Input("bitSubmit") handler: FunctionReturningAwaitable;
+  readonly handler = input<FunctionReturningAwaitable>(undefined, { alias: "bitSubmit" });
 
-  @Input() allowDisabledFormSubmit?: boolean = false;
+  readonly allowDisabledFormSubmit = input<boolean>(false);
 
   readonly loading$ = this._loading$.asObservable();
   readonly disabled$ = this._disabled$.asObservable();
@@ -38,7 +40,7 @@ export class BitSubmitDirective implements OnInit, OnDestroy {
         switchMap(() => {
           // Calling functionToObservable executes the sync part of the handler
           // allowing the function to check form validity before it gets disabled.
-          const awaitable = functionToObservable(this.handler);
+          const awaitable = functionToObservable(this.handler());
 
           // Disable form
           this.loading = true;
@@ -51,7 +53,7 @@ export class BitSubmitDirective implements OnInit, OnDestroy {
             }),
           );
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(),
       )
       .subscribe({
         next: () => (this.loading = false),
@@ -60,13 +62,15 @@ export class BitSubmitDirective implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.formGroupDirective.statusChanges.pipe(takeUntil(this.destroy$)).subscribe((c) => {
-      if (this.allowDisabledFormSubmit) {
-        this._disabled$.next(false);
-      } else {
-        this._disabled$.next(c === "DISABLED");
-      }
-    });
+    this.formGroupDirective.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((c) => {
+        if (this.allowDisabledFormSubmit()) {
+          this._disabled$.next(false);
+        } else {
+          this._disabled$.next(c === "DISABLED");
+        }
+      });
   }
 
   get disabled() {
@@ -84,10 +88,5 @@ export class BitSubmitDirective implements OnInit, OnDestroy {
   set loading(value: boolean) {
     this.disabled = value;
     this._loading$.next(value);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

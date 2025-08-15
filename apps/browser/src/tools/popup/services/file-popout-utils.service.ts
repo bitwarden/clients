@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { BrowserPopupUtils } from "../../../platform/browser/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 /**
  * Service for determining whether to display file popout callout messages.

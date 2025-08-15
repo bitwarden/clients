@@ -15,7 +15,7 @@ import { filter, first, firstValueFrom, map, Observable, of, switchMap, tap } fr
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
 import { POPUP_ROUTE_HISTORY_KEY } from "../../../platform/services/popup-view-cache-background.service";
-import { BrowserPopupUtils } from "../../browser/browser-popup-utils";
+import BrowserPopupUtils from "../../browser/browser-popup-utils";
 
 /**
  * Preserves route history when opening and closing the popup

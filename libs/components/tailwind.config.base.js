@@ -63,6 +63,7 @@ module.exports = {
         100: rgba("--color-notification-100"),
         600: rgba("--color-notification-600"),
       },
+      // art styles deprecated, use 'illustration' instead
       art: {
         primary: rgba("--color-art-primary"),
         accent: rgba("--color-art-accent"),
@@ -73,7 +74,6 @@ module.exports = {
         contrast: rgba("--color-text-contrast"),
         alt2: rgba("--color-text-alt2"),
         code: rgba("--color-text-code"),
-        headers: rgba("--color-text-headers"),
       },
       background: {
         DEFAULT: rgba("--color-background"),
@@ -82,13 +82,24 @@ module.exports = {
         alt3: rgba("--color-background-alt3"),
         alt4: rgba("--color-background-alt4"),
       },
+      hover: {
+        default: "var(--color-hover-default)",
+        contrast: "var(--color-hover-contrast)",
+      },
       "marketing-logo": rgba("--color-marketing-logo"),
+      illustration: {
+        outline: rgba("--color-illustration-outline"),
+        "bg-primary": rgba("--color-illustration-bg-primary"),
+        "bg-secondary": rgba("--color-illustration-bg-secondary"),
+        "bg-tertiary": rgba("--color-illustration-bg-tertiary"),
+        tertiary: rgba("--color-illustration-tertiary"),
+        logo: rgba("--color-illustration-logo"),
+      },
     },
     textColor: {
       main: rgba("--color-text-main"),
       muted: rgba("--color-text-muted"),
       contrast: rgba("--color-text-contrast"),
-      headers: rgba("--color-text-headers"),
       alt2: rgba("--color-text-alt2"),
       code: rgba("--color-text-code"),
       black: colors.black,
@@ -125,6 +136,28 @@ module.exports = {
         600: rgba("--color-notification-600"),
       },
     },
+    fontFamily: {
+      sans: [
+        "Roboto",
+        '"Helvetica Neue"',
+        "Helvetica",
+        "Arial",
+        "sans-serif",
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ],
+      serif: ["ui-serif", "Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
+      mono: [
+        "Menlo",
+        "SFMono-Regular",
+        "Monaco",
+        "Consolas",
+        '"Liberation Mono"',
+        '"Courier New"',
+        "monospace",
+      ],
+    },
     ringOffsetColor: ({ theme }) => ({
       DEFAULT: theme("colors.background"),
       ...theme("colors"),
@@ -142,6 +175,7 @@ module.exports = {
         "90vw": "90vw",
       }),
       fontSize: {
+        xs: [".8125rem", "1rem"],
         "3xl": ["1.75rem", "2rem"],
       },
     },

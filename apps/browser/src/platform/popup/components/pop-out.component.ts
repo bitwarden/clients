@@ -5,7 +5,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { IconButtonModule } from "@bitwarden/components";
 
-import { BrowserPopupUtils } from "../../browser/browser-popup-utils";
+import BrowserPopupUtils from "../../browser/browser-popup-utils";
 
 @Component({
   selector: "app-pop-out",

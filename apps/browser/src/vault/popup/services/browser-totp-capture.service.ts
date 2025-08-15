@@ -4,7 +4,7 @@ import qrcodeParser from "qrcode-parser";
 import { TotpCaptureService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import { BrowserPopupUtils } from "../../../platform/browser/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 /**
  * Implementation of TotpCaptureService for the browser which captures the

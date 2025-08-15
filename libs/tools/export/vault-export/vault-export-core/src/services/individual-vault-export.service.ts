@@ -4,12 +4,12 @@ import * as JSZip from "jszip";
 import * as papa from "papaparse";
 import { firstValueFrom } from "rxjs";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
@@ -20,6 +20,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
@@ -50,6 +51,7 @@ export class IndividualVaultExportService
     kdfConfigService: KdfConfigService,
     private accountService: AccountService,
     private apiService: ApiService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
@@ -169,9 +171,15 @@ export class IndividualVaultExportService
       }),
     );
 
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+
     promises.push(
       this.cipherService.getAllDecrypted(activeUserId).then((ciphers) => {
-        decCiphers = ciphers.filter((f) => f.deletedDate == null);
+        decCiphers = ciphers.filter(
+          (f) =>
+            f.deletedDate == null &&
+            !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
+        );
       }),
     );
 
@@ -203,15 +211,21 @@ export class IndividualVaultExportService
       }),
     );
 
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+
     promises.push(
       this.cipherService.getAll(activeUserId).then((c) => {
-        ciphers = c.filter((f) => f.deletedDate == null);
+        ciphers = c.filter(
+          (f) =>
+            f.deletedDate == null &&
+            !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
+        );
       }),
     );
 
     await Promise.all(promises);
 
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
+    const userKey = await this.keyService.getUserKey(activeUserId);
     const encKeyValidation = await this.encryptService.encryptString(Utils.newGuid(), userKey);
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {

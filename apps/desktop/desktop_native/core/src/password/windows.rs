@@ -1,3 +1,4 @@
+use crate::password::PASSWORD_NOT_FOUND;
 use anyhow::{anyhow, Result};
 use widestring::{U16CString, U16String};
 use windows::{
@@ -79,7 +80,9 @@ pub async fn set_password(service: &str, account: &str, password: &str) -> Resul
 pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
-    unsafe { CredDeleteW(PCWSTR(target_name.as_ptr()), CRED_TYPE_GENERIC, None)? };
+    let result = unsafe { CredDeleteW(PCWSTR(target_name.as_ptr()), CRED_TYPE_GENERIC, None) };
+
+    result.map_err(|e| anyhow!(convert_error(e)))?;
 
     Ok(())
 }
@@ -95,7 +98,7 @@ fn target_name(service: &str, account: &str) -> String {
 // Convert the internal WIN32 errors to descriptive messages
 fn convert_error(e: windows::core::Error) -> String {
     if e == ERROR_NOT_FOUND.into() {
-        return "Password not found.".to_string();
+        return PASSWORD_NOT_FOUND.to_string();
     }
     e.to_string()
 }
@@ -122,7 +125,7 @@ mod tests {
         // Ensure password is deleted
         match get_password("BitwardenTest", "BitwardenTest").await {
             Ok(_) => panic!("Got a result"),
-            Err(e) => assert_eq!("Password not found.", e.to_string()),
+            Err(e) => assert_eq!(PASSWORD_NOT_FOUND, e.to_string()),
         }
     }
 
@@ -130,7 +133,7 @@ mod tests {
     async fn test_error_no_password() {
         match get_password("BitwardenTest", "BitwardenTest").await {
             Ok(_) => panic!("Got a result"),
-            Err(e) => assert_eq!("Password not found.", e.to_string()),
+            Err(e) => assert_eq!(PASSWORD_NOT_FOUND, e.to_string()),
         }
     }
 }

@@ -15,8 +15,8 @@ import { OrganizationCreateRequest } from "../../admin-console/models/request/or
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { EncString } from "../../platform/models/domain/enc-string";
 import { SyncService } from "../../platform/sync";
 import { OrgKey } from "../../types/key";
 import {

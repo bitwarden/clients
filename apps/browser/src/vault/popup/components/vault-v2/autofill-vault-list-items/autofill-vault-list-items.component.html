@@ -4,7 +4,7 @@
   [title]="((currentURIIsBlocked$ | async) ? 'itemSuggestions' : 'autofillSuggestions') | i18n"
   [showRefresh]="showRefresh"
   (onRefresh)="refreshCurrentTab()"
-  [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : null"
+  [description]="(showEmptyAutofillTip$ | async) ? ('autofillSuggestionsTip' | i18n) : undefined"
   showAutofillButton
   [disableDescriptionMargin]="showEmptyAutofillTip$ | async"
   [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"

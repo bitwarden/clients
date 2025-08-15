@@ -24,6 +24,8 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     outputs:
       release_version: ${{ steps.version.outputs.version }}
       release_channel: ${{ steps.release_channel.outputs.channel }}

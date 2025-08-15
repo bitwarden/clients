@@ -2,15 +2,12 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -23,6 +20,7 @@ import {
   HasItemsNudgeService,
   EmptyVaultNudgeService,
   NewAccountNudgeService,
+  AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
@@ -32,12 +30,12 @@ describe("Vault Nudges Service", () => {
   let fakeStateProvider: FakeStateProvider;
 
   let testBed: TestBed;
-  const mockConfigService = {
-    getFeatureFlag$: jest.fn().mockReturnValue(of(true)),
-    getFeatureFlag: jest.fn().mockReturnValue(true),
-  };
 
-  const nudgeServices = [EmptyVaultNudgeService, NewAccountNudgeService];
+  const nudgeServices = [
+    EmptyVaultNudgeService,
+    NewAccountNudgeService,
+    AccountSecurityNudgeService,
+  ];
 
   beforeEach(async () => {
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
@@ -55,7 +53,6 @@ describe("Vault Nudges Service", () => {
           provide: StateProvider,
           useValue: fakeStateProvider,
         },
-        { provide: ConfigService, useValue: mockConfigService },
         {
           provide: HasItemsNudgeService,
           useValue: mock<HasItemsNudgeService>(),
@@ -67,6 +64,10 @@ describe("Vault Nudges Service", () => {
         {
           provide: EmptyVaultNudgeService,
           useValue: mock<EmptyVaultNudgeService>(),
+        },
+        {
+          provide: AccountSecurityNudgeService,
+          useValue: mock<AccountSecurityNudgeService>(),
         },
         {
           provide: VaultSettingsImportNudgeService,

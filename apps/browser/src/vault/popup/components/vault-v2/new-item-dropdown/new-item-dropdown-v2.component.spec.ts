@@ -19,7 +19,7 @@ import {
 import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import { BrowserPopupUtils } from "../../../../../platform/browser/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 
 import { NewItemDropdownV2Component, NewItemInitialValues } from "./new-item-dropdown-v2.component";
 

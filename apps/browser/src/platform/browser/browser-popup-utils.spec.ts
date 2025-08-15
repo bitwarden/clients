@@ -1,7 +1,7 @@
 import { createChromeTabMock } from "../../autofill/spec/autofill-mocks";
 
 import { BrowserApi } from "./browser-api";
-import { BrowserPopupUtils } from "./browser-popup-utils";
+import BrowserPopupUtils from "./browser-popup-utils";
 
 describe("BrowserPopupUtils", () => {
   afterEach(() => {

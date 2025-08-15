@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import qrcodeParser from "qrcode-parser";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import { BrowserPopupUtils } from "../../../platform/browser/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 import { BrowserTotpCaptureService } from "./browser-totp-capture.service";
 

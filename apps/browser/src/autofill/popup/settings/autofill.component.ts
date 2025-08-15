@@ -11,7 +11,17 @@ import {
   ReactiveFormsModule,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  pairwise,
+  shareReplay,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
@@ -59,6 +69,7 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -131,6 +142,7 @@ export class AutofillComponent implements OnInit {
     defaultUriMatch: new FormControl(),
   });
 
+  advancedOptionWarningMap: Partial<Record<UriMatchStrategySetting, string>>;
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
   enableInlineMenuOnIconSelect: boolean = false;
@@ -143,7 +155,7 @@ export class AutofillComponent implements OnInit {
   clearClipboard: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
-  uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
+  uriMatchOptions: { name: string; value: UriMatchStrategySetting; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
   autofillKeyboardHelperText: string;
@@ -181,11 +193,16 @@ export class AutofillComponent implements OnInit {
     this.uriMatchOptions = [
       { name: i18nService.t("baseDomainOptionRecommended"), value: UriMatchStrategy.Domain },
       { name: i18nService.t("host"), value: UriMatchStrategy.Host },
-      { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
-      { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
       { name: i18nService.t("exact"), value: UriMatchStrategy.Exact },
       { name: i18nService.t("never"), value: UriMatchStrategy.Never },
+      { name: this.i18nService.t("uriAdvancedOption"), value: null, disabled: true },
+      { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
+      { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
     ];
+    this.advancedOptionWarningMap = {
+      [UriMatchStrategy.StartsWith]: "startsWithAdvancedOptionWarning",
+      [UriMatchStrategy.RegularExpression]: "regExAdvancedOptionWarning",
+    };
 
     this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
     this.disablePasswordManagerURI = DisablePasswordManagerUris[this.browserClientVendor];
@@ -319,10 +336,13 @@ export class AutofillComponent implements OnInit {
       });
 
     this.additionalOptionsForm.controls.defaultUriMatch.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        void this.domainSettingsService.setDefaultUriMatchStrategy(value);
-      });
+      .pipe(
+        startWith(this.defaultUriMatch),
+        pairwise(),
+        concatMap(([previous, current]) => this.handleAdvancedMatch(previous, current)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
     const command = await this.platformUtilsService.getAutofillKeyboardShortcut();
     await this.setAutofillKeyboardHelperText(command);
@@ -510,6 +530,29 @@ export class AutofillComponent implements OnInit {
     await this.updateDefaultBrowserAutofillDisabled();
   };
 
+  private async handleAdvancedMatch(
+    previous: UriMatchStrategySetting | null,
+    current: UriMatchStrategySetting | null,
+  ): Promise<void> {
+    const valueChange = previous !== current;
+    const isAdvanced =
+      current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
+    if (!valueChange || !isAdvanced) {
+      return await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+    }
+    AdvancedUriOptionDialogComponent.open(this.dialogService, {
+      contentKey: this.advancedOptionWarningMap[current],
+      onContinue: async () => {
+        this.additionalOptionsForm.controls.defaultUriMatch.setValue(current);
+        await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      },
+      onCancel: async () => {
+        this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
+        await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+      },
+    });
+  }
+
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);
   }
@@ -528,5 +571,30 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuIdentities() {
     await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
+  }
+
+  getMatchHints() {
+    const hints = ["uriMatchDefaultStrategyHint"];
+    const strategy = this.additionalOptionsForm.get("defaultUriMatch")
+      ?.value as UriMatchStrategySetting;
+    if (
+      strategy === UriMatchStrategy.StartsWith ||
+      strategy === UriMatchStrategy.RegularExpression
+    ) {
+      hints.push(this.advancedOptionWarningMap[strategy]);
+    }
+    return hints;
+  }
+
+  /** Navigates the user from the Autofill Nudge to the proper destination based on their browser. */
+  async disableBrowserAutofillSettingsFromNudge(event: Event) {
+    // When we can programmatically disable the autofill setting, do that first
+    // otherwise open the appropriate URI for the browser
+    if (this.canOverrideBrowserAutofillSetting) {
+      this.defaultBrowserAutofillDisabled = true;
+      await this.updateDefaultBrowserAutofillDisabled();
+    } else {
+      await this.openURI(event, this.disablePasswordManagerURI);
+    }
   }
 }

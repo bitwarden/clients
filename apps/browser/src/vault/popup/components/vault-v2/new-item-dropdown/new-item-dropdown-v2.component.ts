@@ -14,7 +14,7 @@ import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitward
 import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import { BrowserPopupUtils } from "../../../../../platform/browser/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
 export interface NewItemInitialValues {

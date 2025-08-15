@@ -42,7 +42,7 @@ import {
 
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import { BrowserPopupUtils } from "../../../../../platform/browser/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
@@ -268,6 +268,7 @@ export class AddEditV2Component implements OnInit {
       // Clear popup history so after closing/reopening, Back won’t return to the add-edit form
       await this.popupRouterCacheService.setHistory([]);
     }
+    await BrowserApi.sendMessage("addEditCipherSubmitted");
   }
 
   subscribeToParams(): void {

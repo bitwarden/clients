@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { Component, Input, OnChanges } from "@angular/core";
+import { Component, OnChanges, input } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -25,17 +25,17 @@ const SizeClasses: Record<SizeTypes, string[]> = {
 @Component({
   selector: "bit-avatar",
   template: `@if (src) {
-    <img [src]="src" title="{{ title || text }}" [ngClass]="classList" />
+    <img [src]="src" title="{{ title() || text() }}" [ngClass]="classList" />
   }`,
   imports: [NgClass],
 })
 export class AvatarComponent implements OnChanges {
-  @Input() border = false;
-  @Input() color?: string;
-  @Input() id?: string;
-  @Input() text?: string;
-  @Input() title: string;
-  @Input() size: SizeTypes = "default";
+  readonly border = input(false);
+  readonly color = input<string>();
+  readonly id = input<string>();
+  readonly text = input<string>();
+  readonly title = input<string>();
+  readonly size = input<SizeTypes>("default");
 
   private svgCharCount = 2;
   private svgFontSize = 20;
@@ -50,14 +50,14 @@ export class AvatarComponent implements OnChanges {
   }
 
   get classList() {
-    return ["tw-rounded-full"]
-      .concat(SizeClasses[this.size] ?? [])
-      .concat(this.border ? ["tw-border", "tw-border-solid", "tw-border-secondary-600"] : []);
+    return ["tw-rounded-full", "tw-inline"]
+      .concat(SizeClasses[this.size()] ?? [])
+      .concat(this.border() ? ["tw-border", "tw-border-solid", "tw-border-secondary-600"] : []);
   }
 
   private generate() {
     let chars: string = null;
-    const upperCaseText = this.text?.toUpperCase() ?? "";
+    const upperCaseText = this.text()?.toUpperCase() ?? "";
 
     chars = this.getFirstLetters(upperCaseText, this.svgCharCount);
 
@@ -71,12 +71,13 @@ export class AvatarComponent implements OnChanges {
     }
 
     let svg: HTMLElement;
-    let hexColor = this.color;
+    let hexColor = this.color();
 
-    if (!Utils.isNullOrWhitespace(this.color)) {
+    const id = this.id();
+    if (!Utils.isNullOrWhitespace(this.color())) {
       svg = this.createSvgElement(this.svgSize, hexColor);
-    } else if (!Utils.isNullOrWhitespace(this.id)) {
-      hexColor = Utils.stringToColor(this.id.toString());
+    } else if (!Utils.isNullOrWhitespace(id)) {
+      hexColor = Utils.stringToColor(id.toString());
       svg = this.createSvgElement(this.svgSize, hexColor);
     } else {
       hexColor = Utils.stringToColor(upperCaseText);

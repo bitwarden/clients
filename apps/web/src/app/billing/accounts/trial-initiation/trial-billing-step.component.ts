@@ -304,6 +304,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     this.fetchingTaxAmount = true;
 
     if (!this.taxInfoComponent.validate()) {
+      this.fetchingTaxAmount = false;
       return 0;
     }
 
@@ -326,7 +327,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
 
     const response = await this.taxService.previewTaxAmountForOrganizationTrial(request);
     this.fetchingTaxAmount = false;
-    return response.taxAmount;
+    return response;
   };
 
   get price() {

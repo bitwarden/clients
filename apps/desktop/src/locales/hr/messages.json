@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Identitet"
   },
+  "typeNote": {
+    "message": "Bilješka"
+  },
   "typeSecureNote": {
     "message": "Sigurna bilješka"
   },
@@ -37,6 +40,9 @@
   },
   "searchVault": {
     "message": "Pretraživanje trezora"
+  },
+  "resetSearch": {
+    "message": "Ponovno postavljanje pretraživanja"
   },
   "addItem": {
     "message": "Dodaj stavku"
@@ -238,22 +244,22 @@
     "message": "SSH agent je servis namijenjen developerima koji omogućuje potpisivanje SSH zahtjeva izravno iz tvojeg Bitwarden trezora."
   },
   "sshAgentPromptBehavior": {
-    "message": "Ask for authorization when using SSH agent"
+    "message": "Traži autorizaciju pri korištenju SSH agenta"
   },
   "sshAgentPromptBehaviorDesc": {
-    "message": "Choose how to handle SSH-agent authorization requests."
+    "message": "Odaberi kako će se postupati sa zahtjevima za autorizaciju SSH agenta."
   },
   "sshAgentPromptBehaviorHelp": {
-    "message": "Remember SSH authorizations"
+    "message": "Zapamti SSH autorizaciju"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "Always"
+    "message": "Uvijek"
   },
   "sshAgentPromptBehaviorNever": {
-    "message": "Never"
+    "message": "Nikad"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
-    "message": "Remember until vault is locked"
+    "message": "Zapamti do zaključavanja trezora"
   },
   "premiumRequired": {
     "message": "Potrebno Premium članstvo"
@@ -406,16 +412,16 @@
     "message": "Ključ autentifikatora (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Ključ autentifikatora"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Postavke auto-ispune"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Web stranica (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Broj URI-ja: $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -425,49 +431,49 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Web stranica dodana"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Dodaj web stranicu"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Izbriši web stranicu"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Vlasnik"
   },
   "addField": {
-    "message": "Add field"
+    "message": "Dodaj polje"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Uredi polje"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Sigurno želiš trajno izbrisati ovaj privitak?"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Vrsta polja"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Oznaka polja"
   },
   "add": {
-    "message": "Add"
+    "message": "Dodaj"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Koristi tekstualna polja za podatke poput sigurnosnih pitanja"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Koristi skrivena polja za osjetljive podatke poput lozinke"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Koristi potvrdne okvire ako ih želiš auto-ispuniti u obrascu, npr. zapamti adresu e-pošte"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Koristi povezano polje kada imaš problema s auto-ispunom za određenu web stranicu."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Unesi html id polja, naziv, aria-label ili rezervirano mjesto."
   },
   "folder": {
     "message": "Mapa"
@@ -495,7 +501,7 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Potvrdni okvir"
   },
   "linkedValue": {
     "message": "Povezana vrijednost",
@@ -568,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Kopiraj kôd za provjeru (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopiraj $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "Duljina"
@@ -692,7 +712,7 @@
     "message": "Najveća veličina datoteke je 500 MB."
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "Zastarjelo šifriranje više nije podržano. Obrati se podršci za oporavak računa."
   },
   "editedFolder": {
     "message": "Mapa spremljena"
@@ -1205,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Prijava dvostrukom autentifikacijom"
   },
+  "vaultTimeoutHeader": {
+    "message": "Istek trezora"
+  },
   "vaultTimeout": {
     "message": "Istek trezora"
   },
   "vaultTimeout1": {
     "message": "Vrijeme isteka"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Radnja nakon isteka"
   },
   "vaultTimeoutDesc": {
     "message": "Odaberi kada će isteći trezor i koja će se radnja izvršiti."
@@ -1421,6 +1447,9 @@
   "copySecurityCode": {
     "message": "Kopiraj kontrolni broj",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "broj kartice"
   },
   "premiumMembership": {
     "message": "Premium članstvo"
@@ -1713,6 +1742,12 @@
   "accountRestricted": {
     "message": "Račun ograničen"
   },
+  "restrictCardTypeImport": {
+    "message": "Ne mogu uvesti stavke vrste Platna kartica"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Pravila jedne ili više organizacija onemogućuju uvoz stavke vrste Platna kartica u tvoj trezor."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Lozinka se ne podudara."
   },
@@ -1787,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Otključaj koristeći Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Dodatne Windows Hello postavke"
-  },
   "unlockWithPolkit": {
     "message": "Otključaj autentifikacijom sustava"
   },
@@ -1805,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "Otključaj trezor"
   },
-  "autoPromptWindowsHello": {
-    "message": "Zahtijevaj Windows Hello pri pokretanju"
-  },
-  "autoPromptPolkit": {
-    "message": "Traži autentifikaciju sustava pri pokretanju"
-  },
   "autoPromptTouchId": {
     "message": "Zahtijevaj Touch ID pri pokretanju"
   },
@@ -1819,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Zahtijevaj lozinku pri pokretanju"
-  },
-  "recommendedForSecurity": {
-    "message": "Preporučeno za sigurnost."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"
@@ -1961,10 +1984,10 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Detalji kartice"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$ detalji",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1973,32 +1996,32 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Više o autentifikatorima"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Kopiraj ključ autentifikatora (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Učini dvostruku autentifikaciju besprijekornom"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden može pohraniti i ispuniti kodove za dvostruku autentifikaciju. Kopiraj i zalijepi ključ u ovo polje."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden može pohraniti i ispuniti kodove provjeru dvostruke autentifikacije. Odaberi ikonu kamere i označi QR kôd za provjeru autentičnosti ove web stranice ili kopiraj i zalijepi ključ u ovo polje."
   },
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "Free organizations cannot use attachments"
+    "message": "Besplatne organizacije ne mogu koristiti privitke"
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 polje treba tvoju pažnju."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ polja treba(ju) tvoju pažnju.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2007,10 +2030,10 @@
     }
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Istekla kartica"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Ako je obnovljeno, ažuriraj podatke o kartici"
   },
   "verificationRequired": {
     "message": "Potrebna je potvrda",
@@ -2170,7 +2193,7 @@
     "message": "Pravila tvrtke onemogućuju spremanje stavki u osobni trezor. Promijeni vlasništvo stavke na tvrtku i odaberi dostupnu Zbirku."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "Tvoja nova lozinka ne može biti ista kao tvoja trenutna lozinka."
   },
   "hintEqualsPassword": {
     "message": "Podsjetnik za lozinku ne može biti isti kao lozinka."
@@ -2182,13 +2205,13 @@
     "message": "Organizacijsko pravilo onemogućuje uvoz stavki u tvoj osobni trezor."
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Osobni podaci"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identifikacija"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "Kontaktne informacije"
   },
   "allSends": {
     "message": "Svi Sendovi",
@@ -2383,6 +2406,9 @@
   "passwordConfirmationDesc": {
     "message": "Ova radnja je zaštićena. Za nastavak i potvrdu identiteta, unesi svoju glavnu lozinku."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Glavna lozinka uspješno postavljena"
+  },
   "updatedMasterPassword": {
     "message": "Glavna lozinka ažurirana"
   },
@@ -2394,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
+  },
+  "changePasswordWarning": {
+    "message": "Nakon promjene lozinke, moraš se prijaviti s novom lozinkom. Aktivne sesije na drugim uređajima bit će odjavljene u roku od jednog sata."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Promijeni svoju glavnu lozinku za dovršetak oporavka računa."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Tvoja glavna lozinka ne ispunjava zahtjeve ove organizacije. Promijeni glavnu lozinku za nastavak."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Tvoja je organizacija onemogućila šifriranje pouzdanog uređaja. Postavi glavnu lozinku za pristup svom trezoru."
@@ -2482,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Vrijeme isteka premašuje ograničenje koju je postavila tvoja organizacija."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Pravila tvrtke primijenjena su na vrijeme isteka"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je $HOURS$:$MINUTES$ h.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Tvoja organizacija je zadano postavila kraće vrijeme isteka. Najviše: $HOURS$:$MINUTES$",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Pozivnica prihvaćena"
   },
@@ -2507,13 +2571,13 @@
     "message": "Glavna lozinka uklonjena."
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "Glavna lozinka više nije obavezna za članove ove organizacije. Provjeri prikazanu domenu sa svojim administratorom."
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Naziv Organizacije"
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "Domena konektora ključa"
   },
   "leaveOrganization": {
     "message": "Napusti organizaciju"
@@ -2625,7 +2689,7 @@
     "message": "Generiraj e-poštu"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Generator korisničkih imena"
   },
   "generatePassword": {
     "message": "Generiraj lozinku"
@@ -2634,16 +2698,16 @@
     "message": "Generiraj fraznu lozinku"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Lozinka generirana"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Frazna lozinka generirana"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Korisničko ime generirano"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "e-pošta generirana"
   },
   "spinboxBoundariesHint": {
     "message": "Vrijednost mora biti u rasponu $MIN$ - $MAX$.",
@@ -2702,7 +2766,7 @@
     "message": "Koristi ovu lozinku"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Koristi ovu fraznu lozinku"
   },
   "useThisUsername": {
     "message": "Koristi ovo korisničko ime"
@@ -2963,9 +3027,6 @@
     "message": "Prikaži/Sakrij broj znakova",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokušavaš li pristupiti svom računu?"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ pokušava pristupiti",
     "placeholders": {
@@ -2974,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
+  },
+  "webApp": {
+    "message": "Web aplikacija"
+  },
+  "mobile": {
+    "message": "Mobitel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Proširenje",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Poslužitelj"
+  },
+  "loginRequest": {
+    "message": "Zahtjev za prijavu"
   },
   "deviceType": {
     "message": "Vrsta uređaja"
@@ -2989,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Odbij pristup"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
   "justNow": {
     "message": "Upravo"
@@ -3132,6 +3221,12 @@
   "requestAdminApproval": {
     "message": "Zatraži odobrenje administratora"
   },
+  "unableToCompleteLogin": {
+    "message": "Nije moguće dovršiti prijavu"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Moraš se prijaviti na pouzdanom uređaju ili zamoliti administratora da ti dodijeli lozinku."
+  },
   "region": {
     "message": "Regija"
   },
@@ -3173,28 +3268,28 @@
     "message": "Uređaj pouzdan"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Vjeruj organizaciji"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Vjeruj"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Nemoj vjerovati"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "Organizacija nije pouzdana"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "Radi sigurnosti tvojeg računa, potvrdi samo ako je ovom korisniku odobren pristup u hitnim slučajevima i ako se otisak prsta podudara s onim prikazanim u računu"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "Radi sigurnosti tvojeg računa, nastavi samo ako si član ove organizacije, imaš omogućen oporavak računa i otisak prsta prikazan u nastavku odgovara otisku prsta organizacije."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "Ova organizacija ima poslovno pravilo koje će te prijaviti za oporavak računa. Prijava će omogućiti administratorima organizacije da promijene tvoju lozinku. Nastavi samo ako prepoznaješ ovu organizaciju i ako se fraza otiska prsta prikazana u nastavku podudara s otiskom prsta organizacije."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "Vjeruj korisniku"
   },
   "inputRequired": {
     "message": "Potreban je unos."
@@ -3367,7 +3462,7 @@
     "message": "Prati korake za dovršetak prijave."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Prati korake za dovršetak prijave svojim sigurnosnim ključem."
   },
   "launchDuo": {
     "message": "Pokreni Duo u pregledniku"
@@ -3523,6 +3618,30 @@
     "message": "Uobičajeni oblici",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Otkrivanje podudaranja URI-ja je način na koji Bitwarden identificira prijedloge za auto-ispunu.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "„Regularni izraz” je napredna mogućnost s povećanim rizikom od otkrivanja vjerodajnica.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "„Počinje s” je napredna mogućnost s povećnim rizikom od otkrivanja vjerodajnica.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Više o otkrivanju podudaranja",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Napredne mogućnosti",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Upozorenje",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "Uspješno"
   },
@@ -3594,14 +3713,14 @@
     "message": "Nisu nađeni slobodni portovi za SSO prijavu."
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "Sigurna lozinka generirana! Ne zaboravi ažurirati lozinku na web stranici."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Koristi generator",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "za stvaranje snažne, jedinstvene lozinke",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
@@ -3629,25 +3748,25 @@
     "message": "Biometrijsko otključavanje trenutno nije dostupno iz nepoznatog razloga."
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Detalji stavke"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Naziv stavke"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Vjerodajnice za prijavu"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Dodatne mogućnosti"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Povijest stavke"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Zadnje uređeno"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Prijenos"
   },
   "authorize": {
     "message": "Autoriziraj"
@@ -3719,7 +3838,7 @@
     "message": "Promijeni rizičnu lozinku"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "S dopuštenjima samo za prikaz ne možeš ukloniti zbirke: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3728,89 +3847,235 @@
     }
   },
   "move": {
-    "message": "Move"
+    "message": "Premjesti"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Nova mapa"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Naziv mape"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Ugnijezdi mapu dodavanjem naziva roditeljske mape i znaka kroz. Npr. Mreže/Forumi"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Sigurno pošalji osjetljive podatke",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Sigurno dijeli datoteke i podatke s bilo kime, na bilo kojoj platformi. Tvoji podaci ostaju kriptirani uz ograničenje izloženosti.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Brzo stvori lozinke"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Jednostavno stvori jake i jedinstvene lozinke odabirom tipke",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "kako bi tvoje prijave ostale sigurne.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Jednostavno stvori jake i sigurne lozinke odabirom tipke Generiraj lozinku kako bi tvoje prijave ostale sigurne.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Uštedi vrijeme s auto-ispunom"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "Uključi",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "web stranicu",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "kako bi ova prijava bila predložena u auto-ispuni.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Jednostavna online kupnja"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "S karticama jednostavno i sigurno automatski ispunjavaš obrasce za plaćanje."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Pojednostavi stvaranje računa"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "S identitetima brzo automatski ispunjavaš duge registracijske i kontaktne obrasce."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Čuvaj svoje osjetljive podatke na sigurnom"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "S bilješkama sigurno pohrani svoje osjetljive podatke poput podataka o banci ili osiguranju."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "SSH pristup prilagođen programerima"
   },
   "newSshNudgeBodyOne": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "message": "Pohrani svoje ključeve i poveži se sa SSH agentom za brzu, šifriranu autentifikaciju.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "newSshNudgeBodyTwo": {
-    "message": "Learn more about SSH agent",
+    "message": "Saznaj više o SSH agentu",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Dodijeli zbirkama"
+  },
+  "assignToTheseCollections": {
+    "message": "Dodijeli ovim zbirkama"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Stavku će moći vidjeti samo članovi organizacije s pristupom ovim zbirkama."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Stavke će moći vidjeti samo članovi organizacije s pristupom ovim zbirkama."
+  },
+  "noCollectionsAssigned": {
+    "message": "Niti jedna zbirka nije dodijeljena"
+  },
+  "assign": {
+    "message": "Dodijeli"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Stavke će moći vidjeti samo članovi organizacije s pristupom ovim zbirkama."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Odabrano je $TOTAL_COUNT$ stavki. Nije moguće ažurirati $READONLY_COUNT$ stavki jer nemaš dopuštenje za uređivanje.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Odaberi zbirke za dodjelu"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ stavke/i će biti trajno preneseno u odabranu organizaciju. Više nećeš posjedovati ove stavke.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ stavke/i će biti trajno prenesene u $ORG$. Više nećeš posjedovati ove stavke.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 stavka će biti trajno prenesena u odabranu organizaciju. Više nećeš posjedovati ovu stavku."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 stavka će biti trajno prenesena u $ORG$. Više nećeš posjedovati ovu stavku.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Zbirke uspješno dodijeljene"
+  },
+  "nothingSelected": {
+    "message": "Ništa nije odabrano."
+  },
+  "itemsMovedToOrg": {
+    "message": "Stavke premještene u $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Stavka premještena u $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Odabrane stavke premještene u $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
+  },
+  "showMore": {
+    "message": "Prikaži više"
+  },
+  "showLess": {
+    "message": "Pokaži manje"
+  },
+  "enableAutotype": {
+    "message": "Omogući automatski unos"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
   }
 }

@@ -25,10 +25,13 @@ interface Animal {
   template: `
     <bit-layout>
       <button class="tw-mr-2" bitButton type="button" (click)="openDialog()">Open Dialog</button>
+      <button class="tw-mr-2" bitButton type="button" (click)="openDialogNonDismissable()">
+        Open Non-Dismissable Dialog
+      </button>
       <button bitButton type="button" (click)="openDrawer()">Open Drawer</button>
     </bit-layout>
   `,
-  imports: [ButtonModule],
+  imports: [ButtonModule, LayoutComponent],
 })
 class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
@@ -38,6 +41,15 @@ class StoryDialogComponent {
       data: {
         animal: "panda",
       },
+    });
+  }
+
+  openDialogNonDismissable() {
+    this.dialogService.open(NonDismissableContent, {
+      data: {
+        animal: "panda",
+      },
+      disableClose: true,
     });
   }
 
@@ -79,13 +91,43 @@ class StoryDialogContentComponent {
   }
 }
 
+@Component({
+  template: `
+    <bit-dialog
+      title="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+      dialogSize="large"
+    >
+      <span bitDialogContent>
+        Dialog body text goes here.
+        <br />
+        Animal: {{ animal }}
+      </span>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+      </ng-container>
+    </bit-dialog>
+  `,
+  imports: [DialogModule, ButtonModule],
+})
+class NonDismissableContent {
+  constructor(
+    public dialogRef: DialogRef,
+    @Inject(DIALOG_DATA) private data: Animal,
+  ) {}
+
+  get animal() {
+    return this.data?.animal;
+  }
+}
+
 export default {
   title: "Component Library/Dialogs/Service",
   component: StoryDialogComponent,
   decorators: [
     positionFixedWrapperDecorator(),
     moduleMetadata({
-      declarations: [StoryDialogContentComponent],
       imports: [
         SharedModule,
         ButtonModule,
@@ -138,12 +180,21 @@ export const Default: Story = {
   },
 };
 
+export const NonDismissable: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[1];
+    await userEvent.click(button);
+  },
+};
+
 /** Drawers must be a descendant of `bit-layout`. */
 export const Drawer: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
 
-    const button = getAllByRole(canvas, "button")[1];
+    const button = getAllByRole(canvas, "button")[2];
     await userEvent.click(button);
   },
 };

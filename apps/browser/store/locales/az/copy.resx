@@ -127,22 +127,22 @@
     <value>PCMag, WIRED, The Verge, CNET, G2 və daha çoxu tərəfindən ən yaxşı parol meneceri olaraq tanındı!
 
 RƏQƏMSAL HƏYATINIZI GÜVƏNDƏ SAXLAYIN
-Hər hesab üçün unikal, güclü parollar yaradıb saxlayaraq rəqəmsal həyatınızı güvəndə saxlatyın və məlumat pozuntularına qarşı qorunun. Hər şeyi yalnız sizin müraciət edə biləcəyiniz ucdan uca şifrələnmiş parol seyfində saxlayın.
+Hər hesab üçün unikal, güclü parollar yaradıb saxlayaraq rəqəmsal həyatınızı güvəndə saxlatyın və məlumat pozuntularına qarşı qorunun. Hər şeyi yalnız sizin erişə biləcəyiniz ucdan uca şifrələnmiş parol seyfində saxlayın.
 
-DATANIZA HƏR YERDƏN, HƏR CİHAZDAN, İSTƏNİLƏN VAXT MÜRACİƏT EDİN
+VERİLƏRİNİZƏ HƏR YERDƏN, HƏR CİHAZDAN, İSTƏNİLƏN VAXT ERİŞİN
 Limitsiz parolları limitsiz cihazlarda məhdudiyyət olmadan asanlıqla idarə edin, saxlayın, güvənlə qoruyun və paylaşın.
 
 HƏR KƏS İNTERNETDƏ GÜVƏNDƏ QALMAQ ÜÇÜN ALƏTLƏRƏ SAHİB OLMALIDIR
-Bitwarden-i heç bir reklam və ya satış datası olmadan ödənişsiz istifadə edin. Bitwarden hesab edir ki, hər kəs internetdə güvəndə qalmaq bacarığına sahib olmalıdır. Premium planlar qabaqcıl özəlliklərə müraciət təklif edir.
+Bitwarden-i heç bir reklam və ya satış veriləri olmadan ödənişsiz istifadə edin. Bitwarden hesab edir ki, hər kəs internetdə güvəndə qalmaq bacarığına sahib olmalıdır. Premium planlar qabaqcıl özəlliklərə erişim təklif edir.
 
 BITWARDEN İLƏ KOMANDALARINIZI GÜCLƏNDİRİN
-Komanda və Müəssisələr üçün planlar, professional biznes özəllikləri ilə birgə gəlir. Bəzi nümunələrə SSO inteqrasiyası, öz-özünə sahiblik, kataloq inteqrasiyası və SCIM təqdim etmə, qlobal siyasətlər, API müraciəti, olay jurnalları və daha çoxu daxildir.
+Komanda və Müəssisələr üçün planlar, professional biznes özəllikləri ilə birgə gəlir. Bəzi nümunələrə SSO inteqrasiyası, öz-özünə sahiblik, kataloq inteqrasiyası və SCIM təqdim etmə, qlobal siyasətlər, API erişimi, event qeydləri və daha çoxu daxildir.
 
 İş gücünüzün güvənliyini qorumaq və həssas məlumatları həmkarlarınızla paylaşmaq üçün Bitwarden-i istifadə edin.
 
 Bitwarden-i seçmək üçün daha çox səbəb:
 Dünya səviyyəli şifrələmə
-Parollar, qabaqcıl ucdan uca şifrələmə (AES-256 bit, salted hashtag və PBKDF2 SHA-256) ilə qorunur, beləliklə datanız güvəndə və məxfi qalır.
+Parollar, qabaqcıl ucdan uca şifrələmə (AES-256 bit, salted hashtag və PBKDF2 SHA-256) ilə qorunur, beləliklə veriləriniz güvəndə və məxfi qalır.
 
 3-cü tərəf auditləri
 Bitwarden, müntəzəm olaraq tanınmış təhlükəsizlik firmaları ilə hərtərəfli üçüncü tərəf təhlükəsizlik auditləri keçirir. Bu illik auditlərə Bitwarden IP-ləri, serverləri və veb tətbiqləri arasında mənbə kodu qiymətləndirmələri və nüfuz testi daxildir.
@@ -151,7 +151,7 @@ Qabaqcıl 2FA
 Giriş məlumatlarınızı üçüncü tərəf autentifikatoru, e-poçtla göndərilən kodlar və ya avadanlıq güvənlik açarı və ya keçid açarı kimi FIDO2 WebAuthn kimlik məlumatları ilə güvəndə saxlayın.
 
 Bitwarden Send
-Ucdan-uca şifrələmə güvənliyini qoruyarkən və pozuntunu məhdudlaşdırarkən dataları birbaşa başqalarına göndərin.
+Ucdan-uca şifrələmə güvənliyini qoruyarkən və pozuntunu məhdudlaşdırarkən veriləri birbaşa başqalarına göndərin.
 
 Daxili Generator
 Ziyarət etdiyiniz hər sayt üçün uzun, mürəkkəb və fərqli parollar və unikal istifadəçi adları yaradın. Əlavə məxfilik üçün e-poçt ləqəb provayderləri ilə inteqrasiya edin.
@@ -160,7 +160,7 @@ Qlobal Tərcümələr
 Bitwarden tərcümələri 60-dan çox dildə mövcuddur, Crowdin vasitəsilə qlobal icma tərəfindən tərcümə edilmişdir.
 
 Çarpaz Platforma Tətbiqləri
-İstənilən brauzerdən, mobil cihazdan və ya masaüstü əməliyyat sistemindən və daha çoxundan Bitwarden Seyfinizdəki həssas dataları güvəndə saxlayın və paylaşın.
+İstənilən brauzerdən, mobil cihazdan və ya masaüstü əməliyyat sistemindən və daha çoxundan Bitwarden Seyfinizdəki həssas veriləri güvəndə saxlayın və paylaşın.
 
 Bitwarden parollardan daha çox qoruyur
 Bitwarden-nin ucdan-uca şifrələnmiş kimlik məlumatlarını idarəetmə həlləri, təşkilatlara hər şeyi, o cümlədən tərtibatçı sirrlərini və keçid açarı təcrübələrini qorumaq gücü verir. Bitwarden Sirr Meneceri və Bitwarden Passwordless.dev haqqında daha ətraflı öyrənmək üçün Bitwarden.com saytını ziyarət edin!</value>
@@ -169,7 +169,7 @@ Bitwarden-nin ucdan-uca şifrələnmiş kimlik məlumatlarını idarəetmə həl
     <value>Bitwarden evdə və ya işdə olarkən bütün parol, keçid açarı və həssas məlumatlarınızı asanlıqla qoruyur.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Bir neçə cihaz arasında sinxronlaşdıraraq seyfinizə müraciəti genişləndirin</value>
+    <value>Sinxronlaşdırın və seyfinizə bir neçə cihazdan erişin</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
     <value>Bütün girişlərinizi və parollarınızı güvənli bir seyfdən idarə edin</value>
@@ -178,7 +178,7 @@ Bitwarden-nin ucdan-uca şifrələnmiş kimlik məlumatlarını idarəetmə həl
     <value>Giriş kimlik məlumatlarınızı ziyarət etdiyiniz istənilən veb sayta dərhal avtomatik doldurun</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Həmçinin sağ klikləmə menyusu ilə seyfinizə asanlıqla müraciət edə bilərsiniz</value>
+    <value>Həmçinin sağ klikləmə menyusu ilə seyfinizə asanlıqla erişə bilərsiniz</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
     <value>Güclü, təsadüfi və güvənli parolların avtomatik yaradılması</value>

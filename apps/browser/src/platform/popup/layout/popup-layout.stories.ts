@@ -1,5 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
@@ -20,6 +19,7 @@ import {
   NoItemsModule,
   SearchModule,
   SectionComponent,
+  ScrollLayoutDirective,
 } from "@bitwarden/components";
 
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
@@ -38,6 +38,17 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
   `,
 })
 class ExtensionContainerComponent {}
+
+@Component({
+  selector: "extension-popped-container",
+  template: `
+    <div class="tw-h-[640px] tw-w-[900px] tw-border tw-border-solid tw-border-secondary-300">
+      <ng-content></ng-content>
+    </div>
+  `,
+  standalone: true,
+})
+class ExtensionPoppedContainerComponent {}
 
 @Component({
   selector: "vault-placeholder",
@@ -106,7 +117,7 @@ class MockPopoutButtonComponent {}
 @Component({
   selector: "mock-current-account",
   template: `
-    <button class="tw-bg-transparent tw-border-none" type="button">
+    <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1 tw-align-middle" type="button">
       <bit-avatar text="Ash Ketchum" size="small"></bit-avatar>
     </button>
   `,
@@ -295,6 +306,7 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [
+        ScrollLayoutDirective,
         PopupTabNavigationComponent,
         PopupHeaderComponent,
         PopupPageComponent,
@@ -302,6 +314,7 @@ export default {
         CommonModule,
         RouterModule,
         ExtensionContainerComponent,
+        ExtensionPoppedContainerComponent,
         MockBannerComponent,
         MockSearchComponent,
         MockVaultSubpageComponent,
@@ -312,6 +325,11 @@ export default {
         MockVaultPagePoppedComponent,
         NoItemsModule,
         VaultComponent,
+        ScrollingModule,
+        ItemModule,
+        SectionComponent,
+        IconButtonModule,
+        BadgeModule,
       ],
       providers: [
         {
@@ -495,7 +513,21 @@ export const CompactMode: Story = {
       const compact = canvasEl.querySelector(
         `#${containerId} [data-testid=popup-layout-scroll-region]`,
       );
+
+      if (!compact) {
+        // eslint-disable-next-line
+        console.error(`#${containerId} [data-testid=popup-layout-scroll-region] not found`);
+        return;
+      }
+
       const label = canvasEl.querySelector(`#${containerId} .example-label`);
+
+      if (!label) {
+        // eslint-disable-next-line
+        console.error(`#${containerId} .example-label not found`);
+        return;
+      }
+
       const percentVisible =
         100 -
         Math.round((100 * (compact.scrollHeight - compact.clientHeight)) / compact.scrollHeight);
@@ -510,9 +542,9 @@ export const PoppedOut: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <div class="tw-h-[640px] tw-w-[900px] tw-border tw-border-solid tw-border-secondary-300">
+      <extension-popped-container>
         <mock-vault-page-popped></mock-vault-page-popped>
-      </div>
+      </extension-popped-container>
     `,
   }),
 };
@@ -525,7 +557,10 @@ export const CenteredContent: Story = {
         <popup-tab-navigation>
           <popup-page>
             <popup-header slot="header" pageTitle="Centered Content"></popup-header>
-            <div class="tw-h-full tw-flex tw-items-center tw-justify-center tw-text-main">
+            <div
+              class="tw-h-full tw-flex tw-items-center tw-justify-center tw-text-main tw-flex-col"
+            >
+              <h2 bitTypography="h2" class="tw-mb-6">Page with no content</h2>
               <bit-no-items>
                 <ng-container slot="title">Before centering a div</ng-container>
                 <ng-container slot="description">One must first center oneself</ng-container>
@@ -560,10 +595,9 @@ export const TransparentHeader: Story = {
     template: /* HTML */ `
       <extension-container>
         <popup-page>
-          <popup-header slot="header" background="alt"
-            ><span class="tw-italic tw-text-main">🤠 Custom Content</span></popup-header
-          >
-
+          <popup-header slot="header" background="alt">
+            <span class="tw-italic tw-text-main">🤠 Custom Content</span>
+          </popup-header>
           <vault-placeholder></vault-placeholder>
         </popup-page>
       </extension-container>
@@ -605,6 +639,59 @@ export const WidthOptions: Story = {
           <mock-vault-page></mock-vault-page>
         </div>
       </div>
+    `,
+  }),
+};
+
+export const WithVirtualScrollChild: Story = {
+  render: (args) => ({
+    props: { ...args, data: Array.from(Array(20).keys()) },
+    template: /* HTML */ `
+      <extension-popped-container>
+        <popup-page>
+          <popup-header slot="header" pageTitle="Test"> </popup-header>
+          <mock-search slot="above-scroll-area"></mock-search>
+          <bit-section>
+            @defer (on immediate) {
+            <bit-item-group aria-label="Mock Vault Items">
+              <cdk-virtual-scroll-viewport itemSize="59" bitScrollLayout>
+                <bit-item *cdkVirtualFor="let item of data; index as i">
+                  <button type="button" bit-item-content>
+                    <i
+                      slot="start"
+                      class="bwi bwi-globe tw-text-3xl tw-text-muted"
+                      aria-hidden="true"
+                    ></i>
+                    {{ i }} of {{ data.length - 1 }}
+                    <span slot="secondary">Bar</span>
+                  </button>
+
+                  <ng-container slot="end">
+                    <bit-item-action>
+                      <button type="button" bitBadge variant="primary">Fill</button>
+                    </bit-item-action>
+                    <bit-item-action>
+                      <button
+                        type="button"
+                        bitIconButton="bwi-clone"
+                        aria-label="Copy item"
+                      ></button>
+                    </bit-item-action>
+                    <bit-item-action>
+                      <button
+                        type="button"
+                        bitIconButton="bwi-ellipsis-v"
+                        aria-label="More options"
+                      ></button>
+                    </bit-item-action>
+                  </ng-container>
+                </bit-item>
+              </cdk-virtual-scroll-viewport>
+            </bit-item-group>
+            }
+          </bit-section>
+        </popup-page>
+      </extension-popped-container>
     `,
   }),
 };

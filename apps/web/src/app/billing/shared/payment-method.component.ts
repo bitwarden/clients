@@ -18,7 +18,9 @@ import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BillingPaymentResponse } from "@bitwarden/common/billing/models/response/billing-payment.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VerifyBankRequest } from "@bitwarden/common/models/request/verify-bank.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -79,6 +81,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     protected syncService: SyncService,
+    private configService: ConfigService,
   ) {
     const state = this.router.getCurrentNavigation()?.extras?.state;
     // incase the above state is undefined or null we use redundantState
@@ -105,6 +108,14 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/settings/subscription"]);
         return;
+      }
+
+      const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+        FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+      );
+
+      if (managePaymentDetailsOutsideCheckout) {
+        await this.router.navigate(["../payment-details"], { relativeTo: this.route });
       }
 
       await this.load();

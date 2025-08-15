@@ -9,7 +9,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -26,6 +25,7 @@ import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
@@ -34,13 +34,15 @@ import {
   DisableSendPolicy,
   MasterPasswordPolicy,
   PasswordGeneratorPolicy,
-  PersonalOwnershipPolicy,
+  OrganizationDataOwnershipPolicy,
+  vNextOrganizationDataOwnershipPolicy,
   RequireSsoPolicy,
   ResetPasswordPolicy,
   SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
   RemoveUnlockWithPinPolicy,
+  RestrictedItemTypesPolicy,
 } from "./admin-console/organizations/policies";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -243,9 +245,11 @@ export class AppComponent implements OnDestroy, OnInit {
       new PasswordGeneratorPolicy(),
       new SingleOrgPolicy(),
       new RequireSsoPolicy(),
-      new PersonalOwnershipPolicy(),
+      new OrganizationDataOwnershipPolicy(),
+      new vNextOrganizationDataOwnershipPolicy(),
       new DisableSendPolicy(),
       new SendOptionsPolicy(),
+      new RestrictedItemTypesPolicy(),
     ]);
   }
 
@@ -285,7 +289,6 @@ export class AppComponent implements OnDestroy, OnInit {
       this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
-      this.collectionService.clear(userId),
       this.biometricStateService.logout(userId),
     ]);
 

@@ -10,13 +10,13 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
 
-import { BrowserPopupUtils } from "../../../../../../platform/browser/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
 
 import { OpenAttachmentsComponent } from "./open-attachments.component";
@@ -163,7 +163,7 @@ describe("OpenAttachmentsComponent", () => {
     it("sets `cipherIsAPartOfFreeOrg` to true when the cipher is a part of a free organization", async () => {
       cipherView.organizationId = "888-333-333";
       org.productTierType = ProductTierType.Free;
-      org.id = cipherView.organizationId;
+      org.id = cipherView.organizationId as OrganizationId;
 
       await component.ngOnInit();
 
@@ -173,7 +173,7 @@ describe("OpenAttachmentsComponent", () => {
     it("sets `cipherIsAPartOfFreeOrg` to false when the organization is not free", async () => {
       cipherView.organizationId = "888-333-333";
       org.productTierType = ProductTierType.Families;
-      org.id = cipherView.organizationId;
+      org.id = cipherView.organizationId as OrganizationId;
 
       await component.ngOnInit();
 
