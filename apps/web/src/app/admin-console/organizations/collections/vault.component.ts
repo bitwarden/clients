@@ -214,7 +214,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected editableCollections$: Observable<CollectionAdminView[]>;
   protected allCollectionsWithoutUnassigned$: Observable<CollectionAdminView[]>;
   protected allCollections$: Observable<CollectionAdminView[]>;
-  protected collections$: Observable<CollectionAdminView[]> = of([]);
+  protected collections$: Observable<CollectionAdminView[]>;
   protected selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
   private nestedCollections$: Observable<TreeNode<CollectionAdminView>[]>;
 
@@ -445,11 +445,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       FeatureFlag.UseOrganizationWarningsService,
     );
 
-    this.freeTrialWhenWarningsServiceDisabled$ = this.useOrganizationWarningsService$.pipe(
-      filter((enabled) => !enabled),
-      switchMap(() => freeTrial$),
-    );
-
     const freeTrial$ = combineLatest([
       this.organization$,
       this.hasSubscription$.pipe(filter((hasSubscription) => hasSubscription !== null)),
@@ -481,6 +476,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       }),
     );
 
+    this.freeTrialWhenWarningsServiceDisabled$ = this.useOrganizationWarningsService$.pipe(
+      filter((enabled) => !enabled),
+      switchMap(() => freeTrial$),
+    );
+
     this.resellerWarningWhenWarningsServiceDisabled$ = combineLatest([
       this.organization$,
       this.useOrganizationWarningsService$,
@@ -508,76 +508,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         return collections.filter((c) => c.assigned);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
-    );
-  }
-
-  getOrganizationId$(): Observable<OrganizationId> {
-    // FIXME: The RoutedVaultFilterModel uses `organizationId: Unassigned` to represent the individual vault,
-    // but that is never used in Admin Console. This function narrows the type so it doesn't pollute our code here,
-    // but really we should change to using our own vault filter model that only represents valid states in AC.
-    const isOrganizationId = (value: OrganizationId | Unassigned): value is OrganizationId =>
-      value !== Unassigned;
-    return this.filter$.pipe(
-      map((filter) => filter.organizationId),
-      filter((filter) => filter !== undefined),
-      filter(isOrganizationId),
-      distinctUntilChanged(),
-    );
-  }
-
-  async ngOnInit() {
-    const firstSetup$ = combineLatest([this.organization$, this.route.queryParams]).pipe(
-      first(),
-      switchMap(async ([organization]) => {
-        if (!organization.canEditAnyCollection) {
-          await this.syncService.fullSync(false);
-        }
-
-        return undefined;
-      }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
-    );
-
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.ngZone.run(async () => {
-        switch (message.command) {
-          case "syncCompleted":
-            if (message.successfully) {
-              this.refresh();
-              this.changeDetectorRef.detectChanges();
-            }
-            break;
-        }
-      });
-    });
-
-    this.routedVaultFilterBridgeService.activeFilter$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((activeFilter) => {
-        this.activeFilter = activeFilter;
-
-        // watch the active filters. Only show toggle when viewing the collections filter
-        if (!this.activeFilter.collectionId) {
-          this.showAddAccessToggle = false;
-        }
-      });
-
-    this.searchText$
-      .pipe(debounceTime(SearchTextDebounceInterval), takeUntil(this.destroy$))
-      .subscribe((searchText) =>
-        this.router.navigate([], {
-          queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
-          queryParamsHandling: "merge",
-          replaceUrl: true,
-        }),
-      );
-
-    const allCipherMap$ = this.allCiphers$.pipe(
-      map((ciphers) => {
-        return Object.fromEntries(ciphers.map((c) => [c.id, c]));
-      }),
     );
 
     this.collections$ = combineLatest([
@@ -648,6 +578,84 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
       takeUntil(this.destroy$),
       shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+  }
+
+  getOrganizationId$(): Observable<OrganizationId> {
+    // FIXME: The RoutedVaultFilterModel uses `organizationId: Unassigned` to represent the individual vault,
+    // but that is never used in Admin Console. This function narrows the type so it doesn't pollute our code here,
+    // but really we should change to using our own vault filter model that only represents valid states in AC.
+    const isOrganizationId = (value: OrganizationId | Unassigned): value is OrganizationId =>
+      value !== Unassigned;
+    return this.filter$.pipe(
+      map((filter) => filter.organizationId),
+      filter((filter) => filter !== undefined),
+      filter(isOrganizationId),
+      distinctUntilChanged(),
+    );
+  }
+
+  async ngOnInit() {
+    const firstSetup$ = combineLatest([this.organization$, this.route.queryParams]).pipe(
+      first(),
+      switchMap(async ([organization]) => {
+        try {
+          if (!organization?.canEditAnyCollection) {
+            await this.syncService.fullSync(false);
+          }
+          return;
+        } catch (error) {
+          this.logService.error("Error during initial setup:", error);
+          return;
+        }
+      }),
+      catchError((error: unknown) => {
+        this.logService.error("Failed during firstSetup$:", error);
+        return of();
+      }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+    this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.ngZone.run(async () => {
+        switch (message.command) {
+          case "syncCompleted":
+            if (message.successfully) {
+              this.refresh();
+              this.changeDetectorRef.detectChanges();
+            }
+            break;
+        }
+      });
+    });
+
+    this.routedVaultFilterBridgeService.activeFilter$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((activeFilter) => {
+        this.activeFilter = activeFilter;
+
+        // watch the active filters. Only show toggle when viewing the collections filter
+        if (!this.activeFilter.collectionId) {
+          this.showAddAccessToggle = false;
+        }
+      });
+
+    this.searchText$
+      .pipe(debounceTime(SearchTextDebounceInterval), takeUntil(this.destroy$))
+      .subscribe((searchText) =>
+        this.router.navigate([], {
+          queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
+          queryParamsHandling: "merge",
+          replaceUrl: true,
+        }),
+      );
+
+    const allCipherMap$ = this.allCiphers$.pipe(
+      map((ciphers) => {
+        return Object.fromEntries(ciphers.map((c) => [c.id, c]));
+      }),
     );
 
     firstSetup$
@@ -1473,7 +1481,9 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private refresh() {
     this.refresh$.next();
-    this.vaultItemsComponent?.clearSelection();
+    if (this.vaultItemsComponent) {
+      this.vaultItemsComponent.clearSelection();
+    }
   }
 
   private go(queryParams: any = null) {
