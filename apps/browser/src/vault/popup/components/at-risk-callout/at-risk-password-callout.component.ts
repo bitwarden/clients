@@ -9,10 +9,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SecurityTask } from "@bitwarden/common/vault/tasks";
 import { AnchorLinkDirective, CalloutModule, BannerModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import {
-  AtRiskPasswordCalloutData,
-  AtRiskPasswordCalloutService,
-} from "@bitwarden/web-vault/app/vault/services/at-risk-password-callout.service";
+import { AtRiskPasswordCalloutData, AtRiskPasswordCalloutService } from "@bitwarden/vault";
 
 @Component({
   selector: "vault-at-risk-password-callout",

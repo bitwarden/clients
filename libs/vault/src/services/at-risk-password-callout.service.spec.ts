@@ -1,16 +1,18 @@
 import { TestBed } from "@angular/core/testing";
-import { FakeSingleUserState } from "@bitwarden/common/../spec/fake-state";
 import { firstValueFrom, of } from "rxjs";
 
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
+
+import { FakeSingleUserState } from "../../../common/spec/fake-state";
+
 import {
   AT_RISK_PASSWORD_CALLOUT_KEY,
   AtRiskPasswordCalloutData,
   AtRiskPasswordCalloutService,
-} from "@bitwarden/web-vault/app/vault/services/at-risk-password-callout.service";
+} from "./at-risk-password-callout.service";
 
 const fakeUserState = () =>
   ({
