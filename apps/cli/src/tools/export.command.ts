@@ -70,10 +70,13 @@ export class ExportCommand {
         password = await this.promptPassword(password);
       }
 
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
       exportContent =
         options.organizationid == null
-          ? await this.exportService.getExport(format, password)
+          ? await this.exportService.getExport(userId, format, password)
           : await this.exportService.getOrganizationExport(
+              userId,
               options.organizationid,
               format,
               password,
