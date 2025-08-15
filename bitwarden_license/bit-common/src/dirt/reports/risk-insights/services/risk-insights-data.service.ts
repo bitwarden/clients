@@ -7,6 +7,8 @@ import {
   AtRiskApplicationDetail,
   AtRiskMemberDetail,
   DrawerType,
+  HealthReportUriDetailWithMemberDetails,
+  MemberDetailsFlat,
 } from "../models/password-health";
 
 import { RiskInsightsReportService } from "./risk-insights-report.service";
@@ -26,6 +28,9 @@ export class RiskInsightsDataService {
 
   private dataLastUpdatedSubject = new BehaviorSubject<Date | null>(null);
   dataLastUpdated$ = this.dataLastUpdatedSubject.asObservable();
+
+  private memberDetailsSubject = new BehaviorSubject<MemberDetailsFlat[]>([]);
+  memberDetails$ = this.memberDetailsSubject.asObservable();
 
   openDrawer = false;
   drawerInvokerId: string = "";
@@ -56,12 +61,14 @@ export class RiskInsightsDataService {
         }),
       )
       .subscribe({
-        next: (reports: ApplicationHealthReportDetail[]) => {
-          this.applicationsSubject.next(reports);
+        next: (reports: HealthReportUriDetailWithMemberDetails) => {
+          this.applicationsSubject.next(reports.healthReport);
+          this.memberDetailsSubject.next(reports.members);
           this.errorSubject.next(null);
         },
         error: () => {
           this.applicationsSubject.next([]);
+          this.memberDetailsSubject.next([]);
         },
       });
   }
