@@ -69,7 +69,7 @@ export class CriticalApplicationsComponent implements OnInit {
 
     combineLatest([
       this.dataService.applications$,
-      this.criticalAppsService.getAppsListForOrg(this.organizationId),
+      this.criticalAppsService.getAppsListForOrg(this.organizationId as OrganizationId),
     ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
