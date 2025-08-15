@@ -1,4 +1,14 @@
-import { concat, defer, filter, map, merge, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  concat,
+  defer,
+  filter,
+  map,
+  merge,
+  Observable,
+  shareReplay,
+  switchMap,
+  withLatestFrom,
+} from "rxjs";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -42,16 +52,13 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
     }),
     merge(
       this.onTabActivated$,
-      this.onTabActivated$.pipe(
-        switchMap((activeInfo) =>
-          fromChromeEvent(chrome.tabs.onUpdated).pipe(
-            filter(
-              ([tabId, changeInfo]) =>
-                tabId === activeInfo.tabId && changeInfo.status === "loading",
-            ),
-            map(([tabId, _changeInfo, tab]) => ({ tabId, windowId: tab.windowId })),
-          ),
+      fromChromeEvent(chrome.tabs.onUpdated).pipe(
+        withLatestFrom(this.onTabActivated$),
+        filter(
+          ([[tabId, changeInfo], activeInfo]) =>
+            tabId === activeInfo.tabId && changeInfo.status === "loading",
         ),
+        map(([[tabId, _changeInfo, tab]]) => ({ tabId, windowId: tab.windowId })),
       ),
     ),
   ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
