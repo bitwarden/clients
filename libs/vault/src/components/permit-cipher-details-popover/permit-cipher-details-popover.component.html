@@ -13,8 +13,10 @@
   <p>
     {{ "permitCipherDetailsDescription" | i18n }}
   </p>
-  <a bitLink href="#" (click)="openLearnMore($event)">
-    {{ "learnMore" | i18n }}
-    <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
-  </a>
+  <div class="tw-flex tw-gap-1.5 tw-items-center">
+    <a bitLink href="#" (click)="openLearnMore($event)" class="tw-flex">
+      {{ "learnMore" | i18n }}
+    </a>
+    <i slot="end" class="bwi bwi-external-link tw-text-primary-600" aria-hidden="true"></i>
+  </div>
 </bit-popover>
