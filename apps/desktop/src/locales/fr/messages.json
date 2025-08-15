@@ -42,7 +42,7 @@
     "message": "Rechercher dans le coffre"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Réinitialiser la recherche"
   },
   "addItem": {
     "message": "Ajouter un élément"
@@ -576,7 +576,7 @@
     "message": "Copier le code de vérification (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Copier $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1225,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Authentification à deux facteurs"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Délai d'expiration du coffre"
   },
   "vaultTimeout1": {
     "message": "Délai dépassé"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Choisissez quand votre coffre réalisera l'action d'expiration."
@@ -1443,7 +1449,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "numéro de carte"
   },
   "premiumMembership": {
     "message": "Adhésion Premium"
@@ -2511,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Le délai d'expiration de votre coffre dépasse les restrictions définies par votre organisation."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Invitation acceptée"
   },
@@ -2992,9 +3027,6 @@
     "message": "Activer / désactiver le compte de caractères",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Essayez-vous d'accéder à votre compte ?"
-  },
   "accessAttemptBy": {
     "message": "Tentative d'accès par $EMAIL$",
     "placeholders": {
@@ -3003,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Type d'appareil"
@@ -3018,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Refuser l'accès"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Connexion confirmée pour $EMAIL$ sur $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Vous avez refusé une tentative de connexion à partir d'un autre appareil. Si c'était vraiment vous, essayez de vous connecter à nouveau avec l'appareil."
   },
   "justNow": {
     "message": "À l'instant"
@@ -3575,11 +3635,11 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Options avancées",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Avertissement",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -4006,10 +4066,16 @@
       }
     }
   },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
   "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "Activer le type automatique"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden ne valide pas les emplacements d'entrée, assurez-vous d'être dans la bonne fenêtre et le bon champ avant d'utiliser le raccourci."
   }
 }

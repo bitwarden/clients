@@ -13,9 +13,6 @@ import {
   switchMap,
 } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
@@ -29,6 +26,7 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -157,34 +155,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   async getUserKey(userId?: UserId): Promise<UserKey> {
     const userKey = await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
     return userKey;
-  }
-
-  async isLegacyUser(masterKey?: MasterKey, userId?: UserId): Promise<boolean> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-    if (userId == null) {
-      throw new Error("No active user id found.");
-    }
-    masterKey ??= await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-
-    return await this.validateUserKey(masterKey, userId);
-  }
-
-  // TODO: legacy support for user key is no longer needed since we require users to migrate on login
-  async getUserKeyWithLegacySupport(userId?: UserId): Promise<UserKey> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-    if (userId == null) {
-      throw new Error("No active user id found.");
-    }
-
-    const userKey = await this.getUserKey(userId);
-    if (userKey) {
-      return userKey;
-    }
-
-    // Legacy support: encryption used to be done with the master key (derived from master password).
-    // Users who have not migrated will have a null user key and must use the master key instead.
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    return masterKey as unknown as UserKey;
   }
 
   async getUserKeyFromStorage(
@@ -501,16 +471,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider
       .getUser(userId, USER_ENCRYPTED_PRIVATE_KEY)
       .update(() => encPrivateKey);
-  }
-
-  async getPrivateKey(): Promise<Uint8Array | null> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-
-    if (activeUserId == null) {
-      throw new Error("User must be active while attempting to retrieve private key.");
-    }
-
-    return await firstValueFrom(this.userPrivateKey$(activeUserId));
   }
 
   // TODO: Make public key required
@@ -831,29 +791,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_KEY).state$;
   }
 
-  private userKeyWithLegacySupport$(userId: UserId) {
-    return this.userKey$(userId).pipe(
-      switchMap((userKey) => {
-        if (userKey != null) {
-          return of(userKey);
-        }
-
-        // Legacy path
-        return this.masterPasswordService.masterKey$(userId).pipe(
-          switchMap(async (masterKey) => {
-            if (!(await this.validateUserKey(masterKey, userId))) {
-              // We don't have a UserKey or a valid MasterKey
-              return null;
-            }
-
-            // The master key is valid meaning, the org keys and such are encrypted with this key
-            return masterKey as unknown as UserKey;
-          }),
-        );
-      }),
-    );
-  }
-
   userPublicKey$(userId: UserId) {
     return this.userPrivateKey$(userId).pipe(
       switchMap(async (pk) => await this.derivePublicKey(pk)),
@@ -869,9 +806,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   userPrivateKey$(userId: UserId): Observable<UserPrivateKey | null> {
-    return this.userPrivateKeyHelper$(userId, false).pipe(
-      map((keys) => keys?.userPrivateKey ?? null),
-    );
+    return this.userPrivateKeyHelper$(userId).pipe(map((keys) => keys?.userPrivateKey ?? null));
   }
 
   userEncryptionKeyPair$(
@@ -893,14 +828,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$;
   }
 
-  userPrivateKeyWithLegacySupport$(userId: UserId): Observable<UserPrivateKey | null> {
-    return this.userPrivateKeyHelper$(userId, true).pipe(
-      map((keys) => keys?.userPrivateKey ?? null),
-    );
-  }
-
-  private userPrivateKeyHelper$(userId: UserId, legacySupport: boolean) {
-    const userKey$ = legacySupport ? this.userKeyWithLegacySupport$(userId) : this.userKey$(userId);
+  private userPrivateKeyHelper$(userId: UserId) {
+    const userKey$ = this.userKey$(userId);
     return userKey$.pipe(
       switchMap((userKey) => {
         if (userKey == null) {
@@ -983,7 +912,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   orgKeys$(userId: UserId): Observable<Record<OrganizationId, OrgKey> | null> {
-    return this.cipherDecryptionKeys$(userId, true).pipe(map((keys) => keys?.orgKeys ?? null));
+    return this.cipherDecryptionKeys$(userId).pipe(map((keys) => keys?.orgKeys ?? null));
   }
 
   encryptedOrgKeys$(
@@ -992,11 +921,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$;
   }
 
-  cipherDecryptionKeys$(
-    userId: UserId,
-    legacySupport: boolean = false,
-  ): Observable<CipherDecryptionKeys | null> {
-    return this.userPrivateKeyHelper$(userId, legacySupport)?.pipe(
+  cipherDecryptionKeys$(userId: UserId): Observable<CipherDecryptionKeys | null> {
+    return this.userPrivateKeyHelper$(userId)?.pipe(
       switchMap((userKeys) => {
         if (userKeys == null) {
           return of(null);

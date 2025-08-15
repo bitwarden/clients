@@ -108,7 +108,7 @@ type PaymentMethodFormGroup = FormGroup<{
                   <i class="bwi bwi-question-circle tw-text-lg" aria-hidden="true"></i>
                 </button>
                 <bit-popover [title]="'cardSecurityCode' | i18n" #cardSecurityCodePopover>
-                  <p>{{ "cardSecurityCodeDescription" | i18n }}</p>
+                  <p class="tw-mb-0">{{ "cardSecurityCodeDescription" | i18n }}</p>
                 </bit-popover>
               </app-payment-label>
               <div id="stripe-card-cvc" class="tw-stripe-form-control"></div>

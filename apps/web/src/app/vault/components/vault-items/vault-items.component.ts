@@ -28,8 +28,8 @@ import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
-export const RowHeight = 75.5;
-export const RowHeightClass = `tw-h-[75.5px]`;
+export const RowHeight = 75;
+export const RowHeightClass = `tw-h-[75px]`;
 
 const MaxSelectionCount = 500;
 
@@ -166,6 +166,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     );
   }
 
+  clearSelection() {
+    this.selection.clear();
+  }
+
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
   }
@@ -220,7 +224,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   protected canEditCollection(collection: CollectionView): boolean {
-    // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
+    // Only allow deletion if collection editing is enabled and not deleting "Unassigned"
     if (collection.id === Unassigned) {
       return false;
     }
@@ -231,7 +235,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   protected canDeleteCollection(collection: CollectionView): boolean {
-    // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
+    // Only allow deletion if collection editing is enabled and not deleting "Unassigned"
     if (collection.id === Unassigned) {
       return false;
     }

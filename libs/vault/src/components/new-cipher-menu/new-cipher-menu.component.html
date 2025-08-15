@@ -1,4 +1,4 @@
-<ng-container *ngIf="canCreateCipher || canCreateCollection || canCreateFolder">
+<ng-container *ngIf="canCreateCipher() || canCreateCollection() || canCreateFolder()">
   <div>
     <button
       bitButton
@@ -18,13 +18,13 @@
           {{ item.labelKey | i18n }}
         </button>
       }
-      <bit-menu-divider *ngIf="canCreateCipher"></bit-menu-divider>
-      <button *ngIf="canCreateFolder" type="button" bitMenuItem (click)="folderAdded.emit()">
+      <bit-menu-divider *ngIf="canCreateCipher()"></bit-menu-divider>
+      <button *ngIf="canCreateFolder()" type="button" bitMenuItem (click)="folderAdded.emit()">
         <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
         {{ "folder" | i18n }}
       </button>
       <button
-        *ngIf="canCreateCollection"
+        *ngIf="canCreateCollection()"
         type="button"
         bitMenuItem
         (click)="collectionAdded.emit()"

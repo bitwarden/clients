@@ -197,7 +197,6 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-    request.alterIdentityTokenHeaders(headers);
 
     const identityToken =
       request instanceof UserApiTokenRequest

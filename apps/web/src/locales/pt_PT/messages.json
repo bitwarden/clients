@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Desbloqueie o Bitwarden no seu dispositivo ou no "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Está a tentar aceder à sua conta?"
-  },
   "accessAttemptBy": {
     "message": "Tentativa de acesso por $EMAIL$",
     "placeholders": {
@@ -3509,7 +3506,7 @@
     "message": "Cofre web"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Aplicação web"
   },
   "cli": {
     "message": "CLI"
@@ -3976,22 +3973,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "Este pedido já não é válido."
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Início de sessão confirmado para $EMAIL$ no $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Pedido de início de sessão aprovado para $EMAIL$ no $DEVICE$",
@@ -5284,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Transferir anexos"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Introduza a palavra-passe para ver este Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Ver Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "O Send a que está a tentar aceder não existe ou já não está disponível.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "Reforçar a propriedade dos dados da organização"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Exigir que todos os itens sejam propriedade de uma organização, removendo a opção de armazenar itens ao nível da conta.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Todos os itens pertencerão e serão guardados na organização, permitindo controlos, visibilidade e relatórios para toda a organização. Quando ativada, estará disponível uma coleção predefinida para cada membro armazenar itens. Saiba mais sobre como gerir o ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "ciclo de vida das credenciais",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Tens a certeza de que queres continuar?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "continuará a ser acessível aos membros"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "não será selecionado automaticamente ao criar novos itens"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "não pode ser gerido a partir da Consola de administração até que o utilizador seja transferido para o exterior"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Ao desativar esta política, a coleção predefinida: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Saiba mais sobre o ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Remover cofre pessoal"
@@ -6859,7 +6879,7 @@
     }
   },
   "accessDenied": {
-    "message": "Acesso negado. Não tem permissão para visualizar esta página."
+    "message": "Acesso negado. Não tem permissão para ver esta página."
   },
   "masterPassword": {
     "message": "Palavra-passe mestra"
@@ -8978,7 +8998,7 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "A \"expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
+    "message": "A \"Expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
@@ -9477,6 +9497,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Enviar dados de eventos para a sua instância Logscale"
   },
+  "failedToSaveIntegration": {
+    "message": "Falha ao guardar a integração. Por favor, tente novamente mais tarde."
+  },
   "deviceIdMissing": {
     "message": "ID do dispositivo em falta"
   },
@@ -9557,6 +9580,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Crie uma nova organização de clientes para gerir como Fornecedor. Os lugares adicionais serão refletidos na próxima faturação."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Token de portador"
+  },
+  "index": {
+    "message": "Índice"
   },
   "selectAPlan": {
     "message": "Selecionar um plano"
@@ -10918,6 +10950,36 @@
       }
     }
   },
+  "unpaidInvoices": {
+    "message": "Faturas não pagas"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "A sua subscrição não foi paga. Contacte o administrador do seu fornecedor para restabelecer o serviço para si e para os seus clientes.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ está suspenso",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Para restaurar o acesso ao portal do fornecedor, entre em contacto com o Apoio ao cliente do Bitwarden para renovar a sua subscrição.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "A sua subscrição não foi paga. Para restabelecer o serviço para si e para os seus clientes, adicione um método de pagamento até $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
   "subscribetoEnterprise": {
     "message": "Subscrever o plano $PLAN$",
     "placeholders": {
@@ -10938,5 +11000,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Segredos e projetos ilimitados"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Subscrição cancelada"
+  },
+  "providersubCanceledmessage": {
+    "message": "Para voltar a subscrever, contacte o Apoio ao cliente do Bitwarden."
+  },
+  "showMore": {
+    "message": "Mostrar mais"
+  },
+  "showLess": {
+    "message": "Mostrar menos"
   }
 }
