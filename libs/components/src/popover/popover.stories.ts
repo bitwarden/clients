@@ -34,6 +34,10 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40852&t=b5tDKylm5sWm2yKo-4",
     },
+    // TODO fix flakiness of popover positioning https://bitwarden.atlassian.net/browse/CL-822
+    chromatic: {
+      disableSnapshot: true,
+    },
   },
   argTypes: {
     position: {

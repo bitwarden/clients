@@ -253,8 +253,8 @@ export class GroupsComponent {
   private toCollectionMap(
     response: ListResponse<CollectionResponse>,
   ): Observable<Record<string, CollectionView>> {
-    const collections = response.data.map(
-      (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
+    const collections = response.data.map((r) =>
+      Collection.fromCollectionData(new CollectionData(r as CollectionDetailsResponse)),
     );
 
     return this.accountService.activeAccount$.pipe(
