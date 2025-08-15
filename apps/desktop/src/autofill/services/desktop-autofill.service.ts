@@ -212,7 +212,7 @@ export class DesktopAutofillService implements OnDestroy {
       try {
         const response = await this.fido2AuthenticatorService.makeCredential(
           this.convertRegistrationRequest(request),
-          { windowXy: request.windowXy },
+          { windowXy: normalizePosition(request.windowXy) },
           controller,
         );
 
@@ -278,7 +278,7 @@ export class DesktopAutofillService implements OnDestroy {
 
           const response = await this.fido2AuthenticatorService.getAssertion(
             this.convertAssertionRequest(request, true),
-            { windowXy: request.windowXy },
+            { windowXy: normalizePosition(request.windowXy) },
             controller,
           );
 
@@ -306,7 +306,7 @@ export class DesktopAutofillService implements OnDestroy {
       try {
         const response = await this.fido2AuthenticatorService.getAssertion(
           this.convertAssertionRequest(request),
-          { windowXy: request.windowXy },
+          { windowXy: normalizePosition(request.windowXy) },
           controller,
         );
 
@@ -439,4 +439,15 @@ export class DesktopAutofillService implements OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+}
+
+function normalizePosition(position: { x: number; y: number }): { x: number; y: number } {
+  // if macOS, the position we're sending is too far left and too far down.
+  // It's the left bottom corner of the parent window.
+  // so we need to add half of the estimated width of the nativeOS dialog to the x position
+  // and remove half of the estimated height of the nativeOS dialog to the y position.
+  return {
+    x: Math.round(position.x + 100), // add half of estimated width of the nativeOS dialog
+    y: Math.round(position.y), // remove half of estimated height of the nativeOS dialog
+  };
 }

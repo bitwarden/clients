@@ -15,56 +15,75 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     @IBOutlet weak var statusLabel: NSTextField!
     @IBOutlet weak var logoImageView: NSImageView!
     
-    // There is something a bit strange about the initialization/deinitialization in this class.
-    // Sometimes deinit won't be called after a request has successfully finished,
-    // which would leave this class hanging in memory and the IPC connection open.
-    //
-    // If instead I make this a static, the deinit gets called correctly after each request.
-    // I think we still might want a static regardless, to be able to reuse the connection if possible.
-    let client: MacOsProviderClient = {
-        let logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
+    private var client: MacOsProviderClient?
+    
+    // We made the the getclient method async
+    // This is so that we can check if the app is running, and launch it, without blocking the main thread
+    // Blocking the main thread caused MacOS layouting to 'fail' or at least be very delayed, which caused our getWindowPositioning code to sent 0,0.
+    // We also properly retry the IPC connection which sometimes would take some time to be up and running, depending on CPU load, phase of jupiters moon, etc.
+    private func getClient() async -> MacOsProviderClient {
+        if let client = self.client {
+            return client
+        }
         
+        let logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
+
         // Check if the Electron app is running
         let workspace = NSWorkspace.shared
         let isRunning = workspace.runningApplications.contains { app in
             app.bundleIdentifier == "com.bitwarden.desktop"
         }
-        
+
         if !isRunning {
-           logger.log("[autofill-extension] Bitwarden Desktop not running, attempting to launch")
-            
-           // Try to launch the app
+            logger.log("[autofill-extension] Bitwarden Desktop not running, attempting to launch")
+
+            // Launch the app and wait for it to be ready
             if let appURL = workspace.urlForApplication(withBundleIdentifier: "com.bitwarden.desktop") {
-                let semaphore = DispatchSemaphore(value: 0)
-                
-                workspace.openApplication(at: appURL,
-                                          configuration: NSWorkspace.OpenConfiguration()) { app, error in
-                    if let error = error {
-                        logger.error("[autofill-extension] Failed to launch Bitwarden Desktop: \(error.localizedDescription)")
-                    } else if let app = app {
-                        logger.log("[autofill-extension] Successfully launched Bitwarden Desktop")
-                    } else {
-                        logger.error("[autofill-extension] Failed to launch Bitwarden Desktop: unknown error")
+                await withCheckedContinuation { continuation in
+                    workspace.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration()) { app, error in
+                        if let error = error {
+                            logger.error("[autofill-extension] Failed to launch Bitwarden Desktop: \(error.localizedDescription)")
+                        } else {
+                            logger.log("[autofill-extension] Successfully launched Bitwarden Desktop")
+                        }
+                        continuation.resume()
                     }
-                    semaphore.signal()
                 }
-                
-                // Wait for launch completion with timeout
-                _ = semaphore.wait(timeout: .now() + 5.0)
-                
-                // Add a small delay to allow for initialization
-                Thread.sleep(forTimeInterval: 1.0)
-            } else {
-                logger.error("[autofill-extension] Could not find Bitwarden Desktop app")
             }
-        } else {
-            logger.log("[autofill-extension] Bitwarden Desktop is running")    
+        }
+
+        logger.log("[autofill-extension] Connecting to Bitwarden over IPC")
+        
+        // Retry connecting to the Bitwarden IPC with an increasing delay
+        let maxRetries = 20
+        let delayMs = 500
+        var newClient: MacOsProviderClient?
+        
+        for attempt in 1...maxRetries {
+            logger.log("[autofill-extension] Connection attempt \(attempt)")
+            
+            // Create a new client instance for each retry
+            newClient = MacOsProviderClient.connect()
+            try? await Task.sleep(nanoseconds: UInt64(100 * attempt + (delayMs * 1_000_000))) // Convert ms to nanoseconds
+            let connectionStatus = newClient!.getConnectionStatus()
+            
+            logger.log("[autofill-extension] Connection attempt \(attempt), status: \(connectionStatus == .connected ? "connected" : "disconnected")")
+            
+            if connectionStatus == .connected {
+                logger.log("[autofill-extension] Successfully connected to Bitwarden (attempt \(attempt))")
+                break
+            } else {
+                if attempt < maxRetries {
+                    logger.log("[autofill-extension] Retrying connection")
+                } else {
+                    logger.error("[autofill-extension] Failed to connect after \(maxRetries) attempts, final status: \(connectionStatus == .connected ? "connected" : "disconnected")")
+                }
+            }
         }
         
-        logger.log("[autofill-extension] Connecting to Bitwarden over IPC")    
-
-        return MacOsProviderClient.connect()
-    }()
+        self.client = newClient
+        return newClient!
+    }
     
     // Timer for checking connection status
     private var connectionMonitorTimer: Timer?
@@ -86,6 +105,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     
     // Check the connection status by calling into Rust
     private func checkConnectionStatus() {
+        // Only check if we have a client
+        guard let client = self.client else {
+            return
+        }
+        
         // Get the current connection status from Rust
         let currentStatus = client.getConnectionStatus()
         
@@ -130,23 +154,52 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         connectionMonitorTimer = nil
     }
     
-    private func getWindowPosition() -> Position {
-        let frame = self.view.window?.frame ?? .zero
-        let screenHeight = NSScreen.main?.frame.height ?? 0
-        let screenWidth = NSScreen.main?.frame.width ?? 0
-
-        // frame.width and frame.height is always 0. Estimating works OK for now.
-        let estimatedWidth:CGFloat = 400;
-        let estimatedHeight:CGFloat = 200;
-        // passkey modals are 600x600.
-        let modalHeight: CGFloat = 600;
-        let modalWidth: CGFloat = 600;
-        let centerX = round(frame.origin.x + estimatedWidth/2)
-        let centerY = round(screenHeight - (frame.origin.y + estimatedHeight/2))
-        // Check if centerX or centerY are beyond either edge of the screen.  If they are find the center of the screen, otherwise use the original value.
-        let positionX = centerX + modalWidth >= screenWidth || CGFloat(centerX) - modalWidth <= 0 ? Int32(screenWidth/2) : Int32(centerX)
-        let positionY = centerY + modalHeight >= screenHeight || CGFloat(centerY) - modalHeight <= 0 ? Int32(screenHeight/2) : Int32(centerY)
-        return Position(x: positionX, y: positionY)
+    private func getWindowPosition() async -> Position {
+        let screenHeight = NSScreen.main?.frame.height ?? 1440
+        
+        logger.log("[autofill-extension] position: Getting window position")
+        
+        // To whomever is reading this. Sorry. But MacOS couldn't give us an accurate window positioning, possibly due to animations
+        // So I added some retry logic, as well as a fall back to the mouse position which is likely at the sort of the right place.
+        // In my testing we often succed after 4-7 attempts.
+        // Wait for window frame to stabilize (animation to complete)
+        var lastFrame: CGRect = .zero
+        var stableCount = 0
+        let requiredStableChecks = 3
+        let maxAttempts = 20
+        var attempts = 0
+        
+        while stableCount < requiredStableChecks && attempts < maxAttempts {
+            let currentFrame: CGRect = self.view.window?.frame ?? .zero
+            
+            if currentFrame.equalTo(lastFrame) && !currentFrame.equalTo(.zero) {
+                stableCount += 1
+            } else {
+                stableCount = 0
+                lastFrame = currentFrame
+            }
+            
+            try? await Task.sleep(nanoseconds: 16_666_666) // ~60fps (16.67ms)
+            attempts += 1
+        }
+        
+        let finalWindowFrame = self.view.window?.frame ?? .zero
+        logger.log("[autofill-extension] position: Final window frame: \(NSStringFromRect(finalWindowFrame))")
+        
+        // Use stabilized window frame if available, otherwise fallback to mouse position
+        if finalWindowFrame.origin.x != 0 || finalWindowFrame.origin.y != 0 {
+            let centerX = Int32(round(finalWindowFrame.origin.x))
+            let centerY = Int32(round(screenHeight - finalWindowFrame.origin.y))
+            logger.log("[autofill-extension] position: Using window position: x=\(centerX), y=\(centerY)")
+            return Position(x: centerX, y: centerY)
+        } else {
+            // Fallback to mouse position
+            let mouseLocation = NSEvent.mouseLocation
+            let mouseX = Int32(round(mouseLocation.x))
+            let mouseY = Int32(round(screenHeight - mouseLocation.y))
+            logger.log("[autofill-extension] position: Using mouse position fallback: x=\(mouseX), y=\(mouseY)")
+            return Position(x: mouseX, y: mouseY)
+        }
     }
     
     override func viewDidLoad() {
@@ -163,8 +216,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         // Set the localized message
         statusLabel.stringValue = NSLocalizedString("autofillConfigurationMessage", comment: "Message shown when Bitwarden is enabled in system settings")
         
-        // Send the native status request
-        client.sendNativeStatus(key: "request-sync", value: "")
+        // Send the native status request asynchronously
+        Task {
+            let client = await getClient()
+            client.sendNativeStatus(key: "request-sync", value: "")
+        }
         
         // Complete the configuration after 2 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
@@ -237,18 +293,22 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 /*
                     We're still using the old request type here, because we're sending the same data, we're expecting a single credential to be used
                 */
-                let req = PasskeyAssertionWithoutUserInterfaceRequest(
-                    rpId: passkeyIdentity.relyingPartyIdentifier,
-                    credentialId: passkeyIdentity.credentialID,
-                    userName: passkeyIdentity.userName,
-                    userHandle: passkeyIdentity.userHandle,
-                    recordIdentifier: passkeyIdentity.recordIdentifier,
-                    clientDataHash: request.clientDataHash,
-                    userVerification: userVerification,
-                    windowXy: self.getWindowPosition()
-                )
-                
-                self.client.preparePasskeyAssertionWithoutUserInterface(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer))
+                Task {
+                    let windowPosition = await self.getWindowPosition()
+                    let req = PasskeyAssertionWithoutUserInterfaceRequest(
+                        rpId: passkeyIdentity.relyingPartyIdentifier,
+                        credentialId: passkeyIdentity.credentialID,
+                        userName: passkeyIdentity.userName,
+                        userHandle: passkeyIdentity.userHandle,
+                        recordIdentifier: passkeyIdentity.recordIdentifier,
+                        clientDataHash: request.clientDataHash,
+                        userVerification: userVerification,
+                        windowXy: windowPosition
+                    )
+                    
+                    let client = await getClient()
+                    client.preparePasskeyAssertionWithoutUserInterface(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer))
+                }
                 return
             }
         }
@@ -328,19 +388,24 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     }
                 }
                 
-                let req = PasskeyRegistrationRequest(
-                    rpId: passkeyIdentity.relyingPartyIdentifier,
-                    userName: passkeyIdentity.userName,
-                    userHandle: passkeyIdentity.userHandle,
-                    clientDataHash: request.clientDataHash,
-                    userVerification: userVerification,
-                    supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) },
-                    windowXy: self.getWindowPosition(),
-                    excludedCredentials: excludedCredentialIds
-                )
                 logger.log("[autofill-extension] prepareInterface(passkey) calling preparePasskeyRegistration")                
                 
-                self.client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer))
+                Task {
+                    let windowPosition = await self.getWindowPosition()
+                    let req = PasskeyRegistrationRequest(
+                        rpId: passkeyIdentity.relyingPartyIdentifier,
+                        userName: passkeyIdentity.userName,
+                        userHandle: passkeyIdentity.userHandle,
+                        clientDataHash: request.clientDataHash,
+                        userVerification: userVerification,
+                        supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) },
+                        windowXy: windowPosition,
+                        excludedCredentials: excludedCredentialIds
+                    )
+                    
+                    let client = await getClient()
+                    client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer))
+                }
                 return
             }
         }
@@ -393,18 +458,22 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             UserVerification.discouraged
         }
         
-        let req = PasskeyAssertionRequest(
-            rpId: requestParameters.relyingPartyIdentifier,
-            clientDataHash: requestParameters.clientDataHash,
-            userVerification: userVerification,
-            allowedCredentials: requestParameters.allowedCredentials,
-            windowXy: self.getWindowPosition()
-            //extensionInput: requestParameters.extensionInput,
-        )
-        
         let timeoutTimer = createTimer()
         
-        self.client.preparePasskeyAssertion(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer))
+        Task {
+            let windowPosition = await self.getWindowPosition()
+            let req = PasskeyAssertionRequest(
+                rpId: requestParameters.relyingPartyIdentifier,
+                clientDataHash: requestParameters.clientDataHash,
+                userVerification: userVerification,
+                allowedCredentials: requestParameters.allowedCredentials,
+                windowXy: windowPosition
+                //extensionInput: requestParameters.extensionInput,
+            )
+            
+            let client = await getClient()
+            client.preparePasskeyAssertion(request: req, callback: CallbackImpl(self.extensionContext, self.logger, timeoutTimer))
+        }
         return
     }    
 }
