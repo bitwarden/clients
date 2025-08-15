@@ -2,14 +2,13 @@
 // @ts-strict-ignore
 import { Utils } from "../../../platform/misc/utils";
 import { EncryptionType } from "../../enums";
-import { Encrypted } from "../../interfaces/encrypted";
 
 const ENC_TYPE_LENGTH = 1;
 const IV_LENGTH = 16;
 const MAC_LENGTH = 32;
 const MIN_DATA_LENGTH = 1;
 
-export class EncArrayBuffer implements Encrypted {
+export class EncArrayBuffer {
   readonly encryptionType: EncryptionType = null;
   readonly dataBytes: Uint8Array = null;
   readonly ivBytes: Uint8Array = null;

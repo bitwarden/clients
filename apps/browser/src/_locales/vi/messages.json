@@ -1836,7 +1836,7 @@
     "message": "số thẻ"
   },
   "ex": {
-    "message": "Ví dụ:"
+    "message": "ví dụ."
   },
   "title": {
     "message": "Tiêu đề"
@@ -2458,7 +2458,7 @@
     "message": "Nhận dạng sinh trắc học không được hỗ trợ"
   },
   "biometricsNotSupportedDesc": {
-    "message": "Nhận dạng sinh trắc học trên trình duyệt không được hỗ trợ trên thiết bị này"
+    "message": "Nhận dạng sinh trắc học trên trình duyệt không được hỗ trợ trên thiết bị này."
   },
   "biometricsNotUnlockedTitle": {
     "message": "Người dùng đã khoá hoặc đã đăng xuất"

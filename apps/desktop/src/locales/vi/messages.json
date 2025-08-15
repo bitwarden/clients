@@ -324,7 +324,7 @@
     "message": "Tháng 12"
   },
   "ex": {
-    "message": "Ví dụ:",
+    "message": "ví dụ.",
     "description": "Short abbreviation for 'example'."
   },
   "title": {
@@ -1390,7 +1390,7 @@
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
-    "message": "Kiểm tra cập nhật mới"
+    "message": "Kiểm tra cập nhật…"
   },
   "version": {
     "message": "Phiên bản $VERSION_NUM$",
@@ -3769,7 +3769,7 @@
     "message": "Tải lên"
   },
   "authorize": {
-    "message": "Uỷ quyền"
+    "message": "Ủy quyền"
   },
   "deny": {
     "message": "Từ chối"

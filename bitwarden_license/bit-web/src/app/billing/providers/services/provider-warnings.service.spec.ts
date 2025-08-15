@@ -175,7 +175,7 @@ describe("ProviderWarningsService", () => {
           type: "danger",
           title: "providerSuspended",
           content: "restoreProviderPortalAccessViaCustomerSupport",
-          disableClose: true,
+          disableClose: false,
           acceptButtonText: "contactSupportShort",
           cancelButtonText: null,
           acceptAction: expect.any(Function),

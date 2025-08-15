@@ -1,7 +1,10 @@
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { OrgKey } from "@bitwarden/common/types/key";
 
 import { CollectionAccessSelectionView } from "./collection-access-selection.view";
-import { CollectionAccessDetailsResponse } from "./collection.response";
+import { CollectionAccessDetailsResponse, CollectionResponse } from "./collection.response";
 import { CollectionView } from "./collection.view";
 
 // TODO: this is used to represent the pseudo "Unassigned" collection as well as
@@ -23,24 +26,6 @@ export class CollectionAdminView extends CollectionView {
    * Flag indicating the user has been explicitly assigned to this Collection
    */
   assigned: boolean = false;
-
-  constructor(response?: CollectionAccessDetailsResponse) {
-    super(response);
-
-    if (!response) {
-      return;
-    }
-
-    this.groups = response.groups
-      ? response.groups.map((g) => new CollectionAccessSelectionView(g))
-      : [];
-
-    this.users = response.users
-      ? response.users.map((g) => new CollectionAccessSelectionView(g))
-      : [];
-
-    this.assigned = response.assigned;
-  }
 
   /**
    * Returns true if the user can edit a collection (including user and group access) from the Admin Console.
@@ -114,5 +99,47 @@ export class CollectionAdminView extends CollectionView {
    */
   get isUnassignedCollection() {
     return this.id === Unassigned;
+  }
+
+  static async fromCollectionAccessDetails(
+    collection: CollectionAccessDetailsResponse,
+    encryptService: EncryptService,
+    orgKey: OrgKey,
+  ): Promise<CollectionAdminView> {
+    const view = new CollectionAdminView({ ...collection });
+    view.name = await encryptService.decryptString(new EncString(view.name), orgKey);
+    view.assigned = collection.assigned;
+    view.readOnly = collection.readOnly;
+    view.hidePasswords = collection.hidePasswords;
+    view.manage = collection.manage;
+    view.unmanaged = collection.unmanaged;
+    view.type = collection.type;
+    view.externalId = collection.externalId;
+
+    view.groups = collection.groups
+      ? collection.groups.map((g) => new CollectionAccessSelectionView(g))
+      : [];
+
+    view.users = collection.users
+      ? collection.users.map((g) => new CollectionAccessSelectionView(g))
+      : [];
+
+    return view;
+  }
+
+  static async fromCollectionResponse(
+    collection: CollectionResponse,
+    encryptService: EncryptService,
+    orgKey: OrgKey,
+  ): Promise<CollectionAdminView> {
+    const collectionAdminView = new CollectionAdminView({
+      id: collection.id,
+      name: await encryptService.decryptString(new EncString(collection.name), orgKey),
+      organizationId: collection.organizationId,
+    });
+
+    collectionAdminView.externalId = collection.externalId;
+
+    return collectionAdminView;
   }
 }

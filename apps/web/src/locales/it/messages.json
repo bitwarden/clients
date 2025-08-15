@@ -10841,40 +10841,40 @@
     "message": "Installa l'estensione"
   },
   "addItLater": {
-    "message": "Add it later"
+    "message": "Più tardi"
   },
   "cannotAutofillPasswordsWithoutExtensionTitle": {
-    "message": "You can't autofill passwords without the browser extension"
+    "message": "Per l'inserimento automatico delle credenziali è necessaria l'estensione del browser"
   },
   "cannotAutofillPasswordsWithoutExtensionDesc": {
-    "message": "Are you sure you don't want to add the extension now?"
+    "message": "Vuoi davvero evitare di aggiungere l'estensione?"
   },
   "skipToWebApp": {
-    "message": "Skip to web app"
+    "message": "Vai a Bitwarden Web"
   },
   "bitwardenExtensionInstalled": {
-    "message": "Bitwarden extension installed!"
+    "message": "Estensione di Bitwarden installata!"
   },
   "openExtensionToAutofill": {
-    "message": "Open the extension to log in and start autofilling."
+    "message": "Apri l'estensione cliccando sul tasto della barra degli strumenti e accedi con i tuoi dati per attivare il riempimento automatico."
   },
   "openBitwardenExtension": {
-    "message": "Open Bitwarden extension"
+    "message": "Apri l'estensione di Bitwarden"
   },
   "gettingStartedWithBitwardenPart1": {
-    "message": "For tips on getting started with Bitwarden visit the",
+    "message": "Per suggerimenti su come muovere i primi passi con Bitwarden, visita la",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
-    "message": "Learning Center",
+    "message": "Guida introduttiva",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
-    "message": "Help Center",
+    "message": "il Manuale di Bitwarden",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
-    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+    "message": "Con l'estensione di Bitwarden puoi salvare facilmente nuovi login, avere sempre a disposizione quelli salvati e accedere rapidamente ai servizi Web grazie al riempimento automatico."
   },
   "restart": {
     "message": "Riavvia"
@@ -10903,46 +10903,46 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "billingAddress": {
-    "message": "Billing address"
+    "message": "Indirizzo di fatturazione"
   },
   "addBillingAddress": {
-    "message": "Add billing address"
+    "message": "Aggiungi indirizzo di fatturazione"
   },
   "editBillingAddress": {
-    "message": "Edit billing address"
+    "message": "Modifica indirizzo di fatturazione"
   },
   "noBillingAddress": {
-    "message": "No address on file."
+    "message": "Nessun indirizzo nel file."
   },
   "billingAddressUpdated": {
-    "message": "Your billing address has been updated."
+    "message": "Indirizzo di fatturazione aggiornato."
   },
   "paymentDetails": {
-    "message": "Payment details"
+    "message": "Dettagli pagamento"
   },
   "paymentMethodUpdated": {
-    "message": "Your payment method has been updated."
+    "message": "Il metodo di pagamento è stato aggiornato."
   },
   "bankAccountVerified": {
-    "message": "Your bank account has been verified."
+    "message": "Il conto bancario è stato verificato."
   },
   "availableCreditAppliedToInvoice": {
-    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+    "message": "Qualsiasi credito disponibile sarà automaticamente applicato alle fatture generate per questo account."
   },
   "mustBePositiveNumber": {
-    "message": "Must be a positive number"
+    "message": "Deve essere un numero positivo"
   },
   "cardSecurityCode": {
-    "message": "Card security code"
+    "message": "Codice di sicurezza della carta"
   },
   "cardSecurityCodeDescription": {
-    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+    "message": "Il codice di sicurezza della carta, noto anche come CVV o CVC, è tipicamente un numero a 3 cifre stampato sul retro della carta di credito, oppure un numero a 4 cifre stampato sul fronte sopra il numero della tua carta."
   },
   "verifyBankAccountWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Il pagamento con un conto corrente bancario è disponibile solo per i clienti negli Stati Uniti. Ti sarà richiesto di verificare il tuo conto corrente. Effettueremo un micro-deposito entro i prossimi 1-2 giorni lavorativi. Cerca l'apposito codice nei dettagli della transazione e inseriscilo nella pagina di sottoscrizione del provider per verificare il conto bancario. La mancata verifica del conto bancario comporterà un mancato pagamento e la sospensione dell'abbonamento."
   },
   "taxId": {
-    "message": "Tax ID: $TAX_ID$",
+    "message": "CF o P.IVA: $TAX_ID$",
     "placeholders": {
       "tax_id": {
         "content": "$1",
@@ -10951,14 +10951,14 @@
     }
   },
   "unpaidInvoices": {
-    "message": "Unpaid invoices"
+    "message": "Fatture non pagate"
   },
   "unpaidInvoicesForServiceUser": {
-    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "message": "Il tuo abbonamento non è stato pagato. Contatta l'amministratore per ripristinare il servizio a te e ai tuoi clienti.",
     "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
   },
   "providerSuspended": {
-    "message": "$PROVIDER$ is suspended",
+    "message": "$PROVIDER$ è sospeso",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -10967,11 +10967,11 @@
     }
   },
   "restoreProviderPortalAccessViaCustomerSupport": {
-    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "message": "Per ripristinare l'accesso al portale del tuo provider, contatta il Servizio Clienti Bitwarden per rinnovare l'abbonamento.",
     "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
   },
   "restoreProviderPortalAccessViaPaymentMethod": {
-    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "message": "L'abbonamento non risulta pagato. Per ripristinare il servizio a te e ai tuoi clienti, aggiungi un metodo di pagamento entro $CANCELLATION_DATE$.",
     "placeholders": {
       "cancellation_date": {
         "content": "$1",
@@ -10981,7 +10981,7 @@
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
-    "message": "Subscribe to $PLAN$",
+    "message": "Abbonati a $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -10990,7 +10990,7 @@
     }
   },
   "subscribeEnterpriseSubtitle": {
-    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "message": "La tua prova $PLAN$ di 7 giorni inizia oggi. Aggiungi un metodo di pagamento per continuare a utilizzarne le funzionalità dopo la fine del periodo di prova: ",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -10999,18 +10999,18 @@
     }
   },
   "unlimitedSecretsAndProjects": {
-    "message": "Unlimited secrets and projects"
+    "message": "Segreti e progetti illimitati"
   },
   "providersubscriptionCanceled": {
-    "message": "Subscription canceled"
+    "message": "Abbonamento cancellato"
   },
   "providersubCanceledmessage": {
-    "message": "To resubscribe, contact Bitwarden Customer Support."
+    "message": "Per ri-iscriverti, contatta il Servizio Clienti Bitwarden."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Mostra di più"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Mostra di meno"
   }
 }

@@ -1226,7 +1226,7 @@
     "message": "Prijava dvostrukom autentifikacijom"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "Istek trezora"
   },
   "vaultTimeout": {
     "message": "Istek trezora"
@@ -1235,7 +1235,7 @@
     "message": "Vrijeme isteka"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Radnja nakon isteka"
   },
   "vaultTimeoutDesc": {
     "message": "Odaberi kada će isteći trezor i koja će se radnja izvršiti."
@@ -2518,10 +2518,10 @@
     "message": "Vrijeme isteka premašuje ograničenje koju je postavila tvoja organizacija."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "Pravila tvrtke primijenjena su na vrijeme isteka"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je $HOURS$:$MINUTES$ h.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2534,7 +2534,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Tvoja organizacija je zadano postavila kraće vrijeme isteka. Najviše: $HOURS$:$MINUTES$",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3037,7 +3037,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3050,17 +3050,17 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Web aplikacija"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Mobitel",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Proširenje",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -3075,10 +3075,10 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "Poslužitelj"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Zahtjev za prijavu"
   },
   "deviceType": {
     "message": "Vrsta uređaja"
@@ -4067,10 +4067,10 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Prikaži više"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Pokaži manje"
   },
   "enableAutotype": {
     "message": "Omogući automatski unos"

@@ -1866,7 +1866,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
           frameId: this.focusedFieldData.frameId || 0,
         },
       );
-    }, 150);
+    }, 300);
   }
 
   /**

@@ -3171,7 +3171,7 @@
     "message": "Ważne:"
   },
   "accessing": {
-    "message": "Uzyskiwanie dostępu"
+    "message": "Serwer"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "Zostałeś wylogowany, ponieważ token dostępu nie mógł zostać odszyfrowany. Zaloguj się ponownie, aby rozwiązać ten problem."

@@ -1153,7 +1153,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Dziękujemy za dbanie o bezpieczeństwo $ORGANIZATION$. Pozostało $TASK_COUNT$ haseł do zaktualizowania.",
+    "message": "Dziękujemy za zwiększenie bezpieczeństwa organizacji $ORGANIZATION$. Zaktualizuj hasła dla jeszcze $TASK_COUNT$ danych logowania.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1773,7 +1773,7 @@
     "message": "Pokaż licznik na ikonie"
   },
   "badgeCounterDesc": {
-    "message": "Wskaż, ile masz danych logowania do bieżącej strony internetowej."
+    "message": "Pokazuje liczbę danych logowania dla obecnej strony internetowej."
   },
   "cardholderName": {
     "message": "Właściciel karty"
@@ -2482,7 +2482,7 @@
     "message": "Uprawnienie nie zostało przyznane"
   },
   "nativeMessaginPermissionErrorDesc": {
-    "message": "Bez uprawnienia do komunikowania się z aplikacją desktopową Bitwarden nie możemy dostarczyć obsługi danych biometrycznych w rozszerzeniu przeglądarki. Spróbuj ponownie."
+    "message": "Odblokowanie biometrią jest dostępne dopiero po połączeniu rozszerzenia przeglądarki z aplikacją desktopową Bitwarden. Spróbuj ponownie."
   },
   "nativeMessaginPermissionSidebarTitle": {
     "message": "Wystąpił błąd żądania uprawnienia"
@@ -2610,7 +2610,7 @@
     "message": "Sprawdź i zmień 1 zagrożone hasło"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Przejrzyj i zmień $COUNT$ zagrożonych haseł  ",
+    "message": "Sprawdź i zmień zagrożone hasła ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3380,7 +3380,7 @@
     "message": "Nie można uzyskać dostępu do elementów w zawieszonych organizacjach. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
   },
   "loggingInTo": {
-    "message": "Logowanie na $DOMAIN$",
+    "message": "Serwer: $DOMAIN$",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -4354,7 +4354,7 @@
     "message": "serwer"
   },
   "hostedAt": {
-    "message": "hostowany w"
+    "message": "serwer"
   },
   "useDeviceOrHardwareKey": {
     "message": "Użyj urządzenia lub klucza sprzętowego"
@@ -5025,7 +5025,7 @@
     "message": "Element zostanie przeniesiony do organizacji. Nie będziesz już właścicielem elementu."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ elementów zostanie trwale przeniesionych do wybranej organizacji. Nie będziesz już posiadać tych elementów.",
+    "message": "Nie będziesz już właścicielem $PERSONAL_ITEMS_COUNT$ elementów przeniesionych do organizacji.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5043,7 +5043,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ elementy zostaną trwale przeniesione do $ORG$. Nie będziesz już posiadać tych elementów.",
+    "message": "Nie będziesz już właścicielem $PERSONAL_ITEMS_COUNT$ elementów przeniesionych do organizacji $ORG$.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",

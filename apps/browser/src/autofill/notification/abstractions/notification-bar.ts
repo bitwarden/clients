@@ -14,6 +14,10 @@ const NotificationTypes = {
   AtRiskPassword: "at-risk-password",
 } as const;
 
+/**
+ * @todo Deprecate in favor of apps/browser/src/autofill/enums/notification-type.enum.ts
+ * - Determine fix or workaround for restricted imports of that file.
+ */
 type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationTypes];
 
 type NotificationTaskInfo = {
@@ -21,6 +25,9 @@ type NotificationTaskInfo = {
   remainingTasksCount: number;
 };
 
+/**
+ * @todo Use generics to make this type specific to notification types, see Standard_NotificationQueueMessage.
+ */
 type NotificationBarIframeInitData = {
   ciphers?: NotificationCipherData[];
   folders?: FolderView[];

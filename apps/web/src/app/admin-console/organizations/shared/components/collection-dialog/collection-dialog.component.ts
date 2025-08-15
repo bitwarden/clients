@@ -399,9 +399,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const collectionView = new CollectionAdminView();
-    collectionView.id = this.params.collectionId;
-    collectionView.organizationId = this.formGroup.controls.selectedOrg.value;
+    const parent = this.formGroup.controls.parent?.value;
+    const collectionView = new CollectionAdminView({
+      id: this.params.collectionId as CollectionId,
+      organizationId: this.formGroup.controls.selectedOrg.value,
+      name: parent
+        ? `${parent}/${this.formGroup.controls.name.value}`
+        : this.formGroup.controls.name.value,
+    });
     collectionView.externalId = this.formGroup.controls.externalId.value;
     collectionView.groups = this.formGroup.controls.access.value
       .filter((v) => v.type === AccessItemType.Group)
@@ -409,13 +414,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     collectionView.users = this.formGroup.controls.access.value
       .filter((v) => v.type === AccessItemType.Member)
       .map(convertToSelectionView);
-
-    const parent = this.formGroup.controls.parent.value;
-    if (parent) {
-      collectionView.name = `${parent}/${this.formGroup.controls.name.value}`;
-    } else {
-      collectionView.name = this.formGroup.controls.name.value;
-    }
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const savedCollection = await this.collectionAdminService.save(collectionView, userId);
