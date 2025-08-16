@@ -73,6 +73,7 @@ import {
   ImportServiceAbstraction,
 } from "../services";
 
+import { ImportChromeComponent } from "./chrome";
 import {
   FilePasswordPromptComponent,
   ImportErrorDialogComponent,
@@ -118,6 +119,7 @@ const safeProviders: SafeProvider[] = [
     SelectModule,
     CalloutModule,
     ReactiveFormsModule,
+    ImportChromeComponent,
     ImportLastPassComponent,
     RadioButtonModule,
     CardComponent,
@@ -160,6 +162,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  @Input()
+  onLoadProfilesFromBrowser: (browser: string) => Promise<any[]>;
+
+  @Input()
+  onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
+
   protected organization: Organization;
   protected destroy$ = new Subject<void>();
 
@@ -184,6 +192,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     fileContents: [],
     file: [],
     lastPassType: ["direct" as "csv" | "direct"],
+    chromeType: ["direct" as "csv" | "direct"],
   });
 
   @ViewChild(BitSubmitDirective)
@@ -241,6 +250,20 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   protected get showLastPassOptions(): boolean {
     return this.showLastPassToggle && this.formGroup.controls.lastPassType.value === "direct";
+  }
+
+  protected get showChromeToggle(): boolean {
+    return (
+      (this.format === "chromecsv" ||
+        this.format === "operacsv" ||
+        this.format === "vivaldicsv" ||
+        this.format === "bravecsv" ||
+        this.format === "edgecsv") &&
+      this.platformUtilsService.getClientType() === ClientType.Desktop
+    );
+  }
+  protected get showChromeOptions(): boolean {
+    return this.showChromeToggle && this.formGroup.controls.chromeType.value === "direct";
   }
 
   async ngOnInit() {
