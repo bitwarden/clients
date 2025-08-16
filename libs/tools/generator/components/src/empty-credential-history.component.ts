@@ -1,9 +1,8 @@
 import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NoCredentialsIcon } from "@bitwarden/assets/svg";
 import { IconModule, TypographyModule } from "@bitwarden/components";
-
-import { NoCredentialsIcon } from "./icons/no-credentials.icon";
 
 @Component({
   selector: "bit-empty-credential-history",

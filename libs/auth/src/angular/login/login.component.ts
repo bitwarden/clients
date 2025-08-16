@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
 import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
@@ -43,8 +44,6 @@ import {
   LinkModule,
   ToastService,
 } from "@bitwarden/components";
-
-import { VaultIcon, WaveIcon } from "../icons";
 
 import { LoginComponentService, PasswordPolicies } from "./login-component.service";
 

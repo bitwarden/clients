@@ -65,7 +65,8 @@ example) to construct the page via routable composition:
 
 ```typescript
 // File: oss-routing.module.ts
-import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, LockIcon } from "@bitwarden/auth/angular";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/auth/angular";
+import { LockIcon } from "@bitwarden/assets/svg";
 
 {
   path: "",
@@ -116,7 +117,8 @@ in the `AnonLayoutWrapperData` interface:
 All of these properties are optional.
 
 ```typescript
-import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, LockIcon } from "@bitwarden/auth/angular";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/auth/angular";
+import { LockIcon } from "@bitwarden/assets/svg";
 
 {
   // ...
@@ -137,7 +139,8 @@ on your client) as a component with `outlet: "environment-selector"`.
 
 ```javascript
 // File: oss-routing.module.ts
-import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, LockIcon } from "@bitwarden/auth/angular";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/auth/angular";
+
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 
 {

@@ -4,6 +4,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
+import { ExpiredSendIcon } from "@bitwarden/assets/svg";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -18,7 +19,6 @@ import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AnonLayoutWrapperDataService, NoItemsModule, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { ExpiredSendIcon } from "@bitwarden/send-ui";
 
 import { SharedModule } from "../../../shared";
 

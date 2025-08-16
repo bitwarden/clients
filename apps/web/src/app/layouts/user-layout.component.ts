@@ -6,10 +6,11 @@ import { RouterModule } from "@angular/router";
 import { Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { IconModule, PasswordManagerLogo } from "@bitwarden/components";
+import { IconModule } from "@bitwarden/components";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 

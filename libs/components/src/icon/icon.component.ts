@@ -1,7 +1,7 @@
 import { Component, effect, input } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
-import { Icon, isIcon } from "./icon";
+import { Icon, isIcon } from "@bitwarden/assets/svg";
 
 @Component({
   selector: "bit-icon",

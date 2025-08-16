@@ -2,9 +2,9 @@ import { FocusableOption } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
 
+import { CarouselIcon } from "@bitwarden/assets/svg";
 import { IconModule } from "@bitwarden/components";
 
-import { CarouselIcon } from "../carousel-icons/carousel-icon";
 import { VaultCarouselSlideComponent } from "../carousel-slide/carousel-slide.component";
 
 @Component({

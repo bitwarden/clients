@@ -5,6 +5,7 @@ import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom, pairwise, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { BrowserExtensionIcon, Party } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -22,7 +23,6 @@ import {
   IconModule,
   LinkModule,
 } from "@bitwarden/components";
-import { VaultIcons } from "@bitwarden/vault";
 
 import { SETUP_EXTENSION_DISMISSED } from "../../guards/setup-extension-redirect.guard";
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
@@ -70,7 +70,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
   private anonLayoutWrapperDataService = inject(AnonLayoutWrapperDataService);
 
   protected SetupExtensionState = SetupExtensionState;
-  protected PartyIcon = VaultIcons.Party;
+  protected PartyIcon = Party;
 
   /** The current state of the setup extension component. */
   protected state: SetupExtensionState = SetupExtensionState.Loading;
@@ -167,7 +167,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
         pageTitle: {
           key: "somethingWentWrong",
         },
-        pageIcon: VaultIcons.BrowserExtensionIcon,
+        pageIcon: BrowserExtensionIcon,
         hideIcon: false,
         hideCardWrapper: false,
         maxWidth: "md",

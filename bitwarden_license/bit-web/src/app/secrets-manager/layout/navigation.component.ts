@@ -15,6 +15,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { SecretsManagerLogo } from "@bitwarden/assets/svg";
 import {
   getOrganizationById,
   OrganizationService,
@@ -22,7 +23,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { SecretsManagerLogo } from "@bitwarden/components";
 
 import { OrganizationCounts } from "../models/view/counts.view";
 import { ProjectService } from "../projects/project.service";

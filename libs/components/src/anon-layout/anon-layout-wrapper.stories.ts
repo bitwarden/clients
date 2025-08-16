@@ -9,6 +9,7 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { LockIcon, RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import {
   EnvironmentService,
@@ -18,7 +19,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { ButtonModule } from "../button";
-import { LockIcon, RegistrationCheckEmailIcon } from "../icon/icons";
 import { I18nMockService } from "../utils";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";

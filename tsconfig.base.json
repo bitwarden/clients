@@ -20,6 +20,8 @@
     "paths": {
       "@bitwarden/admin-console/common": ["./libs/admin-console/src/common"],
       "@bitwarden/angular/*": ["./libs/angular/src/*"],
+      "@bitwarden/assets": ["libs/assets/src/index.ts"],
+      "@bitwarden/assets/svg": ["libs/assets/src/svg/index.ts"],
       "@bitwarden/auth/angular": ["./libs/auth/src/angular"],
       "@bitwarden/auth/common": ["./libs/auth/src/common"],
       "@bitwarden/billing": ["./libs/billing/src"],

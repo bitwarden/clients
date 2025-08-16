@@ -3,6 +3,7 @@ import { By } from "@angular/platform-browser";
 import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
+import { BrowserExtensionIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -12,7 +13,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { AnonLayoutWrapperDataService } from "@bitwarden/components";
-import { VaultIcons } from "@bitwarden/vault";
 
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
 
@@ -156,7 +156,7 @@ describe("SetupExtensionComponent", () => {
           pageTitle: {
             key: "somethingWentWrong",
           },
-          pageIcon: VaultIcons.BrowserExtensionIcon,
+          pageIcon: BrowserExtensionIcon,
           hideIcon: false,
           hideCardWrapper: false,
           maxWidth: "md",
