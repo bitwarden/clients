@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Güvənlik açarı oxunarkən problem yarandı. Yenidən sınayın."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Platforma məhdudiyyətlərinə görə, WebAuthn bütün Bitwarden tətbiqlərində istifadə edilə bilmir. WebAuthn istifadə edilə bilmədiyi zaman, hesabınıza erişə bilməyiniz üçün başqa bir iki addımlı giriş provayderini qurmalısınız."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden iki addımlı giriş üçün geri qaytarma kodunuz"
   },

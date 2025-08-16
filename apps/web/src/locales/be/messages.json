@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Праблема чытання ключа бяспекі. Паспрабуйце яшчэ раз."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Ваш код аднаўлення двухэтапнага ўваходу Bitwarden"
   },

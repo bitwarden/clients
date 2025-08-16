@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Có vấn đề khi đọc khóa bảo mật. Vui lòng thử lại."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Do hạn chế của nền tảng, WebAuthn không thể sử dụng trên tất cả các ứng dụng Bitwarden. Bạn nên thiết lập một nhà cung cấp đăng nhập hai bước khác để có thể truy cập tài khoản của mình khi WebAuthn không thể sử dụng."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Mã khôi phục đăng nhập hai bước của Bitwarden"
   },

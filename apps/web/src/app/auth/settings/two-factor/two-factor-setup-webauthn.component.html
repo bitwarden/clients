@@ -13,9 +13,6 @@
       >
         {{ "twoStepLoginProviderEnabled" | i18n }}
       </bit-callout>
-      <bit-callout type="warning">
-        <p bitTypography="body1">{{ "twoFactorWebAuthnWarning1" | i18n }}</p>
-      </bit-callout>
       <img class="tw-float-right tw-ml-5 mfaType7" alt="FIDO2 WebAuthn logo" />
       <ul class="bwi-ul">
         <li *ngFor="let k of keys; let i = index" #removeKeyBtn [appApiAction]="k.removePromise">

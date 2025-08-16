@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Wystąpił problem z odczytem klucza bezpieczeństwa. Spróbuj ponownie."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Z powodu ograniczeń platformy, klucze WebAuthn nie mogą być używane we wszystkich aplikacjach Bitwarden. Musisz włączyć inną metodę logowania dwustopniowego, aby zachować dostęp do konta w pozostałych sytuacjach."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Kod odzyskiwania konta Bitwarden"
   },

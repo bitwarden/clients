@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Radās sarežģījumi, nolasot drošības atslēgu. Jāmēģina vēlreiz."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Platformas ierobežojumu dēļ WebAuth nevar izmantot visās Bitwarden lietotnēs. Ir ieteicams iespējot vēl kādu divpakāpju pieteikšanās nodrošinātāju, lai varētu piekļūt kontam, kad nav iespējams izmantot WebAuth."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden divpakāpju pieteikšanās atkopes kods"
   },

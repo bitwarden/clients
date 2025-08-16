@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "مشکلی در خواندن کلید امنیتی وجود داشت. دوباره امتحان کنید."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "به‌دلیل محدودیت‌های پلتفرم، WebAuthn در تمام برنامه‌های Bitwarden قابل استفاده نیست. بهتر است یک روش ورود دو مرحله‌ای دیگر نیز تنظیم کنید تا در مواقعی که WebAuthn قابل استفاده نیست، بتوانید به حساب کاربرب خود دسترسی داشته باشید."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "کد بازیابی ورود دو مرحله ای Bitwarden شما"
   },

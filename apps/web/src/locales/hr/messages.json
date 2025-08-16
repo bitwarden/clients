@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Došlo je do pogreške kod očitavanja sigurnosnog ključa. Pokušaj ponovno."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Zbog platformskih ograničenja, WebAuthn nije moguće koristiti sa svim Bitwarden aplikacijama. Uključi drugi način dvostruke autentifikacije za pristup računu kada se ne može koristiti WebAuthn."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Tvoj kôd za oporavak Bitwarden prijave dvostrukom autentifikacijom"
   },

@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Det gick inte att läsa säkerhetsnyckeln. Försök igen."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "På grund av plattformsbegränsningar kan WebAuthn inte användas på alla Bitwarden-applikationer. Du bör konfigurera en annan leverantör av tvåstegsinloggning så att du kan komma åt ditt konto när WebAuthn inte kan användas."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Din återställningskod för tvåstegsverifiering"
   },
