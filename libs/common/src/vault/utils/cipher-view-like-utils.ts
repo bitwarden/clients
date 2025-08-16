@@ -31,6 +31,11 @@ export class CipherViewLikeUtils {
     return typeof cipher.type === "object" || typeof cipher.type === "string";
   };
 
+  /** @returns true when the given cipher is an instance of {@link CipherView}. */
+  static isCipherView = (cipher: CipherViewLike | Cipher): cipher is CipherView => {
+    return typeof cipher.type === "number";
+  };
+
   /** @returns The login object from the input cipher. If the cipher is not of type Login, returns null. */
   static getLogin = (cipher: CipherViewLike): LoginListView | LoginView | null => {
     if (this.isCipherListView(cipher)) {
