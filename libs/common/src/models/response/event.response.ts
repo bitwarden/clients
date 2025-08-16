@@ -22,6 +22,7 @@ export class EventResponse extends BaseResponse {
   systemUser: EventSystemUser;
   domainName: string;
   secretId: string;
+  projectId: string;
   serviceAccountId: string;
 
   constructor(response: any) {
@@ -45,6 +46,7 @@ export class EventResponse extends BaseResponse {
     this.systemUser = this.getResponseProperty("SystemUser");
     this.domainName = this.getResponseProperty("DomainName");
     this.secretId = this.getResponseProperty("SecretId");
+    this.projectId = this.getResponseProperty("ProjectId");
     this.serviceAccountId = this.getResponseProperty("ServiceAccountId");
   }
 }
