@@ -20,7 +20,6 @@ import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -94,7 +93,6 @@ let accountService: FakeAccountService;
 
 describe("Cipher Service", () => {
   const keyService = mock<KeyService>();
-  const stateService = mock<StateService>();
   const autofillSettingsService = mock<AutofillSettingsService>();
   const domainSettingsService = mock<DomainSettingsService>();
   const apiService = mock<ApiService>();
@@ -127,7 +125,6 @@ describe("Cipher Service", () => {
       apiService,
       i18nService,
       searchService,
-      stateService,
       autofillSettingsService,
       encryptService,
       cipherFileUploadService,
@@ -469,8 +466,6 @@ describe("Cipher Service", () => {
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
 
       searchService.indexedEntityId$.mockReturnValue(of(null));
-
-      stateService.getUserId.mockResolvedValue(mockUserId);
 
       const keys = { userKey: originalUserKey } as CipherDecryptionKeys;
       keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));

@@ -65,7 +65,7 @@ export class ElectronKeyService extends DefaultKeyService {
 
   protected override async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
     return await super.getKeyFromStorage(keySuffix, userId);
   }

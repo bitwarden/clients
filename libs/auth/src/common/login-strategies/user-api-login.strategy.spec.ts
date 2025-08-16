@@ -170,7 +170,7 @@ describe("UserApiLoginStrategy", () => {
       mockVaultTimeoutAction,
       mockVaultTimeout,
     );
-    expect(stateService.addAccount).toHaveBeenCalled();
+    expect(environmentService.seedUserEnvironment).toHaveBeenCalled();
   });
 
   it("sets the encrypted user key and private key from the identity token response", async () => {
