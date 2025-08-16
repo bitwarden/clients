@@ -12,7 +12,10 @@ export type HecConnectDialogParams = {
 
 export interface HecConnectDialogResult {
   integrationSettings: Integration;
-  configuration: string;
+  url: string;
+  bearerToken: string;
+  index: string;
+  service: string;
   success: boolean;
   error: string | null;
 }
@@ -37,16 +40,16 @@ export class ConnectHecDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const settings = this.getSettingsAsJson(this.connectInfo.settings.configuration ?? "");
+    this.formGroup.patchValue({
+      url: this.connectInfo.settings.HecConfiguration?.uri || "",
+      bearerToken: this.connectInfo.settings.HecConfiguration?.token || "",
+      index: this.connectInfo.settings.HecConfigurationTemplate?.index || "",
+      service: this.connectInfo.settings.name,
+    });
+  }
 
-    if (settings) {
-      this.formGroup.patchValue({
-        url: settings?.url || "",
-        bearerToken: settings?.bearerToken || "",
-        index: settings?.index || "",
-        service: this.connectInfo.settings.name,
-      });
-    }
+  isUpdateAvailable(): boolean {
+    return !!this.connectInfo.settings.HecConfiguration;
   }
 
   getSettingsAsJson(configuration: string) {
@@ -62,7 +65,10 @@ export class ConnectHecDialogComponent implements OnInit {
 
     const result: HecConnectDialogResult = {
       integrationSettings: this.connectInfo.settings,
-      configuration: JSON.stringify(formJson),
+      url: formJson.url || "",
+      bearerToken: formJson.bearerToken || "",
+      index: formJson.index || "",
+      service: formJson.service || "",
       success: true,
       error: null,
     };

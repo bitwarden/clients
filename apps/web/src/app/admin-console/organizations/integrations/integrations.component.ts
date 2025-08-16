@@ -2,10 +2,10 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, Subject, switchMap, takeUntil, scheduled, asyncScheduler } from "rxjs";
+import { Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
+import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/integrations";
 import {
   getOrganizationById,
   OrganizationService,
@@ -22,6 +22,7 @@ import { SharedOrganizationModule } from "../shared";
 import { IntegrationGridComponent } from "../shared/components/integrations/integration-grid/integration-grid.component";
 import { FilterIntegrationsPipe } from "../shared/components/integrations/integrations.pipe";
 import { Integration } from "../shared/components/integrations/models";
+import { OrganizationIntegrationService } from "../shared/components/integrations/services/organization-integration.service";
 
 @Component({
   selector: "ac-integrations",
@@ -35,7 +36,6 @@ import { Integration } from "../shared/components/integrations/models";
   ],
 })
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
-  // integrationsList: Integration[] = [];
   tabIndex: number;
   organization$: Observable<Organization>;
   isEventBasedIntegrationsEnabled: boolean = false;
@@ -218,8 +218,10 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     },
   ];
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const orgId = this.route.snapshot.params.organizationId;
+
+    await this.organizationIntegrationService.setOrganizationId(orgId, this.integrationsList);
 
     this.organization$ = this.route.params.pipe(
       switchMap((params) =>
@@ -233,23 +235,10 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       ),
     );
 
-    scheduled(this.orgIntegrationApiService.getOrganizationIntegrations(orgId), asyncScheduler)
+    this.organizationIntegrationService.integrationList$
       .pipe(takeUntil(this.destroy$))
       .subscribe((integrations) => {
-        // Update the integrations list with the fetched integrations
-        if (integrations && integrations.length > 0) {
-          integrations.forEach((integration) => {
-            const configJson = JSON.parse(integration.configuration || "{}");
-            const serviceName = configJson.service ?? "";
-            const existingIntegration = this.integrationsList.find((i) => i.name === serviceName);
-
-            if (existingIntegration) {
-              // if a configuration exists, then it is connected
-              existingIntegration.isConnected = !!integration.configuration;
-              existingIntegration.configuration = integration.configuration || "";
-            }
-          });
-        }
+        this.integrationsList = integrations;
       });
   }
 
@@ -258,7 +247,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private configService: ConfigService,
-    private orgIntegrationApiService: OrganizationIntegrationApiService,
+    private organizationIntegrationService: OrganizationIntegrationService,
   ) {
     this.configService
       .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
@@ -269,7 +258,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
 
     if (this.isEventBasedIntegrationsEnabled) {
       this.integrationsList.push({
-        name: "Crowdstrike",
+        name: OrganizationIntegrationServiceType.CrowdStrike,
         linkURL: "",
         image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
         type: IntegrationType.EVENT,
@@ -284,6 +273,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  // use in the view
   get IntegrationType(): typeof IntegrationType {
     return IntegrationType;
   }
