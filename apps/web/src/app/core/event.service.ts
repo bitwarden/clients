@@ -467,20 +467,127 @@ export class EventService {
         break;
       // Secrets Manager
       case EventType.Secret_Retrieved:
-        msg = this.i18nService.t("accessedSecretWithId", this.formatSecretId(ev));
+        msg = this.i18nService.t("accessedSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("accessedSecretWithId", this.getShortId(ev.secretId));
         break;
       case EventType.Secret_Created:
-        msg = this.i18nService.t("createdSecretWithId", this.formatSecretId(ev));
+        msg = this.i18nService.t("createdSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("createdSecretWithId", this.getShortId(ev.secretId));
         break;
       case EventType.Secret_Deleted:
-        msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev));
+        msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("deletedSecretWithId", this.getShortId(ev.secretId));
         break;
+      case EventType.Secret_Permanently_Deleted:
+        msg = this.i18nService.t(
+          "permanentlyDeletedSecretWithId",
+          this.formatSecretId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "permanentlyDeletedSecretWithId",
+          this.getShortId(ev.secretId),
+        );
+        break;
+      case EventType.Secret_Restored:
+        msg = this.i18nService.t("restoredSecretWithId", this.formatSecretId(ev, options));
+        humanReadableMsg = this.i18nService.t("restoredSecretWithId", this.getShortId(ev.secretId));
+        break;
       case EventType.Secret_Edited:
-        msg = this.i18nService.t("editedSecretWithId", this.formatSecretId(ev));
+        msg = this.i18nService.t("editedSecretWithId", this.formatSecretId(ev, options));
         humanReadableMsg = this.i18nService.t("editedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Project_Retrieved:
+        msg = this.i18nService.t("accessedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "accessedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Created:
+        msg = this.i18nService.t("createdProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Deleted:
+        msg = this.i18nService.t("deletedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Edited:
+        msg = this.i18nService.t("editedProjectWithId", this.formatProjectId(ev, options));
+        humanReadableMsg = this.i18nService.t("editedProjectWithId", this.getShortId(ev.projectId));
+        break;
+      case EventType.ServiceAccount_UserAdded:
+        msg = this.i18nService.t(
+          "addedUserToServiceAccountWithId",
+          this.formatUserId(ev, options),
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "addedUserToServiceAccountWithId",
+          this.formatUserId(ev, options),
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_UserRemoved:
+        msg = this.i18nService.t(
+          "removedUserToServiceAccountWithId",
+          this.formatUserId(ev, options),
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "removedUserToServiceAccountWithId",
+          this.formatUserId(ev, options),
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_GroupRemoved:
+        msg = this.i18nService.t(
+          "removedGroupFromServiceAccountWithId",
+          this.formatGroupId(ev),
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "removedGroupFromServiceAccountWithId",
+          this.formatGroupId(ev),
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_GroupAdded:
+        msg = this.i18nService.t(
+          "addedGroupToServiceAccountWithId",
+          this.formatGroupId(ev),
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "addedGroupToServiceAccountWithId",
+          this.formatGroupId(ev),
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_Created:
+        msg = this.i18nService.t(
+          "serviceAccountCreatedWithId",
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "serviceAccountCreatedWithId",
+          this.formatServiceAccountId(ev, options),
+        );
+        break;
+      case EventType.ServiceAccount_Deleted:
+        msg = this.i18nService.t(
+          "serviceAccountDeletedWithId",
+          this.formatServiceAccountId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "serviceAccountDeletedWithId",
+          this.formatServiceAccountId(ev, options),
+        );
         break;
       default:
         break;
@@ -637,10 +744,70 @@ export class EventService {
     return a.outerHTML;
   }
 
-  formatSecretId(ev: EventResponse): string {
+  formatSecretId(ev: EventResponse, options: EventOptions): string {
     const shortId = this.getShortId(ev.secretId);
+    if (options.disableLink) {
+      return shortId;
+    }
     const a = this.makeAnchor(shortId);
-    a.setAttribute("href", "#/sm/" + ev.organizationId + "/secrets?search=" + shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/secrets?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.secretId +
+        "&type=all",
+    );
+    return a.outerHTML;
+  }
+
+  formatProjectId(ev: EventResponse, options: EventOptions): string {
+    const shortId = this.getShortId(ev.projectId);
+    if (options.disableLink) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/projects?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.projectId +
+        "&type=all",
+    );
+    return a.outerHTML;
+  }
+
+  formatServiceAccountId(ev: EventResponse, options: EventOptions): string {
+    const shortId = this.getShortId(ev.grantedServiceAccountId);
+    if (options.disableLink) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/machine-accounts?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.grantedServiceAccountId +
+        "&type=all",
+    );
+    return a.outerHTML;
+  }
+
+  formatUserId(ev: EventResponse, options: EventOptions): string {
+    const shortId = this.getShortId(ev.userId);
+    if (options.disableLink) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute("href", "#/organizations/" + ev.organizationId + "/members?search=" + shortId);
     return a.outerHTML;
   }
 
@@ -684,4 +851,5 @@ export class EventInfo {
 
 export class EventOptions {
   cipherInfo = true;
+  disableLink = false;
 }
