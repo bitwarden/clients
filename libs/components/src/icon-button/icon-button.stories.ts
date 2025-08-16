@@ -9,6 +9,7 @@ export default {
   component: BitIconButtonComponent,
   args: {
     bitIconButton: "bwi-plus",
+    label: "Your button label here",
   },
   argTypes: {
     buttonType: {

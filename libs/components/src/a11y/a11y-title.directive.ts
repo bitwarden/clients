@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
 
+import { setA11yTitleAndAriaLabel } from "./set-a11y-title-and-aria-label";
 @Directive({
   selector: "[appA11yTitle]",
 })
@@ -25,15 +26,15 @@ export class A11yTitleDirective implements OnInit {
   ngOnInit() {
     this.originalTitle = this.el.nativeElement.getAttribute("title");
     this.originalAriaLabel = this.el.nativeElement.getAttribute("aria-label");
+
     this.setAttributes();
   }
 
   private setAttributes() {
-    if (this.originalTitle === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "title", this.title);
-    }
-    if (this.originalAriaLabel === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "aria-label", this.title);
-    }
+    setA11yTitleAndAriaLabel({
+      element: this.el.nativeElement,
+      title: this.originalTitle ?? this.title,
+      label: this.originalAriaLabel ?? this.title,
+    });
   }
 }
