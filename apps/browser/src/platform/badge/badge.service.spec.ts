@@ -213,6 +213,22 @@ describe("BadgeService", () => {
           3: undefined,
         });
       });
+
+      it("only updates the active tab when setting state", async () => {
+        const state: BadgeState = {
+          text: "text",
+          backgroundColor: "color",
+          icon: BadgeIcon.Locked,
+        };
+        badgeApi.setState.mockReset();
+
+        await badgeService.setState("state-1", BadgeStatePriority.Default, state, tabId);
+        await badgeService.setState("state-2", BadgeStatePriority.Default, state, 2);
+        await badgeService.setState("state-2", BadgeStatePriority.Default, state, 2);
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.setState).toHaveBeenCalledTimes(1);
+      });
     });
   });
 

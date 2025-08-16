@@ -1,4 +1,14 @@
-import { map, Observable } from "rxjs";
+import {
+  concat,
+  defer,
+  filter,
+  map,
+  merge,
+  Observable,
+  shareReplay,
+  switchMap,
+  withLatestFrom,
+} from "rxjs";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -26,9 +36,32 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
   private badgeAction = BrowserApi.getBrowserAction();
   private sidebarAction = BrowserApi.getSidebarAction(self);
 
-  activeTab$ = fromChromeEvent(chrome.tabs.onActivated).pipe(
-    map(([tabActiveInfo]) => tabActiveInfo),
+  private onTabActivated$ = fromChromeEvent(chrome.tabs.onActivated).pipe(
+    switchMap(async ([activeInfo]) => activeInfo),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  activeTab$ = concat(
+    defer(async () => {
+      const currentTab = await BrowserApi.getTabFromCurrentWindow();
+      if (currentTab == null || currentTab.id === undefined) {
+        return undefined;
+      }
+
+      return { tabId: currentTab.id, windowId: currentTab.windowId };
+    }),
+    merge(
+      this.onTabActivated$,
+      fromChromeEvent(chrome.tabs.onUpdated).pipe(
+        withLatestFrom(this.onTabActivated$),
+        filter(
+          ([[tabId, changeInfo], activeInfo]) =>
+            tabId === activeInfo.tabId && changeInfo.status === "loading",
+        ),
+        map(([[tabId, _changeInfo, tab]]) => ({ tabId, windowId: tab.windowId })),
+      ),
+    ),
+  ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
   constructor(private platformUtilsService: PlatformUtilsService) {}
 

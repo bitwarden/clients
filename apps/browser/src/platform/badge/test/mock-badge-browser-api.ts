@@ -17,7 +17,7 @@ export class MockBadgeBrowserApi implements BadgeBrowserApi {
     });
   }
 
-  setState(state: RawBadgeState, tabId?: number): Promise<void> {
+  setState = jest.fn().mockImplementation((state: RawBadgeState, tabId?: number): Promise<void> => {
     if (tabId !== undefined) {
       this.specificStates[tabId] = state;
     } else {
@@ -25,7 +25,7 @@ export class MockBadgeBrowserApi implements BadgeBrowserApi {
     }
 
     return Promise.resolve();
-  }
+  });
 
   getTabs(): Promise<number[]> {
     return Promise.resolve(this.tabs);
