@@ -138,7 +138,7 @@ describe("AutofillService", () => {
       userNotificationsSettings,
       messageListener,
     );
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     jest.spyOn(BrowserApi, "tabSendMessage");
   });

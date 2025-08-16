@@ -1,11 +1,10 @@
-import { mock, MockProxy } from "jest-mock-extended";
+import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import {
   DomainSettingsService,
   DefaultDomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -54,14 +53,11 @@ describe("ScriptInjectorService", () => {
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
-  let configService: MockProxy<ConfigService>;
   let domainSettingsService: DomainSettingsService;
 
   beforeEach(() => {
     jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation(() => of(false));
-    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     domainSettingsService.blockedInteractionsUris$ = of({});
     scriptInjectorService = new BrowserScriptInjectorService(

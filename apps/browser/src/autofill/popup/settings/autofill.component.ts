@@ -44,7 +44,6 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -110,7 +109,6 @@ export class AutofillComponent implements OnInit {
   protected defaultBrowserAutofillDisabled: boolean = false;
   protected inlineMenuVisibility: InlineMenuVisibilitySetting =
     AutofillOverlayVisibility.OnFieldFocus;
-  protected blockBrowserInjectionsByDomainEnabled: boolean = false;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
   protected disablePasswordManagerURI: DisablePasswordManagerUri =
     DisablePasswordManagerUris.Unknown;
@@ -220,10 +218,6 @@ export class AutofillComponent implements OnInit {
 
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
-    );
-
-    this.blockBrowserInjectionsByDomainEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.BlockBrowserInjectionsByDomain,
     );
 
     this.showInlineMenuIdentities = await firstValueFrom(
