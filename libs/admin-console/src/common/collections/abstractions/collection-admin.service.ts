@@ -13,6 +13,7 @@ export abstract class CollectionAdminService {
   abstract save(
     collection: CollectionAdminView,
     userId: UserId,
+    editMode: boolean,
   ): Promise<CollectionDetailsResponse>;
   abstract delete(organizationId: string, collectionId: string): Promise<void>;
   abstract bulkAssignAccess(

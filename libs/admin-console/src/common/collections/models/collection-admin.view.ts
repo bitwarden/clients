@@ -101,6 +101,17 @@ export class CollectionAdminView extends CollectionView {
     return this.id === Unassigned;
   }
 
+  /**
+   * Returns true if the collection name can be edited. Editing the collection name is restricted for collections
+   * that were DefaultUserCollections but where the relevant user has been offboarded.
+   * When this occurs, the offboarded user's email is treated as the collection name, and cannot be edited.
+   * This is important for security so that the server cannot ask the client to encrypt arbitrary data.
+   * WARNING! This is an IMPORTANT restriction that MUST be maintained for security purposes.
+   * Do not edit or remove this unless you understand why.
+   */
+  override canEditName(org: Organization): boolean {
+    return (this.canEdit(org) && !this.defaultUserCollectionEmail) || super.canEditName(org);
+  }
   static async fromCollectionAccessDetails(
     collection: CollectionAccessDetailsResponse,
     encryptService: EncryptService,
@@ -115,6 +126,7 @@ export class CollectionAdminView extends CollectionView {
     view.unmanaged = collection.unmanaged;
     view.type = collection.type;
     view.externalId = collection.externalId;
+    view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
 
     view.groups = collection.groups
       ? collection.groups.map((g) => new CollectionAccessSelectionView(g))

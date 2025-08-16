@@ -398,6 +398,13 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       }
       return;
     }
+    if (
+      this.editMode &&
+      !this.collection.canEditName(this.organization) &&
+      this.formGroup.controls.name.dirty
+    ) {
+      throw new Error("Cannot change readonly field: Name");
+    }
 
     const parent = this.formGroup.controls.parent?.value;
     const collectionView = new CollectionAdminView({
@@ -416,7 +423,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       .map(convertToSelectionView);
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const savedCollection = await this.collectionAdminService.save(collectionView, userId);
+    const savedCollection = await this.collectionAdminService.save(
+      collectionView,
+      userId,
+      this.editMode,
+    );
 
     this.toastService.showToast({
       variant: "success",
@@ -483,14 +494,17 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   private handleFormGroupReadonly(readonly: boolean) {
     if (readonly) {
+      this.formGroup.controls.access.disable();
       this.formGroup.controls.name.disable();
       this.formGroup.controls.parent.disable();
-      this.formGroup.controls.access.disable();
-    } else {
-      this.formGroup.controls.name.enable();
-      this.formGroup.controls.parent.enable();
-      this.formGroup.controls.access.enable();
+      return;
     }
+
+    this.formGroup.controls.access.enable();
+
+    const canEditName = this.collection.canEditName(this.organization);
+    this.formGroup.controls.name[canEditName ? "enable" : "disable"]();
+    this.formGroup.controls.parent[canEditName ? "enable" : "disable"]();
   }
 
   private close(action: CollectionDialogAction, collection?: CollectionResponse | CollectionView) {

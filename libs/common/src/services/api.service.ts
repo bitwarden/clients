@@ -5,9 +5,9 @@ import { firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  BaseCollectionRequest,
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
-  CollectionRequest,
   CollectionResponse,
 } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -727,7 +727,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postCollection(
     organizationId: string,
-    request: CollectionRequest,
+    request: BaseCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "POST",
@@ -742,7 +742,7 @@ export class ApiService implements ApiServiceAbstraction {
   async putCollection(
     organizationId: string,
     id: string,
-    request: CollectionRequest,
+    request: BaseCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "PUT",

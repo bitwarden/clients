@@ -8,6 +8,7 @@ export class CollectionResponse extends BaseResponse {
   id: CollectionId;
   organizationId: OrganizationId;
   name: string;
+  defaultUserCollectionEmail: string | undefined;
   externalId: string | undefined;
   type: CollectionType = CollectionTypes.SharedCollection;
 
@@ -17,6 +18,7 @@ export class CollectionResponse extends BaseResponse {
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.name = this.getResponseProperty("Name");
     this.externalId = this.getResponseProperty("ExternalId");
+    this.defaultUserCollectionEmail = this.getResponseProperty("DefaultUserCollectionEmail");
     this.type = this.getResponseProperty("Type") ?? CollectionTypes.SharedCollection;
   }
 }
