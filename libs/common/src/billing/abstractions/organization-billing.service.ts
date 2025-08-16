@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { UserId } from "@bitwarden/user-core";
 
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { InitiationPath } from "../../models/request/reference-event.request";
@@ -51,17 +52,23 @@ export abstract class OrganizationBillingServiceAbstraction {
 
   abstract purchaseSubscription(
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<OrganizationResponse>;
 
   abstract purchaseSubscriptionNoPaymentMethod(
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<OrganizationResponse>;
 
-  abstract startFree(subscription: SubscriptionInformation): Promise<OrganizationResponse>;
+  abstract startFree(
+    subscription: SubscriptionInformation,
+    activeUserId: UserId,
+  ): Promise<OrganizationResponse>;
 
   abstract restartSubscription(
     organizationId: string,
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<void>;
 
   /**
