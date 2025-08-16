@@ -38,10 +38,13 @@ import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwa
 import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
+import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
+import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
+import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
+import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 
-import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
 import { SendComponent } from "./tools/send/send.component";
 
 /**
@@ -107,12 +110,16 @@ const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: "passkeys",
-    component: Fido2PlaceholderComponent,
+    path: "fido2-assertion",
+    component: Fido2VaultComponent,
   },
   {
-    path: "passkeys",
-    component: Fido2PlaceholderComponent,
+    path: "fido2-creation",
+    component: Fido2CreateComponent,
+  },
+  {
+    path: "fido2-excluded",
+    component: Fido2ExcludedCiphersComponent,
   },
   {
     path: "",
@@ -258,7 +265,7 @@ const routes: Routes = [
       },
       {
         path: "lock",
-        canActivate: [lockGuard()],
+        canActivate: [lockGuard(), reactiveUnlockVaultGuard],
         data: {
           pageIcon: Icons.LockIcon,
           pageTitle: {

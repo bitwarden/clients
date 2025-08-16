@@ -95,7 +95,7 @@ export abstract class Fido2UserInterfaceSession {
    */
   abstract confirmNewCredential(
     params: NewCredentialParams,
-  ): Promise<{ cipherId: string; userVerified: boolean }>;
+  ): Promise<{ cipherId?: string; userVerified: boolean }>;
 
   /**
    * Make sure that the vault is unlocked.
