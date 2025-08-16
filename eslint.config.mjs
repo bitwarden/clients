@@ -325,6 +325,7 @@ export default tseslint.config(
             "file-selector",
             "mfaType.*",
             "filter.*", // Temporary until filters are migrated
+            "tw-@container",
           ],
         },
       ],
