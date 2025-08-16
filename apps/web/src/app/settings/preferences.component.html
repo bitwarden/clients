@@ -67,13 +67,17 @@
       </bit-select>
       <bit-hint>{{ "languageDesc" | i18n }}</bit-hint>
     </bit-form-field>
-    <bit-form-control>
-      <input type="checkbox" bitCheckbox formControlName="enableFavicons" />
-      <bit-label>
-        {{ "showIconsChangePasswordUrls" | i18n }}
+    <div class="tw-flex tw-items-start tw-gap-1.5">
+      <bit-form-control>
+        <input type="checkbox" bitCheckbox formControlName="enableFavicons" />
+        <bit-label>
+          {{ "showIconsChangePasswordUrls" | i18n }}
+        </bit-label>
+      </bit-form-control>
+      <div class="-tw-mt-0.5">
         <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
-      </bit-label>
-    </bit-form-control>
+      </div>
+    </div>
     <bit-form-field>
       <bit-label>{{ "theme" | i18n }}</bit-label>
       <bit-select formControlName="theme" id="theme">
