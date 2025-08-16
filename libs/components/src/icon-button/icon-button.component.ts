@@ -1,12 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { Component, computed, ElementRef, HostBinding, input, model } from "@angular/core";
+import { Component, computed, ElementRef, HostBinding, inject, input, model } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
+import { AriaDisableDirective } from "../a11y";
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
+import { ariaDisableElement } from "../utils";
 
 export type IconButtonType = "primary" | "danger" | "contrast" | "main" | "muted" | "nav-contrast";
 
@@ -79,7 +81,6 @@ const sizes: Record<IconButtonSize, string[]> = {
   ],
   imports: [NgClass],
   host: {
-    "[attr.disabled]": "disabledAttr()",
     /**
      * When the `bitIconButton` input is dynamic from a consumer, Angular doesn't put the
      * `bitIconButton` attribute into the DOM. We use the attribute as a css selector in
@@ -88,6 +89,7 @@ const sizes: Record<IconButtonSize, string[]> = {
      */
     "[attr.bitIconButton]": "icon()",
   },
+  hostDirectives: [AriaDisableDirective],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   readonly icon = model<string>(undefined, { alias: "bitIconButton" });
@@ -111,7 +113,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       .concat(sizes[this.size()])
       .concat(
         this.showDisabledStyles() || this.disabled()
-          ? ["disabled:tw-opacity-60", "disabled:hover:!tw-bg-transparent"]
+          ? ["aria-disabled:tw-opacity-60", "aria-disabled:hover:!tw-bg-transparent"]
           : [],
       );
   }
@@ -122,7 +124,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   protected disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
-    return disabled || this.loading() ? true : null;
+    return disabled || this.loading();
   });
 
   /**
@@ -161,5 +163,11 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return this.elementRef.nativeElement;
   }
 
-  constructor(private elementRef: ElementRef) {}
+  private elementRef = inject(ElementRef);
+
+  constructor() {
+    const element = this.elementRef.nativeElement;
+
+    ariaDisableElement(element, this.disabledAttr);
+  }
 }
