@@ -1,0 +1,127 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle class="tw-text-xl tw-font-semibold">
+    {{ totalDuplicateItemCount }} {{ "duplicatesFound" | i18n }}
+  </span>
+  <div bitDialogContent>
+    <div class="tw-space-y-4 tw-w-[min(98vw,1400px)]">
+      <ng-template
+        #duplicateSummary
+        let-totalDuplicateItemCount="totalDuplicateItemCount"
+        let-duplicateSetsLength="duplicateSetsLength"
+      >
+        <div class="tw-text-sm tw-font-medium">
+          {{ "found" | i18n }}
+          {{ totalDuplicateItemCount }}
+          {{ "duplicateItemsIn" | i18n }}
+          {{ duplicateSetsLength }}
+          {{ "sets" | i18n }}.
+        </div>
+      </ng-template>
+      <ng-container *ngIf="dataSource.data?.length">
+        <ng-container
+          *ngTemplateOutlet="
+            duplicateSummary;
+            context: {
+              totalDuplicateItemCount: totalDuplicateItemCount,
+              duplicateSetsLength: dataSource.data.length,
+            }
+          "
+        ></ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="dataSource.data?.length">
+        <div class="tw-border tw-rounded tw-divide-y tw-bg-background">
+          <div
+            *ngFor="let set of dataSource.data; let i = index; trackBy: trackBySet"
+            class="tw-p-3 tw-space-y-2 tw-bg-background-alt"
+          >
+            <div class="tw-text-base tw-font-semibold">{{ i + 1 }}. {{ set.displayKey }}</div>
+            <div class="tw-text-xs tw-text-muted">
+              {{ set.ciphers.length }}
+              {{ set.ciphers.length === 1 ? ("item" | i18n) : ("items" | i18n) }}
+            </div>
+            <bit-table-scroll
+              class="tw-max-h-96 tw-overflow-auto tw-text-sm"
+              [dataSource]="getTableDataSource(set.ciphers)"
+              [rowSize]="56"
+            >
+              <ng-container header>
+                <th bitCell class="tw-w-6 tw-px-0 tw-py-1"></th>
+                <th bitCell bitSortable="name" class="tw-text-xs tw-font-medium tw-text-muted">
+                  {{ "name" | i18n }}
+                </th>
+                <th bitCell bitSortable="username" class="tw-text-xs tw-font-medium tw-text-muted">
+                  {{ "username" | i18n }}
+                </th>
+                <th
+                  bitCell
+                  bitSortable="websiteUri"
+                  class="tw-text-xs tw-font-medium tw-text-muted"
+                >
+                  {{ "websiteUri" | i18n }}
+                </th>
+                <th bitCell bitSortable="folder" class="tw-text-xs tw-font-medium tw-text-muted">
+                  {{ "folder" | i18n }}
+                </th>
+                <th
+                  bitCell
+                  bitSortable="organization"
+                  class="tw-text-xs tw-font-medium tw-text-muted"
+                >
+                  {{ "organization" | i18n }}
+                </th>
+              </ng-container>
+              <ng-template bitRowDef let-row>
+                <td bitCell>
+                  <input
+                    id="duplicate-review-dialog__checkbox__select-{{ row.id }}"
+                    type="checkbox"
+                    [disabled]="row.id === set.ciphers[0]?.id"
+                    [ngModel]="selection[row.id]"
+                    (ngModelChange)="onSelectChange(row.id, $event)"
+                    [ngModelOptions]="{ standalone: true }"
+                  />
+                </td>
+                <td bitCell>
+                  <span [ngClass]="{ 'tw-font-semibold': row.id === set.ciphers[0]?.id }">{{
+                    row.name
+                  }}</span>
+                  <span *ngIf="row.isDeleted" class="tw-italic tw-text-xs tw-text-muted">
+                    ({{ "itemInTrash" | i18n }})</span
+                  >
+                </td>
+                <td bitCell>{{ row.login?.username }}</td>
+                <td bitCell>
+                  {{ getCipherUris(row) || ("noValue" | i18n) }}
+                </td>
+                <td bitCell>{{ row.folderId || ("noValue" | i18n) }}</td>
+                <td bitCell>{{ row.organizationId || ("noValue" | i18n) }}</td>
+              </ng-template>
+            </bit-table-scroll>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      id="duplicate-review-dialog__button__cancel"
+      bitButton
+      buttonType="secondary"
+      type="button"
+      (click)="cancel()"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+    <button
+      id="duplicate-review-dialog__button__delete-selected"
+      bitButton
+      buttonType="danger"
+      type="button"
+      (click)="confirm()"
+      [disabled]="!anySelected"
+    >
+      {{ "delete" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
