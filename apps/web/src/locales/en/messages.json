@@ -11016,5 +11016,8 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

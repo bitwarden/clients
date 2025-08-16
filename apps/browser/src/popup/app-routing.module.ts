@@ -39,7 +39,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperData, Icons } from "@bitwarden/components";
-import { LockComponent } from "@bitwarden/key-management-ui";
+import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
@@ -592,6 +592,24 @@ const routes: Routes = [
           hideIcon: true,
           hideFooter: true,
         },
+      },
+    ],
+  },
+  {
+    path: "confirm-key-connector-domain",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+    children: [
+      {
+        path: "",
+        component: ConfirmKeyConnectorDomainComponent,
+        data: {
+          pageTitle: {
+            key: "confirmKeyConnectorDomain",
+          },
+          showBackButton: true,
+        } satisfies ExtensionAnonLayoutWrapperData,
       },
     ],
   },
