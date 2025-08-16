@@ -131,3 +131,32 @@ jobs:
           body: "<insert release notes here>"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
+
+  publish-mas:
+    name: Fastlane - Publish to Mac App Store
+    runs-on: macos-14
+    needs: setup
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Download MacOS App Store build number
+        uses: bitwarden/gh-actions/download-artifacts@main
+        id: download-build-number-artifact
+        with:
+          workflow: build-desktop.yml
+          path: apps/desktop/artifacts
+          workflow_conclusion: success
+          branch: ${{ github.ref_name }}
+          artifacts: macos-build-number.json
+
+      - name: Publish to App Store
+        env:
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_AUTH_KEY: ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+        working-directory: apps/desktop
+        run: |
+          BUILD_NUMBER=$(jq -r '.buildNumber' apps/desktop/artifacts/macos-build-number.json)
+          fastlane publish
