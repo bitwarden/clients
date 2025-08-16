@@ -235,13 +235,16 @@ export class CipherService implements CipherServiceAbstraction {
     await this.stateProvider.setUserState(DECRYPTED_CIPHERS, cipherViews, userId);
   }
 
-  async clearCache(userId?: UserId): Promise<void> {
+  async clearCache(userId?: UserId, skipUIUpdate = false): Promise<void> {
     const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
     userId ??= activeUserId;
     await this.clearDecryptedCiphersState(userId);
 
-    // Force the cached cipherView$ observable(s) to emit a null value
-    this.clearCipherViewsForUser$.next(userId);
+    // Only force UI update if not skipping (e.g., during sync)
+    if (!skipUIUpdate) {
+      // Force the cached cipherView$ observable(s) to emit a null value
+      this.clearCipherViewsForUser$.next(userId);
+    }
   }
 
   /**
@@ -1141,20 +1144,23 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
-    await this.updateEncryptedCipherState(() => ciphers, userId);
+    await this.updateEncryptedCipherState(() => ciphers, userId, true);
   }
 
   /**
    * Updates ciphers for the currently active user. Inactive users can only clear all ciphers, for now.
    * @param update update callback for encrypted cipher data
+   * @param userId user id
+   * @param isSyncOperation whether this is a sync operation that should preserve UI state
    * @returns
    */
   private async updateEncryptedCipherState(
     update: (current: Record<CipherId, CipherData>) => Record<CipherId, CipherData>,
     userId: UserId = null,
+    isSyncOperation = false,
   ): Promise<Record<CipherId, CipherData>> {
     userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
-    await this.clearCache(userId);
+    await this.clearCache(userId, isSyncOperation);
     const updatedCiphers = await this.stateProvider
       .getUser(userId, ENCRYPTED_CIPHERS)
       .update((current) => {
