@@ -480,6 +480,11 @@ export class VaultProgram extends BaseProgram {
         "--password [password]",
         "Use password to encrypt instead of your Bitwarden account encryption key. Only applies to the encrypted_json format.",
       )
+      .option("--passwordenv <passwordenv>", "Environment variable storing your password")
+      .option(
+        "--passwordfile <passwordfile>",
+        "Path to a file containing your password as its first line",
+      )
       .option("--organizationid <organizationid>", "Organization id for an organization.")
       .on("--help", () => {
         writeLn("\n  Notes:");
@@ -513,6 +518,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.policyService,
           this.serviceContainer.eventCollectionService,
           this.serviceContainer.accountService,
+          this.serviceContainer.logService,
         );
         const response = await command.run(options);
         this.processResponse(response);
