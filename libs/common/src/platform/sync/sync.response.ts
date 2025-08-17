@@ -1,7 +1,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionDetailsResponse } from "@bitwarden/admin-console/common";
-import { UserDecryption, UserDecryptionData } from "@bitwarden/sdk-internal";
+import { UserDecryptionResponse } from "@bitwarden/common/key-management/models/response/user-decryption.response";
 
 import { PolicyResponse } from "../../admin-console/models/response/policy.response";
 import { BaseResponse } from "../../models/response/base.response";
@@ -19,7 +19,7 @@ export class SyncResponse extends BaseResponse {
   domains?: DomainsResponse;
   policies?: PolicyResponse[] = [];
   sends: SendResponse[] = [];
-  userDecryption?: UserDecryptionData;
+  userDecryption?: UserDecryptionResponse;
 
   constructor(response: any) {
     super(response);
@@ -61,7 +61,7 @@ export class SyncResponse extends BaseResponse {
 
     const userDecryption = this.getResponseProperty("UserDecryption");
     if (userDecryption != null && typeof userDecryption === "object") {
-      this.userDecryption = UserDecryption.get_user_decryption_data(userDecryption);
+      this.userDecryption = new UserDecryptionResponse(userDecryption);
     }
   }
 }
