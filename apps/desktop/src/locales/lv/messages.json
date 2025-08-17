@@ -79,7 +79,7 @@
     "message": "Pielikumi"
   },
   "viewItem": {
-    "message": "Skatīt vienumu"
+    "message": "Apskatīt vienumu"
   },
   "name": {
     "message": "Nosaukums"
@@ -573,7 +573,7 @@
     "message": "Ievietot vietrādi starpliktuvē"
   },
   "copyVerificationCodeTotp": {
-    "message": "Ievietot Apliecinājuma kodu (TOTP) starpliktuvē"
+    "message": "Ievietot apliecinājuma kodu (TOTP) starpliktuvē"
   },
   "copyFieldCipherName": {
     "message": "Ievietot starpliktuvē $FIELD$, $CIPHERNAME$",
@@ -955,10 +955,10 @@
     "message": "Ievieto savu drošības atslēgu datora USB ligzdā! Ja tai ir poga, pieskaries tai!"
   },
   "recoveryCodeDesc": {
-    "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopšanas kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
+    "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopes kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
   },
   "recoveryCodeTitle": {
-    "message": "Atgūšanas kods"
+    "message": "Atkopes kods"
   },
   "authenticatorAppTitle": {
     "message": "Autentificētāja lietotne"
@@ -1225,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Divpakāpju pieteikšanās"
   },
+  "vaultTimeoutHeader": {
+    "message": "Glabātavas noildze"
+  },
   "vaultTimeout": {
     "message": "Glabātavas noildze"
   },
   "vaultTimeout1": {
     "message": "Noildze"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Noildzes darbība"
   },
   "vaultTimeoutDesc": {
     "message": "Izvēlēties, kad glabātavai iestāsies noildze un tiks izpildīta atlasītā darbība."
@@ -2419,7 +2425,7 @@
     "message": "Pēc savas paroles nomainīšanas būs nepieciešams pieteikties ar jauno paroli. Spēkā esošajās sesijās citās ierīcēs stundas laikā notiks atteikšanās."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Jānomaina sava galvenā'parole, lai pabeigtu konta atkopi."
+    "message": "Jānomaina sava galvenā parole, lai pabeigtu konta atkopi."
   },
   "updateMasterPasswordSubtitle": {
     "message": "Galvenā parole neatbilst šīs apvienības prasībām. Jānomaina sava galvenā parole, lai turpinātu."
@@ -2510,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Glabātavas noildze pārsniedz apvienības uzstādītos ierobežojumus."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Noildzes iespējām tika piemērotas uzņēmējdarbības nosacījumu prasības"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Apvienības pamatnostādnēs ir iestatīta lielākā pieļaujamā glabātavas noildze: $HOURS$ stunda(s) un $MINUTES$ minūte(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Noildze pārsniedz apvienības iestatīto ierobežojumu: ne vairāk kā $HOURS$ stunda(s) un $MINUTES$ minūte(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Uzaicinājums apstiprināts"
@@ -2980,10 +3015,10 @@
     "message": "Ir jāuzstāda pieteikšanās ar ierīci Bitwarden lietotnes iestatījumos. Nepieciešama cita iespēja?"
   },
   "viewAllLogInOptions": {
-    "message": "Skatīt visas pieteikšanās iespējas"
+    "message": "Apskatīt visas pieteikšanās iespējas"
   },
   "viewAllLoginOptions": {
-    "message": "Skatīt visas pieteikšanās iespējas"
+    "message": "Apskatīt visas pieteikšanās iespējas"
   },
   "resendNotification": {
     "message": "Atkārtoti nosūtīt paziņojumu"
@@ -2991,9 +3026,6 @@
   "toggleCharacterCount": {
     "message": "Pārslēgt rakstzīmju skaita attēlošanu",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Vai mēģini piekļūt savam kontam?"
   },
   "accessAttemptBy": {
     "message": "$EMAIL$ piekļuves mēģinājums",
@@ -3003,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas biji Tu, mēģini pieteikties no ierīces vēlreiz!"
+  },
+  "webApp": {
+    "message": "Tīmekļa lietotne"
+  },
+  "mobile": {
+    "message": "Tālrunis",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Paplašinājums",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Darbvirsma",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Serveris"
+  },
+  "loginRequest": {
+    "message": "Pieteikšanās pieprasījums"
   },
   "deviceType": {
     "message": "Ierīces veids"
@@ -3018,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Noraidīt piekļuvi"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
   },
   "justNow": {
     "message": "Tikko"
@@ -3181,7 +3241,7 @@
     "message": "pašmitināts"
   },
   "accessDenied": {
-    "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai skatītu šo lapu."
+    "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai apskatītu šo lapu."
   },
   "accountSuccessfullyCreated": {
     "message": "Konts ir veiksmīgi izveidots."
@@ -3567,7 +3627,7 @@
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Sākas ar' ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
+    "message": "“Sākas ar” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -3607,7 +3667,7 @@
     "message": "Kļūda mērķa mapes piešķiršanā."
   },
   "viewItemsIn": {
-    "message": "Skatīt $NAME$ vienumus",
+    "message": "Apskatīt $NAME$ vienumus",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -3760,7 +3820,7 @@
     "message": "Atļaut ekrāna tveršanu"
   },
   "allowScreenshotsDesc": {
-    "message": "Ļaut Bitwarden darbvirsmas lietotni tvert ekrānuzņēmumos un rādīt attālās darbvirsmas sesijās. Atspējošana liegs piekļuvu atsevišķos ārējos ekrānos."
+    "message": "Ļaut Bitwarden darbvirsmas lietotni tvert ekrānuzņēmumos un rādīt attālās darbvirsmas sesijās. Atspējošana liegs piekļuvi atsevišķos ārējos ekrānos."
   },
   "confirmWindowStillVisibleTitle": {
     "message": "Apstirpināt, ka logs joprojām ir redzams"
@@ -4005,6 +4065,12 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Rādīt vairāk"
+  },
+  "showLess": {
+    "message": "Rādīt mazāk"
   },
   "enableAutotype": {
     "message": "Iespējot automātisko ievadi"

@@ -68,8 +68,11 @@ import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import {
+  DefaultKeyGenerationService,
+  KeyGenerationService,
+} from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
@@ -98,7 +101,6 @@ import { Fido2ClientService as Fido2ClientServiceAbstraction } from "@bitwarden/
 import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -136,7 +138,6 @@ import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/f
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
@@ -312,7 +313,7 @@ export default class MainBackground {
   i18nService: I18nServiceAbstraction;
   platformUtilsService: PlatformUtilsServiceAbstraction;
   logService: LogServiceAbstraction;
-  keyGenerationService: KeyGenerationServiceAbstraction;
+  keyGenerationService: KeyGenerationService;
   keyService: KeyServiceAbstraction;
   cryptoFunctionService: CryptoFunctionServiceAbstraction;
   masterPasswordService: InternalMasterPasswordServiceAbstraction;
@@ -473,7 +474,7 @@ export default class MainBackground {
     const isDev = process.env.ENV === "development";
     this.logService = new ConsoleLogService(isDev);
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
-    this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
+    this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService(this.logService);
 
     this.intraprocessMessagingSubject = new Subject<Message<Record<string, unknown>>>();
@@ -1446,10 +1447,7 @@ export default class MainBackground {
         this.notificationsService.startListening();
 
         this.taskService.listenForTaskNotifications();
-
-        if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
-          this.endUserNotificationService.listenForEndUserNotifications();
-        }
+        this.endUserNotificationService.listenForEndUserNotifications();
         resolve();
       }, 500);
     });

@@ -3,10 +3,6 @@
 import { b64Decode, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
 
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-require("./webauthn.scss");
-
 const mobileCallbackUri = "bitwarden://webauthn-callback";
 
 let parsed = false;

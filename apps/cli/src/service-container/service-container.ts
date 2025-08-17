@@ -60,6 +60,10 @@ import {
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
+import {
+  DefaultKeyGenerationService,
+  KeyGenerationService,
+} from "@bitwarden/common/key-management/crypto";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
@@ -81,7 +85,6 @@ import {
   EnvironmentService,
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
-import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
@@ -99,7 +102,6 @@ import { DefaultConfigService } from "@bitwarden/common/platform/services/config
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -239,7 +241,7 @@ export class ServiceContainer {
   individualExportService: IndividualVaultExportServiceAbstraction;
   organizationExportService: OrganizationVaultExportServiceAbstraction;
   searchService: SearchService;
-  keyGenerationService: KeyGenerationServiceAbstraction;
+  keyGenerationService: KeyGenerationService;
   cryptoFunctionService: NodeCryptoFunctionService;
   encryptService: EncryptServiceImplementation;
   authService: AuthService;
@@ -397,7 +399,7 @@ export class ServiceContainer {
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
 
-    this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
+    this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
 
     this.tokenService = new TokenService(
       this.singleUserStateProvider,

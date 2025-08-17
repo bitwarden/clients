@@ -84,7 +84,7 @@
     "message": "Υπόδειξη κύριου κωδικού πρόσβασης (προαιρετικό)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Βαθμολογία ισχύς κωδικού πρόσβασης $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -468,13 +468,13 @@
     "message": "Ο κωδικός δημιουργήθηκε"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Το συνθηματικό δημιουργήθηκε"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Το όνομα χρήστη δημιουργήθηκε"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Το email δημιουργήθηκε"
   },
   "regeneratePassword": {
     "message": "Επαναδημιουργία κωδικού πρόσβασης"
@@ -548,7 +548,7 @@
     "message": "Αναζήτηση στο vault"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Επαναφορά αναζήτησης"
   },
   "edit": {
     "message": "Επεξεργασία"
@@ -659,10 +659,10 @@
     "message": "Το πρόγραμμα περιήγησης ιστού δεν υποστηρίζει εύκολη αντιγραφή πρόχειρου. Αντιγράψτε το με το χέρι αντ'αυτού."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Επαλήθευση ταυτότητας"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Δεν αναγνωρίζουμε αυτή τη συσκευή. Εισάγετε τον κωδικό που στάλθηκε στο email σας για να επαληθεύσετε την ταυτότητά σας."
   },
   "continueLoggingIn": {
     "message": "Continue logging in"
@@ -875,22 +875,22 @@
     "message": "Σύνδεση στο Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Εισάγετε τον κωδικό που στάλθηκε στο email σας"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Εισαγάγετε τον κωδικό μιας χρήσης από την εφαρμογή αυθεντικοποίησης"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Πιέστε το YubiKey σας για ταυτοποίηση"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Απαιτείται σύνδεση Duo δύο βημάτων για το λογαριασμό σας. Ακολουθήστε τα παρακάτω βήματα για να ολοκληρώσετε τη σύνδεση."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Ακολουθήστε τα παρακάτω βήματα για να ολοκληρώσετε τη σύνδεση."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Ακολουθήστε τα παρακάτω βήματα για να ολοκληρώσετε τη σύνδεση με το κλειδί ασφαλείας σας."
   },
   "restartRegistration": {
     "message": "Επανεκκίνηση εγγραφής"
@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
@@ -5592,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

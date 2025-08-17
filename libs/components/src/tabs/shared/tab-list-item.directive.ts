@@ -84,7 +84,7 @@ export class TabListItemDirective implements FocusableOption {
   get activeClassList(): string[] {
     return [
       "tw--mb-px",
-      "tw-border-x-secondary-300",
+      "tw-border-x-secondary-100",
       "tw-border-t-primary-600",
       "tw-border-b",
       "tw-border-b-background",

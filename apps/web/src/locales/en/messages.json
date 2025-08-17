@@ -5269,6 +5269,14 @@
   "downloadAttachments": {
     "message": "Download attachments"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "The Send you are trying to access does not exist or is no longer available.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

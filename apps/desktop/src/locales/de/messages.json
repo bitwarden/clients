@@ -1225,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Zwei-Faktor-Authentifizierung"
   },
+  "vaultTimeoutHeader": {
+    "message": "Tresor-Timeout"
+  },
   "vaultTimeout": {
     "message": "Tresor-Timeout"
   },
   "vaultTimeout1": {
     "message": "Timeout"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout-Aktion"
   },
   "vaultTimeoutDesc": {
     "message": "Wähle, wann der Timeout deines Tresors aktiviert werden soll und welche Aktion er bewirken soll."
@@ -2511,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Das Timeout überschreitet die von deiner Organisation festgelegte Beschränkung: Maximal $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Einladung angenommen"
   },
@@ -2992,9 +3027,6 @@
     "message": "Zeichenanzahl ein-/ausschalten",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Versuchst du auf dein Konto zuzugreifen?"
-  },
   "accessAttemptBy": {
     "message": "Zugriffsversuch von $EMAIL$",
     "placeholders": {
@@ -3003,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Anmeldeanfrage für $EMAIL$ auf $DEVICE$ genehmigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+  },
+  "webApp": {
+    "message": "Web-App"
+  },
+  "mobile": {
+    "message": "Mobile App",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Erweiterung",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Anmeldungsanfrage"
   },
   "deviceType": {
     "message": "Gerätetyp"
@@ -3018,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Zugriff ablehnen"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Anmeldung von $EMAIL$ auf $DEVICE$ bestätigt",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
   },
   "justNow": {
     "message": "Gerade eben"
@@ -4006,8 +4066,14 @@
       }
     }
   },
+  "showMore": {
+    "message": "Mehr anzeigen"
+  },
+  "showLess": {
+    "message": "Weniger anzeigen"
+  },
   "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "Autotype aktivieren"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden überprüft die Eingabestellen nicht. Vergewissere dich, dass du dich im richtigen Fenster und Feld befindest, bevor du die Tastenkombination verwendest."
