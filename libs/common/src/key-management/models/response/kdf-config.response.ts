@@ -11,10 +11,6 @@ export class KdfConfigResponse extends BaseResponse {
   constructor(response: unknown) {
     super(response);
 
-    if (response == null || typeof response !== "object") {
-      throw new Error("Invalid KDF config response object");
-    }
-
     const kdfType = this.getResponseProperty("KdfType");
     if (kdfType == null || typeof kdfType !== "number") {
       throw new Error("KDF config response does not contain a valid KDF type");
