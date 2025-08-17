@@ -11,7 +11,7 @@ describe("IdentityTokenResponse", () => {
 
   it("should throw an error when access token is missing", () => {
     const response = {
-      access_token: undefined,
+      access_token: undefined as unknown,
       token_type: tokenType,
     };
 
@@ -23,7 +23,7 @@ describe("IdentityTokenResponse", () => {
   it("should throw an error when token type is missing", () => {
     const response = {
       access_token: accessToken,
-      token_type: undefined,
+      token_type: undefined as unknown,
     };
 
     expect(() => new IdentityTokenResponse(response)).toThrow(
@@ -77,7 +77,7 @@ describe("IdentityTokenResponse", () => {
     const response = {
       access_token: accessToken,
       token_type: tokenType,
-      Key: undefined,
+      Key: undefined as unknown,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
@@ -99,7 +99,7 @@ describe("IdentityTokenResponse", () => {
     const response = {
       access_token: accessToken,
       token_type: tokenType,
-      UserDecryptionOptions: undefined,
+      UserDecryptionOptions: undefined as unknown,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
