@@ -7,7 +7,7 @@ import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
+import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
@@ -18,6 +18,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import {
   MASTER_PASSWORD_DISK,
   MASTER_PASSWORD_MEMORY,
+  MASTER_PASSWORD_UNLOCK_DISK,
   StateProvider,
   UserKeyDefinition,
 } from "../../../platform/state";
@@ -64,6 +65,30 @@ const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
   "forceSetPasswordReason",
   {
     deserializer: (reason) => reason,
+    clearOn: ["logout"],
+  },
+);
+
+/** Disk to persist through lock */
+const MASTER_PASSWORD_UNLOCK_KEY = new UserKeyDefinition<MasterPasswordUnlockData>(
+  MASTER_PASSWORD_UNLOCK_DISK,
+  "masterPasswordUnlockKey",
+  {
+    deserializer: (data) => {
+      if (data == null) {
+        return null;
+      }
+      return {
+        salt: data.salt,
+        kdf:
+          data.kdf.kdfType === KdfType.PBKDF2_SHA256
+            ? PBKDF2KdfConfig.fromJSON(data.kdf)
+            : Argon2KdfConfig.fromJSON(data.kdf),
+        masterKeyWrappedUserKey: EncString.fromJSON(
+          data.masterKeyWrappedUserKey,
+        ) as MasterKeyWrappedUserKey,
+      } as MasterPasswordUnlockData;
+    },
     clearOn: ["logout"],
   },
 );
@@ -316,5 +341,17 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       ),
     );
     return userKey as UserKey;
+  }
+
+  async setMasterPasswordUnlockData(
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
+    assertNonNullish(userId, "userId");
+
+    await this.stateProvider
+      .getUser(userId, MASTER_PASSWORD_UNLOCK_KEY)
+      .update(() => masterPasswordUnlockData);
   }
 }
