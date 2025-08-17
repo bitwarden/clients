@@ -33,9 +33,7 @@ export class IdentityTokenResponse extends BaseResponse {
 
   constructor(response: unknown) {
     super(response);
-    if (response == null || typeof response !== "object") {
-      throw new Error("Invalid identity response object");
-    }
+
     const accessToken = this.getResponseProperty("access_token");
     if (accessToken == null || typeof accessToken !== "string") {
       throw new Error("Identity response does not contain a valid access token");
