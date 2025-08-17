@@ -70,7 +70,7 @@ const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
 );
 
 /** Disk to persist through lock */
-const MASTER_PASSWORD_UNLOCK_KEY = new UserKeyDefinition<MasterPasswordUnlockData>(
+export const MASTER_PASSWORD_UNLOCK_KEY = new UserKeyDefinition<MasterPasswordUnlockData>(
   MASTER_PASSWORD_UNLOCK_DISK,
   "masterPasswordUnlockKey",
   {
