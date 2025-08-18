@@ -160,7 +160,7 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
    * This data is used to unlock the user key with the master password.
    * @param masterPasswordUnlockData The master password unlock data containing the KDF settings, salt, and encrypted user key.
    * @param userId The user ID.
-   * @throws If the user ID or data is missing.
+   * @throws Error If the user ID or master password unlock data is missing.
    */
   abstract setMasterPasswordUnlockData(
     masterPasswordUnlockData: MasterPasswordUnlockData,
