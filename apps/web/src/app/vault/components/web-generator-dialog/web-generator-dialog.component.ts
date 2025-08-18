@@ -1,11 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
@@ -20,15 +27,16 @@ export interface WebVaultGeneratorDialogResult {
   generatedValue?: string;
 }
 
-export enum WebVaultGeneratorDialogAction {
-  Selected = "selected",
-  Canceled = "canceled",
-}
+export const WebVaultGeneratorDialogAction = {
+  Selected: "selected",
+  Canceled: "canceled",
+} as const;
+
+type WebVaultGeneratorDialogAction = UnionOfValues<typeof WebVaultGeneratorDialogAction>;
 
 @Component({
   selector: "web-vault-generator-dialog",
   templateUrl: "./web-generator-dialog.component.html",
-  standalone: true,
   imports: [CommonModule, CipherFormGeneratorComponent, ButtonModule, DialogModule, I18nPipe],
 })
 export class WebVaultGeneratorDialogComponent {

@@ -1,6 +1,7 @@
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
+
+import { DIALOG_DATA } from "@bitwarden/components";
 
 import { SecretService } from "../secret.service";
 
@@ -11,6 +12,7 @@ export interface SecretViewDialogParams {
 
 @Component({
   templateUrl: "./secret-view-dialog.component.html",
+  standalone: false,
 })
 export class SecretViewDialogComponent implements OnInit {
   protected loading = true;

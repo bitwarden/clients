@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
@@ -33,11 +32,17 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import {
   GroupApiService,
@@ -59,6 +64,8 @@ import { commaSeparatedEmails } from "./validators/comma-separated-emails.valida
 import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
 import { orgSeatLimitReachedValidator } from "./validators/org-seat-limit-reached.validator";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum MemberDialogTab {
   Role = 0,
   Groups = 1,
@@ -87,6 +94,8 @@ export interface EditMemberDialogParams extends CommonMemberDialogParams {
 
 export type MemberDialogParams = EditMemberDialogParams | AddMemberDialogParams;
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum MemberDialogResult {
   Saved = "saved",
   Canceled = "canceled",
@@ -97,6 +106,7 @@ export enum MemberDialogResult {
 
 @Component({
   templateUrl: "member-dialog.component.html",
+  standalone: false,
 })
 export class MemberDialogComponent implements OnDestroy {
   loading = true;
@@ -120,6 +130,7 @@ export class MemberDialogComponent implements OnDestroy {
     emails: [""],
     type: OrganizationUserType.User,
     externalId: this.formBuilder.control({ value: "", disabled: true }),
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
@@ -146,15 +157,19 @@ export class MemberDialogComponent implements OnDestroy {
     manageResetPassword: false,
   });
 
-  protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.AccountDeprovisioning,
-  );
+  get isExternalIdVisible(): boolean {
+    return !!this.formGroup.get("externalId")?.value;
+  }
 
-  private destroy$ = new Subject<void>();
+  get isSsoExternalIdVisible(): boolean {
+    return !!this.formGroup.get("ssoExternalId")?.value;
+  }
 
   get customUserTypeSelected(): boolean {
     return this.formGroup.value.type === OrganizationUserType.Custom;
   }
+
+  private destroy$ = new Subject<void>();
 
   isEditDialogParams(
     params: EditMemberDialogParams | AddMemberDialogParams,
@@ -262,9 +277,16 @@ export class MemberDialogComponent implements OnDestroy {
       ),
     );
 
+    const collections = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
+      ),
+    );
+
     combineLatest({
       organization: this.organization$,
-      collections: this.collectionAdminService.getAll(this.params.organizationId),
+      collections,
       userDetails: userDetails$,
       groups: groups$,
     })
@@ -397,6 +419,7 @@ export class MemberDialogComponent implements OnDestroy {
     this.formGroup.patchValue({
       type: userDetails.type,
       externalId: userDetails.externalId,
+      ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
       accessSecretsManager: userDetails.accessSecretsManager,
       groups: groupAccessSelections,
@@ -435,22 +458,6 @@ export class MemberDialogComponent implements OnDestroy {
     };
 
     return Object.assign(p, partialPermissions);
-  }
-
-  handleDependentPermissions() {
-    // Manage Password Reset (Account Recovery) must have Manage Users enabled
-    if (
-      this.permissionsGroup.value.manageResetPassword &&
-      !this.permissionsGroup.value.manageUsers
-    ) {
-      this.permissionsGroup.value.manageUsers = true;
-      (document.getElementById("manageUsers") as HTMLInputElement).checked = true;
-      this.toastService.showToast({
-        variant: "info",
-        title: null,
-        message: this.i18nService.t("accountRecoveryManageUsers"),
-      });
-    }
   }
 
   submit = async () => {
@@ -644,11 +651,9 @@ export class MemberDialogComponent implements OnDestroy {
     const showWarningDialog = combineLatest([
       this.organization$,
       this.deleteManagedMemberWarningService.warningAcknowledged(this.params.organizationId),
-      this.accountDeprovisioningEnabled$,
     ]).pipe(
       map(
-        ([organization, acknowledged, featureFlagEnabled]) =>
-          featureFlagEnabled &&
+        ([organization, acknowledged]) =>
           organization.canManageUsers &&
           organization.productTierType === ProductTierType.Enterprise &&
           !acknowledged,
@@ -691,9 +696,8 @@ export class MemberDialogComponent implements OnDestroy {
       message: this.i18nService.t("organizationUserDeleted", this.params.name),
     });
 
-    if (await firstValueFrom(this.accountDeprovisioningEnabled$)) {
-      await this.deleteManagedMemberWarningService.acknowledgeWarning(this.params.organizationId);
-    }
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.params.organizationId);
+
     this.close(MemberDialogResult.Deleted);
   };
 

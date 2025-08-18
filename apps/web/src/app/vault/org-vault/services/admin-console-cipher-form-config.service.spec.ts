@@ -1,5 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionAdminService, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -38,7 +38,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     status: OrganizationUserStatusType.Confirmed,
     userId: "UserId",
   };
-  const policyAppliesToActiveUser$ = new BehaviorSubject<boolean>(true);
+  const policyAppliesToUser$ = new BehaviorSubject<boolean>(true);
   const collection = {
     id: "12345-5555",
     organizationId: "234534-34334",
@@ -71,11 +71,11 @@ describe("AdminConsoleCipherFormConfigService", () => {
         { provide: OrganizationService, useValue: { organizations$: () => orgs$ } },
         {
           provide: CollectionAdminService,
-          useValue: { getAll: () => Promise.resolve([collection, collection2]) },
+          useValue: { collectionAdminViews$: () => of([collection, collection2]) },
         },
         {
           provide: PolicyService,
-          useValue: { policyAppliesToActiveUser$: () => policyAppliesToActiveUser$ },
+          useValue: { policyAppliesToUser$: () => policyAppliesToUser$ },
         },
         {
           provide: RoutedVaultFilterService,
@@ -128,34 +128,34 @@ describe("AdminConsoleCipherFormConfigService", () => {
       expect(result.admin).toBe(true);
     });
 
-    it("sets `allowPersonalOwnership`", async () => {
-      policyAppliesToActiveUser$.next(true);
+    it("sets `organizationDataOwnershipDisabled`", async () => {
+      policyAppliesToUser$.next(true);
 
       let result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(false);
+      expect(result.organizationDataOwnershipDisabled).toBe(false);
 
-      policyAppliesToActiveUser$.next(false);
+      policyAppliesToUser$.next(false);
 
       result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(true);
+      expect(result.organizationDataOwnershipDisabled).toBe(true);
     });
 
     it("disables personal ownership when not cloning", async () => {
-      policyAppliesToActiveUser$.next(false);
+      policyAppliesToUser$.next(false);
 
       let result = await adminConsoleConfigService.buildConfig("add", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(false);
+      expect(result.organizationDataOwnershipDisabled).toBe(false);
 
       result = await adminConsoleConfigService.buildConfig("edit", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(false);
+      expect(result.organizationDataOwnershipDisabled).toBe(false);
 
       result = await adminConsoleConfigService.buildConfig("clone", cipherId);
 
-      expect(result.allowPersonalOwnership).toBe(true);
+      expect(result.organizationDataOwnershipDisabled).toBe(true);
     });
 
     it("returns all ciphers when cloning a cipher", async () => {

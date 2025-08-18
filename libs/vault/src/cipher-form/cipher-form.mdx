@@ -12,6 +12,9 @@ It is configured via a `CipherFormConfig` object that is passed to the component
 create it. A default implementation of the `CipherFormConfigService` exists in the
 `@bitwarden/vault` library.
 
+The cipher form has a slot for `attachment-button`, which should be included when the form is in
+`edit` mode.
+
 <Primary />
 
 <Controls include={["config", "submitBtn"]} />

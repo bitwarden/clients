@@ -20,16 +20,19 @@ import { isPaidOrgGuard } from "./is-paid-org.guard";
 
 @Component({
   template: "<h1>This is the home screen!</h1>",
+  standalone: false,
 })
 export class HomescreenComponent {}
 
 @Component({
   template: "<h1>This component can only be accessed by a paid organization!</h1>",
+  standalone: false,
 })
 export class PaidOrganizationOnlyComponent {}
 
 @Component({
   template: "<h1>This is the organization upgrade screen!</h1>",
+  standalone: false,
 })
 export class OrganizationUpgradeScreenComponent {}
 

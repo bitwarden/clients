@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 import {
   FocusedFieldData,
   NewCardCipherData,
@@ -24,7 +25,7 @@ import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/aut
 import {
   AutofillOverlayElement,
   InlineMenuAccountCreationFieldType,
-  InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -48,7 +49,6 @@ import {
 import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  InlineMenuFormFieldData,
   SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -95,6 +95,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     destroyAutofillInlineMenuListeners: () => this.destroy(),
     getInlineMenuFormFieldData: ({ message }) =>
       this.handleGetInlineMenuFormFieldDataMessage(message),
+    generatedPasswordModifyLogin: () => this.sendGeneratedPasswordModifyLogin(),
   };
   private readonly loginFieldQualifiers: Record<string, CallableFunction> = {
     [AutofillFieldQualifier.username]: this.inlineMenuFieldQualificationService.isUsernameField,
@@ -234,6 +235,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       }
     });
   }
+
+  /**
+   * On password generation, send form field data i.e. modified login data
+   */
+  sendGeneratedPasswordModifyLogin = async () => {
+    await this.sendExtensionMessage("generatedPasswordFilled", this.getFormFieldData());
+  };
 
   /**
    * Formats any found user filled fields for a login cipher and sends a message
@@ -637,7 +645,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Returns the form field data used for add login and change password notifications.
    */
-  private getFormFieldData = (): InlineMenuFormFieldData => {
+  private getFormFieldData = (): ModifyLoginCipherFormData => {
     return {
       uri: globalThis.document.URL,
       username: this.userFilledFields["username"]?.value || "",
@@ -789,11 +797,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (!autofillFieldData.fieldQualifier) {
       switch (autofillFieldData.inlineMenuFillType) {
         case CipherType.Login:
-        case InlineMenuFillType.CurrentPasswordUpdate:
+        case InlineMenuFillTypes.CurrentPasswordUpdate:
           this.qualifyUserFilledField(autofillFieldData, this.loginFieldQualifiers);
           break;
-        case InlineMenuFillType.AccountCreationUsername:
-        case InlineMenuFillType.PasswordGeneration:
+        case InlineMenuFillTypes.AccountCreationUsername:
+        case InlineMenuFillTypes.PasswordGeneration:
           this.qualifyUserFilledField(autofillFieldData, this.accountCreationFieldQualifiers);
           break;
         case CipherType.Card:
@@ -840,7 +848,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    const clonedNode = formFieldElement.cloneNode() as FillableFormFieldElement;
+    const clonedNode = formFieldElement.cloneNode(true) as FillableFormFieldElement;
     const identityLoginFields: AutofillFieldQualifierType[] = [
       AutofillFieldQualifier.identityUsername,
       AutofillFieldQualifier.identityEmail,
@@ -1106,18 +1114,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private setQualifiedAccountCreationFillType(autofillFieldData: AutofillField) {
     if (this.inlineMenuFieldQualificationService.isNewPasswordField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
       this.qualifyAccountCreationFieldType(autofillFieldData);
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isUpdateCurrentPasswordField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.CurrentPasswordUpdate;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.AccountCreationUsername;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.AccountCreationUsername;
       this.qualifyAccountCreationFieldType(autofillFieldData);
     }
   }
@@ -1128,6 +1136,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private qualifyAccountCreationFieldType(autofillFieldData: AutofillField) {
+    if (this.inlineMenuFieldQualificationService.isTotpField(autofillFieldData)) {
+      autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Totp;
+      return;
+    }
+
     if (!this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
       autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Password;
       return;

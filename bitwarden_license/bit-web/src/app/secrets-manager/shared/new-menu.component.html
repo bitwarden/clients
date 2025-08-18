@@ -1,11 +1,11 @@
 <button type="button" bitButton buttonType="primary" [bitMenuTriggerFor]="newMenu">
-  <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+  <i class="bwi bwi-plus" aria-hidden="true"></i>
   {{ "new" | i18n }}<i class="bwi tw-ml-2" aria-hidden="true"></i>
 </button>
 
 <bit-menu #newMenu>
   <button type="button" bitMenuItem (click)="openProjectDialog()">
-    <i class="bwi bwi-fw bwi-sitemap" aria-hidden="true"></i>
+    <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
     {{ "project" | i18n }}
   </button>
   <button type="button" bitMenuItem (click)="openSecretDialog()">

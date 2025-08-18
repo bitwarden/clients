@@ -1,8 +1,7 @@
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
 
 export type VerifyNativeMessagingDialogData = {
   applicationName: string;
@@ -10,7 +9,6 @@ export type VerifyNativeMessagingDialogData = {
 
 @Component({
   templateUrl: "verify-native-messaging-dialog.component.html",
-  standalone: true,
   imports: [JslibModule, ButtonModule, DialogModule],
 })
 export class VerifyNativeMessagingDialogComponent {

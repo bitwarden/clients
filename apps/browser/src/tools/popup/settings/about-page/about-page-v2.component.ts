@@ -31,7 +31,6 @@ const RateUrls = {
 
 @Component({
   templateUrl: "about-page-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

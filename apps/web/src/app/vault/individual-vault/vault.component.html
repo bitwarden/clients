@@ -37,6 +37,7 @@
       {{ trashCleanupWarning }}
     </bit-callout>
     <app-vault-items
+      #vaultItems
       [ciphers]="ciphers"
       [collections]="collections"
       [allCollections]="allCollections"
@@ -78,16 +79,9 @@
         (click)="addCipher()"
         *ngIf="filter.type !== 'trash'"
       >
-        <i class="bwi bwi-plus-f bwi-fw" aria-hidden="true"></i>
+        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
         {{ "newItem" | i18n }}
       </button>
     </div>
   </div>
 </div>
-
-<ng-template #attachments></ng-template>
-<ng-template #folderAddEdit></ng-template>
-<ng-template #cipherAddEdit></ng-template>
-<ng-template #share></ng-template>
-<ng-template #collectionsModal></ng-template>
-<ng-template #updateKeyTemplate></ng-template>

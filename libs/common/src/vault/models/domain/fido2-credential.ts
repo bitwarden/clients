@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Fido2Credential as SdkFido2Credential } from "@bitwarden/sdk-internal";
+
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 import { Fido2CredentialView } from "../view/fido2-credential.view";
@@ -147,5 +149,56 @@ export class Fido2Credential extends Domain {
       discoverable,
       creationDate,
     });
+  }
+
+  /**
+   *  Maps Fido2Credential to SDK format.
+   *
+   * @returns {SdkFido2Credential} The SDK Fido2Credential object.
+   */
+  toSdkFido2Credential(): SdkFido2Credential {
+    return {
+      credentialId: this.credentialId?.toSdk(),
+      keyType: this.keyType.toSdk(),
+      keyAlgorithm: this.keyAlgorithm.toSdk(),
+      keyCurve: this.keyCurve.toSdk(),
+      keyValue: this.keyValue.toSdk(),
+      rpId: this.rpId.toSdk(),
+      userHandle: this.userHandle?.toSdk(),
+      userName: this.userName?.toSdk(),
+      counter: this.counter.toSdk(),
+      rpName: this.rpName?.toSdk(),
+      userDisplayName: this.userDisplayName?.toSdk(),
+      discoverable: this.discoverable?.toSdk(),
+      creationDate: this.creationDate.toISOString(),
+    };
+  }
+
+  /**
+   * Maps an SDK Fido2Credential object to a Fido2Credential
+   * @param obj - The SDK Fido2Credential object
+   */
+  static fromSdkFido2Credential(obj: SdkFido2Credential): Fido2Credential | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const credential = new Fido2Credential();
+
+    credential.credentialId = EncString.fromJSON(obj.credentialId);
+    credential.keyType = EncString.fromJSON(obj.keyType);
+    credential.keyAlgorithm = EncString.fromJSON(obj.keyAlgorithm);
+    credential.keyCurve = EncString.fromJSON(obj.keyCurve);
+    credential.keyValue = EncString.fromJSON(obj.keyValue);
+    credential.rpId = EncString.fromJSON(obj.rpId);
+    credential.userHandle = EncString.fromJSON(obj.userHandle);
+    credential.userName = EncString.fromJSON(obj.userName);
+    credential.counter = EncString.fromJSON(obj.counter);
+    credential.rpName = EncString.fromJSON(obj.rpName);
+    credential.userDisplayName = EncString.fromJSON(obj.userDisplayName);
+    credential.discoverable = EncString.fromJSON(obj.discoverable);
+    credential.creationDate = new Date(obj.creationDate);
+
+    return credential;
   }
 }

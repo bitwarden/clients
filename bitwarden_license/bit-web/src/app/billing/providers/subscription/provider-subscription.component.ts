@@ -26,6 +26,7 @@ import {
 @Component({
   selector: "app-provider-subscription",
   templateUrl: "./provider-subscription.component.html",
+  standalone: false,
 })
 export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
   private providerId: string;
@@ -35,12 +36,9 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
   protected loading: boolean;
   private destroy$ = new Subject<void>();
   protected totalCost: number;
+  protected managePaymentDetailsOutsideCheckout: boolean;
 
   protected readonly TaxInformation = TaxInformation;
-
-  protected readonly allowProviderPaymentMethod$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM18794_ProviderPaymentMethod,
-  );
 
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
@@ -57,6 +55,9 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (params) => {
           this.providerId = params.providerId;
+          this.managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+            FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+          );
           await this.load();
           this.firstLoaded = true;
         }),
@@ -182,9 +183,8 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
       case PaymentMethodType.Card:
         return ["bwi-credit-card"];
       case PaymentMethodType.BankAccount:
-        return ["bwi-bank"];
       case PaymentMethodType.Check:
-        return ["bwi-money"];
+        return ["bwi-billing"];
       case PaymentMethodType.PayPal:
         return ["bwi-paypal text-primary"];
       default:

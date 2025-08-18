@@ -4,38 +4,21 @@ import "zone.js";
 import "../platform/app/locales";
 
 import { NgModule } from "@angular/core";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { CalloutModule, DialogModule } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
+import { AssignCollectionsComponent } from "@bitwarden/vault";
 
-import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginModule } from "../auth/login/login.module";
-import { RemovePasswordComponent } from "../auth/remove-password.component";
-import { SetPasswordComponent } from "../auth/set-password.component";
-import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorOptionsComponentV1 } from "../auth/two-factor-options-v1.component";
-import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
-import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
-import { AddEditCustomFieldsComponent } from "../vault/app/vault/add-edit-custom-fields.component";
-import { AddEditComponent } from "../vault/app/vault/add-edit.component";
-import { AttachmentsComponent } from "../vault/app/vault/attachments.component";
-import { CollectionsComponent } from "../vault/app/vault/collections.component";
-import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
-import { PasswordHistoryComponent } from "../vault/app/vault/password-history.component";
-import { ShareComponent } from "../vault/app/vault/share.component";
+import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
-import { VaultItemsComponent } from "../vault/app/vault/vault-items.component";
-import { VaultComponent } from "../vault/app/vault/vault.component";
-import { ViewCustomFieldsComponent } from "../vault/app/vault/view-custom-fields.component";
-import { ViewComponent } from "../vault/app/vault/view.component";
+import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 
-import { SettingsComponent } from "./accounts/settings.component";
-import { VaultTimeoutInputComponent } from "./accounts/vault-timeout-input.component";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { UserVerificationComponent } from "./components/user-verification.component";
@@ -47,6 +30,8 @@ import { SharedModule } from "./shared/shared.module";
 
 @NgModule({
   imports: [
+    BrowserAnimationsModule,
+
     SharedModule,
     AppRoutingModule,
     VaultFilterModule,
@@ -55,37 +40,19 @@ import { SharedModule } from "./shared/shared.module";
     CalloutModule,
     DeleteAccountComponent,
     UserVerificationComponent,
-    DecryptionFailureDialogComponent,
     NavComponent,
+    AssignCollectionsComponent,
+    VaultV2Component,
   ],
   declarations: [
-    AccessibilityCookieComponent,
     AccountSwitcherComponent,
-    AddEditComponent,
-    AddEditCustomFieldsComponent,
     AppComponent,
-    AttachmentsComponent,
-    VaultItemsComponent,
-    CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
-    FolderAddEditComponent,
     HeaderComponent,
-    PasswordHistoryComponent,
     PremiumComponent,
     RemovePasswordComponent,
     SearchComponent,
-    SetPasswordComponent,
-    SettingsComponent,
-    ShareComponent,
-    TwoFactorComponentV1,
-    SsoComponentV1,
-    TwoFactorOptionsComponentV1,
-    UpdateTempPasswordComponent,
-    VaultComponent,
-    VaultTimeoutInputComponent,
-    ViewComponent,
-    ViewCustomFieldsComponent,
   ],
   providers: [SshAgentService],
   bootstrap: [AppComponent],

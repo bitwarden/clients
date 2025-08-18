@@ -7,9 +7,12 @@ import {
   map,
   mergeMap,
   Observable,
+  share,
   switchMap,
 } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -66,6 +69,7 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
           map((notification) => [notification, activeAccountId] as const),
         );
       }),
+      share(), // Multiple subscribers should only create a single connection to the server
     );
   }
 
@@ -104,14 +108,19 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         return this.webPushConnectionService.supportStatus$(userId);
       }),
       supportSwitch({
-        supported: (service) =>
-          service.notifications$.pipe(
+        supported: (service) => {
+          this.logService.info("Using WebPush for notifications");
+          return service.notifications$.pipe(
             catchError((err: unknown) => {
               this.logService.warning("Issue with web push, falling back to SignalR", err);
               return this.connectSignalR$(userId, notificationsUrl);
             }),
-          ),
-        notSupported: () => this.connectSignalR$(userId, notificationsUrl),
+          );
+        },
+        notSupported: () => {
+          this.logService.info("Using SignalR for notifications");
+          return this.connectSignalR$(userId, notificationsUrl);
+        },
       }),
     );
   }
@@ -123,13 +132,13 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
     );
   }
 
+  // This method name is a lie currently as we also have an access token
+  // when locked, this is eventually where we want to be but it increases load
+  // on signalR so we are rolling back until we can move the load of browser to
+  // web push.
   private hasAccessToken$(userId: UserId) {
     return this.authService.authStatusFor$(userId).pipe(
-      map(
-        (authStatus) =>
-          authStatus === AuthenticationStatus.Locked ||
-          authStatus === AuthenticationStatus.Unlocked,
-      ),
+      map((authStatus) => authStatus === AuthenticationStatus.Unlocked),
       distinctUntilChanged(),
     );
   }
@@ -151,14 +160,14 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         await this.syncService.syncUpsertCipher(
           notification.payload as SyncCipherNotification,
           notification.type === NotificationType.SyncCipherUpdate,
-          payloadUserId,
+          userId,
         );
         break;
       case NotificationType.SyncCipherDelete:
       case NotificationType.SyncLoginDelete:
         await this.syncService.syncDeleteCipher(
           notification.payload as SyncCipherNotification,
-          payloadUserId,
+          userId,
         );
         break;
       case NotificationType.SyncFolderCreate:

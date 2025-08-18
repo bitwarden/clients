@@ -25,8 +25,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
@@ -157,6 +158,7 @@ export class MainContextMenuHandler {
     private logService: LogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   /**
@@ -181,6 +183,10 @@ export class MainContextMenuHandler {
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       );
 
+      const isCardRestricted = (
+        await firstValueFrom(this.restrictedItemTypesService.restricted$)
+      ).some((rt) => rt.cipherType === CipherType.Card);
+
       for (const menuItem of this.initContextMenuItems) {
         const {
           requiresPremiumAccess,
@@ -190,6 +196,9 @@ export class MainContextMenuHandler {
         } = menuItem;
 
         if (requiresPremiumAccess && !hasPremium) {
+          continue;
+        }
+        if (menuItem.id.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {
           continue;
         }
 

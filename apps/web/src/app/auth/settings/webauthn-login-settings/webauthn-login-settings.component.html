@@ -1,24 +1,26 @@
 <h2 bitTypography="h2">
   {{ "logInWithPasskey" | i18n }}
-  <ng-container *ngIf="hasData">
-    <span
-      *ngIf="requireSsoPolicyEnabled"
-      bitBadge
-      variant="secondary"
-      class="tw-max-w-full !tw-align-middle"
-    >
-      {{ "off" | i18n }} - {{ "ssoLoginIsRequired" | i18n }}
-    </span>
-    <ng-container *ngIf="!requireSsoPolicyEnabled">
-      <span *ngIf="hasCredentials" bitBadge variant="success" class="!tw-align-middle">{{
-        "on" | i18n
-      }}</span>
-      <span *ngIf="!hasCredentials" bitBadge variant="secondary" class="!tw-align-middle">{{
-        "off" | i18n
-      }}</span>
+  <span class="tw-inline-flex tw-gap-1 tw-align-middle">
+    <ng-container *ngIf="hasData">
+      <span
+        *ngIf="requireSsoPolicyEnabled"
+        bitBadge
+        variant="secondary"
+        class="tw-max-w-full !tw-align-middle"
+      >
+        {{ "off" | i18n }} - {{ "ssoLoginIsRequired" | i18n }}
+      </span>
+      <ng-container *ngIf="!requireSsoPolicyEnabled">
+        <span *ngIf="hasCredentials" bitBadge variant="success" class="!tw-align-middle">
+          {{ "on" | i18n }}
+        </span>
+        <span *ngIf="!hasCredentials" bitBadge variant="secondary" class="!tw-align-middle">
+          {{ "off" | i18n }}
+        </span>
+      </ng-container>
     </ng-container>
-  </ng-container>
-  <span bitBadge variant="warning" class="!tw-align-middle">{{ "beta" | i18n }}</span>
+    <span bitBadge variant="warning" class="!tw-align-middle">{{ "beta" | i18n }}</span>
+  </span>
   <ng-container *ngIf="loading">
     <i class="bwi bwi-spinner bwi-spin tw-ml-1" aria-hidden="true"></i>
   </ng-container>

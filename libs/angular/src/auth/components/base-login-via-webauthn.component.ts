@@ -4,9 +4,10 @@ import { Directive, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -21,7 +22,6 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
   protected currentState: State = "assert";
 
   protected successRoute = "/vault";
-  protected forcePasswordResetRoute = "/update-temp-password";
 
   constructor(
     private webAuthnLoginService: WebAuthnLoginServiceAbstraction,
@@ -71,11 +71,6 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
       const userKey = await firstValueFrom(this.keyService.userKey$(authResult.userId));
       if (userKey) {
         await this.loginSuccessHandlerService.run(authResult.userId);
-      }
-
-      if (authResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
-        await this.router.navigate([this.forcePasswordResetRoute]);
-        return;
       }
 
       await this.router.navigate([this.successRoute]);

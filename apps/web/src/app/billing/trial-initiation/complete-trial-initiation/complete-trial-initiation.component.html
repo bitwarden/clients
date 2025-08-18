@@ -1,85 +1,106 @@
-<div *ngIf="!useTrialStepper">
-  <auth-input-password
-    [email]="email"
-    [masterPasswordPolicyOptions]="enforcedPolicyOptions"
-    (onPasswordFormSubmit)="handlePasswordSubmit($event)"
-    [buttonText]="'createAccount' | i18n"
-  ></auth-input-password>
-</div>
-<div *ngIf="useTrialStepper">
-  <app-vertical-stepper #stepper linear (selectionChange)="verticalStepChange($event)">
-    <app-vertical-step label="Create Account" [editable]="false" [subLabel]="email">
-      <auth-input-password
-        [email]="email"
-        [masterPasswordPolicyOptions]="enforcedPolicyOptions"
-        (onPasswordFormSubmit)="handlePasswordSubmit($event)"
-        [buttonText]="'createAccount' | i18n"
-      ></auth-input-password>
-    </app-vertical-step>
-    <app-vertical-step label="Organization Information" [subLabel]="orgInfoSubLabel">
-      <app-org-info [nameOnly]="true" [formGroup]="orgInfoFormGroup"></app-org-info>
-      <button
-        type="button"
-        bitButton
-        buttonType="primary"
-        [disabled]="orgInfoFormGroup.controls.name.invalid"
-        [loading]="loading && (trialPaymentOptional$ | async)"
-        (click)="orgNameEntrySubmit()"
-      >
-        {{ (trialPaymentOptional$ | async) ? ("startTrial" | i18n) : ("next" | i18n) }}
-      </button>
-    </app-vertical-step>
-    <app-vertical-step
-      label="Billing"
-      [subLabel]="billingSubLabel"
-      *ngIf="!(trialPaymentOptional$ | async) && !isSecretsManagerFree"
-    >
-      <app-trial-billing-step
-        *ngIf="stepper.selectedIndex === 2"
-        [organizationInfo]="{
-          name: orgInfoFormGroup.value.name,
-          email: orgInfoFormGroup.value.billingEmail,
-          type: trialOrganizationType,
-        }"
-        [subscriptionProduct]="
-          product === ProductType.SecretsManager
-            ? SubscriptionProduct.SecretsManager
-            : SubscriptionProduct.PasswordManager
-        "
-        (steppedBack)="previousStep()"
-        (organizationCreated)="createdOrganization($event)"
-      >
-      </app-trial-billing-step>
-    </app-vertical-step>
-    <app-vertical-step label="Confirmation Details" [applyBorder]="false">
-      <app-trial-confirmation-details
-        [email]="email"
-        [orgLabel]="orgLabel"
-        [product]="this.product"
-      ></app-trial-confirmation-details>
-      <div class="tw-mb-3 tw-flex">
-        <a
+@if (initializing) {
+  <div class="tw-flex tw-items-center tw-justify-center">
+    <i
+      class="bwi bwi-spinner bwi-spin bwi-3x tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </div>
+} @else {
+  <div *ngIf="!useTrialStepper">
+    <auth-input-password
+      [flow]="inputPasswordFlow"
+      [email]="email"
+      [loading]="submitting"
+      [masterPasswordPolicyOptions]="enforcedPolicyOptions"
+      (onPasswordFormSubmit)="handlePasswordSubmit($event)"
+      [primaryButtonText]="{ key: 'createAccount' }"
+    ></auth-input-password>
+  </div>
+  <div *ngIf="useTrialStepper">
+    <app-vertical-stepper #stepper linear (selectionChange)="verticalStepChange($event)">
+      <app-vertical-step label="Create Account" [editable]="false" [subLabel]="email">
+        <auth-input-password
+          [flow]="inputPasswordFlow"
+          [email]="email"
+          [loading]="submitting"
+          [masterPasswordPolicyOptions]="enforcedPolicyOptions"
+          (onPasswordFormSubmit)="handlePasswordSubmit($event)"
+          [primaryButtonText]="{ key: 'createAccount' }"
+        ></auth-input-password>
+      </app-vertical-step>
+      <app-vertical-step label="Organization Information" [subLabel]="orgInfoSubLabel">
+        <app-org-info [nameOnly]="true" [formGroup]="orgInfoFormGroup"></app-org-info>
+        <button
           type="button"
           bitButton
           buttonType="primary"
-          [routerLink]="
+          [disabled]="orgInfoFormGroup.controls.name.invalid"
+          [loading]="loading && (trialPaymentOptional$ | async)"
+          (click)="orgNameEntrySubmit()"
+        >
+          {{
+            (trialPaymentOptional$ | async) && trialLength > 0
+              ? ("startTrial" | i18n)
+              : ("next" | i18n)
+          }}
+        </button>
+      </app-vertical-step>
+      <app-vertical-step
+        label="Billing"
+        [subLabel]="billingSubLabel"
+        *ngIf="showBillingStep$ | async"
+      >
+        <app-trial-billing-step
+          *ngIf="stepper.selectedIndex === 2"
+          [organizationInfo]="{
+            name: orgInfoFormGroup.value.name,
+            email: orgInfoFormGroup.value.billingEmail,
+            type: trialOrganizationType,
+          }"
+          [subscriptionProduct]="
             product === ProductType.SecretsManager
-              ? ['/sm', orgId]
-              : ['/organizations', orgId, 'vault']
+              ? SubscriptionProduct.SecretsManager
+              : SubscriptionProduct.PasswordManager
           "
+          [trialLength]="trialLength"
+          (steppedBack)="previousStep()"
+          (organizationCreated)="createdOrganization($event)"
         >
-          {{ "getStarted" | i18n | titlecase }}
-        </a>
-        <a
-          type="button"
-          bitButton
-          buttonType="secondary"
-          [routerLink]="['/organizations', orgId, 'members']"
-          class="tw-ml-3 tw-inline-flex tw-items-center tw-px-3"
-        >
-          {{ "inviteUsers" | i18n }}
-        </a>
-      </div>
-    </app-vertical-step>
-  </app-vertical-stepper>
-</div>
+        </app-trial-billing-step>
+      </app-vertical-step>
+      <app-vertical-step label="Confirmation Details" [applyBorder]="false">
+        <app-trial-confirmation-details
+          [email]="email"
+          [orgLabel]="orgLabel"
+          [product]="this.product"
+          [trialLength]="trialLength"
+        ></app-trial-confirmation-details>
+        <div class="tw-mb-3 tw-flex">
+          <a
+            type="button"
+            bitButton
+            buttonType="primary"
+            [routerLink]="
+              product === ProductType.SecretsManager
+                ? ['/sm', orgId]
+                : ['/organizations', orgId, 'vault']
+            "
+          >
+            {{ "getStarted" | i18n | titlecase }}
+          </a>
+          <a
+            type="button"
+            bitButton
+            buttonType="secondary"
+            [routerLink]="['/organizations', orgId, 'members']"
+            class="tw-ml-3 tw-inline-flex tw-items-center tw-px-3"
+          >
+            {{ "inviteUsers" | i18n }}
+          </a>
+        </div>
+      </app-vertical-step>
+    </app-vertical-stepper>
+  </div>
+}

@@ -1,9 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { combineLatest, firstValueFrom, from, map, Observable, of, switchMap } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionAdminService, CollectionService } from "../abstractions";
@@ -26,37 +27,26 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     private collectionService: CollectionService,
   ) {}
 
-  async getAll(organizationId: string): Promise<CollectionAdminView[]> {
-    const collectionResponse =
-      await this.apiService.getManyCollectionsWithAccessDetails(organizationId);
+  collectionAdminViews$(organizationId: string, userId: UserId): Observable<CollectionAdminView[]> {
+    return combineLatest([
+      this.keyService.orgKeys$(userId),
+      from(this.apiService.getManyCollectionsWithAccessDetails(organizationId)),
+    ]).pipe(
+      switchMap(([orgKeys, res]) => {
+        if (res?.data == null || res.data.length === 0) {
+          return of([]);
+        }
+        if (orgKeys == null) {
+          throw new Error("No org keys found.");
+        }
 
-    if (collectionResponse?.data == null || collectionResponse.data.length === 0) {
-      return [];
-    }
-
-    return await this.decryptMany(organizationId, collectionResponse.data);
-  }
-
-  async get(
-    organizationId: string,
-    collectionId: string,
-  ): Promise<CollectionAdminView | undefined> {
-    const collectionResponse = await this.apiService.getCollectionAccessDetails(
-      organizationId,
-      collectionId,
+        return this.decryptMany(organizationId, res.data, orgKeys);
+      }),
     );
-
-    if (collectionResponse == null) {
-      return undefined;
-    }
-
-    const [view] = await this.decryptMany(organizationId, [collectionResponse]);
-
-    return view;
   }
 
-  async save(collection: CollectionAdminView): Promise<CollectionDetailsResponse> {
-    const request = await this.encrypt(collection);
+  async save(collection: CollectionAdminView, userId: UserId): Promise<CollectionDetailsResponse> {
+    const request = await this.encrypt(collection, userId);
 
     let response: CollectionDetailsResponse;
     if (collection.id == null) {
@@ -71,9 +61,9 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     }
 
     if (response.assigned) {
-      await this.collectionService.upsert(new CollectionData(response));
+      await this.collectionService.upsert(new CollectionData(response), userId);
     } else {
-      await this.collectionService.delete(collection.id);
+      await this.collectionService.delete([collection.id as CollectionId], userId);
     }
 
     return response;
@@ -110,52 +100,68 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
   private async decryptMany(
     organizationId: string,
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
+    orgKeys: Record<OrganizationId, OrgKey>,
   ): Promise<CollectionAdminView[]> {
-    const orgKey = await this.keyService.getOrgKey(organizationId);
-
     const promises = collections.map(async (c) => {
-      const view = new CollectionAdminView();
-      view.id = c.id;
-      view.name = await this.encryptService.decryptToUtf8(new EncString(c.name), orgKey);
-      view.externalId = c.externalId;
-      view.organizationId = c.organizationId;
-
       if (isCollectionAccessDetailsResponse(c)) {
-        view.groups = c.groups;
-        view.users = c.users;
-        view.assigned = c.assigned;
-        view.readOnly = c.readOnly;
-        view.hidePasswords = c.hidePasswords;
-        view.manage = c.manage;
-        view.unmanaged = c.unmanaged;
+        return CollectionAdminView.fromCollectionAccessDetails(
+          c,
+          this.encryptService,
+          orgKeys[organizationId as OrganizationId],
+        );
       }
 
-      return view;
+      return await CollectionAdminView.fromCollectionResponse(
+        c,
+        this.encryptService,
+        orgKeys[organizationId as OrganizationId],
+      );
     });
 
     return await Promise.all(promises);
   }
 
-  private async encrypt(model: CollectionAdminView): Promise<CollectionRequest> {
-    if (model.organizationId == null) {
+  private async encrypt(model: CollectionAdminView, userId: UserId): Promise<CollectionRequest> {
+    if (!model.organizationId) {
       throw new Error("Collection has no organization id.");
     }
-    const key = await this.keyService.getOrgKey(model.organizationId);
-    if (key == null) {
-      throw new Error("No key for this collection's organization.");
-    }
-    const collection = new CollectionRequest();
-    collection.externalId = model.externalId;
-    collection.name = (await this.encryptService.encrypt(model.name, key)).encryptedString;
-    collection.groups = model.groups.map(
+
+    const key = await firstValueFrom(
+      this.keyService.orgKeys$(userId).pipe(
+        map((orgKeys) => {
+          if (!orgKeys) {
+            throw new Error("No keys for the provided userId.");
+          }
+
+          const key = orgKeys[model.organizationId];
+
+          if (key == null) {
+            throw new Error("No key for this collection's organization.");
+          }
+
+          return key;
+        }),
+      ),
+    );
+
+    const groups = model.groups.map(
       (group) =>
         new SelectionReadOnlyRequest(group.id, group.readOnly, group.hidePasswords, group.manage),
     );
-    collection.users = model.users.map(
+
+    const users = model.users.map(
       (user) =>
         new SelectionReadOnlyRequest(user.id, user.readOnly, user.hidePasswords, user.manage),
     );
-    return collection;
+
+    const collectionRequest = new CollectionRequest({
+      name: await this.encryptService.encryptString(model.name, key),
+      externalId: model.externalId,
+      users,
+      groups,
+    });
+
+    return collectionRequest;
   }
 }
 

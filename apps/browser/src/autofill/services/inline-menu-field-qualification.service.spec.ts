@@ -17,7 +17,6 @@ describe("InlineMenuFieldQualificationService", () => {
       fields: [],
     });
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
-    inlineMenuFieldQualificationService["inlineMenuFieldQualificationFlagSet"] = true;
   });
 
   describe("isFieldForLoginForm", () => {

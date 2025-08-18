@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -11,6 +10,8 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogService,
@@ -34,6 +35,8 @@ export interface SendItemDialogParams {
   disableForm?: boolean;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum SendItemDialogResult {
   /**
    * A Send was saved (created or updated).
@@ -51,7 +54,6 @@ export enum SendItemDialogResult {
  */
 @Component({
   templateUrl: "send-add-edit-dialog.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SearchModule,

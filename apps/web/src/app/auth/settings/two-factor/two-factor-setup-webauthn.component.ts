@@ -1,9 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { CommonModule } from "@angular/common";
 import { Component, Inject, NgZone } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -18,7 +17,21 @@ import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  FormFieldModule,
+  LinkModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-base.component";
 
@@ -33,24 +46,35 @@ interface Key {
 @Component({
   selector: "app-two-factor-setup-webauthn",
   templateUrl: "two-factor-setup-webauthn.component.html",
+  imports: [
+    AsyncActionsModule,
+    ButtonModule,
+    CalloutModule,
+    CommonModule,
+    DialogModule,
+    FormFieldModule,
+    I18nPipe,
+    JslibModule,
+    LinkModule,
+    ReactiveFormsModule,
+    TypographyModule,
+  ],
 })
 export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseComponent {
   type = TwoFactorProviderType.WebAuthn;
-  name: string;
-  keys: Key[];
-  keyIdAvailable: number = null;
+  name: string = "";
+  keys: Key[] = [];
+  keyIdAvailable: number | null = null;
   keysConfiguredCount = 0;
-  webAuthnError: boolean;
-  webAuthnListening: boolean;
-  webAuthnResponse: PublicKeyCredential;
-  challengePromise: Promise<ChallengeResponse>;
-  formPromise: Promise<TwoFactorWebAuthnResponse>;
+  webAuthnError: boolean = false;
+  webAuthnListening: boolean = false;
+  webAuthnResponse: PublicKeyCredential | null = null;
+  challengePromise: Promise<ChallengeResponse> | undefined;
+  formPromise: Promise<TwoFactorWebAuthnResponse> | undefined;
 
   override componentName = "app-two-factor-webauthn";
 
-  protected formGroup = new FormGroup({
-    name: new FormControl({ value: "", disabled: !this.keyIdAvailable }),
-  });
+  protected formGroup: FormGroup;
 
   constructor(
     @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorWebAuthnResponse>,
@@ -73,6 +97,9 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       dialogService,
       toastService,
     );
+    this.formGroup = new FormGroup({
+      name: new FormControl({ value: "", disabled: false }),
+    });
     this.auth(data);
   }
 
@@ -91,9 +118,14 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
 
   protected async enable() {
     const request = await this.buildRequestModel(UpdateTwoFactorWebAuthnRequest);
+
+    if (this.webAuthnResponse == undefined || this.keyIdAvailable == undefined) {
+      throw new Error("WebAuthn response or key ID is missing");
+    }
+
     request.deviceResponse = this.webAuthnResponse;
     request.id = this.keyIdAvailable;
-    request.name = this.formGroup.value.name;
+    request.name = this.formGroup.value.name || "";
 
     const response = await this.apiService.putTwoFactorWebAuthn(request);
     this.processResponse(response);
@@ -159,10 +191,10 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       .create({
         publicKey: webAuthnChallenge,
       })
-      .then((data: PublicKeyCredential) => {
+      .then((data) => {
         this.ngZone.run(() => {
           this.webAuthnListening = false;
-          this.webAuthnResponse = data;
+          this.webAuthnResponse = data as PublicKeyCredential;
         });
       })
       .catch((err) => {
@@ -184,8 +216,11 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.resetWebAuthn();
     this.keys = [];
     this.keyIdAvailable = null;
-    this.formGroup.get("name").enable();
-    this.formGroup.get("name").setValue(null);
+    const nameControl = this.formGroup.get("name");
+    if (nameControl) {
+      nameControl.enable();
+      nameControl.setValue("");
+    }
     this.keysConfiguredCount = 0;
     for (let i = 1; i <= 5; i++) {
       if (response.keys != null) {
@@ -202,7 +237,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
           continue;
         }
       }
-      this.keys.push({ id: i, name: null, configured: false, removePromise: null });
+      this.keys.push({ id: i, name: "", configured: false, removePromise: null });
       if (this.keyIdAvailable == null) {
         this.keyIdAvailable = i;
       }
@@ -215,6 +250,9 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     dialogService: DialogService,
     config: DialogConfig<AuthResponse<TwoFactorWebAuthnResponse>>,
   ) {
-    return dialogService.open<boolean>(TwoFactorSetupWebAuthnComponent, config);
+    return dialogService.open<boolean, AuthResponse<TwoFactorWebAuthnResponse>>(
+      TwoFactorSetupWebAuthnComponent,
+      config as DialogConfig<AuthResponse<TwoFactorWebAuthnResponse>, DialogRef<boolean>>,
+    );
   }
 }

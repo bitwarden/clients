@@ -15,7 +15,6 @@ import { DrawerComponent } from "./drawer.component";
  **/
 @Directive({
   selector: "button[bitDrawerClose]",
-  standalone: true,
   host: {
     "(click)": "onClick()",
   },

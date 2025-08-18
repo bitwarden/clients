@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -6,6 +5,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
@@ -21,7 +21,6 @@ import {
 @Component({
   selector: "vault-cipher-form-generator",
   template: "",
-  standalone: true,
 })
 class MockCipherFormGenerator {
   @Input() type: "password" | "username" = "password";

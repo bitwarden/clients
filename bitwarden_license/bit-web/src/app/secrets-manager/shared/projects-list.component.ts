@@ -13,6 +13,7 @@ import { ProjectListView } from "../models/view/project-list.view";
 @Component({
   selector: "sm-projects-list",
   templateUrl: "./projects-list.component.html",
+  standalone: false,
 })
 export class ProjectsListComponent {
   @Input()

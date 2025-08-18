@@ -1,7 +1,14 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 export class ExportHelper {
-  static getFileName(prefix: string = null, extension = "csv"): string {
+  static getFileName(prefix: string = "", format = "csv"): string {
+    if (format === "encrypted_json") {
+      if (prefix == "") {
+        prefix = "encrypted";
+      } else {
+        prefix = "encrypted_" + prefix;
+      }
+      format = "json";
+    }
+
     const now = new Date();
     const dateString =
       now.getFullYear() +
@@ -14,7 +21,7 @@ export class ExportHelper {
       this.padNumber(now.getMinutes(), 2) +
       this.padNumber(now.getSeconds(), 2);
 
-    return "bitwarden" + (prefix ? "_" + prefix : "") + "_export_" + dateString + "." + extension;
+    return "bitwarden" + (prefix ? "_" + prefix : "") + "_export_" + dateString + "." + format;
   }
 
   private static padNumber(num: number, width: number, padCharacter = "0"): string {

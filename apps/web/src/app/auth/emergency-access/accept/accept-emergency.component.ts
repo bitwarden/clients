@@ -13,7 +13,6 @@ import { EmergencyAccessModule } from "../emergency-access.module";
 import { EmergencyAccessService } from "../services/emergency-access.service";
 
 @Component({
-  standalone: true,
   imports: [SharedModule, EmergencyAccessModule],
   templateUrl: "accept-emergency.component.html",
 })

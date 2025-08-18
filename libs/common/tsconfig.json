@@ -1,15 +1,5 @@
 {
-  "extends": "../shared/tsconfig",
-  "compilerOptions": {
-    "paths": {
-      "@bitwarden/admin-console/common": ["../admin-console/src/common"],
-      "@bitwarden/auth/common": ["../auth/src/common"],
-      // TODO: Remove once circular dependencies in admin-console, auth and key-management are resolved
-      "@bitwarden/common/*": ["../common/src/*"],
-      "@bitwarden/key-management": ["../key-management/src"],
-      "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"]
-    }
-  },
+  "extends": "../../tsconfig.base",
   "include": ["src", "spec", "./custom-matchers.d.ts", "../key-management/src/index.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,8 +1,14 @@
 <popup-page>
   <popup-header slot="header" [pageTitle]="'folders' | i18n" showBackButton>
     <ng-container slot="end">
-      <button bitButton buttonType="primary" type="button" (click)="openAddEditFolderDialog()">
-        <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+      <button
+        bitButton
+        size="small"
+        buttonType="primary"
+        type="button"
+        (click)="openAddEditFolderDialog()"
+      >
+        <i class="bwi bwi-plus" aria-hidden="true"></i>
         {{ "new" | i18n }}
       </button>
       <app-pop-out></app-pop-out>
@@ -41,7 +47,7 @@
           (click)="openAddEditFolderDialog()"
           data-testid="empty-new-folder-button"
         >
-          <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+          <i class="bwi bwi-plus" aria-hidden="true"></i>
           {{ "newFolder" | i18n }}
         </button>
       </bit-no-items>

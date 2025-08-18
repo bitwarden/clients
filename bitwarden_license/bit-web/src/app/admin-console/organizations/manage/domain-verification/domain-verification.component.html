@@ -4,12 +4,8 @@
   </button>
 </app-header>
 
-<p
-  bitTypography="body1"
-  class="tw-text-main tw-w-2/5"
-  *ngIf="accountDeprovisioningEnabled$ | async"
->
-  {{ "claimedDomainsDesc" | i18n }}
+<p bitTypography="body1" class="tw-text-main tw-max-w-4xl">
+  {{ "claimedDomainsDescription" | i18n }}
   <a
     bitLink
     target="_blank"
@@ -58,16 +54,10 @@
             </td>
             <td bitCell>
               <span *ngIf="!orgDomain?.verifiedDate" bitBadge variant="warning">{{
-                ((accountDeprovisioningEnabled$ | async)
-                  ? "domainStatusUnderVerification"
-                  : "domainStatusUnverified"
-                ) | i18n
+                "domainStatusUnderVerification" | i18n
               }}</span>
               <span *ngIf="orgDomain?.verifiedDate" bitBadge variant="success">{{
-                ((accountDeprovisioningEnabled$ | async)
-                  ? "domainStatusClaimed"
-                  : "domainStatusVerified"
-                ) | i18n
+                "domainStatusClaimed" | i18n
               }}</span>
             </td>
             <td bitCell class="tw-text-muted">
@@ -94,10 +84,7 @@
                   type="button"
                 >
                   <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-                  {{
-                    ((accountDeprovisioningEnabled$ | async) ? "claimDomain" : "verifyDomain")
-                      | i18n
-                  }}
+                  {{ "claimDomain" | i18n }}
                 </button>
                 <button bitMenuItem (click)="deleteDomain(orgDomain.id)" type="button">
                   <span class="tw-text-danger">

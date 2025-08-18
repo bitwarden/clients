@@ -144,17 +144,17 @@ export const border = {
 export const typography = {
   body1: `
     line-height: 24px;
-    font-family: "DM Sans", sans-serif;
+    font-family: Roboto, sans-serif;
     font-size: 16px;
   `,
   body2: `
     line-height: 20px;
-    font-family: "DM Sans", sans-serif;
+    font-family: Roboto, sans-serif;
     font-size: 14px;
   `,
   helperMedium: `
     line-height: 16px;
-    font-family: "DM Sans", sans-serif;
+    font-family: Roboto, sans-serif;
     font-size: 12px;
   `,
 };
@@ -174,14 +174,28 @@ export const buildIconColorRule = (color: string, rule: RuleName = ruleNames.fil
   ${rule}: ${color};
 `;
 
-export function scrollbarStyles(theme: Theme) {
+export const animations = {
+  spin: `
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(359deg);
+    }
+  `,
+};
+
+export function scrollbarStyles(theme: Theme, color?: { thumb?: string; track?: string }) {
+  const thumbColor = color?.thumb || themes[theme].secondary["500"];
+  const trackColor = color?.track || themes[theme].background.alt;
+
   return {
+    /* FireFox & Chrome support */
     default: `
-      /* FireFox & Chrome support */
-      scrollbar-color: ${themes[theme].secondary["500"]} ${themes[theme].background.alt};
+      scrollbar-color: ${thumbColor} ${trackColor};
     `,
+    /* Safari Support */
     safari: `
-      /* Safari Support */
       ::-webkit-scrollbar {
         overflow: auto;
       }
@@ -191,10 +205,10 @@ export function scrollbarStyles(theme: Theme) {
         border-radius: 0.5rem;
         border-color: transparent;
         background-clip: content-box;
-        background-color: ${themes[theme].secondary["500"]};
+        background-color: ${thumbColor};
       }
       ::-webkit-scrollbar-track {
-        ${themes[theme].background.alt};
+        ${trackColor};
       }
       ::-webkit-scrollbar-thumb:hover {
         ${themes[theme].secondary["600"]};

@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+
 import { ColorPasswordComponent } from "./color-password.component";
 
 const examplePassword = "Wq$Jk😀7j  DX#rS5Sdi!z ";
@@ -25,7 +27,7 @@ export const ColorPassword: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-color-password class="tw-text-base" [password]="password" [showCount]="showCount"></bit-color-password>
+      <bit-color-password ${formatArgsForCodeSnippet<ColorPasswordComponent>(args)}></bit-color-password>
     `,
   }),
 };
@@ -35,7 +37,7 @@ export const WrappedColorPassword: Story = {
     props: args,
     template: `
       <div class="tw-max-w-32">
-        <bit-color-password class="tw-text-base" [password]="password" [showCount]="showCount"></bit-color-password>
+        <bit-color-password ${formatArgsForCodeSnippet<ColorPasswordComponent>(args)}></bit-color-password>
       </div>
     `,
   }),

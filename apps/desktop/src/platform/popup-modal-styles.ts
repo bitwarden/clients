@@ -6,10 +6,11 @@ import { WindowState } from "./models/domain/window-state";
 const popupWidth = 680;
 const popupHeight = 500;
 
-export function applyPopupModalStyles(window: BrowserWindow) {
+type Position = { x: number; y: number };
+
+export function applyPopupModalStyles(window: BrowserWindow, position?: Position) {
   window.unmaximize();
   window.setSize(popupWidth, popupHeight);
-  window.center();
   window.setWindowButtonVisibility?.(false);
   window.setMenuBarVisibility?.(false);
   window.setResizable(false);
@@ -20,8 +21,21 @@ export function applyPopupModalStyles(window: BrowserWindow) {
     window.setFullScreen(false);
     window.once("leave-full-screen", () => {
       window.setSize(popupWidth, popupHeight);
-      window.center();
+      positionWindow(window, position);
     });
+  } else {
+    // If not in full screen
+    positionWindow(window, position);
+  }
+}
+
+function positionWindow(window: BrowserWindow, position?: Position) {
+  if (position) {
+    const centeredX = position.x - popupWidth / 2;
+    const centeredY = position.y - popupHeight / 2;
+    window.setPosition(centeredX, centeredY);
+  } else {
+    window.center();
   }
 }
 

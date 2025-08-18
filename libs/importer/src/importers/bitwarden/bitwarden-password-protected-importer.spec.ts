@@ -1,8 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -92,7 +92,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
     });
 
     it("succeeds with default jdoc", async () => {
-      encryptService.decryptToUtf8.mockReturnValue(Promise.resolve(emptyUnencryptedExport));
+      encryptService.decryptString.mockReturnValue(Promise.resolve(emptyUnencryptedExport));
 
       expect((await importer.parse(JSON.stringify(jDoc))).success).toEqual(true);
     });

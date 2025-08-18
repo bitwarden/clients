@@ -50,7 +50,7 @@ async function unauthGuard(
   const tdeEnabled = await firstValueFrom(
     deviceTrustService.supportsDeviceTrustByUserId$(activeUser.id),
   );
-  const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$);
+  const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(activeUser.id));
 
   // If locked, TDE is enabled, and the user hasn't decrypted yet, then redirect to the
   // login decryption options component.

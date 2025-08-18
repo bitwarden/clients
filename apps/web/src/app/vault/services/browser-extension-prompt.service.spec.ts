@@ -1,9 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 
 import {
   BrowserExtensionPromptService,
@@ -68,7 +68,9 @@ describe("BrowserExtensionPromptService", () => {
       );
 
       expect(window.postMessage).toHaveBeenCalledTimes(2);
-      expect(window.postMessage).toHaveBeenCalledWith({ command: VaultMessages.OpenPopup });
+      expect(window.postMessage).toHaveBeenCalledWith({
+        command: VaultMessages.OpenAtRiskPasswords,
+      });
     });
   });
 
@@ -167,6 +169,33 @@ describe("BrowserExtensionPromptService", () => {
     it("sets error state after timeout", () => {
       expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
         pageTitle: { key: "somethingWentWrong" },
+      });
+    });
+
+    it("sets manual open state when open extension is called", (done) => {
+      service.openExtension(true);
+
+      jest.advanceTimersByTime(1000);
+
+      service.pageState$.subscribe((state) => {
+        expect(state).toBe(BrowserPromptState.ManualOpen);
+        done();
+      });
+    });
+
+    it("shows success state when extension auto opens", (done) => {
+      service.openExtension(true);
+
+      jest.advanceTimersByTime(500); // don't let timeout occur
+
+      window.dispatchEvent(
+        new MessageEvent("message", { data: { command: VaultMessages.PopupOpened } }),
+      );
+
+      service.pageState$.subscribe((state) => {
+        expect(state).toBe(BrowserPromptState.Success);
+        expect(service["extensionCheckTimeout"]).toBeUndefined();
+        done();
       });
     });
   });

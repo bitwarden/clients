@@ -26,6 +26,7 @@ type ComponentData = {
 @Component({
   selector: "app-provider-subscription-status",
   templateUrl: "provider-subscription-status.component.html",
+  standalone: false,
 })
 export class ProviderSubscriptionStatusComponent {
   @Input({ required: true }) subscription: ProviderSubscriptionResponse;
@@ -39,8 +40,8 @@ export class ProviderSubscriptionStatusComponent {
     switch (this.subscription.providerType) {
       case ProviderType.Msp:
         return "managedServiceProvider";
-      case ProviderType.MultiOrganizationEnterprise:
-        return "multiOrganizationEnterprise";
+      case ProviderType.BusinessUnit:
+        return "businessUnit";
     }
   }
 
@@ -65,6 +66,18 @@ export class ProviderSubscriptionStatusComponent {
           status: {
             label: defaultStatusLabel,
             value: this.i18nService.t("active"),
+          },
+          date: {
+            label: nextChargeDateLabel,
+            value: this.subscription.currentPeriodEndDate,
+          },
+        };
+      }
+      case "trialing": {
+        return {
+          status: {
+            label: defaultStatusLabel,
+            value: this.i18nService.t("trial"),
           },
           date: {
             label: nextChargeDateLabel,
@@ -145,7 +158,7 @@ export class ProviderSubscriptionStatusComponent {
       }
       case "incomplete_expired":
       case "canceled": {
-        const canceledText = this.i18nService.t("canceled");
+        const canceledText = this.i18nService.t("providersubscriptionCanceled");
         return {
           status: {
             label: defaultStatusLabel,
@@ -158,7 +171,7 @@ export class ProviderSubscriptionStatusComponent {
           callout: {
             severity: "danger",
             header: canceledText,
-            body: this.i18nService.t("subscriptionCanceled"),
+            body: this.i18nService.t("providersubCanceledmessage"),
           },
         };
       }

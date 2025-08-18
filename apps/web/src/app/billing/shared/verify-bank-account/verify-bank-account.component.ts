@@ -10,7 +10,6 @@ import { SharedModule } from "../../../shared";
 @Component({
   selector: "app-verify-bank-account",
   templateUrl: "./verify-bank-account.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class VerifyBankAccountComponent {

@@ -17,8 +17,11 @@ import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { BiometricsCommands } from "@bitwarden/key-management";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import {
   closeUnlockPopout,
   openSsoAuthResultPopout,
@@ -45,7 +48,7 @@ export default class RuntimeBackground {
     private platformUtilsService: BrowserPlatformUtilsService,
     private notificationsService: NotificationsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    private processReloadSerivce: ProcessReloadServiceAbstraction,
+    private processReloadService: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
@@ -78,8 +81,8 @@ export default class RuntimeBackground {
         BiometricsCommands.GetBiometricsStatus,
         BiometricsCommands.UnlockWithBiometricsForUser,
         BiometricsCommands.GetBiometricsStatusForUser,
+        BiometricsCommands.CanEnableBiometricUnlock,
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
-        "getInlineMenuFieldQualificationFeatureFlag",
         "getUserPremiumStatus",
       ];
 
@@ -201,13 +204,13 @@ export default class RuntimeBackground {
       case BiometricsCommands.GetBiometricsStatusForUser: {
         return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
       }
+      case BiometricsCommands.CanEnableBiometricUnlock: {
+        return await this.main.biometricsService.canEnableBiometricUnlock();
+      }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(
           FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
         );
-      }
-      case "getInlineMenuFieldQualificationFeatureFlag": {
-        return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
       }
       case "getUserPremiumStatus": {
         const activeUserId = await firstValueFrom(
@@ -238,7 +241,7 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        this.processReloadSerivce.cancelProcessReload();
+        this.processReloadService.cancelProcessReload();
 
         if (item) {
           await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
@@ -253,7 +256,6 @@ export default class RuntimeBackground {
         // @TODO these need to happen last to avoid blocking `tabSendMessageData` above
         // The underlying cause exists within `cipherService.getAllDecrypted` via
         // `getAllDecryptedForUrl` and is anticipated to be refactored
-        await this.main.refreshBadge();
         await this.main.refreshMenu(false);
 
         await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
@@ -277,7 +279,6 @@ export default class RuntimeBackground {
       case "syncCompleted":
         if (msg.successfully) {
           setTimeout(async () => {
-            await this.main.refreshBadge();
             await this.main.refreshMenu();
           }, 2000);
           await this.configService.ensureConfigFetched();
@@ -289,11 +290,18 @@ export default class RuntimeBackground {
       case "openPopup":
         await this.openPopup();
         break;
+      case VaultMessages.OpenAtRiskPasswords:
+        await this.main.openAtRisksPasswordsPage();
+        this.announcePopupOpen();
+        break;
+      case VaultMessages.OpenBrowserExtensionToUrl:
+        await this.main.openTheExtensionToPage(msg.url);
+        this.announcePopupOpen();
+        break;
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":
       case "deletedCipher":
-        await this.main.refreshBadge();
         await this.main.refreshMenu();
         break;
       case "bgReseedStorage": {
@@ -418,24 +426,6 @@ export default class RuntimeBackground {
 
   private async openPopup() {
     await this.main.openPopup();
-
-    const announcePopupOpen = async () => {
-      const isOpen = await this.platformUtilsService.isViewOpen();
-      const tabs = await this.getBwTabs();
-
-      if (isOpen && tabs.length > 0) {
-        // Send message to all vault tabs that the extension has opened
-        for (const tab of tabs) {
-          await BrowserApi.executeScriptInTab(tab.id, {
-            file: "content/send-popup-open-message.js",
-            runAt: "document_end",
-          });
-        }
-      }
-    };
-
-    // Give the popup a buffer to open
-    setTimeout(announcePopupOpen, 100);
   }
 
   async sendBwInstalledMessageToVault() {
@@ -455,5 +445,26 @@ export default class RuntimeBackground {
     } catch (e) {
       this.logService.error(`Error sending on installed message to vault: ${e}`);
     }
+  }
+
+  /** Sends a message to each tab that the popup was opened */
+  private announcePopupOpen() {
+    const announceToAllTabs = async () => {
+      const isOpen = await this.platformUtilsService.isViewOpen();
+      const tabs = await this.getBwTabs();
+
+      if (isOpen && tabs.length > 0) {
+        // Send message to all vault tabs that the extension has opened
+        for (const tab of tabs) {
+          await BrowserApi.executeScriptInTab(tab.id, {
+            file: "content/send-popup-open-message.js",
+            runAt: "document_end",
+          });
+        }
+      }
+    };
+
+    // Give the popup a buffer to complete opening
+    setTimeout(announceToAllTabs, 100);
   }
 }

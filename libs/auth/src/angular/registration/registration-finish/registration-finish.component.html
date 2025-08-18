@@ -5,8 +5,9 @@
 <auth-input-password
   *ngIf="!loading"
   [email]="email"
+  [flow]="inputPasswordFlow"
   [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
   [loading]="submitting"
+  [primaryButtonText]="{ key: 'createAccount' }"
   (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
-  [buttonText]="'createAccount' | i18n"
 ></auth-input-password>

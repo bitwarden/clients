@@ -1,11 +1,17 @@
 #[macro_use]
 extern crate napi_derive;
 
+mod passkey_authenticator_internal;
 mod registry;
 
 #[napi]
 pub mod passwords {
+    /// The error message returned when a password is not found during retrieval or deletion.
+    #[napi]
+    pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
+
     /// Fetch the stored password from the keychain.
+    /// Throws {@link Error} with message {@link PASSWORD_NOT_FOUND} if the password does not exist.
     #[napi]
     pub async fn get_password(service: String, account: String) -> napi::Result<String> {
         desktop_core::password::get_password(&service, &account)
@@ -26,6 +32,7 @@ pub mod passwords {
     }
 
     /// Delete the stored password from the keychain.
+    /// Throws {@link Error} with message {@link PASSWORD_NOT_FOUND} if the password does not exist.
     #[napi]
     pub async fn delete_password(service: String, account: String) -> napi::Result<()> {
         desktop_core::password::delete_password(&service, &account)
@@ -33,7 +40,7 @@ pub mod passwords {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
-    // Checks if the os secure storage is available
+    /// Checks if the os secure storage is available
     #[napi]
     pub async fn is_available() -> napi::Result<bool> {
         desktop_core::password::is_available()
@@ -83,6 +90,8 @@ pub mod biometrics {
         .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
+    /// Retrieves the biometric secret for the given service and account.
+    /// Throws Error with message [`passwords::PASSWORD_NOT_FOUND`] if the secret does not exist.
     #[napi]
     pub async fn get_biometric_secret(
         service: String,
@@ -157,6 +166,7 @@ pub mod clipboards {
 pub mod sshagent {
     use std::sync::Arc;
 
+    use desktop_core::ssh_agent::BitwardenSshKey;
     use napi::{
         bindgen_prelude::Promise,
         threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
@@ -165,7 +175,7 @@ pub mod sshagent {
 
     #[napi]
     pub struct SshAgentState {
-        state: desktop_core::ssh_agent::BitwardenDesktopAgent,
+        state: desktop_core::ssh_agent::BitwardenDesktopAgent<BitwardenSshKey>,
     }
 
     #[napi(object)]
@@ -228,7 +238,7 @@ pub mod sshagent {
                                     .expect("should be able to send auth response to agent");
                             }
                             Err(e) => {
-                                println!("[SSH Agent Native Module] calling UI callback promise was rejected: {}", e);
+                                println!("[SSH Agent Native Module] calling UI callback promise was rejected: {e}");
                                 let _ = auth_response_tx_arc
                                     .lock()
                                     .await
@@ -237,7 +247,7 @@ pub mod sshagent {
                             }
                         },
                         Err(e) => {
-                            println!("[SSH Agent Native Module] calling UI callback could not create promise: {}", e);
+                            println!("[SSH Agent Native Module] calling UI callback could not create promise: {e}");
                             let _ = auth_response_tx_arc
                                 .lock()
                                 .await
@@ -477,6 +487,16 @@ pub mod ipc {
 }
 
 #[napi]
+pub mod autostart {
+    #[napi]
+    pub async fn set_autostart(autostart: bool, params: Vec<String>) -> napi::Result<()> {
+        desktop_core::autostart::set_autostart(autostart, params)
+            .await
+            .map_err(|e| napi::Error::from_reason(format!("Error setting autostart - {e} - {e:?}")))
+    }
+}
+
+#[napi]
 pub mod autofill {
     use desktop_core::ipc::server::{Message, MessageType};
     use napi::threadsafe_function::{
@@ -518,6 +538,14 @@ pub mod autofill {
     #[napi(object)]
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
+    pub struct Position {
+        pub x: i32,
+        pub y: i32,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct PasskeyRegistrationRequest {
         pub rp_id: String,
         pub user_name: String,
@@ -525,6 +553,7 @@ pub mod autofill {
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
         pub supported_algorithms: Vec<i32>,
+        pub window_xy: Position,
     }
 
     #[napi(object)]
@@ -542,12 +571,25 @@ pub mod autofill {
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyAssertionRequest {
         pub rp_id: String,
+        pub client_data_hash: Vec<u8>,
+        pub user_verification: UserVerification,
+        pub allowed_credentials: Vec<Vec<u8>>,
+        pub window_xy: Position,
+        //extension_input: Vec<u8>, TODO: Implement support for extensions
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeyAssertionWithoutUserInterfaceRequest {
+        pub rp_id: String,
         pub credential_id: Vec<u8>,
         pub user_name: String,
         pub user_handle: Vec<u8>,
         pub record_identifier: Option<String>,
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
+        pub window_xy: Position,
     }
 
     #[napi(object)]
@@ -592,6 +634,13 @@ pub mod autofill {
                 (u32, u32, PasskeyAssertionRequest),
                 ErrorStrategy::CalleeHandled,
             >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
+            )]
+            assertion_without_user_interface_callback: ThreadsafeFunction<
+                (u32, u32, PasskeyAssertionWithoutUserInterfaceRequest),
+                ErrorStrategy::CalleeHandled,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -620,6 +669,25 @@ pub mod autofill {
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(e) => {
+                                    println!("[ERROR] Error deserializing message1: {e}");
+                                }
+                            }
+
+                            match serde_json::from_str::<
+                                PasskeyMessage<PasskeyAssertionWithoutUserInterfaceRequest>,
+                            >(&message)
+                            {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+
+                                    assertion_without_user_interface_callback
                                         .call(value, ThreadsafeFunctionCallMode::NonBlocking);
                                     continue;
                                 }
@@ -731,20 +799,88 @@ pub mod autofill {
 }
 
 #[napi]
-pub mod crypto {
-    use napi::bindgen_prelude::Buffer;
+pub mod passkey_authenticator {
+    #[napi]
+    pub fn register() -> napi::Result<()> {
+        crate::passkey_authenticator_internal::register().map_err(|e| {
+            napi::Error::from_reason(format!("Passkey registration failed - Error: {e} - {e:?}"))
+        })
+    }
+}
+
+#[napi]
+pub mod logging {
+    use log::{Level, Metadata, Record};
+    use napi::threadsafe_function::{
+        ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+    };
+    use std::sync::OnceLock;
+    struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
+    static JS_LOGGER: JsLogger = JsLogger(OnceLock::new());
 
     #[napi]
-    pub async fn argon2(
-        secret: Buffer,
-        salt: Buffer,
-        iterations: u32,
-        memory: u32,
-        parallelism: u32,
-    ) -> napi::Result<Buffer> {
-        desktop_core::crypto::argon2(&secret, &salt, iterations, memory, parallelism)
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
-            .map(|v| v.to_vec())
-            .map(Buffer::from)
+    pub enum LogLevel {
+        Trace,
+        Debug,
+        Info,
+        Warn,
+        Error,
+    }
+
+    impl From<Level> for LogLevel {
+        fn from(level: Level) -> Self {
+            match level {
+                Level::Trace => LogLevel::Trace,
+                Level::Debug => LogLevel::Debug,
+                Level::Info => LogLevel::Info,
+                Level::Warn => LogLevel::Warn,
+                Level::Error => LogLevel::Error,
+            }
+        }
+    }
+
+    #[napi]
+    pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
+        let _ = JS_LOGGER.0.set(js_log_fn);
+        let _ = log::set_logger(&JS_LOGGER);
+        log::set_max_level(log::LevelFilter::Debug);
+    }
+
+    impl log::Log for JsLogger {
+        fn enabled(&self, metadata: &Metadata) -> bool {
+            metadata.level() <= log::max_level()
+        }
+
+        fn log(&self, record: &Record) {
+            if !self.enabled(record.metadata()) {
+                return;
+            }
+            let Some(logger) = self.0.get() else {
+                return;
+            };
+            let msg = (record.level().into(), record.args().to_string());
+            let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
+        }
+
+        fn flush(&self) {}
+    }
+}
+
+#[napi]
+pub mod autotype {
+    #[napi]
+    pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
+        autotype::get_foreground_window_title().map_err(|_| {
+            napi::Error::from_reason(
+                "Autotype Error: failed to get foreground window title".to_string(),
+            )
+        })
+    }
+
+    #[napi]
+    pub fn type_input(input: Vec<u16>) -> napi::Result<(), napi::Status> {
+        autotype::type_input(input).map_err(|_| {
+            napi::Error::from_reason("Autotype Error: failed to type input".to_string())
+        })
     }
 }

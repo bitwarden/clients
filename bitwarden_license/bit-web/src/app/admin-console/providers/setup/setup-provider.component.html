@@ -1,9 +1,13 @@
-<div class="mt-5 d-flex justify-content-center" *ngIf="loading">
+<div class="tw-mt-12 tw-flex tw-justify-center" *ngIf="loading">
   <div>
-    <img class="mb-4 logo logo-themed" alt="Bitwarden" />
-    <p class="text-center">
+    <bit-icon
+      class="tw-w-72 tw-block tw-mb-4"
+      [icon]="logo"
+      [ariaLabel]="'appLogoLabel' | i18n"
+    ></bit-icon>
+    <p class="tw-text-center">
       <i
-        class="bwi bwi-spinner bwi-spin bwi-2x text-muted"
+        class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>
@@ -11,25 +15,15 @@
     </p>
   </div>
 </div>
-<div class="container" *ngIf="!loading && !authed">
-  <div class="row justify-content-md-center mt-5">
-    <div class="col-5">
-      <p class="lead text-center mb-4">{{ "setupProvider" | i18n }}</p>
-      <div class="card d-block">
-        <div class="card-body">
-          <p>{{ "setupProviderLoginDesc" | i18n }}</p>
-          <hr />
-          <div class="d-flex">
-            <a
-              routerLink="/login"
-              [queryParams]="{ email: email }"
-              class="btn btn-primary btn-block"
-            >
-              {{ "logIn" | i18n }}
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+<div class="tw-flex tw-flex-row tw-justify-center tw-mt-12" *ngIf="!loading && !authed">
+  <div class="tw-w-[400px] tw-mt-5">
+    <h2 class="tw-flex tw-justify-center tw-mb-4">{{ "setupProvider" | i18n }}</h2>
+    <bit-card>
+      <p>{{ "setupProviderLoginDesc" | i18n }}</p>
+      <hr />
+      <button bitButton type="button" [block]="true" (click)="login()" buttonType="primary">
+        {{ "logIn" | i18n }}
+      </button>
+    </bit-card>
   </div>
 </div>

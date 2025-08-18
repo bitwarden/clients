@@ -24,12 +24,16 @@ import {
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -53,7 +57,6 @@ type CipherAttachmentForm = FormGroup<{
 }>;
 
 @Component({
-  standalone: true,
   selector: "app-cipher-attachments",
   templateUrl: "./cipher-attachments.component.html",
   imports: [
@@ -82,6 +85,12 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   /** The `id` of the cipher in context */
   @Input({ required: true }) cipherId: CipherId;
 
+  /** The organization ID if this cipher belongs to an organization */
+  @Input() organizationId?: OrganizationId;
+
+  /** Denotes if the action is occurring from within the admin console */
+  @Input() admin: boolean = false;
+
   /** An optional submit button, whose loading/disabled state will be tied to the form state. */
   @Input() submitBtn?: ButtonComponent;
 
@@ -91,6 +100,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   /** Emits after a file has been successfully removed */
   @Output() onRemoveSuccess = new EventEmitter<void>();
 
+  organization: Organization;
   cipher: CipherView;
 
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
@@ -108,6 +118,8 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
     private logService: LogService,
     private toastService: ToastService,
     private accountService: AccountService,
+    private apiService: ApiService,
+    private organizationService: OrganizationService,
   ) {
     this.attachmentForm.statusChanges.pipe(takeUntilDestroyed()).subscribe((status) => {
       if (!this.submitBtn) {
@@ -120,10 +132,11 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
 
   async ngOnInit(): Promise<void> {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    this.cipherDomain = await this.cipherService.get(this.cipherId, this.activeUserId);
-    this.cipher = await this.cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, this.activeUserId),
-    );
+    // Get the organization to check admin permissions
+    this.organization = await this.getOrganization();
+    this.cipherDomain = await this.getCipher(this.cipherId);
+
+    this.cipher = await this.cipherService.decrypt(this.cipherDomain, this.activeUserId);
 
     // Update the initial state of the submit button
     if (this.submitBtn) {
@@ -190,12 +203,11 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         this.cipherDomain,
         file,
         this.activeUserId,
+        this.organization?.canEditAllCiphers,
       );
 
       // re-decrypt the cipher to update the attachments
-      this.cipher = await this.cipherDomain.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, this.activeUserId),
-      );
+      this.cipher = await this.cipherService.decrypt(this.cipherDomain, this.activeUserId);
 
       // Reset reactive form and input element
       this.fileInput.nativeElement.value = "";
@@ -222,5 +234,48 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
     }
 
     this.onRemoveSuccess.emit();
+  }
+
+  /**
+   * Gets a cipher using the appropriate method based on user permissions.
+   * If the user doesn't have direct access, but has organization admin access,
+   * it will retrieve the cipher using the admin endpoint.
+   */
+  private async getCipher(id: CipherId): Promise<Cipher | null> {
+    if (id == null) {
+      return null;
+    }
+
+    // First try to get the cipher directly with user permissions
+    const localCipher = await this.cipherService.get(id, this.activeUserId);
+
+    // If we got the cipher or there's no organization context, return the result
+    if (localCipher != null || !this.organizationId) {
+      return localCipher;
+    }
+
+    // Only try the admin API if the user has admin permissions
+    if (this.organization != null && this.organization.canEditAllCiphers) {
+      const cipherResponse = await this.apiService.getCipherAdmin(id);
+      const cipherData = new CipherData(cipherResponse);
+      return new Cipher(cipherData);
+    }
+
+    return null;
+  }
+
+  /**
+   * Gets the organization for the given organization ID
+   */
+  private async getOrganization(): Promise<Organization | null> {
+    if (!this.organizationId) {
+      return null;
+    }
+
+    const organizations = await firstValueFrom(
+      this.organizationService.organizations$(this.activeUserId),
+    );
+
+    return organizations.find((o) => o.id === this.organizationId) || null;
   }
 }

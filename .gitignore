@@ -34,6 +34,9 @@ build
 # Testing
 coverage
 junit.xml
+## The "base" root level folder is expected for some local tests that do
+## comparisons between the current branch and a base branch (usually main)
+base/
 
 # Misc
 *.crx
@@ -48,3 +51,6 @@ storybook-static
 
 # Local app configuration
 apps/**/config/local.json
+
+# Nx
+.nx

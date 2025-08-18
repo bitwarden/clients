@@ -3,12 +3,13 @@
 import { Jsonify } from "type-fest";
 
 import { ProductTierType } from "../../../billing/enums";
+import { OrganizationId } from "../../../types/guid";
 import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 
 export class Organization {
-  id: string;
+  id: OrganizationId;
   name: string;
   status: OrganizationUserStatusType;
 
@@ -28,6 +29,7 @@ export class Organization {
   use2fa: boolean;
   useApi: boolean;
   useSso: boolean;
+  useOrganizationDomains: boolean;
   useKeyConnector: boolean;
   useScim: boolean;
   useCustomPermissions: boolean;
@@ -90,13 +92,15 @@ export class Organization {
    */
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
+  useAdminSponsoredFamilies: boolean;
+  isAdminInitiated: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
       return;
     }
 
-    this.id = obj.id;
+    this.id = obj.id as OrganizationId;
     this.name = obj.name;
     this.status = obj.status;
     this.type = obj.type;
@@ -109,6 +113,7 @@ export class Organization {
     this.use2fa = obj.use2fa;
     this.useApi = obj.useApi;
     this.useSso = obj.useSso;
+    this.useOrganizationDomains = obj.useOrganizationDomains;
     this.useKeyConnector = obj.useKeyConnector;
     this.useScim = obj.useScim;
     this.useCustomPermissions = obj.useCustomPermissions;
@@ -148,6 +153,8 @@ export class Organization {
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
     this.useRiskInsights = obj.useRiskInsights;
+    this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
+    this.isAdminInitiated = obj.isAdminInitiated;
   }
 
   get canAccess() {
@@ -277,7 +284,7 @@ export class Organization {
   }
 
   get canManageDomainVerification() {
-    return (this.isAdmin || this.permissions.manageSso) && this.useSso;
+    return (this.isAdmin || this.permissions.manageSso) && this.useOrganizationDomains;
   }
 
   get canManageScim() {
@@ -331,8 +338,7 @@ export class Organization {
   get hasBillableProvider() {
     return (
       this.hasProvider &&
-      (this.providerType === ProviderType.Msp ||
-        this.providerType === ProviderType.MultiOrganizationEnterprise)
+      (this.providerType === ProviderType.Msp || this.providerType === ProviderType.BusinessUnit)
     );
   }
 

@@ -36,6 +36,8 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DialogService, ToastService } from "@bitwarden/components";
 
 // Value = hours
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum DatePreset {
   OneHour = 1,
   OneDay = 24,
@@ -146,18 +148,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  get isSafari() {
-    return this.platformUtilsService.isSafari();
-  }
-
-  get isDateTimeLocalSupported(): boolean {
-    return !(this.platformUtilsService.isFirefox() || this.platformUtilsService.isSafari());
-  }
-
   async ngOnInit() {
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.DisableSend)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((policyAppliesToActiveUser) => {
         this.disableSend = policyAppliesToActiveUser;
         if (this.disableSend) {
@@ -168,7 +167,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) => this.policyService.getAll$(PolicyType.SendOptions, userId)),
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntil(this.destroy$),
       )

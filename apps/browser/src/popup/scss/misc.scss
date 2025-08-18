@@ -103,16 +103,6 @@ p.lead {
   margin: 0 !important;
 }
 
-.no-vmargin {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-}
-
-.no-vpad {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
 .display-block {
   display: block !important;
 }
@@ -219,12 +209,6 @@ p.lead {
     height: 100%;
     width: 100%;
   }
-}
-
-#hcaptcha_iframe {
-  width: 100%;
-  border: none;
-  transition: height 0.25s linear;
 }
 
 body.linux-webauthn {

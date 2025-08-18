@@ -42,12 +42,14 @@
         {{ "learnMoreAboutApi" | i18n }}
       </a>
     </p>
-    <button type="button" bitButton buttonType="secondary" (click)="viewApiKey()">
-      {{ "viewApiKey" | i18n }}
-    </button>
-    <button type="button" bitButton buttonType="secondary" (click)="rotateApiKey()">
-      {{ "rotateApiKey" | i18n }}
-    </button>
+    <div class="tw-flex tw-gap-2">
+      <button type="button" bitButton buttonType="secondary" (click)="viewApiKey()">
+        {{ "viewApiKey" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="secondary" (click)="rotateApiKey()">
+        {{ "rotateApiKey" | i18n }}
+      </button>
+    </div>
   </ng-container>
   <form
     *ngIf="org && !loading"
@@ -68,8 +70,8 @@
       <bit-label>{{ "limitCollectionDeletionDesc" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitCollectionDeletion" />
     </bit-form-control>
-    <bit-form-control *ngIf="limitItemDeletionFeatureFlagIsEnabled">
-      <bit-label>{{ "limitItemDeletionDesc" | i18n }}</bit-label>
+    <bit-form-control>
+      <bit-label>{{ "limitItemDeletionDescription" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitItemDeletion" />
     </bit-form-control>
     <button
@@ -91,7 +93,4 @@
       {{ "purgeVault" | i18n }}
     </button>
   </app-danger-zone>
-
-  <ng-template #apiKeyTemplate></ng-template>
-  <ng-template #rotateApiKeyTemplate></ng-template>
 </bit-container>

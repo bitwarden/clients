@@ -15,6 +15,7 @@ import { SecretService } from "../secrets/secret.service";
 @Component({
   selector: "sm-secrets-list",
   templateUrl: "./secrets-list.component.html",
+  standalone: false,
 })
 export class SecretsListComponent implements OnDestroy {
   protected dataSource = new TableDataSource<SecretListView>();
@@ -178,23 +179,5 @@ export class SecretsListComponent implements OnDestroy {
       null,
       i18nService.t("valueCopied", i18nService.t("uuid")),
     );
-  }
-
-  /**
-   * TODO: Remove in favor of updating `PlatformUtilsService.copyToClipboard`
-   */
-  private static copyToClipboardAsync(
-    text: Promise<string>,
-    platformUtilsService: PlatformUtilsService,
-  ) {
-    if (platformUtilsService.isSafari()) {
-      return navigator.clipboard.write([
-        new ClipboardItem({
-          ["text/plain"]: text,
-        }),
-      ]);
-    }
-
-    return text.then((t) => platformUtilsService.copyToClipboard(t));
   }
 }

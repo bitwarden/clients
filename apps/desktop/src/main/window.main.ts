@@ -16,7 +16,15 @@ import { BiometricStateService } from "@bitwarden/key-management";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { cleanUserAgent, isDev, isLinux, isMac, isMacAppStore, isWindows } from "../utils";
+import {
+  cleanUserAgent,
+  isDev,
+  isLinux,
+  isMac,
+  isMacAppStore,
+  isSnapStore,
+  isWindows,
+} from "../utils";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
@@ -32,7 +40,7 @@ export class WindowMain {
   session: Electron.Session;
 
   readonly defaultWidth = 950;
-  readonly defaultHeight = 600;
+  readonly defaultHeight = 790;
 
   constructor(
     private biometricStateService: BiometricStateService,
@@ -78,18 +86,19 @@ export class WindowMain {
       }
     });
 
-    this.desktopSettingsService.inModalMode$
+    this.desktopSettingsService.modalMode$
       .pipe(
         pairwise(),
         concatMap(async ([lastValue, newValue]) => {
-          if (lastValue && !newValue) {
+          if (lastValue.isModalModeActive && !newValue.isModalModeActive) {
             // Reset the window state to the main window state
             applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
             // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
             this.win.hide();
-          } else if (!lastValue && newValue) {
+          } else if (!lastValue.isModalModeActive && newValue.isModalModeActive) {
             // Apply the popup modal styles
-            applyPopupModalStyles(this.win);
+            this.logService.info("Applying popup modal styles", newValue.modalPosition);
+            applyPopupModalStyles(this.win, newValue.modalPosition);
             this.win.show();
           }
         }),
@@ -155,9 +164,8 @@ export class WindowMain {
               }
             }
 
-            // this currently breaks the file portal, so should only be used when
-            // no files are needed but security requirements are super high https://github.com/flatpak/xdg-desktop-portal/issues/785
-            if (process.env.EXPERIMENTAL_PREVENT_DEBUGGER_MEMORY_ACCESS === "true") {
+            // this currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
+            if (!isSnapStore()) {
               this.logService.info("Disabling memory dumps in main process");
               try {
                 await processisolations.disableMemoryAccess();
@@ -209,6 +217,35 @@ export class WindowMain {
     }
   }
 
+  // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
+  // Only used for development
+  async loadUrl(targetPath: string, modal: boolean = false) {
+    if (this.win == null || this.win.isDestroyed()) {
+      await this.createWindow("modal-app");
+      return;
+    }
+
+    await this.desktopSettingsService.setModalMode(modal);
+    await this.win.loadURL(
+      url.format({
+        protocol: "file:",
+        //pathname: `${__dirname}/index.html`,
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        hash: targetPath,
+        query: {
+          redirectUrl: targetPath,
+        },
+      }),
+      {
+        userAgent: cleanUserAgent(this.win.webContents.userAgent),
+      },
+    );
+    this.win.once("ready-to-show", () => {
+      this.win.show();
+    });
+  }
+
   /**
    * Creates the main window. The template argument is used to determine the styling of the window and what url will be loaded.
    * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.
@@ -258,15 +295,20 @@ export class WindowMain {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
     });
 
+    // Persist zoom changes immediately when user zooms in/out or resets zoom
+    // We can't depend on higher level web events (like close) to do this
+    // because locking the vault resets window state.
+    this.win.webContents.on("zoom-changed", async () => {
+      const newZoom = this.win.webContents.zoomFactor;
+      this.windowStates[mainWindowSizeKey].zoomFactor = newZoom;
+      await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
+    });
+
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
       this.win.maximize();
     }
 
-    // Show it later since it might need to be maximized.
-    // use once event to avoid flash on unstyled content.
-    this.win.once("ready-to-show", () => {
-      this.win.show();
-    });
+    this.win.show();
 
     if (template === "full-app") {
       // and load the index.html of the app.
@@ -394,9 +436,9 @@ export class WindowMain {
       return;
     }
 
-    const inModalMode = await firstValueFrom(this.desktopSettingsService.inModalMode$);
+    const modalMode = await firstValueFrom(this.desktopSettingsService.modalMode$);
 
-    if (inModalMode) {
+    if (modalMode.isModalModeActive) {
       return;
     }
 

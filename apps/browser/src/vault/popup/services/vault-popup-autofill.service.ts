@@ -4,6 +4,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
+  debounceTime,
   firstValueFrom,
   map,
   Observable,
@@ -35,7 +36,7 @@ import {
 } from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../utils/vault-popout-window";
 
 @Injectable({
@@ -164,6 +165,7 @@ export class VaultPopupAutofillService {
         }),
       );
     }),
+    debounceTime(50),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 

@@ -28,7 +28,7 @@ import {
 } from "../../../autofill/services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 
@@ -125,6 +125,10 @@ describe("VaultPopupAutofillService", () => {
     });
 
     it("should only fetch the current tab once when subscribed to multiple times", async () => {
+      (BrowserApi.getTabFromCurrentWindow as jest.Mock).mockClear();
+
+      service.refreshCurrentTab();
+
       const firstTracked = subscribeTo(service.currentAutofillTab$);
       const secondTracked = subscribeTo(service.currentAutofillTab$);
 
@@ -195,6 +199,7 @@ describe("VaultPopupAutofillService", () => {
 
       // Refresh the current tab so the mockedPageDetails$ are used
       service.refreshCurrentTab();
+      (service as any)._currentPageDetails$ = of(mockPageDetails);
     });
 
     describe("doAutofill()", () => {
@@ -353,7 +358,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should add a URI to the cipher and save with the server", async () => {
-        const mockEncryptedCipher = {} as Cipher;
+        const mockEncryptedCipher = { cipher: {} as Cipher, encryptedFor: mockUserId };
         mockCipherService.encrypt.mockResolvedValue(mockEncryptedCipher);
         const result = await service.doAutofillAndSave(mockCipher);
         expect(result).toBe(true);

@@ -1,6 +1,10 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { testData as TestData } from "../spec-data/keeper-csv/testdata.csv";
+import {
+  testData as TestData,
+  testDataMultiCollection,
+} from "../spec-data/keeper-csv/testdata.csv";
 
 import { KeeperCsvImporter } from "./keeper-csv-importer";
 
@@ -63,7 +67,7 @@ describe("Keeper CSV Importer", () => {
     expect(result != null).toBe(true);
 
     const cipher = result.ciphers.shift();
-    expect(cipher.fields).toBeNull();
+    expect(cipher.fields.length).toBe(0);
 
     const cipher2 = result.ciphers.shift();
     expect(cipher2.fields.length).toBe(2);
@@ -100,7 +104,7 @@ describe("Keeper CSV Importer", () => {
   });
 
   it("should create collections, with subcollections and relationships", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(TestData);
     expect(result != null).toBe(true);
 
@@ -120,5 +124,33 @@ describe("Keeper CSV Importer", () => {
     expect(result.collectionRelationships[0]).toEqual([0, 0]);
     expect(result.collectionRelationships[1]).toEqual([1, 0]);
     expect(result.collectionRelationships[2]).toEqual([2, 1]);
+  });
+
+  it("should create collections tree, with child collections and relationships", async () => {
+    importer.organizationId = Utils.newGuid() as OrganizationId;
+    const result = await importer.parse(testDataMultiCollection);
+    expect(result != null).toBe(true);
+
+    const collections = result.collections;
+    expect(collections).not.toBeNull();
+    expect(collections.length).toBe(3);
+
+    // collection with the cipher
+    const collections1 = collections.shift();
+    expect(collections1.name).toBe("Foo/Baz/Bar");
+
+    //second level collection
+    const collections2 = collections.shift();
+    expect(collections2.name).toBe("Foo/Baz");
+
+    //third level
+    const collections3 = collections.shift();
+    expect(collections3.name).toBe("Foo");
+
+    // [Cipher, Folder]
+    expect(result.collectionRelationships.length).toBe(3);
+    expect(result.collectionRelationships[0]).toEqual([0, 0]);
+    expect(result.collectionRelationships[1]).toEqual([1, 1]);
+    expect(result.collectionRelationships[2]).toEqual([2, 2]);
   });
 });

@@ -4,8 +4,9 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
 import { GeneratorStrategy } from "../abstractions";
-import { DefaultPassphraseGenerationOptions, Policies } from "../data";
+import { DefaultPassphraseGenerationOptions } from "../data";
 import { PasswordRandomizer } from "../engine";
+import { PassphraseGeneratorOptionsEvaluator, passphraseLeastPrivilege } from "../policies";
 import { mapPolicyToEvaluator } from "../rx";
 import { PassphraseGenerationOptions, PassphraseGeneratorPolicy } from "../types";
 import { observe$PerUserId, optionsToEffWordListRequest, sharedStateByUserId } from "../util";
@@ -30,7 +31,16 @@ export class PassphraseGeneratorStrategy
   defaults$ = observe$PerUserId(() => DefaultPassphraseGenerationOptions);
   readonly policy = PolicyType.PasswordGenerator;
   toEvaluator() {
-    return mapPolicyToEvaluator(Policies.Passphrase);
+    return mapPolicyToEvaluator({
+      type: PolicyType.PasswordGenerator,
+      disabledValue: Object.freeze({
+        minNumberWords: 0,
+        capitalize: false,
+        includeNumber: false,
+      }),
+      combine: passphraseLeastPrivilege,
+      createEvaluator: (policy) => new PassphraseGeneratorOptionsEvaluator(policy),
+    });
   }
 
   // algorithm

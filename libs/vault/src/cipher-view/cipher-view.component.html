@@ -3,19 +3,18 @@
     {{ "cardExpiredMessage" | i18n }}
   </bit-callout>
 
-  <ng-container *ngIf="isSecurityTasksEnabled$ | async">
-    <bit-callout
-      *ngIf="cipher?.login.uris.length > 0 && hadPendingChangePasswordTask"
-      type="warning"
-      [title]="''"
-    >
-      <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
-      <a bitLink href="#" (click)="launchChangePassword()">
-        {{ "changeAtRiskPassword" | i18n }}
-        <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
-      </a>
-    </bit-callout>
-  </ng-container>
+  <bit-callout
+    *ngIf="cipher?.login.uris.length > 0 && hadPendingChangePasswordTask"
+    type="warning"
+    [title]="''"
+  >
+    <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
+    <a bitLink href="#" appStopClick (click)="launchChangePassword()">
+      {{ "changeAtRiskPassword" | i18n }}
+      <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+    </a>
+  </bit-callout>
+
   <!-- HELPER TEXT -->
   <p
     class="tw-text-sm tw-text-muted"
@@ -40,9 +39,7 @@
     *ngIf="hasLogin"
     [cipher]="cipher"
     [activeUserId]="activeUserId$ | async"
-    [hadPendingChangePasswordTask]="
-      hadPendingChangePasswordTask && (isSecurityTasksEnabled$ | async)
-    "
+    [hadPendingChangePasswordTask]="hadPendingChangePasswordTask"
     (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
 
@@ -70,13 +67,18 @@
   </ng-container>
 
   <!-- CUSTOM FIELDS -->
-  <ng-container *ngIf="cipher.fields">
+  <ng-container *ngIf="cipher.hasFields">
     <app-custom-fields-v2 [cipher]="cipher"> </app-custom-fields-v2>
   </ng-container>
 
   <!-- ATTACHMENTS SECTION -->
-  <ng-container *ngIf="cipher.attachments">
-    <app-attachments-v2-view [cipher]="cipher"> </app-attachments-v2-view>
+  <ng-container *ngIf="cipher.hasAttachments">
+    <app-attachments-v2-view
+      [emergencyAccessId]="emergencyAccessId"
+      [cipher]="cipher"
+      [admin]="isAdminConsole"
+    >
+    </app-attachments-v2-view>
   </ng-container>
 
   <!-- ITEM HISTORY SECTION -->

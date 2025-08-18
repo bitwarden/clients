@@ -5,32 +5,31 @@
   <div class="tw-max-w-screen-sm tw-mx-auto">
     <nav>
       <ul class="tw-flex tw-flex-1 tw-mb-0 tw-p-0">
-        <li *ngFor="let button of navButtons" class="tw-flex-1 tw-list-none">
+        <li *ngFor="let button of navButtons" class="tw-flex-1 tw-list-none tw-relative">
           <button
-            class="tw-w-full tw-flex tw-flex-col tw-items-center tw-gap-1 tw-px-0.5 tw-pb-2 bit-compact:tw-pb-1 tw-pt-3 bit-compact:tw-pt-2 tw-text-sm tw-bg-transparent tw-no-underline hover:tw-no-underline hover:tw-text-primary-600 hover:tw-bg-primary-100 tw-border-2 tw-border-solid tw-border-transparent focus-visible:tw-rounded-lg focus-visible:tw-border-primary-600"
+            class="tw-w-full tw-flex tw-flex-col tw-items-center tw-px-0.5 tw-py-2 bit-compact:tw-py-1 tw-bg-transparent tw-no-underline hover:tw-no-underline hover:tw-text-primary-600 tw-group/tab-nav-btn hover:tw-bg-hover-default tw-border-2 tw-border-solid tw-border-transparent focus-visible:tw-rounded-lg focus-visible:tw-border-primary-600"
             [ngClass]="rla.isActive ? 'tw-font-bold tw-text-primary-600' : 'tw-text-muted'"
             title="{{ button.label | i18n }}"
             [routerLink]="button.page"
+            [appA11yTitle]="buttonTitle(button)"
             routerLinkActive
             #rla="routerLinkActive"
             ariaCurrentWhenActive="page"
             type="button"
             role="link"
           >
-            <i
-              *ngIf="!rla.isActive"
-              class="bwi bwi-lg bwi-{{ button.iconKey }}"
+            <bit-icon
+              [icon]="rla.isActive ? button.iconActive : button.icon"
               aria-hidden="true"
-            ></i>
-            <i
-              *ngIf="rla.isActive"
-              class="bwi bwi-lg bwi-{{ button.iconKeyActive }}"
-              aria-hidden="true"
-            ></i>
-            <span class="tw-truncate tw-max-w-full">
+              class="tw-leading-3"
+            ></bit-icon>
+            <span class="tw-text-sm tw-truncate tw-max-w-full">
               {{ button.label | i18n }}
             </span>
           </button>
+          <div *ngIf="button.showBerry" class="tw-absolute tw-top-1.5 tw-left-[calc(50%+5px)]">
+            <div class="tw-bg-notification-600 tw-size-2.5 tw-rounded-full"></div>
+          </div>
         </li>
       </ul>
     </nav>

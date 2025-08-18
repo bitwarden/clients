@@ -1,4 +1,5 @@
-import { CredentialGenerator, GeneratorDependencyProvider } from "../types";
+import { GeneratorDependencyProvider } from "../providers";
+import { CredentialGenerator } from "../types";
 
 import { AlgorithmMetadata } from "./algorithm-metadata";
 import { Profile } from "./data";

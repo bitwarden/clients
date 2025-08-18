@@ -25,6 +25,7 @@ import { TaxInfoComponent } from "../../shared/tax-info.component";
 
 @Component({
   templateUrl: "./premium.component.html",
+  standalone: false,
 })
 export class PremiumComponent {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;

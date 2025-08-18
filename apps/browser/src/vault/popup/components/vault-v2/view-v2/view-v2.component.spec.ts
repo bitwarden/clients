@@ -1,7 +1,7 @@
 import { ComponentFixture, fakeAsync, flush, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { Subject } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -20,14 +20,14 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+import { CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 
@@ -51,6 +51,8 @@ describe("ViewV2Component", () => {
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
   const stop = jest.fn();
   const showToast = jest.fn();
+  const showPasswordPrompt = jest.fn().mockResolvedValue(true);
+  const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
 
   const mockCipher = {
     id: "122-333-444",
@@ -63,6 +65,9 @@ describe("ViewV2Component", () => {
     },
   } as unknown as CipherView;
 
+  const mockPasswordRepromptService = {
+    showPasswordPrompt,
+  };
   const mockVaultPopupAutofillService = {
     doAutofill,
   };
@@ -73,13 +78,14 @@ describe("ViewV2Component", () => {
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
 
   const mockCipherService = {
-    get: jest.fn().mockResolvedValue({ decrypt: jest.fn().mockResolvedValue(mockCipher) }),
+    cipherViews$: jest.fn().mockImplementation((userId) => of([mockCipher])),
     getKeyForCipherKeyDecryption: jest.fn().mockResolvedValue({}),
     deleteWithServer: jest.fn().mockResolvedValue(undefined),
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
+    mockCipherService.cipherViews$.mockClear();
     mockCipherService.deleteWithServer.mockClear();
     mockCipherService.softDeleteWithServer.mockClear();
     mockNavigate.mockClear();
@@ -90,6 +96,7 @@ describe("ViewV2Component", () => {
     openSimpleDialog.mockClear();
     back.mockClear();
     showToast.mockClear();
+    showPasswordPrompt.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [ViewV2Component],
@@ -105,6 +112,7 @@ describe("ViewV2Component", () => {
         { provide: VaultPopupScrollPositionService, useValue: { stop } },
         { provide: VaultPopupAutofillService, useValue: mockVaultPopupAutofillService },
         { provide: ToastService, useValue: { showToast } },
+        { provide: ConfigService, useValue: { getFeatureFlag$ } },
         {
           provide: I18nService,
           useValue: {
@@ -130,6 +138,10 @@ describe("ViewV2Component", () => {
           provide: CopyCipherFieldService,
           useValue: mockCopyCipherFieldService,
         },
+        {
+          provide: PasswordRepromptService,
+          useValue: mockPasswordRepromptService,
+        },
       ],
     })
       .overrideProvider(DialogService, {
@@ -150,7 +162,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(mockCipherService.get).toHaveBeenCalledWith("122-333-444", mockUserId);
+      expect(mockCipherService.cipherViews$).toHaveBeenCalledWith(mockUserId);
       expect(component.cipher).toEqual(mockCipher);
     }));
 
@@ -198,7 +210,7 @@ describe("ViewV2Component", () => {
     }));
 
     it('invokes `doAutofill` when action="AUTOFILL_ID"', fakeAsync(() => {
-      params$.next({ action: AUTOFILL_ID });
+      params$.next({ action: AUTOFILL_ID, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 
@@ -206,7 +218,7 @@ describe("ViewV2Component", () => {
     }));
 
     it('invokes `copy` when action="copy-username"', fakeAsync(() => {
-      params$.next({ action: COPY_USERNAME_ID });
+      params$.next({ action: COPY_USERNAME_ID, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 
@@ -214,7 +226,7 @@ describe("ViewV2Component", () => {
     }));
 
     it('invokes `copy` when action="copy-password"', fakeAsync(() => {
-      params$.next({ action: COPY_PASSWORD_ID });
+      params$.next({ action: COPY_PASSWORD_ID, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 
@@ -222,12 +234,105 @@ describe("ViewV2Component", () => {
     }));
 
     it('invokes `copy` when action="copy-totp"', fakeAsync(() => {
-      params$.next({ action: COPY_VERIFICATION_CODE_ID });
+      params$.next({ action: COPY_VERIFICATION_CODE_ID, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 
       expect(copy).toHaveBeenCalledTimes(1);
     }));
+
+    it("does not set the cipher until reprompt is complete", fakeAsync(() => {
+      let promptPromise: (val?: unknown) => void;
+      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
+        of([
+          {
+            ...mockCipher,
+            reprompt: CipherRepromptType.Password,
+          },
+        ]),
+      );
+      doAutofill.mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          // store the promise resolver to manually trigger the promise resolve
+          promptPromise = resolve;
+        });
+      });
+
+      params$.next({ action: AUTOFILL_ID, cipherId: mockCipher.id });
+
+      flush(); // Flush all pending actions
+
+      expect(component.cipher).toBeUndefined();
+      expect(doAutofill).toHaveBeenCalled();
+
+      promptPromise!(true); // resolve the password prompt
+
+      flush();
+      expect(component.cipher).toEqual({ ...mockCipher, reprompt: CipherRepromptType.Password });
+    }));
+
+    it("does not set the cipher at all if doAutofill fails and reprompt is active", fakeAsync(() => {
+      let promptPromise: (val?: unknown) => void;
+      mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
+        of([
+          {
+            ...mockCipher,
+            reprompt: CipherRepromptType.Password,
+          },
+        ]),
+      );
+      doAutofill.mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          // store the promise resolver to manually trigger the promise resolve
+          promptPromise = resolve;
+        });
+      });
+
+      params$.next({ action: AUTOFILL_ID, cipherId: mockCipher.id });
+
+      flush(); // Flush all pending actions
+
+      expect(component.cipher).toBeUndefined();
+      expect(doAutofill).toHaveBeenCalled();
+
+      promptPromise!(false); // resolve the password prompt
+
+      flush();
+      expect(component.cipher).toBeUndefined();
+    }));
+
+    it.each([COPY_PASSWORD_ID, COPY_VERIFICATION_CODE_ID])(
+      "does not set cipher when copy fails for %s",
+      fakeAsync((action: string) => {
+        let promptPromise: (val?: unknown) => void;
+        mockCipherService.cipherViews$.mockImplementationOnce((userId) =>
+          of([
+            {
+              ...mockCipher,
+              reprompt: CipherRepromptType.Password,
+            },
+          ]),
+        );
+        copy.mockImplementationOnce(() => {
+          return new Promise((resolve) => {
+            // store the promise resolver to manually trigger the promise resolve
+            promptPromise = resolve;
+          });
+        });
+
+        params$.next({ action, cipherId: mockCipher.id });
+
+        flush(); // Flush all pending actions
+
+        expect(component.cipher).toBeUndefined();
+        expect(copy).toHaveBeenCalled();
+
+        promptPromise!(false); // resolve the password prompt
+
+        flush();
+        expect(component.cipher).toBeUndefined();
+      }),
+    );
 
     it("closes the popout after a load action", fakeAsync(() => {
       jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValueOnce(true);
@@ -237,7 +342,7 @@ describe("ViewV2Component", () => {
         .spyOn(BrowserApi, "focusTab")
         .mockImplementation(() => Promise.resolve());
 
-      params$.next({ action: AUTOFILL_ID, senderTabId: 99 });
+      params$.next({ action: AUTOFILL_ID, senderTabId: 99, cipherId: mockCipher.id });
 
       flush(); // Resolve all promises
 

@@ -10,7 +10,6 @@ import { GetCollectionNameFromIdPipe } from "../pipes";
 @Component({
   selector: "app-collection-badge",
   templateUrl: "collection-name-badge.component.html",
-  standalone: true,
   imports: [SharedModule, GetCollectionNameFromIdPipe],
 })
 export class CollectionNameBadgeComponent {

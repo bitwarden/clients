@@ -9,6 +9,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
  */
 @Directive({
   selector: "[appNotPremium]",
+  standalone: false,
 })
 export class NotPremiumDirective implements OnInit {
   constructor(

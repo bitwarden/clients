@@ -1,9 +1,11 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap, filter } from "rxjs";
+import { filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -16,7 +18,6 @@ import { SharedModule } from "../../../shared";
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
 
 @Component({
-  standalone: true,
   selector: "app-vault-banners",
   templateUrl: "./vault-banners.component.html",
   imports: [VerifyEmailComponent, SharedModule, BannerModule],
@@ -36,6 +37,7 @@ export class VaultBannersComponent implements OnInit {
     private i18nService: I18nService,
     private accountService: AccountService,
     private messageListener: MessageListener,
+    private configService: ConfigService,
   ) {
     this.premiumBannerVisible$ = this.activeUserId$.pipe(
       filter((userId): userId is UserId => userId != null),
@@ -69,12 +71,16 @@ export class VaultBannersComponent implements OnInit {
   }
 
   async navigateToPaymentMethod(organizationId: string): Promise<void> {
+    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    );
+    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
     const navigationExtras = {
       state: { launchPaymentModalAutomatically: true },
     };
 
     await this.router.navigate(
-      ["organizations", organizationId, "billing", "payment-method"],
+      ["organizations", organizationId, "billing", route],
       navigationExtras,
     );
   }
@@ -99,7 +105,7 @@ export class VaultBannersComponent implements OnInit {
       showVerifyEmail ? VisibleVaultBanner.VerifyEmail : null,
       showLowKdf ? VisibleVaultBanner.KDFSettings : null,
       showPendingAuthRequest ? VisibleVaultBanner.PendingAuthRequest : null,
-    ].filter((banner): banner is VisibleVaultBanner => banner !== null); // ensures the filtered array contains only VisibleVaultBanner values
+    ].filter((banner) => banner !== null);
   }
 
   freeTrialMessage(organization: FreeTrial) {

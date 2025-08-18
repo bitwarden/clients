@@ -20,7 +20,7 @@
     <div class="tw-absolute tw-size-full tw-top-0 tw-pointer-events-none tw-z-20">
       <div class="tw-size-full tw-flex">
         <div
-          class="tw-min-w-3 tw-border-r-0 group-focus-within/bit-form-field:tw-border-r-0 !tw-rounded-l-lg"
+          class="tw-min-w-3 tw-border-r-0 group-focus-within/bit-form-field:tw-border-r-0 !tw-rounded-s-lg"
           [ngClass]="inputBorderClasses"
         ></div>
         <div
@@ -40,7 +40,7 @@
           </label>
         </div>
         <div
-          class="tw-min-w-3 tw-grow tw-border-l-0 group-focus-within/bit-form-field:tw-border-l-0 !tw-rounded-r-lg"
+          class="tw-min-w-3 tw-grow tw-border-l-0 group-focus-within/bit-form-field:tw-border-l-0 !tw-rounded-e-lg"
           [ngClass]="inputBorderClasses"
         ></div>
       </div>
@@ -50,23 +50,24 @@
     >
       <div
         #prefixContainer
-        class="tw-flex tw-items-center tw-gap-1 tw-pl-3 tw-py-2"
+        class="tw-flex tw-items-center tw-gap-1 tw-ps-3 has-[[biticonbutton]]:tw-ps-1 tw-py-1"
         [hidden]="!prefixHasChildren()"
       >
         <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
       </div>
       <div
-        class="default-content tw-w-full tw-relative tw-py-2 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100"
+        class="tw-w-full tw-relative tw-py-1 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea]:tw-my-1"
+        data-default-content
         [ngClass]="[
-          prefixHasChildren() ? '' : 'tw-rounded-l-lg tw-pl-3',
-          suffixHasChildren() ? '' : 'tw-rounded-r-lg tw-pr-3',
+          prefixHasChildren() ? '' : 'tw-rounded-s-lg tw-ps-3',
+          suffixHasChildren() ? '' : 'tw-rounded-e-lg tw-pe-3',
         ]"
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
       <div
         #suffixContainer
-        class="tw-flex tw-items-center tw-gap-1 tw-pr-3 tw-py-2"
+        class="tw-flex tw-items-center tw-pe-3 has-[[biticonbutton]]:tw-pe-1 tw-py-1"
         [hidden]="!suffixHasChildren()"
       >
         <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
@@ -91,20 +92,17 @@
       <div
         #prefixContainer
         [hidden]="!prefixHasChildren()"
-        class="tw-flex tw-items-center tw-gap-1 tw-pl-1"
+        class="tw-flex tw-items-center tw-gap-1 tw-ps-1"
       >
         <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
       </div>
       <div
-        class="default-content tw-w-full tw-pb-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast"
+        class="tw-w-full tw-pb-0 tw-relative [&>*]:tw-p-0 [&>*::selection]:tw-bg-primary-700 [&>*::selection]:tw-text-contrast"
+        data-default-content
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
-      <div
-        #suffixContainer
-        [hidden]="!suffixHasChildren()"
-        class="tw-flex tw-items-center tw-gap-1 tw-pr-1"
-      >
+      <div #suffixContainer [hidden]="!suffixHasChildren()" class="tw-flex tw-items-center tw-pe-1">
         <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
       </div>
     </div>

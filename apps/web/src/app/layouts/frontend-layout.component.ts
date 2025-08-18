@@ -4,9 +4,13 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+import { EnvironmentSelectorComponent } from "../components/environment-selector/environment-selector.component";
+import { SharedModule } from "../shared";
+
 @Component({
   selector: "app-frontend-layout",
   templateUrl: "frontend-layout.component.html",
+  imports: [SharedModule, EnvironmentSelectorComponent],
 })
 export class FrontendLayoutComponent implements OnInit, OnDestroy {
   version: string;

@@ -1,53 +1,76 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { border, themes, typography, spacing } from "../constants/styles";
+import { Spinner } from "../icons";
+
+export type ActionButtonProps = {
+  buttonText: string | TemplateResult;
+  dataTestId?: string;
+  disabled?: boolean;
+  isLoading?: boolean;
+  theme: Theme;
+  handleClick: (e: Event) => void;
+  fullWidth?: boolean;
+};
 
 export function ActionButton({
-  buttonAction,
   buttonText,
+  dataTestId,
   disabled = false,
+  isLoading = false,
   theme,
-}: {
-  buttonAction: (e: Event) => void;
-  buttonText: string;
-  disabled?: boolean;
-  theme: Theme;
-}) {
+  handleClick,
+  fullWidth = true,
+}: ActionButtonProps) {
   const handleButtonClick = (event: Event) => {
-    if (!disabled) {
-      buttonAction(event);
+    if (!disabled && !isLoading) {
+      handleClick(event);
     }
   };
 
   return html`
     <button
-      type="button"
+      class=${actionButtonStyles({ disabled, fullWidth, isLoading, theme })}
+      data-testid="${dataTestId}"
       title=${buttonText}
-      class=${actionButtonStyles({ disabled, theme })}
+      type="button"
       @click=${handleButtonClick}
     >
-      ${buttonText}
+      ${isLoading ? Spinner({ theme, color: themes[theme].text.muted }) : buttonText}
     </button>
   `;
 }
 
-const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: Theme }) => css`
+const actionButtonStyles = ({
+  disabled,
+  fullWidth,
+  isLoading,
+  theme,
+}: {
+  disabled: boolean;
+  fullWidth: boolean;
+  isLoading: boolean;
+  theme: Theme;
+}) => css`
   ${typography.body2}
 
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid transparent;
   border-radius: ${border.radius.full};
   padding: ${spacing["1"]} ${spacing["3"]};
-  width: 100%;
+  width: ${fullWidth ? "100%" : "auto"};
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
   font-weight: 700;
 
-  ${disabled
+  ${disabled || isLoading
     ? `
     background-color: ${themes[theme].secondary["300"]};
     color: ${themes[theme].text.muted};
@@ -62,5 +85,15 @@ const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: The
       background-color: ${themes[theme].primary["700"]};
       color: ${themes[theme].text.contrast};
     }
+    :focus {
+      outline: 2px solid ${themes[theme].primary["600"]};
+      outline-offset: 1px;
+    }
   `}
+
+  svg {
+    padding: 2px 0; /* Match line-height of button body2 typography */
+    width: auto;
+    height: 16px;
+  }
 `;

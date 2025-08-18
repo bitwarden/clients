@@ -23,25 +23,43 @@ export type ReceiveMessage = { type: "ReceiveMessage"; message: NotificationResp
 
 export type SignalRNotification = Heartbeat | ReceiveMessage;
 
+export type TimeoutManager = {
+  setTimeout: (handler: TimerHandler, timeout: number) => number;
+  clearTimeout: (timeoutId: number) => void;
+};
+
 class SignalRLogger implements ILogger {
   constructor(private readonly logService: LogService) {}
 
+  redactMessage(message: string): string {
+    const ACCESS_TOKEN_TEXT = "access_token=";
+    // Redact the access token from the logs if it exists.
+    const accessTokenIndex = message.indexOf(ACCESS_TOKEN_TEXT);
+    if (accessTokenIndex !== -1) {
+      return message.substring(0, accessTokenIndex + ACCESS_TOKEN_TEXT.length) + "[REDACTED]";
+    }
+
+    return message;
+  }
+
   log(logLevel: LogLevel, message: string): void {
+    const redactedMessage = `[SignalR] ${this.redactMessage(message)}`;
+
     switch (logLevel) {
       case LogLevel.Critical:
-        this.logService.error(message);
+        this.logService.error(redactedMessage);
         break;
       case LogLevel.Error:
-        this.logService.error(message);
+        this.logService.error(redactedMessage);
         break;
       case LogLevel.Warning:
-        this.logService.warning(message);
+        this.logService.warning(redactedMessage);
         break;
       case LogLevel.Information:
-        this.logService.info(message);
+        this.logService.info(redactedMessage);
         break;
       case LogLevel.Debug:
-        this.logService.debug(message);
+        this.logService.debug(redactedMessage);
         break;
     }
   }
@@ -51,11 +69,14 @@ export class SignalRConnectionService {
   constructor(
     private readonly apiService: ApiService,
     private readonly logService: LogService,
+    private readonly hubConnectionBuilderFactory: () => HubConnectionBuilder = () =>
+      new HubConnectionBuilder(),
+    private readonly timeoutManager: TimeoutManager = globalThis,
   ) {}
 
   connect$(userId: UserId, notificationsUrl: string) {
     return new Observable<SignalRNotification>((subsciber) => {
-      const connection = new HubConnectionBuilder()
+      const connection = this.hubConnectionBuilderFactory()
         .withUrl(notificationsUrl + "/hub", {
           accessTokenFactory: () => this.apiService.getActiveBearerToken(),
           skipNegotiation: true,
@@ -76,48 +97,60 @@ export class SignalRConnectionService {
       let reconnectSubscription: Subscription | null = null;
 
       // Create schedule reconnect function
-      const scheduleReconnect = (): Subscription => {
+      const scheduleReconnect = () => {
         if (
           connection == null ||
           connection.state !== HubConnectionState.Disconnected ||
           (reconnectSubscription != null && !reconnectSubscription.closed)
         ) {
-          return Subscription.EMPTY;
+          // Skip scheduling a new reconnect, either the connection isn't disconnected
+          // or an active reconnect is already scheduled.
+          return;
         }
 
-        const randomTime = this.random();
-        const timeoutHandler = setTimeout(() => {
+        // If we've somehow gotten here while the subscriber is closed,
+        // we do not want to reconnect. So leave.
+        if (subsciber.closed) {
+          return;
+        }
+
+        const randomTime = this.randomReconnectTime();
+        const timeoutHandler = this.timeoutManager.setTimeout(() => {
           connection
             .start()
-            .then(() => (reconnectSubscription = null))
+            .then(() => {
+              reconnectSubscription = null;
+            })
             .catch(() => {
-              reconnectSubscription = scheduleReconnect();
+              scheduleReconnect();
             });
         }, randomTime);
 
-        return new Subscription(() => clearTimeout(timeoutHandler));
+        reconnectSubscription = new Subscription(() =>
+          this.timeoutManager.clearTimeout(timeoutHandler),
+        );
       };
 
       connection.onclose((error) => {
-        reconnectSubscription = scheduleReconnect();
+        scheduleReconnect();
       });
 
       // Start connection
       connection.start().catch(() => {
-        reconnectSubscription = scheduleReconnect();
+        scheduleReconnect();
       });
 
       return () => {
+        // Cancel any possible scheduled reconnects
+        reconnectSubscription?.unsubscribe();
         connection?.stop().catch((error) => {
           this.logService.error("Error while stopping SignalR connection", error);
-          // TODO: Does calling stop call `onclose`?
-          reconnectSubscription?.unsubscribe();
         });
       };
     });
   }
 
-  private random() {
+  private randomReconnectTime() {
     return (
       Math.floor(Math.random() * (MAX_RECONNECT_TIME - MIN_RECONNECT_TIME + 1)) + MIN_RECONNECT_TIME
     );

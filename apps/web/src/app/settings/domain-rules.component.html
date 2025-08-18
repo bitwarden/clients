@@ -59,22 +59,21 @@
           <td bitCell>
             <button
               type="button"
-              bitIconButton="bwi-cog"
-              buttonType="secondary"
+              bitIconButton="bwi-ellipsis-v"
               [bitMenuTriggerFor]="appListDropdown"
               class="tw-border-0 tw-bg-transparent tw-p-0"
             ></button>
             <bit-menu #appListDropdown>
               <a href="#" bitMenuItem appStopClick (click)="toggleExcluded(d)" *ngIf="!d.excluded">
-                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
                 {{ "exclude" | i18n }}
               </a>
               <a href="#" bitMenuItem appStopClick (click)="toggleExcluded(d)" *ngIf="d.excluded">
-                <i class="bwi bwi-fw bwi-plus" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
                 {{ "include" | i18n }}
               </a>
               <a href="#" bitMenuItem appStopClick (click)="customize(d)">
-                <i class="bwi bwi-fw bwi-cut" aria-hidden="true"></i>
+                <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
                 {{ "customize" | i18n }}
               </a>
             </bit-menu>

@@ -1,12 +1,24 @@
 <app-layout>
   <app-side-nav variant="secondary" *ngIf="provider$ | async as provider">
-    <bit-nav-logo [openIcon]="logo" route="." [label]="'providerPortal' | i18n"></bit-nav-logo>
+    <bit-nav-logo
+      [openIcon]="logo$ | async"
+      route="."
+      [label]="'providerPortal' | i18n"
+    ></bit-nav-logo>
 
     <bit-nav-item
-      icon="bwi-bank"
-      [text]="'clients' | i18n"
+      icon="bwi-provider"
+      [text]="clientsTranslationKey$ | async | i18n"
       [route]="(isBillable | async) ? 'manage-client-organizations' : 'clients'"
-    ></bit-nav-item>
+    >
+      <i
+        *ngIf="!provider.enabled && (providerPortalTakeover$ | async)"
+        slot="end"
+        class="bwi bwi-exclamation-triangle tw-text-danger"
+        title="{{ 'providerIsDisabled' | i18n }}"
+        aria-hidden="true"
+      ></i>
+    </bit-nav-item>
     <bit-nav-group
       icon="bwi-sliders"
       [text]="'manage' | i18n"
@@ -27,10 +39,16 @@
       *ngIf="canAccessBilling$ | async"
     >
       <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
+      @if (managePaymentDetailsOutsideCheckout$ | async) {
+        <bit-nav-item
+          [text]="'paymentDetails' | i18n"
+          route="billing/payment-details"
+        ></bit-nav-item>
+      }
       <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
     </bit-nav-group>
     <bit-nav-item
-      icon="bwi-cogs"
+      icon="bwi-cog"
       [text]="'settings' | i18n"
       route="settings"
       *ngIf="showSettingsTab(provider)"

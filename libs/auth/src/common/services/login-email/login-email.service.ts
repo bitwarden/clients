@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable, firstValueFrom, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -26,8 +24,6 @@ export const STORED_EMAIL = new KeyDefinition<string>(LOGIN_EMAIL_DISK, "storedE
 });
 
 export class LoginEmailService implements LoginEmailServiceAbstraction {
-  private rememberEmail: boolean;
-
   // True if an account is currently being added through account switching
   private readonly addingAccount$: Observable<boolean>;
 
@@ -35,7 +31,7 @@ export class LoginEmailService implements LoginEmailServiceAbstraction {
   loginEmail$: Observable<string | null>;
 
   private readonly storedEmailState: GlobalState<string>;
-  storedEmail$: Observable<string | null>;
+  rememberedEmail$: Observable<string | null>;
 
   constructor(
     private accountService: AccountService,
@@ -60,7 +56,7 @@ export class LoginEmailService implements LoginEmailServiceAbstraction {
 
     this.loginEmail$ = this.loginEmailState.state$;
 
-    this.storedEmail$ = this.storedEmailState.state$.pipe(
+    this.rememberedEmail$ = this.storedEmailState.state$.pipe(
       switchMap(async (storedEmail) => {
         // When adding an account, we don't show the stored email
         if (await firstValueFrom(this.addingAccount$)) {
@@ -71,44 +67,32 @@ export class LoginEmailService implements LoginEmailServiceAbstraction {
     );
   }
 
+  /** Sets the login email in memory.
+   * The login email is the email that is being used in the current login process.
+   */
   async setLoginEmail(email: string) {
     await this.loginEmailState.update((_) => email);
   }
 
-  getRememberEmail() {
-    return this.rememberEmail;
+  /**
+   * Clears the in-progress login email from state.
+   * Note: Only clear on successful login or you are sure they are not needed.
+   * The extension client uses these values to maintain the email between login and 2fa components so
+   * we do not want to clear them too early.
+   */
+  async clearLoginEmail() {
+    await this.loginEmailState.update((_) => null);
   }
 
-  setRememberEmail(value: boolean) {
-    this.rememberEmail = value ?? false;
+  async setRememberedEmailChoice(email: string, remember: boolean): Promise<void> {
+    if (remember) {
+      await this.storedEmailState.update((_) => email);
+    } else {
+      await this.storedEmailState.update((_) => null);
+    }
   }
 
-  // Note: only clear values on successful login or you are sure they are not needed.
-  // Browser uses these values to maintain the email between login and 2fa components so
-  // we do not want to clear them too early.
-  async clearValues() {
-    await this.setLoginEmail(null);
-    this.rememberEmail = false;
-  }
-
-  async saveEmailSettings() {
-    const addingAccount = await firstValueFrom(this.addingAccount$);
-    const email = await firstValueFrom(this.loginEmail$);
-
-    await this.storedEmailState.update((storedEmail) => {
-      // If we're adding an account, only overwrite the stored email when rememberEmail is true
-      if (addingAccount) {
-        if (this.rememberEmail) {
-          return email;
-        }
-        return storedEmail;
-      }
-
-      // Saving with rememberEmail set to false will clear the stored email
-      if (this.rememberEmail) {
-        return email;
-      }
-      return null;
-    });
+  async clearRememberedEmail(): Promise<void> {
+    await this.storedEmailState.update((_) => null);
   }
 }

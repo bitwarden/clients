@@ -17,7 +17,16 @@
     <bit-item>
       <a bit-item-content routerLink="/autofill">
         <i slot="start" class="bwi bwi-check-circle" aria-hidden="true"></i>
-        {{ "autofill" | i18n }}
+        <div class="tw-flex tw-items-center tw-justify-center">
+          <p class="tw-pr-2">{{ "autofill" | i18n }}</p>
+          <span
+            *ngIf="!isBrowserAutofillSettingOverridden && (showAutofillBadge$ | async)"
+            bitBadge
+            variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            >1</span
+          >
+        </div>
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
@@ -29,15 +38,33 @@
       </a>
     </bit-item>
     <bit-item>
-      <a bit-item-content routerLink="/vault-settings">
+      <a
+        bit-item-content
+        routerLink="/vault-settings"
+        (click)="dismissBadge(NudgeType.EmptyVaultNudge)"
+      >
         <i slot="start" class="bwi bwi-vault" aria-hidden="true"></i>
-        {{ "vault" | i18n }}
+        <div class="tw-flex tw-items-center tw-justify-center">
+          <p class="tw-pr-2">{{ "settingsVaultOptions" | i18n }}</p>
+          <!--
+            Currently can be only 1 item for notification.
+            Will make this dynamic when more nudges are added
+          -->
+          <span
+            *ngIf="showVaultBadge$ | async"
+            bitBadge
+            variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            >1</span
+          >
+        </div>
+
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
     <bit-item>
       <a bit-item-content routerLink="/appearance">
-        <i slot="start" class="bwi bwi-eye" aria-hidden="true"></i>
+        <i slot="start" class="bwi bwi-brush" aria-hidden="true"></i>
         {{ "appearance" | i18n }}
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
@@ -46,6 +73,29 @@
       <a bit-item-content routerLink="/about">
         <i slot="start" class="bwi bwi-info-circle" aria-hidden="true"></i>
         {{ "about" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/download-bitwarden">
+        <i slot="start" class="bwi bwi-mobile" aria-hidden="true"></i>
+        <div class="tw-flex tw-items-center tw-justify-center">
+          <p class="tw-pr-2">{{ "downloadBitwardenOnAllDevices" | i18n }}</p>
+          <span
+            *ngIf="showDownloadBitwardenNudge$ | async"
+            bitBadge
+            variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            >1
+          </span>
+        </div>
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/more-from-bitwarden">
+        <i slot="start" class="bwi bwi-filter" aria-hidden="true"></i>
+        {{ "moreFromBitwarden" | i18n }}
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>

@@ -48,6 +48,7 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
 @Component({
   selector: "app-org-events",
   templateUrl: "events.component.html",
+  standalone: false,
 })
 export class EventsComponent extends BaseEventsComponent implements OnInit, OnDestroy {
   exportFileName = "org-events";

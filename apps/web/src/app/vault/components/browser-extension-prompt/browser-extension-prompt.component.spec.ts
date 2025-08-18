@@ -15,12 +15,14 @@ describe("BrowserExtensionPromptComponent", () => {
   let fixture: ComponentFixture<BrowserExtensionPromptComponent>;
   let component: BrowserExtensionPromptComponent;
   const start = jest.fn();
-  const pageState$ = new BehaviorSubject(BrowserPromptState.Loading);
+  const openExtension = jest.fn();
+  const pageState$ = new BehaviorSubject<BrowserPromptState>(BrowserPromptState.Loading);
   const setAttribute = jest.fn();
   const getAttribute = jest.fn().mockReturnValue("width=1010");
 
   beforeEach(async () => {
     start.mockClear();
+    openExtension.mockClear();
     setAttribute.mockClear();
     getAttribute.mockClear();
 
@@ -39,7 +41,7 @@ describe("BrowserExtensionPromptComponent", () => {
       providers: [
         {
           provide: BrowserExtensionPromptService,
-          useValue: { start, pageState$ },
+          useValue: { start, openExtension, pageState$ },
         },
         {
           provide: I18nService,
@@ -82,6 +84,15 @@ describe("BrowserExtensionPromptComponent", () => {
     it("shows error text", () => {
       const errorText = fixture.debugElement.query(By.css("p")).nativeElement;
       expect(errorText.textContent.trim()).toBe("openingExtensionError");
+    });
+
+    it("opens extension on button click", () => {
+      const button = fixture.debugElement.query(By.css("button")).nativeElement;
+
+      button.click();
+
+      expect(openExtension).toHaveBeenCalledTimes(1);
+      expect(openExtension).toHaveBeenCalledWith(true);
     });
   });
 

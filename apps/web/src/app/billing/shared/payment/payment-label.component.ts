@@ -14,7 +14,6 @@ import { SharedModule } from "../../../shared";
 @Component({
   selector: "app-payment-label",
   templateUrl: "./payment-label.component.html",
-  standalone: true,
   imports: [FormFieldModule, SharedModule],
 })
 export class PaymentLabelComponent {

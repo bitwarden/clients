@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { DialogRef } from "@angular/cdk/dialog";
 import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
 import { CommonModule } from "@angular/common";
 import {
@@ -11,6 +10,7 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  Input,
   OnInit,
   Output,
   QueryList,
@@ -30,13 +30,13 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
+  DialogRef,
   CardComponent,
   CheckboxModule,
   DialogService,
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -69,7 +69,6 @@ export type CustomField = {
 };
 
 @Component({
-  standalone: true,
   selector: "vault-custom-fields",
   templateUrl: "./custom-fields.component.html",
   imports: [
@@ -78,7 +77,6 @@ export type CustomField = {
     FormsModule,
     FormFieldModule,
     ReactiveFormsModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     CardComponent,
@@ -93,6 +91,8 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   @Output() numberOfFieldsChange = new EventEmitter<number>();
 
   @ViewChildren("customFieldRow") customFieldRows: QueryList<ElementRef<HTMLDivElement>>;
+
+  @Input() disableSectionMargin: boolean;
 
   customFieldsForm = this.formBuilder.group({
     fields: new FormArray([]),
@@ -112,6 +112,8 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
   /** Emits when a new custom field should be focused */
   private focusOnNewInput$ = new Subject<void>();
+
+  disallowHiddenField?: boolean;
 
   destroyed$: DestroyRef;
   FieldType = FieldType;
@@ -138,6 +140,13 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     return this.customFieldsForm.controls.fields as FormArray;
   }
 
+  canEdit(type: FieldType): boolean {
+    return (
+      !this.isPartialEdit &&
+      (type !== FieldType.Hidden || this.cipherFormContainer.originalCipherView?.viewPassword)
+    );
+  }
+
   ngOnInit() {
     const linkedFieldsOptionsForCipher = this.getLinkedFieldsOptionsForCipher();
     const optionsArray = Array.from(linkedFieldsOptionsForCipher?.entries() ?? []);
@@ -146,7 +155,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     // Populate options for linked custom fields
     this.linkedFieldOptions = optionsArray.map(([id, linkedFieldOption]) => ({
       name: this.i18nService.t(linkedFieldOption.i18nKey),
-      value: id,
+      value: id as LinkedIdType,
     }));
 
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
@@ -207,6 +216,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
   /** Opens the add/edit custom field dialog */
   openAddEditCustomFieldDialog(editLabelConfig?: AddEditCustomFieldDialogData["editLabelConfig"]) {
+    const { cipherType, mode, originalCipher } = this.cipherFormContainer.config;
     this.dialogRef = this.dialogService.open<unknown, AddEditCustomFieldDialogData>(
       AddEditCustomFieldDialogComponent,
       {
@@ -214,8 +224,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
           addField: this.addField.bind(this),
           updateLabel: this.updateLabel.bind(this),
           removeField: this.removeField.bind(this),
-          cipherType: this.cipherFormContainer.config.cipherType,
+          cipherType,
           editLabelConfig,
+          disallowHiddenField: mode === "edit" && !originalCipher.viewPassword,
         },
       },
     );

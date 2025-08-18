@@ -44,6 +44,7 @@ component_management:
     - component_id: key-management-keys
       name: Key Management - Keys
       paths:
+        - apps/desktop/src/key-management/electron-key.service.ts
         - libs/key-management/src/kdf-config.service.ts
         - libs/key-management/src/key.service.ts
         - libs/common/src/key-management/master-password/**

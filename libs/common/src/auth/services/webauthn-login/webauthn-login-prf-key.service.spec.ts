@@ -1,6 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "../../../key-management/crypto/abstractions/crypto-function.service";
 
 import { WebAuthnLoginPrfKeyService } from "./webauthn-login-prf-key.service";
 
@@ -21,7 +21,7 @@ describe("WebAuthnLoginPrfKeyService", () => {
 
       const result = await service.createSymmetricKeyFromPrf(randomBytes(32));
 
-      expect(result.key.length).toBe(64);
+      expect(result.toEncoded().length).toBe(64);
     });
   });
 });

@@ -1,10 +1,10 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -14,7 +14,6 @@ import {
 
 @Component({
   templateUrl: "file-password-prompt.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

@@ -1,3 +1,5 @@
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DeviceType {
   Android = 0,
   iOS = 1,
@@ -25,6 +27,7 @@ export enum DeviceType {
   WindowsCLI = 23,
   MacOsCLI = 24,
   LinuxCLI = 25,
+  DuckDuckGoBrowser = 26,
 }
 
 /**
@@ -32,7 +35,7 @@ export enum DeviceType {
  * Each device type has a category corresponding to the client type and platform (Android, iOS, Chrome, Firefox, etc.)
  */
 interface DeviceTypeMetadata {
-  category: "mobile" | "extension" | "webVault" | "desktop" | "cli" | "sdk" | "server";
+  category: "mobile" | "extension" | "webApp" | "desktop" | "cli" | "sdk" | "server";
   platform: string;
 }
 
@@ -46,14 +49,15 @@ export const DeviceTypeMetadata: Record<DeviceType, DeviceTypeMetadata> = {
   [DeviceType.EdgeExtension]: { category: "extension", platform: "Edge" },
   [DeviceType.VivaldiExtension]: { category: "extension", platform: "Vivaldi" },
   [DeviceType.SafariExtension]: { category: "extension", platform: "Safari" },
-  [DeviceType.ChromeBrowser]: { category: "webVault", platform: "Chrome" },
-  [DeviceType.FirefoxBrowser]: { category: "webVault", platform: "Firefox" },
-  [DeviceType.OperaBrowser]: { category: "webVault", platform: "Opera" },
-  [DeviceType.EdgeBrowser]: { category: "webVault", platform: "Edge" },
-  [DeviceType.IEBrowser]: { category: "webVault", platform: "IE" },
-  [DeviceType.SafariBrowser]: { category: "webVault", platform: "Safari" },
-  [DeviceType.VivaldiBrowser]: { category: "webVault", platform: "Vivaldi" },
-  [DeviceType.UnknownBrowser]: { category: "webVault", platform: "Unknown" },
+  [DeviceType.ChromeBrowser]: { category: "webApp", platform: "Chrome" },
+  [DeviceType.FirefoxBrowser]: { category: "webApp", platform: "Firefox" },
+  [DeviceType.OperaBrowser]: { category: "webApp", platform: "Opera" },
+  [DeviceType.EdgeBrowser]: { category: "webApp", platform: "Edge" },
+  [DeviceType.IEBrowser]: { category: "webApp", platform: "IE" },
+  [DeviceType.SafariBrowser]: { category: "webApp", platform: "Safari" },
+  [DeviceType.VivaldiBrowser]: { category: "webApp", platform: "Vivaldi" },
+  [DeviceType.DuckDuckGoBrowser]: { category: "webApp", platform: "DuckDuckGo" },
+  [DeviceType.UnknownBrowser]: { category: "webApp", platform: "Unknown" },
   [DeviceType.WindowsDesktop]: { category: "desktop", platform: "Windows" },
   [DeviceType.MacOsDesktop]: { category: "desktop", platform: "macOS" },
   [DeviceType.LinuxDesktop]: { category: "desktop", platform: "Linux" },

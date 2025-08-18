@@ -2,13 +2,15 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { IdentityView as SdkIdentityView } from "@bitwarden/sdk-internal";
+
 import { Utils } from "../../../platform/misc/utils";
 import { IdentityLinkedId as LinkedId } from "../../enums";
 import { linkedFieldOption } from "../../linked-field-option.decorator";
 
 import { ItemView } from "./item.view";
 
-export class IdentityView extends ItemView {
+export class IdentityView extends ItemView implements SdkIdentityView {
   @linkedFieldOption(LinkedId.Title, { sortPosition: 0 })
   title: string = null;
   @linkedFieldOption(LinkedId.MiddleName, { sortPosition: 2 })
@@ -157,5 +159,45 @@ export class IdentityView extends ItemView {
 
   static fromJSON(obj: Partial<Jsonify<IdentityView>>): IdentityView {
     return Object.assign(new IdentityView(), obj);
+  }
+
+  /**
+   * Converts the SDK IdentityView to an IdentityView.
+   */
+  static fromSdkIdentityView(obj: SdkIdentityView): IdentityView | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const identityView = new IdentityView();
+
+    identityView.title = obj.title ?? null;
+    identityView.firstName = obj.firstName ?? null;
+    identityView.middleName = obj.middleName ?? null;
+    identityView.lastName = obj.lastName ?? null;
+    identityView.address1 = obj.address1 ?? null;
+    identityView.address2 = obj.address2 ?? null;
+    identityView.address3 = obj.address3 ?? null;
+    identityView.city = obj.city ?? null;
+    identityView.state = obj.state ?? null;
+    identityView.postalCode = obj.postalCode ?? null;
+    identityView.country = obj.country ?? null;
+    identityView.company = obj.company ?? null;
+    identityView.email = obj.email ?? null;
+    identityView.phone = obj.phone ?? null;
+    identityView.ssn = obj.ssn ?? null;
+    identityView.username = obj.username ?? null;
+    identityView.passportNumber = obj.passportNumber ?? null;
+    identityView.licenseNumber = obj.licenseNumber ?? null;
+
+    return identityView;
+  }
+
+  /**
+   * Converts the IdentityView to an SDK IdentityView.
+   * The view implements the SdkView so we can safely return `this`
+   */
+  toSdkIdentityView(): SdkIdentityView {
+    return this;
   }
 }

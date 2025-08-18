@@ -89,4 +89,81 @@ export default {
       },
     );
   },
+  listenPasskeyAssertionWithoutUserInterface: (
+    fn: (
+      clientId: number,
+      sequenceNumber: number,
+      request: autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+      completeCallback: (error: Error | null, response: autofill.PasskeyAssertionResponse) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.passkeyAssertionWithoutUserInterface",
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: autofill.PasskeyAssertionWithoutUserInterfaceRequest;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              clientId,
+              sequenceNumber,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completePasskeyAssertion", {
+            clientId,
+            sequenceNumber,
+            response,
+          });
+        });
+      },
+    );
+  },
+  configureAutotype: (enabled: boolean) => {
+    ipcRenderer.send("autofill.configureAutotype", { enabled });
+  },
+  listenAutotypeRequest: (
+    fn: (
+      windowTitle: string,
+      completeCallback: (
+        error: Error | null,
+        response: { username?: string; password?: string },
+      ) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      "autofill.listenAutotypeRequest",
+      (
+        event,
+        data: {
+          windowTitle: string;
+        },
+      ) => {
+        const { windowTitle } = data;
+
+        fn(windowTitle, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              windowTitle,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completeAutotypeRequest", {
+            windowTitle,
+            response,
+          });
+        });
+      },
+    );
+  },
 };

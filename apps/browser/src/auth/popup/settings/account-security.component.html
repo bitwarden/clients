@@ -5,6 +5,13 @@
     </ng-container>
   </popup-header>
 
+  <bit-spotlight
+    *ngIf="showAccountSecurityNudge$ | async"
+    [title]="'unlockVault' | i18n"
+    [subtitle]="'unlockVaultDesc' | i18n"
+    (onDismiss)="dismissAccountSecurityNudge()"
+    class="tw-mb-6"
+  ></bit-spotlight>
   <div [formGroup]="form">
     <bit-section>
       <bit-section-header>
@@ -23,7 +30,7 @@
         <bit-form-control
           class="tw-pl-5"
           [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
-          *ngIf="this.form.value.biometric && showAutoPrompt"
+          *ngIf="this.form.value.biometric"
         >
           <input
             bitCheckbox
@@ -95,7 +102,19 @@
       </bit-card>
     </bit-section>
 
-    <bit-section>
+    <bit-section *ngIf="extensionLoginApprovalFlagEnabled">
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "manageDevices" | i18n }}</h2>
+      </bit-section-header>
+      <bit-item>
+        <button bit-item-content type="button" appStopClick routerLink="/device-management">
+          {{ "devices" | i18n }}
+          <i slot="end" class="bwi bwi-chevron-right" aria-hidden="true"></i>
+        </button>
+      </bit-item>
+    </bit-section>
+
+    <bit-section disableMargin>
       <bit-section-header>
         <h2 bitTypography="h6">{{ "otherOptions" | i18n }}</h2>
       </bit-section-header>

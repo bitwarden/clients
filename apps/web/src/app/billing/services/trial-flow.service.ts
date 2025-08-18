@@ -24,8 +24,6 @@ import { FreeTrial } from "../types/free-trial";
 
 @Injectable({ providedIn: "root" })
 export class TrialFlowService {
-  private resellerManagedOrgAlert: boolean;
-
   constructor(
     private i18nService: I18nService,
     protected dialogService: DialogService,
@@ -98,10 +96,6 @@ export class TrialFlowService {
     isCanceled: boolean,
     isUnpaid: boolean,
   ): Promise<boolean> {
-    this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
-      FeatureFlag.ResellerManagedOrgAlert,
-    );
-
     if (!org?.isOwner && !org.providerId) {
       await this.dialogService.openSimpleDialog({
         title: this.i18nService.t("suspendedOrganizationTitle", org?.name),
@@ -113,7 +107,7 @@ export class TrialFlowService {
       return false;
     }
 
-    if (org.providerId && this.resellerManagedOrgAlert) {
+    if (org.providerId) {
       await this.dialogService.openSimpleDialog({
         title: this.i18nService.t("suspendedOrganizationTitle", org.name),
         content: { key: "suspendedManagedOrgMessage", placeholders: [org.providerName] },
@@ -134,14 +128,19 @@ export class TrialFlowService {
       });
     }
 
-    if (org.isOwner && isCanceled && this.resellerManagedOrgAlert) {
+    if (org.isOwner && isCanceled) {
       await this.changePlan(org);
     }
   }
 
   private async navigateToPaymentMethod(orgId: string) {
-    await this.router.navigate(["organizations", `${orgId}`, "billing", "payment-method"], {
+    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    );
+    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
+    await this.router.navigate(["organizations", `${orgId}`, "billing", route], {
       state: { launchPaymentModalAutomatically: true },
+      queryParams: { launchPaymentModalAutomatically: true },
     });
   }
 

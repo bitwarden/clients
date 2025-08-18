@@ -14,5 +14,6 @@ export class DisableSendPolicy extends BasePolicy {
 @Component({
   selector: "policy-disable-send",
   templateUrl: "disable-send.component.html",
+  standalone: false,
 })
 export class DisableSendPolicyComponent extends BasePolicyComponent {}

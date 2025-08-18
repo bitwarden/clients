@@ -28,7 +28,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 @Component({
   selector: "app-credential-generator-history",
   templateUrl: "credential-generator-history.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,

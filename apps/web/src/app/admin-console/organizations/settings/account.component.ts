@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -8,6 +8,7 @@ import {
   firstValueFrom,
   from,
   lastValueFrom,
+  map,
   of,
   Subject,
   switchMap,
@@ -25,11 +26,10 @@ import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/model
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -41,21 +41,15 @@ import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./
 @Component({
   selector: "app-org-account",
   templateUrl: "account.component.html",
+  standalone: false,
 })
 export class AccountComponent implements OnInit, OnDestroy {
-  @ViewChild("apiKeyTemplate", { read: ViewContainerRef, static: true })
-  apiKeyModalRef: ViewContainerRef;
-  @ViewChild("rotateApiKeyTemplate", { read: ViewContainerRef, static: true })
-  rotateApiKeyModalRef: ViewContainerRef;
-
   selfHosted = false;
   canEditSubscription = true;
   loading = true;
   canUseApi = false;
   org: OrganizationResponse;
   taxFormPromise: Promise<unknown>;
-
-  limitItemDeletionFeatureFlagIsEnabled: boolean;
 
   // FormGroup validators taken from server Organization domain object
   protected formGroup = this.formBuilder.group({
@@ -99,16 +93,10 @@ export class AccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
     this.selfHosted = this.platformUtilsService.isSelfHost();
-
-    this.configService
-      .getFeatureFlag$(FeatureFlag.LimitItemDeletion)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isAble) => (this.limitItemDeletionFeatureFlagIsEnabled = isAble));
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.route.params
@@ -193,7 +181,13 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     // Backfill pub/priv key if necessary
     if (!this.org.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const orgShareKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.orgKeys$(userId)),
+          map((orgKeys) => orgKeys[this.organizationId as OrganizationId] ?? null),
+        ),
+      );
       const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }

@@ -22,6 +22,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { VersionService } from "../../platform/services/version.service";
@@ -48,6 +49,7 @@ export class InitService {
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
+    private autotypeService: DesktopAutotypeService,
     private sdkLoadService: SdkLoadService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
@@ -89,6 +91,7 @@ export class InitService {
       containerService.attachToGlobal(this.win);
 
       await this.autofillService.init();
+      await this.autotypeService.init();
     };
   }
 }

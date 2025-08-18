@@ -35,13 +35,13 @@ export class DesktopCredentialStorageListener {
         }
         return val;
       } catch (e) {
-        if (
-          e.message === "Password not found." ||
-          e.message === "The specified item could not be found in the keychain."
-        ) {
+        if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+          if (message.action === "hasPassword") {
+            return false;
+          }
           return null;
         }
-        this.logService.info(e);
+        this.logService.error("[Credential Storage Listener] %s failed", message.action, e);
       }
     });
   }

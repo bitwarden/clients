@@ -1,3 +1,5 @@
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KdfConfig, KdfType } from "@bitwarden/key-management";
 
 import { KeysRequest } from "../../../models/request/keys.request";

@@ -1,5 +1,5 @@
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { OrgKey, UserPrivateKey } from "../../../types/key";
 import { EncryptedOrganizationKeyData } from "../data/encrypted-organization-key.data";
@@ -31,8 +31,10 @@ export class EncryptedOrganizationKey implements BaseEncryptedOrganizationKey {
   constructor(private key: string) {}
 
   async decrypt(encryptService: EncryptService, privateKey: UserPrivateKey) {
-    const decValue = await encryptService.rsaDecrypt(this.encryptedOrganizationKey, privateKey);
-    return new SymmetricCryptoKey(decValue) as OrgKey;
+    return (await encryptService.decapsulateKeyUnsigned(
+      this.encryptedOrganizationKey,
+      privateKey,
+    )) as OrgKey;
   }
 
   get encryptedOrganizationKey() {
@@ -54,14 +56,14 @@ export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizati
   ) {}
 
   async decrypt(encryptService: EncryptService, providerKeys: Record<string, SymmetricCryptoKey>) {
-    const decValue = await encryptService.decryptToBytes(
+    const decValue = await encryptService.unwrapSymmetricKey(
       new EncString(this.key),
       providerKeys[this.providerId],
     );
     if (decValue == null) {
       throw new Error("Failed to decrypt organization key");
     }
-    return new SymmetricCryptoKey(decValue) as OrgKey;
+    return decValue as OrgKey;
   }
 
   get encryptedOrganizationKey() {

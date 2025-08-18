@@ -6,6 +6,8 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LinkModule } from "@bitwarden/components";
 
 /**
@@ -17,7 +19,6 @@ export interface RegistrationStartSecondaryComponentData {
 }
 
 @Component({
-  standalone: true,
   selector: "auth-registration-start-secondary",
   templateUrl: "./registration-start-secondary.component.html",
   imports: [CommonModule, JslibModule, RouterModule, LinkModule],

@@ -40,6 +40,7 @@ import { ProjectService } from "../project.service";
 @Component({
   selector: "sm-projects",
   templateUrl: "./projects.component.html",
+  standalone: false,
 })
 export class ProjectsComponent implements OnInit {
   protected projects$: Observable<ProjectListView[]>;

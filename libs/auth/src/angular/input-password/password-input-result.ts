@@ -1,11 +1,18 @@
 import { MasterKey } from "@bitwarden/common/types/key";
-import { PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfig } from "@bitwarden/key-management";
 
 export interface PasswordInputResult {
-  masterKey: MasterKey;
-  masterKeyHash: string;
-  localMasterKeyHash: string;
-  kdfConfig: PBKDF2KdfConfig;
-  hint: string;
-  password: string;
+  currentPassword?: string;
+  currentMasterKey?: MasterKey;
+  currentServerMasterKeyHash?: string;
+  currentLocalMasterKeyHash?: string;
+
+  newPassword: string;
+  newPasswordHint?: string;
+  newMasterKey?: MasterKey;
+  newServerMasterKeyHash?: string;
+  newLocalMasterKeyHash?: string;
+
+  kdfConfig?: KdfConfig;
+  rotateUserKey?: boolean;
 }

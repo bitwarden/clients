@@ -17,4 +17,8 @@ export type Integration = {
    * @example "2024-12-31"
    */
   newBadgeExpiration?: string;
+  description?: string;
+  isConnected?: boolean;
+  canSetupConnection?: boolean;
+  configuration?: string;
 };

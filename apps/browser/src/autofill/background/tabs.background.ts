@@ -1,7 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-
 import MainBackground from "../../background/main.background";
 
 import { OverlayBackground } from "./abstractions/overlay.background";
@@ -14,7 +10,7 @@ export default class TabsBackground {
     private overlayBackground: OverlayBackground,
   ) {}
 
-  private focusedWindowId: number;
+  private focusedWindowId: number = -1;
 
   /**
    * Initializes the window and tab listeners.
@@ -24,10 +20,8 @@ export default class TabsBackground {
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.updateCurrentTabData();
-    this.setupTabEventListeners();
+    void this.updateCurrentTabData();
+    void this.setupTabEventListeners();
   }
 
   /**
@@ -90,14 +84,6 @@ export default class TabsBackground {
     changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab,
   ) => {
-    const overlayImprovementsFlag = await this.main.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
-    );
-    const removePageDetailsStatus = new Set(["loading", "unloaded"]);
-    if (!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {
-      this.overlayBackground.removePageDetails(tabId);
-    }
-
     if (this.focusedWindowId > 0 && tab.windowId !== this.focusedWindowId) {
       return;
     }
@@ -114,7 +100,6 @@ export default class TabsBackground {
     this.main.onUpdatedRan = true;
 
     await this.notificationBackground.checkNotificationQueue(tab);
-    await this.main.refreshBadge();
     await this.main.refreshMenu();
     this.main.messagingService.send("tabChanged");
   };
@@ -134,7 +119,6 @@ export default class TabsBackground {
    */
   private updateCurrentTabData = async () => {
     await Promise.all([
-      this.main.refreshBadge(),
       this.main.refreshMenu(),
       this.overlayBackground.updateOverlayCiphers(false),
     ]);

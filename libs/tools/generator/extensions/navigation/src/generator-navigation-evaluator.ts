@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { PasswordAlgorithms, PolicyEvaluator } from "@bitwarden/generator-core";
+import { AlgorithmsByType, PolicyEvaluator, Type } from "@bitwarden/generator-core";
 
 import { DefaultGeneratorNavigation } from "./default-generator-navigation";
 import { GeneratorNavigation } from "./generator-navigation";
@@ -19,7 +19,7 @@ export class GeneratorNavigationEvaluator
 
   /** {@link PolicyEvaluator.policyInEffect} */
   get policyInEffect(): boolean {
-    return PasswordAlgorithms.includes(this.policy?.overridePasswordType);
+    return AlgorithmsByType[Type.password].includes(this.policy?.overridePasswordType);
   }
 
   /** Apply policy to the input options.

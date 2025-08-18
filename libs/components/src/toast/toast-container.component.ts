@@ -4,7 +4,6 @@ import { ToastContainerDirective, ToastrService } from "ngx-toastr";
 @Component({
   selector: "bit-toast-container",
   templateUrl: "toast-container.component.html",
-  standalone: true,
   imports: [ToastContainerDirective],
 })
 export class ToastContainerComponent implements OnInit {

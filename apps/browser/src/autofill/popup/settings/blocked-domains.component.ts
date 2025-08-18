@@ -44,7 +44,6 @@ import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popu
 @Component({
   selector: "app-blocked-domains",
   templateUrl: "blocked-domains.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CardComponent,

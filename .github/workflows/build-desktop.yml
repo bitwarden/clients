@@ -1,3 +1,7 @@
+# This workflow will run in the context of the source of the PR.
+# On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
+# If additional artifacts are needed, the failed "build-desktop-target.yml" workflow held up by the check-run should be re-run.
+
 name: Build Desktop
 
 on:
@@ -33,10 +37,17 @@ on:
         description: "Custom SDK branch"
         required: false
         type: string
+      testflight_distribute:
+        description: "Force distribute to TestFlight regardless of branch (useful for QA testing on feature branches)"
+        type: boolean
+        default: true
 
 defaults:
   run:
     shell: bash
+
+permissions:
+  contents: read
 
 jobs:
   electron-verify:
@@ -84,6 +95,7 @@ jobs:
         id: retrieve-version
         run: |
           PKG_VERSION=$(jq -r .version src/package.json)
+          echo "Setting version number to $PKG_VERSION"
           echo "package_version=$PKG_VERSION" >> $GITHUB_OUTPUT
 
       - name: Increment Version
@@ -135,10 +147,8 @@ jobs:
 
       - name: Check secrets
         id: check-secrets
-        env:
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
         run: |
-          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
           echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
   linux:
@@ -193,7 +203,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -229,7 +239,7 @@ jobs:
           TARGET: musl
         run: |
           rustup target add x86_64-unknown-linux-musl
-          node build.js cross-platform
+          node build.js --target=x86_64-unknown-linux-musl --release
 
       - name: Build application
         run: npm run dist:lin
@@ -290,11 +300,111 @@ jobs:
           if-no-files-found: error
 
 
+  linux-arm64:
+    name: Linux ARM64 Build
+    # Note, before updating the ubuntu version of the workflow, ensure the snap base image
+    # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
+    # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
+    # We intentionally keep this runner on the oldest supported OS in GitHub Actions
+    # for maximum compatibility across GLIBC versions
+    runs-on: ubuntu-22.04-arm
+    needs: setup
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      NODE_OPTIONS: --max_old_space_size=4096
+    defaults:
+      run:
+        working-directory: apps/desktop
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Set up environment
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+          snap --version
+          snapcraft --version || echo 'snapcraft unavailable'
+
+      - name: Install Node dependencies
+        run: npm ci
+        working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
+
+      - name: Cache Native Module
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        id: cache
+        with:
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
+            ${{ env.RUNNER_TEMP }}/.cargo/registry
+            ${{ env.RUNNER_TEMP }}/.cargo/git
+          key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+
+      - name: Build Native Module
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        env:
+          PKG_CONFIG_ALLOW_CROSS: true
+          PKG_CONFIG_ALL_STATIC: true
+          TARGET: musl
+        run: |
+          rustup target add aarch64-unknown-linux-musl
+          node build.js --target=aarch64-unknown-linux-musl --release
+
+      - name: Build application
+        run: npm run dist:lin:arm64
+
+      - name: Upload tar.gz artifact
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        with:
+          name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
+          path: apps/desktop/dist/bitwarden_desktop_arm64.tar.gz
+          if-no-files-found: error
+
   windows:
     name: Windows Build
     runs-on: windows-2022
     needs:
       - setup
+    permissions:
+        contents: read
+        id-token: write
     defaults:
       run:
         shell: pwsh
@@ -319,14 +429,8 @@ jobs:
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
 
-      - name: Set up environmentF
+      - name: Set up environment
         run: choco install checksum --no-progress
-
-      - name: Rust
-        shell: pwsh
-        run: |
-          rustup target install i686-pc-windows-msvc
-          rustup target install aarch64-pc-windows-msvc
 
       - name: Print environment
         run: |
@@ -335,11 +439,13 @@ jobs:
           choco --version
           rustup show
 
-      - name: Login to Azure
+      - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -353,6 +459,10 @@ jobs:
             code-signing-client-secret,
             code-signing-cert-name"
 
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Install Node dependencies
         run: npm ci
         working-directory: ./
@@ -361,7 +471,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -399,7 +509,7 @@ jobs:
         run: |
           npm run pack:win
 
-      - name: Pack & Sign (dev)
+      - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           ELECTRON_BUILDER_SIGN: 1
@@ -552,6 +662,9 @@ jobs:
     runs-on: macos-13
     needs:
       - setup
+    permissions:
+        contents: read
+        id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -575,10 +688,6 @@ jobs:
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
 
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
-
       - name: Print environment
         run: |
           node --version
@@ -601,11 +710,21 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Login to Azure
+      - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD"
 
       - name: Download Provisioning Profiles secrets
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -618,6 +737,11 @@ jobs:
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
             --name bitwarden_desktop_appstore.provisionprofile \
             --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --output none
+
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
             --output none
 
       - name: Get certificates
@@ -643,10 +767,14 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -679,6 +807,15 @@ jobs:
           cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
 
+          mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
+          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_appstore.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+
+          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
+          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
+
       - name: Increment version
         shell: pwsh
         env:
@@ -697,7 +834,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -737,6 +874,10 @@ jobs:
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     uses: ./.github/workflows/build-browser.yml
     secrets: inherit
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
 
 
   macos-package-github:
@@ -747,6 +888,9 @@ jobs:
       - browser-build
       - macos-build
       - setup
+    permissions:
+        contents: read
+        id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -770,10 +914,6 @@ jobs:
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
 
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
-
       - name: Print environment
         run: |
           node --version
@@ -796,10 +936,19 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Download Provisioning Profiles secrets
         env:
@@ -809,8 +958,13 @@ jobs:
           mkdir -p $HOME/secrets
 
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --name bitwarden_desktop_developer_id.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
+            --output none
+
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_developer_id.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile \
             --output none
 
       - name: Get certificates
@@ -835,9 +989,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -853,21 +1010,21 @@ jobs:
           security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Set up provisioning profiles
         run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+          cp $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
+            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile
+
+          mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
+          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+
+          cp $HOME/secrets/bitwarden_desktop_developer_id.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
+          cp $HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
 
       - name: Increment version
         shell: pwsh
@@ -887,7 +1044,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -941,12 +1098,12 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           EOF
 
       - name: Build application (dist)
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
@@ -989,6 +1146,9 @@ jobs:
       - browser-build
       - macos-build
       - setup
+    permissions:
+        contents: read
+        id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -1012,10 +1172,6 @@ jobs:
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
 
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
-
       - name: Print environment
         run: |
           node --version
@@ -1038,10 +1194,19 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Retrieve Slack secret
         id: retrieve-slack-secret
@@ -1060,6 +1225,11 @@ jobs:
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
             --name bitwarden_desktop_appstore.provisionprofile \
             --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --output none
+
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
             --output none
 
       - name: Get certificates
@@ -1084,9 +1254,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -1096,19 +1269,10 @@ jobs:
           security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
           security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
@@ -1117,6 +1281,15 @@ jobs:
         run: |
           cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+
+          mkdir -p $HOME/Library/MobileDevice/Provisioning\ Profiles
+          export APP_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_appstore.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+          export AUTOFILL_UUID=`grep UUID -A1 -a $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile | grep -io "[-A-Z0-9]\{36\}"`
+
+          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$APP_UUID.provisionprofile
+          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            $HOME/Library/MobileDevice/Provisioning\ Profiles/$AUTOFILL_UUID.provisionprofile
 
       - name: Increment version
         shell: pwsh
@@ -1149,7 +1322,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -1203,12 +1376,12 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           EOF
 
       - name: Build application for App Store
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
@@ -1221,21 +1394,45 @@ jobs:
           path: apps/desktop/dist/mas-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           if-no-files-found: error
 
+      - name: Create secrets for Fastlane
+        if: |
+          github.event_name != 'pull_request_target'
+          && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+        run: |
+          brew install gsed
+
+          KEY_WITHOUT_NEWLINES=$(gsed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' ~/private_keys/AuthKey_6TV9MKN3GP.p8)
+
+          cat << EOF > ~/secrets/appstoreconnect-fastlane.json
+          {
+            "issuer_id": "${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}",
+            "key_id": "6TV9MKN3GP",
+            "key": "$KEY_WITHOUT_NEWLINES"
+          }
+          EOF
+
       - name: Deploy to TestFlight
         id: testflight-deploy
         if: |
           github.event_name != 'pull_request_target'
-          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
+          && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
+          BRANCH: ${{ github.ref }}
         run: |
-          xcrun altool \
-            --upload-app \
-            --type macos \
-            --file "$(find ./dist/mas-universal/Bitwarden*.pkg)" \
-            --apiKey $APP_STORE_CONNECT_AUTH_KEY \
-            --apiIssuer $APP_STORE_CONNECT_TEAM_ISSUER
+
+          GIT_CHANGE="$(git show -s --format=%s)"
+
+          BRANCH=$(echo $BRANCH | sed 's/refs\/heads\///')
+
+          CHANGELOG="$BRANCH: $GIT_CHANGE"
+
+          fastlane pilot upload \
+            --app_identifier "com.bitwarden.desktop" \
+            --changelog "$CHANGELOG" \
+            --api_key_path $HOME/secrets/appstoreconnect-fastlane.json \
+            --pkg "$(find ./dist/mas-universal/Bitwarden*.pkg)"
 
       - name: Post message to a Slack channel
         id: slack-message
@@ -1262,226 +1459,6 @@ jobs:
         env:
           BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
 
-
-  macos-package-dev:
-    name: MacOS Package Dev Release Asset
-    runs-on: macos-13
-    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-    needs:
-      - browser-build
-      - macos-build
-      - setup
-    env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-      NODE_OPTIONS: --max_old_space_size=4096
-    defaults:
-      run:
-        working-directory: apps/desktop
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{  github.event.pull_request.head.sha }}
-
-      - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          node-version: ${{ env._NODE_VERSION }}
-
-      - name: Set up Node-gyp
-        run: python3 -m pip install setuptools
-
-      - name: Print environment
-        run: |
-          node --version
-          npm --version
-          echo "GitHub ref: $GITHUB_REF"
-          echo "GitHub event: $GITHUB_EVENT"
-
-      - name: Get Build Cache
-        id: build-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: apps/desktop/build
-          key: ${{ runner.os }}-${{ github.run_id }}-build
-
-      - name: Setup Safari Cache
-        id: safari-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: apps/browser/dist/Safari
-          key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
-
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
-        with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-
-      - name: Download Provisioning Profiles secrets
-        env:
-          ACCOUNT_NAME: bitwardenci
-          CONTAINER_NAME: profiles
-        run: |
-          mkdir -p $HOME/secrets
-
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            --output none
-
-      - name: Get certificates
-        run: |
-          mkdir -p $HOME/certificates
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/bitwarden-desktop-key |
-            jq -r .value | base64 -d > $HOME/certificates/bitwarden-desktop-key.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-app-cert.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/appstore-installer-cert.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
-            jq -r .value | base64 -d > $HOME/certificates/devid-installer-cert.p12
-
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
-            jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
-
-      - name: Set up keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
-          security set-keychain-settings -lut 1200 build.keychain
-
-          security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
-
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
-
-      - name: Set up provisioning profiles
-        run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
-
-      - name: Increment version
-        shell: pwsh
-        env:
-          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
-        run: |
-          $package = Get-Content -Raw -Path electron-builder.json | ConvertFrom-Json
-          $package | Add-Member -MemberType NoteProperty -Name buildVersion -Value "$env:BUILD_NUMBER"
-          $package | ConvertTo-Json -Depth 32 | Set-Content -Path electron-builder.json
-          Write-Output "### MacOS Dev build number: $env:BUILD_NUMBER"
-
-      - name: Install Node dependencies
-        run: npm ci
-        working-directory: ./
-
-      - name: Download SDK Artifacts
-        if: ${{ inputs.sdk_branch != '' }}
-        uses: bitwarden/gh-actions/download-artifacts@main
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: build-wasm-internal.yml
-          workflow_conclusion: success
-          branch: ${{ inputs.sdk_branch }}
-          artifacts: sdk-internal
-          repo: bitwarden/sdk-internal
-          path: ../sdk-internal
-          if_no_artifact_found: fail
-
-      - name: Override SDK
-        if: ${{ inputs.sdk_branch != '' }}
-        working-directory: ./
-        run: |
-          ls -l ../
-          npm link ../sdk-internal
-
-      - name: Cache Native Module
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        id: cache
-        with:
-          path: |
-            apps/desktop/desktop_native/napi/*.node
-            apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
-
-      - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
-
-      - name: Build
-        if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm run build
-
-      - name: Download Browser artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
-        with:
-          path: ${{ github.workspace }}/browser-build-artifacts
-
-      - name: Unzip Safari artifact
-        run: |
-          SAFARI_DIR=$(find $GITHUB_WORKSPACE/browser-build-artifacts -name 'dist-safari-*.zip')
-          echo $SAFARI_DIR
-          unzip $SAFARI_DIR/dist-safari.zip -d $GITHUB_WORKSPACE/browser-build-artifacts
-
-      - name: Load Safari extension for App Store
-        run: |
-          mkdir PlugIns
-          cp -r $GITHUB_WORKSPACE/browser-build-artifacts/Safari/masdev/build/Release/safari.appex PlugIns/safari.appex
-
-      - name: Set up private auth key
-        run: |
-          mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
-          EOF
-
-      - name: Build dev application for App Store
-        env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
-        run: npm run pack:mac:masdev
-
-      - name: Zip masdev asset
-        run: |
-          cd dist/mas-dev-universal
-          zip -r Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip Bitwarden.app
-
-      - name: Upload masdev artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip
-          path: apps/desktop/dist/mas-dev-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip
-          if-no-files-found: error
-
-
   crowdin-push:
     name: Crowdin Push
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
@@ -1490,6 +1467,10 @@ jobs:
       - windows
       - macos-package-github
       - macos-package-mas
+    permissions:
+        contents: write
+        pull-requests: write
+        id-token: write
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
@@ -1497,10 +1478,12 @@ jobs:
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -1509,8 +1492,11 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Upload Sources
-        uses: crowdin/github-action@30849777a3cba6ee9a09e24e195272b8287a0a5b # v1.20.4
+        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
@@ -1536,6 +1522,9 @@ jobs:
       - macos-package-github
       - macos-package-mas
       - crowdin-push
+    permissions:
+        contents: read
+        id-token: write
     steps:
       - name: Check if any job failed
         if: |
@@ -1544,11 +1533,13 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Login to Azure - Prod Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
         if: failure()
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -1558,6 +1549,9 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
         if: failure()
@@ -1565,3 +1559,4 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}
         with:
           status: ${{ job.status }}
+

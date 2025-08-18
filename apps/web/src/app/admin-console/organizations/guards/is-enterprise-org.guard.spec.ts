@@ -21,16 +21,19 @@ import { isEnterpriseOrgGuard } from "./is-enterprise-org.guard";
 
 @Component({
   template: "<h1>This is the home screen!</h1>",
+  standalone: false,
 })
 export class HomescreenComponent {}
 
 @Component({
   template: "<h1>This component can only be accessed by a enterprise organization!</h1>",
+  standalone: false,
 })
 export class IsEnterpriseOrganizationComponent {}
 
 @Component({
   template: "<h1>This is the organization upgrade screen!</h1>",
+  standalone: false,
 })
 export class OrganizationUpgradeScreenComponent {}
 

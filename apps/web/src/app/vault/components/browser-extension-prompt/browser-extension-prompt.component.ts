@@ -3,18 +3,17 @@ import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 
 import { ButtonComponent, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { VaultIcons } from "@bitwarden/vault";
 
 import {
   BrowserExtensionPromptService,
   BrowserPromptState,
 } from "../../services/browser-extension-prompt.service";
+import { ManuallyOpenExtensionComponent } from "../manually-open-extension/manually-open-extension.component";
 
 @Component({
   selector: "vault-browser-extension-prompt",
   templateUrl: "./browser-extension-prompt.component.html",
-  standalone: true,
-  imports: [CommonModule, I18nPipe, ButtonComponent, IconModule],
+  imports: [CommonModule, I18nPipe, ButtonComponent, IconModule, ManuallyOpenExtensionComponent],
 })
 export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
   /** Current state of the prompt page */
@@ -22,8 +21,6 @@ export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
 
   /** All available page states */
   protected BrowserPromptState = BrowserPromptState;
-
-  protected BitwardenIcon = VaultIcons.BitwardenIcon;
 
   /** Content of the meta[name="viewport"] element */
   private viewportContent: string | null = null;
@@ -61,6 +58,6 @@ export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
   }
 
   openExtension(): void {
-    this.browserExtensionPromptService.openExtension();
+    this.browserExtensionPromptService.openExtension(true);
   }
 }

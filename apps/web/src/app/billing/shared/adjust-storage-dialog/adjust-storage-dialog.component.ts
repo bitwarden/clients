@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
@@ -8,7 +7,13 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { StorageRequest } from "@bitwarden/common/models/request/storage.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 export interface AdjustStorageDialogParams {
   price: number;
@@ -17,6 +22,8 @@ export interface AdjustStorageDialogParams {
   organizationId?: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AdjustStorageDialogResultType {
   Submitted = "submitted",
   Closed = "closed",
@@ -24,6 +31,7 @@ export enum AdjustStorageDialogResultType {
 
 @Component({
   templateUrl: "./adjust-storage-dialog.component.html",
+  standalone: false,
 })
 export class AdjustStorageDialogComponent {
   protected formGroup = new FormGroup({

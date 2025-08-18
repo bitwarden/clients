@@ -1,0 +1,56 @@
+<app-header></app-header>
+
+<bit-container>
+  <p>{{ "breachDesc" | i18n }}</p>
+  <form [bitSubmit]="submit" [formGroup]="formGroup">
+    <bit-form-field class="tw-w-1/2" disableMargin>
+      <bit-label>{{ "username" | i18n }}</bit-label>
+      <input id="username" type="text" formControlName="username" bitInput />
+    </bit-form-field>
+    <small class="tw-mb-4 tw-block tw-text-muted">{{ "breachCheckUsernameEmail" | i18n }}</small>
+    <button type="submit" buttonType="primary" bitButton [loading]="loading">
+      {{ "checkBreaches" | i18n }}
+    </button>
+  </form>
+  <div class="tw-mt-4" *ngIf="!loading && checkedUsername">
+    <p *ngIf="error">{{ "reportError" | i18n }}...</p>
+    <ng-container *ngIf="!error">
+      <bit-callout type="success" title="{{ 'goodNews' | i18n }}" *ngIf="!breachedAccounts.length">
+        {{ "breachUsernameNotFound" | i18n: checkedUsername }}
+      </bit-callout>
+      <bit-callout type="danger" title="{{ 'breachFound' | i18n }}" *ngIf="breachedAccounts.length">
+        {{ "breachUsernameFound" | i18n: checkedUsername : breachedAccounts.length }}
+      </bit-callout>
+      <ul
+        class="tw-list-none tw-flex-col tw-divide-x-0 tw-divide-y tw-divide-solid tw-divide-secondary-300 tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-0"
+        *ngIf="breachedAccounts.length"
+      >
+        <li *ngFor="let a of breachedAccounts" class="tw-flex tw-gap-4 tw-p-4">
+          <div class="tw-w-32 tw-flex-none">
+            <img [src]="a.logoPath" alt="" class="tw-max-w-32 tw-items-stretch" />
+          </div>
+          <div class="tw-flex-auto">
+            <h3 class="tw-text-lg">{{ a.title }}</h3>
+            <p [innerHTML]="a.description"></p>
+            <p class="tw-mb-1">{{ "compromisedData" | i18n }}:</p>
+            <ul>
+              <li *ngFor="let d of a.dataClasses">{{ d }}</li>
+            </ul>
+          </div>
+          <div class="tw-w-48 tw-flex-none">
+            <dl>
+              <dt>{{ "website" | i18n }}</dt>
+              <dd>{{ a.domain }}</dd>
+              <dt>{{ "affectedUsers" | i18n }}</dt>
+              <dd>{{ a.pwnCount | number }}</dd>
+              <dt>{{ "breachOccurred" | i18n }}</dt>
+              <dd>{{ a.breachDate | date: "mediumDate" }}</dd>
+              <dt>{{ "breachReported" | i18n }}</dt>
+              <dd>{{ a.addedDate | date: "mediumDate" }}</dd>
+            </dl>
+          </div>
+        </li>
+      </ul>
+    </ng-container>
+  </div>
+</bit-container>

@@ -1,7 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  ViewChild,
+} from "@angular/core";
 import { Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -15,7 +25,6 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   FormFieldModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   LinkModule,
@@ -35,11 +44,9 @@ type TotpCodeValues = {
 @Component({
   selector: "app-login-credentials-view",
   templateUrl: "login-credentials-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,
@@ -51,11 +58,13 @@ type TotpCodeValues = {
     LinkModule,
   ],
 })
-export class LoginCredentialsViewComponent {
+export class LoginCredentialsViewComponent implements OnChanges {
   @Input() cipher: CipherView;
   @Input() activeUserId: UserId;
   @Input() hadPendingChangePasswordTask: boolean;
   @Output() handleChangePassword = new EventEmitter<void>();
+  @ViewChild("passwordInput")
+  private passwordInput!: ElementRef<HTMLInputElement>;
 
   isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
@@ -83,6 +92,17 @@ export class LoginCredentialsViewComponent {
       "short",
     );
     return `${dateCreated} ${creationDate}`;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["cipher"]) {
+      if (this.passwordInput?.nativeElement) {
+        // Reset password input type in case it's been toggled
+        this.passwordInput.nativeElement.type = "password";
+      }
+      this.passwordRevealed = false;
+      this.showPasswordCount = false;
+    }
   }
 
   async getPremium(organizationId?: string) {

@@ -9,17 +9,17 @@ import * as stories from "./popup-layout.stories";
 The popup tab navigation component composes together the popup page and the bottom tab navigation
 footer. This component is intended to be used a level _above_ each extension tab's page code.
 
-The navigation footer contains the 4 main page links for the browser extension. It uses the Angular
-router to determine which page is currently active, and style the button appropriately. Clicking on
-the buttons will navigate to the correct route. The navigation footer has a max-width built in so
-that the page looks nice when the extension is popped out.
+The navigation footer renders an array of nav buttons that are passed as an input. It uses the
+Angular router to determine which page is currently active, and styles the button appropriately.
+Clicking on the buttons will navigate to the correct route. The navigation footer has a max-width
+built in so that the page looks nice when the extension is popped out.
 
 Long button names will be ellipsed.
 
 Usage example:
 
 ```html
-<popup-tab-navigation>
+<popup-tab-navigation [navButtons]="[]">
   <popup-page></popup-page>
 </popup-tab-navigation>
 ```
@@ -54,6 +54,9 @@ page looks nice when the extension is popped out.
     `false`.
 - `loadingText`
   - Custom text to be applied to the loading element for screenreaders only. Defaults to "Loading".
+- `disablePadding`
+  - When `true`, disables the padding of the scrollable region inside of `main`. You will need to
+    add your own padding to the element you place inside of this area.
 
 Basic usage example:
 
@@ -153,7 +156,7 @@ View the story source code to see examples of how to construct these types of pa
 
 Example of wrapping an extension page in the `popup-tab-navigation` component.
 
-<Canvas of={stories.PopupTabNavigation} />
+<Canvas of={stories.DefaultPopupTabNavigation} />
 
 ## Extension Page
 
@@ -169,6 +172,22 @@ When the browser extension is popped out, the "popout" button should not be pass
 
 <Canvas of={stories.PoppedOut} />
 
+## With Virtual Scroll
+
+If you are using a virtual scrolling container inside of the popup page, you'll want to apply the
+`bitScrollLayout` directive to the `cdk-virtual-scroll-viewport` element. This tells the virtual
+scroll viewport to use the popup page's scroll layout div as the scrolling container.
+
+See the code in the example below.
+
+<Canvas of={stories.WithVirtualScrollChild} />
+
+### Known Virtual Scroll Issues
+
+See [Virtual Scrolling](?path=/docs/documentation-virtual-scrolling--docs#known-footgun) for more
+information about how to structure virtual scrolling containers with layout components and avoid a
+known issue with template construction.
+
 # Other stories
 
 ## Centered Content
@@ -182,3 +201,10 @@ An example of how to center the default content.
 An example of what the loading state looks like.
 
 <Canvas of={stories.Loading} />
+
+## Tab Navigation with Berry
+
+An example of what it looks like to show a notification berry on one of the popup tab navigation
+buttons.
+
+<Canvas of={stories.PopupTabNavigationWithBerry} />

@@ -1,4 +1,4 @@
-<cdk-virtual-scroll-viewport [itemSize]="RowHeight" scrollWindow class="tw-pb-8">
+<cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout class="tw-pb-8">
   <bit-table [dataSource]="dataSource" layout="fixed">
     <ng-container header>
       <tr>
@@ -22,16 +22,12 @@
           bitCell
           bitSortable="name"
           [fn]="sortByName"
-          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
+          [class]="showExtraColumn ? 'tw-w-3/5' : 'tw-w-full'"
         >
           {{ "name" | i18n }}
         </th>
         <!-- Individual vault -->
-        <th
-          *ngIf="!showAdminActions"
-          bitCell
-          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
-        >
+        <th *ngIf="!showAdminActions" bitCell [class]="showExtraColumn ? 'tw-w-3/5' : 'tw-w-full'">
           {{ "name" | i18n }}
         </th>
         <th bitCell *ngIf="showOwner" class="tw-hidden tw-w-2/5 lg:tw-table-cell">
@@ -52,10 +48,11 @@
           {{ "permission" | i18n }}
         </th>
         <th bitCell class="tw-w-12 tw-text-right">
+          @let menuDisabled = disableMenu$ | async;
           <button
-            [disabled]="disabled || isEmpty || disableMenu"
+            [disabled]="disabled || isEmpty || menuDisabled"
             [bitMenuTriggerFor]="headerMenu"
-            [attr.title]="disableMenu ? ('missingPermissions' | i18n) : ''"
+            [attr.title]="menuDisabled ? ('missingPermissions' | i18n) : ''"
             bitIconButton="bwi-ellipsis-v"
             size="small"
             type="button"
@@ -83,13 +80,11 @@
               bitMenuItem
               (click)="assignToCollections()"
             >
-              <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
+              <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
             <button
-              *ngIf="
-                (limitItemDeletion$ | async) ? (canRestoreSelected$ | async) : showBulkTrashOptions
-              "
+              *ngIf="canRestoreSelected$ | async"
               type="button"
               bitMenuItem
               (click)="bulkRestore()"
@@ -98,7 +93,7 @@
               {{ "restoreSelected" | i18n }}
             </button>
             <button
-              *ngIf="(limitItemDeletion$ | async) ? (canDeleteSelected$ | async) : showDelete"
+              *ngIf="canDeleteSelected$ | async"
               type="button"
               bitMenuItem
               (click)="bulkDelete()"
@@ -159,11 +154,7 @@
           [canAssignCollections]="canAssignCollections(item.cipher)"
           [canManageCollection]="canManageCollection(item.cipher)"
           [canDeleteCipher]="
-            cipherAuthorizationService.canDeleteCipher$(
-              item.cipher,
-              [item.cipher.collectionId],
-              showAdminActions
-            ) | async
+            cipherAuthorizationService.canDeleteCipher$(item.cipher, showAdminActions) | async
           "
           [canRestoreCipher]="
             cipherAuthorizationService.canRestoreCipher$(item.cipher, showAdminActions) | async

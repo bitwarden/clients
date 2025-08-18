@@ -1,17 +1,23 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "customFields" | i18n }}</h2>
   </bit-section-header>
   <bit-card>
     <div
       class="tw-border-secondary-300 [&_bit-form-field:last-of-type]:tw-mb-0"
-      *ngFor="let field of cipher.fields; let last = last"
+      *ngFor="let field of cipher.fields; let last = last; let i = index"
       [ngClass]="{ 'tw-mb-4': !last }"
       data-testid="custom-field"
     >
       <bit-form-field *ngIf="field.type === fieldType.Text" [disableReadOnlyBorder]="last">
         <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
-        <input readonly bitInput type="text" [value]="field.value" aria-readonly="true" />
+        <textarea
+          readonly
+          bitInput
+          [value]="field.value"
+          aria-readonly="true"
+          vaultAutosizeReadOnlyTextArea
+        ></textarea>
         <button
           bitIconButton="bwi-clone"
           bitSuffix
@@ -32,14 +38,40 @@
           [value]="field.value"
           aria-readonly="true"
           class="tw-font-mono"
+          *ngIf="!revealedHiddenFields.includes(i)"
         />
+        <!-- `type="password"` is only available for inputs, but textarea should show the entire field when visible. -->
+        <textarea
+          *ngIf="revealedHiddenFields.includes(i)"
+          readonly
+          bitInput
+          type="password"
+          [value]="field.value"
+          aria-readonly="true"
+          class="tw-font-mono"
+          vaultAutosizeReadOnlyTextArea
+        ></textarea>
+        <button
+          *ngIf="canViewPassword && revealedHiddenFields.includes(i)"
+          bitIconButton="bwi-numbered-list"
+          bitSuffix
+          type="button"
+          data-testid="toggle-hidden-field-value-count"
+          [appA11yTitle]="
+            (showHiddenValueCountFields.includes(i) ? 'hideCharacterCount' : 'showCharacterCount')
+              | i18n
+          "
+          [attr.aria-expanded]="showHiddenValueCountFields.includes(i)"
+          appStopClick
+          (click)="toggleCharacterCount(i)"
+        ></button>
         <button
           bitSuffix
           type="button"
           bitIconButton
           bitPasswordInputToggle
           *ngIf="canViewPassword"
-          (toggledChange)="logHiddenEvent($event)"
+          (toggledChange)="toggleHiddenField($event, i)"
         ></button>
         <button
           bitIconButton="bwi-clone"
@@ -53,6 +85,12 @@
           (click)="logCopyEvent()"
         ></button>
       </bit-form-field>
+      <div
+        *ngIf="showHiddenValueCountFields.includes(i) && revealedHiddenFields.includes(i)"
+        [ngClass]="{ 'tw-mt-3': true, 'tw-mb-2': true }"
+      >
+        <bit-color-password [password]="field.value" [showCount]="true"></bit-color-password>
+      </div>
       <bit-form-control *ngIf="field.type === fieldType.Boolean">
         <input
           bitCheckbox
@@ -77,4 +115,4 @@
       </bit-form-field>
     </div>
   </bit-card>
-</bit-section>
+</section>

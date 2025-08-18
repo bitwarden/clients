@@ -37,14 +37,14 @@ export class DefaultKdfConfigService implements KdfConfigService {
     await this.stateProvider.setUserState(KDF_CONFIG, kdfConfig, userId);
   }
 
-  async getKdfConfig(): Promise<KdfConfig> {
-    const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+  async getKdfConfig(userId: UserId): Promise<KdfConfig> {
     if (userId == null) {
-      throw new Error("KdfConfig can only be retrieved when there is active user");
+      throw new Error("userId cannot be null");
     }
+
     const state = await firstValueFrom(this.stateProvider.getUser(userId, KDF_CONFIG).state$);
     if (state == null) {
-      throw new Error("KdfConfig for active user account state is null");
+      throw new Error("KdfConfig for user " + userId + " is null");
     }
     return state;
   }

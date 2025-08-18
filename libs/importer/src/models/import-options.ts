@@ -46,6 +46,7 @@ export const regularImportOptions = [
   { id: "ascendocsv", name: "Ascendo DataVault (csv)" },
   { id: "meldiumcsv", name: "Meldium (csv)" },
   { id: "passkeepcsv", name: "PassKeep (csv)" },
+  { id: "edgecsv", name: "Edge (csv)" },
   { id: "operacsv", name: "Opera (csv)" },
   { id: "vivaldicsv", name: "Vivaldi (csv)" },
   { id: "gnomejson", name: "GNOME Passwords and Keys/Seahorse (json)" },
@@ -72,6 +73,7 @@ export const regularImportOptions = [
   { id: "passkyjson", name: "Passky (json)" },
   { id: "passwordxpcsv", name: "Password XP (csv)" },
   { id: "netwrixpasswordsecure", name: "Netwrix Password Secure (csv)" },
+  { id: "passworddepot17xml", name: "Password Depot 17 (xml)" },
 ] as const;
 
 export type ImportType =

@@ -83,54 +83,121 @@ import { Meta } from "@storybook/addon-docs";
 
 # Bitwarden Component Library
 
-The Bitwarden Component Library is a collection of reusable low level components which empowers
+The Bitwarden Component Library (CL) is a collection of reusable low-level components that empower
 designers and developers to work more efficiently. The primary goal is to ensure a consistent design
-and behavior across the different clients and platforms. Currently the primary focus is the web
-based clients, namely _web_, _browser_ and _desktop_.
+and behavior across the different clients and platforms.
 
-**Roll out status:** we are currently in the process of transitioning the Web Vault to utilize the
-component library and the other clients will follow once this work is completed.
+Currently the primary usage of the CL is in the web-based clients, namely _web_, _browser_, and
+_desktop_.
 
-<div className="subheading">Configure</div>
+**Rollout status:** The web vault and browser extension are transitioned to use the component
+library. We are currently working on the desktop application, which has the CL available for use but
+is not fully migrated.
+
+## Components vs CSS
+
+We use Angular components rather than reusable CSS classes to build the Component Library. In
+addition to standardizing styles, this has the benefit of standardizing DOM hierarchy,
+accessibility, and usage patterns, which cannot be enforced with CSS styles alone.
+
+We use Tailwind to power the Component Library styles, and to build other non-CL presentational UI
+elements. Teams implementing custom UIs will use a mixture of Tailwind and CL components.
+
+Bootstrap is deprecated. Do not introduce any new Bootstrap code to any client apps.
+
+## Storybook Guide
+
+This Storybook contains both Component Library components and team-owned components.
+
+Team-owned components are higher-level components that may be reused in some places in the client
+apps, but are not in the Component Library because they either are not low-level enough to be
+considered, or have not yet been used in enough places to be pulled into the Component Library.
+These components are still important to represent in Storybook so that we can show existing
+implementations, identify common patterns, and catch regressions through snapshot testing.
+
+### How to use Storybook to develop code
+
+Each component contains a documentation page and story examples. The documentation page contains
+context and code snippets that will help developers learn how and why to use a given component. The
+story examples show variants and common use cases visually, and their code can be referenced as
+examples for implementation.
+
+Please note that code snippets and examples may not be production-ready, i.e. they may be missing
+required properties or container-level styling.
+
+### When to add to Storybook
+
+The more components that we can represent in Storybook, the better snapshot regression coverage we
+will have! Consider adding a story to Storybook when:
+
+- A regression is identified for a common component usage that is not currently represented in
+  Storybook (to prevent future regressions!)
+- A new team-owned component is added to the codebase
+- A team-owned component is updated and/or is being used in new places
+- A new CL component is added to the codebase -- Storybook representation is a requirement for all
+  CL components
+
+Adding to the docs pages is also helpful. Consider contributing when:
+
+- More context / instruction would have been helpful to you as you implement a component
+- A typo or error is identified in the docs
+
+### How to add to Storybook
+
+The process to add to Storybook is mostly the same for CL components and team-owned components.
+Reference existing stories as examples. As you determine what content should be included, think of
+what would be helpful to you if you were consuming this component for the first time.
+
+1. Add an mdx and story file in the same directory as the component (you can reference existing
+   files -- search for `*.stories.ts` and view their associated `.mdx` pages)
+2. (For team-owned components) Check if your file path is already included in the
+   `.storybook/main.ts` config -- if not, add it
+3. Write the docs `*.mdx` page
+   - What is the component intended to be used for?
+   - How to import and use it? What inputs and slots are available?
+   - Are there other usage guidelines, such as pointing out similar components and when to use each?
+     Do's and don'ts, such as keeping content succint?
+   - Any accessibility or other implementation considerations?
+   - Does it need to be used in conjunction with any other existing components?
+
+4. Add stories to the `*.stories.ts` file
+   - Default normal use case, including variants if applicable
+   - Other common use cases / patterns
+   - Edge cases (examples below, not a comprehensive list):
+     - Long text -- does it truncate, ellipse, wrap, scroll, etc?
+     - Disabled state?
+     - What would it look like with an icon?
+     - Is there a loading state?
+   - You'll need to mock any services required for the component (team-owned components often have
+     more of this mocking to do)
+
+---
+
+<div className="subheading">References</div>
 
 <div className="link-list">
   <a className="link-item" href="https://tailwindcss.com/" target="_blank">
     <span>
       <strong>Tailwind</strong>
-      The component library CSS is powered by the Tailwind CSS framework
+      The Component Library CSS is powered by the Tailwind CSS framework
     </span>
   </a>
-  <a
-    className="link-item"
-    href="https://storybook.js.org/docs/react/get-started/setup#configure-storybook-for-your-stack"
-    target="_blank"
-    rel="noreferrer"
-  >
+  <a className="link-item" href="https://angular.dev/overview" target="_blank">
     <span>
-      <strong>Data</strong>
-      Providers and mocking for data libraries
+      <strong>Angular</strong>
+      We use Angular to build our client apps and Component Library
     </span>
   </a>
-</div>
-
-<div className="subheading">Learn</div>
-
-<div className="link-list">
-  <a className="link-item" href="https://storybook.js.org/docs" target="_blank" rel="noreferrer">
+  <a className="link-item" href="https://storybook.js.org/docs" target="_blank">
     <span>
-      <strong>Storybook documentation</strong>
-      Configure, customize, and extend
+      <strong>Storybook</strong>
+      Learn more about Storybook and view its implementation docs
     </span>
   </a>
-  <a
-    className="link-item"
-    href="https://storybook.js.org/tutorials/"
-    target="_blank"
-    rel="noreferrer"
-  >
+  <a className="link-item" href="https://www.markdownguide.org/cheat-sheet/" target="_blank">
     <span>
-      <strong>In-depth guides</strong>
-      Best practices from leading teams
+      <strong>Markdown</strong>
+      Quick cheatsheet for writing markdown, which is used for our Storybook docs files
     </span>
   </a>
 </div>

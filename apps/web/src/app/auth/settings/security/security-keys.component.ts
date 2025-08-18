@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -8,18 +8,16 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 
+import { SharedModule } from "../../../shared";
+
 import { ApiKeyComponent } from "./api-key.component";
+import { ChangeKdfModule } from "./change-kdf/change-kdf.module";
 
 @Component({
-  selector: "app-security-keys",
   templateUrl: "security-keys.component.html",
+  imports: [SharedModule, ChangeKdfModule],
 })
 export class SecurityKeysComponent implements OnInit {
-  @ViewChild("viewUserApiKeyTemplate", { read: ViewContainerRef, static: true })
-  viewUserApiKeyModalRef: ViewContainerRef;
-  @ViewChild("rotateUserApiKeyTemplate", { read: ViewContainerRef, static: true })
-  rotateUserApiKeyModalRef: ViewContainerRef;
-
   showChangeKdf = true;
 
   constructor(

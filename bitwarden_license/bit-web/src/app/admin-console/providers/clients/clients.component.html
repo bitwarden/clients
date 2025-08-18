@@ -1,10 +1,11 @@
+@let isAdminOrServiceUser = isAdminOrServiceUser$ | async;
 <app-header>
   <bit-search
     class="tw-grow"
     [formControl]="searchControl"
     [placeholder]="'search' | i18n"
   ></bit-search>
-  <a bitButton routerLink="create" *ngIf="manageOrganizations" buttonType="primary">
+  <a bitButton routerLink="create" *ngIf="isAdminOrServiceUser" buttonType="primary">
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "newClient" | i18n }}
   </a>
@@ -12,7 +13,7 @@
     type="button"
     bitButton
     (click)="addExistingOrganization()"
-    *ngIf="manageOrganizations && showAddExisting"
+    *ngIf="isAdminOrServiceUser && showAddExisting"
   >
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "addExistingOrganization" | i18n }}
@@ -21,7 +22,7 @@
 
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
@@ -31,49 +32,44 @@
 <ng-container *ngIf="!loading">
   <p *ngIf="dataSource.data.length < 1">{{ "noClientsInList" | i18n }}</p>
   <ng-container *ngIf="dataSource.data.length >= 1">
-    <bit-table-scroll
-      [dataSource]="dataSource"
-      [rowSize]="53"
-      class="tw-table tw-w-full table-hover table-list"
-    >
+    <bit-table-scroll [dataSource]="dataSource" [rowSize]="53" class="tw-table tw-w-full">
       <ng-container header>
         <th bitCell colspan="2" bitSortable="organizationName">{{ "name" | i18n }}</th>
         <th bitCell bitSortable="seats">{{ "numberOfUsers" | i18n }}</th>
         <th bitCell bitSortable="plan">{{ "billingPlan" | i18n }}</th>
-        <th bitCell></th>
       </ng-container>
       <ng-template bitRowDef let-row>
         <td bitCell width="30">
           <bit-avatar [text]="row.organizationName" [id]="row.id" size="small"></bit-avatar>
         </td>
-        <td bitCell width="325">
+        <td bitCell width="320">
           <a [routerLink]="['/organizations', row.organizationId]">{{ row.organizationName }}</a>
         </td>
-        <td bitCell>
+        <td bitCell width="700">
           <span>{{ row.userCount }}</span>
           <span *ngIf="row.seats != null"> / {{ row.seats }}</span>
         </td>
-        <td bitCell width="150">
+        <td bitCell width="250" class="tw-flex tw-flex-row tw-items-center">
           <span>{{ row.plan }}</span>
-        </td>
-        <td class="table-list-options" *ngIf="manageOrganizations">
-          <div class="dropdown" appListDropdown>
+          <div appListDropdown>
             <button
-              class="btn btn-outline-secondary dropdown-toggle"
+              *ngIf="isAdminOrServiceUser"
+              [bitMenuTriggerFor]="removeMenu"
+              bitMenuItem
+              buttonType="secondary"
               type="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
               appA11yTitle="{{ 'options' | i18n }}"
             >
               <i class="bwi bwi-cog bwi-lg" aria-hidden="true"></i>
             </button>
-            <div class="dropdown-menu dropdown-menu-right">
-              <a class="dropdown-item text-danger" href="#" appStopClick (click)="remove(row)">
-                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-                {{ "remove" | i18n }}
-              </a>
-            </div>
+            <bit-menu #removeMenu>
+              <button bitMenuItem type="button" appStopClick (click)="remove(row)">
+                <span class="tw-text-danger">
+                  <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                  {{ "remove" | i18n }}
+                </span>
+              </button>
+            </bit-menu>
           </div>
         </td>
       </ng-template>

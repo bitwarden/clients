@@ -26,6 +26,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -131,6 +132,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected kdfConfigService: KdfConfigService,
     protected taskSchedulerService: TaskSchedulerService,
+    protected configService: ConfigService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -242,10 +244,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     return result;
   }
 
-  async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string,
-  ): Promise<AuthResult> {
+  async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
     if (!(await this.isSessionValid())) {
       throw new Error(this.i18nService.t("sessionTimeout"));
     }
@@ -256,10 +255,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
 
     try {
-      const result = await strategy.logInTwoFactor(twoFactor, captchaResponse);
+      const result = await strategy.logInTwoFactor(twoFactor);
 
       // Only clear cache if 2FA token has been accepted, otherwise we need to be able to try again
-      if (result != null && !result.requiresTwoFactor && !result.requiresCaptcha) {
+      if (result != null && !result.requiresTwoFactor) {
         await this.clearCache();
       }
       return result;
@@ -403,6 +402,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
       this.environmentService,
+      this.configService,
     ];
 
     return source.pipe(

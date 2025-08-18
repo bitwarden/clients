@@ -65,6 +65,8 @@ describe("CardDetailsSectionComponent", () => {
     cardView.cardholderName = "Ron Burgundy";
     cardView.number = "4242 4242 4242 4242";
     cardView.brand = "Visa";
+    cardView.expMonth = "";
+    cardView.code = "";
 
     expect(patchCipherSpy).toHaveBeenCalled();
     const patchFn = patchCipherSpy.mock.lastCall[0];
@@ -79,6 +81,10 @@ describe("CardDetailsSectionComponent", () => {
     });
 
     const cardView = new CardView();
+    cardView.cardholderName = "";
+    cardView.number = "";
+    cardView.expMonth = "";
+    cardView.code = "";
     cardView.expYear = "2022";
 
     expect(patchCipherSpy).toHaveBeenCalled();

@@ -17,6 +17,7 @@ export class OrganizationUserAdminView {
   type: OrganizationUserType;
   status: OrganizationUserStatusType;
   externalId: string;
+  ssoExternalId: string;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   hasMasterPassword: boolean;
@@ -39,6 +40,7 @@ export class OrganizationUserAdminView {
     view.type = response.type;
     view.status = response.status;
     view.externalId = response.externalId;
+    view.ssoExternalId = response.ssoExternalId;
     view.permissions = response.permissions;
     view.resetPasswordEnrolled = response.resetPasswordEnrolled;
     view.collections = response.collections.map((c) => ({
