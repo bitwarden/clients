@@ -20,7 +20,7 @@ end
 
 APP_CONFIG = {
   app_identifier: "com.bitwarden.desktop",
-  release_notes_path: "fastlane/release_notes", # Generated release notes only
+  release_notes_path: "fastlane/release_notes",
   locales: load_app_store_locales
 }
 
@@ -29,7 +29,7 @@ platform :mac do
   lane :prepare_release_notes do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     
-    # Create release notes for each supported locale (like iOS pattern)
+    # Create release notes for each supported locale
     Dir.chdir("..") do
       APP_CONFIG[:locales].each do |locale|
         locale_dir = "#{APP_CONFIG[:release_notes_path]}/#{locale}"
@@ -104,7 +104,7 @@ platform :mac do
       is_key_content_base64: true
     )
 
-    # Create release notes hash for all locales (like iOS pattern)
+    # Create release notes hash for all locales
     notes = {}
     APP_CONFIG[:locales].each do |locale|
       release_notes_path = "#{APP_CONFIG[:release_notes_path]}/#{locale}/release_notes.txt"
@@ -113,15 +113,15 @@ platform :mac do
       end
     end
 
-    # Upload to App Store Connect (release notes only)
+    # Upload to App Store Connect
     deliver(
       platform: "osx",
       app_identifier: APP_CONFIG[:app_identifier],
       build_number: build_number,
       skip_binary_upload: true,
       skip_screenshots: true,
-      skip_metadata: true, # Skip static metadata (managed outside of automation)
-      release_notes: notes, # Only update release notes
+      skip_metadata: true, # Skip metadata (managed outside of automation)
+      release_notes: notes,
       submit_for_review: submit_for_review,
       precheck_include_in_app_purchases: false,
       run_precheck_before_submit: true,
