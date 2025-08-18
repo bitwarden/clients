@@ -52,6 +52,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   constructor() {
+    this.checkPageOpacity();
     this.setupMutationObserver();
   }
 
@@ -302,7 +303,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   private observeCustomElements() {
     this.htmlMutationObserver?.observe(document.querySelector("html"), { attributes: true });
-    this.bodyMutationObserver?.observe(document.querySelector("body"), { attributes: true });
+    this.bodyMutationObserver?.observe(document.body, { attributes: true });
 
     if (this.buttonElement) {
       this.inlineMenuElementsMutationObserver?.observe(this.buttonElement, {
@@ -404,14 +405,18 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     });
   };
 
+  private checkPageOpacity = () => {
+    this.pageIsOpaque = this.getPageIsOpaque();
+
+    if (!this.pageIsOpaque) {
+      this.closeInlineMenu();
+    }
+  };
+
   private handlePageMutations = (mutations: MutationRecord[]) => {
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
-        this.pageIsOpaque = this.getPageIsOpaque();
-
-        if (!this.pageIsOpaque) {
-          this.closeInlineMenu();
-        }
+        this.checkPageOpacity();
       }
     }
   };
@@ -433,7 +438,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     ).opacity;
 
     // Any value above this is considered "opaque" for our purposes
-    const opacityThreshold = 0.4;
+    const opacityThreshold = 0.6;
 
     return parseFloat(htmlOpacity) > opacityThreshold && parseFloat(bodyOpacity) > opacityThreshold;
   }
@@ -445,9 +450,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private processContainerElementMutation = async (containerElement: HTMLElement) => {
     // If the computed opacity of the body and parent is not sufficiently opaque, tear
     // down and prevent building the inline menu experience.
+    this.checkPageOpacity();
     if (!this.pageIsOpaque) {
-      this.closeInlineMenu();
-
       return;
     }
 
