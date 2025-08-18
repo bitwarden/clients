@@ -43,6 +43,7 @@ export class BitInputDirective implements BitFormFieldControl {
       "tw-block",
       "tw-w-full",
       "tw-h-full",
+      "tw-px-1",
       "tw-text-main",
       "tw-placeholder-text-muted",
       "tw-bg-background",

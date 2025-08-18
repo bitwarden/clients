@@ -131,6 +131,7 @@ export class OssServeConfigurator {
       this.serviceContainer.keyService,
       this.serviceContainer.encryptService,
       this.serviceContainer.organizationUserApiService,
+      this.serviceContainer.accountService,
       this.serviceContainer.configService,
       this.serviceContainer.i18nService,
     );

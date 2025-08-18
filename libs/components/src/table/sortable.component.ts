@@ -104,9 +104,6 @@ export class SortableComponent implements OnInit {
   get classList() {
     return [
       "tw-min-w-max",
-
-      // Offset to border and padding
-      "-tw-m-1.5",
       "tw-font-bold",
 
       // Below is copied from BitIconButtonComponent
