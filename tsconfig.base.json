@@ -67,5 +67,8 @@
       }
     ],
     "useDefineForClassFields": false
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true
   }
 }

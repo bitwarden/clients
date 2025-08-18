@@ -5,6 +5,7 @@
 @import "./toast/toast.tokens.css";
 @import "./toast/toastr.css";
 @import "./search/search.component.css";
+@import "./button/button.component.css";
 
 @tailwind base;
 @tailwind components;

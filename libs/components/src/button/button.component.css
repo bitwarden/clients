@@ -1,0 +1,106 @@
+.bit-button {
+  /* Design tokens (default values) scoped to button, referencing tw-theme.css */
+
+  --bit-color-button-border-width: 2px;
+  --bit-spacing-button-small-y: 0.25rem;
+  --bit-spacing-button-small-x: 0.75rem;
+  --bit-spacing-button-default-y: 0.375rem;
+  --bit-spacing-button-default-x: 0.75rem;
+
+  --bit-color-button-border-primary: rgb(var(--color-primary-600));
+  --bit-color-button-bg-primary: rgb(var(--color-primary-600));
+  --bit-color-button-text-primary-contrast: rgb(var(--color-text-contrast));
+  --bit-color-button-bg-primary-hover: rgb(var(--color-primary-700));
+  --bit-color-button-border-primary-hover: rgb(var(--color-primary-700));
+  --bit-color-button-text-primary: rgb(var(--color-primary-600));
+  --bit-color-button-bg-hover-default: var(--color-hover-default);
+
+  --bit-color-button-border-danger: rgb(var(--color-danger-600));
+  --bit-color-button-text-danger: rgb(var(--color-danger-600));
+  --bit-color-button-bg-danger-hover: rgb(var(--color-danger-600));
+  --bit-color-button-border-danger-hover: rgb(var(--color-danger-600));
+  --bit-color-button-text-danger-contrast: rgb(var(--color-text-contrast));
+
+  --bit-color-button-primary-600: rgb(var(--color-primary-600));
+  --bit-color-button-secondary-300: rgb(var(--color-secondary-300));
+  --bit-color-button-text-muted: rgb(var(--color-text-muted));
+
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: all 0.2s;
+  border-width: var(--bit-btn-border-width);
+  border-style: solid;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+}
+
+.bit-button-inline {
+  display: inline-block;
+}
+
+.bit-button-block {
+  width: 100%;
+  display: block;
+}
+
+.bit-button-size-small {
+  font-size: 0.875rem;
+  padding-top: var(--bit-spacing-button-small-y);
+  padding-bottom: var(--bit-spacing-button-small-y);
+  padding-left: var(--bit-spacing-button-small-x);
+  padding-right: var(--bit-spacing-button-small-x);
+}
+
+.bit-button-size-default {
+  padding-top: var(--bit-spacing-button-default-y);
+  padding-bottom: var(--bit-spacing-button-default-y);
+  padding-left: var(--bit-spacing-button-default-x);
+  padding-right: var(--bit-spacing-button-default-x);
+}
+
+.bit-button-primary {
+  border-color: var(--bit-color-button-border-primary);
+  background-color: var(--bit-color-button-bg-primary);
+  color: var(--bit-color-button-text-primary-contrast) !important;
+}
+.bit-button-primary:hover {
+  background-color: var(--bit-color-button-bg-primary-hover);
+  border-color: var(--bit-color-button-border-primary-hover);
+}
+
+.bit-button-secondary {
+  background-color: transparent;
+  border-color: var(--bit-color-button-border-primary);
+  color: var(--bit-color-button-text-primary) !important;
+}
+.bit-button-secondary:hover {
+  background-color: var(--bit-color-button-bg-hover-default);
+}
+
+.bit-button-danger {
+  background-color: transparent;
+  border-color: var(--bit-color-button-border-danger);
+  color: var(--bit-color-button-text-danger) !important;
+}
+.bit-button-danger:hover {
+  background-color: var(--bit-color-button-bg-danger-hover);
+  border-color: var(--bit-color-button-border-danger-hover);
+  color: var(--bit-color-button-text-danger-contrast) !important;
+}
+
+.bit-button-focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px var(--bit-color-button-primary-600);
+  z-index: 10;
+  outline: none;
+}
+
+.bit-button-disabled,
+.bit-button-disabled:disabled,
+.bit-button-disabled[disabled] {
+  background-color: var(--bit-color-button-secondary-300) !important;
+  border-color: var(--bit-color-button-secondary-300) !important;
+  color: var(--bit-color-button-text-muted) !important;
+  cursor: not-allowed;
+  text-decoration: none !important;
+}
