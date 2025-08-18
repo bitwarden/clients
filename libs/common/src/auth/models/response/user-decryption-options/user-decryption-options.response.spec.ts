@@ -1,5 +1,4 @@
 import { UserDecryptionOptionsResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
-import { MasterPasswordUnlockResponse } from "@bitwarden/common/key-management/master-password/models/response/master-password-unlock.response";
 // eslint-disable-next-line no-restricted-imports
 import { KdfType } from "@bitwarden/key-management";
 
@@ -19,7 +18,7 @@ describe("UserDecryptionOptionsResponse", () => {
           Iterations: 600_000,
         },
         MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
-      } as unknown as MasterPasswordUnlockResponse,
+      },
     });
 
     expect(response.hasMasterPassword).toBe(true);

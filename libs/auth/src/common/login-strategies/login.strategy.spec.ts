@@ -19,7 +19,6 @@ import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/mod
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { MasterPasswordUnlockResponse } from "@bitwarden/common/key-management/master-password/models/response/master-password-unlock.response";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -79,7 +78,7 @@ const defaultUserDecryptionOptionsServerResponse: IUserDecryptionOptionsServerRe
       Iterations: kdfIterations,
     },
     MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
-  } as unknown as MasterPasswordUnlockResponse,
+  },
 };
 
 const decodedToken = {

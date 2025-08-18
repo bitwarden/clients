@@ -17,7 +17,7 @@ import {
 
 export interface IUserDecryptionOptionsServerResponse {
   HasMasterPassword: boolean;
-  MasterPasswordUnlock?: MasterPasswordUnlockResponse;
+  MasterPasswordUnlock?: unknown;
   TrustedDeviceOption?: ITrustedDeviceUserDecryptionOptionServerResponse;
   KeyConnectorOption?: IKeyConnectorUserDecryptionOptionServerResponse;
   WebAuthnPrfOption?: IWebAuthnPrfDecryptionOptionServerResponse;
