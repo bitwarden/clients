@@ -868,8 +868,8 @@ pub mod logging {
 
 #[napi]
 pub mod chromium_importer {
-    use desktop_importer::chromium::LoginImportResult as _LoginImportResult;
-    use desktop_importer::chromium::ProfileInfo as _ProfileInfo;
+    use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
+    use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
 
     #[napi(object)]
     pub struct ProfileInfo {

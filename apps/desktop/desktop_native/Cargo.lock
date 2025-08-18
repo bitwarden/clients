@@ -448,6 +448,102 @@ dependencies = [
 ]
 
 [[package]]
+name = "bitwarden_bridge"
+version = "0.0.0"
+dependencies = [
+ "aes",
+ "aes-gcm",
+ "anyhow",
+ "async-trait",
+ "base64",
+ "cbc",
+ "chacha20poly1305",
+ "clap",
+ "colog",
+ "env_logger",
+ "hex",
+ "homedir",
+ "log",
+ "oo7",
+ "pbkdf2",
+ "rand 0.9.1",
+ "rusqlite",
+ "scopeguard",
+ "security-framework",
+ "serde",
+ "serde_json",
+ "sha1",
+ "tokio",
+ "winapi",
+ "windows 0.61.1",
+ "windows-service",
+]
+
+[[package]]
+name = "bitwarden_chrome_reader"
+version = "0.0.0"
+dependencies = [
+ "aes",
+ "aes-gcm",
+ "anyhow",
+ "async-trait",
+ "base64",
+ "cbc",
+ "chacha20poly1305",
+ "clap",
+ "colog",
+ "env_logger",
+ "hex",
+ "homedir",
+ "log",
+ "oo7",
+ "pbkdf2",
+ "rand 0.9.1",
+ "rusqlite",
+ "scopeguard",
+ "security-framework",
+ "serde",
+ "serde_json",
+ "sha1",
+ "tokio",
+ "winapi",
+ "windows 0.61.1",
+ "windows-service",
+]
+
+[[package]]
+name = "bitwarden_chromium_importer"
+version = "0.0.0"
+dependencies = [
+ "aes",
+ "aes-gcm",
+ "anyhow",
+ "async-trait",
+ "base64",
+ "cbc",
+ "chacha20poly1305",
+ "clap",
+ "colog",
+ "env_logger",
+ "hex",
+ "homedir",
+ "log",
+ "oo7",
+ "pbkdf2",
+ "rand 0.9.1",
+ "rusqlite",
+ "scopeguard",
+ "security-framework",
+ "serde",
+ "serde_json",
+ "sha1",
+ "tokio",
+ "winapi",
+ "windows 0.61.1",
+ "windows-service",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3022,6 +3118,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "sha1"
+version = "0.10.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3bf829a2d51ab4a5ddf1352d8470c140cadc8301b2ae1789db023f01cedd6ba"
+dependencies = [
+ "cfg-if",
+ "cpufeatures",
+ "digest",
 ]
 
 [[package]]
