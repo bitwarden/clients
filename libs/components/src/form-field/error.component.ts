@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, HostBinding, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,6 +22,10 @@ export class BitErrorComponent {
 
   get displayError() {
     const error = this.error();
+    if (!error) {
+      return "";
+    }
+
     switch (error[0]) {
       case "required":
         return this.i18nService.t("inputRequired");
