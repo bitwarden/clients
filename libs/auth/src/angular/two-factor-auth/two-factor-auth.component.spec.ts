@@ -24,6 +24,7 @@ import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
@@ -79,6 +80,7 @@ describe("TwoFactorAuthComponent", () => {
   let mockTwoFactorAuthCompCacheService: MockProxy<TwoFactorAuthComponentCacheService>;
   let mockAuthService: MockProxy<AuthService>;
   let mockConfigService: MockProxy<ConfigService>;
+  let mockKeyConnnectorService: MockProxy<KeyConnectorService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -115,6 +117,8 @@ describe("TwoFactorAuthComponent", () => {
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
     mockAuthService = mock<AuthService>();
     mockConfigService = mock<ConfigService>();
+    mockKeyConnnectorService = mock<KeyConnectorService>();
+    mockKeyConnnectorService.requiresDomainConfirmation$.mockReturnValue(of(null));
 
     mockEnvService = mock<EnvironmentService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
@@ -215,6 +219,7 @@ describe("TwoFactorAuthComponent", () => {
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: MasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
+        { provide: KeyConnectorService, useValue: mockKeyConnnectorService },
       ],
     });
 
@@ -403,6 +408,24 @@ describe("TwoFactorAuthComponent", () => {
             expect(mockRouter.navigate).toHaveBeenCalledWith(["login-initiated"]);
           });
         });
+      });
+
+      it("navigates to /confirm-key-connector-domain when Key Connector is enabled and user has no master password", async () => {
+        selectedUserDecryptionOptions.next(mockUserDecryptionOpts.noMasterPasswordWithKeyConnector);
+        mockKeyConnnectorService.requiresDomainConfirmation$.mockReturnValue(
+          of({
+            keyConnectorUrl:
+              mockUserDecryptionOpts.noMasterPasswordWithKeyConnector.keyConnectorOption!
+                .keyConnectorUrl,
+          }),
+        );
+        const authResult = new AuthResult();
+        authResult.userId = userId;
+        mockLoginStrategyService.logInTwoFactor.mockResolvedValue(authResult);
+
+        await component.submit(token, remember);
+
+        expect(mockRouter.navigate).toHaveBeenCalledWith(["confirm-key-connector-domain"]);
       });
     });
   });
