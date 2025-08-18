@@ -364,7 +364,6 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Publish to App Store
-        if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
