@@ -22,7 +22,7 @@ jobs:
         fetch-depth: 0
 
     - name: Check for job requirements
-      if: ${{ !(github.event.workflow_run.pull_requests && github.event.workflow_run.pull_requests.length > 0 && github.event.workflow_run.head_branch) }}
+      if: ${{ !github.event.workflow_run.pull_requests || !github.event.workflow_run.head_branch }}
       env:
         GH_TOKEN: ${{ github.token }}
       run: |

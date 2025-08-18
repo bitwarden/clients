@@ -23,13 +23,13 @@ import { Organization } from "../../../admin-console/models/domain/organization"
 import { TokenService } from "../../../auth/abstractions/token.service";
 import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
 import { KeysRequest } from "../../../models/request/keys.request";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";
+import { KeyGenerationService } from "../../crypto";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
