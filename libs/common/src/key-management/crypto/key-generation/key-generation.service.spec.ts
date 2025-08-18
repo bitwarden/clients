@@ -4,21 +4,21 @@ import { mock } from "jest-mock-extended";
 // eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
 
-import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
-import { CsprngArray } from "../../types/csprng";
-import { SdkLoadService } from "../abstractions/sdk/sdk-load.service";
-import { EncryptionType } from "../enums";
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
+import { EncryptionType } from "../../../platform/enums";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "../../../types/csprng";
+import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 
-import { KeyGenerationService } from "./key-generation.service";
+import { DefaultKeyGenerationService } from "./default-key-generation.service";
 
 describe("KeyGenerationService", () => {
-  let sut: KeyGenerationService;
+  let sut: DefaultKeyGenerationService;
 
   const cryptoFunctionService = mock<CryptoFunctionService>();
 
   beforeEach(() => {
-    sut = new KeyGenerationService(cryptoFunctionService);
+    sut = new DefaultKeyGenerationService(cryptoFunctionService);
   });
 
   describe("createKey", () => {

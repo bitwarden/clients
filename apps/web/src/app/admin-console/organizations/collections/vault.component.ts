@@ -79,8 +79,11 @@ import {
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";
-import { OrganizationResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components/organization-reseller-renewal-warning.component";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/warnings/services/organization-warnings.service";
+import {
+  OrganizationFreeTrialWarningComponent,
+  OrganizationResellerRenewalWarningComponent,
+} from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
 import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
@@ -90,7 +93,6 @@ import {
 } from "../../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../../billing/types/free-trial";
-import { OrganizationFreeTrialWarningComponent } from "../../../billing/warnings/components/organization-free-trial-warning.component";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
@@ -669,6 +671,15 @@ export class VaultComponent implements OnInit, OnDestroy {
           enabled
             ? this.organizationWarningsService.showInactiveSubscriptionDialog$(this.organization)
             : this.unpaidSubscriptionDialog$,
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    organization$
+      .pipe(
+        switchMap((organization) =>
+          this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
         ),
         takeUntil(this.destroy$),
       )
