@@ -254,15 +254,6 @@ export class StateService<
     );
   }
 
-  /**
-   * @deprecated Use UserKey instead
-   */
-  async getEncryptedCryptoSymmetricKey(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.keys.cryptoSymmetricKey.encrypted;
-  }
-
   async getIsAuthenticated(options?: StorageOptions): Promise<boolean> {
     return (
       (await this.tokenService.getAccessToken(options?.userId as UserId)) != null &&
