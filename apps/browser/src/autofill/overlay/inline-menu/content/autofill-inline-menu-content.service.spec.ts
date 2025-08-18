@@ -29,7 +29,7 @@ describe("AutofillInlineMenuContentService", () => {
     autofillInit = new AutofillInit(
       domQueryService,
       domElementVisibilityService,
-      null,
+      undefined,
       autofillInlineMenuContentService,
     );
     autofillInit.init();
@@ -321,6 +321,7 @@ describe("AutofillInlineMenuContentService", () => {
     let mockMutationRecord: MockProxy<MutationRecord>;
     let buttonElement: HTMLElement;
     let listElement: HTMLElement;
+    let spyContainerAncestryIsOpaque: jest.SpyInstance;
     let isInlineMenuListVisibleSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -333,6 +334,9 @@ describe("AutofillInlineMenuContentService", () => {
       listElement = document.querySelector(".overlay-list") as HTMLElement;
       autofillInlineMenuContentService["buttonElement"] = buttonElement;
       autofillInlineMenuContentService["listElement"] = listElement;
+      spyContainerAncestryIsOpaque = jest
+        .spyOn(autofillInlineMenuContentService as any, "containerAncestryIsOpaque")
+        .mockResolvedValue(true);
       isInlineMenuListVisibleSpy = jest
         .spyOn(autofillInlineMenuContentService as any, "isInlineMenuListVisible")
         .mockResolvedValue(true);
@@ -364,6 +368,19 @@ describe("AutofillInlineMenuContentService", () => {
           "isTriggeringExcessiveMutationObserverIterations",
         )
         .mockReturnValue(true);
+
+      autofillInlineMenuContentService["handleContainerElementMutationObserverUpdate"]([
+        mockMutationRecord,
+      ]);
+      await waitForIdleCallback();
+
+      expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+    });
+
+    it("skips handling the mutation if the container or container parent is not fully opaque", async () => {
+      spyContainerAncestryIsOpaque.mockResolvedValue(false);
+
+      document.body.appendChild(buttonElement);
 
       autofillInlineMenuContentService["handleContainerElementMutationObserverUpdate"]([
         mockMutationRecord,

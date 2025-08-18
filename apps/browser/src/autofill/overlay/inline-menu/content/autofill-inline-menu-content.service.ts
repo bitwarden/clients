@@ -29,8 +29,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private isFirefoxBrowser =
     globalThis.navigator.userAgent.indexOf(" Firefox/") !== -1 ||
     globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
-  private buttonElement: HTMLElement;
-  private listElement: HTMLElement;
+  private buttonElement?: HTMLElement;
+  private listElement?: HTMLElement;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private containerElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
@@ -396,20 +396,28 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   /**
+   * Checks the opacity of the page body and body parent, since the inline menu experience
+   * will inherit the opacity, despite being otherwise encapsulated from styling changes
+   * of parents below the body.
+   */
+  private containerAncestryIsOpaque(containerElement: HTMLElement) {
+    const containerParent = containerElement.parentElement;
+
+    return (
+      globalThis.window.getComputedStyle(containerElement).opacity === "1" &&
+      containerParent &&
+      globalThis.window.getComputedStyle(containerParent).opacity === "1"
+    );
+  }
+
+  /**
    * Processes the mutation of the element that contains the inline menu. Will trigger when an
    * idle moment in the execution of the main thread is detected.
    */
   private processContainerElementMutation = async (containerElement: HTMLElement) => {
-    const containerParent = containerElement.parentElement;
-
-    // The inline menu experience will inherit the opacity of the page body or body
-    // parent, despite otherwise being encapsulated from styling changes of parents below
-    // the body. If the computed opacity of the body and parent is not fully opaque, tear
+    // If the computed opacity of the body and parent is not fully opaque, tear
     // down and prevent building the inline menu experience.
-    if (
-      window.getComputedStyle(containerElement).opacity !== "1" ||
-      (containerParent && window.getComputedStyle(containerParent).opacity !== "1")
-    ) {
+    if (!(await this.containerAncestryIsOpaque(containerElement))) {
       this.closeInlineMenu();
 
       return;
