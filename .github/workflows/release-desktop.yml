@@ -16,6 +16,11 @@ on:
         description: 'Release Notes (What''s New) - Required for App Store submission'
         required: true
         type: string
+      auto_submit_for_review:
+        description: 'Auto-submit for Apple review (unchecked = upload only, checked = submit for review)'
+        required: false
+        type: boolean
+        default: false
 
 defaults:
   run:
@@ -217,4 +222,5 @@ jobs:
           fastlane publish \
             build_number:$BUILD_NUMBER \
             changelog:"$CHANGELOG" \
-            dry_run:$IS_DRY_RUN
+            dry_run:$IS_DRY_RUN \
+            submit_for_review:"${{ inputs.auto_submit_for_review }}"
