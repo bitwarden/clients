@@ -17,7 +17,6 @@ export enum FeatureFlag {
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
-  BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
@@ -77,7 +76,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,

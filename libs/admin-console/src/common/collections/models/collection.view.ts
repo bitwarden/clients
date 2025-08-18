@@ -102,12 +102,15 @@ export class CollectionView implements View, ITreeNodeObject {
     encryptService: EncryptService,
     key: OrgKey,
   ): Promise<CollectionView> {
-    const view: CollectionView = Object.assign(
-      new CollectionView({ ...collection, name: "" }),
-      collection,
-    );
+    const view = new CollectionView({ ...collection, name: "" });
+
     view.name = await encryptService.decryptString(collection.name, key);
     view.assigned = true;
+    view.externalId = collection.externalId;
+    view.readOnly = collection.readOnly;
+    view.hidePasswords = collection.hidePasswords;
+    view.manage = collection.manage;
+    view.type = collection.type;
     return view;
   }
 
