@@ -18,15 +18,24 @@ import {
   ProviderPortalLogo,
   BusinessUnitPortalLogo,
 } from "@bitwarden/components";
+import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
+import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
 
-import { ProviderWarningsService } from "../../billing/providers/services/provider-warnings.service";
+import { ProviderWarningsService } from "../../billing/providers/warnings/services";
 
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
-  imports: [CommonModule, RouterModule, JslibModule, WebLayoutModule, IconModule],
-  providers: [ProviderWarningsService],
+  imports: [
+    CommonModule,
+    RouterModule,
+    JslibModule,
+    WebLayoutModule,
+    IconModule,
+    TaxIdWarningComponent,
+  ],
 })
 export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected readonly logo = ProviderPortalLogo;
@@ -42,6 +51,9 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected clientsTranslationKey$: Observable<string>;
   protected managePaymentDetailsOutsideCheckout$: Observable<boolean>;
   protected providerPortalTakeover$: Observable<boolean>;
+
+  protected subscriber$: Observable<NonIndividualSubscriber>;
+  protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
 
   constructor(
     private route: ActivatedRoute,
@@ -90,10 +102,10 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
       FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
 
-    providerId$
+    this.provider$
       .pipe(
-        switchMap((providerId) =>
-          this.providerWarningsService.showProviderSuspendedDialog$(providerId),
+        switchMap((provider) =>
+          this.providerWarningsService.showProviderSuspendedDialog$(provider),
         ),
         takeUntil(this.destroy$),
       )
@@ -102,6 +114,18 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
     this.providerPortalTakeover$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM21821_ProviderPortalTakeover,
     );
+
+    this.subscriber$ = this.provider$.pipe(
+      map((provider) => ({
+        type: "provider",
+        data: provider,
+      })),
+    );
+
+    this.getTaxIdWarning$ = () =>
+      this.provider$.pipe(
+        switchMap((provider) => this.providerWarningsService.getTaxIdWarning$(provider)),
+      );
   }
 
   ngOnDestroy() {
@@ -116,4 +140,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   showSettingsTab(provider: Provider) {
     return provider.isProviderAdmin;
   }
+
+  refreshTaxIdWarning = () => this.providerWarningsService.refreshTaxIdWarning();
 }

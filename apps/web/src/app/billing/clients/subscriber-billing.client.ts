@@ -10,7 +10,7 @@ import {
   MaskedPaymentMethodResponse,
   TokenizedPaymentMethod,
 } from "../payment/types";
-import { BillableEntity } from "../types";
+import { BitwardenSubscriber } from "../types";
 
 type Result<T> =
   | {
@@ -23,28 +23,28 @@ type Result<T> =
     };
 
 @Injectable()
-export class BillingClient {
+export class SubscriberBillingClient {
   constructor(private apiService: ApiService) {}
 
-  private getEndpoint = (entity: BillableEntity): string => {
-    switch (entity.type) {
+  private getEndpoint = (subscriber: BitwardenSubscriber): string => {
+    switch (subscriber.type) {
       case "account": {
         return "/account/billing/vnext";
       }
       case "organization": {
-        return `/organizations/${entity.data.id}/billing/vnext`;
+        return `/organizations/${subscriber.data.id}/billing/vnext`;
       }
       case "provider": {
-        return `/providers/${entity.data.id}/billing/vnext`;
+        return `/providers/${subscriber.data.id}/billing/vnext`;
       }
     }
   };
 
   addCreditWithBitPay = async (
-    owner: BillableEntity,
+    subscriber: BitwardenSubscriber,
     credit: { amount: number; redirectUrl: string },
   ): Promise<Result<string>> => {
-    const path = `${this.getEndpoint(owner)}/credit/bitpay`;
+    const path = `${this.getEndpoint(subscriber)}/credit/bitpay`;
     try {
       const data = await this.apiService.send("POST", path, credit, true, true);
       return {
@@ -62,29 +62,31 @@ export class BillingClient {
     }
   };
 
-  getBillingAddress = async (owner: BillableEntity): Promise<BillingAddress | null> => {
-    const path = `${this.getEndpoint(owner)}/address`;
+  getBillingAddress = async (subscriber: BitwardenSubscriber): Promise<BillingAddress | null> => {
+    const path = `${this.getEndpoint(subscriber)}/address`;
     const data = await this.apiService.send("GET", path, null, true, true);
     return data ? new BillingAddressResponse(data) : null;
   };
 
-  getCredit = async (owner: BillableEntity): Promise<number | null> => {
-    const path = `${this.getEndpoint(owner)}/credit`;
+  getCredit = async (subscriber: BitwardenSubscriber): Promise<number | null> => {
+    const path = `${this.getEndpoint(subscriber)}/credit`;
     const data = await this.apiService.send("GET", path, null, true, true);
     return data ? (data as number) : null;
   };
 
-  getPaymentMethod = async (owner: BillableEntity): Promise<MaskedPaymentMethod | null> => {
-    const path = `${this.getEndpoint(owner)}/payment-method`;
+  getPaymentMethod = async (
+    subscriber: BitwardenSubscriber,
+  ): Promise<MaskedPaymentMethod | null> => {
+    const path = `${this.getEndpoint(subscriber)}/payment-method`;
     const data = await this.apiService.send("GET", path, null, true, true);
     return data ? new MaskedPaymentMethodResponse(data).value : null;
   };
 
   updateBillingAddress = async (
-    owner: BillableEntity,
+    subscriber: BitwardenSubscriber,
     billingAddress: BillingAddress,
   ): Promise<Result<BillingAddress>> => {
-    const path = `${this.getEndpoint(owner)}/address`;
+    const path = `${this.getEndpoint(subscriber)}/address`;
     try {
       const data = await this.apiService.send("PUT", path, billingAddress, true, true);
       return {
@@ -103,11 +105,11 @@ export class BillingClient {
   };
 
   updatePaymentMethod = async (
-    owner: BillableEntity,
+    subscriber: BitwardenSubscriber,
     paymentMethod: TokenizedPaymentMethod,
     billingAddress: Pick<BillingAddress, "country" | "postalCode"> | null,
   ): Promise<Result<MaskedPaymentMethod>> => {
-    const path = `${this.getEndpoint(owner)}/payment-method`;
+    const path = `${this.getEndpoint(subscriber)}/payment-method`;
     try {
       const request = {
         ...paymentMethod,
@@ -130,10 +132,10 @@ export class BillingClient {
   };
 
   verifyBankAccount = async (
-    owner: BillableEntity,
+    subscriber: BitwardenSubscriber,
     descriptorCode: string,
   ): Promise<Result<MaskedPaymentMethod>> => {
-    const path = `${this.getEndpoint(owner)}/payment-method/verify-bank-account`;
+    const path = `${this.getEndpoint(subscriber)}/payment-method/verify-bank-account`;
     try {
       const data = await this.apiService.send("POST", path, { descriptorCode }, true, true);
       return {

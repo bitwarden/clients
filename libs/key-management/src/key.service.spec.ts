@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
 
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
@@ -12,12 +13,10 @@ import { FakeMasterPasswordService } from "@bitwarden/common/key-management/mast
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { HashPurpose, KeySuffixOptions } from "@bitwarden/common/platform/enums";
-import { Encrypted } from "@bitwarden/common/platform/interfaces/encrypted";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
@@ -536,7 +535,7 @@ describe("keyService", () => {
   });
 
   describe("cipherDecryptionKeys$", () => {
-    function fakePrivateKeyDecryption(encryptedPrivateKey: Encrypted, key: SymmetricCryptoKey) {
+    function fakePrivateKeyDecryption(encryptedPrivateKey: EncString, key: SymmetricCryptoKey) {
       const output = new Uint8Array(64);
       output.set(encryptedPrivateKey.dataBytes);
       output.set(
