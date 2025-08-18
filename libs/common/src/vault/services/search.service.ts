@@ -1,8 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as lunr from "lunr";
-import { Observable, firstValueFrom, map } from "rxjs";
+import { Observable, firstValueFrom, map, startWith } from "rxjs";
 import { Jsonify } from "type-fest";
+
+import { perUserCache$ } from "@bitwarden/common/vault/utils/observable-utilities";
 
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -101,11 +103,20 @@ export class SearchService implements SearchServiceAbstraction {
     return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEX);
   }
 
-  private index$(userId: UserId): Observable<lunr.Index | null> {
+  private index$ = perUserCache$((userId: UserId) => {
     return this.searchIndexState(userId).state$.pipe(
-      map((searchIndex) => (searchIndex ? lunr.Index.load(searchIndex) : null)),
+      map((searchIndex) => {
+        let index: lunr.Index | null = null;
+        if (searchIndex) {
+          const loadTime = performance.now();
+          index = lunr.Index.load(searchIndex);
+          this.logService.measure(loadTime, "Vault", "SearchService", "index load");
+        }
+        return index;
+      }),
+      startWith(null),
     );
-  }
+  });
 
   private searchIndexEntityIdState(userId: UserId): SingleUserState<IndexedEntityId | null> {
     return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEXED_ENTITY_ID);
