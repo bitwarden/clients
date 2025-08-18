@@ -251,6 +251,10 @@ export class ItemDetailsSectionComponent implements OnInit {
         this.cipherFormContainer.enableFormFields();
         this.itemDetailsForm.controls.organizationId.disable({ emitEvent: false });
       }
+    } else if (!this.allowOwnershipChange) {
+      // When there isn't an originalCipher, the user is adding a new cipher.
+      // The organizationId control should still be disabled when the user is not allowed to change ownership.
+      this.itemDetailsForm.controls.organizationId.disable({ emitEvent: false });
     }
   }
 
