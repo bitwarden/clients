@@ -7,8 +7,6 @@ import { firstValueFrom, pairwise, startWith } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -59,7 +57,6 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
 })
 export class SetupExtensionComponent implements OnInit, OnDestroy {
   private webBrowserExtensionInteractionService = inject(WebBrowserInteractionService);
-  private configService = inject(ConfigService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private platformUtilsService = inject(PlatformUtilsService);
@@ -134,12 +131,9 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
 
   /** Conditionally redirects the user to the vault upon landing on the page. */
   async conditionallyRedirectUser() {
-    const isFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19315EndUserActivationMvp,
-    );
     const isMobile = Utils.isMobileBrowser;
 
-    if (!isFeatureEnabled || isMobile) {
+    if (isMobile) {
       await this.dismissExtensionPage();
       await this.router.navigate(["/vault"]);
     }
