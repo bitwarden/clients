@@ -5,6 +5,11 @@ license = { workspace = true }
 version = { workspace = true }
 publish = { workspace = true }
 
+[[bin]]
+name = "bitwarden_bridge"
+path = "src/main.rs"
+required-features = ["windows-binary"]
+
 [features]
 windows-binary = []
 

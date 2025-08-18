@@ -5,6 +5,12 @@ license = { workspace = true }
 version = { workspace = true }
 publish = { workspace = true }
 
+
+[[bin]]
+name = "service"
+path = "src/bin/service.rs"
+required-features = ["windows-binary"]
+
 [features]
 windows-binary = []
 
@@ -14,6 +20,7 @@ aes-gcm = { workspace = true }
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 base64 = { workspace = true }
+bitwarden_chromium_importer = { path = "../bitwarden_chromium_importer" }
 cbc = { workspace = true, features = ["alloc"] }
 hex = { workspace = true }
 homedir = { workspace = true }

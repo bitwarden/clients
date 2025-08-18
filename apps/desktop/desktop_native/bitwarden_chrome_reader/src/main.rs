@@ -17,7 +17,7 @@ use windows_service::{
     service_dispatcher,
 };
 
-use desktop_importer::{abe, abe_config};
+use bitwarden_chromium_importer::{abe, abe_config};
 
 // Enable this to log to a file. Debugging a system level service in any other way is not easy.
 const NEED_LOGGING: bool = true;
