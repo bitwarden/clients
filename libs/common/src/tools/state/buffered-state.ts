@@ -73,7 +73,7 @@ export class BufferedState<Input, Output, Dependency> implements SingleUserState
   private async overwriteOutput(dependency: Dependency) {
     // take the latest value from the buffer
     let buffered: Input;
-    await this.bufferedState.update((state: Input | null): Input | null => {
+    await this.bufferedState.update((state): Input | null => {
       buffered = state ?? null;
       return null;
     });
