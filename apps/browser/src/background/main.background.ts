@@ -872,10 +872,7 @@ export default class MainBackground {
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
-    this.domainSettingsService = new DefaultDomainSettingsService(
-      this.stateProvider,
-      this.configService,
-    );
+    this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
 

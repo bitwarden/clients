@@ -352,7 +352,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider, ConfigService],
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: AbstractStorageService,
