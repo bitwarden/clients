@@ -145,20 +145,29 @@ describe("ImportService", () => {
       );
     });
 
-    const mockImportTargetCollection = new CollectionView();
-    mockImportTargetCollection.id = "myImportTarget" as CollectionId;
-    mockImportTargetCollection.name = "myImportTarget";
-    mockImportTargetCollection.organizationId = organizationId;
+    const mockName = "myImportTarget";
+    const mockId = "myImportTarget" as CollectionId;
+    const mockImportTargetCollection = new CollectionView({
+      name: mockName,
+      id: mockId,
+      organizationId,
+    });
 
-    const mockCollection1 = new CollectionView();
-    mockCollection1.id = "collection1" as CollectionId;
-    mockCollection1.name = "collection1";
-    mockCollection1.organizationId = organizationId;
+    const mockName1 = "collection1";
+    const mockId1 = "collection1" as CollectionId;
+    const mockCollection1 = new CollectionView({
+      name: mockName1,
+      id: mockId1,
+      organizationId,
+    });
 
-    const mockCollection2 = new CollectionView();
-    mockCollection2.id = "collection2" as CollectionId;
-    mockCollection2.name = "collection2";
-    mockCollection2.organizationId = organizationId;
+    const mockName2 = "collection2";
+    const mockId2 = "collection2" as CollectionId;
+    const mockCollection2 = new CollectionView({
+      name: mockName2,
+      id: mockId2,
+      organizationId,
+    });
 
     it("passing importTarget adds it to collections", async () => {
       await importService["setImportTarget"](
