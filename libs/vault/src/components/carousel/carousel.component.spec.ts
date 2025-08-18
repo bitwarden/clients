@@ -2,9 +2,10 @@ import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
 import { VaultCarouselComponent } from "./carousel.component";
-import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 @Component({
   selector: "app-test-carousel-slide",
@@ -33,7 +34,8 @@ describe("VaultCarouselComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VaultCarouselComponent, VaultCarouselSlideComponent, PreloadedEnglishI18nModule],
+      imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
+      providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
     }).compileComponents();
   });
 
