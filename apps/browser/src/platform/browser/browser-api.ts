@@ -203,6 +203,33 @@ export class BrowserApi {
     );
   }
 
+  /**
+   * Closes a browser tab with the given id
+   *
+   * @param tabId The id of the tab to close
+   */
+  static async closeTab(tabId: number): Promise<void> {
+    if (tabId) {
+      browser.tabs.remove(tabId).catch((error) => {
+        throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+      });
+    }
+  }
+
+  /**
+   * Navigates a browser tab to the given URL
+   *
+   * @param tabId The id of the tab to navigate
+   * @param url The URL to navigate to
+   */
+  static async navigateTabToUrl(tabId: number, url: URL): Promise<void> {
+    if (tabId) {
+      browser.tabs.update(tabId, { url: url.href }).catch((error) => {
+        throw new Error("Failed to navigate tab to URL: " + error.message);
+      });
+    }
+  }
+
   static async tabsQuery(options: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> {
     return new Promise((resolve) => {
       chrome.tabs.query(options, (tabs) => {
@@ -224,7 +251,7 @@ export class BrowserApi {
    * Drop-in replacement for {@link BrowserApi.tabsQueryFirst}.
    *
    * Safari sometimes returns >1 tabs unexpectedly even when
-   * specificing a `windowId` or `currentWindow: true` query option.
+   * specifying a `windowId` or `currentWindow: true` query option.
    *
    * For all of these calls,
    * ```
