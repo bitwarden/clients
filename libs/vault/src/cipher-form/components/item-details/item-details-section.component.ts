@@ -223,10 +223,9 @@ export class ItemDetailsSectionComponent implements OnInit {
       });
       await this.updateCollectionOptions(this.initialValues?.collectionIds);
     }
+
     this.setFormState();
-    if (!this.allowOwnershipChange) {
-      this.itemDetailsForm.controls.organizationId.disable();
-    }
+
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -244,12 +243,13 @@ export class ItemDetailsSectionComponent implements OnInit {
    * until the user selects an organization.
    */
   private setFormState() {
-    if (this.config.originalCipher && !this.allowPersonalOwnership) {
+    if (this.config.originalCipher && !this.allowOwnershipChange) {
       if (this.itemDetailsForm.controls.organizationId.value === null) {
         this.cipherFormContainer.disableFormFields();
         this.itemDetailsForm.controls.organizationId.enable();
       } else {
         this.cipherFormContainer.enableFormFields();
+        this.itemDetailsForm.controls.organizationId.disable({ emitEvent: false });
       }
     }
   }
