@@ -174,6 +174,9 @@ export class SearchService implements SearchServiceAbstraction {
       return;
     }
 
+    // Simulate a delay to ensure loading the index does not block the UI.
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
     const indexingStartTime = performance.now();
     await this.setIsIndexing(userId, true);
     await this.setIndexedEntityIdForSearch(userId, indexedEntityId as IndexedEntityId);
@@ -228,6 +231,7 @@ export class SearchService implements SearchServiceAbstraction {
     ciphers: C[],
   ): Promise<C[]> {
     const results: C[] = [];
+    const searchStartTime = performance.now();
     if (query != null) {
       query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
     }
@@ -259,7 +263,9 @@ export class SearchService implements SearchServiceAbstraction {
     const index = await this.getIndexForSearch(userId);
     if (index == null) {
       // Fall back to basic search if index is not available
-      return this.searchCiphersBasic(ciphers, query);
+      const basicResults = this.searchCiphersBasic(ciphers, query);
+      this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+      return basicResults;
     }
 
     const ciphersMap = new Map<string, C>();
@@ -293,6 +299,7 @@ export class SearchService implements SearchServiceAbstraction {
         }
       });
     }
+    this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
     return results;
   }
 
