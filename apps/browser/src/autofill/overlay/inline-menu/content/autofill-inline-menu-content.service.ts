@@ -400,6 +400,21 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * idle moment in the execution of the main thread is detected.
    */
   private processContainerElementMutation = async (containerElement: HTMLElement) => {
+    const containerParent = containerElement.parentElement;
+
+    // The inline menu experience will inherit the opacity of the page body or body
+    // parent, despite otherwise being encapsulated from styling changes of parents below
+    // the body. If the computed opacity of the body and parent is not fully opaque, tear
+    // down and prevent building the inline menu experience.
+    if (
+      window.getComputedStyle(containerElement).opacity !== "1" ||
+      (containerParent && window.getComputedStyle(containerParent).opacity !== "1")
+    ) {
+      this.closeInlineMenu();
+
+      return;
+    }
+
     const lastChild = containerElement.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
