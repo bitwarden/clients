@@ -20,13 +20,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
+import { SubscriberBillingClient } from "../../clients";
 import {
   DisplayAccountCreditComponent,
   DisplayPaymentMethodComponent,
 } from "../../payment/components";
 import { MaskedPaymentMethod } from "../../payment/types";
-import { BillingClient } from "../../services";
-import { accountToBillableEntity, BillableEntity } from "../../types";
+import { mapAccountToSubscriber, BitwardenSubscriber } from "../../types";
 
 class RedirectError {
   constructor(
@@ -36,7 +36,7 @@ class RedirectError {
 }
 
 type View = {
-  account: BillableEntity;
+  account: BitwardenSubscriber;
   paymentMethod: MaskedPaymentMethod | null;
   credit: number | null;
 };
@@ -50,7 +50,7 @@ type View = {
     HeaderModule,
     SharedModule,
   ],
-  providers: [BillingClient],
+  providers: [SubscriberBillingClient],
 })
 export class AccountPaymentDetailsComponent {
   private viewState$ = new BehaviorSubject<View | null>(null);
@@ -68,7 +68,7 @@ export class AccountPaymentDetailsComponent {
           }),
         ),
     ),
-    accountToBillableEntity,
+    mapAccountToSubscriber,
     switchMap(async (account) => {
       const [paymentMethod, credit] = await Promise.all([
         this.billingClient.getPaymentMethod(account),
@@ -100,7 +100,7 @@ export class AccountPaymentDetailsComponent {
   constructor(
     private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
-    private billingClient: BillingClient,
+    private billingClient: SubscriberBillingClient,
     private configService: ConfigService,
     private router: Router,
   ) {}

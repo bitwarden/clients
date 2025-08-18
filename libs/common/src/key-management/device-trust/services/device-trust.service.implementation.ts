@@ -20,7 +20,6 @@ import {
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
@@ -30,6 +29,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey, DeviceKey } from "../../../types/key";
+import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
