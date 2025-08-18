@@ -11016,5 +11016,65 @@
   },
   "showLess": {
     "message": "Show less"
+  }, 
+  "duplicatesFound": {
+    "message": "duplicates found.",
+    "description": "A string shown after a numeric value, indicating the numeric values corresponds to the number of duplicate login items present in their vault."
+  }, 
+  "found": {
+    "message": "Found",
+    "description": "A single word translation used to convey the meaning of the English words found, encountered, or discovered. Capitalized as it is used in the beginning of a sentence."
+  }, 
+  "duplicateItemsIn": {
+    "message": "duplicate logins in",
+    "description": "A string used to convey context regarding the results of querying a vault for duplicate login items."
+  },
+  "sets": {
+    "message": "sets",
+    "description": "A single word translation used to convey the meaning of the English word set, group, or cluster (plural)."
+  },
+  "itemInTrash": {
+    "message": "in trash",
+    "description": "A string used to indicate that a login item displayed in a duplicate review dialog has been moved to the trash, lower case as it is used to add context outside of a complete sentence."
+  }, 
+  "noDuplicatesFound": {
+    "message": "No duplicates found.",
+    "description": "A message shown to users indicating that no duplicate logins were discovered in their vault."
+  },
+  "duplicateError": {
+    "message": "An error occurred while finding duplicates",
+    "description": "Displayed using ToastService to indicate an error occurred while finding duplicates."
+  }, 
+  "deDuplicateVault": {
+    "message": "De-duplicate vault", 
+    "description": "Displayed in a header element and bit-callout to convey the purpose of the de-duplication tool."
+  },
+  "deDuplicationToolDescription": {
+    "message": "Login items that have matching usernames and websites will be made available for review and optional deletion. Deleting duplicate items not in the trash will move these items to the trash, and deleting items already in the trash will permanently remove them from your vault.",
+    "description": "A message explaining what the de-duplication tool will do."
+  }, 
+  "findDuplicates": {
+    "message": "Find duplicates", 
+    "description": "Displayed inside of a button to indicate that clicking the button will initiate a search for duplicate login items."
+  }, 
+  "itemsTrashed": {
+    "message": "items moved to trash",
+    "description": "A string indicating that the preceding numeric value corresponds to a quantity of items moved to the vault trash."
+  }, 
+  "itemsPermanentlyDeleted": {
+    "message": "items permanently deleted", 
+    "description": "A string indicating that the preceding numeric value corresponds to the quantity of items permanently deleted."
+  }, 
+  "deDuplicationComplete": {
+    "message": "De-duplication complete",
+    "description": "A message indicating that the de-duplication tool completed any requested deletions."
+  }, 
+  "deDuplicationInProgress": {
+    "message": "Searching for duplicates…", 
+    "description": "A message informing users that their vault is being searched for duplicate logins."
+  }, 
+  "noValue": {
+    "message": "-",
+    "description": "Indicates that no value is present for a given item. First implemented when displaying a list of ciphers that may not belong to folders or organizations."
   }
 }

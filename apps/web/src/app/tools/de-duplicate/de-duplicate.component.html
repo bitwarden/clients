@@ -1,0 +1,28 @@
+<app-header></app-header>
+
+<bit-container>
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <h1 bitTypography="h1" class="tw-m-0">{{ "deDuplicateVault" | i18n }}</h1>
+    <bit-callout type="info" [title]="'deDuplicateVault' | i18n">
+      {{ "deDuplicationToolDescription" | i18n }}
+    </bit-callout>
+
+    <bit-callout *ngIf="callout" [type]="callout.type" [title]="callout.title">
+      {{ callout.message }}
+    </bit-callout>
+
+    <div class="tw-flex tw-flex-col tw-gap-4">
+      <div class="tw-flex tw-gap-2">
+        <button
+          id="de-duplicate__button__find-duplicates"
+          type="button"
+          buttonType="primary"
+          bitButton
+          [bitAction]="findDuplicates"
+        >
+          {{ "findDuplicates" | i18n }}
+        </button>
+      </div>
+    </div>
+  </div>
+</bit-container>
