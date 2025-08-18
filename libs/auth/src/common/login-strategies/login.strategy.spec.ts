@@ -19,7 +19,13 @@ import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/mod
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { MasterPasswordUnlockResponse } from "@bitwarden/common/key-management/master-password/models/response/master-password-unlock.response";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -34,7 +40,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
@@ -42,7 +48,7 @@ import {
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -57,7 +63,7 @@ const masterPassword = "password";
 const deviceId = Utils.newGuid();
 const accessToken = "ACCESS_TOKEN";
 const refreshToken = "REFRESH_TOKEN";
-const userKey = "USER_KEY";
+const encryptedUserKey = makeEncString("USER_KEY");
 const privateKey = "PRIVATE_KEY";
 const kdf = 0;
 const kdfIterations = 10000;
@@ -66,6 +72,14 @@ const masterPasswordHash = "MASTER_PASSWORD_HASH";
 const name = "NAME";
 const defaultUserDecryptionOptionsServerResponse: IUserDecryptionOptionsServerResponse = {
   HasMasterPassword: true,
+  MasterPasswordUnlock: {
+    Salt: email,
+    Kdf: {
+      KdfType: kdf,
+      Iterations: kdfIterations,
+    },
+    MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+  } as unknown as MasterPasswordUnlockResponse,
 };
 
 const decodedToken = {
@@ -87,7 +101,7 @@ export function identityTokenResponseFactory(
     ForcePasswordReset: false,
     Kdf: kdf,
     KdfIterations: kdfIterations,
-    Key: userKey,
+    Key: encryptedUserKey.encryptedString,
     PrivateKey: privateKey,
     ResetMasterPassword: false,
     access_token: accessToken,
@@ -257,6 +271,14 @@ describe("LoginStrategy", () => {
       );
       expect(userDecryptionOptionsService.setUserDecryptionOptions).toHaveBeenCalledWith(
         UserDecryptionOptions.fromResponse(idTokenResponse),
+      );
+      expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+        {
+          salt: email as MasterPasswordSalt,
+          kdf: new PBKDF2KdfConfig(kdfIterations),
+          masterKeyWrappedUserKey: encryptedUserKey as MasterKeyWrappedUserKey,
+        } as MasterPasswordUnlockData,
+        userId,
       );
       expect(messagingService.send).toHaveBeenCalledWith("loggedIn");
     });

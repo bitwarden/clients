@@ -9,6 +9,7 @@ import {
   CollectionDetailsResponse,
   CollectionService,
 } from "@bitwarden/admin-console/common";
+import { UserDecryptionResponse } from "@bitwarden/common/key-management/models/response/user-decryption.response";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -170,6 +171,7 @@ export class DefaultSyncService extends CoreSyncService {
 
       const response = await this.inFlightApiCalls.sync;
 
+      await this.syncUserDecryption(response.profile.id, response.userDecryption);
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
@@ -391,5 +393,19 @@ export class DefaultSyncService extends CoreSyncService {
       });
     }
     return await this.policyService.replace(policies, userId);
+  }
+
+  private async syncUserDecryption(userId: UserId, userDecryption?: UserDecryptionResponse) {
+    if (userDecryption == null) {
+      return;
+    }
+    if (userDecryption.masterPasswordUnlock != null) {
+      const masterPasswordUnlockData =
+        userDecryption.masterPasswordUnlock.toMasterPasswordUnlockData();
+      await this.masterPasswordService.setMasterPasswordUnlockData(
+        masterPasswordUnlockData,
+        userId,
+      );
+    }
   }
 }

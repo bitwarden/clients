@@ -11,10 +11,16 @@ import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
+import { makeEncString } from "../../../spec";
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
@@ -86,6 +92,7 @@ describe("DefaultSyncService", () => {
     sendService = mock();
     logService = mock();
     keyConnectorService = mock();
+    keyConnectorService.convertAccountRequired$ = of(false);
     stateService = mock();
     providerService = mock();
     folderApiService = mock();
@@ -238,6 +245,56 @@ describe("DefaultSyncService", () => {
 
         expect(sut["inFlightApiCalls"].refreshToken).toBeNull();
         expect(sut["inFlightApiCalls"].sync).toBeNull();
+      });
+    });
+
+    describe("syncUserDecryption", () => {
+      const salt = "test@example.com";
+      const kdf = new PBKDF2KdfConfig(600_000);
+      const encryptedUserKey = makeEncString("testUserKey");
+
+      it("should set master password unlock when present in user decryption", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+          },
+          UserDecryption: {
+            MasterPasswordUnlock: {
+              Salt: salt,
+              Kdf: {
+                KdfType: kdf.kdfType,
+                Iterations: kdf.iterations,
+              },
+              MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+            },
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+          {
+            salt: salt as MasterPasswordSalt,
+            kdf: kdf,
+            masterKeyWrappedUserKey: encryptedUserKey as MasterKeyWrappedUserKey,
+          } as MasterPasswordUnlockData,
+          user1,
+        );
+      });
+
+      it("should not set master password unlock when not present in user decryption", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+          },
+          UserDecryption: {},
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).not.toHaveBeenCalled();
       });
     });
   });
