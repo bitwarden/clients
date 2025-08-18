@@ -10,6 +10,6 @@ export type PhishingDetectionTabId = number;
 
 export type CaughtPhishingDomain = {
   url: URL;
-  redirectedTo: URL;
+  warningPageUrl: URL;
   requestedContinue: boolean;
 };

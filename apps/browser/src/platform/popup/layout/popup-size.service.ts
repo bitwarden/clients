@@ -7,8 +7,7 @@ import {
   POPUP_STYLE_DISK,
 } from "@bitwarden/common/platform/state";
 
-import {
-  BrowserPopupUtils,
+import BrowserPopupUtils, {
   PopupWidthOption,
   PopupWidthOptions,
 } from "../../browser/browser-popup-utils";
