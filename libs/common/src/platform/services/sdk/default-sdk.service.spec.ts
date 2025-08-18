@@ -51,6 +51,8 @@ describe("DefaultSdkService", () => {
       keyService = mock<KeyService>();
       configService = mock<ConfigService>();
 
+      configService.serverConfig$ = new BehaviorSubject(null);
+
       // Can't use `of(mock<Environment>())` for some reason
       environmentService.environment$ = new BehaviorSubject(mock<Environment>());
 
