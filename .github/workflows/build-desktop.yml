@@ -1383,13 +1383,13 @@ jobs:
           $buildInfo = @{
             buildNumber = $env:BUILD_NUMBER
           }
-          $buildInfo | ConvertTo-Json | Set-Content -Path apps/desktop/dist/macos-build-number.json
+          $buildInfo | ConvertTo-Json | Set-Content -Path dist/macos-build-number.json
 
       - name: Upload MacOS App Store build number artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: macos-build-number.json
-          path: apps/desktop/dist/macos-build-number.json
+          path: dist/macos-build-number.json
           if-no-files-found: error
 
       - name: Upload .pkg artifact
