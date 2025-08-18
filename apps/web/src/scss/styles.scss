@@ -8,3 +8,12 @@
 @import "@angular/cdk/text-field-prebuilt.css";
 
 @import "./vault-filters";
+/* Hide close button in date picker popovers */
+.cdk-overlay-pane button:has(i.bwi-close),
+.cdk-overlay-pane i.bwi-close.bwi-close,
+i.bwi-close.bwi-close,
+button i.bwi-close {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

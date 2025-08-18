@@ -56,6 +56,7 @@ export class AddEditCustomFieldDialogComponent {
     { name: this.i18nService.t("cfTypeHidden"), value: FieldType.Hidden },
     { name: this.i18nService.t("cfTypeCheckbox"), value: FieldType.Boolean },
     { name: this.i18nService.t("cfTypeLinked"), value: FieldType.Linked },
+    { name: this.i18nService.t("cfTypeDate"), value: FieldType.Date },
   ];
 
   FieldType = FieldType;
@@ -98,6 +99,8 @@ export class AddEditCustomFieldDialogComponent {
         return this.i18nService.t("checkBoxHelpText");
       case FieldType.Linked:
         return this.i18nService.t("linkedHelpText");
+      case FieldType.Date:
+        return this.i18nService.t("dateHelpText");
       default:
         return "";
     }

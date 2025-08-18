@@ -86,6 +86,15 @@
           </bit-select>
         </bit-form-field>
 
+        <!-- Date Field -->
+        <bit-form-field *ngIf="field.value.type === FieldType.Date" class="tw-flex-1" disableMargin>
+          <bit-label>{{ field.value.name }}</bit-label>
+          <bit-date-picker
+            formControlName="value"
+            data-testid="custom-date-field"
+          ></bit-date-picker>
+        </bit-form-field>
+
         <button
           type="button"
           (click)="openAddEditCustomFieldDialog({ index: i, label: field.value.name })"

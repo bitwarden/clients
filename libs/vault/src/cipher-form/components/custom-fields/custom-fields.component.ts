@@ -40,6 +40,7 @@ import {
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
+  BitDatePickerComponent,
 } from "@bitwarden/components";
 
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -85,6 +86,7 @@ export type CustomField = {
     SelectModule,
     DragDropModule,
     LinkModule,
+    BitDatePickerComponent,
   ],
 })
 export class CustomFieldsComponent implements OnInit, AfterViewInit {

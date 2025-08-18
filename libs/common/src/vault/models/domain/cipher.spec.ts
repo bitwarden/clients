@@ -1066,13 +1066,13 @@ describe("Cipher DTO", () => {
           {
             name: "EncryptedString" as SdkEncString,
             value: "EncryptedString" as SdkEncString,
-            type: FieldType.Linked,
+            type: FieldType.Linked as any,
             linkedId: LoginLinkedIdType.Username,
           },
           {
             name: "EncryptedString" as SdkEncString,
             value: "EncryptedString" as SdkEncString,
-            type: FieldType.Linked,
+            type: FieldType.Linked as any,
             linkedId: LoginLinkedIdType.Password,
           },
         ],

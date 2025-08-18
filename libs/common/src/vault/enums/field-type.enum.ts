@@ -3,6 +3,7 @@ const _FieldType = Object.freeze({
   Hidden: 1,
   Boolean: 2,
   Linked: 3,
+  Date: 4,
 } as const);
 
 type _FieldType = typeof _FieldType;

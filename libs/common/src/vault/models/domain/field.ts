@@ -82,10 +82,20 @@ export class Field extends Domain {
    * @returns {SdkField} The SDK field object.
    */
   toSdkField(): SdkField {
+    // Map our FieldType to SDK FieldType, falling back to Text for unsupported types
+    let sdkFieldType: any;
+    if (this.type === FieldType.Date) {
+      // SDK doesn't support Date fields yet, treat as Text
+      sdkFieldType = FieldType.Text;
+    } else {
+      // For other types, they should be compatible
+      sdkFieldType = this.type;
+    }
+
     return {
       name: this.name?.toSdk(),
       value: this.value?.toSdk(),
-      type: this.type,
+      type: sdkFieldType,
       // Safe type cast: client and SDK LinkedIdType enums have identical values
       linkedId: this.linkedId as unknown as SdkLinkedIdType,
     };

@@ -15,6 +15,7 @@ export * from "./chip-select";
 export * from "./color-password";
 export * from "./container";
 export * from "./copy-click";
+export * from "./date-picker";
 export * from "./dialog";
 export * from "./disclosure";
 export * from "./drawer";

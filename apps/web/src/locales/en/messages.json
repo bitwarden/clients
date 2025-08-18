@@ -456,6 +456,9 @@
     "message": "Linked",
     "description": "This describes a field that is 'linked' (related) to another field."
   },
+  "cfTypeDate": {
+    "message": "Date"
+  },
   "fieldType": {
     "message": "Field type"
   },
@@ -10249,6 +10252,9 @@
   },
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+  },
+  "dateHelpText": {
+    "message": "Use date fields to store important dates like expiration dates or renewal dates"
   },
   "linkedLabelHelpText": {
     "message": "Enter the the field's html id, name, aria-label, or placeholder."
