@@ -23,6 +23,9 @@ import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
+// Time to wait before performing a search after the user stops typing.
+export const SearchTextDebounceInterval = 200; // milliseconds
+
 export type SerializedLunrIndex = {
   version: string;
   fields: string[];
