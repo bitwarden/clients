@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, computed, Signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   combineLatest,
@@ -11,7 +11,6 @@ import {
   lastValueFrom,
   map,
   merge,
-  Observable,
   shareReplay,
   switchMap,
 } from "rxjs";
@@ -47,6 +46,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
+import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -102,23 +102,21 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   memberTab = MemberDialogTab;
   protected dataSource = new MembersTableDataSource();
 
-  organization: Organization;
+  organization: Signal<Organization>;
   status: OrganizationUserStatusType = null;
   orgResetPasswordPolicyEnabled = false;
-  orgIsOnSecretsManagerStandalone = false;
 
-  protected canUseSecretsManager$: Observable<boolean>;
-  protected showUserManagementControls$: Observable<boolean>;
+  protected canUseSecretsManager: Signal<boolean> = computed(
+    () => this.organization()?.useSecretsManager ?? false,
+  );
+  protected showUserManagementControls: Signal<boolean> = computed(
+    () => this.organization()?.canManageUsers ?? false,
+  );
+  protected billingMetadata: Signal<OrganizationBillingMetadataResponse>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 66;
   protected rowHeightClass = `tw-h-[66px]`;
-
-  private organizationUsersCount = 0;
-
-  get occupiedSeatCount(): number {
-    return this.organizationUsersCount;
-  }
 
   constructor(
     apiService: ApiService,
@@ -173,14 +171,14 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    this.canUseSecretsManager$ = organization$.pipe(map((org) => org.useSecretsManager));
+    this.organization = toSignal(organization$);
 
     const policies$ = combineLatest([
       this.accountService.activeAccount$.pipe(getUserId),
       organization$,
     ]).pipe(
       switchMap(([userId, organization]) => {
-        if (organization.isProviderUser) {
+        if (organization?.isProviderUser) {
           return from(this.policyApiService.getPolicies(organization.id)).pipe(
             map((response) => Policy.fromListResponse(response)),
           );
@@ -193,30 +191,20 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     combineLatest([this.route.queryParams, policies$, organization$])
       .pipe(
         concatMap(async ([qParams, policies, organization]) => {
-          this.organization = organization;
-
           // Backfill pub/priv key if necessary
-          if (
-            this.organization.canManageUsersPassword &&
-            !this.organization.hasPublicAndPrivateKeys
-          ) {
+          if (organization.canManageUsersPassword && !organization.hasPublicAndPrivateKeys) {
             const orgShareKey = await firstValueFrom(
               this.accountService.activeAccount$.pipe(
                 getUserId,
                 switchMap((userId) => this.keyService.orgKeys$(userId)),
-                map((orgKeys) => orgKeys[this.organization.id] ?? null),
+                map((orgKeys) => orgKeys[organization.id] ?? null),
               ),
             );
 
             const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
             const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
-            const response = await this.organizationApiService.updateKeys(
-              this.organization.id,
-              request,
-            );
+            const response = await this.organizationApiService.updateKeys(organization.id, request);
             if (response != null) {
-              this.organization.hasPublicAndPrivateKeys =
-                response.publicKey != null && response.privateKey != null;
               await this.syncService.fullSync(true); // Replace organizations with new data
             } else {
               throw new Error(this.i18nService.t("resetPasswordOrgKeysError"));
@@ -225,15 +213,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
           const resetPasswordPolicy = policies
             .filter((policy) => policy.type === PolicyType.ResetPassword)
-            .find((p) => p.organizationId === this.organization.id);
+            .find((p) => p.organizationId === organization.id);
           this.orgResetPasswordPolicyEnabled = resetPasswordPolicy?.enabled;
-
-          const billingMetadata = await this.billingApiService.getOrganizationBillingMetadata(
-            this.organization.id,
-          );
-
-          this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
-          this.organizationUsersCount = billingMetadata.organizationOccupiedSeats;
 
           await this.load();
 
@@ -250,8 +231,12 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       )
       .subscribe();
 
-    this.showUserManagementControls$ = organization$.pipe(
-      map((organization) => organization.canManageUsers),
+    this.billingMetadata = toSignal(
+      organization$.pipe(
+        switchMap((organization) =>
+          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)),
+        ),
+      ),
     );
 
     organization$
@@ -272,13 +257,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     let collectionsPromise: Promise<Map<string, string>>;
 
     // We don't need both groups and collections for the table, so only load one
-    const userPromise = this.organizationUserApiService.getAllUsers(this.organization.id, {
-      includeGroups: this.organization.useGroups,
-      includeCollections: !this.organization.useGroups,
+    const userPromise = this.organizationUserApiService.getAllUsers(this.organization().id, {
+      includeGroups: this.organization().useGroups,
+      includeCollections: !this.organization().useGroups,
     });
 
     // Depending on which column is displayed, we need to load the group/collection names
-    if (this.organization.useGroups) {
+    if (this.organization().useGroups) {
       groupsPromise = this.getGroupNameMap();
     } else {
       collectionsPromise = this.getCollectionNameMap();
@@ -305,7 +290,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async getGroupNameMap(): Promise<Map<string, string>> {
-    const groups = await this.groupService.getAll(this.organization.id);
+    const groups = await this.groupService.getAll(this.organization().id);
     const groupNameMap = new Map<string, string>();
     groups.forEach((g) => groupNameMap.set(g.id, g.name));
     return groupNameMap;
@@ -315,7 +300,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
    * Retrieve a map of all collection IDs <-> names for the organization.
    */
   async getCollectionNameMap() {
-    const response = from(this.apiService.getCollections(this.organization.id)).pipe(
+    const response = from(this.apiService.getCollections(this.organization().id)).pipe(
       map((res) =>
         res.data.map((r) =>
           Collection.fromCollectionData(new CollectionData(r as CollectionDetailsResponse)),
@@ -344,19 +329,19 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   removeUser(id: string): Promise<void> {
-    return this.organizationUserApiService.removeOrganizationUser(this.organization.id, id);
+    return this.organizationUserApiService.removeOrganizationUser(this.organization().id, id);
   }
 
   revokeUser(id: string): Promise<void> {
-    return this.organizationUserApiService.revokeOrganizationUser(this.organization.id, id);
+    return this.organizationUserApiService.revokeOrganizationUser(this.organization().id, id);
   }
 
   restoreUser(id: string): Promise<void> {
-    return this.organizationUserApiService.restoreOrganizationUser(this.organization.id, id);
+    return this.organizationUserApiService.restoreOrganizationUser(this.organization().id, id);
   }
 
   reinviteUser(id: string): Promise<void> {
-    return this.organizationUserApiService.postOrganizationUserReinvite(this.organization.id, id);
+    return this.organizationUserApiService.postOrganizationUserReinvite(this.organization().id, id);
   }
 
   async confirmUser(user: OrganizationUserView, publicKey: Uint8Array): Promise<void> {
@@ -364,21 +349,25 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
     ) {
       await firstValueFrom(
-        this.organizationUserService.confirmUser(this.organization, user, publicKey),
+        this.organizationUserService.confirmUser(this.organization(), user, publicKey),
       );
     } else {
-      const orgKey = await firstValueFrom(
+      const request = await firstValueFrom(
         this.accountService.activeAccount$.pipe(
           getUserId,
           switchMap((userId) => this.keyService.orgKeys$(userId)),
-          map((orgKeys) => orgKeys[this.organization.id] ?? null),
+          map((orgKeys) => orgKeys[this.organization().id] ?? null),
+          switchMap((orgKey) => this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey)),
+          map((encKey) => {
+            const req = new OrganizationUserConfirmRequest();
+            req.key = encKey.encryptedString;
+            return req;
+          }),
         ),
       );
-      const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
-      const request = new OrganizationUserConfirmRequest();
-      request.key = key.encryptedString;
-      await this.organizationUserApiService.postOrganizationUserConfirm(
-        this.organization.id,
+
+      return await this.organizationUserApiService.postOrganizationUserConfirm(
+        this.organization().id,
         user.id,
         request,
       );
@@ -427,7 +416,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     // Hierarchy check
     let callingUserHasPermission = false;
 
-    switch (this.organization.type) {
+    switch (this.organization().type) {
       case OrganizationUserType.Owner:
         callingUserHasPermission = true;
         break;
@@ -443,10 +432,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     // Final
     return (
-      this.organization.canManageUsersPassword &&
+      this.organization().canManageUsersPassword &&
       callingUserHasPermission &&
-      this.organization.useResetPassword &&
-      this.organization.hasPublicAndPrivateKeys &&
+      this.organization().useResetPassword &&
+      this.organization().hasPublicAndPrivateKeys &&
       orgUser.resetPasswordEnrolled &&
       this.orgResetPasswordPolicyEnabled &&
       orgUser.status === OrganizationUserStatusType.Confirmed
@@ -455,14 +444,14 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
   showEnrolledStatus(orgUser: OrganizationUserUserDetailsResponse): boolean {
     return (
-      this.organization.useResetPassword &&
+      this.organization().useResetPassword &&
       orgUser.resetPasswordEnrolled &&
       this.orgResetPasswordPolicyEnabled
     );
   }
 
   private getManageBillingText(): string {
-    return this.organization.canEditSubscription ? "ManageBilling" : "NoManageBilling";
+    return this.organization().canEditSubscription ? "ManageBilling" : "NoManageBilling";
   }
 
   private getProductKey(productType: ProductTierType): string {
@@ -483,19 +472,19 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     return `${product}InvLimitReached${this.getManageBillingText()}`;
   }
 
-  private getDialogContent(): string {
+  private async getDialogContent(): Promise<string> {
     return this.i18nService.t(
-      this.getProductKey(this.organization.productTierType),
-      this.organization.seats,
+      this.getProductKey(this.organization().productTierType),
+      this.organization().seats,
     );
   }
 
   private getAcceptButtonText(): string {
-    if (!this.organization.canEditSubscription) {
+    if (!this.organization().canEditSubscription) {
       return this.i18nService.t("ok");
     }
 
-    const productType = this.organization.productTierType;
+    const productType = this.organization().productTierType;
 
     if (isNotSelfUpgradable(productType)) {
       throw new Error(`Unsupported product type: ${productType}`);
@@ -505,18 +494,18 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   private async handleDialogClose(result: boolean | undefined): Promise<void> {
-    if (!result || !this.organization.canEditSubscription) {
+    if (!result || !this.organization().canEditSubscription) {
       return;
     }
 
-    const productType = this.organization.productTierType;
+    const productType = this.organization().productTierType;
 
     if (isNotSelfUpgradable(productType)) {
-      throw new Error(`Unsupported product type: ${this.organization.productTierType}`);
+      throw new Error(`Unsupported product type: ${this.organization().productTierType}`);
     }
 
     await this.router.navigate(
-      ["/organizations", this.organization.id, "billing", "subscription"],
+      ["/organizations", this.organization().id, "billing", "subscription"],
       { queryParams: { upgrade: true } },
     );
   }
@@ -524,12 +513,12 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   private async showSeatLimitReachedDialog(): Promise<void> {
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
-      content: this.getDialogContent(),
+      content: await this.getDialogContent(),
       type: "primary",
       acceptButtonText: this.getAcceptButtonText(),
     };
 
-    if (!this.organization.canEditSubscription) {
+    if (!this.organization().canEditSubscription) {
       orgUpgradeSimpleDialogOpts.cancelButtonText = null;
     }
 
@@ -543,10 +532,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         kind: "Add",
-        organizationId: this.organization.id,
+        organizationId: this.organization().id,
         allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
-        occupiedSeatCount: this.occupiedSeatCount,
-        isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
+        occupiedSeatCount: this.billingMetadata().organizationOccupiedSeats,
+        isOnSecretsManagerStandalone: this.billingMetadata().isOnSecretsManagerStandalone,
       },
     });
 
@@ -558,16 +547,16 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   private async handleSeatLimitForFixedTiers() {
-    if (!this.organization.canEditSubscription) {
+    if (!this.organization().canEditSubscription) {
       await this.showSeatLimitReachedDialog();
       return;
     }
 
     const reference = openChangePlanDialog(this.dialogService, {
       data: {
-        organizationId: this.organization.id,
+        organizationId: this.organization().id,
         subscription: null,
-        productTierType: this.organization.productTierType,
+        productTierType: this.organization().productTierType,
       },
     });
 
@@ -579,7 +568,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async invite() {
-    if (this.organization.hasReseller && this.organization.seats === this.occupiedSeatCount) {
+    if (
+      this.organization().hasReseller &&
+      this.organization().seats === this.billingMetadata().organizationOccupiedSeats
+    ) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("seatLimitReached"),
@@ -590,8 +582,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     if (
-      this.occupiedSeatCount === this.organization.seats &&
-      isFixedSeatPlan(this.organization.productTierType)
+      this.billingMetadata().organizationOccupiedSeats === this.organization().seats &&
+      isFixedSeatPlan(this.organization().productTierType)
     ) {
       await this.handleSeatLimitForFixedTiers();
 
@@ -606,10 +598,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),
-        organizationId: this.organization.id,
+        organizationId: this.organization().id,
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
-        isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
+        isOnSecretsManagerStandalone: this.billingMetadata().isOnSecretsManagerStandalone,
         initialTab: initialTab,
         managedByOrganization: user.managedByOrganization,
       },
@@ -635,7 +627,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const dialogRef = BulkRemoveDialogComponent.open(this.dialogService, {
       data: {
-        organizationId: this.organization.id,
+        organizationId: this.organization().id,
         users: this.dataSource.getCheckedUsers(),
       },
     });
@@ -645,13 +637,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
   async bulkDelete() {
     const warningAcknowledged = await firstValueFrom(
-      this.deleteManagedMemberWarningService.warningAcknowledged(this.organization.id),
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.organization().id),
     );
 
     if (
       !warningAcknowledged &&
-      this.organization.canManageUsers &&
-      this.organization.productTierType === ProductTierType.Enterprise
+      this.organization().canManageUsers &&
+      this.organization().productTierType === ProductTierType.Enterprise
     ) {
       const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
       if (!acknowledged) {
@@ -665,7 +657,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const dialogRef = BulkDeleteDialogComponent.open(this.dialogService, {
       data: {
-        organizationId: this.organization.id,
+        organizationId: this.organization().id,
         users: this.dataSource.getCheckedUsers(),
       },
     });
@@ -687,7 +679,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     const ref = BulkRestoreRevokeComponent.open(this.dialogService, {
-      organizationId: this.organization.id,
+      organizationId: this.organization().id,
       users: this.dataSource.getCheckedUsers(),
       isRevoking: isRevoking,
     });
@@ -715,7 +707,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     try {
       const response = this.organizationUserApiService.postManyOrganizationUserReinvite(
-        this.organization.id,
+        this.organization().id,
         filteredUsers.map((user) => user.id),
       );
       // Bulk Status component open
@@ -741,7 +733,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const dialogRef = BulkConfirmDialogComponent.open(this.dialogService, {
       data: {
-        organization: this.organization,
+        organization: this.organization(),
         users: this.dataSource.getCheckedUsers(),
       },
     });
@@ -763,7 +755,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     const dialogRef = BulkEnableSecretsManagerDialogComponent.open(this.dialogService, {
-      orgId: this.organization.id,
+      orgId: this.organization().id,
       users,
     });
 
@@ -776,7 +768,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     openEntityEventsDialog(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
-        organizationId: this.organization.id,
+        organizationId: this.organization().id,
         entityId: user.id,
         showUser: false,
         entity: "user",
@@ -800,7 +792,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       data: {
         name: this.userNamePipe.transform(user),
         email: user.email,
-        organizationId: this.organization.id as OrganizationId,
+        organizationId: this.organization().id as OrganizationId,
         organizationUserId: user.id,
       },
     });
@@ -859,13 +851,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
   async deleteUser(user: OrganizationUserView) {
     const warningAcknowledged = await firstValueFrom(
-      this.deleteManagedMemberWarningService.warningAcknowledged(this.organization.id),
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.organization().id),
     );
 
     if (
       !warningAcknowledged &&
-      this.organization.canManageUsers &&
-      this.organization.productTierType === ProductTierType.Enterprise
+      this.organization().canManageUsers &&
+      this.organization().productTierType === ProductTierType.Enterprise
     ) {
       const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
       if (!acknowledged) {
@@ -891,10 +883,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return false;
     }
 
-    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organization.id);
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organization().id);
 
     this.actionPromise = this.organizationUserApiService.deleteOrganizationUser(
-      this.organization.id,
+      this.organization().id,
       user.id,
     );
     try {
@@ -957,7 +949,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
     const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
-    await this.router.navigate(["organizations", `${this.organization?.id}`, "billing", route], {
+    await this.router.navigate(["organizations", `${this.organization()?.id}`, "billing", route], {
       state: { launchPaymentModalAutomatically: true },
     });
   }

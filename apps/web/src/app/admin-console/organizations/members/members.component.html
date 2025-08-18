@@ -1,3 +1,4 @@
+@let organization = this.organization();
 <app-organization-free-trial-warning
   [organization]="organization"
   (clicked)="navigateToPaymentMethod()"
@@ -16,7 +17,7 @@
     buttonType="primary"
     (click)="invite()"
     [disabled]="!firstLoaded"
-    *ngIf="showUserManagementControls$ | async"
+    *ngIf="showUserManagementControls()"
   >
     <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
     {{ "inviteMember" | i18n }}
@@ -28,7 +29,7 @@
     [selected]="status"
     (selectedChange)="statusToggle.next($event)"
     [attr.aria-label]="'memberStatusFilter' | i18n"
-    *ngIf="showUserManagementControls$ | async"
+    *ngIf="showUserManagementControls()"
   >
     <bit-toggle [value]="null">
       {{ "all" | i18n }}
@@ -84,7 +85,7 @@
       <bit-table [dataSource]="dataSource">
         <ng-container header>
           <tr>
-            <th bitCell class="tw-w-20" *ngIf="showUserManagementControls$ | async">
+            <th bitCell class="tw-w-20" *ngIf="showUserManagementControls()">
               <input
                 type="checkbox"
                 bitCheckbox
@@ -107,11 +108,11 @@
                 bitIconButton="bwi-ellipsis-v"
                 size="small"
                 appA11yTitle="{{ 'options' | i18n }}"
-                *ngIf="showUserManagementControls$ | async"
+                *ngIf="showUserManagementControls()"
               ></button>
 
               <bit-menu #headerMenu>
-                <ng-container *ngIf="canUseSecretsManager$ | async">
+                <ng-container *ngIf="canUseSecretsManager()">
                   <button type="button" bitMenuItem (click)="bulkEnableSM()">
                     {{ "activateSecretsManager" | i18n }}
                   </button>
@@ -188,14 +189,10 @@
             alignContent="middle"
             [ngClass]="rowHeightClass"
           >
-            <td
-              bitCell
-              (click)="dataSource.checkUser(u)"
-              *ngIf="showUserManagementControls$ | async"
-            >
+            <td bitCell (click)="dataSource.checkUser(u)" *ngIf="showUserManagementControls()">
               <input type="checkbox" bitCheckbox [(ngModel)]="$any(u).checked" />
             </td>
-            <ng-container *ngIf="showUserManagementControls$ | async; else readOnlyUserInfo">
+            <ng-container *ngIf="showUserManagementControls(); else readOnlyUserInfo">
               <td bitCell (click)="edit(u)" class="tw-cursor-pointer">
                 <div class="tw-flex tw-items-center">
                   <bit-avatar
@@ -288,7 +285,7 @@
               </td>
             </ng-template>
 
-            <ng-container *ngIf="showUserManagementControls$ | async; else readOnlyGroupsCell">
+            <ng-container *ngIf="showUserManagementControls(); else readOnlyGroupsCell">
               <td
                 bitCell
                 (click)="edit(u, organization.useGroups ? memberTab.Groups : memberTab.Collections)"
@@ -311,7 +308,7 @@
               </td>
             </ng-template>
 
-            <ng-container *ngIf="showUserManagementControls$ | async; else readOnlyRoleCell">
+            <ng-container *ngIf="showUserManagementControls(); else readOnlyRoleCell">
               <td
                 bitCell
                 (click)="edit(u, memberTab.Role)"
@@ -354,7 +351,7 @@
               ></button>
 
               <bit-menu #rowMenu>
-                <ng-container *ngIf="showUserManagementControls$ | async">
+                <ng-container *ngIf="showUserManagementControls()">
                   <button
                     type="button"
                     bitMenuItem
@@ -415,7 +412,7 @@
                   <i aria-hidden="true" class="bwi bwi-key"></i> {{ "recoverAccount" | i18n }}
                 </button>
 
-                <ng-container *ngIf="showUserManagementControls$ | async">
+                <ng-container *ngIf="showUserManagementControls()">
                   <button
                     type="button"
                     bitMenuItem
