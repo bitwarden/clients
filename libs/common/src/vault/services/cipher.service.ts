@@ -218,7 +218,7 @@ export class CipherService implements CipherServiceAbstraction {
       if (value == null) {
         await this.searchService.clearIndex(userId);
       } else {
-        await this.searchService.indexCiphers(userId, value);
+        void this.searchService.indexCiphers(userId, value);
       }
     }
   }
