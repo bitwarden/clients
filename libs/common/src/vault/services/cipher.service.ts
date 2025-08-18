@@ -185,8 +185,7 @@ export class CipherService implements CipherServiceAbstraction {
     ]).pipe(
       filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
       switchMap(() => this.getAllDecrypted(userId)),
-      tap(async (decrypted) => {
-        await this.searchService.indexCiphers(userId, decrypted);
+      tap(() => {
         this.messageSender.send("updateOverlayCiphers");
       }),
     );
