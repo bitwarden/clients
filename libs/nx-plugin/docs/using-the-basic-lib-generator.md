@@ -41,7 +41,6 @@ Let's create a new utility library called "password-insulter":
 The generator creates the following:
 
 - **Library Structure**:
-
   - `libs/password-insulter/`
     - `src/`
       - `index.ts` - Main entry point
