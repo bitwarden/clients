@@ -5,7 +5,6 @@ import { Jsonify } from "type-fest";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { KeyConnectorUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/key-connector-user-decryption-option.response";
 import { TrustedDeviceUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/trusted-device-user-decryption-option.response";
-import { MasterPasswordUnlockData } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 
 /**
  * Key Connector decryption options. Intended to be sent to the client for use after authentication.
@@ -101,8 +100,6 @@ export class TrustedDeviceUserDecryptionOption {
 export class UserDecryptionOptions {
   /** True if the user has a master password configured on the server. */
   hasMasterPassword: boolean;
-  /** When the user has a master password, this will contain the data needed to unlock. */
-  masterPasswordUnlock?: MasterPasswordUnlockData;
   /** {@link TrustedDeviceUserDecryptionOption} */
   trustedDeviceOption?: TrustedDeviceUserDecryptionOption;
   /** {@link KeyConnectorUserDecryptionOption} */
@@ -136,9 +133,6 @@ export class UserDecryptionOptions {
       decryptionOptions.keyConnectorOption = KeyConnectorUserDecryptionOption.fromResponse(
         responseOptions.keyConnectorOption,
       );
-
-      decryptionOptions.masterPasswordUnlock =
-        responseOptions.masterPasswordUnlock?.toMasterPasswordUnlockData();
     } else {
       // If the response does not have userDecryptionOptions, this means it's on a pre-TDE server version and so
       // we must base our decryption options on the presence of the keyConnectorUrl.
