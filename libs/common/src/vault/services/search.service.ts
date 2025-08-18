@@ -140,17 +140,26 @@ export class SearchService implements SearchServiceAbstraction {
     await this.searchIsIndexingState(userId).update(() => null);
   }
 
-  async isSearchable(userId: UserId, query: string): Promise<boolean> {
-    const time = performance.now();
+  async isSearchable(userId: UserId, query: string | null): Promise<boolean> {
     query = SearchService.normalizeSearchQuery(query);
-    const index = await this.getIndexForSearch(userId);
-    const notSearchable =
-      query == null ||
-      (index == null && query.length < this.searchableMinLength) ||
-      (index != null && query.length < this.searchableMinLength && query.indexOf(">") !== 0);
 
-    this.logService.measure(time, "Vault", "SearchService", "isSearchable");
-    return !notSearchable;
+    // Nothing to search if the query is null
+    if (query == null || query === "") {
+      return false;
+    }
+
+    // Always searchable when query exceeds the minimum length
+    if (query.length >= this.searchableMinLength) {
+      return true;
+    }
+
+    const isLunrQuery = query.indexOf(">") === 0;
+    if (isLunrQuery) {
+      // If the query is a Lunr query, we need to check if the index exists
+      return (await this.getIndexForSearch(userId)) != null;
+    }
+
+    return false; // Not searchable if the query is too short and not a Lunr query
   }
 
   async indexCiphers(
