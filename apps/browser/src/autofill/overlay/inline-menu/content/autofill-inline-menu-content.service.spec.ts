@@ -319,9 +319,10 @@ describe("AutofillInlineMenuContentService", () => {
 
   describe("handleContainerElementMutationObserverUpdate", () => {
     let mockMutationRecord: MockProxy<MutationRecord>;
+    let mockBodyMutationRecord: MockProxy<MutationRecord>;
+    let mockHTMLMutationRecord: MockProxy<MutationRecord>;
     let buttonElement: HTMLElement;
     let listElement: HTMLElement;
-    let spyContainerAncestryIsOpaque: jest.SpyInstance;
     let isInlineMenuListVisibleSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -330,13 +331,20 @@ describe("AutofillInlineMenuContentService", () => {
       <div class="overlay-list"></div>
       `;
       mockMutationRecord = mock<MutationRecord>({ target: globalThis.document.body } as any);
+      mockHTMLMutationRecord = mock<MutationRecord>({
+        target: globalThis.document.body.parentElement,
+        attributeName: "style",
+        type: "attributes",
+      } as any);
+      mockBodyMutationRecord = mock<MutationRecord>({
+        target: globalThis.document.body,
+        attributeName: "style",
+        type: "attributes",
+      } as any);
       buttonElement = document.querySelector(".overlay-button") as HTMLElement;
       listElement = document.querySelector(".overlay-list") as HTMLElement;
       autofillInlineMenuContentService["buttonElement"] = buttonElement;
       autofillInlineMenuContentService["listElement"] = listElement;
-      spyContainerAncestryIsOpaque = jest
-        .spyOn(autofillInlineMenuContentService as any, "containerAncestryIsOpaque")
-        .mockResolvedValue(true);
       isInlineMenuListVisibleSpy = jest
         .spyOn(autofillInlineMenuContentService as any, "isInlineMenuListVisible")
         .mockResolvedValue(true);
@@ -347,6 +355,7 @@ describe("AutofillInlineMenuContentService", () => {
           "isTriggeringExcessiveMutationObserverIterations",
         )
         .mockReturnValue(false);
+      jest.spyOn(autofillInlineMenuContentService as any, "closeInlineMenu");
     });
 
     it("skips handling the mutation if the overlay elements are not present in the DOM", async () => {
@@ -377,17 +386,31 @@ describe("AutofillInlineMenuContentService", () => {
       expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
     });
 
-    it("skips handling the mutation if the container or container parent is not fully opaque", async () => {
-      spyContainerAncestryIsOpaque.mockResolvedValue(false);
+    it("closes the inline menu if the page body is not sufficiently opaque", async () => {
+      document.querySelector("html").style.opacity = "0.9";
+      document.body.style.opacity = "0";
+      autofillInlineMenuContentService["handlePageMutations"]([mockBodyMutationRecord]);
 
-      document.body.appendChild(buttonElement);
+      expect(autofillInlineMenuContentService["pageIsOpaque"]).toBe(false);
+      expect(autofillInlineMenuContentService["closeInlineMenu"]).toHaveBeenCalled();
+    });
 
-      autofillInlineMenuContentService["handleContainerElementMutationObserverUpdate"]([
-        mockMutationRecord,
-      ]);
-      await waitForIdleCallback();
+    it("closes the inline menu if the page html is not sufficiently opaque", async () => {
+      document.querySelector("html").style.opacity = "0.3";
+      document.body.style.opacity = "0.7";
+      autofillInlineMenuContentService["handlePageMutations"]([mockHTMLMutationRecord]);
 
-      expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+      expect(autofillInlineMenuContentService["pageIsOpaque"]).toBe(false);
+      expect(autofillInlineMenuContentService["closeInlineMenu"]).toHaveBeenCalled();
+    });
+
+    it("does not close the inline menu if the page html and body is sufficiently opaque", async () => {
+      document.querySelector("html").style.opacity = "0.9";
+      document.body.style.opacity = "1";
+      autofillInlineMenuContentService["handlePageMutations"]([mockBodyMutationRecord]);
+
+      expect(autofillInlineMenuContentService["pageIsOpaque"]).toBe(true);
+      expect(autofillInlineMenuContentService["closeInlineMenu"]).not.toHaveBeenCalled();
     });
 
     it("skips re-arranging the DOM elements if the last child of the body is non-existent", async () => {
