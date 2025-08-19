@@ -6,10 +6,10 @@ import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from
 // eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
+import { KeyGenerationService } from "../../../key-management/crypto";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
