@@ -1,15 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FocusableOption } from "@angular/cdk/a11y";
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   HostListener,
   Input,
-  ViewChild,
-  input,
   inject,
-  DestroyRef,
+  input,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IsActiveMatchOptions, RouterLinkActive, RouterModule } from "@angular/router";
@@ -24,9 +22,10 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
   imports: [TabListItemDirective, RouterModule],
 })
 export class TabLinkComponent implements FocusableOption, AfterViewInit {
-  private readonly destroyRef = inject(DestroyRef);
-  @ViewChild(TabListItemDirective) tabItem: TabListItemDirective;
-  @ViewChild("rla") routerLinkActive: RouterLinkActive;
+  private destroyRef = inject(DestroyRef);
+
+  readonly tabItem = viewChild.required(TabListItemDirective);
+  readonly routerLinkActive = viewChild.required<RouterLinkActive>("rla");
 
   readonly routerLinkMatchOptions: IsActiveMatchOptions = {
     queryParams: "ignored",
@@ -43,25 +42,25 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
 
   @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {
     if (event.code === "Space") {
-      this.tabItem.click();
+      this.tabItem().click();
     }
   }
 
   get active() {
-    return this.routerLinkActive?.isActive ?? false;
+    return this.routerLinkActive()?.isActive ?? false;
   }
 
   constructor(private _tabNavBar: TabNavBarComponent) {}
 
   focus(): void {
-    this.tabItem.focus();
+    this.tabItem().focus();
   }
 
   ngAfterViewInit() {
     // The active state of tab links are tracked via the routerLinkActive directive
     // We need to watch for changes to tell the parent nav group when the tab is active
-    this.routerLinkActive.isActiveChange
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.routerLinkActive()
+      .isActiveChange.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((_) => this._tabNavBar.updateActiveLink());
   }
 }
