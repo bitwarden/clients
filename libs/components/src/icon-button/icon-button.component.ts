@@ -103,8 +103,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    */
   readonly label = input<string>();
 
-  private originalTitle: string | null;
-
   @HostBinding("class") get classList() {
     return [
       "tw-font-semibold",
