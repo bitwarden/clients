@@ -174,9 +174,6 @@ export class SearchService implements SearchServiceAbstraction {
       return;
     }
 
-    // Simulate a delay to ensure loading the index does not block the UI.
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
     const indexingStartTime = performance.now();
     await this.setIsIndexing(userId, true);
     await this.setIndexedEntityIdForSearch(userId, indexedEntityId as IndexedEntityId);
