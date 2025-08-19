@@ -40,6 +40,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -82,19 +83,18 @@ export interface CollectionAssignmentParams {
   isSingleCipherAdmin?: boolean;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CollectionAssignmentResult {
-  Saved = "saved",
-  Canceled = "canceled",
-}
+export const CollectionAssignmentResult = {
+  Saved: "saved",
+  Canceled: "canceled",
+} as const;
+
+export type CollectionAssignmentResult = UnionOfValues<typeof CollectionAssignmentResult>;
 
 const MY_VAULT_ID = "MyVault";
 
 @Component({
   selector: "assign-collections",
   templateUrl: "assign-collections.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -435,12 +435,14 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
    * @returns An observable of the collections for the organization.
    */
   private getCollectionsForOrganization(orgId: OrganizationId): Observable<CollectionView[]> {
-    return combineLatest([
-      this.collectionService.decryptedCollections$,
-      this.accountService.activeAccount$.pipe(
-        switchMap((account) => this.organizationService.organizations$(account?.id)),
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        combineLatest([
+          this.collectionService.decryptedCollections$(userId),
+          this.organizationService.organizations$(userId),
+        ]),
       ),
-    ]).pipe(
       map(([collections, organizations]) => {
         const org = organizations.find((o) => o.id === orgId);
         this.orgName = org.name;

@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async" disablePadding>
+<popup-page [loading]="loading$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -46,16 +46,14 @@
           [title]="'hasItemsVaultNudgeTitle' | i18n"
           (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.HasVaultItems)"
         >
-          <ul class="tw-pl-4 tw-text-main" bitTypography="body2">
+          <ul class="tw-pl-4 tw-text-main tw-mb-0" bitTypography="body2">
             <li>{{ "hasItemsVaultNudgeBodyOne" | i18n }}</li>
             <li>{{ "hasItemsVaultNudgeBodyTwo" | i18n }}</li>
             <li>{{ "hasItemsVaultNudgeBodyThree" | i18n }}</li>
           </ul>
         </bit-spotlight>
       </div>
-      <vault-at-risk-password-callout
-        *appIfFeature="FeatureFlag.SecurityTasks"
-      ></vault-at-risk-password-callout>
+      <vault-at-risk-password-callout></vault-at-risk-password-callout>
       <app-vault-header-v2></app-vault-header-v2>
     </ng-container>
   </ng-container>
@@ -86,11 +84,7 @@
       </div>
     </div>
 
-    <div
-      *ngIf="vaultState === null"
-      cdkVirtualScrollingElement
-      class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
-    >
+    <ng-container *ngIf="vaultState === null">
       <app-autofill-vault-list-items></app-autofill-vault-list-items>
       <app-vault-list-items-container
         [title]="'favorites' | i18n"
@@ -105,6 +99,6 @@
         disableSectionMargin
         collapsibleKey="allItems"
       ></app-vault-list-items-container>
-    </div>
+    </ng-container>
   </ng-container>
 </popup-page>

@@ -1,18 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DOCUMENT } from "@angular/common";
-import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { Subject, filter, firstValueFrom, map, takeUntil, timeout } from "rxjs";
+import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -26,6 +26,7 @@ import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
@@ -34,13 +35,15 @@ import {
   DisableSendPolicy,
   MasterPasswordPolicy,
   PasswordGeneratorPolicy,
-  PersonalOwnershipPolicy,
+  OrganizationDataOwnershipPolicy,
+  vNextOrganizationDataOwnershipPolicy,
   RequireSsoPolicy,
   ResetPasswordPolicy,
   SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
   RemoveUnlockWithPinPolicy,
+  RestrictedItemTypesPolicy,
 } from "./admin-console/organizations/policies";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -60,7 +63,6 @@ export class AppComponent implements OnDestroy, OnInit {
   loading = false;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
     private cipherService: CipherService,
@@ -86,15 +88,17 @@ export class AppComponent implements OnDestroy, OnInit {
     private accountService: AccountService,
     private processReloadService: ProcessReloadServiceAbstraction,
     private deviceTrustToastService: DeviceTrustToastService,
+    private readonly destoryRef: DestroyRef,
+    private readonly documentLangSetter: DocumentLangSetter,
+    private readonly tokenService: TokenService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+
+    const langSubscription = this.documentLangSetter.start();
+    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   ngOnInit() {
-    this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {
-      this.document.documentElement.lang = locale;
-    });
-
     this.ngZone.runOutsideAngular(() => {
       window.onmousemove = () => this.recordActivity();
       window.onmousedown = () => this.recordActivity();
@@ -243,9 +247,11 @@ export class AppComponent implements OnDestroy, OnInit {
       new PasswordGeneratorPolicy(),
       new SingleOrgPolicy(),
       new RequireSsoPolicy(),
-      new PersonalOwnershipPolicy(),
+      new OrganizationDataOwnershipPolicy(),
+      new vNextOrganizationDataOwnershipPolicy(),
       new DisableSendPolicy(),
       new SendOptionsPolicy(),
+      new RestrictedItemTypesPolicy(),
     ]);
   }
 
@@ -285,7 +291,6 @@ export class AppComponent implements OnDestroy, OnInit {
       this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
-      this.collectionService.clear(userId),
       this.biometricStateService.logout(userId),
     ]);
 
@@ -294,6 +299,7 @@ export class AppComponent implements OnDestroy, OnInit {
     await this.searchService.clearIndex(userId);
     this.authService.logOut(async () => {
       await this.stateService.clean({ userId: userId });
+      await this.tokenService.clearAccessToken(userId);
       await this.accountService.clean(userId);
       await this.accountService.switchAccount(null);
 

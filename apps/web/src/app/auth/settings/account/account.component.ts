@@ -21,7 +21,6 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
 
 @Component({
   templateUrl: "account.component.html",
-  standalone: true,
   imports: [
     SharedModule,
     HeaderModule,

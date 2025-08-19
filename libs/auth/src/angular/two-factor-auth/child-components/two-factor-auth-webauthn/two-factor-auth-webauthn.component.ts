@@ -33,7 +33,6 @@ export interface WebAuthnResult {
 }
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-webauthn",
   templateUrl: "two-factor-auth-webauthn.component.html",
   imports: [

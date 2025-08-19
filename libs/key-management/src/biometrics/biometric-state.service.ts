@@ -1,6 +1,9 @@
 import { Observable, firstValueFrom, map, combineLatest } from "rxjs";
 
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ActiveUserState, GlobalState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 

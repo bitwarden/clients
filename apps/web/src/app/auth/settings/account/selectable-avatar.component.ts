@@ -27,7 +27,6 @@ import { AvatarModule } from "@bitwarden/components";
     >
     </bit-avatar>
   </span>`,
-  standalone: true,
   imports: [NgClass, AvatarModule],
 })
 export class SelectableAvatarComponent {

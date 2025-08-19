@@ -16,10 +16,12 @@
   "dependencies": {
     "@bitwarden/common": "file:../../../libs/common",
     "@bitwarden/node": "file:../../../libs/node",
+    "@bitwarden/storage-core": "file:../../../libs/storage-core",
+    "@bitwarden/logging": "dist/libs/logging/src",
     "module-alias": "2.2.3",
     "ts-node": "10.9.2",
     "uuid": "11.1.0",
-    "yargs": "17.7.2"
+    "yargs": "18.0.0"
   },
   "devDependencies": {
     "@types/node": "22.15.3",
@@ -27,6 +29,8 @@
   },
   "_moduleAliases": {
     "@bitwarden/common": "dist/libs/common/src",
-    "@bitwarden/node/services/node-crypto-function.service": "dist/libs/node/src/services/node-crypto-function.service"
+    "@bitwarden/node/services/node-crypto-function.service": "dist/libs/node/src/services/node-crypto-function.service",
+    "@bitwarden/storage-core": "dist/libs/storage-core/src",
+    "@bitwarden/logging": "dist/libs/logging/src"
   }
 }

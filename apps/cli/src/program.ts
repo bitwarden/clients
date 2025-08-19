@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import * as chalk from "chalk";
 import { program, Command, OptionValues } from "commander";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of, switchMap } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
@@ -129,7 +129,17 @@ export class Program extends BaseProgram {
         "Path to a file containing your password as its first line",
       )
       .option("--check", "Check login status.", async () => {
-        const authed = await this.serviceContainer.stateService.getIsAuthenticated();
+        const authed = await firstValueFrom(
+          this.serviceContainer.accountService.activeAccount$.pipe(
+            switchMap((account) => {
+              if (account == null) {
+                return of(false);
+              }
+
+              return this.serviceContainer.tokenService.hasAccessToken$(account.id);
+            }),
+          ),
+        );
         if (authed) {
           const res = new MessageResponse("You are logged in!", null);
           this.processResponse(Response.success(res), true);
@@ -175,6 +185,7 @@ export class Program extends BaseProgram {
             async () => await this.serviceContainer.logout(),
             this.serviceContainer.kdfConfigService,
             this.serviceContainer.ssoUrlService,
+            this.serviceContainer.i18nService,
             this.serviceContainer.masterPasswordService,
           );
           const response = await command.run(email, password, options);
@@ -349,7 +360,8 @@ export class Program extends BaseProgram {
       .action(async (options) => {
         const command = new GenerateCommand(
           this.serviceContainer.passwordGenerationService,
-          this.serviceContainer.stateService,
+          this.serviceContainer.tokenService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(options);
         this.processResponse(response);

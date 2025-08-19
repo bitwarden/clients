@@ -12,6 +12,7 @@
     <auth-input-password
       [flow]="inputPasswordFlow"
       [email]="email"
+      [loading]="submitting"
       [masterPasswordPolicyOptions]="enforcedPolicyOptions"
       (onPasswordFormSubmit)="handlePasswordSubmit($event)"
       [primaryButtonText]="{ key: 'createAccount' }"
@@ -23,6 +24,7 @@
         <auth-input-password
           [flow]="inputPasswordFlow"
           [email]="email"
+          [loading]="submitting"
           [masterPasswordPolicyOptions]="enforcedPolicyOptions"
           (onPasswordFormSubmit)="handlePasswordSubmit($event)"
           [primaryButtonText]="{ key: 'createAccount' }"
@@ -38,13 +40,17 @@
           [loading]="loading && (trialPaymentOptional$ | async)"
           (click)="orgNameEntrySubmit()"
         >
-          {{ (trialPaymentOptional$ | async) ? ("startTrial" | i18n) : ("next" | i18n) }}
+          {{
+            (trialPaymentOptional$ | async) && trialLength > 0
+              ? ("startTrial" | i18n)
+              : ("next" | i18n)
+          }}
         </button>
       </app-vertical-step>
       <app-vertical-step
         label="Billing"
         [subLabel]="billingSubLabel"
-        *ngIf="!(trialPaymentOptional$ | async) && !isSecretsManagerFree"
+        *ngIf="showBillingStep$ | async"
       >
         <app-trial-billing-step
           *ngIf="stepper.selectedIndex === 2"

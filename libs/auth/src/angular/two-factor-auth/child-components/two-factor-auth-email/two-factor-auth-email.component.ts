@@ -25,10 +25,8 @@ import {
 } from "@bitwarden/components";
 
 import { TwoFactorAuthEmailComponentCacheService } from "./two-factor-auth-email-component-cache.service";
-import { TwoFactorAuthEmailComponentService } from "./two-factor-auth-email-component.service";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-email",
   templateUrl: "two-factor-auth-email.component.html",
   imports: [
@@ -67,14 +65,10 @@ export class TwoFactorAuthEmailComponent implements OnInit {
     protected apiService: ApiService,
     protected appIdService: AppIdService,
     private toastService: ToastService,
-    private twoFactorAuthEmailComponentService: TwoFactorAuthEmailComponentService,
     private cacheService: TwoFactorAuthEmailComponentCacheService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await this.twoFactorAuthEmailComponentService.openPopoutIfApprovedForEmail2fa?.();
-    await this.cacheService.init();
-
     // Check if email was already sent
     const cachedData = this.cacheService.getCachedData();
     if (cachedData?.emailSent) {

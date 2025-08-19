@@ -8,6 +8,9 @@ on:
     paths:
       - '**/messages.json'
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint

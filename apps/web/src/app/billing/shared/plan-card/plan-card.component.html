@@ -1,0 +1,41 @@
+@let isFocused = plan().isSelected;
+@let isRecommended = plan().isAnnual;
+
+<bit-card
+  class="tw-h-full"
+  [ngClass]="getPlanCardContainerClasses()"
+  (click)="cardClicked.emit()"
+  [attr.tabindex]="!isFocused || plan().isDisabled ? '-1' : '0'"
+  [attr.data-selected]="plan()?.isSelected"
+>
+  <div class="tw-relative">
+    @if (isRecommended) {
+      <div
+        class="tw-bg-secondary-100 tw-text-center !tw-border-0 tw-text-sm tw-font-bold tw-py-1"
+        [ngClass]="{
+          'tw-bg-primary-700 !tw-text-contrast': plan().isSelected,
+          'tw-bg-secondary-100': !plan().isSelected,
+        }"
+      >
+        {{ "recommended" | i18n }}
+      </div>
+    }
+    <div
+      class="tw-px-2 tw-pb-[4px]"
+      [ngClass]="{
+        'tw-py-1': !plan().isSelected,
+        'tw-py-0': plan().isSelected,
+      }"
+    >
+      <h3
+        class="tw-text-[1.25rem] tw-mt-[6px] tw-font-bold tw-mb-0 tw-leading-[2rem] tw-flex tw-items-center"
+      >
+        <span class="tw-capitalize tw-whitespace-nowrap">{{ plan().title }}</span>
+      </h3>
+      <span>
+        <b class="tw-text-lg tw-font-semibold">{{ plan().costPerMember | currency: "$" }} </b>
+        <span class="tw-text-xs tw-px-0"> /{{ "monthPerMember" | i18n }}</span>
+      </span>
+    </div>
+  </div>
+</bit-card>

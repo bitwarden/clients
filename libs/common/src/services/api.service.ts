@@ -28,7 +28,6 @@ import { ProviderUserBulkRequest } from "../admin-console/models/request/provide
 import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
-import { SelectionReadOnlyRequest } from "../admin-console/models/request/selection-read-only.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
@@ -98,7 +97,7 @@ import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
-import { DeviceType } from "../enums";
+import { ClientType, DeviceType } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
@@ -155,8 +154,6 @@ export type HttpOperations = {
 export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;
   private deviceType: string;
-  private isWebClient = false;
-  private isDesktopClient = false;
   private refreshTokenPromise: Promise<string> | undefined;
 
   /**
@@ -179,22 +176,6 @@ export class ApiService implements ApiServiceAbstraction {
   ) {
     this.device = platformUtilsService.getDevice();
     this.deviceType = this.device.toString();
-    this.isWebClient =
-      this.device === DeviceType.IEBrowser ||
-      this.device === DeviceType.ChromeBrowser ||
-      this.device === DeviceType.EdgeBrowser ||
-      this.device === DeviceType.FirefoxBrowser ||
-      this.device === DeviceType.OperaBrowser ||
-      this.device === DeviceType.SafariBrowser ||
-      this.device === DeviceType.UnknownBrowser ||
-      this.device === DeviceType.VivaldiBrowser;
-    this.isDesktopClient =
-      this.device === DeviceType.WindowsDesktop ||
-      this.device === DeviceType.MacOsDesktop ||
-      this.device === DeviceType.LinuxDesktop ||
-      this.device === DeviceType.WindowsCLI ||
-      this.device === DeviceType.MacOsCLI ||
-      this.device === DeviceType.LinuxCLI;
   }
 
   // Auth APIs
@@ -216,7 +197,6 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-    request.alterIdentityTokenHeaders(headers);
 
     const identityToken =
       request instanceof UserApiTokenRequest
@@ -532,8 +512,9 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  async putShareCiphers(request: CipherBulkShareRequest): Promise<CipherResponse[]> {
-    return await this.send("PUT", "/ciphers/share", request, true, true);
+  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
+    const r = await this.send("PUT", "/ciphers/share", request, true, true);
+    return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
   async putCipherCollections(
@@ -636,24 +617,6 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<AttachmentUploadDataResponse> {
     const r = await this.send("POST", "/ciphers/" + id + "/attachment/v2", request, true, true);
     return new AttachmentUploadDataResponse(r);
-  }
-
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async postCipherAttachmentLegacy(id: string, data: FormData): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment", data, true, true);
-    return new CipherResponse(r);
-  }
-
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async postCipherAttachmentAdminLegacy(id: string, data: FormData): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment-admin", data, true, true);
-    return new CipherResponse(r);
   }
 
   deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
@@ -791,20 +754,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new CollectionAccessDetailsResponse(r);
   }
 
-  async putCollectionUsers(
-    organizationId: string,
-    id: string,
-    request: SelectionReadOnlyRequest[],
-  ): Promise<any> {
-    await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/collections/" + id + "/users",
-      request,
-      true,
-      false,
-    );
-  }
-
   deleteCollection(organizationId: string, id: string): Promise<any> {
     return this.send(
       "DELETE",
@@ -820,20 +769,6 @@ export class ApiService implements ApiServiceAbstraction {
       "DELETE",
       "/organizations/" + organizationId + "/collections",
       new CollectionBulkDeleteRequest(collectionIds),
-      true,
-      false,
-    );
-  }
-
-  deleteCollectionUser(
-    organizationId: string,
-    id: string,
-    organizationUserId: string,
-  ): Promise<any> {
-    return this.send(
-      "DELETE",
-      "/organizations/" + organizationId + "/collections/" + id + "/user/" + organizationUserId,
-      null,
       true,
       false,
     );
@@ -884,7 +819,9 @@ export class ApiService implements ApiServiceAbstraction {
   // Sync APIs
 
   async getSync(): Promise<SyncResponse> {
-    const path = this.isDesktopClient || this.isWebClient ? "/sync?excludeDomains=true" : "/sync";
+    const path = !this.platformUtilsService.supportsAutofill()
+      ? "/sync?excludeDomains=true"
+      : "/sync";
     const r = await this.send("GET", path, null, true, true);
     return new SyncResponse(r);
   }
@@ -1859,6 +1796,11 @@ export class ApiService implements ApiServiceAbstraction {
     if (authed) {
       const authHeader = await this.getActiveBearerToken();
       headers.set("Authorization", "Bearer " + authHeader);
+    } else {
+      // For unauthenticated requests, we need to tell the server what the device is for flag targeting,
+      // since it won't be able to get it from the access token.
+      const appId = await this.appIdService.getAppId();
+      headers.set("Device-Identifier", appId);
     }
 
     if (body != null) {
@@ -1916,7 +1858,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   private async getCredentials(): Promise<RequestCredentials> {
     const env = await firstValueFrom(this.environmentService.environment$);
-    if (!this.isWebClient || env.hasBaseUrl()) {
+    if (this.platformUtilsService.getClientType() !== ClientType.Web || env.hasBaseUrl()) {
       return "include";
     }
     return undefined;

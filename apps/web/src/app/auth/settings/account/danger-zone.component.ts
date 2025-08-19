@@ -12,7 +12,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "app-danger-zone",
   templateUrl: "danger-zone.component.html",
-  standalone: true,
   imports: [CommonModule, TypographyModule, I18nPipe],
 })
 export class DangerZoneComponent {}

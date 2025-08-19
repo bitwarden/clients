@@ -213,8 +213,68 @@ export class CipherReportComponent implements OnDestroy {
     this.allCiphers = [];
   }
 
-  protected async refresh(result: VaultItemDialogResult, cipher: CipherView) {
-    await this.load();
+  async refresh(result: VaultItemDialogResult, cipher: CipherView) {
+    if (result === VaultItemDialogResult.Deleted) {
+      // update downstream report status if the cipher was deleted
+      await this.determinedUpdatedCipherReportStatus(result, cipher);
+
+      // the cipher was deleted, filter it out from the report.
+      this.ciphers = this.ciphers.filter((ciph) => ciph.id !== cipher.id);
+      this.filterCiphersByOrg(this.ciphers);
+      return;
+    }
+
+    if (result == VaultItemDialogResult.Saved) {
+      // Ensure we have the latest cipher data after saving.
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      let updatedCipher = await this.cipherService.get(cipher.id, activeUserId);
+
+      if (this.isAdminConsoleActive) {
+        updatedCipher = await this.adminConsoleCipherFormConfigService.getCipher(
+          cipher.id as CipherId,
+          this.organization,
+        );
+      }
+
+      // convert cipher to cipher view model
+      const updatedCipherView = await updatedCipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
+      );
+
+      // request downstream report status if the cipher was updated
+      // this will return a null if the updated cipher does not meet the criteria for the report
+      const updatedReportResult = await this.determinedUpdatedCipherReportStatus(
+        result,
+        updatedCipherView,
+      );
+
+      // determine the index of the updated cipher in the report
+      const index = this.ciphers.findIndex((c) => c.id === updatedCipherView.id);
+
+      // the updated cipher does not meet the criteria for the report, it returns a null
+      if (updatedReportResult === null) {
+        this.ciphers.splice(index, 1);
+      }
+
+      // the cipher is already in the report, update it.
+      if (updatedReportResult !== null && index > -1) {
+        this.ciphers[index] = updatedReportResult;
+      }
+
+      // apply filters and set the data source
+      this.filterCiphersByOrg(this.ciphers);
+    }
+  }
+
+  async determinedUpdatedCipherReportStatus(
+    result: VaultItemDialogResult,
+    updatedCipherView: CipherView,
+  ): Promise<CipherView | null> {
+    // Implement the logic to determine if the updated cipher is still in the report.
+    // This could be checking if the password is still weak or exposed, etc.
+    // For now, we will return the updated cipher view as is.
+    // Replace this with your actual logic in the child classes.
+    return updatedCipherView;
   }
 
   protected async repromptCipher(c: CipherView) {

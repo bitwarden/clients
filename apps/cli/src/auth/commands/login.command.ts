@@ -31,12 +31,13 @@ import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -77,6 +78,7 @@ export class LoginCommand {
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
     protected ssoUrlService: SsoUrlService,
+    protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
@@ -227,9 +229,7 @@ export class LoginCommand {
         );
       }
       if (response.requiresEncryptionKeyMigration) {
-        return Response.error(
-          "Encryption key migration required. Please login through the web vault to update your encryption key.",
-        );
+        return Response.error(this.i18nService.t("legacyEncryptionUnsupported"));
       }
       if (response.requiresTwoFactor) {
         const twoFactorProviders = await this.twoFactorService.getSupportedProviders(null);
@@ -273,11 +273,7 @@ export class LoginCommand {
           }
         }
 
-        if (
-          twoFactorToken == null &&
-          Object.keys(response.twoFactorProviders).length > 1 &&
-          selectedProvider.type === TwoFactorProviderType.Email
-        ) {
+        if (twoFactorToken == null && selectedProvider.type === TwoFactorProviderType.Email) {
           const emailReq = new TwoFactorEmailRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
           emailReq.masterPasswordHash = await this.loginStrategyService.getMasterPasswordHash();
@@ -432,7 +428,8 @@ export class LoginCommand {
       );
 
       const request = new PasswordRequest();
-      request.masterPasswordHash = await this.keyService.hashMasterKey(currentPassword, null);
+      const masterKey = await this.keyService.getOrDeriveMasterKey(currentPassword, userId);
+      request.masterPasswordHash = await this.keyService.hashMasterKey(currentPassword, masterKey);
       request.masterPasswordHint = hint;
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;

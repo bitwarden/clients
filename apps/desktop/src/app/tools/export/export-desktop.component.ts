@@ -7,7 +7,6 @@ import { ExportComponent } from "@bitwarden/vault-export-ui";
 
 @Component({
   templateUrl: "export-desktop.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

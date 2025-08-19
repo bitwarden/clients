@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
   DialogModule,
@@ -24,13 +25,13 @@ export interface AttachmentsDialogParams {
 /**
  * Enum representing the possible results of the attachment dialog.
  */
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum AttachmentDialogResult {
-  Uploaded = "uploaded",
-  Removed = "removed",
-  Closed = "closed",
-}
+export const AttachmentDialogResult = {
+  Uploaded: "uploaded",
+  Removed: "removed",
+  Closed: "closed",
+} as const;
+
+export type AttachmentDialogResult = UnionOfValues<typeof AttachmentDialogResult>;
 
 export interface AttachmentDialogCloseResult {
   action: AttachmentDialogResult;
@@ -42,7 +43,6 @@ export interface AttachmentDialogCloseResult {
 @Component({
   selector: "app-vault-attachments-v2",
   templateUrl: "attachments-v2.component.html",
-  standalone: true,
   imports: [ButtonModule, CommonModule, DialogModule, I18nPipe, CipherAttachmentsComponent],
 })
 export class AttachmentsV2Component {

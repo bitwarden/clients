@@ -20,7 +20,6 @@ import { VaultV2SearchComponent } from "../vault-search/vault-v2-search.componen
 @Component({
   selector: "app-vault-header-v2",
   templateUrl: "vault-header-v2.component.html",
-  standalone: true,
   imports: [
     VaultV2SearchComponent,
     VaultListFiltersComponent,

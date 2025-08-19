@@ -44,18 +44,19 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
   ): Promise<CipherFormConfig> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    const [organizations, collections, allowPersonalOwnership, folders, cipher] =
+    const [organizations, collections, organizationDataOwnershipDisabled, folders, cipher] =
       await firstValueFrom(
         combineLatest([
           this.organizations$(activeUserId),
-          this.collectionService.encryptedCollections$.pipe(
+          this.collectionService.encryptedCollections$(activeUserId).pipe(
+            map((collections) => collections ?? []),
             switchMap((c) =>
-              this.collectionService.decryptedCollections$.pipe(
+              this.collectionService.decryptedCollections$(activeUserId).pipe(
                 filter((d) => d.length === c.length), // Ensure all collections have been decrypted
               ),
             ),
           ),
-          this.allowPersonalOwnership$,
+          this.organizationDataOwnershipDisabled$,
           this.folderService.folders$(activeUserId).pipe(
             switchMap((f) =>
               this.folderService.folderViews$(activeUserId).pipe(
@@ -71,7 +72,7 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       mode,
       cipherType: cipher?.type ?? cipherType ?? CipherType.Login,
       admin: false,
-      allowPersonalOwnership,
+      organizationDataOwnershipDisabled,
       originalCipher: cipher,
       collections,
       organizations,
@@ -91,10 +92,10 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       );
   }
 
-  private allowPersonalOwnership$ = this.accountService.activeAccount$.pipe(
+  private organizationDataOwnershipDisabled$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) =>
-      this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
     map((p) => !p),
   );

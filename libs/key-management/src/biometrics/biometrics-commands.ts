@@ -12,8 +12,4 @@ export enum BiometricsCommands {
 
   /** Checks whether the biometric unlock can be enabled. */
   CanEnableBiometricUnlock = "canEnableBiometricUnlock",
-
-  // legacy
-  Unlock = "biometricUnlock",
-  IsAvailable = "biometricUnlockAvailable",
 }

@@ -3,6 +3,7 @@ import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   ButtonModule,
@@ -31,15 +32,14 @@ export interface CredentialGeneratorDialogResult {
   generatedValue?: string;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum CredentialGeneratorDialogAction {
-  Selected = "selected",
-  Canceled = "canceled",
-}
+export const CredentialGeneratorDialogAction = {
+  Selected: "selected",
+  Canceled: "canceled",
+} as const;
+
+type CredentialGeneratorDialogAction = UnionOfValues<typeof CredentialGeneratorDialogAction>;
 
 @Component({
-  standalone: true,
   selector: "credential-generator-dialog",
   templateUrl: "credential-generator-dialog.component.html",
   imports: [

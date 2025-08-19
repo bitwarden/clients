@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, skipWhile } from "rxjs";
+import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -12,6 +12,7 @@ import {
 import {
   ApplicationHealthReportDetail,
   ApplicationHealthReportDetailWithCriticalFlag,
+  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import {
@@ -41,7 +42,6 @@ import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.compo
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
-  standalone: true,
   selector: "tools-all-applications",
   templateUrl: "./all-applications.component.html",
   imports: [
@@ -57,7 +57,8 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
   ],
 })
 export class AllApplicationsComponent implements OnInit {
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
+  protected dataSource =
+    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
@@ -75,7 +76,7 @@ export class AllApplicationsComponent implements OnInit {
   isLoading$: Observable<boolean> = of(false);
 
   async ngOnInit() {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (organizationId) {
@@ -90,14 +91,32 @@ export class AllApplicationsComponent implements OnInit {
       ])
         .pipe(
           takeUntilDestroyed(this.destroyRef),
-          skipWhile(([_, __, organization]) => !organization),
           map(([applications, criticalApps, organization]) => {
-            const criticalUrls = criticalApps.map((ca) => ca.uri);
-            const data = applications?.map((app) => ({
-              ...app,
-              isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-            })) as ApplicationHealthReportDetailWithCriticalFlag[];
-            return { data, organization };
+            if (applications && applications.length === 0 && criticalApps && criticalApps) {
+              const criticalUrls = criticalApps.map((ca) => ca.uri);
+              const data = applications?.map((app) => ({
+                ...app,
+                isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+              })) as ApplicationHealthReportDetailWithCriticalFlag[];
+              return { data, organization };
+            }
+
+            return { data: applications, organization };
+          }),
+          switchMap(async ({ data, organization }) => {
+            if (data && organization) {
+              const dataWithCiphers = await this.reportService.identifyCiphers(
+                data,
+                organization.id,
+              );
+
+              return {
+                data: dataWithCiphers,
+                organization,
+              };
+            }
+
+            return { data: [], organization };
           }),
         )
         .subscribe(({ data, organization }) => {

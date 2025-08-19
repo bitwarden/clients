@@ -23,16 +23,16 @@
     "message": "Creare cont"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Nou pe Bitwarden?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Autentificare cu parolă"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Autentificare unică"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Bine ați revenit"
   },
   "setAStrongPassword": {
     "message": "Setați o parolă puternică"
@@ -84,7 +84,7 @@
     "message": "Indiciu pentru parola principală (opțional)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Nivelul de siguranța al parolei $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -132,7 +132,7 @@
     "message": "Copiere parolă"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Copiază întrebarea de siguranța"
   },
   "copyNote": {
     "message": "Copiere notă"
@@ -165,13 +165,13 @@
     "message": "Copiați numărul de licență"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Copiază cheia de siguranța privată"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Copiază cheia de siguranța publică"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Copiați amprenta"
   },
   "copyCustomField": {
     "message": "Copiază $FIELD$",
@@ -189,11 +189,11 @@
     "message": "Copiază notițele"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Copiați",
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Completați",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -209,10 +209,10 @@
     "message": "Autocompletare identitate"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Completați codul de verificare"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Completați Codul de Verificare",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -398,7 +398,7 @@
     "message": "Numele folderului"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Grupează un folder prin adăugarea numelui folderului părinte urmat de \"/\" Exemplu: Social/Forums"
   },
   "noFoldersAdded": {
     "message": "No folders added"
@@ -407,7 +407,7 @@
     "message": "Create folders to organize your vault items"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Ești sigur că dorești să ștergi permanent acest fișier?"
   },
   "deleteFolder": {
     "message": "Ștergere dosar"
@@ -462,19 +462,19 @@
     "message": "Generare parolă"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Creează întrebarea de siguranța"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Parola creată"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Întrebare de siguranța creată"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Nume de utilizator creat"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "E-mail creat"
   },
   "regeneratePassword": {
     "message": "Regenerare parolă"
@@ -490,7 +490,7 @@
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Includeți caractere mari",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -498,7 +498,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Includeți caractere mici",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -506,7 +506,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Includeți cifre",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -514,7 +514,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Includeți caractere speciale",
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
@@ -537,7 +537,7 @@
     "message": "Minim de caractere speciale"
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Evită caracterele ambigue",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -546,6 +546,9 @@
   },
   "searchVault": {
     "message": "Căutare în seif"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "edit": {
     "message": "Editare"
@@ -587,7 +590,7 @@
     "message": "Note"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Notă privată"
   },
   "note": {
     "message": "Notă"
@@ -656,7 +659,7 @@
     "message": "Browserul dvs. nu acceptă copierea în clipboard. Transcrieți datele manual."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Verificați- vă identitatea"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -671,10 +674,10 @@
     "message": "Your vault is locked"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Contul dumneavoastră este blocat"
   },
   "or": {
-    "message": "or"
+    "message": "sau"
   },
   "unlock": {
     "message": "Deblocare"
@@ -851,7 +854,7 @@
     "message": "Bitwarden poate stoca și completa coduri de verificare în doi pași. Selectați pictograma camerei foto pentru a face o captură de ecran a codului QR de autentificare al acestui site, sau copiați și lipiți cheia în acest câmp."
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Află mai multe despre autentificatori"
   },
   "copyTOTP": {
     "message": "Copiați cheia de autentificare (TOTP)"
@@ -875,7 +878,7 @@
     "message": "Enter the code sent to your email"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Introdu codul din aplicația de autentificare"
   },
   "pressYourYubiKeyToAuthenticate": {
     "message": "Press your YubiKey to authenticate"
@@ -887,7 +890,7 @@
     "message": "Follow the steps below to finish logging in."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Urmează pașii de mai jos pentru a finaliza autentificarea cu cheia de securitate."
   },
   "restartRegistration": {
     "message": "Reporniți înregistrarea"
@@ -929,7 +932,7 @@
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Continuați în aplicația web?"
   },
   "editedFolder": {
     "message": "Dosar salvat"
@@ -1046,7 +1049,7 @@
     "message": "Click items to autofill on Vault view"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Faceți clic pe elementele din sugestia de completare automată pentru a completa"
   },
   "clearClipboard": {
     "message": "Golire clipboard",
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "Oh no! We couldn't save this. Try entering the details manually.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
   },
   "enableChangedPasswordNotification": {
     "message": "Solicitați actualizarea autentificării existente"
@@ -1365,8 +1374,8 @@
   "featureUnavailable": {
     "message": "Funcție indisponibilă"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Este necesară migrarea cheilor de criptare. Autentificați-vă prin intermediul seifului web pentru a vă actualiza cheia de criptare."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Abonament Premium"
@@ -1823,6 +1832,9 @@
   "securityCode": {
     "message": "Cod de securitate"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "ex": {
     "message": "ex."
   },
@@ -1921,6 +1933,9 @@
   },
   "typeSshKey": {
     "message": "SSH key"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "newItemHeader": {
     "message": "New $TYPE$",
@@ -2153,8 +2168,8 @@
   "setYourPinCode": {
     "message": "Stabiliți codul PIN de deblocare Bitwarden. Setările codului PIN vor fi reinițializate dacă vă deconectați vreodată din aplicație."
   },
-  "setYourPinCode1": {
-    "message": "Your PIN will be used to unlock Bitwarden instead of your master password. Your PIN will reset if you ever fully log out of Bitwarden."
+  "setPinCode": {
+    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
   },
   "pinRequired": {
     "message": "Codul PIN este necesar."
@@ -2484,6 +2499,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "An organization policy has blocked importing items into your individual vault."
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
@@ -2515,6 +2536,10 @@
   "change": {
     "message": "Change"
   },
+  "changePassword": {
+    "message": "Change password",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Change password - $ITEMNAME$",
     "placeholders": {
@@ -2523,6 +2548,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
@@ -2557,6 +2585,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Review and change one at-risk password"
@@ -2882,6 +2930,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Trebuie să vă verificați e-mailul pentru a utiliza această caracteristică. Puteți verifica e-mailul în seiful web."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "Parola principală actualizată"
@@ -3415,6 +3466,31 @@
   "logInRequestSent": {
     "message": "Request sent"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "Parolă principală compromisă"
   },
@@ -3508,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Remember this device to make future logins seamless"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Este necesară aprobarea dispozitivului. Selectați o opțiune de autorizare de mai jos:"
   },
@@ -3528,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "Cereți aprobarea administratorului"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Identificatorul SSO al organizației este necesar."
@@ -3613,14 +3783,6 @@
   },
   "trustUser": {
     "message": "Trust user"
-  },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",
@@ -4216,6 +4378,26 @@
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Continue to browser settings?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4399,17 +4581,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copy $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5043,6 +5225,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
   "authenticating": {
     "message": "Authenticating"
   },
@@ -5384,5 +5569,15 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

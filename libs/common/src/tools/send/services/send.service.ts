@@ -6,12 +6,12 @@ import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from
 // eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
+import { KeyGenerationService } from "../../../key-management/crypto";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -74,7 +74,12 @@ export class SendService implements InternalSendServiceAbstraction {
       model.key = key.material;
       model.cryptoKey = key.derivedKey;
     }
-    if (password != null) {
+
+    const hasEmails = (model.emails?.length ?? 0) > 0;
+    if (hasEmails) {
+      send.emails = model.emails.join(",");
+      send.password = null;
+    } else if (password != null) {
       // Note: Despite being called key, the passwordKey is not used for encryption.
       // It is used as a static proof that the client knows the password, and has the encryption key.
       const passwordKey = await this.keyGenerationService.deriveKeyFromPassword(
@@ -89,10 +94,13 @@ export class SendService implements InternalSendServiceAbstraction {
     }
     // Key is not a SymmetricCryptoKey, but key material used to derive the cryptoKey
     send.key = await this.encryptService.encryptBytes(model.key, userKey);
+    // FIXME: model.name can be null. encryptString should not be called with null values.
     send.name = await this.encryptService.encryptString(model.name, model.cryptoKey);
+    // FIXME: model.notes can be null. encryptString should not be called with null values.
     send.notes = await this.encryptService.encryptString(model.notes, model.cryptoKey);
     if (send.type === SendType.Text) {
       send.text = new SendText();
+      // FIXME: model.text.text can be null. encryptString should not be called with null values.
       send.text.text = await this.encryptService.encryptString(model.text.text, model.cryptoKey);
       send.text.hidden = model.text.hidden;
     } else if (send.type === SendType.File) {
@@ -199,14 +207,14 @@ export class SendService implements InternalSendServiceAbstraction {
     return response;
   }
 
-  async getAllDecryptedFromState(): Promise<SendView[]> {
+  async getAllDecryptedFromState(userId: UserId): Promise<SendView[]> {
     let decSends = await this.stateProvider.getDecryptedSends();
     if (decSends != null) {
       return decSends;
     }
 
     decSends = [];
-    const hasKey = await this.keyService.hasUserKey();
+    const hasKey = await this.keyService.hasUserKey(userId);
     if (!hasKey) {
       throw new Error("No user key found.");
     }

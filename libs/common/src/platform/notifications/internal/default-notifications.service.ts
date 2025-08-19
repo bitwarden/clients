@@ -108,14 +108,19 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         return this.webPushConnectionService.supportStatus$(userId);
       }),
       supportSwitch({
-        supported: (service) =>
-          service.notifications$.pipe(
+        supported: (service) => {
+          this.logService.info("Using WebPush for notifications");
+          return service.notifications$.pipe(
             catchError((err: unknown) => {
               this.logService.warning("Issue with web push, falling back to SignalR", err);
               return this.connectSignalR$(userId, notificationsUrl);
             }),
-          ),
-        notSupported: () => this.connectSignalR$(userId, notificationsUrl),
+          );
+        },
+        notSupported: () => {
+          this.logService.info("Using SignalR for notifications");
+          return this.connectSignalR$(userId, notificationsUrl);
+        },
       }),
     );
   }

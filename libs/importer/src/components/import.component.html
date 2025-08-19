@@ -1,6 +1,13 @@
 <bit-callout type="info" *ngIf="importBlockedByPolicy">
   {{ "personalOwnershipPolicyInEffectImports" | i18n }}
 </bit-callout>
+<bit-callout
+  [title]="'restrictCardTypeImport' | i18n"
+  type="info"
+  *ngIf="isCardTypeRestricted$ | async"
+>
+  {{ "restrictCardTypeImportDesc" | i18n }}
+</bit-callout>
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="import_form_importForm">
   <bit-section>
     <bit-section-header>
@@ -427,6 +434,12 @@
           Log in to NordPass and open Settings &rarr; Scroll down to the Import and Export section
           and select Export items &rarr; Enter your Master Password and select Continue. &rarr; Save
           the CSV file on your device.
+        </ng-container>
+        <ng-container *ngIf="format === 'passworddepot17xml'">
+          On the desktop application, go to Tools &rarr; Export &rarr; Enter your master password
+          &rarr; Select XML Format (*.xml) as Export format &rarr; Click on next &rarr; Choose which
+          entries should be included in the export &rarr; Click on next to export into the location
+          previously chosen.
         </ng-container>
       </bit-callout>
       <import-lastpass

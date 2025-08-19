@@ -39,11 +39,11 @@ export const Info: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>Content</bit-callout>
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>The content of the callout</bit-callout>
     `,
   }),
   args: {
-    title: "Title",
+    title: "Callout title",
   },
 };
 
@@ -66,5 +66,20 @@ export const Danger: Story = {
   ...Info,
   args: {
     type: "danger",
+  },
+};
+
+export const CustomIcon: Story = {
+  ...Info,
+  args: {
+    ...Info.args,
+    icon: "bwi-star",
+  },
+};
+
+export const NoTitle: Story = {
+  ...Info,
+  args: {
+    icon: "bwi-star",
   },
 };

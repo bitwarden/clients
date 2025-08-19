@@ -5,7 +5,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TableDataSource, TableModule } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "tools-notified-members-table",
   templateUrl: "./notified-members-table.component.html",
   imports: [CommonModule, JslibModule, TableModule],

@@ -25,7 +25,6 @@ export type ApiKeyDialogData = {
 };
 @Component({
   templateUrl: "api-key.component.html",
-  standalone: true,
   imports: [SharedModule, UserVerificationFormInputComponent],
 })
 export class ApiKeyComponent {

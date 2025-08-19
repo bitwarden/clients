@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 
@@ -8,6 +6,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType, LinkedIdType } from "@bitwarden/common/vault/enums";
+import { LinkedMetadata } from "@bitwarden/common/vault/linked-field-option.decorator";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -28,7 +27,6 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
 @Component({
   selector: "app-custom-fields-v2",
   templateUrl: "custom-fields-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -44,9 +42,9 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
   ],
 })
 export class CustomFieldV2Component implements OnInit, OnChanges {
-  @Input() cipher: CipherView;
+  @Input({ required: true }) cipher!: CipherView;
   fieldType = FieldType;
-  fieldOptions: any;
+  fieldOptions: Map<number, LinkedMetadata> | null = null;
 
   /** Indexes of hidden fields that are revealed */
   revealedHiddenFields: number[] = [];
@@ -68,12 +66,14 @@ export class CustomFieldV2Component implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["cipher"]) {
       this.revealedHiddenFields = [];
+      this.fieldOptions = this.getLinkedFieldsOptionsForCipher();
     }
   }
 
   getLinkedType(linkedId: LinkedIdType) {
-    const linkedType = this.fieldOptions.get(linkedId);
-    return this.i18nService.t(linkedType.i18nKey);
+    const linkedType = this.fieldOptions?.get(linkedId);
+
+    return linkedType ? this.i18nService.t(linkedType.i18nKey) : null;
   }
 
   get canViewPassword() {

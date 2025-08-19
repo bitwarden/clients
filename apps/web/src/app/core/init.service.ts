@@ -7,16 +7,14 @@ import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
@@ -33,7 +31,6 @@ export class InitService {
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
     private twoFactorService: TwoFactorServiceAbstraction,
-    private stateService: StateServiceAbstraction,
     private keyService: KeyServiceAbstraction,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
@@ -42,23 +39,15 @@ export class InitService {
     private versionService: VersionService,
     private ipcService: IpcService,
     private sdkLoadService: SdkLoadService,
-    private configService: ConfigService,
-    private bulkEncryptService: BulkEncryptService,
     private taskService: TaskService,
+    private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
-      await this.stateService.init();
-
-      this.configService.serverConfig$.subscribe((newConfig) => {
-        if (newConfig != null) {
-          this.encryptService.onServerConfigChange(newConfig);
-          this.bulkEncryptService.onServerConfigChange(newConfig);
-        }
-      });
+      await this.migrationRunner.run();
 
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
       if (activeAccount) {

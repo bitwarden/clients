@@ -32,12 +32,17 @@ export type ApplicationHealthReportDetail = {
   atRiskMemberCount: number;
   memberDetails: MemberDetailsFlat[];
   atRiskMemberDetails: MemberDetailsFlat[];
-  cipher: CipherView;
+  cipherIds: string[];
 };
 
 export type ApplicationHealthReportDetailWithCriticalFlag = ApplicationHealthReportDetail & {
   isMarkedAsCritical: boolean;
 };
+
+export type ApplicationHealthReportDetailWithCriticalFlagAndCipher =
+  ApplicationHealthReportDetailWithCriticalFlag & {
+    ciphers: CipherView[];
+  };
 
 /**
  * Breaks the cipher health info out by uri and passes
@@ -151,6 +156,13 @@ export interface PasswordHealthReportApplicationsResponse {
 export interface PasswordHealthReportApplicationsRequest {
   organizationId: OrganizationId;
   url: string;
+}
+
+export interface EncryptedDataModel {
+  organizationId: OrganizationId;
+  encryptedData: string;
+  encryptionKey: string;
+  date: Date;
 }
 
 // FIXME: update to use a const object instead of a typescript enum

@@ -23,7 +23,6 @@ import { ChangeAvatarDialogComponent } from "./change-avatar-dialog.component";
 @Component({
   selector: "app-profile",
   templateUrl: "profile.component.html",
-  standalone: true,
   imports: [SharedModule, DynamicAvatarComponent, AccountFingerprintComponent],
 })
 export class ProfileComponent implements OnInit, OnDestroy {

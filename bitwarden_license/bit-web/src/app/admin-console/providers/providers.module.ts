@@ -4,7 +4,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { CardComponent, SearchModule } from "@bitwarden/components";
+import { CardComponent, ScrollLayoutDirective, SearchModule } from "@bitwarden/components";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 import { PaymentComponent } from "@bitwarden/web-vault/app/billing/shared/payment/payment.component";
@@ -21,6 +21,7 @@ import {
 } from "../../billing/providers";
 import { AddExistingOrganizationDialogComponent } from "../../billing/providers/clients/add-existing-organization-dialog.component";
 import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
+import { ProviderWarningsModule } from "../../billing/providers/warnings/provider-warnings.module";
 
 import { AddOrganizationComponent } from "./clients/add-organization.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
@@ -53,7 +54,9 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ScrollingModule,
     VerifyBankAccountComponent,
     CardComponent,
+    ScrollLayoutDirective,
     PaymentComponent,
+    ProviderWarningsModule,
   ],
   declarations: [
     AcceptProviderComponent,

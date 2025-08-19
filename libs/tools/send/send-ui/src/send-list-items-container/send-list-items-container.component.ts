@@ -40,7 +40,6 @@ import {
   ],
   selector: "app-send-list-items-container",
   templateUrl: "send-list-items-container.component.html",
-  standalone: true,
 })
 export class SendListItemsContainerComponent {
   sendType = SendType;

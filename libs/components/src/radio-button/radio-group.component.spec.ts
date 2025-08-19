@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 
@@ -16,16 +16,13 @@ describe("RadioGroupComponent", () => {
   let buttonElements: RadioButtonComponent[];
   let radioButtons: HTMLInputElement[];
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [FormsModule, RadioButtonModule],
-      declarations: [TestApp],
+      imports: [TestApp],
       providers: [{ provide: I18nService, useValue: new I18nMockService({}) }],
     });
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.compileComponents();
+    await TestBed.compileComponents();
     fixture = TestBed.createComponent(TestApp);
     fixture.detectChanges();
     testAppComponent = fixture.debugElement.componentInstance;
@@ -37,7 +34,7 @@ describe("RadioGroupComponent", () => {
       .map((e) => e.nativeElement);
 
     fixture.detectChanges();
-  }));
+  });
 
   it("should select second element when setting selected to second", async () => {
     testAppComponent.selected = "second";
@@ -75,7 +72,7 @@ describe("RadioGroupComponent", () => {
       <bit-radio-button value="third">Third</bit-radio-button>
     </bit-radio-group>
   `,
-  standalone: false,
+  imports: [FormsModule, RadioButtonModule],
 })
 class TestApp {
   selected?: string;

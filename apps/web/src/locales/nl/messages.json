@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Annuleren"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Geannuleerd"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Groepen zoeken"
   },
+  "resetSearch": {
+    "message": "Zoekopdracht resetten"
+  },
   "allItems": {
     "message": "Alle Items"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Veilige notitie"
+  },
+  "typeNote": {
+    "message": "Notitie"
   },
   "typeSshKey": {
     "message": "SSH-sleutel"
@@ -861,8 +870,28 @@
   "copyName": {
     "message": "Naam kopiëren"
   },
+  "cardNumber": {
+    "message": "kaartnummer"
+  },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopiëren",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Ik"
+  },
+  "myItems": {
+    "message": "Mijn items"
   },
   "myVault": {
     "message": "Mijn kluis"
@@ -1399,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Ontgrendel Bitwarden op je apparaat of op de "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Probeer je toegang te krijgen tot je account?"
-  },
   "accessAttemptBy": {
     "message": "Inlogpoging door $EMAIL$",
     "placeholders": {
@@ -1781,6 +1807,9 @@
   "loggedOutWarning": {
     "message": "Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
   },
+  "changePasswordWarning": {
+    "message": "Na het wijzigen van je wachtwoord moet je inloggen met je nieuwe wachtwoord. Actieve sessies op andere apparaten worden binnen één uur uitgelogd."
+  },
   "emailChanged": {
     "message": "E-mailadres gewijzigd"
   },
@@ -2153,6 +2182,18 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Door aanmelden in twee stappen in te schakelen, kun je jezelf definitief buitensluiten van je Bitwarden-account. Een herstelcode geeft je toegang tot je account in het geval dat je je normale tweestapsaanmelding niet meer kunt gebruiken (bijv. als je je apparaat verliest). De Bitwarden-klantondersteuning kan je niet helpen als je de toegang tot je account verliest. We raden je met klem aan de herstelcode op te schrijven of af te drukken en op een veilige plaats te bewaren."
   },
+  "restrictedItemTypePolicy": {
+    "message": "Kaart item type verwijderen"
+  },
+  "restrictedItemTypePolicyDesc": {
+    "message": "Leden niet toestaan om kaartitemtypes te maken. Bestaande kaarten wordek automatisch verwijderd."
+  },
+  "restrictCardTypeImport": {
+    "message": "Kan kaart item types niet importeren"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Een beleid ingesteld door 1 of meer organisaties voorkomt dat je kaarten naar je kluizen kunt importeren."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Met je herstelcode voor eenmalig gebruik kun je tweestapsaanmelding uitschakelen in het geval dat je toegang verliest tot je tweestapsaanmeldingsprovider. Bitwarden adviseert de herstelcode op te schrijven en op een veilige plaats te bewaren."
   },
@@ -2211,6 +2252,9 @@
   },
   "disable": {
     "message": "Uitschakelen"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Details van lid niet gevonden."
   },
   "revokeAccess": {
     "message": "Toegang intrekken"
@@ -3461,6 +3505,9 @@
   "webVault": {
     "message": "Webkluis"
   },
+  "webApp": {
+    "message": "Web-app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3927,8 +3974,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Dit verzoek is niet langer geldig."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggen voor $EMAIL$ bevestigd op $DEVICE$",
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3936,11 +3983,11 @@
       },
       "device": {
         "content": "$2",
-        "example": "iOS"
+        "example": "Web app - Chrome"
       }
     }
   },
-  "youDeniedALogInAttemptFromAnotherDevice": {
+  "youDeniedLoginAttemptFromAnotherDevice": {
     "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
   },
   "loginRequestHasAlreadyExpired": {
@@ -4086,6 +4133,9 @@
   },
   "reviewLoginRequest": {
     "message": "Inlogverzoek afhandelen"
+  },
+  "loginRequest": {
+    "message": "Log-inverzoek"
   },
   "freeTrialEndPromptCount": {
     "message": "Je gratis proefperiode eindigt over $COUNT$ dagen.",
@@ -4472,9 +4522,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Bijwerken encryptiesleutel kan niet verder gaan"
-  },
   "editFieldLabel": {
     "message": "$LABEL$ bewerken",
     "placeholders": {
@@ -4527,23 +4574,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Bij het bijwerken van je encryptiesleutel konden we je mappen niet decoderen. Om door te gaan met de update, moeten je mappen worden verwijderd. Geen kluisitems worden verwijderd als je doorgaat."
-  },
-  "keyUpdated": {
-    "message": "Sleutel bijgewerkt"
-  },
-  "updateEncryptionKey": {
-    "message": "Encryptiesleutel bijwerken"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Wij hebben de versleutelings- methode aangepast om betere beveiliging te kunnen leveren. Voer uw hoofdwachtwoord in om dit door te voeren."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Na het bijwerken van je encryptiesleutel moet je je afmelden en weer aanmelden bij alle Bitwarden-applicaties die je gebruikt (zoals de mobiele app of browserextensies). Als je niet opnieuw inlogt (wat je nieuwe encryptiesleutel downloadt), kan dit gegevensbeschadiging tot gevolg hebben. We proberen je automatisch uit te loggen, maar het kan zijn dat dit met enige vertraging gebeurt."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Alle account-beperkte bewaarde exports die je hebt opgeslagen worden ongeldig."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Oude versleuteling wordt niet langer ondersteund. Neem contact op voor ondersteuning om je account te herstellen."
   },
   "subscription": {
     "message": "Abonnement"
@@ -4574,6 +4612,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Krijg advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox."
+  },
+  "subscribe": {
+    "message": "Abonneren"
   },
   "unsubscribe": {
     "message": "Afmelden"
@@ -5224,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Bijlagen downloaden"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Voer het wachtwoord in om deze Send te bekijken",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Send weergeven",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "De Send die je probeert te benaderen is niet (langer) beschikbaar.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5369,6 +5418,9 @@
   "emergencyRejected": {
     "message": "Noodtoegang afgewezen"
   },
+  "grantorDetailsNotFound": {
+    "message": "Details van concessiegever niet gevonden"
+  },
   "passwordResetFor": {
     "message": "Wachtwoord opnieuw ingesteld voor $USER$. Je kunt nu inloggen met het nieuwe wachtwoord.",
     "placeholders": {
@@ -5377,6 +5429,40 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Gegevenseigendom van organisatie afdwingen"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Verplicht dat items eigendom zijn van een organisatie, dit verwijdert de mogelijkheid van het opslaan van items op accountniveau.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Alle items worden eigendom en opgeslagen bij de organisatie, wat organisatiebrede controle, zichtbaarheid en rapportage mogelijk maakt. Bij inschakelen is er een standaardcollectie beschikbaar voor elk lid voor het opslaan van items. Meer informatie over het beheren van de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "levenscyclus van inloggegevens",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Weet je zeker dat je wilt doorgaan?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "beschikbaar voor leden"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "niet automatisch geselecteerd bij het maken van nieuwe items"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "niet beheerd vanuit de beheerdersconsole totdat de gebruiker is verwijderd"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Met het uitschakelen van dit beleid, wordt de standaardcollectie: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Leer meer over de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Persoonlijk eigendom"
@@ -5769,10 +5855,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Doorgaan logt de huidige sessie van $NAME$ uit, waarna deze opnieuw moet aanmelden. Actieve sessies op andere apparaten kunnen mogelijk nog één uur actief blijven.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "deze gebruiker"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Een of meer organisatiebeleidseisen stelt de volgende eisen aan je hoofdwachtwoord:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Een of meer organisatiebeleidseisen stelt de volgende eisen aan je hoofdwachtwoord:"
   },
   "resetPasswordSuccess": {
@@ -6040,11 +6138,20 @@
   "add": {
     "message": "Toevoegen"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hoofdwachtwoord succesvol ingesteld"
+  },
   "updatedMasterPassword": {
     "message": "Hoofdwachtwoord bijgewerkt"
   },
   "updateMasterPassword": {
     "message": "Hoofdwachtwoord bijwerken"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Wijzig je hoofdwachtwoord om je account te herstellen."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Je hoofdwachtwoord voldoet niet aan de eisen van deze organisatie. Wijzig je hoofdwachtwoord om door te gaan."
   },
   "updateMasterPasswordWarning": {
     "message": "Je hoofdwachtwoord is onlangs veranderd door een beheerder in jouw organisatie. Om toegang te krijgen tot de kluis, moet je deze nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
@@ -7620,9 +7727,9 @@
     "message": "Serviceaccount bijgewerkt",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Typ of selecteer projecten of geheimen",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Typ of selecteer projecten",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Typ om te filteren",
@@ -7707,8 +7814,8 @@
     "message": "Toegangstoken",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nieuw toegangstoken",
+  "createAccessToken": {
+    "message": "Toegangstoken aanmaken",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8209,8 +8316,44 @@
   "errorReadingImportFile": {
     "message": "Er is een fout opgetreden bij het lezen van het bronbestand"
   },
+  "accessedSecretWithId": {
+    "message": "Geheim benaderd met identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Geopend geheim $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Geheim bewerkt met identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Geheim verwijderd met identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Nieuw geheim aangemaakt met identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8389,6 +8532,12 @@
   },
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Kan login niet voltooien"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Je moet inloggen op een vertrouwd apparaat of je beheerder vragen om je een wachtwoord toe te wijzen."
   },
   "trustedDeviceEncryption": {
     "message": "Vertrouwde apparaat encryptie"
@@ -8619,14 +8768,6 @@
   "deviceTrusted": {
     "message": "Vertrouwd apparaat"
   },
-  "sendsNoItemsTitle": {
-    "message": "Geen actieve Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Gebruik Verzenden voor het veilig delen van versleutelde informatie met wie dan ook.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "inviteUsers": {
     "message": "Gebruikers uitnodigen"
   },
@@ -8851,6 +8992,30 @@
   "commonImportFormats": {
     "message": "Gangbare formaten",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI-matche-detectie is hoe Bitwarden invulsuggesties herkent.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Reguliere expressie\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Begint met\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Lees meer over overeenkomstdetectie",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Geavanceerde opties",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Waarschuwing",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Om je abonnement voor $ORG$ te behouden, ",
@@ -9329,6 +9494,12 @@
   "deviceManagementDesc": {
     "message": "Apparaatbeheer voor Bitwarden configureren met behulp van de implementatiehandleiding voor jouw platform."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Stuur eventgegevens naar je Logscale-instantie"
+  },
+  "failedToSaveIntegration": {
+    "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
+  },
   "deviceIdMissing": {
     "message": "Apparaat-ID ontbreekt"
   },
@@ -9343,6 +9514,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Open deze link opnieuw vanaf je e-mail op een desktop."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "$INTEGRATION$ verbinden",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$ implementatiehandleiding openen.",
@@ -9400,6 +9580,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Maak een nieuwe clientorganisatie aan om te beheren als Aanbieder. Extra plaatsen worden weergegeven in de volgende factureringscyclus."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer-token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Selecteer een plan"
@@ -10149,8 +10338,8 @@
   "organizationUserDeletedDesc": {
     "message": "De gebruiker is verwijderd uit de organisatie en alle bijbehorende gebruikersgegevens zijn verwijderd."
   },
-  "deletedUserId": {
-    "message": "Gebruiker $ID$ verwijderd - een eigenaar / beheerder heeft het gebruikersaccount verwijderd",
+  "deletedUserIdEventMessage": {
+    "message": "Gebruiker $ID$ verwijderd",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10260,8 +10449,8 @@
   "domainStatusUnderVerification": {
     "message": "Gebruikersverificatie"
   },
-  "claimedDomainsDesc": {
-    "message": "Verifieer een domein om eigenaar te worden van alle leden wiens e-mailadres overeenkomt met het domein. Leden kunnen de SSO-identificatie overslaan wanneer ze inloggen. Beheerders kunnen accounts van lelden verwijderen."
+  "claimedDomainsDescription": {
+    "message": "Claim een domein voor eigendom van ledenaccounts. De SSO-identificatiepagina wordt overgeslagen tijdens het inloggen voor leden met geclaimde domeinen en beheerders kunnen geclaimde accounts verwijderen."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Invoer is geen geldig formaat. Formaat: mijndomein.com. Subdomeinen moet je afzonderlijk verifiëren."
@@ -10642,6 +10831,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Automatisch je wachtwoorden veilig aanvullen met één klik"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Download de Bitwarden-browserextensie en begin vandaag met automatisch invullen"
+  },
+  "getTheExtension": {
+    "message": "Download de extensie"
+  },
+  "addItLater": {
+    "message": "Later toevoegen"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "Je kunt wachtwoorden niet automatisch invullen zonder de browserextensie"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Weet je zeker dat je de extensie nu niet wilt toevoegen?"
+  },
+  "skipToWebApp": {
+    "message": "Ga naar webapp"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden extensie geïnstalleerd!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Open de extensie om in te loggen en te beginnen met automatisch invullen."
+  },
+  "openBitwardenExtension": {
+    "message": "Bitwarden-extensie openen"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "Bezoek voor tips over het beginnen met Bitwarden het",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Leercentrum",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Helpcentrum",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "Met de Bitwarden-browserextensie kun je eenvoudig nieuwe inloggegevens aanmaken, je opgeslagen logins rechtstreeks vanuit je browser toolbar benaderen en je snel aanmelden bij accounts met Bitwarden automatisch invullen."
+  },
   "restart": {
     "message": "Herstarten"
   },
@@ -10663,5 +10897,120 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Factuuradres vereist voor het toevoegen van krediet.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Factuuradres"
+  },
+  "addBillingAddress": {
+    "message": "Factuuradres toevoegen"
+  },
+  "editBillingAddress": {
+    "message": "Factuuradres bewerken"
+  },
+  "noBillingAddress": {
+    "message": "Geen adres in bestand."
+  },
+  "billingAddressUpdated": {
+    "message": "Je factuuradres is bijgewerkt."
+  },
+  "paymentDetails": {
+    "message": "Betalingsdetails"
+  },
+  "paymentMethodUpdated": {
+    "message": "Je betaalmethode is bijgewerkt."
+  },
+  "bankAccountVerified": {
+    "message": "Je bankrekening is geverifieerd."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Beschikbaar krediet wordt automatisch toegepast op facturen gegenereerd voor dit account."
+  },
+  "mustBePositiveNumber": {
+    "message": "Moet een positief getal zijn"
+  },
+  "cardSecurityCode": {
+    "message": "Kaart beveiligingscode"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Kaart beveiligingscode, ook bekend als CVV of CVC, is meestal een getal van 3 cijfers op de achterkant van je creditcard of 4 cijfers gedrukt op de voorkant boven je kaartnummer."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Betaling met een bankrekening is alleen beschikbaar voor klanten in de Verenigde Staten. Je moet je bankrekening verifiëren. We zullen binnen 1-2 werkdagen een microbetaling uitvoeren. Voer de code van het bankafschrift uit deze storting in op de factuurpagina om de bankrekening te verifiëren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "taxId": {
+    "message": "Btw ID: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
+  },
+  "unpaidInvoices": {
+    "message": "Onbetaalde facturen"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Je abonnement is niet betaald. Neem contact op met je providerbeheerder om de service naar jezelf en je klanten te herstellen.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is opgeschort",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Neem contact op met de Bitwarden Klantenservice om de toegang tot je providersportaal te herstellen om je abonnement te vernieuwen.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Je abonnement is niet betaald. Voeg een betaalmethode toe voor $CANCELLATION_DATE$ om de service aan jezelf en klanten te herstellen.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Abonneren op $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Je proefperiode van 7 dagen $PLAN$ begint vandaag. Voeg nu een betaalmethode toe om deze functies na afloop van je proefperiode te blijven gebruiken ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Onbeperkte geheimen en projecten"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Abonnement opgezegd"
+  },
+  "providersubCanceledmessage": {
+    "message": "Neem contact op met Bitwarden Customer Support om je opnieuw te abonneren."
+  },
+  "showMore": {
+    "message": "Meer weergeven"
+  },
+  "showLess": {
+    "message": "Minder weergeven"
   }
 }

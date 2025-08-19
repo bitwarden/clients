@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, HostBinding, Input, Optional, Self } from "@angular/core";
+import { Component, HostBinding, input, Input, Optional, Self } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
@@ -11,9 +9,12 @@ let nextId = 0;
   selector: "input[type=radio][bitRadio]",
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
+  host: {
+    "[id]": "this.id()",
+  },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
-  @HostBinding("attr.id") @Input() id = `bit-radio-input-${nextId++}`;
+  readonly id = input(`bit-radio-input-${nextId++}`);
 
   @HostBinding("class")
   protected inputClasses = [
@@ -29,7 +30,7 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "tw-border-secondary-600",
     "tw-w-[1.12rem]",
     "tw-h-[1.12rem]",
-    "tw-me-1.5",
+    "!tw-p-[.125rem]",
     "tw-flex-none", // Flexbox fix for bit-form-control
 
     "hover:tw-border-2",
@@ -43,9 +44,8 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "before:tw-content-['']",
     "before:tw-transition",
     "before:tw-block",
-    "before:tw-absolute",
     "before:tw-rounded-full",
-    "before:tw-inset-[2px]",
+    "before:tw-size-full",
 
     "disabled:tw-cursor-auto",
     "disabled:tw-bg-secondary-100",
@@ -74,6 +74,8 @@ export class RadioInputComponent implements BitFormControlAbstraction {
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {}
 
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding()
   @Input()
   get disabled() {
@@ -82,8 +84,10 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   set disabled(value: any) {
     this._disabled = value != null && value !== false;
   }
-  private _disabled: boolean;
+  private _disabled?: boolean;
 
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get required() {
     return (
@@ -93,14 +97,15 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   set required(value: any) {
     this._required = value != null && value !== false;
   }
-  private _required: boolean;
+  private _required?: boolean;
 
   get hasError() {
-    return this.ngControl?.status === "INVALID" && this.ngControl?.touched;
+    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
   }
 
   get error(): [string, any] {
-    const key = Object.keys(this.ngControl.errors)[0];
-    return [key, this.ngControl.errors[key]];
+    const errors = this.ngControl?.errors ?? {};
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
   }
 }

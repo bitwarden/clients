@@ -3,12 +3,14 @@
 import { CommonModule, DatePipe } from "@angular/common";
 import {
   Component,
+  ElementRef,
   EventEmitter,
   inject,
   Input,
   OnChanges,
   Output,
   SimpleChanges,
+  ViewChild,
 } from "@angular/core";
 import { Observable, switchMap } from "rxjs";
 
@@ -42,7 +44,6 @@ type TotpCodeValues = {
 @Component({
   selector: "app-login-credentials-view",
   templateUrl: "login-credentials-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -62,6 +63,8 @@ export class LoginCredentialsViewComponent implements OnChanges {
   @Input() activeUserId: UserId;
   @Input() hadPendingChangePasswordTask: boolean;
   @Output() handleChangePassword = new EventEmitter<void>();
+  @ViewChild("passwordInput")
+  private passwordInput!: ElementRef<HTMLInputElement>;
 
   isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
@@ -93,6 +96,10 @@ export class LoginCredentialsViewComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["cipher"]) {
+      if (this.passwordInput?.nativeElement) {
+        // Reset password input type in case it's been toggled
+        this.passwordInput.nativeElement.type = "password";
+      }
       this.passwordRevealed = false;
       this.showPasswordCount = false;
     }

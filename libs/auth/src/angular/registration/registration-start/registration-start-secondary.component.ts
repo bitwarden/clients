@@ -19,7 +19,6 @@ export interface RegistrationStartSecondaryComponentData {
 }
 
 @Component({
-  standalone: true,
   selector: "auth-registration-start-secondary",
   templateUrl: "./registration-start-secondary.component.html",
   imports: [CommonModule, JslibModule, RouterModule, LinkModule],
