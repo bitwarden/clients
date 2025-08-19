@@ -382,6 +382,7 @@ jobs:
           fi
           
           fastlane publish --verbose \
+            app_version:"2025.7.1" \
             build_number:$BUILD_NUMBER \
             changelog:"$CHANGELOG" \
             dry_run:$IS_DRY_RUN \

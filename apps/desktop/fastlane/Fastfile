@@ -71,6 +71,7 @@ platform :mac do
   desc "Publish desktop to the Mac App Store"
   lane :publish do |options|
     build_number = options[:build_number] || ENV["BUILD_NUMBER"]
+    app_version = options[:app_version] || ENV["APP_VERSION"]
     changelog = options[:changelog] || "Bug fixes and improvements"
     submit_for_review = options[:submit_for_review] == "true" || options[:submit_for_review] == true
     is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
@@ -81,8 +82,11 @@ platform :mac do
       UI.header("🚀 Publishing Bitwarden Desktop to Mac App Store")
     end
     
-    # Validate configuration first
+    # Validate configuration first  
     validate_config(build_number: build_number, dry_run: is_dry_run)
+    
+    # Validate app_version
+    UI.user_error!("❌ APP_VERSION is required") if app_version.nil? || app_version.empty?
     
     # Prepare release notes for all locales
     prepare_release_notes(changelog: changelog)
@@ -117,7 +121,7 @@ platform :mac do
     deliver(
       platform: "osx",
       app_identifier: APP_CONFIG[:app_identifier],
-      app_version: "2025.7.1", # Hardcoded for testing - TODO: make dynamic
+      app_version: "2025.7.1", # Hardcoded for testing
       build_number: build_number,
       skip_binary_upload: true,
       skip_screenshots: true,
