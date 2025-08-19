@@ -24,7 +24,11 @@ export class MockBadgeBrowserApi implements BadgeBrowserApi {
     );
   }
 
-  setActiveTab(tabId: number) {
+  setActiveTabs(tabs: number[]) {
+    this.activeTabs = tabs;
+  }
+
+  setLastActivatedTab(tabId: number) {
     this._activeTab$.next({
       tabId,
       windowId: 1,

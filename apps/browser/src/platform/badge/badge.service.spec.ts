@@ -37,8 +37,9 @@ describe("BadgeService", () => {
 
     describe("given a single tab is open", () => {
       beforeEach(() => {
-        badgeApi.tabs = [1];
-        badgeApi.setActiveTab(tabId);
+        badgeApi.tabs = [tabId];
+        badgeApi.setActiveTabs([tabId]);
+        badgeApi.setLastActivatedTab(tabId);
         badgeServiceSubscription = badgeService.startListening();
       });
 
@@ -187,13 +188,14 @@ describe("BadgeService", () => {
       });
     });
 
-    describe("given multiple tabs are open", () => {
+    describe("given multiple tabs are open, only one active", () => {
       const tabId = 1;
       const tabIds = [1, 2, 3];
 
       beforeEach(() => {
         badgeApi.tabs = tabIds;
-        badgeApi.setActiveTab(tabId);
+        badgeApi.setActiveTabs([tabId]);
+        badgeApi.setLastActivatedTab(tabId);
         badgeServiceSubscription = badgeService.startListening();
       });
 
@@ -238,7 +240,8 @@ describe("BadgeService", () => {
 
       beforeEach(() => {
         badgeApi.tabs = [tabId];
-        badgeApi.setActiveTab(tabId);
+        badgeApi.setActiveTabs([tabId]);
+        badgeApi.setLastActivatedTab(tabId);
         badgeServiceSubscription = badgeService.startListening();
       });
 
@@ -507,13 +510,14 @@ describe("BadgeService", () => {
       });
     });
 
-    describe("given multiple tabs are open", () => {
+    describe("given multiple tabs are open, only one active", () => {
       const tabId = 1;
       const tabIds = [1, 2, 3];
 
       beforeEach(() => {
         badgeApi.tabs = tabIds;
-        badgeApi.setActiveTab(tabId);
+        badgeApi.setActiveTabs([tabId]);
+        badgeApi.setLastActivatedTab(tabId);
         badgeServiceSubscription = badgeService.startListening();
       });
 
