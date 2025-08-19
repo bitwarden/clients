@@ -29,40 +29,21 @@ platform :mac do
   lane :prepare_release_notes do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     
-    # Create release notes for each supported locale
-    Dir.chdir("..") do
-      APP_CONFIG[:locales].each do |locale|
-        locale_dir = "#{APP_CONFIG[:release_notes_path]}/#{locale}"
-        FileUtils.mkdir_p(locale_dir)
-        
-        release_notes_path = "#{locale_dir}/release_notes.txt"
-        File.write(release_notes_path, changelog)
-        
-        UI.message("Created release notes for #{locale}: #{changelog[0,50]}#{changelog.length > 50 ? '...' : ''}")
-      end
+    # Create release notes hash for all supported locales
+    notes = {}
+    APP_CONFIG[:locales].each do |locale|
+      notes[locale] = changelog
+      UI.message("Created release notes for #{locale}: #{changelog[0,50]}#{changelog.length > 50 ? '...' : ''}")
     end
     
     UI.success("✅ Prepared release notes for #{APP_CONFIG[:locales].count} locales")
+    notes
   end
 
-  desc "Validate configuration and parameters"
-  lane :validate_config do |options|
+  desc "Display configuration information"
+  lane :show_config do |options|
     build_number = options[:build_number] || ENV["BUILD_NUMBER"]
-    is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
     
-    # Validate required parameters
-    UI.user_error!("❌ BUILD_NUMBER is required") if build_number.nil? || build_number.empty?
-    
-    # Skip secret validation in dry run mode
-    unless is_dry_run
-      UI.user_error!("❌ APP_STORE_CONNECT_TEAM_ISSUER is required") if ENV["APP_STORE_CONNECT_TEAM_ISSUER"].nil?
-      UI.user_error!("❌ APP_STORE_CONNECT_AUTH_KEY is required") if ENV["APP_STORE_CONNECT_AUTH_KEY"].nil?
-    end
-    
-    # Validate build number format (should be numeric)
-    UI.user_error!("❌ BUILD_NUMBER must be numeric, got: #{build_number}") unless build_number.match?(/^\d+$/)
-    
-    UI.success("✅ Configuration validation passed")
     UI.message("📦 App ID: #{APP_CONFIG[:app_identifier]}")
     UI.message("🔢 Build Number: #{build_number}")
     UI.message("🌍 Locales: #{APP_CONFIG[:locales].count}")
@@ -82,14 +63,14 @@ platform :mac do
       UI.header("🚀 Publishing Bitwarden Desktop to Mac App Store")
     end
     
-    # Validate configuration first  
-    validate_config(build_number: build_number, dry_run: is_dry_run)
+    # Show configuration info
+    show_config(build_number: build_number)
     
     # Validate app_version
     UI.user_error!("❌ APP_VERSION is required") if app_version.nil? || app_version.empty?
     
     # Prepare release notes for all locales
-    prepare_release_notes(changelog: changelog)
+    notes = prepare_release_notes(changelog: changelog)
     
     if is_dry_run
       UI.important("🧪 DRY RUN MODE - Skipping actual App Store Connect submission")
@@ -108,40 +89,15 @@ platform :mac do
       is_key_content_base64: true
     )
 
-    # Create release notes hash for all locales
-    notes = {}
-    APP_CONFIG[:locales].each do |locale|
-      release_notes_path = "#{APP_CONFIG[:release_notes_path]}/#{locale}/release_notes.txt"
-      if File.exist?(release_notes_path)
-        notes[locale] = File.read(release_notes_path)
-      end
-    end
+    # Release notes already prepared and returned from prepare_release_notes lane
+    UI.message("📝 Using release notes for #{notes.keys.count} locales")
 
-    # First, try to get the latest build for this version to ensure it exists
-    UI.message("🔍 Verifying build #{build_number} exists for version #{app_version}")
-    begin
-      builds = get_build_numbers(
-        app_identifier: APP_CONFIG[:app_identifier],
-        platform: "osx",
-        version: app_version
-      )
-      UI.message("📦 Available builds for version #{app_version}: #{builds}")
-      
-      unless builds.include?(build_number.to_s)
-        UI.user_error!("❌ Build #{build_number} not found for version #{app_version}. Available builds: #{builds}")
-      end
-      
-      UI.success("✅ Build #{build_number} found for version #{app_version}")
-    rescue => e
-      UI.important("⚠️  Could not verify build exists: #{e.message}")
-      UI.important("⚠️  Continuing with upload attempt...")
-    end
 
     # Upload to App Store Connect
     deliver(
       platform: "osx",
       app_identifier: APP_CONFIG[:app_identifier],
-      app_version: "2025.7.1", # Hardcoded for testing
+      app_version: app_version,
       build_number: build_number,
       skip_binary_upload: true,
       skip_screenshots: true,
@@ -151,6 +107,7 @@ platform :mac do
       phased_release: true, # Enable 7-day phased rollout
       precheck_include_in_app_purchases: false,
       run_precheck_before_submit: false,
+      automatic_release: true,
       force: true
     )
     
