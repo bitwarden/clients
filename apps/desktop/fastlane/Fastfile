@@ -117,6 +117,7 @@ platform :mac do
     deliver(
       platform: "osx",
       app_identifier: APP_CONFIG[:app_identifier],
+      app_version: "2025.7.0", # Explicit version to prevent auto-detection issues
       build_number: build_number,
       skip_binary_upload: true,
       skip_screenshots: true,
