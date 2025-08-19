@@ -1,11 +1,11 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { BaseResponse } from "../../../../models/response/base.response";
+import { EncString } from "../../../crypto/models/enc-string";
+import { KdfConfigResponse } from "../../../models/response/kdf-config.response";
 import {
   MasterKeyWrappedUserKey,
   MasterPasswordSalt,
   MasterPasswordUnlockData,
-} from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { KdfConfigResponse } from "@bitwarden/common/key-management/models/response/kdf-config.response";
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+} from "../../types/master-password.types";
 
 export class MasterPasswordUnlockResponse extends BaseResponse {
   salt: MasterPasswordSalt;

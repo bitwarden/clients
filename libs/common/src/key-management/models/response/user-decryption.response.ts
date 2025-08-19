@@ -1,5 +1,5 @@
-import { MasterPasswordUnlockResponse } from "@bitwarden/common/key-management/master-password/models/response/master-password-unlock.response";
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { BaseResponse } from "../../../models/response/base.response";
+import { MasterPasswordUnlockResponse } from "../../master-password/models/response/master-password-unlock.response";
 
 export class UserDecryptionResponse extends BaseResponse {
   masterPasswordUnlock?: MasterPasswordUnlockResponse;

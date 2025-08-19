@@ -1,6 +1,7 @@
-import { KdfConfigResponse } from "@bitwarden/common/key-management/models/response/kdf-config.response";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+
+import { KdfConfigResponse } from "./kdf-config.response";
 
 describe("KdfConfigResponse", () => {
   it("should throw error when kdf type not provided", () => {

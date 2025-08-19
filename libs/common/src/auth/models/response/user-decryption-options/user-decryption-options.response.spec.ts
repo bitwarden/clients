@@ -1,8 +1,9 @@
-import { UserDecryptionOptionsResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 // eslint-disable-next-line no-restricted-imports
 import { KdfType } from "@bitwarden/key-management";
 
 import { makeEncString } from "../../../../../spec";
+
+import { UserDecryptionOptionsResponse } from "./user-decryption-options.response";
 
 describe("UserDecryptionOptionsResponse", () => {
   it("should create response when master password unlock is present", () => {

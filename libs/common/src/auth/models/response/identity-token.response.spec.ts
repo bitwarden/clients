@@ -1,6 +1,6 @@
-import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-
 import { makeEncString } from "../../../../spec";
+
+import { IdentityTokenResponse } from "./identity-token.response";
 
 describe("IdentityTokenResponse", () => {
   const accessToken = "testAccessToken";

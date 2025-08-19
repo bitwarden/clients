@@ -1,9 +1,9 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionDetailsResponse } from "@bitwarden/admin-console/common";
-import { UserDecryptionResponse } from "@bitwarden/common/key-management/models/response/user-decryption.response";
 
 import { PolicyResponse } from "../../admin-console/models/response/policy.response";
+import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
 import { BaseResponse } from "../../models/response/base.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";

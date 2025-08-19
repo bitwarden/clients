@@ -1,6 +1,7 @@
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+
+import { BaseResponse } from "../../../models/response/base.response";
 
 export class KdfConfigResponse extends BaseResponse {
   kdfType: KdfType;

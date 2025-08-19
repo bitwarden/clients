@@ -1,4 +1,4 @@
-import { SyncResponse } from "@bitwarden/common/platform/sync/sync.response";
+import { SyncResponse } from "./sync.response";
 
 describe("SyncResponse", () => {
   it("should create response when user decryption is not provided", () => {

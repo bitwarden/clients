@@ -1,8 +1,9 @@
-import { MasterPasswordUnlockResponse } from "@bitwarden/common/key-management/master-password/models/response/master-password-unlock.response";
 // eslint-disable-next-line no-restricted-imports
 import { KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { makeEncString } from "../../../../../spec";
+
+import { MasterPasswordUnlockResponse } from "./master-password-unlock.response";
 
 describe("MasterPasswordUnlockResponse", () => {
   const salt = "test@example.com";

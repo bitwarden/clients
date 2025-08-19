@@ -1,5 +1,4 @@
-import { MasterPasswordUnlockResponse } from "@bitwarden/common/key-management/master-password/models/response/master-password-unlock.response";
-
+import { MasterPasswordUnlockResponse } from "../../../../key-management/master-password/models/response/master-password-unlock.response";
 import { BaseResponse } from "../../../../models/response/base.response";
 
 import {
