@@ -381,7 +381,7 @@ jobs:
             exit 1
           fi
           
-          fastlane -v publish \
+          fastlane publish \
             build_number:$BUILD_NUMBER \
             changelog:"$CHANGELOG" \
             dry_run:$IS_DRY_RUN \
