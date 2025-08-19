@@ -222,6 +222,10 @@ export const Disabled: Story = {
         <bit-label>Label</bit-label>
         <input bitInput placeholder="Placeholder" disabled />
       </bit-form-field>
+      <bit-form-field>
+        <bit-label>Label</bit-label>
+        <input bitInput placeholder="Placeholder" [disabled]="true" />
+      </bit-form-field>
     `,
   }),
   args: {},
