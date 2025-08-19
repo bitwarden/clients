@@ -40,6 +40,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -175,6 +176,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private readonly tokenService: TokenService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -684,6 +686,7 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 
       await this.stateService.clean({ userId: userBeingLoggedOut });
+      await this.tokenService.clearAccessToken(userBeingLoggedOut);
       await this.accountService.clean(userBeingLoggedOut);
 
       // HACK: Wait for the user logging outs authentication status to transition to LoggedOut

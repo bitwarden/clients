@@ -55,7 +55,7 @@ describe("PasswordInputToggle", () => {
     button = buttonEl.componentInstance;
     const formFieldEl = fixture.debugElement.query(By.directive(BitFormFieldComponent));
     const formField: BitFormFieldComponent = formFieldEl.componentInstance;
-    input = formField.input;
+    input = formField.input();
   });
 
   describe("initial state", () => {

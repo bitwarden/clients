@@ -1,5 +1,5 @@
 <!-- This a higher order component that composes `NavItemComponent`  -->
-@if (!hideIfEmpty() || nestedNavComponents.length > 0) {
+@if (!hideIfEmpty() || nestedNavComponents().length > 0) {
   <bit-nav-item
     [text]="text()"
     [icon]="icon()"

@@ -732,7 +732,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   protected async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
     if (keySuffix === KeySuffixOptions.Auto) {
       const userKey = await this.stateService.getUserKeyAutoUnlock({ userId: userId });
