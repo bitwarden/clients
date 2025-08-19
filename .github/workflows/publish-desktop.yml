@@ -86,7 +86,7 @@ jobs:
             echo "Release Version: ${{ inputs.version }}"
             echo "version=${{ inputs.version }}"
 
-            $TAG_NAME="desktop-v${{ inputs.version }}"
+            TAG_NAME="desktop-v${{ inputs.version }}"
 
             echo "Tag name: $TAG_NAME"
             echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
@@ -323,16 +323,8 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Download MacOS App Store build number
-        uses: bitwarden/gh-actions/download-artifacts@main
-        id: download-build-number-artifact
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build-desktop.yml
-          path: apps/desktop/artifacts
-          workflow_conclusion: success
-          branch: ${{ github.ref_name }}
-          artifacts: macos-build-number.json
-          repo: bitwarden/clients
+        working-directory: apps/desktop
+        run: wget https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/macos-build-number.json
 
       - name: Setup Ruby and Install Fastlane
         uses: ruby/setup-ruby@ca041f971d66735f3e5ff1e21cc13e2d51e7e535 # v1.233.0
@@ -369,7 +361,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         working-directory: apps/desktop
         run: |
-          BUILD_NUMBER=$(jq -r '.buildNumber' artifacts/macos-build-number.json)
+          BUILD_NUMBER=$(jq -r '.buildNumber' macos-build-number.json)
           CHANGELOG="${{ inputs.release_notes }}"
           IS_DRY_RUN="${{ inputs.publish_type == 'Dry Run' }}"
           
