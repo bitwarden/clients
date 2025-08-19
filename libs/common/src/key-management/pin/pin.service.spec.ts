@@ -4,12 +4,12 @@ import { mock } from "jest-mock-extended";
 import { DEFAULT_KDF_CONFIG, KdfConfigService } from "@bitwarden/key-management";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { PinKey, UserKey } from "../../types/key";
+import { KeyGenerationService } from "../crypto";
 import { CryptoFunctionService } from "../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../crypto/abstractions/encrypt.service";
 import { EncString } from "../crypto/models/enc-string";
