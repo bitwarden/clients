@@ -85,8 +85,6 @@ export class RiskInsightsComponent implements OnInit {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
-    const orgId = this.route.snapshot.paramMap.get("organizationId") ?? "";
-    this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(orgId as OrganizationId);
   }
 
   async ngOnInit() {
@@ -116,6 +114,9 @@ export class RiskInsightsComponent implements OnInit {
           }
 
           this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
+          this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(
+            this.organizationId as OrganizationId,
+          );
         },
       });
   }
