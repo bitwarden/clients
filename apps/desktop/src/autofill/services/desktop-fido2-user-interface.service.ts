@@ -268,7 +268,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   ): Promise<void> {
     // Load the UI:
     await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
-    await this.centerOffscreenPopup();
     await this.accountService.setShowHeader(showTrafficButtons);
     await this.router.navigate([
       route,
