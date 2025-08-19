@@ -1008,38 +1008,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "desktop_importer"
-version = "0.0.0"
-dependencies = [
- "aes",
- "aes-gcm",
- "anyhow",
- "async-trait",
- "base64",
- "cbc",
- "chacha20poly1305",
- "clap",
- "colog",
- "env_logger",
- "hex",
- "homedir",
- "log",
- "oo7",
- "pbkdf2",
- "rand 0.9.1",
- "rusqlite",
- "scopeguard",
- "security-framework",
- "serde",
- "serde_json",
- "sha1",
- "tokio",
- "winapi",
- "windows 0.61.1",
- "windows-service",
-]
-
-[[package]]
 name = "desktop_napi"
 version = "0.0.0"
 dependencies = [

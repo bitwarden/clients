@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator", "autotype", "importer", "bitwarden_bridge", "bitwarden_chrome_reader", "bitwarden_chromium_importer"]
+members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator", "autotype", "bitwarden_bridge", "bitwarden_chrome_reader", "bitwarden_chromium_importer"]
 
 [workspace.package]
 version = "0.0.0"
