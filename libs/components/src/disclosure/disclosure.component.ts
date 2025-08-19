@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -41,11 +39,10 @@ let nextId = 0;
   template: `<ng-content></ng-content>`,
 })
 export class DisclosureComponent {
-  private _open: boolean;
-
   /** Emits the visibility of the disclosure content */
   @Output() openChange = new EventEmitter<boolean>();
 
+  private _open?: boolean;
   /**
    * Optionally init the disclosure in its opened state
    */
@@ -55,14 +52,13 @@ export class DisclosureComponent {
     this._open = isOpen;
     this.openChange.emit(isOpen);
   }
+  get open(): boolean {
+    return !!this._open;
+  }
 
   @HostBinding("class") get classList() {
     return this.open ? "" : "tw-hidden";
   }
 
   @HostBinding("id") id = `bit-disclosure-${nextId++}`;
-
-  get open(): boolean {
-    return this._open;
-  }
 }

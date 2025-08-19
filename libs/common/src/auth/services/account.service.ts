@@ -232,9 +232,11 @@ export class AccountServiceImplementation implements InternalAccountService {
       return;
     }
 
-    await this.singleUserStateProvider.get(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).update(() => {
-      return setVerifyNewDeviceLogin;
-    });
+    await this.singleUserStateProvider
+      .get(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN)
+      .update(() => setVerifyNewDeviceLogin, {
+        shouldUpdate: (previousValue) => previousValue !== setVerifyNewDeviceLogin,
+      });
   }
 
   async removeAccountActivity(userId: UserId): Promise<void> {
