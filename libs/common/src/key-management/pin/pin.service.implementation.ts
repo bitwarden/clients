@@ -9,11 +9,11 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { PIN_DISK, PIN_MEMORY, StateProvider, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { PinKey, UserKey } from "../../types/key";
+import { KeyGenerationService } from "../crypto";
 
 import { PinServiceAbstraction } from "./pin.service.abstraction";
 

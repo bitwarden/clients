@@ -84,8 +84,11 @@ import {
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";
-import { OrganizationResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components/organization-reseller-renewal-warning.component";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/warnings/services/organization-warnings.service";
+import {
+  OrganizationFreeTrialWarningComponent,
+  OrganizationResellerRenewalWarningComponent,
+} from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
 import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
@@ -95,7 +98,6 @@ import {
 } from "../../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../../billing/types/free-trial";
-import { OrganizationFreeTrialWarningComponent } from "../../../billing/warnings/components/organization-free-trial-warning.component";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
@@ -135,6 +137,7 @@ import { CollectionAccessRestrictedComponent } from "./collection-access-restric
 import { getFlatCollectionTree, getNestedCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
@@ -493,6 +496,15 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
       map(({ org, metadata }) => this.resellerWarningService.getWarning(org, metadata)),
     );
+
+    this.organization$
+      .pipe(
+        switchMap((organization) =>
+          this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
 
     // End Billing Warnings
 

@@ -1,10 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { Component, computed, ElementRef, HostBinding, input, model } from "@angular/core";
+import { Component, computed, effect, ElementRef, HostBinding, input, model } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
+import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
 
@@ -64,7 +63,7 @@ const sizes: Record<IconButtonSize, string[]> = {
   small: ["tw-text-base", "tw-p-2", "tw-rounded"],
 };
 /**
-  * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label`.
+  * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label` that are added via the `label` input.
 
   * The most common use of the icon button is in the banner, toast, and modal components as a close button. It can also be found in tables as the 3 dot option menu, or on navigation list items when there are options that need to be collapsed into a menu.
 
@@ -90,11 +89,19 @@ const sizes: Record<IconButtonSize, string[]> = {
   },
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
-  readonly icon = model<string>(undefined, { alias: "bitIconButton" });
+  readonly icon = model.required<string>({ alias: "bitIconButton" });
 
   readonly buttonType = input<IconButtonType>("main");
 
   readonly size = model<IconButtonSize>("default");
+
+  /**
+   * label input will be used to set the `aria-label` attributes on the button.
+   * This is for accessibility purposes, as it provides a text alternative for the icon button.
+   *
+   * NOTE: It will also be used to set the `title` attribute on the button if no `title` is provided.
+   */
+  readonly label = input<string>();
 
   @HostBinding("class") get classList() {
     return [
@@ -161,5 +168,15 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return this.elementRef.nativeElement;
   }
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) {
+    const originalTitle = this.elementRef.nativeElement.getAttribute("title");
+
+    effect(() => {
+      setA11yTitleAndAriaLabel({
+        element: this.elementRef.nativeElement,
+        title: originalTitle ?? this.label(),
+        label: this.label(),
+      });
+    });
+  }
 }
