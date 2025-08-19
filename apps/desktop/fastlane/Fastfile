@@ -117,6 +117,26 @@ platform :mac do
       end
     end
 
+    # First, try to get the latest build for this version to ensure it exists
+    UI.message("🔍 Verifying build #{build_number} exists for version #{app_version}")
+    begin
+      builds = get_build_numbers(
+        app_identifier: APP_CONFIG[:app_identifier],
+        platform: "osx",
+        version: app_version
+      )
+      UI.message("📦 Available builds for version #{app_version}: #{builds}")
+      
+      unless builds.include?(build_number.to_s)
+        UI.user_error!("❌ Build #{build_number} not found for version #{app_version}. Available builds: #{builds}")
+      end
+      
+      UI.success("✅ Build #{build_number} found for version #{app_version}")
+    rescue => e
+      UI.important("⚠️  Could not verify build exists: #{e.message}")
+      UI.important("⚠️  Continuing with upload attempt...")
+    end
+
     # Upload to App Store Connect
     deliver(
       platform: "osx",
