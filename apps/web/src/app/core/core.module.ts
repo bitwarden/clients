@@ -93,10 +93,7 @@ import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-/* eslint-disable import/no-restricted-paths -- Implementation for memory storage */
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
-import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
-/* eslint-enable import/no-restricted-paths -- Implementation for memory storage */
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import {
   DefaultThemeStateService,
@@ -110,6 +107,7 @@ import {
   BiometricsService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
+import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 
@@ -186,7 +184,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: OBSERVABLE_MEMORY_STORAGE,
-    useClass: MemoryStorageServiceForStateProviders,
+    useClass: SerializedMemoryStorageService,
     deps: [],
   }),
   safeProvider({

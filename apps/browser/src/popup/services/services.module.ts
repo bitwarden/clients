@@ -103,13 +103,6 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import {
-  DerivedStateProvider,
-  GlobalStateProvider,
-  StateProvider,
-} from "@bitwarden/common/platform/state";
-// eslint-disable-next-line import/no-restricted-paths -- Used for dependency injection
-import { InlineDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/inline-derived-state";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -138,6 +131,8 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
+import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
+import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import {
   DefaultSshImportPromptService,
   PasswordRepromptService,

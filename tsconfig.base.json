@@ -50,6 +50,7 @@
       "@bitwarden/send-ui": ["./libs/tools/send/send-ui/src"],
       "@bitwarden/serialization": ["libs/serialization/src/index.ts"],
       "@bitwarden/state": ["libs/state/src/index.ts"],
+      "@bitwarden/state-internal": ["libs/state-internal/src/index.ts"],
       "@bitwarden/state-test-utils": ["libs/state-test-utils/src/index.ts"],
       "@bitwarden/storage-core": ["libs/storage-core/src/index.ts"],
       "@bitwarden/storage-test-utils": ["libs/storage-test-utils/src/index.ts"],
