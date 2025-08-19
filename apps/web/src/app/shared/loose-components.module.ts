@@ -8,17 +8,10 @@ import {
 import { LayoutComponent, NavigationModule } from "@bitwarden/components";
 
 import { OrganizationLayoutComponent } from "../admin-console/organizations/layouts/organization-layout.component";
-import { EventsComponent as OrgEventsComponent } from "../admin-console/organizations/manage/events.component";
-import { UserConfirmComponent as OrgUserConfirmComponent } from "../admin-console/organizations/manage/user-confirm.component";
 import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/manage/verify-recover-delete-org.component";
-import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
 import { DangerZoneComponent } from "../auth/settings/account/danger-zone.component";
-import { EmergencyAccessConfirmComponent } from "../auth/settings/emergency-access/confirm/emergency-access-confirm.component";
-import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
-import { EmergencyAccessComponent } from "../auth/settings/emergency-access/emergency-access.component";
-import { EmergencyAccessViewComponent } from "../auth/settings/emergency-access/view/emergency-access-view.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
@@ -65,17 +58,10 @@ import { SharedModule } from "./shared.module";
     PremiumBadgeComponent,
   ],
   declarations: [
-    AcceptFamilySponsorshipComponent,
-    EmergencyAccessAddEditComponent,
-    EmergencyAccessComponent,
-    EmergencyAccessConfirmComponent,
-    EmergencyAccessViewComponent,
-    OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
     OrgReusedPasswordsReportComponent,
     OrgUnsecuredWebsitesReportComponent,
-    OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
@@ -89,17 +75,11 @@ import { SharedModule } from "./shared.module";
   exports: [
     UserVerificationModule,
     PremiumBadgeComponent,
-    EmergencyAccessAddEditComponent,
-    EmergencyAccessComponent,
-    EmergencyAccessConfirmComponent,
-    EmergencyAccessViewComponent,
     OrganizationLayoutComponent,
-    OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
     OrgReusedPasswordsReportComponent,
     OrgUnsecuredWebsitesReportComponent,
-    OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
     PremiumBadgeComponent,
     RecoverDeleteComponent,

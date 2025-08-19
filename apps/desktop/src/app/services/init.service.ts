@@ -7,16 +7,15 @@ import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
@@ -53,9 +52,8 @@ export class InitService {
     private autofillService: DesktopAutofillService,
     private autotypeService: DesktopAutotypeService,
     private sdkLoadService: SdkLoadService,
-    private configService: ConfigService,
-    private bulkEncryptService: BulkEncryptService,
     @Inject(DOCUMENT) private document: Document,
+    private readonly migrationRunner: MigrationRunner,
   ) {}
 
   init() {
@@ -63,14 +61,7 @@ export class InitService {
       await this.sdkLoadService.loadAndInit();
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
-      await this.stateService.init({ runMigrations: false }); // Desktop will run them in main process
-
-      this.configService.serverConfig$.subscribe((newConfig) => {
-        if (newConfig != null) {
-          this.encryptService.onServerConfigChange(newConfig);
-          this.bulkEncryptService.onServerConfigChange(newConfig);
-        }
-      });
+      await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
 
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const setUserKeyInMemoryPromises = [];
@@ -102,6 +93,7 @@ export class InitService {
       containerService.attachToGlobal(this.win);
 
       await this.autofillService.init();
+      await this.autotypeService.init();
     };
   }
 }

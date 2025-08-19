@@ -1,0 +1,33 @@
+{
+  "name": "state",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/state/src",
+  "projectType": "library",
+  "tags": ["scope:state", "type:lib", "!dependsOn:common"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/state",
+        "main": "libs/state/src/index.ts",
+        "tsConfig": "libs/state/tsconfig.lib.json",
+        "assets": ["libs/state/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/state/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/state/jest.config.js"
+      }
+    }
+  }
+}

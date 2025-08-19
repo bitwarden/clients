@@ -46,7 +46,7 @@ export const OpenMenu: Story = {
 
       <div class="tw-h-40">
         <div class="cdk-overlay-pane bit-menu-panel">
-          <ng-container *ngTemplateOutlet="myMenu.templateRef"></ng-container>
+          <ng-container *ngTemplateOutlet="myMenu.templateRef()"></ng-container>
         </div>
       </div>
       `,
@@ -57,7 +57,7 @@ export const ClosedMenu: Story = {
     props: args,
     template: /*html*/ `
       <div class="tw-h-40">
-        <button bitButton buttonType="secondary" [bitMenuTriggerFor]="myMenu">Open menu</button>
+        <button type="button" bitButton buttonType="secondary" [bitMenuTriggerFor]="myMenu">Open menu</button>
       </div>
 
       <bit-menu #myMenu>

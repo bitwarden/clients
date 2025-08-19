@@ -8,7 +8,7 @@
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-dev
-## No ownership fo Cargo.lock and Cargo.toml to allow dependency updates
+## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
 
@@ -96,6 +96,12 @@ libs/logging @bitwarden/team-platform-dev
 libs/storage-test-utils @bitwarden/team-platform-dev
 libs/messaging @bitwarden/team-platform-dev
 libs/messaging-internal @bitwarden/team-platform-dev
+libs/serialization @bitwarden/team-platform-dev
+libs/guid @bitwarden/team-platform-dev
+libs/client-type @bitwarden/team-platform-dev
+libs/core-test-utils @bitwarden/team-platform-dev
+libs/state @bitwarden/team-platform-dev
+libs/state-test-utils @bitwarden/team-platform-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files
@@ -137,6 +143,7 @@ apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/autotype @bitwarden/team-autofill-dev
+.github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev

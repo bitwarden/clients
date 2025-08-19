@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/desktop",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.7.0",
+  "version": "2025.8.0",
   "keywords": [
     "bitwarden",
     "password",

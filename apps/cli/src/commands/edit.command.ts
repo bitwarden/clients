@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionRequest } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -14,6 +14,7 @@ import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -170,7 +171,7 @@ export class EditCommand {
     let folderView = await folder.decrypt();
     folderView = FolderExport.toView(req, folderView);
 
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
+    const userKey = await this.keyService.getUserKey(activeUserId);
     const encFolder = await this.folderService.encrypt(folderView, userKey);
     try {
       const folder = await this.folderApiService.save(encFolder, activeUserId);
@@ -201,7 +202,13 @@ export class EditCommand {
       return Response.badRequest("`organizationid` option does not match request object.");
     }
     try {
-      const orgKey = await this.keyService.getOrgKey(req.organizationId);
+      const orgKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.orgKeys$(userId)),
+          map((orgKeys) => orgKeys[options.organizationId as OrganizationId] ?? null),
+        ),
+      );
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
@@ -218,14 +225,15 @@ export class EditCommand {
           : req.users.map(
               (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
             );
-      const request = new CollectionRequest();
-      request.name = (await this.encryptService.encryptString(req.name, orgKey)).encryptedString;
-      request.externalId = req.externalId;
-      request.groups = groups;
-      request.users = users;
+      const request = new CollectionRequest({
+        name: await this.encryptService.encryptString(req.name, orgKey),
+        externalId: req.externalId,
+        users,
+        groups,
+      });
+
       const response = await this.apiService.putCollection(req.organizationId, id, request);
-      const view = CollectionExport.toView(req);
-      view.id = response.id;
+      const view = CollectionExport.toView(req, response.id);
       const res = new OrganizationCollectionResponse(view, groups, users);
       return Response.success(res);
     } catch (e) {

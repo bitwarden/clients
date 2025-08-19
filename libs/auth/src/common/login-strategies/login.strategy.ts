@@ -31,7 +31,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   KeyService,
@@ -197,19 +197,6 @@ export abstract class LoginStrategy {
 
     await this.accountService.switchAccount(userId);
 
-    await this.stateService.addAccount(
-      new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId,
-            name: accountInformation.name,
-            email: accountInformation.email,
-          },
-        },
-      }),
-    );
-
     await this.verifyAccountAdded(userId);
 
     // We must set user decryption options before retrieving vault timeout settings
@@ -326,6 +313,10 @@ export abstract class LoginStrategy {
   protected async createKeyPairForOldAccount(userId: UserId) {
     try {
       const userKey = await this.keyService.getUserKey(userId);
+      if (userKey.inner().type == EncryptionType.CoseEncrypt0) {
+        throw new Error("Cannot create key pair for account on V2 encryption");
+      }
+
       const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
       if (!privateKey.encryptedString) {
         throw new Error("Failed to create encrypted private key");

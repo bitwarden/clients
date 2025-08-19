@@ -398,7 +398,7 @@
     "message": "Numele folderului"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Grupează un folder prin adăugarea numelui folderului părinte urmat de \"/\" Exemplu: Social/Forums"
   },
   "noFoldersAdded": {
     "message": "No folders added"
@@ -890,7 +890,7 @@
     "message": "Follow the steps below to finish logging in."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Urmează pașii de mai jos pentru a finaliza autentificarea cu cheia de securitate."
   },
   "restartRegistration": {
     "message": "Reporniți înregistrarea"
@@ -932,7 +932,7 @@
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Continuați în aplicația web?"
   },
   "editedFolder": {
     "message": "Dosar salvat"
@@ -1049,7 +1049,7 @@
     "message": "Click items to autofill on Vault view"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Faceți clic pe elementele din sugestia de completare automată pentru a completa"
   },
   "clearClipboard": {
     "message": "Golire clipboard",
@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
@@ -5592,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

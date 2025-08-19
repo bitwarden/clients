@@ -15,3 +15,13 @@ export type IndexedEntityId = Opaque<string, "IndexedEntityId">;
 export type SecurityTaskId = Opaque<string, "SecurityTaskId">;
 export type NotificationId = Opaque<string, "NotificationId">;
 export type EmergencyAccessId = Opaque<string, "EmergencyAccessId">;
+export type OrganizationIntegrationId = Opaque<string, "OrganizationIntegrationId">;
+export type OrganizationIntegrationConfigurationId = Opaque<
+  string,
+  "OrganizationIntegrationConfigurationId"
+>;
+
+/**
+ * A string representation of an empty guid.
+ */
+export const emptyGuid = "00000000-0000-0000-0000-000000000000";
