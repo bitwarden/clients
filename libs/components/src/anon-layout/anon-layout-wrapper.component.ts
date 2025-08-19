@@ -1,9 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { ChangeDetectorRef, Component, OnInit, inject, DestroyRef } from "@angular/core";
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
-import { filter, switchMap, tap } from "rxjs";
+import { Subject, filter, of, switchMap, tap } from "rxjs";
 
 import { Icon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -53,13 +51,15 @@ export interface AnonLayoutWrapperData {
   imports: [AnonLayoutComponent, RouterModule],
 })
 export class AnonLayoutWrapperComponent implements OnInit {
-  protected pageTitle: string;
-  protected pageSubtitle: string;
-  protected pageIcon: Icon;
-  protected showReadonlyHostname: boolean;
-  protected maxWidth: AnonLayoutMaxWidth;
-  protected hideCardWrapper: boolean;
-  protected hideIcon: boolean = false;
+  private destroy$ = new Subject<void>();
+
+  protected pageTitle?: string | null;
+  protected pageSubtitle?: string | null;
+  protected pageIcon?: Icon | null;
+  protected showReadonlyHostname?: boolean | null;
+  protected maxWidth?: AnonLayoutMaxWidth | null;
+  protected hideCardWrapper?: boolean | null;
+  protected hideIcon?: boolean | null;
 
   constructor(
     private router: Router,
@@ -85,7 +85,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
         filter((event) => event instanceof NavigationEnd),
         // reset page data on page changes
         tap(() => this.resetPageData()),
-        switchMap(() => this.route.firstChild?.data || null),
+        switchMap(() => this.route.firstChild?.data || of(null)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((firstChildRouteData: Data | null) => {
@@ -93,7 +93,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
       });
   }
 
-  private setAnonLayoutWrapperDataFromRouteData(firstChildRouteData: Data | null) {
+  private setAnonLayoutWrapperDataFromRouteData(firstChildRouteData?: Data | null) {
     if (!firstChildRouteData) {
       return;
     }

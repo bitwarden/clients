@@ -352,7 +352,7 @@ export default {
               generator: "Generator",
               send: "Send",
               settings: "Settings",
-              labelWithNotification: (label: string) => `${label}: New Notification`,
+              labelWithNotification: (label: string | undefined) => `${label}: New Notification`,
             });
           },
         },

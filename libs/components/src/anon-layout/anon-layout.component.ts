@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   Component,
@@ -55,8 +53,8 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   protected logo = BitwardenLogo;
   protected year: string;
   protected clientType: ClientType;
-  protected hostname: string;
-  protected version: string;
+  protected hostname?: string;
+  protected version?: string;
 
   protected hideYearAndVersion = false;
 
