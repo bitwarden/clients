@@ -568,7 +568,7 @@ describe("InlineMenuFieldQualificationService", () => {
             ).toBe(false);
           });
 
-          it("will exclude a field when multiple password fields are on the page", () => {
+          it("will not exclude a field by autocomplete type when it is the only viewable password field on the page", () => {
             const field = mock<AutofillField>({
               type: "text",
               autoCompleteType: "off",
