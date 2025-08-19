@@ -26,7 +26,7 @@
         type="button"
         bitIconButton="bwi-generate"
         bitSuffix
-        [appA11yTitle]="'generatePassword' | i18n"
+        [label]="'generatePassword' | i18n"
         [disabled]="!config.areSendsAllowed"
         (click)="generatePassword()"
         data-testid="generate-password"
@@ -36,7 +36,7 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [appA11yTitle]="'copyPassword' | i18n"
+        [label]="'copyPassword' | i18n"
         [disabled]="!config.areSendsAllowed || !sendOptionsForm.get('password').value"
         [valueLabel]="'password' | i18n"
         [appCopyClick]="sendOptionsForm.get('password').value"
@@ -50,7 +50,7 @@
         type="button"
         buttonType="danger"
         bitIconButton="bwi-minus-circle"
-        [appA11yTitle]="'removePassword' | i18n"
+        [label]="'removePassword' | i18n"
         [bitAction]="removePassword"
         showToast
       ></button>
