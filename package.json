@@ -45,7 +45,7 @@
     "@babel/preset-env": "7.24.8",
     "@compodoc/compodoc": "1.1.26",
     "@electron/notarize": "3.0.1",
-    "@electron/rebuild": "3.7.2",
+    "@electron/rebuild": "4.0.1",
     "@eslint/compat": "1.2.9",
     "@lit-labs/signals": "0.1.2",
     "@ngtools/webpack": "19.2.14",
