@@ -18,7 +18,7 @@
 }
 
 @let freeTrial = freeTrialWhenWarningsServiceDisabled$ | async;
-@if (!refreshing && freeTrial.shownBanner) {
+@if (!refreshing && freeTrial?.shownBanner) {
   <bit-banner
     id="free-trial-banner"
     class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
