@@ -18,11 +18,9 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -125,8 +123,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
-    private masterPasswordService: MasterPasswordServiceAbstraction,
-    private configService: ConfigService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -322,7 +318,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     // User logged in successfully so execute side effects
-    await this.loginSuccessHandlerService.run(authResult.userId);
+    await this.loginSuccessHandlerService.run(authResult.userId, authResult.masterPassword);
 
     // Determine where to send the user next
     // The AuthGuard will handle routing to change-password based on state

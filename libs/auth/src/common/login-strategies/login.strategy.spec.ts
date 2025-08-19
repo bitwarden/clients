@@ -297,6 +297,7 @@ describe("LoginStrategy", () => {
       const result = await passwordLoginStrategy.logIn(credentials);
 
       const expected = new AuthResult();
+      expected.masterPassword = "password";
       expected.userId = userId;
       expected.resetMasterPassword = true;
       expected.twoFactorProviders = null;
@@ -312,6 +313,7 @@ describe("LoginStrategy", () => {
       const result = await passwordLoginStrategy.logIn(credentials);
 
       const expected = new AuthResult();
+      expected.masterPassword = "password";
       expected.userId = userId;
       expected.resetMasterPassword = false;
       expected.twoFactorProviders = null;

@@ -6,7 +6,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf-service.abstraction";
+import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DIALOG_DATA, ToastService } from "@bitwarden/components";

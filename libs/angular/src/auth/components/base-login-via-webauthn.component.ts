@@ -70,7 +70,7 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
       // Only run loginSuccessHandlerService if webAuthn is used for vault decryption.
       const userKey = await firstValueFrom(this.keyService.userKey$(authResult.userId));
       if (userKey) {
-        await this.loginSuccessHandlerService.run(authResult.userId);
+        await this.loginSuccessHandlerService.run(authResult.userId, null);
       }
 
       await this.router.navigate([this.successRoute]);
