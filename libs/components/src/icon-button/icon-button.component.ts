@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgClass } from "@angular/common";
 import { Component, computed, ElementRef, HostBinding, input, model } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -90,7 +88,7 @@ const sizes: Record<IconButtonSize, string[]> = {
   },
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
-  readonly icon = model<string>(undefined, { alias: "bitIconButton" });
+  readonly icon = model.required<string>({ alias: "bitIconButton" });
 
   readonly buttonType = input<IconButtonType>("main");
 
