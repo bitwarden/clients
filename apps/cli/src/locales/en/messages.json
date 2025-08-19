@@ -184,5 +184,39 @@
         "example": "JustTrust.us"
       }
     }
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+  },
+  "organizationUsingKeyConnectorOptInLoggedOut": {
+    "message": "An organization you are a member of is using Key Connector. In order to access the vault, you must opt-in to Key Connector now via the web vault. You have been logged out."
+  },
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator. Organization name: $ORGANIZATION$. Key Connector domain: $KEYCONNECTORDOMAIN$",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      },
+      "keyConnectorDomain": {
+        "content": "$2",
+        "example": "Key Connector domain"
+      }
+    }
+  },
+  "removeMasterPasswordAndUnlock": {
+    "message": "Remove master password and unlock"
+  },
+  "leaveOrganizationAndUnlock": {
+    "message": "Leave organization and unlock"
+  },
+  "logOut": {
+    "message": "Log out"
+  },
+  "youHaveBeenLoggedOut": {
+    "message": "You have been logged out."
+  },
+  "myItems": {
+    "message": "My Items"
   }
 }

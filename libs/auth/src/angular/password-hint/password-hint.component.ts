@@ -13,6 +13,8 @@ import { PasswordHintRequest } from "@bitwarden/common/auth/models/request/passw
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -21,7 +23,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   templateUrl: "./password-hint.component.html",
   imports: [
     AsyncActionsModule,

@@ -2,6 +2,7 @@ import { BrowserWindow, MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { CipherType } from "@bitwarden/sdk-internal";
 
 import { isMac, isMacAppStore } from "../../utils";
 import { UpdaterMain } from "../updater.main";
@@ -54,6 +55,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
     accounts: { [userId: string]: MenuAccount },
     isLocked: boolean,
     isLockable: boolean,
+    private restrictedCipherTypes: CipherType[],
   ) {
     super(i18nService, messagingService, updater, window, accounts, isLocked, isLockable);
   }
@@ -75,6 +77,23 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       submenu: this.addNewItemSubmenu,
       enabled: !this._isLocked,
     };
+  }
+
+  private mapMenuItemToCipherType(itemId: string): CipherType {
+    switch (itemId) {
+      case "typeLogin":
+        return CipherType.Login;
+      case "typeCard":
+        return CipherType.Card;
+      case "typeIdentity":
+        return CipherType.Identity;
+      case "typeSecureNote":
+        return CipherType.SecureNote;
+      case "typeSshKey":
+        return CipherType.SshKey;
+      default:
+        throw new Error(`Unknown menu item id: ${itemId}`);
+    }
   }
 
   private get addNewItemSubmenu(): MenuItemConstructorOptions[] {
@@ -99,7 +118,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       },
       {
         id: "typeSecureNote",
-        label: this.localize("typeSecureNote"),
+        label: this.localize("typeNote"),
         click: () => this.sendMessage("newSecureNote"),
         accelerator: "CmdOrCtrl+Shift+S",
       },
@@ -109,13 +128,17 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
         click: () => this.sendMessage("newSshKey"),
         accelerator: "CmdOrCtrl+Shift+K",
       },
-    ];
+    ].filter((item) => {
+      return !this.restrictedCipherTypes?.some(
+        (restrictedType) => restrictedType === this.mapMenuItemToCipherType(item.id),
+      );
+    });
   }
 
   private get addNewFolder(): MenuItemConstructorOptions {
     return {
-      id: "addNewFolder",
-      label: this.localize("addNewFolder"),
+      id: "newFolder",
+      label: this.localize("newFolder"),
       click: () => this.sendMessage("newFolder"),
       enabled: !this._isLocked,
     };

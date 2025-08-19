@@ -15,6 +15,7 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
  */
 @Directive({
   selector: "[appApiAction]",
+  standalone: false,
 })
 export class ApiActionDirective implements OnChanges {
   @Input() appApiAction: Promise<any>;

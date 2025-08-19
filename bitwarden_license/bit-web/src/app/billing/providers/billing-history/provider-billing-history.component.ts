@@ -12,6 +12,7 @@ import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/ser
 
 @Component({
   templateUrl: "./provider-billing-history.component.html",
+  standalone: false,
 })
 export class ProviderBillingHistoryComponent {
   private providerId: string;

@@ -2,11 +2,15 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   CollectionData,
   CollectionDetailsResponse,
   CollectionService,
 } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
@@ -49,15 +53,24 @@ import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 import { LogService } from "../abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
+import { SyncResponse } from "./sync.response";
 import { SyncOptions } from "./sync.service";
 
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
+
+  /** The promises associated with any in-flight api calls. */
+  private inFlightApiCalls: {
+    refreshToken: Promise<void> | null;
+    sync: Promise<SyncResponse> | null;
+  } = {
+    refreshToken: null,
+    sync: null,
+  };
 
   constructor(
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -73,7 +86,6 @@ export class DefaultSyncService extends CoreSyncService {
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
-    stateService: StateService,
     private providerService: ProviderService,
     folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
@@ -82,12 +94,12 @@ export class DefaultSyncService extends CoreSyncService {
     private avatarService: AvatarService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: UserId) => Promise<void>,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private tokenService: TokenService,
+    tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
   ) {
     super(
-      stateService,
+      tokenService,
       folderService,
       folderApiService,
       messageSender,
@@ -137,9 +149,24 @@ export class DefaultSyncService extends CoreSyncService {
 
     try {
       if (!skipTokenRefresh) {
-        await this.apiService.refreshIdentityToken();
+        // Store the promise so multiple calls to refresh the token are not made
+        if (this.inFlightApiCalls.refreshToken === null) {
+          this.inFlightApiCalls.refreshToken = this.apiService.refreshIdentityToken();
+        }
+
+        await this.inFlightApiCalls.refreshToken;
       }
-      const response = await this.apiService.getSync();
+
+      // Store the promise so multiple calls to sync are not made
+      if (this.inFlightApiCalls.sync === null) {
+        this.inFlightApiCalls.sync = this.apiService.getSync();
+      } else {
+        this.logService.debug(
+          "Sync: Sync network call already in progress, returning existing promise",
+        );
+      }
+
+      const response = await this.inFlightApiCalls.sync;
 
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
@@ -158,6 +185,9 @@ export class DefaultSyncService extends CoreSyncService {
       } else {
         return this.syncCompleted(false, userId);
       }
+    } finally {
+      this.inFlightApiCalls.refreshToken = null;
+      this.inFlightApiCalls.sync = null;
     }
   }
 
@@ -193,7 +223,10 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    // Users with no master password will not have a key.
+    if (response?.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    }
     await this.keyService.setPrivateKey(response.privateKey, response.id);
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
@@ -224,13 +257,8 @@ export class DefaultSyncService extends CoreSyncService {
 
     await this.syncProfileOrganizations(response, response.id);
 
-    if (await this.keyConnectorService.userNeedsMigration(response.id)) {
-      await this.keyConnectorService.setConvertAccountRequired(true, response.id);
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       this.messageSender.send("convertAccountToKeyConnector");
-    } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.keyConnectorService.removeConvertAccountRequired(response.id);
     }
   }
 

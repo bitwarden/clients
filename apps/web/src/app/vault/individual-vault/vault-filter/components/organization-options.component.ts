@@ -33,6 +33,7 @@ import { OrganizationFilter } from "../shared/models/vault-filter.type";
 @Component({
   selector: "app-organization-options",
   templateUrl: "organization-options.component.html",
+  standalone: false,
 })
 export class OrganizationOptionsComponent implements OnInit, OnDestroy {
   protected actionPromise?: Promise<void | boolean>;

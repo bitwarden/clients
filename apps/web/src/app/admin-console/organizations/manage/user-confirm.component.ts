@@ -8,6 +8,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { SharedModule } from "../../../shared";
+
 export type UserConfirmDialogData = {
   name: string;
   userId: string;
@@ -16,8 +18,8 @@ export type UserConfirmDialogData = {
 };
 
 @Component({
-  selector: "app-user-confirm",
   templateUrl: "user-confirm.component.html",
+  imports: [SharedModule],
 })
 export class UserConfirmComponent implements OnInit {
   name: string;

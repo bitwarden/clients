@@ -1,97 +1,88 @@
-import { NgIf } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { AsyncPipe } from "@angular/common";
+import { Component, input } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, firstValueFrom, map, of, switchMap } from "rxjs";
 
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/sdk-internal";
 
-import { SpotlightComponent } from "../../../components/spotlight/spotlight.component";
-import { VaultNudgesService, VaultNudgeType } from "../../../services/vault-nudges.service";
-
 @Component({
   selector: "vault-new-item-nudge",
   templateUrl: "./new-item-nudge.component.html",
-  standalone: true,
-  imports: [NgIf, SpotlightComponent],
+  imports: [SpotlightComponent, AsyncPipe],
 })
-export class NewItemNudgeComponent implements OnInit {
-  @Input({ required: true }) configType: CipherType | null = null;
-  activeUserId: UserId | null = null;
-  showNewItemSpotlight: boolean = false;
+export class NewItemNudgeComponent {
+  configType = input.required<CipherType | null>();
+  activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
+  showNewItemSpotlight$ = combineLatest([
+    this.activeUserId$,
+    toObservable(this.configType).pipe(map((cipherType) => this.mapToNudgeType(cipherType))),
+  ]).pipe(
+    switchMap(([userId, nudgeType]) => this.nudgesService.showNudgeSpotlight$(nudgeType, userId)),
+  );
   nudgeTitle: string = "";
   nudgeBody: string = "";
-  dismissalNudgeType: VaultNudgeType | null = null;
+  dismissalNudgeType: NudgeType | null = null;
 
   constructor(
     private i18nService: I18nService,
     private accountService: AccountService,
-    private vaultNudgesService: VaultNudgesService,
+    private nudgesService: NudgesService,
   ) {}
 
-  async ngOnInit() {
-    this.activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    switch (this.configType) {
+  mapToNudgeType(cipherType: CipherType | null): NudgeType {
+    switch (cipherType) {
       case CipherType.Login: {
         const nudgeBodyOne = this.i18nService.t("newLoginNudgeBodyOne");
         const nudgeBodyBold = this.i18nService.t("newLoginNudgeBodyBold");
         const nudgeBodyTwo = this.i18nService.t("newLoginNudgeBodyTwo");
-        this.dismissalNudgeType = VaultNudgeType.newLoginItemStatus;
+        this.dismissalNudgeType = NudgeType.NewLoginItemStatus;
         this.nudgeTitle = this.i18nService.t("newLoginNudgeTitle");
         this.nudgeBody = `${nudgeBodyOne} <strong>${nudgeBodyBold}</strong> ${nudgeBodyTwo}`;
-        break;
+        return NudgeType.NewLoginItemStatus;
       }
       case CipherType.Card:
-        this.dismissalNudgeType = VaultNudgeType.newCardItemStatus;
+        this.dismissalNudgeType = NudgeType.NewCardItemStatus;
         this.nudgeTitle = this.i18nService.t("newCardNudgeTitle");
         this.nudgeBody = this.i18nService.t("newCardNudgeBody");
-        break;
+        return NudgeType.NewCardItemStatus;
 
       case CipherType.Identity:
-        this.dismissalNudgeType = VaultNudgeType.newIdentityItemStatus;
+        this.dismissalNudgeType = NudgeType.NewIdentityItemStatus;
         this.nudgeTitle = this.i18nService.t("newIdentityNudgeTitle");
         this.nudgeBody = this.i18nService.t("newIdentityNudgeBody");
-        break;
+        return NudgeType.NewIdentityItemStatus;
 
       case CipherType.SecureNote:
-        this.dismissalNudgeType = VaultNudgeType.newNoteItemStatus;
+        this.dismissalNudgeType = NudgeType.NewNoteItemStatus;
         this.nudgeTitle = this.i18nService.t("newNoteNudgeTitle");
         this.nudgeBody = this.i18nService.t("newNoteNudgeBody");
-        break;
+        return NudgeType.NewNoteItemStatus;
 
       case CipherType.SshKey: {
         const sshPartOne = this.i18nService.t("newSshNudgeBodyOne");
         const sshPartTwo = this.i18nService.t("newSshNudgeBodyTwo");
 
-        this.dismissalNudgeType = VaultNudgeType.newSshItemStatus;
+        this.dismissalNudgeType = NudgeType.NewSshItemStatus;
         this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
         this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-bold" target="_blank">${sshPartTwo}</a>`;
-        break;
+        return NudgeType.NewSshItemStatus;
       }
       default:
         throw new Error("Unsupported cipher type");
     }
-    this.showNewItemSpotlight = await this.checkHasSpotlightDismissed(
-      this.dismissalNudgeType as VaultNudgeType,
-      this.activeUserId,
-    );
   }
 
   async dismissNewItemSpotlight() {
-    if (this.dismissalNudgeType && this.activeUserId) {
-      await this.vaultNudgesService.dismissNudge(
-        this.dismissalNudgeType,
-        this.activeUserId as UserId,
-      );
-      this.showNewItemSpotlight = false;
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    if (this.dismissalNudgeType && activeUserId) {
+      await this.nudgesService.dismissNudge(this.dismissalNudgeType, activeUserId as UserId);
+      this.showNewItemSpotlight$ = of(false);
     }
-  }
-
-  async checkHasSpotlightDismissed(nudgeType: VaultNudgeType, userId: UserId): Promise<boolean> {
-    return !(await firstValueFrom(this.vaultNudgesService.showNudge$(nudgeType, userId)))
-      .hasSpotlightDismissed;
   }
 }

@@ -23,7 +23,6 @@ import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-butto
 import { AppearanceV2Component } from "./appearance-v2.component";
 
 @Component({
-  standalone: true,
   selector: "popup-header",
   template: `<ng-content></ng-content>`,
 })
@@ -33,7 +32,6 @@ class MockPopupHeaderComponent {
 }
 
 @Component({
-  standalone: true,
   selector: "popup-page",
   template: `<ng-content></ng-content>`,
 })

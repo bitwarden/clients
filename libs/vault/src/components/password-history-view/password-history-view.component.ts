@@ -11,7 +11,6 @@ import { ItemModule, ColorPasswordModule, IconButtonModule } from "@bitwarden/co
 @Component({
   selector: "vault-password-history-view",
   templateUrl: "./password-history-view.component.html",
-  standalone: true,
   imports: [CommonModule, ItemModule, ColorPasswordModule, IconButtonModule, JslibModule],
 })
 export class PasswordHistoryViewComponent implements OnInit {

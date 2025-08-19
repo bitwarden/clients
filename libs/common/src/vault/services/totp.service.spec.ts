@@ -1,37 +1,26 @@
-import { mock } from "jest-mock-extended";
-import { of, take } from "rxjs";
+import { take } from "rxjs";
 
-import { BitwardenClient, TotpResponse } from "@bitwarden/sdk-internal";
+import { TotpResponse } from "@bitwarden/sdk-internal";
 
-import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { MockSdkService } from "../../platform/spec/mock-sdk.service";
 
 import { TotpService } from "./totp.service";
 
 describe("TotpService", () => {
-  let totpService: TotpService;
-  let generateTotpMock: jest.Mock;
-
-  const sdkService = mock<SdkService>();
+  let totpService!: TotpService;
+  let sdkService!: MockSdkService;
 
   beforeEach(() => {
-    generateTotpMock = jest
-      .fn()
-      .mockReturnValueOnce({
+    sdkService = new MockSdkService();
+    sdkService.client.vault
+      .mockDeep()
+      .totp.mockDeep()
+      .generate_totp.mockReturnValueOnce({
         code: "123456",
         period: 30,
       })
       .mockReturnValueOnce({ code: "654321", period: 30 })
       .mockReturnValueOnce({ code: "567892", period: 30 });
-
-    const mockBitwardenClient = {
-      vault: () => ({
-        totp: () => ({
-          generate_totp: generateTotpMock,
-        }),
-      }),
-    };
-
-    sdkService.client$ = of(mockBitwardenClient as unknown as BitwardenClient);
 
     totpService = new TotpService(sdkService);
 

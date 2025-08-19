@@ -1,8 +1,8 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "typeSshKey" | i18n }}</h2>
   </bit-section-header>
-  <bit-card class="[&_bit-form-field:last-of-type]:tw-mb-0">
+  <read-only-cipher-card>
     <bit-form-field>
       <bit-label>{{ "sshPrivateKey" | i18n }}</bit-label>
       <input
@@ -19,6 +19,7 @@
         bitIconButton
         bitPasswordInputToggle
         data-testid="toggle-privateKey"
+        [(toggled)]="revealSshKey"
       ></button>
       <button
         bitIconButton="bwi-clone"
@@ -65,5 +66,5 @@
         [appA11yTitle]="'copyValue' | i18n"
       ></button>
     </bit-form-field>
-  </bit-card>
-</bit-section>
+  </read-only-cipher-card>
+</section>

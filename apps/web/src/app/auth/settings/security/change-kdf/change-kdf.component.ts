@@ -21,6 +21,7 @@ import { ChangeKdfConfirmationComponent } from "./change-kdf-confirmation.compon
 @Component({
   selector: "app-change-kdf",
   templateUrl: "change-kdf.component.html",
+  standalone: false,
 })
 export class ChangeKdfComponent implements OnInit, OnDestroy {
   kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;

@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Observable, Subject } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { ClientType } from "@bitwarden/common/enums";
 import { VaultTimeout } from "@bitwarden/common/key-management/vault-timeout";
@@ -11,7 +13,6 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { Theme } from "@bitwarden/common/platform/enums";
-import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message } from "@bitwarden/common/platform/messaging";
 import { HttpOperations } from "@bitwarden/common/services/api.service";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
@@ -19,6 +20,7 @@ import { SafeInjectionToken } from "@bitwarden/ui-common";
 export { SafeInjectionToken } from "@bitwarden/ui-common";
 
 export const WINDOW = new SafeInjectionToken<Window>("WINDOW");
+export const DOCUMENT = new SafeInjectionToken<Document>("DOCUMENT");
 export const OBSERVABLE_MEMORY_STORAGE = new SafeInjectionToken<
   AbstractStorageService & ObservableStorageService
 >("OBSERVABLE_MEMORY_STORAGE");
@@ -30,7 +32,6 @@ export const OBSERVABLE_DISK_LOCAL_STORAGE = new SafeInjectionToken<
 >("OBSERVABLE_DISK_LOCAL_STORAGE");
 export const MEMORY_STORAGE = new SafeInjectionToken<AbstractStorageService>("MEMORY_STORAGE");
 export const SECURE_STORAGE = new SafeInjectionToken<AbstractStorageService>("SECURE_STORAGE");
-export const STATE_FACTORY = new SafeInjectionToken<StateFactory>("STATE_FACTORY");
 export const LOGOUT_CALLBACK = new SafeInjectionToken<
   (logoutReason: LogoutReason, userId?: string) => Promise<void>
 >("LOGOUT_CALLBACK");

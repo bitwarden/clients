@@ -4,8 +4,8 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   CommandDefinition,
   MessageListener,
@@ -13,6 +13,8 @@ import {
 } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CoreSyncService } from "@bitwarden/common/platform/sync/internal";
 import { SyncOptions } from "@bitwarden/common/platform/sync/sync.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -29,7 +31,7 @@ export const DO_FULL_SYNC = new CommandDefinition<FullSyncMessage>("doFullSync")
 
 export class ForegroundSyncService extends CoreSyncService {
   constructor(
-    stateService: StateService,
+    tokenService: TokenService,
     folderService: InternalFolderService,
     folderApiService: FolderApiServiceAbstraction,
     messageSender: MessageSender,
@@ -45,7 +47,7 @@ export class ForegroundSyncService extends CoreSyncService {
     stateProvider: StateProvider,
   ) {
     super(
-      stateService,
+      tokenService,
       folderService,
       folderApiService,
       messageSender,

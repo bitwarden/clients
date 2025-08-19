@@ -8,6 +8,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { ProviderAddOrganizationRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-add-organization.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { CreateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/create-client-organization.request";
@@ -30,10 +32,17 @@ export class WebProviderService {
     private billingApiService: BillingApiServiceAbstraction,
     private stateProvider: StateProvider,
     private providerApiService: ProviderApiServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   async addOrganizationToProvider(providerId: string, organizationId: string) {
-    const orgKey = await this.keyService.getOrgKey(organizationId);
+    const orgKey = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.keyService.orgKeys$(userId)),
+        map((orgKeys) => orgKeys[organizationId as OrganizationId] ?? null),
+      ),
+    );
     const providerKey = await this.keyService.getProviderKey(providerId);
 
     const encryptedOrgKey = await this.encryptService.wrapSymmetricKey(orgKey, providerKey);
@@ -74,7 +83,7 @@ export class WebProviderService {
 
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(organizationKey);
 
-    const encryptedCollectionName = await this.encryptService.encrypt(
+    const encryptedCollectionName = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       organizationKey,
     );

@@ -1,12 +1,18 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   LogoutReason,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { Matrix } from "../../../spec/matrix";
@@ -30,7 +36,6 @@ import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
 import { LogService } from "../abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -51,7 +56,6 @@ describe("DefaultSyncService", () => {
   let sendService: MockProxy<InternalSendService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
-  let stateService: MockProxy<StateService>;
   let providerService: MockProxy<ProviderService>;
   let folderApiService: MockProxy<FolderApiServiceAbstraction>;
   let organizationService: MockProxy<InternalOrganizationServiceAbstraction>;
@@ -80,7 +84,6 @@ describe("DefaultSyncService", () => {
     sendService = mock();
     logService = mock();
     keyConnectorService = mock();
-    stateService = mock();
     providerService = mock();
     folderApiService = mock();
     organizationService = mock();
@@ -107,7 +110,6 @@ describe("DefaultSyncService", () => {
       sendService,
       logService,
       keyConnectorService,
-      stateService,
       providerService,
       folderApiService,
       organizationService,
@@ -124,23 +126,23 @@ describe("DefaultSyncService", () => {
 
   const user1 = "user1" as UserId;
 
+  const emptySyncResponse = new SyncResponse({
+    profile: {
+      id: user1,
+    },
+    folders: [],
+    collections: [],
+    ciphers: [],
+    sends: [],
+    domains: [],
+    policies: [],
+  });
+
   describe("fullSync", () => {
     beforeEach(() => {
       accountService.activeAccount$ = of({ id: user1 } as Account);
       Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.Unlocked));
-      apiService.getSync.mockResolvedValue(
-        new SyncResponse({
-          profile: {
-            id: user1,
-          },
-          folders: [],
-          collections: [],
-          ciphers: [],
-          sends: [],
-          domains: [],
-          policies: [],
-        }),
-      );
+      apiService.getSync.mockResolvedValue(emptySyncResponse);
       Matrix.autoMockMethod(userDecryptionOptionsService.userDecryptionOptionsById$, () =>
         of({ hasMasterPassword: true } satisfies UserDecryptionOptions),
       );
@@ -194,6 +196,45 @@ describe("DefaultSyncService", () => {
 
       expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
       expect(apiService.getSync).toHaveBeenCalledTimes(1);
+    });
+
+    describe("in-flight syncs", () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it("does not call getSync when one is already in progress", async () => {
+        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+
+        jest.advanceTimersByTime(100);
+
+        await Promise.all(fullSyncPromises);
+
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not call refreshIdentityToken when one is already in progress", async () => {
+        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+
+        jest.advanceTimersByTime(100);
+
+        await Promise.all(fullSyncPromises);
+
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+      });
+
+      it("resets the in-flight properties when the complete", async () => {
+        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(true)];
+
+        await Promise.all(fullSyncPromises);
+
+        expect(sut["inFlightApiCalls"].refreshToken).toBeNull();
+        expect(sut["inFlightApiCalls"].sync).toBeNull();
+      });
     });
   });
 });

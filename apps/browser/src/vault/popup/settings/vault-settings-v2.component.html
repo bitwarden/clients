@@ -1,5 +1,5 @@
 <popup-page>
-  <popup-header slot="header" [pageTitle]="'vault' | i18n" showBackButton>
+  <popup-header slot="header" [pageTitle]="'settingsVaultOptions' | i18n" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>
@@ -14,7 +14,17 @@
     </bit-item>
     <bit-item>
       <button type="button" bit-item-content (click)="import()">
-        {{ "importItems" | i18n }}
+        <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
+          <p>{{ "importItems" | i18n }}</p>
+          <span
+            *ngIf="emptyVaultImportBadge$ | async"
+            bitBadge
+            variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
+          >
+            1
+          </span>
+        </div>
         <i slot="end" class="bwi bwi-popout" aria-hidden="true"></i>
       </button>
     </bit-item>

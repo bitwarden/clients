@@ -1,7 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Directive, HostBinding, Input } from "@angular/core";
+import { booleanAttribute, Directive, HostBinding, input } from "@angular/core";
 
 type TypographyType = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "body1" | "body2" | "helper";
 
@@ -31,18 +28,15 @@ const margins: Record<TypographyType, string[]> = {
 
 @Directive({
   selector: "[bitTypography]",
-  standalone: true,
 })
 export class TypographyDirective {
-  @Input("bitTypography") bitTypography: TypographyType;
+  readonly bitTypography = input.required<TypographyType>();
 
-  private _margin = true;
-  @Input()
-  set noMargin(value: boolean | "") {
-    this._margin = !coerceBooleanProperty(value);
-  }
+  readonly noMargin = input(false, { transform: booleanAttribute });
 
   @HostBinding("class") get classList() {
-    return styles[this.bitTypography].concat(this._margin ? margins[this.bitTypography] : []);
+    return styles[this.bitTypography()].concat(
+      !this.noMargin() ? margins[this.bitTypography()] : [],
+    );
   }
 }

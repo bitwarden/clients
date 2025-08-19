@@ -4,7 +4,6 @@ import { Component, Input } from "@angular/core";
 @Component({
   selector: "vault-carousel-content",
   templateUrl: "carousel-content.component.html",
-  standalone: true,
   imports: [CdkPortalOutlet],
 })
 export class VaultCarouselContentComponent {

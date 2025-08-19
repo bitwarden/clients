@@ -3,6 +3,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -18,6 +19,7 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -54,7 +56,7 @@ const masterKey = new SymmetricCryptoKey(
 ) as MasterKey;
 const userId = Utils.newGuid() as UserId;
 const deviceId = Utils.newGuid();
-const masterPasswordPolicy = new MasterPasswordPolicyResponse({
+const masterPasswordPolicyResponse = new MasterPasswordPolicyResponse({
   EnforceOnLogin: true,
   MinLength: 8,
 });
@@ -82,6 +84,7 @@ describe("PasswordLoginStrategy", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
+  let configService: MockProxy<ConfigService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -109,6 +112,7 @@ describe("PasswordLoginStrategy", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
+    configService = mock<ConfigService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
@@ -148,9 +152,10 @@ describe("PasswordLoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
+      configService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
-    tokenResponse = identityTokenResponseFactory(masterPasswordPolicy);
+    tokenResponse = identityTokenResponseFactory(masterPasswordPolicyResponse);
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
@@ -202,7 +207,10 @@ describe("PasswordLoginStrategy", () => {
       localHashedPassword,
       userId,
     );
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(tokenResponse.key, userId);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+      tokenResponse.key,
+      userId,
+    );
     expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
     expect(keyService.setPrivateKey).toHaveBeenCalledWith(tokenResponse.privateKey, userId);
   });
@@ -212,7 +220,10 @@ describe("PasswordLoginStrategy", () => {
 
     await passwordLoginStrategy.logIn(credentials);
 
-    expect(policyService.evaluateMasterPassword).not.toHaveBeenCalled();
+    expect(masterPasswordService.mock.setForceSetPasswordReason).not.toHaveBeenCalledWith(
+      ForceSetPasswordReason.WeakMasterPassword,
+      userId,
+    );
   });
 
   it("does not force the user to update their master password when it meets requirements", async () => {
@@ -221,13 +232,78 @@ describe("PasswordLoginStrategy", () => {
 
     await passwordLoginStrategy.logIn(credentials);
 
-    expect(policyService.evaluateMasterPassword).toHaveBeenCalled();
+    expect(masterPasswordService.mock.setForceSetPasswordReason).not.toHaveBeenCalledWith(
+      ForceSetPasswordReason.WeakMasterPassword,
+      userId,
+    );
+  });
+
+  it("when given master password policies as part of the login credentials from an org invite, it combines them with the token response policies to evaluate the user's password as weak", async () => {
+    const passwordStrengthScore = 0;
+
+    passwordStrengthService.getPasswordStrength.mockReturnValue({
+      score: passwordStrengthScore,
+    } as any);
+    policyService.evaluateMasterPassword.mockReturnValue(false);
+    tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    credentials.masterPasswordPoliciesFromOrgInvite = Object.assign(
+      new MasterPasswordPolicyOptions(),
+      {
+        minLength: 10,
+        minComplexity: 2,
+        requireUpper: true,
+        requireLower: true,
+        requireNumbers: true,
+        requireSpecial: true,
+        enforceOnLogin: true,
+      },
+    );
+
+    const combinedMasterPasswordPolicyOptions = Object.assign(new MasterPasswordPolicyOptions(), {
+      minLength: 10,
+      minComplexity: 2,
+      requireUpper: true,
+      requireLower: true,
+      requireNumbers: true,
+      requireSpecial: true,
+      enforceOnLogin: false,
+    });
+
+    policyService.combineMasterPasswordPolicyOptions.mockReturnValue(
+      combinedMasterPasswordPolicyOptions,
+    );
+
+    await passwordLoginStrategy.logIn(credentials);
+
+    expect(policyService.combineMasterPasswordPolicyOptions).toHaveBeenCalledWith(
+      credentials.masterPasswordPoliciesFromOrgInvite,
+      MasterPasswordPolicyOptions.fromResponse(masterPasswordPolicyResponse),
+    );
+
+    expect(policyService.evaluateMasterPassword).toHaveBeenCalledWith(
+      passwordStrengthScore,
+      credentials.masterPassword,
+      combinedMasterPasswordPolicyOptions,
+    );
+
+    expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
+      ForceSetPasswordReason.WeakMasterPassword,
+      userId,
+    );
   });
 
   it("forces the user to update their master password on successful login when it does not meet master password policy requirements", async () => {
     passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 0 } as any);
-    policyService.evaluateMasterPassword.mockReturnValue(false);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    const combinedMasterPasswordPolicyOptions = Object.assign(new MasterPasswordPolicyOptions(), {
+      enforceOnLogin: true,
+    });
+    policyService.combineMasterPasswordPolicyOptions.mockReturnValue(
+      combinedMasterPasswordPolicyOptions,
+    );
+    policyService.evaluateMasterPassword.mockReturnValue(false);
 
     await passwordLoginStrategy.logIn(credentials);
 
@@ -238,7 +314,7 @@ describe("PasswordLoginStrategy", () => {
     );
   });
 
-  it("forces the user to update their master password on successful 2FA login when it does not meet master password policy requirements", async () => {
+  it("should not set a force set password reason if we get an IdentityTwoFactorResponse after entering a weak MP that does not meet policy requirements", async () => {
     passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 0 } as any);
     policyService.evaluateMasterPassword.mockReturnValue(false);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
@@ -248,7 +324,34 @@ describe("PasswordLoginStrategy", () => {
       TwoFactorProviders2: { 0: null },
       error: "invalid_grant",
       error_description: "Two factor required.",
-      MasterPasswordPolicy: masterPasswordPolicy,
+      MasterPasswordPolicy: masterPasswordPolicyResponse,
+    });
+
+    // First login request fails requiring 2FA
+    apiService.postIdentityToken.mockResolvedValueOnce(token2FAResponse);
+    await passwordLoginStrategy.logIn(credentials);
+
+    expect(masterPasswordService.mock.setForceSetPasswordReason).not.toHaveBeenCalled();
+  });
+
+  it("forces the user to update their master password on successful 2FA login when it does not meet master password policy requirements", async () => {
+    passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 0 } as any);
+    tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    const combinedMasterPasswordPolicyOptions = Object.assign(new MasterPasswordPolicyOptions(), {
+      enforceOnLogin: true,
+    });
+    policyService.combineMasterPasswordPolicyOptions.mockReturnValue(
+      combinedMasterPasswordPolicyOptions,
+    );
+    policyService.evaluateMasterPassword.mockReturnValue(false);
+
+    const token2FAResponse = new IdentityTwoFactorResponse({
+      TwoFactorProviders: ["0"],
+      TwoFactorProviders2: { 0: null },
+      error: "invalid_grant",
+      error_description: "Two factor required.",
+      MasterPasswordPolicy: masterPasswordPolicyResponse,
     });
 
     // First login request fails requiring 2FA
@@ -257,7 +360,7 @@ describe("PasswordLoginStrategy", () => {
 
     // Second login request succeeds
     apiService.postIdentityToken.mockResolvedValueOnce(
-      identityTokenResponseFactory(masterPasswordPolicy),
+      identityTokenResponseFactory(masterPasswordPolicyResponse),
     );
     await passwordLoginStrategy.logInTwoFactor({
       provider: TwoFactorProviderType.Authenticator,

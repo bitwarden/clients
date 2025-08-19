@@ -17,6 +17,7 @@ import { ReportVariant, reports, ReportType, ReportEntry } from "../../../dirt/r
 @Component({
   selector: "app-org-reports-home",
   templateUrl: "reports-home.component.html",
+  standalone: false,
 })
 export class ReportsHomeComponent implements OnInit {
   reports$: Observable<ReportEntry[]>;

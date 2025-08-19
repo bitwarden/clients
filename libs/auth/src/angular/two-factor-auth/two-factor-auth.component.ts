@@ -10,23 +10,23 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom, firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   LoginStrategyServiceAbstraction,
-  LoginEmailServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
   TrustedDeviceUserDecryptionOption,
   UserDecryptionOptions,
   LoginSuccessHandlerService,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -37,7 +37,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -46,7 +49,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import {
   TwoFactorAuthAuthenticatorIcon,
   TwoFactorAuthEmailIcon,
@@ -55,18 +57,17 @@ import {
   TwoFactorAuthDuoIcon,
 } from "../icons/two-factor-auth";
 
-import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator.component";
+import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
 import { TwoFactorAuthDuoComponent } from "./child-components/two-factor-auth-duo/two-factor-auth-duo.component";
 import { TwoFactorAuthEmailComponent } from "./child-components/two-factor-auth-email/two-factor-auth-email.component";
 import { TwoFactorAuthWebAuthnComponent } from "./child-components/two-factor-auth-webauthn/two-factor-auth-webauthn.component";
-import { TwoFactorAuthYubikeyComponent } from "./child-components/two-factor-auth-yubikey.component";
+import { TwoFactorAuthYubikeyComponent } from "./child-components/two-factor-auth-yubikey/two-factor-auth-yubikey.component";
 import {
   TwoFactorAuthComponentCacheService,
   TwoFactorAuthComponentData,
 } from "./two-factor-auth-component-cache.service";
 import {
   DuoLaunchAction,
-  LegacyKeyMigrationAction,
   TwoFactorAuthComponentService,
 } from "./two-factor-auth-component.service";
 import {
@@ -75,7 +76,6 @@ import {
 } from "./two-factor-options.component";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth",
   templateUrl: "two-factor-auth.component.html",
   imports: [
@@ -84,10 +84,8 @@ import {
     ReactiveFormsModule,
     FormFieldModule,
     AsyncActionsModule,
-    RouterLink,
     CheckboxModule,
     ButtonModule,
-    TwoFactorOptionsComponent, // used as dialog
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthEmailComponent,
     TwoFactorAuthDuoComponent,
@@ -155,7 +153,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private logService: LogService,
     private twoFactorService: TwoFactorService,
-    private loginEmailService: LoginEmailServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -169,6 +166,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private environmentService: EnvironmentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
+    private authService: AuthService,
   ) {}
 
   async ngOnInit() {
@@ -176,9 +174,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       this.activatedRoute.snapshot.queryParamMap.get("identifier") ?? undefined;
 
     this.listenForAuthnSessionTimeout();
-
-    // Initialize the cache
-    await this.twoFactorAuthComponentCacheService.init();
 
     // Load cached form data if available
     let loadedCachedProviderType = false;
@@ -265,6 +260,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   private listenForAuthnSessionTimeout() {
     this.loginStrategyService.authenticationSessionTimeout$
       .pipe(takeUntilDestroyed(this.destroyRef))
+      // TODO: Fix this!
+      // eslint-disable-next-line rxjs/no-async-subscribe
       .subscribe(async (expired) => {
         if (!expired) {
           return;
@@ -386,22 +383,12 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     if (!result.requiresEncryptionKeyMigration) {
       return false;
     }
-    // Migration is forced so prevent login via return
-    const legacyKeyMigrationAction: LegacyKeyMigrationAction =
-      this.twoFactorAuthComponentService.determineLegacyKeyMigrationAction();
 
-    switch (legacyKeyMigrationAction) {
-      case LegacyKeyMigrationAction.NAVIGATE_TO_MIGRATION_COMPONENT:
-        await this.router.navigate(["migrate-legacy-encryption"]);
-        break;
-      case LegacyKeyMigrationAction.PREVENT_LOGIN_AND_SHOW_REQUIRE_MIGRATION_WARNING:
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccured"),
-          message: this.i18nService.t("encryptionKeyMigrationRequired"),
-        });
-        break;
-    }
+    this.toastService.showToast({
+      variant: "error",
+      title: this.i18nService.t("errorOccurred"),
+      message: this.i18nService.t("legacyEncryptionUnsupported"),
+    });
     return true;
   }
 
@@ -499,7 +486,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const defaultSuccessRoute = await this.determineDefaultSuccessRoute();
+    const defaultSuccessRoute = await this.determineDefaultSuccessRoute(authResult.userId);
 
     await this.router.navigate([defaultSuccessRoute], {
       queryParams: {
@@ -508,10 +495,22 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async determineDefaultSuccessRoute(): Promise<string> {
-    const authType = await firstValueFrom(this.loginStrategyService.currentAuthType$);
-    if (authType == AuthenticationType.Sso || authType == AuthenticationType.UserApiKey) {
+  private async determineDefaultSuccessRoute(userId: UserId): Promise<string> {
+    const activeAccountStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    if (activeAccountStatus === AuthenticationStatus.Locked) {
       return "lock";
+    }
+
+    // TODO: PM-22663 use the new service to handle routing.
+    const forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(userId),
+    );
+
+    if (
+      forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
+      forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
+    ) {
+      return "change-password";
     }
 
     return "vault";
@@ -567,7 +566,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private async handleChangePasswordRequired(orgIdentifier: string | undefined) {
-    await this.router.navigate(["set-password"], {
+    const route = "set-initial-password";
+    await this.router.navigate([route], {
       queryParams: {
         identifier: orgIdentifier,
       },

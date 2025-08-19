@@ -437,7 +437,7 @@ export class BrowserApi {
    * @param event - The event in which to add the listener to.
    * @param callback - The callback you want registered onto the event.
    */
-  static addListener<T extends (...args: readonly unknown[]) => unknown>(
+  static addListener<T extends (...args: readonly any[]) => any>(
     event: chrome.events.Event<T>,
     callback: T,
   ) {
@@ -664,6 +664,10 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    if (!(await BrowserApi.permissionsGranted(["privacy"]))) {
+      return false;
+    }
+
     const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
 

@@ -8,6 +8,7 @@ import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 @Component({
   selector: "app-create-organization",
   templateUrl: "create-organization.component.html",
+  standalone: false,
 })
 export class CreateOrganizationComponent implements OnInit {
   @ViewChild(OrganizationPlansComponent, { static: true })

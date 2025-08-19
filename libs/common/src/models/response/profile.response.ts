@@ -1,6 +1,7 @@
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UserId } from "../../types/guid";
 
 import { BaseResponse } from "./base.response";
@@ -14,7 +15,7 @@ export class ProfileResponse extends BaseResponse {
   premiumFromOrganization: boolean;
   culture: string;
   twoFactorEnabled: boolean;
-  key: string;
+  key?: EncString;
   avatarColor: string;
   creationDate: string;
   privateKey: string;
@@ -36,7 +37,10 @@ export class ProfileResponse extends BaseResponse {
     this.premiumFromOrganization = this.getResponseProperty("PremiumFromOrganization");
     this.culture = this.getResponseProperty("Culture");
     this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled");
-    this.key = this.getResponseProperty("Key");
+    const key = this.getResponseProperty("Key");
+    if (key) {
+      this.key = new EncString(key);
+    }
     this.avatarColor = this.getResponseProperty("AvatarColor");
     this.creationDate = this.getResponseProperty("CreationDate");
     this.privateKey = this.getResponseProperty("PrivateKey");

@@ -6,7 +6,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -14,13 +13,11 @@ import {
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 
 @Component({
-  standalone: true,
   selector: "app-view-identity-sections",
   templateUrl: "./view-identity-sections.component.html",
   imports: [
     NgIf,
     JslibModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,

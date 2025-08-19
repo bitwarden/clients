@@ -4,17 +4,14 @@ import { deepFreeze } from "@bitwarden/common/tools/util";
 
 import { EmailRandomizer } from "../../engine";
 import { SubaddressConstraints } from "../../policies/subaddress-constraints";
-import {
-  CredentialGenerator,
-  GeneratorDependencyProvider,
-  SubaddressGenerationOptions,
-} from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { CredentialGenerator, SubaddressGenerationOptions } from "../../types";
 import { Algorithm, Profile, Type } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 
 const plusAddress: GeneratorMetadata<SubaddressGenerationOptions> = deepFreeze({
   id: Algorithm.plusAddress,
-  category: Type.email,
+  type: Type.email,
   weight: 200,
   i18nKeys: {
     name: "plusAddressedEmail",

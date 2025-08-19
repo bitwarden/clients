@@ -12,6 +12,7 @@ export type ButtonRowProps = {
   theme: Theme;
   primaryButton: {
     text: string;
+    isLoading?: boolean;
     handlePrimaryButtonClick: (args: any) => void;
   };
   selectButtons?: {
@@ -29,6 +30,7 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
       ${ActionButton({
         handleClick: primaryButton.handlePrimaryButtonClick,
         buttonText: primaryButton.text,
+        isLoading: primaryButton.isLoading,
         theme,
       })}
       <div class=${optionSelectionsStyles}>
@@ -38,6 +40,7 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
               <option-selection
                 key=${id}
                 theme=${theme}
+                .id=${id}
                 .label=${label}
                 .options=${options}
                 .handleSelectionUpdate=${handleSelectionUpdate}
@@ -62,7 +65,7 @@ const buttonRowStyles = css`
 
   > button {
     max-width: min-content;
-    flex: 1 1 50%;
+    flex: 1 1 25%;
   }
 
   > div {

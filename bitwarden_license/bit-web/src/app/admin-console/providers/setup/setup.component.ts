@@ -9,6 +9,7 @@ import { first, takeUntil } from "rxjs/operators";
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderSetupRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-setup.request";
+import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -23,6 +24,7 @@ import { PaymentComponent } from "@bitwarden/web-vault/app/billing/shared/paymen
 @Component({
   selector: "provider-setup",
   templateUrl: "setup.component.html",
+  standalone: false,
 })
 export class SetupComponent implements OnInit, OnDestroy {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
@@ -115,9 +117,18 @@ export class SetupComponent implements OnInit, OnDestroy {
 
   submit = async () => {
     try {
+      const requireProviderPaymentMethodDuringSetup = await firstValueFrom(
+        this.requireProviderPaymentMethodDuringSetup$,
+      );
+
       this.formGroup.markAllAsTouched();
 
-      if (!this.taxInformationComponent.validate() || !this.formGroup.valid) {
+      const paymentValid = requireProviderPaymentMethodDuringSetup
+        ? this.paymentComponent.validate()
+        : true;
+      const taxInformationValid = this.taxInformationComponent.validate();
+
+      if (!paymentValid || !taxInformationValid || !this.formGroup.valid) {
         return;
       }
 
@@ -141,10 +152,6 @@ export class SetupComponent implements OnInit, OnDestroy {
       request.taxInfo.city = taxInformation.city;
       request.taxInfo.state = taxInformation.state;
 
-      const requireProviderPaymentMethodDuringSetup = await firstValueFrom(
-        this.requireProviderPaymentMethodDuringSetup$,
-      );
-
       if (requireProviderPaymentMethodDuringSetup) {
         request.paymentSource = await this.paymentComponent.tokenize();
       }
@@ -161,8 +168,20 @@ export class SetupComponent implements OnInit, OnDestroy {
 
       await this.router.navigate(["/providers", provider.id]);
     } catch (e) {
-      e.message = this.i18nService.translate(e.message) || e.message;
-      this.validationService.showError(e);
+      if (
+        this.paymentComponent.selected === PaymentMethodType.PayPal &&
+        typeof e === "string" &&
+        e === "No payment method is available."
+      ) {
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("clickPayWithPayPal"),
+        });
+      } else {
+        e.message = this.i18nService.translate(e.message) || e.message;
+        this.validationService.showError(e);
+      }
     }
   };
 }

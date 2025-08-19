@@ -4,6 +4,7 @@ import { html } from "lit";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { CloseButton } from "../buttons/close-button";
+import { I18n } from "../common-types";
 import { spacing, themes } from "../constants/styles";
 import { BrandIconContainer } from "../icons/brand-icon-container";
 
@@ -16,6 +17,7 @@ const { css } = createEmotion({
 });
 
 export type NotificationHeaderProps = {
+  i18n: I18n;
   message?: string;
   standalone?: boolean;
   theme: Theme;
@@ -23,6 +25,7 @@ export type NotificationHeaderProps = {
 };
 
 export function NotificationHeader({
+  i18n,
   message,
   standalone = false,
   theme = ThemeTypes.Light,
@@ -35,7 +38,7 @@ export function NotificationHeader({
     <div class=${notificationHeaderStyles({ standalone, theme })}>
       ${showIcon ? BrandIconContainer({ theme }) : null}
       ${message ? NotificationHeaderMessage({ message, theme }) : null}
-      ${isDismissable ? CloseButton({ handleCloseNotification, theme }) : null}
+      ${isDismissable ? CloseButton({ handleCloseNotification, i18n, theme }) : null}
     </div>
   `;
 }
@@ -56,8 +59,8 @@ const notificationHeaderStyles = ({
   white-space: nowrap;
 
   ${standalone
-    ? css`
+    ? css``
+    : css`
         border-bottom: 0.5px solid ${themes[theme].secondary["300"]};
-      `
-    : css``}
+      `}
 `;

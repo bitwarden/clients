@@ -2,6 +2,8 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
 import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -14,7 +16,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CipherId, CollectionId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { getByIds } from "@bitwarden/common/platform/misc";
+import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -39,7 +42,6 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
 @Component({
   selector: "app-cipher-view",
   templateUrl: "cipher-view.component.html",
-  standalone: true,
   imports: [
     CalloutModule,
     CommonModule,
@@ -142,6 +144,8 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
       return;
     }
 
+    const userId = await firstValueFrom(this.activeUserId$);
+
     // Load collections if not provided and the cipher has collectionIds
     if (
       this.cipher.collectionIds &&
@@ -149,13 +153,11 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
       (!this.collections || this.collections.length === 0)
     ) {
       this.collections = await firstValueFrom(
-        this.collectionService.decryptedCollectionViews$(
-          this.cipher.collectionIds as CollectionId[],
-        ),
+        this.collectionService
+          .decryptedCollections$(userId)
+          .pipe(getByIds(this.cipher.collectionIds)),
       );
     }
-
-    const userId = await firstValueFrom(this.activeUserId$);
 
     if (this.cipher.organizationId) {
       this.organization$ = this.organizationService

@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { LoginView as SdkLoginView } from "@bitwarden/sdk-internal";
+
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { Utils } from "../../../platform/misc/utils";
 import { DeepJsonify } from "../../../types/deep-jsonify";
@@ -99,5 +101,53 @@ export class LoginView extends ItemView {
       uris,
       fido2Credentials,
     });
+  }
+
+  /**
+   * Converts the SDK LoginView to a LoginView.
+   *
+   * Note: FIDO2 credentials remain encrypted at this stage.
+   * Unlike other fields that are decrypted as part of the LoginView, the SDK maintains
+   * the FIDO2 credentials in encrypted form. We can decrypt them later using a separate
+   * call to client.vault().ciphers().decrypt_fido2_credentials().
+   */
+  static fromSdkLoginView(obj: SdkLoginView): LoginView | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const loginView = new LoginView();
+
+    loginView.username = obj.username ?? null;
+    loginView.password = obj.password ?? null;
+    loginView.passwordRevisionDate =
+      obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
+    loginView.totp = obj.totp ?? null;
+    loginView.autofillOnPageLoad = obj.autofillOnPageLoad ?? null;
+    loginView.uris =
+      obj.uris
+        ?.filter((uri) => uri.uri != null && uri.uri !== "")
+        .map((uri) => LoginUriView.fromSdkLoginUriView(uri)) || [];
+    // FIDO2 credentials are not decrypted here, they remain encrypted
+    loginView.fido2Credentials = null;
+
+    return loginView;
+  }
+
+  /**
+   * Converts the LoginView to an SDK LoginView.
+   *
+   * Note: FIDO2 credentials remain encrypted in the SDK view so they are not included here.
+   */
+  toSdkLoginView(): SdkLoginView {
+    return {
+      username: this.username,
+      password: this.password,
+      passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
+      totp: this.totp,
+      autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
+      uris: this.uris?.map((uri) => uri.toSdkLoginUriView()),
+      fido2Credentials: undefined, // FIDO2 credentials are handled separately and remain encrypted
+    };
   }
 }

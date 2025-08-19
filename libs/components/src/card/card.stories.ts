@@ -91,7 +91,7 @@ export const WithoutBorderRadius: Story = {
     template: /*html*/ `
     <bit-layout>
       <bit-card>
-        <p bitTypography="body1" class="!tw-mb-0">Cards used in <code>bit-layout</code> will not have a border radius</p>
+        <p bitTypography="body1" class="!tw-mb-0">Cards used in <code class="tw-text-danger-700">bit-layout</code> will not have a border radius</p>
       </bit-card>
     </bit-layout>
     `,

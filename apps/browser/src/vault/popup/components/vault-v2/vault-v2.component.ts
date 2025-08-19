@@ -16,24 +16,27 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
-  DecryptionFailureDialogComponent,
-  SpotlightComponent,
-  VaultIcons,
-  VaultNudgesService,
-  VaultNudgeType,
-} from "@bitwarden/vault";
+  ButtonModule,
+  DialogService,
+  Icons,
+  NoItemsModule,
+  TypographyModule,
+} from "@bitwarden/components";
+import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -49,22 +52,21 @@ import {
   NewItemDropdownV2Component,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown-v2.component";
-import { NewSettingsCalloutComponent } from "./new-settings-callout/new-settings-callout.component";
 import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
-import { VaultPageService } from "./vault-page.service";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
-enum VaultState {
-  Empty,
-  NoResults,
-  DeactivatedOrg,
-}
+const VaultState = {
+  Empty: 0,
+  NoResults: 1,
+  DeactivatedOrg: 2,
+} as const;
+
+type VaultState = UnionOfValues<typeof VaultState>;
 
 @Component({
   selector: "app-vault",
   templateUrl: "vault-v2.component.html",
-  standalone: true,
   imports: [
     BlockedInjectionBanner,
     PopupPageComponent,
@@ -81,27 +83,24 @@ enum VaultState {
     ScrollingModule,
     VaultHeaderV2Component,
     AtRiskPasswordCalloutComponent,
-    NewSettingsCalloutComponent,
     SpotlightComponent,
     RouterModule,
+    TypographyModule,
   ],
-  providers: [VaultPageService],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
 
-  VaultNudgeType = VaultNudgeType;
+  NudgeType = NudgeType;
   cipherType = CipherType;
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   showEmptyVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
     switchMap((userId) =>
-      this.vaultNudgesService.showNudge$(VaultNudgeType.EmptyVaultNudge, userId),
+      this.nudgesService.showNudgeSpotlight$(NudgeType.EmptyVaultNudge, userId),
     ),
-    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
   );
   showHasItemsVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
-    switchMap((userId) => this.vaultNudgesService.showNudge$(VaultNudgeType.HasVaultItems, userId)),
-    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
+    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.HasVaultItems, userId)),
   );
 
   activeUserId: UserId | null = null;
@@ -142,7 +141,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
 
   protected VaultStateEnum = VaultState;
-  protected showNewCustomizationSettingsCallout = false;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
@@ -154,7 +152,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private dialogService: DialogService,
     private vaultCopyButtonsService: VaultPopupCopyButtonsService,
     private introCarouselService: IntroCarouselService,
-    private vaultNudgesService: VaultNudgesService,
+    private nudgesService: NudgesService,
     private router: Router,
   ) {
     combineLatest([
@@ -223,8 +221,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async dismissVaultNudgeSpotlight(type: VaultNudgeType) {
-    await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId);
+  async dismissVaultNudgeSpotlight(type: NudgeType) {
+    await this.nudgesService.dismissNudge(type, this.activeUserId as UserId);
   }
 
   protected readonly FeatureFlag = FeatureFlag;

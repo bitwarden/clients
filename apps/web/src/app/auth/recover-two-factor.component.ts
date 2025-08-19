@@ -16,6 +16,7 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-recover-two-factor",
   templateUrl: "recover-two-factor.component.html",
+  standalone: false,
 })
 export class RecoverTwoFactorComponent implements OnInit {
   protected formGroup = new FormGroup({

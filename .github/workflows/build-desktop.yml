@@ -46,6 +46,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   electron-verify:
     name: Verify Electron Version
@@ -144,10 +147,8 @@ jobs:
 
       - name: Check secrets
         id: check-secrets
-        env:
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
         run: |
-          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
           echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
   linux:
@@ -401,6 +402,9 @@ jobs:
     runs-on: windows-2022
     needs:
       - setup
+    permissions:
+        contents: read
+        id-token: write
     defaults:
       run:
         shell: pwsh
@@ -425,14 +429,8 @@ jobs:
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
 
-      - name: Set up environmentF
+      - name: Set up environment
         run: choco install checksum --no-progress
-
-      - name: Rust
-        shell: pwsh
-        run: |
-          rustup target install i686-pc-windows-msvc
-          rustup target install aarch64-pc-windows-msvc
 
       - name: Print environment
         run: |
@@ -441,11 +439,13 @@ jobs:
           choco --version
           rustup show
 
-      - name: Login to Azure
+      - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -458,6 +458,10 @@ jobs:
             code-signing-tenant-id,
             code-signing-client-secret,
             code-signing-cert-name"
+
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Node dependencies
         run: npm ci
@@ -505,7 +509,7 @@ jobs:
         run: |
           npm run pack:win
 
-      - name: Pack & Sign (dev)
+      - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           ELECTRON_BUILDER_SIGN: 1
@@ -658,6 +662,9 @@ jobs:
     runs-on: macos-13
     needs:
       - setup
+    permissions:
+        contents: read
+        id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -681,10 +688,6 @@ jobs:
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
 
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
-
       - name: Print environment
         run: |
           node --version
@@ -707,11 +710,21 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Login to Azure
+      - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD"
 
       - name: Download Provisioning Profiles secrets
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -754,10 +767,14 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -857,6 +874,10 @@ jobs:
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     uses: ./.github/workflows/build-browser.yml
     secrets: inherit
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
 
 
   macos-package-github:
@@ -867,6 +888,9 @@ jobs:
       - browser-build
       - macos-build
       - setup
+    permissions:
+        contents: read
+        id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -890,10 +914,6 @@ jobs:
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
 
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
-
       - name: Print environment
         run: |
           node --version
@@ -916,10 +936,19 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Download Provisioning Profiles secrets
         env:
@@ -960,9 +989,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -1040,16 +1072,14 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: |
-          rustup target add aarch64-apple-darwin
-          node build.js cross-platform
+        run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
         run: npm run build
 
       - name: Download Browser artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           path: ${{ github.workspace }}/browser-build-artifacts
 
@@ -1068,12 +1098,12 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           EOF
 
       - name: Build application (dist)
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
@@ -1116,6 +1146,9 @@ jobs:
       - browser-build
       - macos-build
       - setup
+    permissions:
+        contents: read
+        id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -1139,10 +1172,6 @@ jobs:
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
 
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
-
       - name: Print environment
         run: |
           node --version
@@ -1165,10 +1194,19 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Retrieve Slack secret
         id: retrieve-slack-secret
@@ -1216,9 +1254,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -1296,16 +1337,14 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: |
-          rustup target add aarch64-apple-darwin
-          node build.js cross-platform
+        run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
         run: npm run build
 
       - name: Download Browser artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           path: ${{ github.workspace }}/browser-build-artifacts
 
@@ -1324,12 +1363,12 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           EOF
 
       - name: Build application for App Store
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
           CSC_FOR_PULL_REQUEST: true
@@ -1353,7 +1392,7 @@ jobs:
 
           cat << EOF > ~/secrets/appstoreconnect-fastlane.json
           {
-            "issuer_id": "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}",
+            "issuer_id": "${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}",
             "key_id": "6TV9MKN3GP",
             "key": "$KEY_WITHOUT_NEWLINES"
           }
@@ -1365,7 +1404,7 @@ jobs:
           github.event_name != 'pull_request_target'
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           BRANCH: ${{ github.ref }}
         run: |
@@ -1415,6 +1454,10 @@ jobs:
       - windows
       - macos-package-github
       - macos-package-mas
+    permissions:
+        contents: write
+        pull-requests: write
+        id-token: write
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
@@ -1422,10 +1465,12 @@ jobs:
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -1434,8 +1479,11 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Upload Sources
-        uses: crowdin/github-action@30849777a3cba6ee9a09e24e195272b8287a0a5b # v1.20.4
+        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
@@ -1461,6 +1509,9 @@ jobs:
       - macos-package-github
       - macos-package-mas
       - crowdin-push
+    permissions:
+        contents: read
+        id-token: write
     steps:
       - name: Check if any job failed
         if: |
@@ -1469,11 +1520,13 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Login to Azure - Prod Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
         if: failure()
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -1483,6 +1536,9 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
         if: failure()
@@ -1490,3 +1546,4 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}
         with:
           status: ${{ job.status }}
+

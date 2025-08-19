@@ -20,6 +20,7 @@ import {
   MemberDetailsFlat,
   WeakPasswordDetail,
   WeakPasswordScore,
+  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "../models/password-health";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
@@ -48,7 +49,9 @@ export class RiskInsightsReportService {
     const results$ = zip(allCiphers$, memberCiphers$).pipe(
       map(([allCiphers, memberCiphers]) => {
         const details: MemberDetailsFlat[] = memberCiphers.flatMap((dtl) =>
-          dtl.cipherIds.map((c) => this.getMemberDetailsFlat(dtl.userName, dtl.email, c)),
+          dtl.cipherIds.map((c) =>
+            this.getMemberDetailsFlat(dtl.userGuid, dtl.userName, dtl.email, c),
+          ),
         );
         return [allCiphers, details] as const;
       }),
@@ -160,6 +163,22 @@ export class RiskInsightsReportService {
       totalApplicationCount: reports.length,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,
     };
+  }
+
+  async identifyCiphers(
+    data: ApplicationHealthReportDetail[],
+    organizationId: string,
+  ): Promise<ApplicationHealthReportDetailWithCriticalFlagAndCipher[]> {
+    const cipherViews = await this.cipherService.getAllFromApiForOrganization(organizationId);
+
+    const dataWithCiphers = data.map(
+      (app, index) =>
+        ({
+          ...app,
+          ciphers: cipherViews.filter((c) => app.cipherIds.some((a) => a === c.id)),
+        }) as ApplicationHealthReportDetailWithCriticalFlagAndCipher,
+    );
+    return dataWithCiphers;
   }
 
   /**
@@ -354,11 +373,17 @@ export class RiskInsightsReportService {
         : newUriDetail.cipherMembers,
       atRiskMemberDetails: existingUriDetail ? existingUriDetail.atRiskMemberDetails : [],
       atRiskPasswordCount: existingUriDetail ? existingUriDetail.atRiskPasswordCount : 0,
+      atRiskCipherIds: existingUriDetail ? existingUriDetail.atRiskCipherIds : [],
       atRiskMemberCount: existingUriDetail ? existingUriDetail.atRiskMemberDetails.length : 0,
+      cipherIds: existingUriDetail
+        ? existingUriDetail.cipherIds.concat(newUriDetail.cipherId)
+        : [newUriDetail.cipherId],
     } as ApplicationHealthReportDetail;
 
     if (isAtRisk) {
       reportDetail.atRiskPasswordCount = reportDetail.atRiskPasswordCount + 1;
+      reportDetail.atRiskCipherIds.push(newUriDetail.cipherId);
+
       reportDetail.atRiskMemberDetails = this.getUniqueMembers(
         reportDetail.atRiskMemberDetails.concat(newUriDetail.cipherMembers),
       );
@@ -399,15 +424,18 @@ export class RiskInsightsReportService {
       exposedPasswordDetail: detail.exposedPasswordDetail,
       cipherMembers: detail.cipherMembers,
       trimmedUri: uri,
+      cipher: detail as CipherView,
     };
   }
 
   private getMemberDetailsFlat(
+    userGuid: string,
     userName: string,
     email: string,
     cipherId: string,
   ): MemberDetailsFlat {
     return {
+      userGuid: userGuid,
       userName: userName,
       email: email,
       cipherId: cipherId,
@@ -428,7 +456,7 @@ export class RiskInsightsReportService {
     const cipherUris: string[] = [];
     const uris = cipher.login?.uris ?? [];
     uris.map((u: { uri: string }) => {
-      const uri = Utils.getHostname(u.uri).replace("www.", "");
+      const uri = Utils.getDomain(u.uri) ?? u.uri;
       if (!cipherUris.includes(uri)) {
         cipherUris.push(uri);
       }

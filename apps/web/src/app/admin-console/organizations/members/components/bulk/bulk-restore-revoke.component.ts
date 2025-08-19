@@ -18,6 +18,7 @@ type BulkRestoreDialogParams = {
 @Component({
   selector: "app-bulk-restore-revoke",
   templateUrl: "bulk-restore-revoke.component.html",
+  standalone: false,
 })
 export class BulkRestoreRevokeComponent {
   isRevoking: boolean;

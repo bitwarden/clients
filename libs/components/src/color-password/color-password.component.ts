@@ -2,13 +2,13 @@ import { Component, computed, HostBinding, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-enum CharacterType {
-  Letter,
-  Emoji,
-  Special,
-  Number,
-}
+type CharacterType = "letter" | "emoji" | "special" | "number";
 
+/**
+ * The color password is used primarily in the Generator pages and in the Login type form. It includes
+ * the logic for displaying letters as `text-main`, numbers as `primary`, and special symbols as
+ * `danger`.
+ */
 @Component({
   selector: "bit-color-password",
   template: `@for (character of passwordCharArray(); track $index; let i = $index) {
@@ -19,7 +19,6 @@ enum CharacterType {
       }
     </span>
   }`,
-  standalone: true,
 })
 export class ColorPasswordComponent {
   password = input<string>("");
@@ -31,15 +30,15 @@ export class ColorPasswordComponent {
   });
 
   characterStyles: Record<CharacterType, string[]> = {
-    [CharacterType.Emoji]: [],
-    [CharacterType.Letter]: ["tw-text-main"],
-    [CharacterType.Special]: ["tw-text-danger"],
-    [CharacterType.Number]: ["tw-text-primary-600"],
+    emoji: [],
+    letter: ["tw-text-main"],
+    special: ["tw-text-danger"],
+    number: ["tw-text-primary-600"],
   };
 
   @HostBinding("class")
   get classList() {
-    return ["tw-min-w-0", "tw-whitespace-pre-wrap", "tw-break-all"];
+    return ["tw-min-w-0", "tw-whitespace-pre-wrap", "tw-break-words"];
   }
 
   getCharacterClass(character: string) {
@@ -63,18 +62,18 @@ export class ColorPasswordComponent {
 
   private getCharacterType(character: string): CharacterType {
     if (character.match(Utils.regexpEmojiPresentation)) {
-      return CharacterType.Emoji;
+      return "emoji";
     }
 
     if (character.match(/\d/)) {
-      return CharacterType.Number;
+      return "number";
     }
 
     const specials = ["&", "<", ">", " "];
     if (specials.includes(character) || character.match(/[^\w ]/)) {
-      return CharacterType.Special;
+      return "special";
     }
 
-    return CharacterType.Letter;
+    return "letter";
   }
 }

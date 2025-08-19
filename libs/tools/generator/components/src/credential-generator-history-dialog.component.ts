@@ -29,7 +29,6 @@ import { EmptyCredentialHistoryComponent } from "./empty-credential-history.comp
 
 @Component({
   templateUrl: "credential-generator-history-dialog.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,

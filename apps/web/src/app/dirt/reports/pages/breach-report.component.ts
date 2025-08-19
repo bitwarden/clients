@@ -11,6 +11,7 @@ import { BreachAccountResponse } from "@bitwarden/common/models/response/breach-
 @Component({
   selector: "app-breach-report",
   templateUrl: "breach-report.component.html",
+  standalone: false,
 })
 export class BreachReportComponent implements OnInit {
   loading = false;

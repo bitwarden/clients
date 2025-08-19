@@ -15,6 +15,8 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     outputs:
       release_version: ${{ steps.version.outputs.version }}
       release_channel: ${{ steps.release_channel.outputs.channel }}
@@ -115,6 +117,8 @@ jobs:
     name: Linux Build
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -204,6 +208,9 @@ jobs:
     name: Windows Build
     runs-on: windows-2022
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         shell: pwsh
@@ -237,10 +244,12 @@ jobs:
           npm --version
           choco --version
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -252,6 +261,9 @@ jobs:
             code-signing-tenant-id,
             code-signing-client-secret,
             code-signing-cert-name"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Node dependencies
         run: npm ci
@@ -394,6 +406,9 @@ jobs:
     name: MacOS Build
     runs-on: macos-13
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -438,6 +453,20 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD"
+
       - name: Download Provisioning Profiles secrets
         env:
           ACCOUNT_NAME: bitwardenci
@@ -472,9 +501,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -528,6 +560,10 @@ jobs:
     needs:
       - setup
       - macos-build
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -572,10 +608,19 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD,APPLE-ID-USERNAME,APPLE-ID-PASSWORD"
 
       - name: Download Provisioning Profiles secrets
         env:
@@ -611,9 +656,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -702,8 +750,8 @@ jobs:
 
       - name: Build application (dist)
         env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_ID_USERNAME: ${{ steps.get-kv-secrets.outputs.APPLE-ID-USERNAME }}
+          APPLE_ID_PASSWORD: ${{ steps.get-kv-secrets.outputs.APPLE-ID-PASSWORD }}
         run: npm run pack:mac
 
       - name: Upload .zip artifact
@@ -741,6 +789,10 @@ jobs:
     needs:
       - setup
       - macos-build
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -785,6 +837,20 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD,APPLE-ID-USERNAME,APPLE-ID-PASSWORD"
+
       - name: Download Provisioning Profiles secrets
         env:
           ACCOUNT_NAME: bitwardenci
@@ -819,9 +885,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -911,8 +980,8 @@ jobs:
       - name: Build application for App Store
         run: npm run pack:mac:mas
         env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_ID_USERNAME: ${{ steps.get-kv-secrets.outputs.APPLE-ID-USERNAME }}
+          APPLE_ID_PASSWORD: ${{ steps.get-kv-secrets.outputs.APPLE-ID-PASSWORD }}
 
       - name: Upload .pkg artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -931,6 +1000,10 @@ jobs:
       - macos-build
       - macos-package-github
       - macos-package-mas
+    permissions:
+      contents: read
+      id-token: write
+      deployments: write
     steps:
       - name: Create GitHub deployment
         uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
@@ -942,10 +1015,12 @@ jobs:
           description: 'Deployment ${{ needs.setup.outputs.release_version }} to channel ${{ needs.setup.outputs.release_channel }} from branch ${{ needs.setup.outputs.branch_name }}'
           task: release
 
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -956,8 +1031,11 @@ jobs:
             aws-electron-access-key,
             aws-electron-bucket-name"
 
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Download all artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           path: apps/desktop/artifacts
 
@@ -1008,6 +1086,8 @@ jobs:
       - macos-package-github
       - macos-package-mas
       - release
+    permissions:
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2

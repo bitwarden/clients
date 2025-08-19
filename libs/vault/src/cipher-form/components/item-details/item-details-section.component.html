@@ -1,4 +1,4 @@
-<bit-section [formGroup]="itemDetailsForm">
+<section [formGroup]="itemDetailsForm" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
     <button
@@ -22,7 +22,7 @@
       <bit-label>{{ "owner" | i18n }}</bit-label>
       <bit-select formControlName="organizationId">
         <bit-option
-          *ngIf="showPersonalOwnerOption"
+          *ngIf="showPersonalOwnershipOption"
           [value]="null"
           [label]="userEmail$ | async"
         ></bit-option>
@@ -57,4 +57,4 @@
       </bit-select>
     </bit-form-field>
   </bit-card>
-</bit-section>
+</section>

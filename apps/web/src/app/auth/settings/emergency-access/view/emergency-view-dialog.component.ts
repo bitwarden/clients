@@ -38,7 +38,6 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
 @Component({
   selector: "app-emergency-view-dialog",
   templateUrl: "emergency-view-dialog.component.html",
-  standalone: true,
   imports: [ButtonModule, CipherViewComponent, DialogModule, CommonModule, JslibModule],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },

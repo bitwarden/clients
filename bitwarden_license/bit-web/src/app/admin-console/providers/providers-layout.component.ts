@@ -10,16 +10,32 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderStatusType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { Icon, IconModule } from "@bitwarden/components";
-import { BusinessUnitPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/business-unit-portal-logo.icon";
-import { ProviderPortalLogo } from "@bitwarden/web-vault/app/admin-console/icons/provider-portal-logo";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  Icon,
+  IconModule,
+  ProviderPortalLogo,
+  BusinessUnitPortalLogo,
+} from "@bitwarden/components";
+import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
+import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.module";
+
+import { ProviderWarningsService } from "../../billing/providers/warnings/services";
 
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
-  standalone: true,
-  imports: [CommonModule, RouterModule, JslibModule, WebLayoutModule, IconModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    JslibModule,
+    WebLayoutModule,
+    IconModule,
+    TaxIdWarningComponent,
+  ],
 })
 export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected readonly logo = ProviderPortalLogo;
@@ -33,17 +49,28 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   protected canAccessBilling$: Observable<boolean>;
 
   protected clientsTranslationKey$: Observable<string>;
+  protected managePaymentDetailsOutsideCheckout$: Observable<boolean>;
+  protected providerPortalTakeover$: Observable<boolean>;
+
+  protected subscriber$: Observable<NonIndividualSubscriber>;
+  protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
 
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,
+    private configService: ConfigService,
+    private providerWarningsService: ProviderWarningsService,
   ) {}
 
   ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
-    this.provider$ = this.route.params.pipe(
-      switchMap((params) => this.providerService.get$(params.providerId)),
+    const providerId$: Observable<string> = this.route.params.pipe(
+      map((params) => params.providerId),
+    );
+
+    this.provider$ = providerId$.pipe(
+      switchMap((providerId) => this.providerService.get$(providerId)),
       takeUntil(this.destroy$),
     );
 
@@ -70,6 +97,35 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
         provider.providerType === ProviderType.BusinessUnit ? "businessUnits" : "clients",
       ),
     );
+
+    this.managePaymentDetailsOutsideCheckout$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    );
+
+    this.provider$
+      .pipe(
+        switchMap((provider) =>
+          this.providerWarningsService.showProviderSuspendedDialog$(provider),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.providerPortalTakeover$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM21821_ProviderPortalTakeover,
+    );
+
+    this.subscriber$ = this.provider$.pipe(
+      map((provider) => ({
+        type: "provider",
+        data: provider,
+      })),
+    );
+
+    this.getTaxIdWarning$ = () =>
+      this.provider$.pipe(
+        switchMap((provider) => this.providerWarningsService.getTaxIdWarning$(provider)),
+      );
   }
 
   ngOnDestroy() {
@@ -84,4 +140,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   showSettingsTab(provider: Provider) {
     return provider.isProviderAdmin;
   }
+
+  refreshTaxIdWarning = () => this.providerWarningsService.refreshTaxIdWarning();
 }

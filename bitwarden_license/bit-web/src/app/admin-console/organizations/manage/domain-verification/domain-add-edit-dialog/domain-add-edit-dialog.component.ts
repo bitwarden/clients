@@ -24,6 +24,7 @@ export interface DomainAddEditDialogData {
 
 @Component({
   templateUrl: "domain-add-edit-dialog.component.html",
+  standalone: false,
 })
 export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   private componentDestroyed$: Subject<void> = new Subject();

@@ -18,7 +18,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "app-two-factor-recovery",
   templateUrl: "two-factor-recovery.component.html",
-  standalone: true,
   imports: [CommonModule, DialogModule, ButtonModule, TypographyModule, I18nPipe],
 })
 export class TwoFactorRecoveryComponent {

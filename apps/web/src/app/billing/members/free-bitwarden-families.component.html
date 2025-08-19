@@ -56,18 +56,21 @@
                       appA11yTitle="{{ 'options' | i18n }}"
                     ></button>
                     <bit-menu #appListDropdown>
-                      <button
-                        type="button"
-                        bitMenuItem
-                        [attr.aria-label]="'resendEmailLabel' | i18n"
-                        *ngIf="!isSelfHosted && !sponsoredFamily.validUntil"
-                        (click)="resendEmail(sponsoredFamily)"
-                      >
-                        <i aria-hidden="true" class="bwi bwi-envelope"></i>
-                        {{ "resendInvitation" | i18n }}
-                      </button>
+                      @if (!isSelfHosted && !sponsoredFamily.validUntil) {
+                        <button
+                          type="button"
+                          bitMenuItem
+                          [attr.aria-label]="'resendEmailLabel' | i18n"
+                          (click)="resendEmail(sponsoredFamily)"
+                        >
+                          <i aria-hidden="true" class="bwi bwi-envelope"></i>
+                          {{ "resendInvitation" | i18n }}
+                        </button>
+                      }
 
-                      <hr class="m-0" />
+                      @if (!isSelfHosted && !sponsoredFamily.validUntil) {
+                        <hr class="tw-m-0" />
+                      }
 
                       <button
                         type="button"
@@ -76,7 +79,7 @@
                         (click)="removeSponsorship(sponsoredFamily)"
                       >
                         <i aria-hidden="true" class="bwi bwi-close tw-text-danger"></i>
-                        <span class="tw-text-danger pl-1">{{ "remove" | i18n }}</span>
+                        <span class="tw-text-danger tw-pl-1">{{ "remove" | i18n }}</span>
                       </button>
                     </bit-menu>
                   </td>
@@ -85,12 +88,12 @@
             }
           </ng-template>
         </bit-table>
-        <hr class="mt-0" />
+        <hr class="tw-mt-0" />
       </ng-container>
     } @else if (!loading()) {
       <div class="tw-my-5 tw-py-5 tw-flex tw-flex-col tw-items-center">
         <img class="tw-w-32" src="./../../../images/search.svg" alt="Search" />
-        <h4 class="mt-3" bitTypography="h4">{{ "noSponsoredFamiliesMessage" | i18n }}</h4>
+        <h4 class="tw-mt-3" bitTypography="h4">{{ "noSponsoredFamiliesMessage" | i18n }}</h4>
         <p bitTypography="body2">{{ "nosponsoredFamiliesDetails" | i18n }}</p>
       </div>
     }

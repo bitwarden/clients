@@ -9,6 +9,7 @@ import { ReportVariant } from "../models/report-variant";
 @Component({
   selector: "app-report-card",
   templateUrl: "report-card.component.html",
+  standalone: false,
 })
 export class ReportCardComponent {
   @Input() title: string;

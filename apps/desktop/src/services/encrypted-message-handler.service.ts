@@ -147,7 +147,7 @@ export class EncryptedMessageHandlerService {
     const policyApplies$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
       ),
     );
 
@@ -207,9 +207,7 @@ export class EncryptedMessageHandlerService {
         return { status: "failure" };
       }
 
-      const cipherView = await cipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-      );
+      const cipherView = await this.cipherService.decrypt(cipher, activeUserId);
       cipherView.name = credentialUpdatePayload.name;
       cipherView.login.password = credentialUpdatePayload.password;
       cipherView.login.username = credentialUpdatePayload.userName;

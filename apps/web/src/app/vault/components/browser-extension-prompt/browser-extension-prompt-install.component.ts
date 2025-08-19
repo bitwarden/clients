@@ -28,7 +28,6 @@ const WebStoreUrls: Partial<Record<DeviceType, string>> = {
 @Component({
   selector: "vault-browser-extension-prompt-install",
   templateUrl: "./browser-extension-prompt-install.component.html",
-  standalone: true,
   imports: [CommonModule, I18nPipe, LinkModule],
 })
 export class BrowserExtensionPromptInstallComponent implements OnInit {

@@ -5,6 +5,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 
 import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
+import { getNotificationHeaderMessage, getNotificationTestId } from "../../../../notification/bar";
 import { NotificationContainer, NotificationContainerProps } from "../../notification/container";
 import { mockBrowserI18nGetMessage, mockI18n } from "../mock-data";
 
@@ -46,7 +47,11 @@ export default {
   },
 } as Meta<NotificationContainerProps>;
 
-const Template = (args: NotificationContainerProps) => NotificationContainer({ ...args });
+const Template = (args: NotificationContainerProps) => {
+  const headerMessage = getNotificationHeaderMessage(args.i18n, args.type);
+  const notificationTestId = getNotificationTestId(args.type);
+  return NotificationContainer({ ...args, headerMessage, notificationTestId });
+};
 
 export const Default: StoryObj<NotificationContainerProps> = {
   render: Template,

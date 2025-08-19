@@ -21,12 +21,16 @@ export const RedirectFocusDirection = {
   Next: "next",
 } as const;
 
-export enum InlineMenuFillType {
-  AccountCreationUsername = 5,
-  PasswordGeneration = 6,
-  CurrentPasswordUpdate = 7,
-}
-export type InlineMenuFillTypes = InlineMenuFillType | CipherType;
+export const InlineMenuFillTypes = {
+  AccountCreationUsername: 5,
+  PasswordGeneration: 6,
+  CurrentPasswordUpdate: 7,
+} as const;
+
+export type InlineMenuFillTypeValue =
+  (typeof InlineMenuFillTypes)[keyof typeof InlineMenuFillTypes];
+
+export type InlineMenuFillType = InlineMenuFillTypeValue | CipherType;
 
 export const InlineMenuAccountCreationFieldType = {
   Text: "text",

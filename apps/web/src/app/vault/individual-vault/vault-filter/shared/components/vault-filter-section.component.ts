@@ -16,6 +16,7 @@ import { VaultFilter } from "../models/vault-filter.model";
 @Component({
   selector: "app-filter-section",
   templateUrl: "vault-filter-section.component.html",
+  standalone: false,
 })
 export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

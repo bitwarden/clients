@@ -1,83 +1,86 @@
-<bit-section>
-  <bit-section-header>
-    <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
-  </bit-section-header>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-card>
-    <bit-form-field
-      [disableMargin]="!cipher.collectionIds?.length && !showOwnership && !cipher.folderId"
-      [disableReadOnlyBorder]="!cipher.collectionIds?.length && !showOwnership && !cipher.folderId"
+    <div
+      class="tw-flex tw-place-items-center"
+      [ngClass]="{
+        'tw-mb-2': allItems.length > 0,
+      }"
     >
-      <bit-label [appTextDrag]="cipher.name">
-        {{ "itemName" | i18n }}
-      </bit-label>
-      <input
-        readonly
-        id="itemName"
-        bitInput
-        type="text"
-        [value]="cipher.name"
-        aria-readonly="true"
-        data-testid="item-name"
-      />
-    </bit-form-field>
-
-    <ul
-      [attr.aria-label]="'itemLocation' | i18n"
-      *ngIf="cipher.collectionIds?.length || showOwnership || cipher.folderId"
-      class="tw-mb-0 tw-pl-0"
-    >
-      <li
-        *ngIf="showOwnership && organization"
-        class="tw-flex tw-items-center tw-list-none"
-        [ngClass]="{ 'tw-mb-3': cipher.collectionIds }"
-        bitTypography="body2"
-        [attr.aria-label]="('owner' | i18n) + organization.name"
-        data-testid="owner"
-      >
-        <i
-          appOrgIcon
-          [tierType]="organization.productTierType"
-          [size]="'large'"
-          [title]="'owner' | i18n"
-        ></i>
-        <span aria-hidden="true" class="tw-pl-1.5">
-          {{ organization.name }}
-        </span>
-      </li>
-      <li
-        class="tw-list-none"
-        *ngIf="cipher.collectionIds && collections"
-        [attr.aria-label]="'collection' | i18n"
-      >
-        <ul data-testid="collections" [ngClass]="{ 'tw-mb-0': !cipher.folderId }" class="tw-pl-0">
-          <li
-            *ngFor="let collection of collections; let last = last"
-            class="tw-flex tw-items-center tw-list-none"
+      <!-- Applying width and height styles directly to synchronize icon sizing between web/browser/desktop -->
+      <div class="tw-flex tw-items-center tw-justify-center" style="width: 40px; height: 40px">
+        <app-vault-icon [cipher]="cipher()" [coloredIcon]="true"></app-vault-icon>
+      </div>
+      <h2 bitTypography="h4" class="tw-ml-2 tw-mt-2" data-testid="item-name">
+        {{ cipher().name }}
+      </h2>
+    </div>
+    <ng-container>
+      <div class="tw-flex tw-flex-col tw-mt-2 md:tw-flex-row md:tw-flex-wrap">
+        @for (item of showItems(); track item.id; let last = $last) {
+          <span
+            class="tw-flex tw-items-center tw-mt-2 tw-mr-4"
             bitTypography="body2"
-            [ngClass]="{ 'tw-mb-3': last && cipher.folderId }"
-            [attr.aria-label]="collection.name"
+            [attr.aria-label]="getAriaLabel(item)"
+            [ngClass]="{ 'tw-mb-2': last && hasSmallScreen() }"
+            data-testid="item-details-list"
           >
-            <i
-              class="bwi bwi-collection-shared bwi-lg"
-              aria-hidden="true"
-              [title]="'collection' | i18n"
-            ></i>
+            @if (isOrgIcon(item)) {
+              <i
+                appOrgIcon
+                [tierType]="organization().productTierType"
+                [size]="'large'"
+                [title]="'owner' | i18n"
+              ></i>
+            } @else {
+              <i
+                class="bwi bwi-lg"
+                [ngClass]="getIconClass(item)"
+                aria-hidden="true"
+                [title]="getItemTitle(item)"
+              ></i>
+            }
             <span aria-hidden="true" class="tw-pl-1.5">
-              {{ collection.name }}
+              {{ item.name }}
             </span>
-          </li>
-        </ul>
-      </li>
-      <li
-        *ngIf="cipher.folderId && folder"
-        bitTypography="body2"
-        class="tw-flex tw-items-center tw-list-none"
-        [attr.aria-label]="('folder' | i18n) + folder.name"
-        data-testid="folder"
-      >
-        <i class="bwi bwi-folder bwi-lg" aria-hidden="true" [title]="'folder' | i18n"></i>
-        <span aria-hidden="true" class="tw-pl-1.5">{{ folder.name }} </span>
-      </li>
-    </ul>
+          </span>
+        }
+        @if (allItems().length === 0) {
+          <span
+            class="tw-flex tw-items-center tw-mt-2 tw-mr-4"
+            bitTypography="body2"
+            [attr.aria-label]="'noneFolder' | i18n"
+          >
+            <i class="bwi bwi-folder bwi-lg" aria-hidden="true" [title]="'folder' | i18n"></i>
+            <span aria-hidden="true" class="tw-pl-1.5">
+              {{ "noneFolder" | i18n }}
+            </span>
+          </span>
+        }
+        @if (hasSmallScreen() && allItems().length > 2 && cipher().collectionIds.length > 1) {
+          <button
+            bitTypography="body2"
+            type="button"
+            bitLink
+            linkType="primary"
+            class="tw-mt-1.5"
+            (click)="toggleShowMore()"
+            *ngIf="!showAllDetails()"
+          >
+            {{ "showMore" | i18n }}
+          </button>
+          <button
+            bitTypography="body2"
+            type="button"
+            bitLink
+            linkType="primary"
+            class="tw-mt-1.5"
+            (click)="toggleShowMore()"
+            *ngIf="showAllDetails()"
+          >
+            {{ "showLess" | i18n }}
+          </button>
+        }
+      </div>
+    </ng-container>
   </bit-card>
-</bit-section>
+</section>

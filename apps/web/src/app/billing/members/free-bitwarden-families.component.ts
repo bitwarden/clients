@@ -1,4 +1,3 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { formatDate } from "@angular/common";
 import { Component, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -9,14 +8,14 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { OrganizationSponsorshipInvitesResponse } from "@bitwarden/common/billing/models/response/organization-sponsorship-invites.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.component";
@@ -24,6 +23,7 @@ import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.componen
 @Component({
   selector: "app-free-bitwarden-families",
   templateUrl: "free-bitwarden-families.component.html",
+  standalone: false,
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
   loading = signal<boolean>(true);
@@ -159,7 +159,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   private async doRevokeSponsorship(sponsorship: OrganizationSponsorshipInvitesResponse) {
     const content = sponsorship.validUntil
       ? this.i18nService.t(
-          "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship",
+          "revokeActiveSponsorshipConfirmation",
           sponsorship.friendlyName,
           formatDate(sponsorship.validUntil, "MM/dd/yyyy", this.locale),
         )
@@ -179,7 +179,10 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
       return;
     }
 
-    await this.apiService.deleteRevokeSponsorship(this.organizationId);
+    await this.organizationSponsorshipApiService.deleteAdminInitiatedRevokeSponsorship(
+      this.organizationId,
+      sponsorship.friendlyName,
+    );
 
     this.toastService.showToast({
       variant: "success",

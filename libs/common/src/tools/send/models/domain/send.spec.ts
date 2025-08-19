@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { makeStaticByteArray, mockEnc } from "../../../../../spec";
@@ -27,14 +29,15 @@ describe("Send", () => {
         text: "encText",
         hidden: true,
       },
-      file: null,
+      file: null!,
       key: "encKey",
-      maxAccessCount: null,
+      maxAccessCount: null!,
       accessCount: 10,
       revisionDate: "2022-01-31T12:00:00.000Z",
       expirationDate: "2022-01-31T12:00:00.000Z",
       deletionDate: "2022-01-31T12:00:00.000Z",
       password: "password",
+      emails: null!,
       disabled: false,
       hideEmail: true,
     };
@@ -84,6 +87,7 @@ describe("Send", () => {
       expirationDate: new Date("2022-01-31T12:00:00.000Z"),
       deletionDate: new Date("2022-01-31T12:00:00.000Z"),
       password: "password",
+      emails: null!,
       disabled: false,
       hideEmail: true,
     });

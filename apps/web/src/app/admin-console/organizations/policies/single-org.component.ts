@@ -14,11 +14,15 @@ export class SingleOrgPolicy extends BasePolicy {
 @Component({
   selector: "policy-single-org",
   templateUrl: "single-org.component.html",
+  standalone: false,
 })
 export class SingleOrgPolicyComponent extends BasePolicyComponent implements OnInit {
   async ngOnInit() {
     super.ngOnInit();
 
+    if (!this.policyResponse) {
+      throw new Error("Policies not found");
+    }
     if (!this.policyResponse.canToggleState) {
       this.enabled.disable();
     }

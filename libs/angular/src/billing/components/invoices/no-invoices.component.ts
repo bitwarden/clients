@@ -30,6 +30,7 @@ const partnerTrustIcon = svgIcon`
     <bit-icon [icon]="icon"></bit-icon>
     <p class="tw-mt-4">{{ "noInvoicesToList" | i18n }}</p>
   </div>`,
+  standalone: false,
 })
 export class NoInvoicesComponent {
   icon = partnerTrustIcon;

@@ -25,6 +25,8 @@ type OrganizationOffboardingParams = {
 
 export type OffboardingSurveyDialogParams = UserOffboardingParams | OrganizationOffboardingParams;
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum OffboardingSurveyDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -47,6 +49,7 @@ export const openOffboardingSurvey = (
 @Component({
   selector: "app-cancel-subscription-form",
   templateUrl: "offboarding-survey.component.html",
+  standalone: false,
 })
 export class OffboardingSurveyComponent {
   protected ResultType = OffboardingSurveyDialogResultType;

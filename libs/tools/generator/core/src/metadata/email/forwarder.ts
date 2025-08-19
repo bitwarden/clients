@@ -1,18 +1,13 @@
 import { ExtensionMetadata, ExtensionStorageKey } from "@bitwarden/common/tools/extension/type";
-import { SelfHostedApiSettings } from "@bitwarden/common/tools/integration/rpc";
 import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
 
 import { getForwarderConfiguration } from "../../data";
-import { EmailDomainSettings, EmailPrefixSettings } from "../../engine";
 import { Forwarder } from "../../engine/forwarder";
-import { GeneratorDependencyProvider } from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { ForwarderOptions } from "../../types";
 import { Profile, Type } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 import { ForwarderProfileMetadata } from "../profile-metadata";
-
-// These options are used by all forwarders; each forwarder uses a different set,
-// as defined by `GeneratorMetadata<T>.capabilities.fields`.
-type ForwarderOptions = Partial<EmailDomainSettings & EmailPrefixSettings & SelfHostedApiSettings>;
 
 // update the extension metadata
 export function toForwarderMetadata(
@@ -28,7 +23,7 @@ export function toForwarderMetadata(
 
   const generator: GeneratorMetadata<ForwarderOptions> = {
     id: { forwarder: extension.product.vendor.id },
-    category: Type.email,
+    type: Type.email,
     weight: 300,
     i18nKeys: {
       name,
@@ -56,6 +51,12 @@ export function toForwarderMetadata(
         storage: {
           key: "forwarder",
           frame: 512,
+          initial: {
+            token: "",
+            baseUrl: "",
+            domain: "",
+            prefix: "",
+          },
           options: {
             deserializer: (value) => value,
             clearOn: ["logout"],

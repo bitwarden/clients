@@ -8,6 +8,8 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
@@ -250,6 +252,7 @@ export class Utils {
   }
 
   // ref: http://stackoverflow.com/a/2117523/1090359
+  /** @deprecated Use newGuid from @bitwarden/guid instead */
   static newGuid(): string {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
       const r = (Math.random() * 16) | 0;
@@ -258,8 +261,10 @@ export class Utils {
     });
   }
 
-  static guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  /** @deprecated Use guidRegex from @bitwarden/guid instead */
+  static guidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 
+  /** @deprecated Use isGuid from @bitwarden/guid instead */
   static isGuid(id: string) {
     return RegExp(Utils.guidRegex, "i").test(id);
   }
@@ -391,7 +396,7 @@ export class Utils {
     return str == null || typeof str !== "string" || str.trim() === "";
   }
 
-  static isNullOrEmpty(str: string): boolean {
+  static isNullOrEmpty(str: string | null): boolean {
     return str == null || typeof str !== "string" || str == "";
   }
 

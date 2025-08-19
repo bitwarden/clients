@@ -1,36 +1,38 @@
 import { CommonModule } from "@angular/common";
+import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/sdk-internal";
 
-import { VaultNudgesService, VaultNudgeType } from "../../../services/vault-nudges.service";
+import { FakeAccountService, mockAccountServiceWith } from "../../../../../common/spec";
 
 import { NewItemNudgeComponent } from "./new-item-nudge.component";
 
 describe("NewItemNudgeComponent", () => {
   let component: NewItemNudgeComponent;
+  let componentRef: ComponentRef<NewItemNudgeComponent>;
   let fixture: ComponentFixture<NewItemNudgeComponent>;
 
   let i18nService: MockProxy<I18nService>;
-  let accountService: MockProxy<AccountService>;
-  let vaultNudgesService: MockProxy<VaultNudgesService>;
+  let nudgesService: MockProxy<NudgesService>;
+  const accountService: FakeAccountService = mockAccountServiceWith("test-user-id" as UserId);
 
   beforeEach(async () => {
     i18nService = mock<I18nService>({ t: (key: string) => key });
-    accountService = mock<AccountService>();
-    vaultNudgesService = mock<VaultNudgesService>();
+    nudgesService = mock<NudgesService>();
 
     await TestBed.configureTestingModule({
       imports: [NewItemNudgeComponent, CommonModule],
       providers: [
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: accountService },
-        { provide: VaultNudgesService, useValue: vaultNudgesService },
+        { provide: NudgesService, useValue: nudgesService },
       ],
     }).compileComponents();
   });
@@ -38,7 +40,8 @@ describe("NewItemNudgeComponent", () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(NewItemNudgeComponent);
     component = fixture.componentInstance;
-    component.configType = null; // Set to null for initial state
+    componentRef = fixture.componentRef;
+    componentRef.setInput("configType", null); // Set a default type for testing
     fixture.detectChanges();
   });
 
@@ -47,57 +50,51 @@ describe("NewItemNudgeComponent", () => {
   });
 
   it("should set nudge title and body for CipherType.Login type", async () => {
-    component.configType = CipherType.Login;
-    accountService.activeAccount$ = of({ id: "test-user-id" as UserId } as Account);
-    jest.spyOn(component, "checkHasSpotlightDismissed").mockResolvedValue(true);
-
-    await component.ngOnInit();
-
-    expect(component.showNewItemSpotlight).toBe(true);
+    componentRef.setInput("configType", CipherType.Login);
+    fixture.detectChanges();
+    component.showNewItemSpotlight$.subscribe((value) => {
+      expect(value).toEqual(true);
+    });
     expect(component.nudgeTitle).toBe("newLoginNudgeTitle");
     expect(component.nudgeBody).toBe(
       "newLoginNudgeBodyOne <strong>newLoginNudgeBodyBold</strong> newLoginNudgeBodyTwo",
     );
-    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newLoginItemStatus);
+    expect(component.dismissalNudgeType).toBe(NudgeType.NewLoginItemStatus);
   });
 
   it("should set nudge title and body for CipherType.Card type", async () => {
-    component.configType = CipherType.Card;
-    accountService.activeAccount$ = of({ id: "test-user-id" as UserId } as Account);
-    jest.spyOn(component, "checkHasSpotlightDismissed").mockResolvedValue(true);
-
-    await component.ngOnInit();
-
-    expect(component.showNewItemSpotlight).toBe(true);
+    componentRef.setInput("configType", CipherType.Card);
+    fixture.detectChanges();
+    component.showNewItemSpotlight$.subscribe((value) => {
+      expect(value).toEqual(true);
+    });
     expect(component.nudgeTitle).toBe("newCardNudgeTitle");
     expect(component.nudgeBody).toBe("newCardNudgeBody");
-    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newCardItemStatus);
+    expect(component.dismissalNudgeType).toBe(NudgeType.NewCardItemStatus);
   });
 
   it("should not show anything if spotlight has been dismissed", async () => {
-    component.configType = CipherType.Identity;
-    accountService.activeAccount$ = of({ id: "test-user-id" as UserId } as Account);
-    jest.spyOn(component, "checkHasSpotlightDismissed").mockResolvedValue(false);
-
-    await component.ngOnInit();
-
-    expect(component.showNewItemSpotlight).toBe(false);
-    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newIdentityItemStatus);
+    componentRef.setInput("configType", CipherType.Identity);
+    fixture.detectChanges();
+    component.showNewItemSpotlight$.subscribe((value) => {
+      expect(value).toEqual(false);
+    });
+    expect(component.dismissalNudgeType).toBe(NudgeType.NewIdentityItemStatus);
   });
 
   it("should set showNewItemSpotlight to false when user dismisses spotlight", async () => {
-    component.showNewItemSpotlight = true;
-    component.dismissalNudgeType = VaultNudgeType.newLoginItemStatus;
-    component.activeUserId = "test-user-id" as UserId;
+    component.showNewItemSpotlight$ = of(true);
+    component.dismissalNudgeType = NudgeType.NewLoginItemStatus;
+    const activeUserId = "test-user-id" as UserId;
+    component.activeUserId$ = of(activeUserId);
 
-    const dismissSpy = jest.spyOn(vaultNudgesService, "dismissNudge").mockResolvedValue();
+    const dismissSpy = jest.spyOn(nudgesService, "dismissNudge").mockResolvedValue();
 
     await component.dismissNewItemSpotlight();
 
-    expect(component.showNewItemSpotlight).toBe(false);
-    expect(dismissSpy).toHaveBeenCalledWith(
-      VaultNudgeType.newLoginItemStatus,
-      component.activeUserId,
-    );
+    component.showNewItemSpotlight$.subscribe((value) => {
+      expect(value).toEqual(false);
+    });
+    expect(dismissSpy).toHaveBeenCalledWith(NudgeType.NewLoginItemStatus, activeUserId);
   });
 });

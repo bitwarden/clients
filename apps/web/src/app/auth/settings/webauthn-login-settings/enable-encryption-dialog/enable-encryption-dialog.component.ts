@@ -23,6 +23,7 @@ export interface EnableEncryptionDialogParams {
 
 @Component({
   templateUrl: "enable-encryption-dialog.component.html",
+  standalone: false,
 })
 export class EnableEncryptionDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

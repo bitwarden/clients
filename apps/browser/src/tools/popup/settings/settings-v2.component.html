@@ -23,6 +23,7 @@
             *ngIf="!isBrowserAutofillSettingOverridden && (showAutofillBadge$ | async)"
             bitBadge
             variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
             >1</span
           >
         </div>
@@ -40,7 +41,7 @@
       <a
         bit-item-content
         routerLink="/vault-settings"
-        (click)="dismissBadge(VaultNudgeType.EmptyVaultNudge)"
+        (click)="dismissBadge(NudgeType.EmptyVaultNudge)"
       >
         <i slot="start" class="bwi bwi-vault" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center tw-justify-center">
@@ -50,9 +51,10 @@
             Will make this dynamic when more nudges are added
           -->
           <span
-            *ngIf="!(showVaultBadge$ | async)?.hasBadgeDismissed"
+            *ngIf="showVaultBadge$ | async"
             bitBadge
             variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
             >1</span
           >
         </div>
@@ -74,22 +76,23 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    <bit-item *ngIf="isNudgeFeatureEnabled$ | async">
+    <bit-item>
       <a bit-item-content routerLink="/download-bitwarden">
         <i slot="start" class="bwi bwi-mobile" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "downloadBitwardenOnAllDevices" | i18n }}</p>
           <span
-            *ngIf="(downloadBitwardenNudgeStatus$ | async)?.hasBadgeDismissed === false"
+            *ngIf="showDownloadBitwardenNudge$ | async"
             bitBadge
             variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
             >1
           </span>
         </div>
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    <bit-item *ngIf="isNudgeFeatureEnabled$ | async">
+    <bit-item>
       <a bit-item-content routerLink="/more-from-bitwarden">
         <i slot="start" class="bwi bwi-filter" aria-hidden="true"></i>
         {{ "moreFromBitwarden" | i18n }}

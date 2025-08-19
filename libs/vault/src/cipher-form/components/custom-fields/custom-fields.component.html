@@ -1,4 +1,8 @@
-<bit-section *ngIf="hasCustomFields" [disableMargin]="disableSectionMargin">
+<section
+  class="tw-mb-5 bit-compact:tw-mb-4"
+  *ngIf="hasCustomFields"
+  [ngClass]="{ 'tw-mb-0': disableSectionMargin }"
+>
   <bit-section-header>
     <h2 bitTypography="h6">{{ "customFields" | i18n }}</h2>
   </bit-section-header>
@@ -116,4 +120,4 @@
       </button>
     </bit-card>
   </form>
-</bit-section>
+</section>

@@ -1,4 +1,10 @@
-<button bitButton size="small" [bitMenuTriggerFor]="itemOptions" buttonType="primary" type="button">
+<button
+  bitButton
+  size="small"
+  [bitMenuTriggerFor]="itemOptions"
+  [buttonType]="buttonType"
+  type="button"
+>
   <i *ngIf="!hideIcon" class="bwi bwi-plus" aria-hidden="true"></i>
   {{ (hideIcon ? "createSend" : "new") | i18n }}
 </button>

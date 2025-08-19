@@ -45,14 +45,15 @@ class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
 
 @Component({
   templateUrl: "members.component.html",
+  standalone: false,
 })
 export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   accessEvents = false;
   dataSource = new MembersTableDataSource();
   loading = true;
   providerId: string;
-  rowHeight = 69;
-  rowHeightClass = `tw-h-[69px]`;
+  rowHeight = 70;
+  rowHeightClass = `tw-h-[70px]`;
   status: ProviderUserStatusType = null;
 
   userStatusType = ProviderUserStatusType;

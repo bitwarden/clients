@@ -8,6 +8,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogConfig, DialogRef, DIALOG_DATA, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { SharedModule } from "../../../../shared";
+
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EmergencyAccessConfirmDialogResult {
   Confirmed = "confirmed",
 }
@@ -22,8 +26,8 @@ type EmergencyAccessConfirmDialogData = {
   publicKey: Uint8Array;
 };
 @Component({
-  selector: "emergency-access-confirm",
   templateUrl: "emergency-access-confirm.component.html",
+  imports: [SharedModule],
 })
 export class EmergencyAccessConfirmComponent implements OnInit {
   loading = true;

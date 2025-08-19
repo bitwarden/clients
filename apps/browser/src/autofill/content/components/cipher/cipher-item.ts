@@ -32,14 +32,21 @@ export function CipherItem({
   notificationType,
   theme = ThemeTypes.Light,
 }: CipherItemProps) {
-  const { icon } = cipher;
+  const { icon, name, login } = cipher;
   const uri = (icon.imageEnabled && icon.image) || undefined;
 
   let cipherActionButton = null;
 
   if (notificationType === NotificationTypes.Change || notificationType === NotificationTypes.Add) {
     cipherActionButton = html`<div>
-      ${CipherAction({ handleAction, i18n, notificationType, theme })}
+      ${CipherAction({
+        handleAction,
+        i18n,
+        itemName: name,
+        notificationType,
+        theme,
+        username: login?.username,
+      })}
     </div>`;
   }
 

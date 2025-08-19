@@ -36,6 +36,7 @@ import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent 
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
+  standalone: false,
 })
 export class ExposedPasswordsReportComponent
   extends BaseExposedPasswordsReportComponent

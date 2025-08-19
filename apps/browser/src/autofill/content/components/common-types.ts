@@ -11,6 +11,7 @@ export type IconProps = {
   color?: string;
   disabled?: boolean;
   theme: Theme;
+  ariaHidden?: boolean;
 };
 
 export type Option = {

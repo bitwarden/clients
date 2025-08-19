@@ -21,6 +21,7 @@ export interface BillingSyncKeyModalData {
 
 @Component({
   templateUrl: "billing-sync-key.component.html",
+  standalone: false,
 })
 export class BillingSyncKeyComponent {
   protected entityId: string;

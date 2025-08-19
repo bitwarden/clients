@@ -7,6 +7,8 @@ import { ReportUnsecuredWebsites } from "./icons/report-unsecured-websites.icon"
 import { ReportWeakPasswords } from "./icons/report-weak-passwords.icon";
 import { ReportEntry } from "./shared";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ReportType {
   ExposedPasswords = "exposedPasswords",
   ReusedPasswords = "reusedPasswords",

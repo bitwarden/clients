@@ -35,6 +35,7 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
+  standalone: false,
 })
 export class InactiveTwoFactorReportComponent
   extends BaseInactiveTwoFactorReportComponent

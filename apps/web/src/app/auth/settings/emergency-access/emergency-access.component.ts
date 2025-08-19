@@ -18,6 +18,9 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared/shared.module";
+import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessStatusType } from "../../emergency-access/enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
@@ -35,13 +38,13 @@ import {
   EmergencyAccessAddEditDialogResult,
 } from "./emergency-access-add-edit.component";
 import {
-  EmergencyAccessTakeoverComponent,
-  EmergencyAccessTakeoverResultType,
-} from "./takeover/emergency-access-takeover.component";
+  EmergencyAccessTakeoverDialogComponent,
+  EmergencyAccessTakeoverDialogResultType,
+} from "./takeover/emergency-access-takeover-dialog.component";
 
 @Component({
-  selector: "emergency-access",
   templateUrl: "emergency-access.component.html",
+  imports: [SharedModule, HeaderModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessComponent implements OnInit {
   loaded = false;
@@ -284,21 +287,36 @@ export class EmergencyAccessComponent implements OnInit {
   }
 
   takeover = async (details: GrantorEmergencyAccess) => {
-    const dialogRef = EmergencyAccessTakeoverComponent.open(this.dialogService, {
+    if (!details || !details.email || !details.id) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("grantorDetailsNotFound"),
+      });
+      this.logService.error("Grantor details not found when attempting emergency access takeover");
+
+      return;
+    }
+
+    const grantorName = this.userNamePipe.transform(details);
+
+    const dialogRef = EmergencyAccessTakeoverDialogComponent.open(this.dialogService, {
       data: {
-        name: this.userNamePipe.transform(details),
-        email: details.email,
-        emergencyAccessId: details.id ?? null,
+        grantorName,
+        grantorEmail: details.email,
+        emergencyAccessId: details.id,
       },
     });
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === EmergencyAccessTakeoverResultType.Done) {
+    if (result === EmergencyAccessTakeoverDialogResultType.Done) {
       this.toastService.showToast({
         variant: "success",
-        title: null,
-        message: this.i18nService.t("passwordResetFor", this.userNamePipe.transform(details)),
+        title: "",
+        message: this.i18nService.t("passwordResetFor", grantorName),
       });
     }
+
+    return;
   };
 
   private removeGrantee(details: GranteeEmergencyAccess) {

@@ -1,0 +1,55 @@
+<bit-dialog>
+  <span bitDialogTitle>{{ "loginRequest" | i18n }}</span>
+
+  <ng-container bitDialogContent>
+    <ng-container *ngIf="loading">
+      <div class="tw-flex tw-items-center tw-justify-center" *ngIf="loading">
+        <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading">
+      <p>{{ "accessAttemptBy" | i18n: email }}</p>
+      <div>
+        <span class="tw-font-medium">{{ "fingerprintPhraseHeader" | i18n }}</span>
+        <p class="tw-text-code">{{ fingerprintPhrase }}</p>
+      </div>
+      <div>
+        <span class="tw-font-medium">{{ "deviceType" | i18n }}</span>
+        <p>{{ readableDeviceTypeName }}</p>
+      </div>
+      <div>
+        <span class="tw-font-medium">{{ "location" | i18n }}</span>
+        <p>
+          <span class="tw-capitalize">{{ authRequestResponse?.requestCountryName }} </span>
+          ({{ authRequestResponse?.requestIpAddress }})
+        </p>
+      </div>
+      <div>
+        <span class="tw-font-medium">{{ "time" | i18n }}</span>
+        <p>{{ requestTimeText }}</p>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button
+      bitButton
+      type="button"
+      buttonType="primary"
+      [bitAction]="approveLogin"
+      [disabled]="loading"
+    >
+      {{ "confirmAccess" | i18n }}
+    </button>
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      [bitAction]="denyLogin"
+      [disabled]="loading"
+    >
+      {{ "denyAccess" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

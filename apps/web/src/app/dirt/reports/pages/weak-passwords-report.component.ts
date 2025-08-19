@@ -1,15 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { firstValueFrom } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -28,6 +25,7 @@ type ReportResult = CipherView & { score: number; reportValue: ReportScore; scor
 @Component({
   selector: "app-weak-passwords-report",
   templateUrl: "weak-passwords-report.component.html",
+  standalone: false,
 })
 export class WeakPasswordsReportComponent extends CipherReportComponent implements OnInit {
   disabled = true;
@@ -70,46 +68,26 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     this.findWeakPasswords(allCiphers);
   }
 
-  protected async refresh(result: VaultItemDialogResult, cipher: CipherView) {
+  async determinedUpdatedCipherReportStatus(
+    result: VaultItemDialogResult,
+    updatedCipherView: CipherView,
+  ): Promise<CipherView | null> {
     if (result === VaultItemDialogResult.Deleted) {
-      // remove the cipher from the list
-      this.weakPasswordCiphers = this.weakPasswordCiphers.filter((c) => c.id !== cipher.id);
-      this.filterCiphersByOrg(this.weakPasswordCiphers);
-      return;
-    }
-
-    if (result == VaultItemDialogResult.Saved) {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      let updatedCipher = await this.cipherService.get(cipher.id, activeUserId);
-
-      if (this.isAdminConsoleActive) {
-        updatedCipher = await this.adminConsoleCipherFormConfigService.getCipher(
-          cipher.id as CipherId,
-          this.organization,
-        );
-      }
-
-      const updatedCipherView = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
+      this.weakPasswordCiphers = this.weakPasswordCiphers.filter(
+        (c) => c.id !== updatedCipherView.id,
       );
-      // update the cipher views
-      const updatedReportResult = this.determineWeakPasswordScore(updatedCipherView);
-      const index = this.weakPasswordCiphers.findIndex((c) => c.id === updatedCipherView.id);
-
-      if (updatedReportResult == null) {
-        // the password is no longer weak
-        // remove the cipher from the list
-        this.weakPasswordCiphers.splice(index, 1);
-        this.filterCiphersByOrg(this.weakPasswordCiphers);
-        return;
-      }
-
-      if (index > -1) {
-        // update the existing cipher
-        this.weakPasswordCiphers[index] = updatedReportResult;
-        this.filterCiphersByOrg(this.weakPasswordCiphers);
-      }
+      return null;
     }
+
+    const updatedReportStatus = await this.determineWeakPasswordScore(updatedCipherView);
+
+    const index = this.weakPasswordCiphers.findIndex((c) => c.id === updatedCipherView.id);
+
+    if (index !== -1) {
+      this.weakPasswordCiphers[index] = updatedReportStatus;
+    }
+
+    return updatedReportStatus;
   }
 
   protected findWeakPasswords(ciphers: CipherView[]): void {

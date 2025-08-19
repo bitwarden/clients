@@ -1,7 +1,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
@@ -58,12 +58,12 @@ describe("DefaultRegistrationFinishService", () => {
       emailVerificationToken = "emailVerificationToken";
       masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
       passwordInputResult = {
-        masterKey: masterKey,
-        serverMasterKeyHash: "serverMasterKeyHash",
-        localMasterKeyHash: "localMasterKeyHash",
+        newMasterKey: masterKey,
+        newServerMasterKeyHash: "newServerMasterKeyHash",
+        newLocalMasterKeyHash: "newLocalMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
-        hint: "hint",
-        newPassword: "password",
+        newPasswordHint: "newPasswordHint",
+        newPassword: "newPassword",
       };
 
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
@@ -93,8 +93,8 @@ describe("DefaultRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: emailVerificationToken,
-          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],

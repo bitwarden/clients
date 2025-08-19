@@ -8,6 +8,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 @Component({
   selector: "app-avatar",
   template: `<img *ngIf="src" [src]="src" [ngClass]="{ 'rounded-circle': circle }" />`,
+  standalone: false,
 })
 export class AvatarComponent implements OnChanges, OnInit {
   @Input() size = 45;

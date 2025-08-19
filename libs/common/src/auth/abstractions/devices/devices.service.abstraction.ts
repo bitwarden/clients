@@ -1,5 +1,7 @@
 import { Observable } from "rxjs";
 
+import { DeviceType } from "@bitwarden/common/enums";
+
 import { DeviceResponse } from "./responses/device.response";
 import { DeviceView } from "./views/device.view";
 
@@ -15,4 +17,5 @@ export abstract class DevicesServiceAbstraction {
   ): Observable<DeviceView>;
   abstract deactivateDevice$(deviceId: string): Observable<void>;
   abstract getCurrentDevice$(): Observable<DeviceResponse>;
+  abstract getReadableDeviceTypeName(deviceType: DeviceType): string;
 }

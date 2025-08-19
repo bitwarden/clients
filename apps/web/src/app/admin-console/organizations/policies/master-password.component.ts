@@ -28,6 +28,7 @@ export class MasterPasswordPolicy extends BasePolicy {
 @Component({
   selector: "policy-master-password",
   templateUrl: "master-password.component.html",
+  standalone: false,
 })
 export class MasterPasswordPolicyComponent extends BasePolicyComponent implements OnInit {
   MinPasswordLength = Utils.minimumPasswordLength;

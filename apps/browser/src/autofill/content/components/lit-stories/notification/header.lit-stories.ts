@@ -4,6 +4,7 @@ import { html } from "lit";
 import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { NotificationHeader, NotificationHeaderProps } from "../../notification/header";
+import { mockI18n } from "../mock-data";
 
 export default {
   title: "Components/Notifications/Header",
@@ -17,6 +18,7 @@ export default {
     standalone: true,
     theme: ThemeTypes.Light,
     handleCloseNotification: () => alert("Close Clicked"),
+    i18n: mockI18n,
   },
   parameters: {
     design: {

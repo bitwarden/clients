@@ -1,0 +1,54 @@
+<bit-table-scroll [dataSource]="tableDataSource" [rowSize]="64">
+  <!-- Table Header -->
+  <ng-container header>
+    <th
+      *ngFor="let column of columnConfig"
+      [class]="column.headerClass"
+      bitCell
+      [bitSortable]="column.sortable ? column.name : ''"
+      scope="col"
+      role="columnheader"
+    >
+      {{ column.title }}
+    </th>
+  </ng-container>
+
+  <!-- Table Rows -->
+  <ng-template bitRowDef let-device>
+    <!-- Column: Device Name -->
+    <td bitCell class="tw-flex tw-gap-2 tw-items-center tw-h-16">
+      <div class="tw-flex tw-items-center tw-justify-center tw-w-10">
+        <i [class]="device.icon" class="bwi-lg" aria-hidden="true"></i>
+      </div>
+
+      <div>
+        @if (device.pendingAuthRequest) {
+          <a bitLink href="#" appStopClick (click)="answerAuthRequest(device.pendingAuthRequest)">
+            {{ device.displayName }}
+          </a>
+          <br />
+        } @else {
+          <span>{{ device.displayName }}</span>
+          <div *ngIf="device.isTrusted" class="tw-text-sm tw-text-muted">
+            {{ "trusted" | i18n }}
+          </div>
+        }
+      </div>
+    </td>
+
+    <!-- Column: Login Status -->
+    <td bitCell>
+      <div class="tw-flex tw-gap-1">
+        <span *ngIf="device.isCurrentDevice" bitBadge variant="primary">
+          {{ "currentSession" | i18n }}
+        </span>
+        <span *ngIf="device.pendingAuthRequest" bitBadge variant="warning">
+          {{ "requestPending" | i18n }}
+        </span>
+      </div>
+    </td>
+
+    <!-- Column: First Login -->
+    <td bitCell>{{ device.firstLogin | date: "medium" }}</td>
+  </ng-template>
+</bit-table-scroll>

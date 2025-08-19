@@ -1,22 +1,19 @@
-<!-- Please remove this disable statement when editing this file! -->
-<!-- eslint-disable tailwindcss/no-custom-classname -->
 <div class="tw-flex" *ngIf="!hideMultiSelect">
-  <bit-form-field *ngIf="permissionMode == 'edit'" class="tw-mr-3 tw-shrink-0">
+  <bit-form-field *ngIf="permissionMode == 'edit'" class="tw-mr-3 tw-shrink-0 tw-basis-2/5">
     <bit-label>{{ "permission" | i18n }}</bit-label>
-    <select
+    <bit-select
       bitInput
       [disabled]="disabled"
       [(ngModel)]="initialPermission"
       [ngModelOptions]="{ standalone: true }"
-      (blur)="handleBlur()"
+      (closed)="handleBlur()"
     >
-      <option *ngFor="let p of permissionList" [value]="p.perm">
-        {{ p.labelId | i18n }}
-      </option>
-    </select>
+      <bit-option *ngFor="let p of permissionList" [value]="p.perm" [label]="p.labelId | i18n">
+      </bit-option>
+    </bit-select>
   </bit-form-field>
 
-  <bit-form-field class="tw-grow" *ngIf="!disabled">
+  <bit-form-field class="tw-grow tw-p-3" *ngIf="!disabled">
     <bit-label>{{ selectorLabelText }}</bit-label>
     <bit-multi-select
       class="tw-w-full"
@@ -51,9 +48,9 @@
       [formGroupName]="i"
       [ngClass]="{ 'tw-text-muted': item.readonly }"
     >
-      <td bitCell [ngSwitch]="item.type">
+      <td bitCell [ngSwitch]="item.type" class="tw-w-5/12">
         <div class="tw-flex tw-items-center" *ngSwitchCase="itemType.Member">
-          <bit-avatar size="small" class="tw-mr-3" text="{{ item.labelName }}"></bit-avatar>
+          <i class="bwi tw-mr-3 {{ item.icon }}" aria-hidden="true"></i>
           <div class="tw-flex tw-flex-col">
             <div>
               {{ item.labelName }}
@@ -61,7 +58,10 @@
                 {{ "invited" | i18n }}
               </span>
             </div>
-            <div class="tw-text-xs tw-text-muted" *ngIf="$any(item).status != 0">
+            <div
+              class="tw-text-xs tw-text-muted"
+              *ngIf="$any(item).status != 0 && item.labelName != $any(item).email"
+            >
               {{ $any(item).email }}
             </div>
           </div>
@@ -79,28 +79,22 @@
 
       <td bitCell *ngIf="permissionMode != 'hidden'">
         <ng-container *ngIf="canEditItemPermission(item); else readOnlyPerm">
-          <label class="tw-sr-only" [for]="'permission' + i"
-            >{{ item.labelName }} {{ "permission" | i18n }}</label
-          >
-          <div class="tw-relative tw-inline-block">
-            <select
+          <bit-form-field>
+            <bit-select
               bitInput
-              class="tw-apperance-none -tw-ml-3 tw-max-w-40 tw-appearance-none tw-overflow-ellipsis !tw-rounded tw-border-transparent !tw-bg-transparent tw-pr-6 tw-font-bold hover:tw-border-primary-700"
               formControlName="permission"
+              appA11yTitle="{{ item.labelName }} {{ 'permission' | i18n }}"
               [id]="'permission' + i"
-              (blur)="handleBlur()"
+              (closed)="handleBlur()"
             >
-              <option *ngFor="let p of permissionList" [value]="p.perm">
-                {{ p.labelId | i18n }}
-              </option>
-            </select>
-            <label
-              [for]="'permission' + i"
-              class="tw-absolute tw-inset-y-0 tw-right-4 tw-mb-0 tw-flex tw-items-center"
-            >
-              <i class="bwi bwi-sm bwi-angle-down tw-leading-[0]"></i>
-            </label>
-          </div>
+              <bit-option
+                *ngFor="let p of permissionList"
+                [value]="p.perm"
+                [label]="p.labelId | i18n"
+              >
+              </bit-option>
+            </bit-select>
+          </bit-form-field>
         </ng-container>
 
         <ng-template #readOnlyPerm>

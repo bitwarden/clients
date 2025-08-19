@@ -60,10 +60,7 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return ClientType.Browser;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
-  static isFirefox(): boolean {
+  private static isFirefox(): boolean {
     return (
       navigator.userAgent.indexOf(" Firefox/") !== -1 ||
       navigator.userAgent.indexOf(" Gecko/") !== -1
@@ -74,9 +71,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.FirefoxExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
   private static isChrome(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     return globalContext.chrome && navigator.userAgent.indexOf(" Chrome/") !== -1;
   }
@@ -85,9 +79,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.ChromeExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
   private static isEdge(): boolean {
     return navigator.userAgent.indexOf(" Edg/") !== -1;
   }
@@ -96,9 +87,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.EdgeExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
   private static isOpera(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     return (
       !!globalContext.opr?.addons ||
@@ -111,9 +99,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.OperaExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
   private static isVivaldi(): boolean {
     return navigator.userAgent.indexOf(" Vivaldi/") !== -1;
   }
@@ -122,10 +107,7 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return this.getDevice() === DeviceType.VivaldiExtension;
   }
 
-  /**
-   * @deprecated Do not call this directly, use getDevice() instead
-   */
-  static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
+  private static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     // Opera masquerades as Safari, so make sure we're not there first
     return (
       !BrowserPlatformUtilsService.isOpera(globalContext) &&
@@ -135,6 +117,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
   private static safariVersion(): string {
     return navigator.userAgent.match("Version/([0-9.]*)")?.[1];
+  }
+
+  isSafari(): boolean {
+    return this.getDevice() === DeviceType.SafariExtension;
   }
 
   /**
@@ -149,10 +135,6 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     const version = BrowserPlatformUtilsService.safariVersion();
     const parts = version?.split(".")?.map((v) => Number(v));
     return parts?.[0] < 16 || (parts?.[0] === 16 && parts?.[1] === 0);
-  }
-
-  isSafari(): boolean {
-    return this.getDevice() === DeviceType.SafariExtension;
   }
 
   isIE(): boolean {
@@ -223,6 +205,14 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return true;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
   }
 
   abstract showToast(

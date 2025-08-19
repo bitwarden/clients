@@ -14,7 +14,6 @@ import { SharedModule } from "../../../shared/shared.module";
 
 @Component({
   templateUrl: "verify-recover-delete-org.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class VerifyRecoverDeleteOrgComponent implements OnInit {

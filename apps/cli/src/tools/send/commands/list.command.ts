@@ -1,8 +1,10 @@
 import { firstValueFrom } from "rxjs";
 
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 
 import { Response } from "../../../models/response";
 import { ListResponse } from "../../../models/response/list.response";
@@ -13,10 +15,12 @@ export class SendListCommand {
     private sendService: SendService,
     private environmentService: EnvironmentService,
     private searchService: SearchService,
+    private accountService: AccountService,
   ) {}
 
   async run(cmdOptions: Record<string, any>): Promise<Response> {
-    let sends = await this.sendService.getAllDecryptedFromState();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let sends = await this.sendService.getAllDecryptedFromState(activeUserId);
 
     const normalizedOptions = new Options(cmdOptions);
     if (normalizedOptions.search != null && normalizedOptions.search.trim() !== "") {

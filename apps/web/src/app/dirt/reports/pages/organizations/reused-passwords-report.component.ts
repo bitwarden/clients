@@ -35,6 +35,7 @@ import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } 
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
+  standalone: false,
 })
 export class ReusedPasswordsReportComponent
   extends BaseReusedPasswordsReportComponent

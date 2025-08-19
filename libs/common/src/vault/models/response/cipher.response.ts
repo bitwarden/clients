@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
+import { CipherType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CardApi } from "../api/card.api";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
@@ -17,7 +18,7 @@ export class CipherResponse extends BaseResponse {
   id: string;
   organizationId: string;
   folderId: string;
-  type: number;
+  type: CipherType;
   name: string;
   notes: string;
   fields: FieldApi[];

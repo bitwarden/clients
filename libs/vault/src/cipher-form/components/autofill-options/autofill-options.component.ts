@@ -22,7 +22,6 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -40,10 +39,8 @@ interface UriField {
 @Component({
   selector: "vault-autofill-options",
   templateUrl: "./autofill-options.component.html",
-  standalone: true,
   imports: [
     DragDropModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     JslibModule,

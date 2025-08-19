@@ -6,6 +6,32 @@
     "analytics": false
   },
   "projects": {
+    "bit-web": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:application": {
+          "strict": true
+        }
+      },
+      "root": "bitwarden_license/bit-web",
+      "sourceRoot": "bitwarden_license/bit-web/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/web",
+            "index": "apps/web/src/index.html",
+            "main": "bitwarden_license/bit-web/src/app/main.ts",
+            "polyfills": "apps/web/src/polyfills.ts",
+            "tsConfig": "bitwarden_license/bit-web/tsconfig.json",
+            "assets": ["apps/web/src/favicon.ico"],
+            "styles": [],
+            "scripts": []
+          }
+        }
+      }
+    },
     "web": {
       "projectType": "application",
       "schematics": {
@@ -22,8 +48,8 @@
           "options": {
             "outputPath": "dist/web",
             "index": "apps/web/src/index.html",
-            "main": "apps/web/src/app/main.ts",
-            "polyfills": "apps/web/src/app/polyfills.ts",
+            "main": "apps/web/src/main.ts",
+            "polyfills": "apps/web/src/polyfills.ts",
             "tsConfig": "apps/web/tsconfig.json",
             "assets": ["apps/web/src/favicon.ico"],
             "styles": [],

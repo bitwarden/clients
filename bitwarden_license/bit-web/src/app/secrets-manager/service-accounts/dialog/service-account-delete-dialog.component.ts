@@ -27,6 +27,7 @@ export interface ServiceAccountDeleteOperation {
 
 @Component({
   templateUrl: "./service-account-delete-dialog.component.html",
+  standalone: false,
 })
 export class ServiceAccountDeleteDialogComponent {
   formGroup = new FormGroup({

@@ -20,6 +20,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { BiometricsCommands } from "@bitwarden/key-management";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import {
   closeUnlockPopout,
   openSsoAuthResultPopout,
@@ -46,7 +48,7 @@ export default class RuntimeBackground {
     private platformUtilsService: BrowserPlatformUtilsService,
     private notificationsService: NotificationsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    private processReloadSerivce: ProcessReloadServiceAbstraction,
+    private processReloadService: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
@@ -239,7 +241,7 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        this.processReloadSerivce.cancelProcessReload();
+        this.processReloadService.cancelProcessReload();
 
         if (item) {
           await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
@@ -254,7 +256,6 @@ export default class RuntimeBackground {
         // @TODO these need to happen last to avoid blocking `tabSendMessageData` above
         // The underlying cause exists within `cipherService.getAllDecrypted` via
         // `getAllDecryptedForUrl` and is anticipated to be refactored
-        await this.main.refreshBadge();
         await this.main.refreshMenu(false);
 
         await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
@@ -278,7 +279,6 @@ export default class RuntimeBackground {
       case "syncCompleted":
         if (msg.successfully) {
           setTimeout(async () => {
-            await this.main.refreshBadge();
             await this.main.refreshMenu();
           }, 2000);
           await this.configService.ensureConfigFetched();
@@ -294,11 +294,14 @@ export default class RuntimeBackground {
         await this.main.openAtRisksPasswordsPage();
         this.announcePopupOpen();
         break;
+      case VaultMessages.OpenBrowserExtensionToUrl:
+        await this.main.openTheExtensionToPage(msg.url);
+        this.announcePopupOpen();
+        break;
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":
       case "deletedCipher":
-        await this.main.refreshBadge();
         await this.main.refreshMenu();
         break;
       case "bgReseedStorage": {

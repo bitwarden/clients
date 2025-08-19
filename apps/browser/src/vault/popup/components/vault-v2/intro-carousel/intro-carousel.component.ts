@@ -20,7 +20,6 @@ import { IntroCarouselService } from "../../../services/intro-carousel.service";
     JslibModule,
     I18nPipe,
   ],
-  standalone: true,
 })
 export class IntroCarouselComponent {
   protected securityHandshake = VaultIcons.SecurityHandshake;

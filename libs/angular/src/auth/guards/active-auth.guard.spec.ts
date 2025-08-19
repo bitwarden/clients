@@ -5,13 +5,15 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { activeAuthGuard } from "./active-auth.guard";
 
-@Component({ template: "" })
+@Component({ template: "", standalone: false })
 class EmptyComponent {}
 
 describe("activeAuthGuard", () => {

@@ -10,7 +10,6 @@ import { BillingSharedModule } from "./billing-shared.module";
 @Component({
   selector: "billing-free-families-nav-item",
   templateUrl: "./billing-free-families-nav-item.component.html",
-  standalone: true,
   imports: [NavigationModule, BillingSharedModule],
 })
 export class BillingFreeFamiliesNavItemComponent {

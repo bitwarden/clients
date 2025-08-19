@@ -75,7 +75,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
-  override async logIn(credentials: PasswordLoginCredentials) {
+  override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
     const { email, masterPassword, twoFactor } = credentials;
 
     const data = new PasswordLoginStrategyData();
@@ -126,7 +126,10 @@ export class PasswordLoginStrategy extends LoginStrategy {
     if (this.encryptionKeyMigrationRequired(response)) {
       return;
     }
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
+
+    if (response.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
 
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {
@@ -160,17 +163,28 @@ export class PasswordLoginStrategy extends LoginStrategy {
     credentials: PasswordLoginCredentials,
     authResult: AuthResult,
   ): Promise<void> {
-    // TODO: PM-21084 - investigate if we should be sending down masterPasswordPolicy on the IdentityDeviceVerificationResponse like we do for the IdentityTwoFactorResponse
+    // TODO: PM-21084 - investigate if we should be sending down masterPasswordPolicy on the
+    // IdentityDeviceVerificationResponse like we do for the IdentityTwoFactorResponse
     // If the response is a device verification response, we don't need to evaluate the password
     if (identityResponse instanceof IdentityDeviceVerificationResponse) {
       return;
     }
 
-    // The identity result can contain master password policies for the user's organizations
-    const masterPasswordPolicyOptions =
-      this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
+    // The identity result can contain master password policies for the user's organizations.
+    // Get the master password policy options from both the org invite and the identity response.
+    const masterPasswordPolicyOptions = this.policyService.combineMasterPasswordPolicyOptions(
+      credentials.masterPasswordPoliciesFromOrgInvite,
+      this.getMasterPasswordPolicyOptionsFromResponse(identityResponse),
+    );
 
-    if (!masterPasswordPolicyOptions?.enforceOnLogin) {
+    // We deliberately do not check enforceOnLogin as existing users who are logging
+    // in after getting an org invite should always be forced to set a password that
+    // meets the org's policy. Org Invite -> Registration also works this way for
+    // new BW users as well.
+    if (
+      !credentials.masterPasswordPoliciesFromOrgInvite &&
+      !masterPasswordPolicyOptions?.enforceOnLogin
+    ) {
       return;
     }
 
@@ -186,6 +200,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
         ...this.cache.value,
         forcePasswordResetReason: ForceSetPasswordReason.WeakMasterPassword,
       });
+      return;
     }
 
     // Authentication was successful, save the force update password options with the state service

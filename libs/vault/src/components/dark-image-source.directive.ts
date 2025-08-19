@@ -24,7 +24,6 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
  */
 @Directive({
   selector: "[appDarkImgSrc]",
-  standalone: true,
 })
 export class DarkImageSourceDirective implements OnInit {
   private themeService = inject(ThemeStateService);

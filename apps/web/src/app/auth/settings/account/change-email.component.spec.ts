@@ -33,8 +33,7 @@ describe("ChangeEmailComponent", () => {
     accountService = mockAccountServiceWith("UserId" as UserId);
 
     await TestBed.configureTestingModule({
-      declarations: [ChangeEmailComponent],
-      imports: [ReactiveFormsModule, SharedModule],
+      imports: [ReactiveFormsModule, SharedModule, ChangeEmailComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
         { provide: ApiService, useValue: apiService },
@@ -90,7 +89,7 @@ describe("ChangeEmailComponent", () => {
       });
 
       keyService.getOrDeriveMasterKey
-        .calledWith("password", "UserId")
+        .calledWith("password", "UserId" as UserId)
         .mockResolvedValue("getOrDeriveMasterKey" as any);
       keyService.hashMasterKey
         .calledWith("password", "getOrDeriveMasterKey" as any)

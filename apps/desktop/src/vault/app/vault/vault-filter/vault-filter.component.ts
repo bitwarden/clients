@@ -5,5 +5,6 @@ import { VaultFilterComponent as BaseVaultFilterComponent } from "@bitwarden/ang
 @Component({
   selector: "app-vault-filter",
   templateUrl: "vault-filter.component.html",
+  standalone: false,
 })
 export class VaultFilterComponent extends BaseVaultFilterComponent {}

@@ -1,0 +1,35 @@
+import { Meta, Story, Source, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./stepper.stories";
+
+<Meta of={stories} />
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Step Component
+
+The `<bit-step>` component extends the
+[Angular CdkStep](https://material.angular.io/cdk/stepper/api#CdkStep) component
+
+The following additional Inputs are accepted:
+
+| Input      | Type   | Description                                                    |
+| ---------- | ------ | -------------------------------------------------------------- |
+| `subLabel` | string | An optional supplemental label to display below the main label |
+
+In order for the stepper component to work as intended, its children must be instances of
+`<bit-step>`.
+
+```html
+<bit-stepper>
+  <bit-step label="This is the label" subLabel="This is the sub label">
+    Your content here
+  </bit-step>
+  <bit-step label="Another label"> Your content here </bit-step>
+  <bit-step label="The last label"> Your content here </bit-step>
+</bit-stepper>
+```

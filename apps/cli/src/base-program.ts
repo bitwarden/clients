@@ -129,7 +129,7 @@ export abstract class BaseProgram {
     if (!userId) {
       fail();
     }
-    const authed = await this.serviceContainer.stateService.getIsAuthenticated({ userId });
+    const authed = await firstValueFrom(this.serviceContainer.tokenService.hasAccessToken$(userId));
     if (!authed) {
       fail();
     }
@@ -179,9 +179,9 @@ export abstract class BaseProgram {
         this.serviceContainer.logService,
         this.serviceContainer.keyConnectorService,
         this.serviceContainer.environmentService,
-        this.serviceContainer.syncService,
         this.serviceContainer.organizationApiService,
         this.serviceContainer.logout,
+        this.serviceContainer.i18nService,
       );
       const response = await command.run(null, null);
       if (!response.success) {

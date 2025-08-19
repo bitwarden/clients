@@ -1,14 +1,17 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -19,6 +22,10 @@ import { Login } from "@bitwarden/common/vault/models/domain/login";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   DEFAULT_KDF_CONFIG,
   PBKDF2KdfConfig,
@@ -159,6 +166,7 @@ describe("VaultExportService", () => {
   let accountService: MockProxy<AccountService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let apiService: MockProxy<ApiService>;
+  let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -186,6 +194,12 @@ describe("VaultExportService", () => {
     const activeAccount = { id: userId, ...accountInfo };
     accountService.activeAccount$ = new BehaviorSubject(activeAccount);
 
+    restrictedItemTypesService = {
+      restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+      isCipherRestricted: jest.fn().mockReturnValue(false),
+      isCipherRestricted$: jest.fn().mockReturnValue(of(false)),
+    };
+
     exportService = new IndividualVaultExportService(
       folderService,
       cipherService,
@@ -196,6 +210,7 @@ describe("VaultExportService", () => {
       kdfConfigService,
       accountService,
       apiService,
+      restrictedItemTypesService as RestrictedItemTypesService,
     );
   });
 

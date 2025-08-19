@@ -28,7 +28,7 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -58,6 +58,8 @@ import { AddEditGroupDetail } from "./../core/views/add-edit-group-detail";
 /**
  * Indices for the available tabs in the dialog
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum GroupAddEditTabType {
   Info = 0,
   Members = 1,
@@ -82,6 +84,8 @@ export interface GroupAddEditDialogParams {
   initialTab?: GroupAddEditTabType;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum GroupAddEditDialogResultType {
   Saved = "saved",
   Canceled = "canceled",
@@ -106,6 +110,7 @@ export const openGroupAddEditDialog = (
 @Component({
   selector: "app-group-add-edit",
   templateUrl: "group-add-edit.component.html",
+  standalone: false,
 })
 export class GroupAddEditComponent implements OnInit, OnDestroy {
   private organization$ = this.accountService.activeAccount$.pipe(
@@ -142,13 +147,21 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     return this.params.organizationId;
   }
 
+  protected get isExternalIdVisible(): boolean {
+    return !!this.groupForm.get("externalId")?.value;
+  }
+
   protected get editMode(): boolean {
     return this.groupId != null;
   }
 
   private destroy$ = new Subject<void>();
 
-  private orgCollections$ = from(this.collectionAdminService.getAll(this.organizationId)).pipe(
+  private orgCollections$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.collectionAdminService.collectionAdminViews$(this.organizationId, userId),
+    ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -221,10 +234,6 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     this.allowAdminAccessToAllCollectionItems$,
     this.groupDetails$,
   ]).pipe(map(([allowAdminAccess, groupDetails]) => !allowAdminAccess && groupDetails != null));
-
-  protected isExternalIdVisible$ = this.configService
-    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-    .pipe(map((isEnabled) => !isEnabled || !!this.groupForm.get("externalId")?.value));
 
   constructor(
     @Inject(DIALOG_DATA) private params: GroupAddEditDialogParams,

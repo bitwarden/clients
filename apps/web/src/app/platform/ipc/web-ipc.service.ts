@@ -1,17 +1,20 @@
 import { inject } from "@angular/core";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcMessage, IpcService, isIpcMessage } from "@bitwarden/common/platform/ipc";
 import {
   IncomingMessage,
   IpcClient,
   IpcCommunicationBackend,
+  ipcRegisterDiscoverHandler,
   OutgoingMessage,
 } from "@bitwarden/sdk-internal";
 
 export class WebIpcService extends IpcService {
   private logService = inject(LogService);
+  private platformUtilsService = inject(PlatformUtilsService);
   private communicationBackend?: IpcCommunicationBackend;
 
   override async init() {
@@ -27,7 +30,7 @@ export class WebIpcService extends IpcService {
                 type: "bitwarden-ipc-message",
                 message: {
                   destination: message.destination,
-                  payload: message.payload,
+                  payload: [...message.payload],
                   topic: message.topic,
                 },
               } satisfies IpcMessage,
@@ -50,9 +53,16 @@ export class WebIpcService extends IpcService {
           return;
         }
 
-        this.communicationBackend?.deliver_message(
+        if (
+          typeof message.message.destination !== "object" ||
+          message.message.destination.Web == undefined
+        ) {
+          return;
+        }
+
+        this.communicationBackend?.receive(
           new IncomingMessage(
-            message.message.payload,
+            new Uint8Array(message.message.payload),
             message.message.destination,
             "BrowserBackground",
             message.message.topic,
@@ -61,6 +71,12 @@ export class WebIpcService extends IpcService {
       });
 
       await super.initWithClient(new IpcClient(this.communicationBackend));
+
+      if (this.platformUtilsService.isDev()) {
+        await ipcRegisterDiscoverHandler(this.client, {
+          version: await this.platformUtilsService.getApplicationVersion(),
+        });
+      }
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }

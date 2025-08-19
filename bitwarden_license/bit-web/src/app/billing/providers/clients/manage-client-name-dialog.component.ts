@@ -23,6 +23,8 @@ type ManageClientNameDialogParams = {
   };
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ManageClientNameDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -39,6 +41,7 @@ export const openManageClientNameDialog = (
 
 @Component({
   templateUrl: "manage-client-name-dialog.component.html",
+  standalone: false,
 })
 export class ManageClientNameDialogComponent {
   protected ResultType = ManageClientNameDialogResultType;

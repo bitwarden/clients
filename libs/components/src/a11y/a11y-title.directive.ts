@@ -1,38 +1,24 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
+import { Directive, effect, ElementRef, input, Renderer2 } from "@angular/core";
 
 @Directive({
   selector: "[appA11yTitle]",
-  standalone: true,
 })
-export class A11yTitleDirective implements OnInit {
-  @Input() set appA11yTitle(title: string) {
-    this.title = title;
-    this.setAttributes();
-  }
-
-  private title: string;
-  private originalTitle: string | null;
-  private originalAriaLabel: string | null;
+export class A11yTitleDirective {
+  title = input.required<string>({ alias: "appA11yTitle" });
 
   constructor(
     private el: ElementRef,
     private renderer: Renderer2,
-  ) {}
-
-  ngOnInit() {
-    this.originalTitle = this.el.nativeElement.getAttribute("title");
-    this.originalAriaLabel = this.el.nativeElement.getAttribute("aria-label");
-    this.setAttributes();
-  }
-
-  private setAttributes() {
-    if (this.originalTitle === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "title", this.title);
-    }
-    if (this.originalAriaLabel === null) {
-      this.renderer.setAttribute(this.el.nativeElement, "aria-label", this.title);
-    }
+  ) {
+    const originalTitle = this.el.nativeElement.getAttribute("title");
+    const originalAriaLabel = this.el.nativeElement.getAttribute("aria-label");
+    effect(() => {
+      if (originalTitle === null) {
+        this.renderer.setAttribute(this.el.nativeElement, "title", this.title());
+      }
+      if (originalAriaLabel === null) {
+        this.renderer.setAttribute(this.el.nativeElement, "aria-label", this.title());
+      }
+    });
   }
 }

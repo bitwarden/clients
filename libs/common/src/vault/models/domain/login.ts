@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Login as SdkLogin } from "@bitwarden/sdk-internal";
+
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { LoginData } from "../data/login.data";
 import { LoginView } from "../view/login.view";
@@ -143,5 +145,49 @@ export class Login extends Domain {
       uris,
       fido2Credentials,
     });
+  }
+
+  /**
+   * Maps Login to SDK format.
+   *
+   * @returns {SdkLogin} The SDK login object.
+   */
+  toSdkLogin(): SdkLogin {
+    return {
+      uris: this.uris?.map((u) => u.toSdkLoginUri()),
+      username: this.username?.toSdk(),
+      password: this.password?.toSdk(),
+      passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
+      totp: this.totp?.toSdk(),
+      autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
+      fido2Credentials: this.fido2Credentials?.map((f) => f.toSdkFido2Credential()),
+    };
+  }
+
+  /**
+   * Maps an SDK Login object to a Login
+   * @param obj - The SDK Login object
+   */
+  static fromSdkLogin(obj: SdkLogin): Login | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const login = new Login();
+
+    login.uris =
+      obj.uris?.filter((u) => u.uri != null).map((uri) => LoginUri.fromSdkLoginUri(uri)) ?? [];
+    login.username = EncString.fromJSON(obj.username);
+    login.password = EncString.fromJSON(obj.password);
+    login.passwordRevisionDate = obj.passwordRevisionDate
+      ? new Date(obj.passwordRevisionDate)
+      : undefined;
+    login.totp = EncString.fromJSON(obj.totp);
+    login.autofillOnPageLoad = obj.autofillOnPageLoad ?? false;
+    login.fido2Credentials = obj.fido2Credentials?.map((f) =>
+      Fido2Credential.fromSdkFido2Credential(f),
+    );
+
+    return login;
   }
 }

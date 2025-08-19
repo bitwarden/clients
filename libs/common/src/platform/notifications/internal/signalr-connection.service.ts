@@ -31,22 +31,35 @@ export type TimeoutManager = {
 class SignalRLogger implements ILogger {
   constructor(private readonly logService: LogService) {}
 
+  redactMessage(message: string): string {
+    const ACCESS_TOKEN_TEXT = "access_token=";
+    // Redact the access token from the logs if it exists.
+    const accessTokenIndex = message.indexOf(ACCESS_TOKEN_TEXT);
+    if (accessTokenIndex !== -1) {
+      return message.substring(0, accessTokenIndex + ACCESS_TOKEN_TEXT.length) + "[REDACTED]";
+    }
+
+    return message;
+  }
+
   log(logLevel: LogLevel, message: string): void {
+    const redactedMessage = `[SignalR] ${this.redactMessage(message)}`;
+
     switch (logLevel) {
       case LogLevel.Critical:
-        this.logService.error(message);
+        this.logService.error(redactedMessage);
         break;
       case LogLevel.Error:
-        this.logService.error(message);
+        this.logService.error(redactedMessage);
         break;
       case LogLevel.Warning:
-        this.logService.warning(message);
+        this.logService.warning(redactedMessage);
         break;
       case LogLevel.Information:
-        this.logService.info(message);
+        this.logService.info(redactedMessage);
         break;
       case LogLevel.Debug:
-        this.logService.debug(message);
+        this.logService.debug(redactedMessage);
         break;
     }
   }

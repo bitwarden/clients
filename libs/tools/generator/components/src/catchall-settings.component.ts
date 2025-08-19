@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -17,17 +15,17 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   CatchallGenerationOptions,
   CredentialGeneratorService,
-  Generators,
+  BuiltIn,
 } from "@bitwarden/generator-core";
 
 /** Options group for catchall emails */
 @Component({
   selector: "tools-catchall-settings",
   templateUrl: "catchall-settings.component.html",
+  standalone: false,
 })
 export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
   /** Instantiates the component
-   *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
    *  @param formBuilder reactive form controls
    */
@@ -36,24 +34,26 @@ export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
     private generatorService: CredentialGeneratorService,
   ) {}
 
-  /** Binds the component to a specific user's settings.
+  /** Binds the component to a specific user's settings.\
+   *  @remarks this is initialized to null but since it's a required input it'll
+   *     never have that value in practice.
    */
   @Input({ required: true })
-  account: Account;
+  account!: Account;
 
   private account$ = new ReplaySubject<Account>(1);
 
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like
    *   to receive live settings updates including the initial update,
-   *   use `CredentialGeneratorService.settings$(...)` instead.
+   *   use `CredentialGeneratorService.settings(...)` instead.
    */
   @Output()
   readonly onUpdated = new EventEmitter<CatchallGenerationOptions>();
 
   /** The template's control bindings */
   protected settings = this.formBuilder.group({
-    catchallDomain: [Generators.catchall.settings.initial.catchallDomain],
+    catchallDomain: [""],
   });
 
   async ngOnChanges(changes: SimpleChanges) {
@@ -63,7 +63,7 @@ export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async ngOnInit() {
-    const settings = await this.generatorService.settings(Generators.catchall, {
+    const settings = await this.generatorService.settings(BuiltIn.catchall, {
       account$: this.account$,
     });
 
@@ -78,7 +78,7 @@ export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
     this.saveSettings
       .pipe(
         withLatestFrom(this.settings.valueChanges),
-        map(([, settings]) => settings),
+        map(([, settings]) => settings as CatchallGenerationOptions),
         takeUntil(this.destroyed$),
       )
       .subscribe(settings);

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
@@ -27,9 +27,12 @@ export type NotificationContainerProps = NotificationBarIframeInitData & {
   ciphers?: NotificationCipherData[];
   collections?: CollectionView[];
   folders?: FolderView[];
+  headerMessage?: string;
   i18n: I18n;
+  isLoading?: boolean;
   organizations?: OrgView[];
   personalVaultIsAllowed?: boolean;
+  notificationTestId: string;
   type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
 };
 
@@ -40,21 +43,23 @@ export function NotificationContainer({
   ciphers,
   collections,
   folders,
+  headerMessage,
   i18n,
+  isLoading,
   organizations,
   personalVaultIsAllowed = true,
+  notificationTestId,
   theme = ThemeTypes.Light,
   type,
 }: NotificationContainerProps) {
-  const headerMessage = getHeaderMessage(i18n, type);
-  const showBody = true;
+  const showBody = type !== NotificationTypes.Unlock;
 
   return html`
-    <div class=${notificationContainerStyles(theme)}>
+    <div data-testid="${notificationTestId}" class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
+        i18n,
         message: headerMessage,
-        standalone: showBody,
         theme,
       })}
       ${showBody
@@ -65,12 +70,13 @@ export function NotificationContainer({
             theme,
             i18n,
           })
-        : null}
+        : nothing}
       ${NotificationFooter({
         handleSaveAction,
         collections,
         folders,
         i18n,
+        isLoading,
         notificationType: type,
         organizations,
         personalVaultIsAllowed,
@@ -94,20 +100,7 @@ const notificationContainerStyles = (theme: Theme) => css`
   }
 
   [class*="${notificationBodyClassPrefix}-"] {
-    margin: ${spacing["3"]} 0 ${spacing["1.5"]} ${spacing["3"]};
+    margin: ${spacing["3"]} 0 0 ${spacing["3"]};
     padding-right: ${spacing["3"]};
   }
 `;
-
-function getHeaderMessage(i18n: I18n, type?: NotificationType) {
-  switch (type) {
-    case NotificationTypes.Add:
-      return i18n.saveLogin;
-    case NotificationTypes.Change:
-      return i18n.updateLogin;
-    case NotificationTypes.Unlock:
-      return "";
-    default:
-      return undefined;
-  }
-}

@@ -8,8 +8,10 @@ import { I18n } from "../common-types";
 export type CipherActionProps = {
   handleAction?: (e: Event) => void;
   i18n: I18n;
+  itemName: string;
   notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
   theme: Theme;
+  username?: string;
 };
 
 export function CipherAction({
@@ -17,14 +19,18 @@ export function CipherAction({
     /* no-op */
   },
   i18n,
+  itemName,
   notificationType,
   theme,
+  username,
 }: CipherActionProps) {
   return notificationType === NotificationTypes.Change
     ? BadgeButton({
         buttonAction: handleAction,
         buttonText: i18n.notificationUpdate,
+        itemName,
         theme,
+        username,
       })
     : EditButton({
         buttonAction: handleAction,

@@ -10,7 +10,6 @@ import { VaultCarouselSlideComponent } from "../carousel-slide/carousel-slide.co
 @Component({
   selector: "vault-carousel-button",
   templateUrl: "carousel-button.component.html",
-  standalone: true,
   imports: [CommonModule, IconModule],
 })
 export class VaultCarouselButtonComponent implements FocusableOption {

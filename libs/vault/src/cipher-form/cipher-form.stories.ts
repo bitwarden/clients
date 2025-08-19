@@ -12,10 +12,14 @@ import {
 } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
+import { NudgeStatus, NudgesService } from "@bitwarden/angular/vault";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -34,9 +38,7 @@ import { AsyncActionsModule, ButtonModule, ItemModule, ToastService } from "@bit
 import {
   CipherFormConfig,
   CipherFormGenerationService,
-  NudgeStatus,
   PasswordRepromptService,
-  VaultNudgesService,
 } from "@bitwarden/vault";
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import
@@ -56,7 +58,7 @@ const defaultConfig: CipherFormConfig = {
   mode: "add",
   cipherType: CipherType.Login,
   admin: false,
-  allowPersonalOwnership: true,
+  organizationDataOwnershipDisabled: true,
   collections: [
     {
       id: "col1",
@@ -144,7 +146,7 @@ export default {
       ],
       providers: [
         {
-          provide: VaultNudgesService,
+          provide: NudgesService,
           useValue: {
             showNudge$: new BehaviorSubject({
               hasBadgeDismissed: true,
@@ -242,6 +244,7 @@ export default {
           provide: ConfigService,
           useValue: {
             getFeatureFlag: () => Promise.resolve(false),
+            getFeatureFlag$: () => new BehaviorSubject(false),
           },
         },
         {
@@ -250,6 +253,12 @@ export default {
             snapshot: {
               queryParams: {},
             },
+          },
+        },
+        {
+          provide: PolicyService,
+          useValue: {
+            policiesByType$: new BehaviorSubject([]),
           },
         },
       ],
@@ -353,13 +362,13 @@ export const WithSubmitButton: Story = {
   },
 };
 
-export const NoPersonalOwnership: Story = {
+export const OrganizationDataOwnershipEnabled: Story = {
   ...Add,
   args: {
     config: {
       ...defaultConfig,
       mode: "add",
-      allowPersonalOwnership: false,
+      organizationDataOwnershipDisabled: false,
       originalCipher: defaultConfig.originalCipher,
       organizations: defaultConfig.organizations!,
     },

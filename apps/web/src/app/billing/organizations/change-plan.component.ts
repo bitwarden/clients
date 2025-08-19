@@ -9,6 +9,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 @Component({
   selector: "app-change-plan",
   templateUrl: "change-plan.component.html",
+  standalone: false,
 })
 export class ChangePlanComponent {
   @Input() organizationId: string;

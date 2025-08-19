@@ -1,14 +1,12 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
   Component,
   ContentChild,
-  Input,
   OnInit,
   TemplateRef,
-  ViewChild,
   ViewContainerRef,
+  input,
+  viewChild,
 } from "@angular/core";
 
 import { TabLabelDirective } from "./tab-label.directive";
@@ -19,11 +17,10 @@ import { TabLabelDirective } from "./tab-label.directive";
   host: {
     role: "tabpanel",
   },
-  standalone: true,
 })
 export class TabComponent implements OnInit {
-  @Input() disabled = false;
-  @Input("label") textLabel = "";
+  readonly disabled = input(false);
+  readonly textLabel = input("", { alias: "label" });
 
   /**
    * Optional tabIndex for the tabPanel that contains this tab's content.
@@ -33,10 +30,10 @@ export class TabComponent implements OnInit {
    *
    * @remarks See note 4 of https://www.w3.org/WAI/ARIA/apg/patterns/tabpanel/
    */
-  @Input() contentTabIndex: number | undefined;
+  readonly contentTabIndex = input<number | undefined>();
 
-  @ViewChild(TemplateRef, { static: true }) implicitContent: TemplateRef<unknown>;
-  @ContentChild(TabLabelDirective) templateLabel: TabLabelDirective;
+  readonly implicitContent = viewChild.required(TemplateRef);
+  @ContentChild(TabLabelDirective) templateLabel?: TabLabelDirective;
 
   private _contentPortal: TemplatePortal | null = null;
 
@@ -44,11 +41,11 @@ export class TabComponent implements OnInit {
     return this._contentPortal;
   }
 
-  isActive: boolean;
+  isActive?: boolean;
 
   constructor(private _viewContainerRef: ViewContainerRef) {}
 
   ngOnInit(): void {
-    this._contentPortal = new TemplatePortal(this.implicitContent, this._viewContainerRef);
+    this._contentPortal = new TemplatePortal(this.implicitContent(), this._viewContainerRef);
   }
 }

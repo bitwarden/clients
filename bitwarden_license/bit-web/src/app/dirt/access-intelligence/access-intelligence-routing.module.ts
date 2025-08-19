@@ -6,9 +6,12 @@ import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-con
 import { RiskInsightsComponent } from "./risk-insights.component";
 
 const routes: Routes = [
+  { path: "", pathMatch: "full", redirectTo: "risk-insights" },
   {
     path: "risk-insights",
-    canActivate: [organizationPermissionsGuard((org) => org.useRiskInsights)],
+    canActivate: [
+      organizationPermissionsGuard((org) => org.useRiskInsights && org.canAccessReports),
+    ],
     component: RiskInsightsComponent,
     data: {
       titleId: "RiskInsights",

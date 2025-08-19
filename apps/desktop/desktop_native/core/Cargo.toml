@@ -23,7 +23,6 @@ anyhow = { workspace = true }
 arboard = { workspace = true, features = [
     "wayland-data-control",
 ] }
-argon2 = { workspace = true, features = ["zeroize"] }
 base64 = { workspace = true }
 byteorder = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
@@ -85,6 +84,7 @@ desktop_objc = { path = "../objc" }
 [target.'cfg(target_os = "linux")'.dependencies]
 oo7 = { workspace = true }
 libc = { workspace = true }
+ashpd = { workspace = true }
 
 zbus = { workspace = true, optional = true }
 zbus_polkit = { workspace = true, optional = true }

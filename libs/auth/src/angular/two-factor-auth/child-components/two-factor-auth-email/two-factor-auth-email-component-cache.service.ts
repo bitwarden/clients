@@ -1,9 +1,7 @@
 import { inject, Injectable, WritableSignal } from "@angular/core";
 import { Jsonify } from "type-fest";
 
-import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 
 /**
  * The key for the email two factor auth component cache.
@@ -34,10 +32,6 @@ export class TwoFactorAuthEmailComponentCache {
 @Injectable()
 export class TwoFactorAuthEmailComponentCacheService {
   private viewCacheService: ViewCacheService = inject(ViewCacheService);
-  private configService: ConfigService = inject(ConfigService);
-
-  /** True when the feature flag is enabled */
-  private featureEnabled: boolean = false;
 
   /**
    * Signal for the cached email state.
@@ -50,22 +44,9 @@ export class TwoFactorAuthEmailComponentCacheService {
     });
 
   /**
-   * Must be called once before interacting with the cached data.
-   */
-  async init() {
-    this.featureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM9115_TwoFactorExtensionDataPersistence,
-    );
-  }
-
-  /**
    * Cache the email sent state.
    */
   cacheData(data: { emailSent: boolean }): void {
-    if (!this.featureEnabled) {
-      return;
-    }
-
     this.emailCache.set({
       emailSent: data.emailSent,
     } as TwoFactorAuthEmailComponentCache);
@@ -75,10 +56,6 @@ export class TwoFactorAuthEmailComponentCacheService {
    * Clear the cached email data.
    */
   clearCachedData(): void {
-    if (!this.featureEnabled) {
-      return;
-    }
-
     this.emailCache.set(null);
   }
 
@@ -86,10 +63,6 @@ export class TwoFactorAuthEmailComponentCacheService {
    * Get whether the email has been sent.
    */
   getCachedData(): TwoFactorAuthEmailComponentCache | null {
-    if (!this.featureEnabled) {
-      return null;
-    }
-
     return this.emailCache();
   }
 }

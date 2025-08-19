@@ -20,6 +20,7 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogRef,
@@ -54,11 +55,13 @@ export interface ViewCipherDialogParams {
   disableEdit?: boolean;
 }
 
-export enum ViewCipherDialogResult {
-  Edited = "edited",
-  Deleted = "deleted",
-  PremiumUpgrade = "premiumUpgrade",
-}
+export const ViewCipherDialogResult = {
+  Edited: "edited",
+  Deleted: "deleted",
+  PremiumUpgrade: "premiumUpgrade",
+} as const;
+
+type ViewCipherDialogResult = UnionOfValues<typeof ViewCipherDialogResult>;
 
 export interface ViewCipherDialogCloseResult {
   action: ViewCipherDialogResult;
@@ -71,7 +74,6 @@ export interface ViewCipherDialogCloseResult {
 @Component({
   selector: "app-vault-view",
   templateUrl: "view.component.html",
-  standalone: true,
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
@@ -121,9 +123,7 @@ export class ViewComponent implements OnInit {
       );
     }
 
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
-      this.params.activeCollectionId,
-    ]);
+    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher);
   }
 
   /**

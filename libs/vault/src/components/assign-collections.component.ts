@@ -24,6 +24,8 @@ import {
   tap,
 } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -38,6 +40,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -80,17 +83,18 @@ export interface CollectionAssignmentParams {
   isSingleCipherAdmin?: boolean;
 }
 
-export enum CollectionAssignmentResult {
-  Saved = "saved",
-  Canceled = "canceled",
-}
+export const CollectionAssignmentResult = {
+  Saved: "saved",
+  Canceled: "canceled",
+} as const;
+
+export type CollectionAssignmentResult = UnionOfValues<typeof CollectionAssignmentResult>;
 
 const MY_VAULT_ID = "MyVault";
 
 @Component({
   selector: "assign-collections",
   templateUrl: "assign-collections.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -123,6 +127,12 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     selectedOrg: [null],
     collections: [<SelectItemView[]>[], [Validators.required]],
   });
+
+  /**
+   * Collections that are already assigned to the cipher and are read-only. These cannot be removed.
+   * @protected
+   */
+  protected readOnlyCollectionNames: string[] = [];
 
   protected totalItemCount: number;
   protected editableItemCount: number;
@@ -299,6 +309,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
     );
 
+    await this.setReadOnlyCollectionNames();
+
     this.availableCollections = this.params.availableCollections
       .filter((collection) => {
         return collection.canEditItems(org);
@@ -423,12 +435,14 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
    * @returns An observable of the collections for the organization.
    */
   private getCollectionsForOrganization(orgId: OrganizationId): Observable<CollectionView[]> {
-    return combineLatest([
-      this.collectionService.decryptedCollections$,
-      this.accountService.activeAccount$.pipe(
-        switchMap((account) => this.organizationService.organizations$(account?.id)),
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        combineLatest([
+          this.collectionService.decryptedCollections$(userId),
+          this.organizationService.organizations$(userId),
+        ]),
       ),
-    ]).pipe(
       map(([collections, organizations]) => {
         const org = organizations.find((o) => o.id === orgId);
         this.orgName = org.name;
@@ -494,11 +508,32 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private async updateAssignedCollections(cipherView: CipherView, userId: UserId) {
     const { collections } = this.formGroup.getRawValue();
     cipherView.collectionIds = collections.map((i) => i.id as CollectionId);
-    const cipher = await this.cipherService.encrypt(cipherView, userId);
+    const { cipher } = await this.cipherService.encrypt(cipherView, userId);
     if (this.params.isSingleCipherAdmin) {
       await this.cipherService.saveCollectionsWithServerAdmin(cipher);
     } else {
       await this.cipherService.saveCollectionsWithServer(cipher, userId);
     }
+  }
+
+  /**
+   * Only display collections that are read-only and are assigned to the ciphers.
+   */
+  private async setReadOnlyCollectionNames() {
+    const { availableCollections, ciphers } = this.params;
+
+    const organization = await firstValueFrom(
+      this.organizations$.pipe(map((orgs) => orgs.find((o) => o.id === this.selectedOrgId))),
+    );
+
+    this.readOnlyCollectionNames = availableCollections
+      .filter((c) => {
+        return (
+          c.readOnly &&
+          ciphers.some((cipher) => cipher.collectionIds.includes(c.id)) &&
+          !c.canEditItems(organization)
+        );
+      })
+      .map((c) => c.name);
   }
 }

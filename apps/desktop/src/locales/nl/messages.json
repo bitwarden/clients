@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Identiteit"
   },
+  "typeNote": {
+    "message": "Notitie"
+  },
   "typeSecureNote": {
     "message": "Veilige notitie"
   },
@@ -37,6 +40,9 @@
   },
   "searchVault": {
     "message": "Kluis doorzoeken"
+  },
+  "resetSearch": {
+    "message": "Zoekopdracht resetten"
   },
   "addItem": {
     "message": "Item toevoegen"
@@ -351,12 +357,6 @@
   "other": {
     "message": "Overig"
   },
-  "generatePassword": {
-    "message": "Genereer wachtwoord"
-  },
-  "generatePassphrase": {
-    "message": "Wachtwoordzin genereren"
-  },
   "type": {
     "message": "Categorie"
   },
@@ -446,10 +446,10 @@
     "message": "Veld toevoegen"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Veld bewerken"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Weet je zeker dat je deze bijlage definitief wilt verwijderen?"
   },
   "fieldType": {
     "message": "Veldtype"
@@ -575,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Verificatiecode kopiëren (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopiëren",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Lengte"
   },
@@ -697,8 +711,8 @@
   "maxFileSize": {
     "message": "Maximale bestandsgrootte is 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Migratie van de encryptiesleutel vereist. Login via de website om je sleutel te bij te werken."
+  "legacyEncryptionUnsupported": {
+    "message": "Oude versleuteling wordt niet langer ondersteund. Neem contact op voor ondersteuning om je account te herstellen."
   },
   "editedFolder": {
     "message": "Map is bewerkt"
@@ -1103,9 +1117,6 @@
   "addNewItem": {
     "message": "Nieuw item toevoegen"
   },
-  "addNewFolder": {
-    "message": "Nieuwe map toevoegen"
-  },
   "view": {
     "message": "Weergeven"
   },
@@ -1214,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Tweestapsaanmelding"
   },
+  "vaultTimeoutHeader": {
+    "message": "Time-out van de kluis"
+  },
   "vaultTimeout": {
     "message": "Time-out van de kluis"
   },
   "vaultTimeout1": {
     "message": "Time-out"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Time-out actie"
   },
   "vaultTimeoutDesc": {
     "message": "Stel de time-out van de kluis en de bijbehorende actie in."
@@ -1430,6 +1447,9 @@
   "copySecurityCode": {
     "message": "Beveiligingscode kopiëren",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kaartnummer"
   },
   "premiumMembership": {
     "message": "Premium-abonnement"
@@ -1722,42 +1742,17 @@
   "accountRestricted": {
     "message": "Account beperkt"
   },
+  "restrictCardTypeImport": {
+    "message": "Kan kaart item types niet importeren"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Een beleid ingesteld door 1 of meer organisaties voorkomt dat je kaarten naar je kluizen kunt importeren."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Bestandswachtwoord\" en \"Bestandswachtwoord bevestigen\" komen niet overeen."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha-URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Toegankelijkheidscookie laden"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registreer als toegankelijkheidsgebruiker op",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopieer en plak de link die naar uw e-mail is gestuurd hieronder"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Voer een URL in om toegankelijkheidscookie voor hCaptcha te laden",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha-URL is vereist",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Ongeldige URL"
-  },
   "done": {
     "message": "Klaar"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Toegankelijkheidscookie opgeslagen!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Geen toegankelijkheidscookie opgeslagen"
   },
   "warning": {
     "message": "WAARSCHUWING",
@@ -1827,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Ontgrendelen met Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Extra Windows Hello-instellingen"
-  },
   "unlockWithPolkit": {
     "message": "Ontgrendel met systeemauthenticatie"
   },
@@ -1845,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "ontgrendel je kluis"
   },
-  "autoPromptWindowsHello": {
-    "message": "Vraag om Windows Hello bij opstarten"
-  },
-  "autoPromptPolkit": {
-    "message": "Vraag naar systeemverificatie bij het opstarten"
-  },
   "autoPromptTouchId": {
     "message": "Vraag om Touch ID bij opstarten"
   },
@@ -1859,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "Wachtwoord vereisen bij starten van de app"
-  },
-  "recommendedForSecurity": {
-    "message": "Aanbevolen voor veiligheid."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bij herstart vergrendelen met hoofdwachtwoord"
@@ -2423,6 +2406,9 @@
   "passwordConfirmationDesc": {
     "message": "Deze actie is beveiligd. Voer je hoofdwachtwoord opnieuw in om je identiteit vast te stellen en door te gaan."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hoofdwachtwoord succesvol ingesteld"
+  },
   "updatedMasterPassword": {
     "message": "Hoofdwachtwoord bijgewerkt"
   },
@@ -2434,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
+  },
+  "changePasswordWarning": {
+    "message": "Na het wijzigen van je wachtwoord moet je inloggen met je nieuwe wachtwoord. Actieve sessies op andere apparaten worden binnen één uur uitgelogd."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Wijzig je hoofdwachtwoord om je account te herstellen."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Je hoofdwachtwoord voldoet niet aan de eisen van deze organisatie. Wijzig je hoofdwachtwoord om door te gaan."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Je organisatie heeft het versleutelen van vertrouwde apparaten uitgeschakeld. Stel een hoofdwachtwoord in om toegang te krijgen tot je kluis."
@@ -2522,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane kluis time-out is $HOURS$ uur en $MINUTES$ minuten.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Time-out overschrijdt de beperking van je organisatie: $HOURS$ uur en $MINUTES$ minu(u) t(en) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
   },
@@ -2546,14 +2570,14 @@
   "removedMasterPassword": {
     "message": "Hoofdwachtwoord verwijderd."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ gebruikt SSO met een zelf gehoste sleutelserver. Leden van deze organisatie kunnen inloggen zonder hoofdwachtwoord.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie."
+  },
+  "organizationName": {
+    "message": "Organisatienaam"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector-domein"
   },
   "leaveOrganization": {
     "message": "Organisatie verlaten"
@@ -2667,6 +2691,24 @@
   "usernameGenerator": {
     "message": "Gebruikersnaamgenerator"
   },
+  "generatePassword": {
+    "message": "Genereer wachtwoord"
+  },
+  "generatePassphrase": {
+    "message": "Wachtwoordzin genereren"
+  },
+  "passwordGenerated": {
+    "message": "Wachtwoord gegenereerd"
+  },
+  "passphraseGenerated": {
+    "message": "Wachtwoordzin gegenereerd"
+  },
+  "usernameGenerated": {
+    "message": "Gebruikersnaam gegenereerd"
+  },
+  "emailGenerated": {
+    "message": "E-mail gegenereerd"
+  },
   "spinboxBoundariesHint": {
     "message": "Waarde moet tussen $MIN$ en $MAX$ liggen.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2719,6 +2761,15 @@
   },
   "useThisEmail": {
     "message": "Dit e-mailadres gebruiken"
+  },
+  "useThisPassword": {
+    "message": "Dit wachtwoord gebruiken"
+  },
+  "useThisPassphrase": {
+    "message": "Deze wachtwoordzin gebruiken"
+  },
+  "useThisUsername": {
+    "message": "Deze gebruikersnaam gebruiken"
   },
   "random": {
     "message": "Willekeurig"
@@ -2976,9 +3027,6 @@
     "message": "Tekentelling in-/uitschakelen",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Probeer je toegang te krijgen tot je account?"
-  },
   "accessAttemptBy": {
     "message": "Inlogpoging door $EMAIL$",
     "placeholders": {
@@ -2987,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
+  },
+  "webApp": {
+    "message": "Web-app"
+  },
+  "mobile": {
+    "message": "Mobiel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensie",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Log-inverzoek"
   },
   "deviceType": {
     "message": "Apparaattype"
@@ -3002,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Toegang weigeren"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggen voor $EMAIL$ bevestigd op $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
   },
   "justNow": {
     "message": "Zojuist"
@@ -3085,12 +3161,6 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Zwak wachtwoord geïdentificeerd en gevonden in een datalek. Gebruik een sterk en uniek wachtwoord om je account te beschermen. Weet je zeker dat je dit wachtwoord wilt gebruiken?"
   },
-  "useThisPassword": {
-    "message": "Dit wachtwoord gebruiken"
-  },
-  "useThisUsername": {
-    "message": "Deze gebruikersnaam gebruiken"
-  },
   "checkForBreaches": {
     "message": "Bekende datalekken voor dit wachtwoord controleren"
   },
@@ -3150,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Kan login niet voltooien"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Je moet inloggen op een vertrouwd apparaat of je beheerder vragen om je een wachtwoord toe te wijzen."
   },
   "region": {
     "message": "Regio"
@@ -3542,6 +3618,30 @@
     "message": "Veelvoorkomende formaten",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI-matche-detectie is hoe Bitwarden invulsuggesties herkent.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Reguliere expressie\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Begint met\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Lees meer over overeenkomstdetectie",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Geavanceerde opties",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Waarschuwing",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "Succes"
   },
@@ -3647,6 +3747,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar om een onbekende reden."
   },
+  "itemDetails": {
+    "message": "Itemdetails"
+  },
+  "itemName": {
+    "message": "Itemnaam"
+  },
+  "loginCredentials": {
+    "message": "Inloggegevens"
+  },
+  "additionalOptions": {
+    "message": "Extra opties"
+  },
+  "itemHistory": {
+    "message": "Itemgeschiedenis"
+  },
+  "lastEdited": {
+    "message": "Laatst gewijzigd"
+  },
+  "upload": {
+    "message": "Uploaden"
+  },
   "authorize": {
     "message": "Autoriseren"
   },
@@ -3716,8 +3837,51 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Verplaatsen"
+  },
+  "newFolder": {
+    "message": "Nieuwe map"
+  },
+  "folderName": {
+    "message": "Mapnaam"
+  },
+  "folderHintText": {
+    "message": "Je kunt een map onderbrengen door het toevoegen van de naam van de bovenliggende map gevolgd door een \"/\". Voorbeeld: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Gevoelige informatie veilig versturen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Deel bestanden en gegevens veilig met iedereen, op elk platform. Je informatie blijft end-to-end versleuteld terwijl en blootstelling beperkt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Snel wachtwoorden maken"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Maak eenvoudig sterke en unieke wachtwoorden door te klikken op",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "om je te helpen je inloggegevens veilig te houden.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Maak eenvoudig sterke en unieke wachtwoorden door op de knop Wachtwoord genereren te klikken om je logins veilig te houden.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Tijd besparen met automatisch aanvullen"
@@ -3767,5 +3931,151 @@
     "message": "Meer informatie over SSH-agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Aan collecties toewijzen"
+  },
+  "assignToTheseCollections": {
+    "message": "Aan deze collecties toewijzen"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
+  },
+  "noCollectionsAssigned": {
+    "message": "Er zijn geen collecties toegewezen"
+  },
+  "assign": {
+    "message": "Toewijzen"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Je hebt $TOTAL_COUNT$ items geselecteerd. Je kunt $READONLY_COUNT$ items niet bijwerken omdat je geen bewerkrechten hebt.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Collecties voor toewijzen selecteren"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ worden permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van deze items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ wordt permanent overgedragen aan $ORG$. Je bent niet langer de eigenaar van deze items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item wordt permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van dit item."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item wordt permanent overgedragen aan $ORG$. Je bent niet langer de eigenaar van dit item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Succesvol toegewezen collecties"
+  },
+  "nothingSelected": {
+    "message": "Je hebt niets geselecteerd."
+  },
+  "itemsMovedToOrg": {
+    "message": "Items verplaatst naar $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item verplaatst naar $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Geselecteerde items verplaatst naar $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
+  },
+  "showMore": {
+    "message": "Meer weergeven"
+  },
+  "showLess": {
+    "message": "Minder weergeven"
+  },
+  "enableAutotype": {
+    "message": "Autotypen inschakelen"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden valideert de invoerlocaties niet, zorg ervoor dat je je in het juiste venster en veld bevindt voordat je de snelkoppeling gebruikt."
   }
 }

@@ -2,7 +2,11 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricsService,
   BiometricsStatus,
@@ -10,10 +14,8 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { HashPurpose } from "../../../platform/enums";
 import { UserId } from "../../../types/guid";

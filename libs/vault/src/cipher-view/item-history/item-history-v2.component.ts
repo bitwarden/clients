@@ -19,7 +19,6 @@ import {
 @Component({
   selector: "app-item-history-v2",
   templateUrl: "item-history-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

@@ -10,18 +10,21 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterVerificationEmailClickedRequest } from "@bitwarden/common/auth/models/request/registration/register-verification-email-clicked.request";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { ToastService } from "@bitwarden/components";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
 
 import {
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
 } from "../../../common";
-import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
 import {
   InputPasswordComponent,
   InputPasswordFlow,
@@ -31,7 +34,6 @@ import { PasswordInputResult } from "../../input-password/password-input-result"
 import { RegistrationFinishService } from "./registration-finish.service";
 
 @Component({
-  standalone: true,
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",
   imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent],
@@ -39,8 +41,7 @@ import { RegistrationFinishService } from "./registration-finish.service";
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  InputPasswordFlow = InputPasswordFlow;
-
+  inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
   loading = true;
   submitting = false;
   email: string;
@@ -78,6 +79,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -187,11 +189,18 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("youHaveBeenLoggedIn"),
-      });
+      const endUserActivationFlagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM19315EndUserActivationMvp,
+      );
+
+      if (!endUserActivationFlagEnabled) {
+        // Only show the toast when the end user activation feature flag is _not_ enabled
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("youHaveBeenLoggedIn"),
+        });
+      }
 
       await this.loginSuccessHandlerService.run(authenticationResult.userId);
 

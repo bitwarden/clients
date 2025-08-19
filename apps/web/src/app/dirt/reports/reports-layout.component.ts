@@ -6,6 +6,7 @@ import { filter } from "rxjs/operators";
 @Component({
   selector: "app-reports-layout",
   templateUrl: "reports-layout.component.html",
+  standalone: false,
 })
 export class ReportsLayoutComponent implements OnDestroy {
   homepage = true;

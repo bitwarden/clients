@@ -20,7 +20,7 @@
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "34.0.0",
+  "electronVersion": "36.4.0",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -89,7 +89,9 @@
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
-    "sign": "./sign.js",
+    "signtoolOptions": {
+      "sign": "./sign.js"
+    },
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
@@ -108,9 +110,11 @@
     ],
     "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],
     "desktop": {
-      "Name": "Bitwarden",
-      "Type": "Application",
-      "GenericName": "Password Manager"
+      "entry": {
+        "Name": "Bitwarden",
+        "Type": "Application",
+        "GenericName": "Password Manager"
+      }
     }
   },
   "dmg": {
@@ -236,14 +240,15 @@
     "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "rpm": {
-    "artifactName": "${productName}-${version}-${arch}.${ext}"
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "fpm": ["--rpm-rpmbuild-define", "_build_id_links none"]
   },
   "freebsd": {
     "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "snap": {
     "summary": "Bitwarden is a secure and free password manager for all of your devices.",
-    "description": "**Installation**\nBitwarden requires access to the `password-manager-service`. Please enable it through permissions or by running `sudo snap connect bitwarden:password-manager-service` after installation. See https://btwrdn.com/install-snap for details.",
+    "description": "Password Manager\n**Installation**\nBitwarden requires access to the `password-manager-service`. Please enable it through permissions or by running `sudo snap connect bitwarden:password-manager-service` after installation. See https://btwrdn.com/install-snap for details.",
     "autoStart": true,
     "base": "core22",
     "confinement": "strict",
@@ -258,7 +263,8 @@
       },
       "u2f-devices"
     ],
-    "stagePackages": ["default"]
+    "stagePackages": ["default"],
+    "allowNativeWayland": true
   },
   "protocols": [
     {
