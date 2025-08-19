@@ -1,4 +1,4 @@
-import { concatMap, firstValueFrom, Subscription, withLatestFrom } from "rxjs";
+import { concatMap, filter, Subscription, withLatestFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -43,8 +43,9 @@ export class BadgeService {
     return this.badgeApi.activeTab$
       .pipe(
         withLatestFrom(this.serviceState.state$),
+        filter(([activeTab]) => activeTab != undefined),
         concatMap(async ([activeTab, serviceState]) => {
-          await this.updateBadge(activeTab, serviceState, activeTab?.tabId);
+          await this.updateBadge(serviceState, activeTab!.tabId);
         }),
       )
       .subscribe({
@@ -78,8 +79,7 @@ export class BadgeService {
       [name]: { priority, state, tabId },
     }));
 
-    const activeTab = await firstValueFrom(this.badgeApi.activeTab$);
-    await this.updateBadge(activeTab, newServiceState, tabId);
+    await this.updateBadge(newServiceState, tabId);
   }
 
   /**
@@ -104,8 +104,8 @@ export class BadgeService {
     if (clearedState === undefined) {
       return;
     }
-    const activeTab = await firstValueFrom(this.badgeApi.activeTab$);
-    await this.updateBadge(activeTab, newServiceState, clearedState.tabId);
+    // const activeTabs = await firstValueFrom(this.badgeApi.activeTabs$);
+    await this.updateBadge(newServiceState, clearedState.tabId);
   }
 
   private calculateState(states: Set<StateSetting>, tabId?: number): RawBadgeState {
@@ -151,27 +151,39 @@ export class BadgeService {
    * @param tabId Tab id for which the the latest state change applied to. Set this to activeTab.tabId to force an update.
    */
   private async updateBadge(
-    activeTab: chrome.tabs.TabActiveInfo | null | undefined,
+    // activeTabs: chrome.tabs.Tab[],
     serviceState: Record<string, StateSetting> | null | undefined,
     tabId: number | undefined,
   ) {
-    if (activeTab === undefined) {
-      return; // If there is no active tab, we cannot set the badge state.
-    }
-
-    if (tabId !== activeTab?.tabId && tabId !== undefined) {
+    const activeTabs = await this.badgeApi.getActiveTabs();
+    if (tabId !== undefined && !activeTabs.some((tab) => tab.id === tabId)) {
       return; // No need to update the badge if the state is not for the active tab.
     }
 
-    const newBadgeState = this.calculateState(
-      new Set(Object.values(serviceState ?? {})),
-      activeTab?.tabId,
-    );
+    const tabIdsToUpdate = tabId ? [tabId] : activeTabs.map((tab) => tab.id);
 
-    try {
-      await this.badgeApi.setState(newBadgeState, activeTab?.tabId);
-    } catch (error) {
-      this.logService.error("Failed to set badge state", error);
+    for (const tabId of tabIdsToUpdate) {
+      if (tabId === undefined) {
+        continue; // Skip if tab id is undefined.
+      }
+
+      const newBadgeState = this.calculateState(new Set(Object.values(serviceState ?? {})), tabId);
+      try {
+        await this.badgeApi.setState(newBadgeState, tabId);
+      } catch (error) {
+        this.logService.error("Failed to set badge state", error);
+      }
+    }
+
+    if (tabId === undefined) {
+      // If no tabId was provided we should also update the general badge state
+      const newBadgeState = this.calculateState(new Set(Object.values(serviceState ?? {})));
+
+      try {
+        await this.badgeApi.setState(newBadgeState, tabId);
+      } catch (error) {
+        this.logService.error("Failed to set general badge state", error);
+      }
     }
   }
 }

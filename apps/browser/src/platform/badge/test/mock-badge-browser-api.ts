@@ -9,6 +9,20 @@ export class MockBadgeBrowserApi implements BadgeBrowserApi {
   specificStates: Record<number, RawBadgeState> = {};
   generalState?: RawBadgeState;
   tabs: number[] = [];
+  activeTabs: number[] = [];
+
+  getActiveTabs(): Promise<chrome.tabs.Tab[]> {
+    return Promise.resolve(
+      this.activeTabs.map(
+        (tabId) =>
+          ({
+            id: tabId,
+            windowId: 1,
+            active: true,
+          }) as chrome.tabs.Tab,
+      ),
+    );
+  }
 
   setActiveTab(tabId: number) {
     this._activeTab$.next({
