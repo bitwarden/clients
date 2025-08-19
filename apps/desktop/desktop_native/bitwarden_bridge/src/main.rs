@@ -26,7 +26,7 @@ use windows_service::{
     service_manager::{ServiceManager, ServiceManagerAccess},
 };
 
-use desktop_importer::abe_config;
+use bitwarden_chromium_importer::abe_config;
 
 #[derive(Parser)]
 #[command(name = "admin")]
