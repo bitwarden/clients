@@ -31,8 +31,9 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
   private apiService: ApiService = inject(ApiService);
   private accountService: AccountService = inject(AccountService);
 
-  private organizationDataOwnershipDisabled$ = this.accountService.activeAccount$.pipe(
-    getUserId,
+  private userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  private organizationDataOwnershipDisabled$ = this.userId$.pipe(
     switchMap((userId) =>
       this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
@@ -44,9 +45,9 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     filter((filter) => filter !== undefined),
   );
 
-  private allOrganizations$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) =>
-      this.organizationService.organizations$(account?.id).pipe(
+  private allOrganizations$ = this.userId$.pipe(
+    switchMap((userId) =>
+      this.organizationService.organizations$(userId).pipe(
         map((orgs) => {
           return orgs.filter(
             (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
@@ -60,8 +61,8 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     map(([orgs, orgId]) => orgs.find((o) => o.id === orgId)),
   );
 
-  private allCollections$ = this.organization$.pipe(
-    switchMap(async (org) => await this.collectionAdminService.getAll(org.id)),
+  private allCollections$ = combineLatest([this.organization$, this.userId$]).pipe(
+    switchMap(([org, userId]) => this.collectionAdminService.collectionAdminViews$(org.id, userId)),
   );
 
   async buildConfig(

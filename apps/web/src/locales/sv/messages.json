@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Lås upp Bitwarden på din enhet eller på "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Försöker du komma åt ditt konto?"
-  },
   "accessAttemptBy": {
     "message": "Åtkomstförsök via $EMAIL$",
     "placeholders": {
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Denna begäran är inte längre giltig."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggning bekräftad för $EMAIL$ på $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om detta verkligen var du, försök att logga in med enheten igen."
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Inloggningsbegäran godkänd för $EMAIL$ på $DEVICE$",
     "placeholders": {
@@ -5284,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Ladda ner bilagor"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Ange lösenordet för att visa denna Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Visa Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Den Send du försöker komma åt finns inte eller är inte längre tillgänglig.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "Genomför äganderätt till organisationsdata"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Kräv att alla objekt ägs av en organisation och ta bort möjligheten att lagra objekt på kontonivå.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Alla objekt kommer att ägas och sparas i organisationen, vilket möjliggör kontroll, synlighet och rapportering för hela organisationen. När funktionen är aktiverad finns en standardsamling tillgänglig för varje medlem att lagra objekt i. Läs mer om hur du hanterar ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "livscykel för inloggningsuppgifter",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Är du säker på att du vill fortsätta?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "kommer att kvarstå som tillgängliga för medlemmar"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "kommer inte automatiskt att väljas när nya objekt skapas"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "kan inte hanteras från administratörskonsollen tills användaren stängs av"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Genom att stänga av denna policy kommer standardsamlingen att: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Läs mer om ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Radera individuellt valv"
@@ -10980,5 +11000,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Obegränsade hemligheter och projekt"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Prenumerationen avbruten"
+  },
+  "providersubCanceledmessage": {
+    "message": "Kontakta Bitwardens kundtjänst för att återaktivera prenumerationen."
+  },
+  "showMore": {
+    "message": "Visa mer"
+  },
+  "showLess": {
+    "message": "Visa mindre"
   }
 }

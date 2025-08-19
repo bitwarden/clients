@@ -36,7 +36,13 @@
               </span>
             }
             <div class="tw-leading-snug tw-text-left">
-              <p bitTypography="body1" class="tw-m-0">{{ step.label }}</p>
+              <p
+                bitTypography="body1"
+                class="tw-m-0"
+                [ngClass]="{ 'tw-text-muted': isCurrentStepDisabled }"
+              >
+                {{ step.label }}
+              </p>
 
               @if (step.subLabel()) {
                 <p bitTypography="body2" class="tw-m-0 tw-mt-1 tw-text-muted">
@@ -95,7 +101,13 @@
           </span>
         }
         <div class="tw-leading-snug tw-text-left">
-          <p bitTypography="body1" class="tw-m-0">{{ step.label }}</p>
+          <p
+            bitTypography="body1"
+            class="tw-m-0"
+            [ngClass]="{ 'tw-text-muted': isCurrentStepDisabled }"
+          >
+            {{ step.label }}
+          </p>
 
           @if (step.subLabel()) {
             <div bitTypography="body2" class="tw-m-0 tw-mt-1 tw-text-muted">

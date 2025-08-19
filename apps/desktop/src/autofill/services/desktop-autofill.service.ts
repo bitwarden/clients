@@ -65,7 +65,7 @@ export class DesktopAutofillService implements OnDestroy {
       .getFeatureFlag$(FeatureFlag.MacOsNativeCredentialSync)
       .pipe(
         distinctUntilChanged(),
-        //filter((enabled) => enabled === true), // Only proceed if feature is enabled
+        filter((enabled) => enabled === true), // Only proceed if feature is enabled
         switchMap(() => {
           return combineLatest([
             this.accountService.activeAccount$.pipe(
@@ -191,6 +191,14 @@ export class DesktopAutofillService implements OnDestroy {
 
   listenIpc() {
     ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
+      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+        this.logService.debug(
+          "listenPasskeyRegistration: MacOsNativeCredentialSync feature flag is disabled",
+        );
+        callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+        return;
+      }
+
       this.registrationRequest = request;
 
       this.logService.warning("listenPasskeyRegistration", clientId, sequenceNumber, request);
@@ -217,6 +225,14 @@ export class DesktopAutofillService implements OnDestroy {
 
     ipc.autofill.listenPasskeyAssertionWithoutUserInterface(
       async (clientId, sequenceNumber, request, callback) => {
+        if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+          this.logService.debug(
+            "listenPasskeyAssertionWithoutUserInterface: MacOsNativeCredentialSync feature flag is disabled",
+          );
+          callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+          return;
+        }
+
         this.logService.warning(
           "listenPasskeyAssertion without user interface",
           clientId,
@@ -276,6 +292,14 @@ export class DesktopAutofillService implements OnDestroy {
     );
 
     ipc.autofill.listenPasskeyAssertion(async (clientId, sequenceNumber, request, callback) => {
+      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+        this.logService.debug(
+          "listenPasskeyAssertion: MacOsNativeCredentialSync feature flag is disabled",
+        );
+        callback(new Error("MacOsNativeCredentialSync feature flag is disabled"), null);
+        return;
+      }
+
       this.logService.warning("listenPasskeyAssertion", clientId, sequenceNumber, request);
 
       const controller = new AbortController();
@@ -295,6 +319,13 @@ export class DesktopAutofillService implements OnDestroy {
 
     // Listen for native status messages
     ipc.autofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
+      if (!(await this.configService.getFeatureFlag(FeatureFlag.MacOsNativeCredentialSync))) {
+        this.logService.debug(
+          "listenNativeStatus: MacOsNativeCredentialSync feature flag is disabled",
+        );
+        return;
+      }
+
       this.logService.info("Received native status", status.key, status.value);
       if (status.key === "request-sync") {
         // perform ad-hoc sync

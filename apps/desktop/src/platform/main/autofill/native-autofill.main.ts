@@ -129,7 +129,7 @@ export class NativeAutofillMain {
       },
     );
 
-    ipcMain.on("autofill.listenerReady", async () => {
+    ipcMain.on("autofill.listenerReady", () => {
       this.listenerReady = true;
       this.logService.info(
         `Listener is ready, flushing ${this.messageBuffer.length} buffered messages`,
