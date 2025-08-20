@@ -7,7 +7,6 @@ import { RouterModule } from "@angular/router";
 import { BehaviorSubject, Observable, Subject, combineLatest, firstValueFrom, of } from "rxjs";
 import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } from "rxjs/operators";
 
-import { PremiumComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -60,6 +59,7 @@ import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { PremiumComponent } from "../../billing/app/accounts/premium.component";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -79,7 +79,6 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     ItemModule,
     JslibModule,
     LinkModule,
-    PremiumComponent,
     RouterModule,
     SectionComponent,
     SectionHeaderComponent,
