@@ -1,13 +1,10 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
-  EMPTY,
   filter,
   firstValueFrom,
-  from,
-  map,
   merge,
   Observable,
   of,
@@ -18,7 +15,6 @@ import {
   takeUntil,
   tap,
 } from "rxjs";
-import { catchError } from "rxjs/operators";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
@@ -43,13 +39,6 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { ProviderWarningsService } from "../warnings/services";
-
-class RedirectError {
-  constructor(
-    public path: string[],
-    public relativeTo: ActivatedRoute,
-  ) {}
-}
 
 type View = {
   provider: BitwardenSubscriber;
@@ -77,18 +66,6 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
   );
 
   private load$: Observable<View> = this.provider$.pipe(
-    switchMap((provider) =>
-      this.configService
-        .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
-        .pipe(
-          map((managePaymentDetailsOutsideCheckout) => {
-            if (!managePaymentDetailsOutsideCheckout) {
-              throw new RedirectError(["../subscription"], this.activatedRoute);
-            }
-            return provider;
-          }),
-        ),
-    ),
     mapProviderToSubscriber,
     switchMap(async (provider) => {
       const getTaxIdWarning = firstValueFrom(
@@ -111,14 +88,6 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
       };
     }),
     shareReplay({ bufferSize: 1, refCount: false }),
-    catchError((error: unknown) => {
-      if (error instanceof RedirectError) {
-        return from(this.router.navigate(error.path, { relativeTo: error.relativeTo })).pipe(
-          switchMap(() => EMPTY),
-        );
-      }
-      throw error;
-    }),
   );
 
   view$: Observable<View> = merge(
@@ -136,7 +105,6 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private providerService: ProviderService,
     private providerWarningsService: ProviderWarningsService,
-    private router: Router,
     private subscriberBillingClient: SubscriberBillingClient,
   ) {}
 
