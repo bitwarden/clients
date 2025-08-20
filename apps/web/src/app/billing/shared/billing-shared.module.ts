@@ -19,17 +19,9 @@ import { TaxInfoComponent } from "./tax-info.component";
 import { TrialPaymentDialogComponent } from "./trial-payment-dialog/trial-payment-dialog.component";
 import { UpdateLicenseDialogComponent } from "./update-license-dialog.component";
 import { UpdateLicenseComponent } from "./update-license.component";
-import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-account.component";
 
 @NgModule({
-  imports: [
-    SharedModule,
-    TaxInfoComponent,
-    HeaderModule,
-    BannerModule,
-    PaymentComponent,
-    VerifyBankAccountComponent,
-  ],
+  imports: [SharedModule, TaxInfoComponent, HeaderModule, BannerModule, PaymentComponent],
   declarations: [
     AddCreditDialogComponent,
     BillingHistoryComponent,
@@ -52,7 +44,6 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
     UpdateLicenseComponent,
     UpdateLicenseDialogComponent,
     OffboardingSurveyComponent,
-    VerifyBankAccountComponent,
     PaymentComponent,
     IndividualSelfHostingLicenseUploaderComponent,
     OrganizationSelfHostingLicenseUploaderComponent,
