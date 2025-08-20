@@ -23,6 +23,7 @@ import {
   shareReplay,
   startWith,
   switchMap,
+  take,
   takeUntil,
   tap,
 } from "rxjs/operators";
@@ -604,6 +605,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       this.selectedCollection$,
       this.showCollectionAccessRestricted$,
     ]).pipe(
+      take(2), // Only take the emmision from startsWith and the emission from zip.
       map(() => true),
       startWith(false),
       tap((firstLoadComplete) => this.refreshingSubject$.next(!firstLoadComplete)),
