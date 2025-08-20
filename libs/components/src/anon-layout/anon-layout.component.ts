@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   Component,
@@ -23,6 +21,8 @@ import { AnonLayoutBitwardenShield } from "../icon/logos";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
+import { LeftIllustration, RightIllustration } from "./illustrations";
+
 export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 @Component({
@@ -36,6 +36,9 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     // AnonLayout should take up full height of parent container for proper footer placement.
     return ["tw-h-full"];
   }
+
+  readonly leftIllustration = LeftIllustration;
+  readonly rightIllustration = RightIllustration;
 
   readonly title = input<string>();
   readonly subtitle = input<string>();
@@ -56,8 +59,8 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   protected logo = BitwardenLogo;
   protected year: string;
   protected clientType: ClientType;
-  protected hostname: string;
-  protected version: string;
+  protected hostname?: string;
+  protected version?: string;
 
   protected hideYearAndVersion = false;
 

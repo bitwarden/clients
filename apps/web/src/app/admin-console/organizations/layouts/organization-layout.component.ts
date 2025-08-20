@@ -28,6 +28,11 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule, AdminConsoleLogo } from "@bitwarden/components";
+import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
+import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
+import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
@@ -44,6 +49,9 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     IconModule,
     OrgSwitcherComponent,
     BannerModule,
+    TaxIdWarningComponent,
+    TaxIdWarningComponent,
+    OrganizationWarningsModule,
   ],
 })
 export class OrganizationLayoutComponent implements OnInit {
@@ -58,7 +66,6 @@ export class OrganizationLayoutComponent implements OnInit {
   showPaymentAndHistory$: Observable<boolean>;
   hideNewOrgButton$: Observable<boolean>;
   organizationIsUnmanaged$: Observable<boolean>;
-  enterpriseOrganization$: Observable<boolean>;
 
   protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
@@ -68,6 +75,9 @@ export class OrganizationLayoutComponent implements OnInit {
     route: string;
     textKey: string;
   }>;
+
+  protected subscriber$: Observable<NonIndividualSubscriber>;
+  protected getTaxIdWarning$: () => Observable<TaxIdWarningType | null>;
 
   constructor(
     private route: ActivatedRoute,
@@ -79,6 +89,7 @@ export class OrganizationLayoutComponent implements OnInit {
     private accountService: AccountService,
     private freeFamiliesPolicyService: FreeFamiliesPolicyService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
+    private organizationWarningsService: OrganizationWarningsService,
   ) {}
 
   async ngOnInit() {
@@ -150,6 +161,20 @@ export class OrganizationLayoutComponent implements OnInit {
             : { route: "billing/payment-method", textKey: "paymentMethod" },
         ),
       );
+
+    this.subscriber$ = this.organization$.pipe(
+      map((organization) => ({
+        type: "organization",
+        data: organization,
+      })),
+    );
+
+    this.getTaxIdWarning$ = () =>
+      this.organization$.pipe(
+        switchMap((organization) =>
+          this.organizationWarningsService.getTaxIdWarning$(organization),
+        ),
+      );
   }
 
   canShowVaultTab(organization: Organization): boolean {
@@ -179,4 +204,6 @@ export class OrganizationLayoutComponent implements OnInit {
   getReportTabLabel(organization: Organization): string {
     return organization.useEvents ? "reporting" : "reports";
   }
+
+  refreshTaxIdWarning = () => this.organizationWarningsService.refreshTaxIdWarning();
 }

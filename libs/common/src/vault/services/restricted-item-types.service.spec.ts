@@ -67,6 +67,13 @@ describe("RestrictedItemTypesService", () => {
     expect(result).toEqual([]);
   });
 
+  it("emits empty array if no account is active", async () => {
+    accountService.activeAccount$ = of(null);
+
+    const result = await firstValueFrom(service.restricted$);
+    expect(result).toEqual([]);
+  });
+
   it("emits empty array if no organizations exist", async () => {
     organizationService.organizations$.mockReturnValue(of([]));
     policyService.policiesByType$.mockReturnValue(of([]));

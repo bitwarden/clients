@@ -107,7 +107,8 @@ export class OssServeConfigurator {
     );
     this.generateCommand = new GenerateCommand(
       this.serviceContainer.passwordGenerationService,
-      this.serviceContainer.stateService,
+      this.serviceContainer.tokenService,
+      this.serviceContainer.accountService,
     );
     this.syncCommand = new SyncCommand(this.serviceContainer.syncService);
     this.statusCommand = new StatusCommand(
@@ -131,6 +132,7 @@ export class OssServeConfigurator {
       this.serviceContainer.keyService,
       this.serviceContainer.encryptService,
       this.serviceContainer.organizationUserApiService,
+      this.serviceContainer.accountService,
       this.serviceContainer.configService,
       this.serviceContainer.i18nService,
     );
@@ -416,14 +418,18 @@ export class OssServeConfigurator {
   }
 
   protected async errorIfLocked(res: koa.Response) {
-    const authed = await this.serviceContainer.stateService.getIsAuthenticated();
+    const userId = await firstValueFrom(
+      this.serviceContainer.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
+    const authed =
+      userId != null ||
+      (await firstValueFrom(this.serviceContainer.tokenService.hasAccessToken$(userId)));
+
     if (!authed) {
       this.processResponse(res, Response.error("You are not logged in."));
       return true;
     }
-    const userId = await firstValueFrom(
-      this.serviceContainer.accountService.activeAccount$.pipe(map((account) => account?.id)),
-    );
     if (await this.serviceContainer.keyService.hasUserKey(userId)) {
       return false;
     }

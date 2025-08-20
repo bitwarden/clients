@@ -125,7 +125,13 @@ handler.
 
 ```html
 <button type="button" bitFormButton bitButton [bitAction]="handler">Do action</button>
-<button type="button" bitFormButton bitIconButton="bwi-star" [bitAction]="handler"></button>
+<button
+  type="button"
+  bitFormButton
+  bitIconButton="bwi-star"
+  label="Your label here"
+  [bitAction]="handler"
+></button>
 ```
 
 ## `[bitSubmit]` Disabled Form Submit
