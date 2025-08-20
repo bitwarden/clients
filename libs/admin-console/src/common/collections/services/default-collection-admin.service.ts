@@ -58,11 +58,14 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
   ): Promise<CollectionDetailsResponse> {
     const request = await this.encrypt(collection, userId, true);
     if (!BaseCollectionRequest.isUpdate(request)) {
-      throw new Error("Cannot update collection with CreatCollectionRequest.");
+      throw new Error("Cannot update collection with CreateCollectionRequest.");
     }
 
-    const response = await this.apiService.postCollection(collection.organizationId, request);
-    collection.id = response.id;
+    const response = await this.apiService.putCollection(
+      collection.organizationId,
+      collection.id,
+      request,
+    );
 
     await this.updateLocalCollections(response, collection, userId);
 
@@ -78,11 +81,8 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
       throw new Error("Cannot create collection with UpdateCollectionRequest.");
     }
 
-    const response = await this.apiService.putCollection(
-      collection.organizationId,
-      collection.id,
-      request,
-    );
+    const response = await this.apiService.postCollection(collection.organizationId, request);
+    collection.id = response.id;
 
     await this.updateLocalCollections(response, collection, userId);
 

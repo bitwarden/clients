@@ -728,7 +728,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postCollection(
     organizationId: string,
-    request: UpdateCollectionRequest,
+    request: CreateCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "POST",
@@ -743,7 +743,7 @@ export class ApiService implements ApiServiceAbstraction {
   async putCollection(
     organizationId: string,
     id: string,
-    request: CreateCollectionRequest,
+    request: UpdateCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "PUT",

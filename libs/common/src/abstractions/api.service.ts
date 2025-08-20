@@ -271,12 +271,12 @@ export abstract class ApiService {
   ): Promise<ListResponse<CollectionAccessDetailsResponse>>;
   abstract postCollection(
     organizationId: string,
-    request: UpdateCollectionRequest,
+    request: CreateCollectionRequest,
   ): Promise<CollectionDetailsResponse>;
   abstract putCollection(
     organizationId: string,
     id: string,
-    request: CreateCollectionRequest,
+    request: UpdateCollectionRequest,
   ): Promise<CollectionDetailsResponse>;
   abstract deleteCollection(organizationId: string, id: string): Promise<any>;
   abstract deleteManyCollections(organizationId: string, collectionIds: string[]): Promise<any>;
