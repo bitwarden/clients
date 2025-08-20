@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as lunr from "lunr";
-import { Observable, firstValueFrom, map, startWith } from "rxjs";
+import { Observable, firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { perUserCache$ } from "@bitwarden/common/vault/utils/observable-utilities";
@@ -117,7 +117,6 @@ export class SearchService implements SearchServiceAbstraction {
         }
         return index;
       }),
-      startWith(null),
     );
   });
 
