@@ -33,7 +33,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private listElement?: HTMLElement;
   private htmlMutationObserver: MutationObserver;
   private bodyMutationObserver: MutationObserver;
-  private pageIsOpaque = true;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private containerElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
@@ -52,7 +51,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   constructor() {
-    this.checkPageOpacity();
     this.setupMutationObserver();
   }
 
@@ -405,21 +403,25 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     });
   };
 
-  private checkPageOpacity = () => {
-    this.pageIsOpaque = this.getPageIsOpaque();
-
-    if (!this.pageIsOpaque) {
-      this.closeInlineMenu();
-    }
-  };
-
-  private handlePageMutations = (mutations: MutationRecord[]) => {
+  /*
+   * Checks for known risks at the page level
+   */
+  private async handlePageMutations(mutations: MutationRecord[]) {
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
-        this.checkPageOpacity();
+        await this.checkPageRisks();
       }
     }
-  };
+  }
+
+  /**
+   * Checks if the page top layer has content (will obscure/overlap the inline menu)
+   */
+  private getPageTopLayerInUse() {
+    const pageHasOpenPopover = !!globalThis.document.querySelector(":popover-open");
+
+    return pageHasOpenPopover;
+  }
 
   /**
    * Checks the opacity of the page body and body parent, since the inline menu experience
@@ -443,15 +445,27 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     return parseFloat(htmlOpacity) > opacityThreshold && parseFloat(bodyOpacity) > opacityThreshold;
   }
 
+  private async checkPageRisks() {
+    const pageIsOpaque = await this.getPageIsOpaque();
+    const pageTopLayerInUse = await this.getPageTopLayerInUse();
+
+    const risksFound = !pageIsOpaque || pageTopLayerInUse;
+
+    if (risksFound) {
+      this.closeInlineMenu();
+    }
+
+    return risksFound;
+  }
+
   /**
    * Processes the mutation of the element that contains the inline menu. Will trigger when an
    * idle moment in the execution of the main thread is detected.
    */
   private processContainerElementMutation = async (containerElement: HTMLElement) => {
-    // If the computed opacity of the body and parent is not sufficiently opaque, tear
-    // down and prevent building the inline menu experience.
-    this.checkPageOpacity();
-    if (!this.pageIsOpaque) {
+    // If the page contains risks, tear down and prevent building the inline menu experience.
+    const pageRisksFound = await this.checkPageRisks();
+    if (pageRisksFound) {
       return;
     }
 
