@@ -13,10 +13,11 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
 import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom, of } from "rxjs";
-import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
+import { combineLatestWith, filter, map, switchMap, takeUntil, tap } from "rxjs/operators";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -270,7 +271,23 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
-  ) {}
+  ) {
+    this.isChromiumImporterEnabled$
+      .pipe(
+        // eslint-disable-next-line
+        tap((boolValue) => console.log("isChromiumImporterEnabled", boolValue)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+
+    this.showChromiumOptions$
+      .pipe(
+        // eslint-disable-next-line
+        tap((boolValue) => console.log("showChromiumOptions", boolValue)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
 
   protected get importBlockedByPolicy(): boolean {
     return this._importBlockedByPolicy;
