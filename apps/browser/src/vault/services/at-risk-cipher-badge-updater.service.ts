@@ -144,7 +144,7 @@ export class AtRiskCipherBadgeUpdaterService {
       ? await this.cipherService.getAllDecryptedForUrl(tab.url, userId, [], undefined, true)
       : [];
 
-    const hasPendingTasksForTab = (pendingTasks ?? []).some((task) =>
+    const hasPendingTasksForTab = pendingTasks.some((task) =>
       ciphers.some((cipher) => cipher.id === task.cipherId && !cipher.isDeleted),
     );
 
