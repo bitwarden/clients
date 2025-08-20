@@ -3,7 +3,6 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import {
-  AddAccountCreditDialogComponent,
   InvoicesComponent,
   NoInvoicesComponent,
   ManageTaxInformationComponent,
@@ -110,7 +109,6 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
-    AddAccountCreditDialogComponent,
     InvoicesComponent,
     NoInvoicesComponent,
     ManageTaxInformationComponent,
@@ -144,7 +142,6 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
-    AddAccountCreditDialogComponent,
     InvoicesComponent,
     NoInvoicesComponent,
     ManageTaxInformationComponent,
