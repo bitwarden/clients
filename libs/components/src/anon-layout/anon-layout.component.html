@@ -1,5 +1,5 @@
 <main
-  class="tw-relative tw-flex tw-w-full tw-mx-auto tw-flex-col tw-bg-background-alt tw-px-5 tw-py-4 tw-text-main"
+  class="tw-relative tw-flex tw-w-full tw-mx-auto tw-flex-col tw-bg-background-alt tw-p-5 tw-text-main"
   [ngClass]="{
     'tw-min-h-screen': clientType === 'web',
     'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
@@ -8,7 +8,7 @@
   <a
     *ngIf="!hideLogo()"
     [routerLink]="['/']"
-    class="tw-w-[200px] tw-block tw-mt-2 tw-mb-12 [&>*]:tw-align-top"
+    class="tw-w-[200px] tw-block tw-mb-12 [&>*]:tw-align-top"
   >
     <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
   </a>
