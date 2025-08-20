@@ -501,6 +501,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.formGroup.controls.access.enable();
 
+    if (!this.editMode) {
+      this.formGroup.controls.name.enable();
+      this.formGroup.controls.parent.enable();
+      return;
+    }
+
     const canEditName = this.collection.canEditName(this.organization);
     this.formGroup.controls.name[canEditName ? "enable" : "disable"]();
     this.formGroup.controls.parent[canEditName ? "enable" : "disable"]();
