@@ -15,7 +15,7 @@ import {
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
-import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
+import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom, of } from "rxjs";
 import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -34,8 +34,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -217,6 +219,38 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  protected isChromiumBrowser$(format: ImportType): Observable<boolean> {
+    return of(
+      format === "chromecsv" ||
+        format === "operacsv" ||
+        format === "vivaldicsv" ||
+        format === "bravecsv" ||
+        format === "edgecsv",
+    );
+  }
+
+  protected isChromiumImporterEnabled$ = combineLatest([
+    this.formGroup.controls.format.valueChanges,
+    this.configService.getFeatureFlag$(FeatureFlag.UseChromiumImporter),
+  ]).pipe(
+    map(
+      ([format, useChromiumImporterFeatureFlag]) =>
+        this.isChromiumBrowser$(format) &&
+        this.platformUtilsService.getClientType() === ClientType.Desktop &&
+        useChromiumImporterFeatureFlag,
+    ),
+  );
+
+  protected readonly showChromiumOptions$ = combineLatest([
+    this.formGroup.controls.chromeType.valueChanges,
+    this.isChromiumImporterEnabled$,
+  ]).pipe(
+    map(
+      ([chromeType, isChromiumImporterEnabled]) =>
+        isChromiumImporterEnabled && chromeType === "direct",
+    ),
+  );
+
   constructor(
     protected i18nService: I18nService,
     protected importService: ImportServiceAbstraction,
@@ -235,6 +269,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected toastService: ToastService,
     protected accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -250,20 +285,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   protected get showLastPassOptions(): boolean {
     return this.showLastPassToggle && this.formGroup.controls.lastPassType.value === "direct";
-  }
-
-  protected get showChromeToggle(): boolean {
-    return (
-      (this.format === "chromecsv" ||
-        this.format === "operacsv" ||
-        this.format === "vivaldicsv" ||
-        this.format === "bravecsv" ||
-        this.format === "edgecsv") &&
-      this.platformUtilsService.getClientType() === ClientType.Desktop
-    );
-  }
-  protected get showChromeOptions(): boolean {
-    return this.showChromeToggle && this.formGroup.controls.chromeType.value === "direct";
   }
 
   async ngOnInit() {

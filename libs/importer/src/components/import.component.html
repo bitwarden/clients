@@ -171,15 +171,7 @@
       "Export" to save the JSON file.
     </ng-container>
     -->
-        <ng-container
-          *ngIf="
-            format === 'chromecsv' ||
-            format === 'operacsv' ||
-            format === 'vivaldicsv' ||
-            format === 'bravecsv' ||
-            format === 'edgecsv'
-          "
-        >
+        <ng-container *ngIf="isChromiumBrowser$(format) | async">
           <span *ngIf="format !== 'chromecsv'">
             The process is exactly the same as importing from Google Chrome.
           </span>
@@ -195,7 +187,10 @@
               https://bitwarden.com/help/import-from-chrome/</a
             >
           </p>
-          <bit-radio-group *ngIf="showChromeToggle" formControlName="chromeType">
+          <bit-radio-group
+            [hidden]="!(isChromiumImporterEnabled$ | async)"
+            formControlName="chromeType"
+          >
             <bit-radio-button
               class="tw-block"
               id="import_bit-radio-button_chrome-direct"
@@ -457,20 +452,20 @@
           previously chosen.
         </ng-container>
       </bit-callout>
-      <import-lastpass
-        *ngIf="showLastPassOptions"
-        [formGroup]="formGroup"
-        (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
-      ></import-lastpass>
-      <import-chrome
-        *ngIf="showChromeOptions"
-        [formGroup]="formGroup"
-        [onImportFromBrowser]="this.onImportFromBrowser"
-        [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
-        [format]="this.format"
-        (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
-      ></import-chrome>
-      <div [hidden]="showLastPassOptions || showChromeOptions">
+      @if (showLastPassOptions) {
+        <import-lastpass
+          [formGroup]="formGroup"
+          (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
+        ></import-lastpass>
+      } @else if (showChromiumOptions$ | async) {
+        <import-chrome
+          [formGroup]="formGroup"
+          [onImportFromBrowser]="this.onImportFromBrowser"
+          [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
+          [format]="this.format"
+          (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
+        ></import-chrome>
+      } @else {
         <bit-form-field>
           <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
           <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
@@ -498,7 +493,7 @@
             formControlName="fileContents"
           ></textarea>
         </bit-form-field>
-      </div>
+      }
     </bit-card>
   </bit-section>
 </form>
