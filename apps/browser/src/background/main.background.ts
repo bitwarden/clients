@@ -68,8 +68,11 @@ import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import {
+  DefaultKeyGenerationService,
+  KeyGenerationService,
+} from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
@@ -98,7 +101,6 @@ import { Fido2ClientService as Fido2ClientServiceAbstraction } from "@bitwarden/
 import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -109,14 +111,11 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
-import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
-import { Account } from "@bitwarden/common/platform/models/domain/account";
-import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
@@ -136,17 +135,16 @@ import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/f
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
-import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import {
   ActiveUserStateProvider,
+  DefaultStateService,
   DerivedStateProvider,
   GlobalStateProvider,
   SingleUserStateProvider,
@@ -313,7 +311,7 @@ export default class MainBackground {
   i18nService: I18nServiceAbstraction;
   platformUtilsService: PlatformUtilsServiceAbstraction;
   logService: LogServiceAbstraction;
-  keyGenerationService: KeyGenerationServiceAbstraction;
+  keyGenerationService: KeyGenerationService;
   keyService: KeyServiceAbstraction;
   cryptoFunctionService: CryptoFunctionServiceAbstraction;
   masterPasswordService: InternalMasterPasswordServiceAbstraction;
@@ -387,6 +385,7 @@ export default class MainBackground {
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
+  migrationRunner: MigrationRunner;
   taskSchedulerService: BrowserTaskSchedulerService;
   fido2Background: Fido2BackgroundAbstraction;
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
@@ -475,7 +474,7 @@ export default class MainBackground {
     const isDev = process.env.ENV === "development";
     this.logService = new ConsoleLogService(isDev);
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
-    this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
+    this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService(this.logService);
 
     this.intraprocessMessagingSubject = new Subject<Message<Record<string, unknown>>>();
@@ -593,8 +592,9 @@ export default class MainBackground {
       this.globalStateProvider,
       this.singleUserStateProvider,
     );
+    const activeUserAccessor = new DefaultActiveUserAccessor(this.accountService);
     this.activeUserStateProvider = new DefaultActiveUserStateProvider(
-      new DefaultActiveUserAccessor(this.accountService),
+      activeUserAccessor,
       this.singleUserStateProvider,
     );
     this.derivedStateProvider = new InlineDerivedStateProvider();
@@ -640,23 +640,17 @@ export default class MainBackground {
       this.taskSchedulerService,
     );
 
-    const migrationRunner = new MigrationRunner(
+    this.migrationRunner = new MigrationRunner(
       this.storageService,
       this.logService,
       new MigrationBuilderService(),
       ClientType.Browser,
     );
 
-    this.stateService = new StateService(
+    this.stateService = new DefaultStateService(
       this.storageService,
       this.secureStorageService,
-      this.memoryStorageService,
-      this.logService,
-      new StateFactory(GlobalState, Account),
-      this.accountService,
-      this.environmentService,
-      this.tokenService,
-      migrationRunner,
+      activeUserAccessor,
     );
 
     this.masterPasswordService = new MasterPasswordService(
@@ -873,10 +867,7 @@ export default class MainBackground {
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
-    this.domainSettingsService = new DefaultDomainSettingsService(
-      this.stateProvider,
-      this.configService,
-    );
+    this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
 
@@ -891,7 +882,6 @@ export default class MainBackground {
       this.apiService,
       this.i18nService,
       this.searchService,
-      this.stateService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
@@ -950,6 +940,7 @@ export default class MainBackground {
       this.messagingService,
       this.searchService,
       this.stateService,
+      this.tokenService,
       this.authService,
       this.vaultTimeoutSettingsService,
       this.stateEventRunnerService,
@@ -993,7 +984,6 @@ export default class MainBackground {
       this.sendService,
       this.logService,
       this.keyConnectorService,
-      this.stateService,
       this.providerService,
       this.folderApiService,
       this.organizationService,
@@ -1324,7 +1314,7 @@ export default class MainBackground {
     );
 
     this.mainContextMenuHandler = new MainContextMenuHandler(
-      this.stateService,
+      this.tokenService,
       this.autofillSettingsService,
       this.i18nService,
       this.logService,
@@ -1391,7 +1381,7 @@ export default class MainBackground {
 
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
-    await this.stateService.init({ runMigrations: true });
+    await this.migrationRunner.run();
 
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
@@ -1448,10 +1438,7 @@ export default class MainBackground {
         this.notificationsService.startListening();
 
         this.taskService.listenForTaskNotifications();
-
-        if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
-          this.endUserNotificationService.listenForEndUserNotifications();
-        }
+        this.endUserNotificationService.listenForEndUserNotifications();
         resolve();
       }, 500);
     });
@@ -1614,6 +1601,7 @@ export default class MainBackground {
     const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
 
     await this.stateService.clean({ userId: userBeingLoggedOut });
+    await this.tokenService.clearAccessToken(userBeingLoggedOut);
     await this.accountService.clean(userBeingLoggedOut);
 
     await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);

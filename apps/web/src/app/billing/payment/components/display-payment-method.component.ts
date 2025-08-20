@@ -4,7 +4,7 @@ import { lastValueFrom } from "rxjs";
 import { DialogService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
-import { BillableEntity } from "../../types";
+import { BitwardenSubscriber } from "../../types";
 import { MaskedPaymentMethod } from "../types";
 
 import { ChangePaymentMethodDialogComponent } from "./change-payment-method-dialog.component";
@@ -19,7 +19,10 @@ import { VerifyBankAccountComponent } from "./verify-bank-account.component";
         @switch (paymentMethod.type) {
           @case ("bankAccount") {
             @if (!paymentMethod.verified) {
-              <app-verify-bank-account [owner]="owner" (verified)="onBankAccountVerified($event)">
+              <app-verify-bank-account
+                [subscriber]="subscriber"
+                (verified)="onBankAccountVerified($event)"
+              >
               </app-verify-bank-account>
             }
 
@@ -63,7 +66,7 @@ import { VerifyBankAccountComponent } from "./verify-bank-account.component";
   imports: [SharedModule, VerifyBankAccountComponent],
 })
 export class DisplayPaymentMethodComponent {
-  @Input({ required: true }) owner!: BillableEntity;
+  @Input({ required: true }) subscriber!: BitwardenSubscriber;
   @Input({ required: true }) paymentMethod!: MaskedPaymentMethod | null;
   @Output() updated = new EventEmitter<MaskedPaymentMethod>();
 
@@ -82,7 +85,7 @@ export class DisplayPaymentMethodComponent {
   changePaymentMethod = async (): Promise<void> => {
     const dialogRef = ChangePaymentMethodDialogComponent.open(this.dialogService, {
       data: {
-        owner: this.owner,
+        subscriber: this.subscriber,
       },
     });
 

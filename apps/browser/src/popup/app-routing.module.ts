@@ -2,11 +2,7 @@ import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
-import {
-  EnvironmentSelectorComponent,
-  EnvironmentSelectorRouteData,
-  ExtensionDefaultOverlayPosition,
-} from "@bitwarden/angular/auth/components/environment-selector.component";
+import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
 import {
   activeAuthGuard,
   authGuard,
@@ -400,9 +396,6 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: ExtensionDefaultOverlayPosition,
-            } satisfies EnvironmentSelectorRouteData,
           },
         ],
       },
@@ -425,9 +418,6 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: ExtensionDefaultOverlayPosition,
-            } satisfies EnvironmentSelectorRouteData,
           },
         ],
       },
@@ -474,9 +464,6 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: ExtensionDefaultOverlayPosition,
-            } satisfies EnvironmentSelectorRouteData,
           },
         ],
       },

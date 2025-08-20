@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Déverrouillez Bitwarden sur votre appareil ou sur le "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Essayez-vous d'accéder à votre compte ?"
-  },
   "accessAttemptBy": {
     "message": "Tentative d'accès par $EMAIL$",
     "placeholders": {
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Cette demande n'est plus valide."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Connexion confirmée pour $EMAIL$ sur $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vraiment vous, essayez de vous connecter à nouveau avec l'appareil."
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Demande de connexion approuvée pour $EMAIL$ sur $DEVICE$",
     "placeholders": {
@@ -5284,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Télécharger les pièces jointes"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Entrez le mot de passe pour afficher ce Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Afficher le Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Le Send que vous essayez d'accéder n'existe pas ou n'est plus disponible.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "Forcer la propriété des données de l'organisation"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Exiger que tous les éléments appartiennent à une organisation, en supprimant la possibilité de sauvegarder des éléments au niveau du compte.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Tous les éléments seront détenus et enregistrés dans l'organisation, ce qui activera les contrôles, la visibilité et les rapports à l'échelle de l'organisation. Quand activé, une collection par défaut est disponible pour chaque membre pour enregistrer des éléments. En savoir plus sur la gestion de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "cycle de vie des identifiants",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Êtes-vous sûr de vouloir continuer ?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "restera accessible aux membres"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "ne sera pas automatiquement sélectionné lors de la création de nouveaux éléments"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "ne peut pas être géré depuis la Console Admin jusqu'à ce que l'utilisateur soit déconnecté"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "En désactivant cette politique de sécurité, la collection par défaut : "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Apprenez-en plus sur ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Supprimer le coffre individuel"
@@ -10980,5 +11000,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Projets et Secrets illimités"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Abonnement annulé"
+  },
+  "providersubCanceledmessage": {
+    "message": "Pour vous réinscrire, contactez l'Assistance Client de Bitwarden."
+  },
+  "showMore": {
+    "message": "Afficher plus"
+  },
+  "showLess": {
+    "message": "Afficher moins"
   }
 }
