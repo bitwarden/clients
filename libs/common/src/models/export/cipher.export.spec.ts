@@ -26,5 +26,19 @@ describe("Cipher Export", () => {
         expect(resultView.deletedDate).toEqual(existingView.deletedDate);
       },
     );
+
+    it("should set date values when request dates are provided", () => {
+      const request = CipherExport.template();
+      request.type = CipherType.SecureNote;
+      request.secureNote = SecureNoteExport.template();
+      request.creationDate = new Date("2023-01-01T00:00:00Z");
+      request.revisionDate = new Date("2023-01-02T00:00:00Z");
+      request.deletedDate = new Date("2023-01-03T00:00:00Z");
+
+      const resultView = CipherExport.toView(request);
+      expect(resultView.creationDate).toEqual(request.creationDate);
+      expect(resultView.revisionDate).toEqual(request.revisionDate);
+      expect(resultView.deletedDate).toEqual(request.deletedDate);
+    });
   });
 });
