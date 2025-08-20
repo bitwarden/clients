@@ -1,7 +1,6 @@
 import { combineLatest, map, mergeMap, of, Subject, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -22,17 +21,18 @@ export class AtRiskCipherBadgeUpdaterService {
   private tabRemoved$ = new Subject<number>();
   private tabActivated$ = new Subject<chrome.tabs.Tab>();
 
-  private activeAccount$ = this.accountService.activeAccount$;
-  private userId$ = this.activeAccount$.pipe(getOptionalUserId, filterOutNullish());
-
-  private pendingTasks$ = this.activeAccount$.pipe(
+  private activeUserData$ = this.accountService.activeAccount$.pipe(
     filterOutNullish(),
-    switchMap((account) =>
-      this.taskService
-        .pendingTasks$(account.id)
-        .pipe(
-          map((tasks) => tasks.filter((t) => t.type === SecurityTaskType.UpdateAtRiskCredential)),
-        ),
+    switchMap((user) =>
+      combineLatest([
+        of(user.id),
+        this.taskService
+          .pendingTasks$(user.id)
+          .pipe(
+            map((tasks) => tasks.filter((t) => t.type === SecurityTaskType.UpdateAtRiskCredential)),
+          ),
+        this.cipherService.cipherViews$(user.id).pipe(filterOutNullish()),
+      ]),
     ),
   );
 
@@ -43,18 +43,12 @@ export class AtRiskCipherBadgeUpdaterService {
     private logService: LogService,
     private taskService: TaskService,
   ) {
-    const cipherViews$ = this.activeAccount$.pipe(
-      switchMap((account) => (account?.id ? this.cipherService.cipherViews$(account?.id) : of([]))),
-    );
-
     combineLatest({
       replaced: this.tabReplaced$,
-      userId: this.userId$,
-      pendingTasks: this.pendingTasks$,
-      ciphers: cipherViews$,
+      activeUserData: this.activeUserData$,
     })
       .pipe(
-        mergeMap(async ({ userId, replaced, pendingTasks }) => {
+        mergeMap(async ({ replaced, activeUserData: [userId, pendingTasks] }) => {
           await this.clearTabState(replaced.removedTabId);
           await this.setTabState(replaced.addedTab, userId, pendingTasks);
         }),
@@ -63,12 +57,10 @@ export class AtRiskCipherBadgeUpdaterService {
 
     combineLatest({
       tab: this.tabActivated$,
-      userId: this.userId$,
-      pendingTasks: this.pendingTasks$,
-      ciphers: cipherViews$,
+      activeUserData: this.activeUserData$,
     })
       .pipe(
-        mergeMap(async ({ userId, tab, pendingTasks }) => {
+        mergeMap(async ({ tab, activeUserData: [userId, pendingTasks] }) => {
           await this.setTabState(tab, userId, pendingTasks);
         }),
       )
@@ -76,12 +68,10 @@ export class AtRiskCipherBadgeUpdaterService {
 
     combineLatest({
       tab: this.tabUpdated$,
-      userId: this.userId$,
-      pendingTasks: this.pendingTasks$,
-      ciphers: cipherViews$,
+      activeUserData: this.activeUserData$,
     })
       .pipe(
-        mergeMap(async ({ userId, tab, pendingTasks }) => {
+        mergeMap(async ({ tab, activeUserData: [userId, pendingTasks] }) => {
           await this.setTabState(tab, userId, pendingTasks);
         }),
       )
