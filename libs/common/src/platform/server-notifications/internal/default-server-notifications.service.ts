@@ -32,14 +32,14 @@ import { EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { MessagingService } from "../../abstractions/messaging.service";
 import { supportSwitch } from "../../misc/support-status";
-import { NotificationsService as NotificationsServiceAbstraction } from "../notifications.service";
+import { ServerNotificationsService } from "../server-notifications.service";
 
 import { ReceiveMessage, SignalRConnectionService } from "./signalr-connection.service";
 import { WebPushConnectionService } from "./webpush-connection.service";
 
 export const DISABLED_NOTIFICATIONS_URL = "http://-";
 
-export class DefaultNotificationsService implements NotificationsServiceAbstraction {
+export class DefaultServerNotificationsService implements ServerNotificationsService {
   notifications$: Observable<readonly [NotificationResponse, UserId]>;
 
   private activitySubject = new BehaviorSubject<"active" | "inactive">("active");
@@ -61,7 +61,7 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
       distinctUntilChanged(),
       switchMap((activeAccountId) => {
         if (activeAccountId == null) {
-          // We don't emit notifications for inactive accounts currently
+          // We don't emit server-notifications for inactive accounts currently
           return EMPTY;
         }
 
@@ -74,8 +74,8 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
   }
 
   /**
-   * Retrieves a stream of push notifications for the given user.
-   * @param userId The user id of the user to get the push notifications for.
+   * Retrieves a stream of push server notifications for the given user.
+   * @param userId The user id of the user to get the push server notifications for.
    */
   private userNotifications$(userId: UserId) {
     return this.environmentService.environment$.pipe(
@@ -109,7 +109,7 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
       }),
       supportSwitch({
         supported: (service) => {
-          this.logService.info("Using WebPush for notifications");
+          this.logService.info("Using WebPush for server notifications");
           return service.notifications$.pipe(
             catchError((err: unknown) => {
               this.logService.warning("Issue with web push, falling back to SignalR", err);
@@ -118,7 +118,7 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
           );
         },
         notSupported: () => {
-          this.logService.info("Using SignalR for notifications");
+          this.logService.info("Using SignalR for server notifications");
           return this.connectSignalR$(userId, notificationsUrl);
         },
       }),
@@ -188,7 +188,6 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
       case NotificationType.SyncCiphers:
       case NotificationType.SyncSettings:
         await this.syncService.fullSync(false);
-
         break;
       case NotificationType.SyncOrganizations:
         // An organization update may not have bumped the user's account revision date, so force a sync
@@ -214,11 +213,11 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
       case NotificationType.AuthRequest:
-        {
-          this.messagingService.send("openLoginApproval", {
-            notificationId: notification.payload.id,
-          });
-        }
+        // create notification
+
+        this.messagingService.send("openLoginApproval", {
+          notificationId: notification.payload.id,
+        });
         break;
       case NotificationType.SyncOrganizationStatusChanged:
         await this.syncService.fullSync(true);
@@ -237,7 +236,8 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         mergeMap(async ([notification, userId]) => this.processNotification(notification, userId)),
       )
       .subscribe({
-        error: (e: unknown) => this.logService.warning("Error in notifications$ observable", e),
+        error: (e: unknown) =>
+          this.logService.warning("Error in server notifications$ observable", e),
       });
   }
 

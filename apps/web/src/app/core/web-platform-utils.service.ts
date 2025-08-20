@@ -98,7 +98,7 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
-  isViewOpen(): Promise<boolean> {
+  isPopupOpen(): Promise<boolean> {
     return Promise.resolve(false);
   }
 

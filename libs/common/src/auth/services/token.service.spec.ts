@@ -8,13 +8,13 @@ import { firstValueFrom } from "rxjs";
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
+import { KeyGenerationService } from "../../key-management/crypto";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutStringType,
 } from "../../key-management/vault-timeout";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
