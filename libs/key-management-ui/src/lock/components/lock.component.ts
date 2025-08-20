@@ -625,7 +625,7 @@ export class LockComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Vault can be de-synced since notifications get ignored while locked. Need to check whether sync is required using the sync service.
+    // Vault can be de-synced since server notifications get ignored while locked. Need to check whether sync is required using the sync service.
     const startSync = new Date().getTime();
     // TODO: This should probably not be blocking
     await this.syncService.fullSync(false);

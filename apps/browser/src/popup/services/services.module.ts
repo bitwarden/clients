@@ -47,6 +47,7 @@ import {
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import {
   AutofillSettingsService,
@@ -91,12 +92,13 @@ import {
   AbstractStorageService,
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { ActionsService } from "@bitwarden/common/platform/actions";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
@@ -112,6 +114,7 @@ import { InlineDerivedStateProvider } from "@bitwarden/common/platform/state/imp
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -159,13 +162,14 @@ import { InlineMenuFieldQualificationService } from "../../autofill/services/inl
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
+import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
-import { ForegroundNotificationsService } from "../../platform/notifications/foreground-notifications.service";
+import { ForegroundServerNotificationsService } from "../../platform/notifications/foreground-server-notifications.service";
 import { OffscreenDocumentService } from "../../platform/offscreen-document/abstractions/offscreen-document";
 import { DefaultOffscreenDocumentService } from "../../platform/offscreen-document/offscreen-document.service";
 import { PopupCompactModeService } from "../../platform/popup/layout/popup-compact-mode.service";
@@ -183,6 +187,7 @@ import { ForegroundTaskSchedulerService } from "../../platform/services/task-sch
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { ForegroundSyncService } from "../../platform/sync/foreground-sync.service";
+import { BrowserSystemNotificationService } from "../../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
@@ -251,6 +256,11 @@ const safeProviders: SafeProvider[] = [
       return new I18nService(BrowserApi.getUILanguage(), globalStateProvider);
     },
     deps: [GlobalStateProvider],
+  }),
+  safeProvider({
+    provide: ActionsService,
+    useClass: BrowserActionsService,
+    deps: [LogService, PlatformUtilsService],
   }),
   safeProvider({
     provide: KeyService,
@@ -333,7 +343,7 @@ const safeProviders: SafeProvider[] = [
     provide: SyncService,
     useClass: ForegroundSyncService,
     deps: [
-      StateService,
+      TokenService,
       InternalFolderService,
       FolderApiServiceAbstraction,
       MessageSender,
@@ -609,6 +619,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: SystemNotificationsService,
+    useClass: BrowserSystemNotificationService,
+    deps: [LogService, PlatformUtilsService],
+  }),
+  safeProvider({
     provide: LoginComponentService,
     useClass: ExtensionLoginComponentService,
     deps: [
@@ -673,8 +688,8 @@ const safeProviders: SafeProvider[] = [
     deps: [KeyService, MasterPasswordApiService, InternalMasterPasswordServiceAbstraction, WINDOW],
   }),
   safeProvider({
-    provide: NotificationsService,
-    useClass: ForegroundNotificationsService,
+    provide: ServerNotificationsService,
+    useClass: ForegroundServerNotificationsService,
     deps: [LogService],
   }),
   safeProvider({
