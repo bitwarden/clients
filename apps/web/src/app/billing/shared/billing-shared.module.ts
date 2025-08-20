@@ -5,7 +5,6 @@ import { BannerModule } from "@bitwarden/components";
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
-import { AddCreditDialogComponent } from "./add-credit-dialog.component";
 import { AdjustStorageDialogComponent } from "./adjust-storage-dialog/adjust-storage-dialog.component";
 import { BillingHistoryComponent } from "./billing-history.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
@@ -23,7 +22,6 @@ import { UpdateLicenseComponent } from "./update-license.component";
 @NgModule({
   imports: [SharedModule, TaxInfoComponent, HeaderModule, BannerModule, PaymentComponent],
   declarations: [
-    AddCreditDialogComponent,
     BillingHistoryComponent,
     SecretsManagerSubscribeComponent,
     UpdateLicenseComponent,
