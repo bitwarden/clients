@@ -84,7 +84,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
   async checkVaultTimeout(): Promise<void> {
     // Get whether or not the view is open a single time so it can be compared for each user
-    const isViewOpen = await this.platformUtilsService.isViewOpen();
+    const isViewOpen = await this.platformUtilsService.isPopupOpen();
 
     await firstValueFrom(
       combineLatest([

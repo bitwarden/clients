@@ -22,7 +22,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -76,7 +76,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private keyService: KeyService,
     private collectionService: CollectionService,
     private searchService: SearchService,
-    private notificationsService: NotificationsService,
+    private serverNotificationsService: ServerNotificationsService,
     private stateService: StateService,
     private eventUploadService: EventUploadService,
     protected policyListService: PolicyListService,
@@ -88,14 +88,14 @@ export class AppComponent implements OnDestroy, OnInit {
     private accountService: AccountService,
     private processReloadService: ProcessReloadServiceAbstraction,
     private deviceTrustToastService: DeviceTrustToastService,
-    private readonly destoryRef: DestroyRef,
+    private readonly destroy: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private readonly tokenService: TokenService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
     const langSubscription = this.documentLangSetter.start();
-    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
+    this.destroy.onDestroy(() => langSubscription.unsubscribe());
   }
 
   ngOnInit() {
@@ -347,9 +347,9 @@ export class AppComponent implements OnDestroy, OnInit {
 
   private idleStateChanged() {
     if (this.isIdle) {
-      this.notificationsService.disconnectFromInactivity();
+      this.serverNotificationsService.disconnectFromInactivity();
     } else {
-      this.notificationsService.reconnectFromActivity();
+      this.serverNotificationsService.reconnectFromActivity();
     }
   }
 }
