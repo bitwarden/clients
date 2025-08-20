@@ -150,18 +150,14 @@ export class SearchService implements SearchServiceAbstraction {
       return false;
     }
 
-    // Always searchable when query exceeds the minimum length
-    if (query.length >= this.searchableMinLength) {
-      return true;
-    }
-
     const isLunrQuery = query.indexOf(">") === 0;
     if (isLunrQuery) {
-      // If the query is a Lunr query, we need to check if the index exists
+      // Lunr queries always require an index
       return (await this.getIndexForSearch(userId)) != null;
     }
 
-    return false; // Not searchable if the query is too short and not a Lunr query
+    // Regular queries only require a minimum length
+    return query.length >= this.searchableMinLength;
   }
 
   async indexCiphers(
