@@ -628,15 +628,10 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     const firstSetup$ = combineLatest([this.organization$, this.route.queryParams]).pipe(
       first(),
       switchMap(async ([organization]) => {
-        try {
-          if (!organization.canEditAnyCollection) {
-            await this.syncService.fullSync(false);
-          }
-          return;
-        } catch (error) {
-          this.logService.error("Error during initial setup:", error);
-          return;
+        if (!organization.canEditAnyCollection) {
+          await this.syncService.fullSync(false);
         }
+        return;
       }),
       catchError((error: unknown) => {
         this.logService.error("Failed during firstSetup$:", error);
