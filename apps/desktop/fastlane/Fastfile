@@ -4,24 +4,24 @@ default_platform(:mac)
 require 'json'
 
 # Read App Store Connect supported locales from electron-builder.json
-def load_app_store_locales
-  config_path = File.expand_path("../electron-builder.json", __dir__)
-  config = JSON.parse(File.read(config_path))
-  bundle_localizations = config.dig("mac", "extendInfo", "CFBundleLocalizations") || []
+# def load_app_store_locales
+#   config_path = File.expand_path("../electron-builder.json", __dir__)
+#   config = JSON.parse(File.read(config_path))
+#   bundle_localizations = config.dig("mac", "extendInfo", "CFBundleLocalizations") || []
   
-  # Convert to App Store Connect locale format
-  bundle_localizations.map do |locale|
-    case locale
-    when "en" then "en-US"  # App Store requires en-US format
-    else locale  # Others should match (pt-BR, zh-Hans, etc.)
-    end
-  end.sort
-end
+#   # Convert to App Store Connect locale format
+#   bundle_localizations.map do |locale|
+#     case locale
+#     when "en" then "en-US"  # App Store requires en-US format
+#     else locale  # Others should match (pt-BR, zh-Hans, etc.)
+#     end
+#   end.sort
+# end
 
 APP_CONFIG = {
   app_identifier: "com.bitwarden.desktop",
   release_notes_path: "fastlane/release_notes",
-  locales: load_app_store_locales
+  locales: ["ca", "zh-Hans", "zh-Hant", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pt-PT", "pt-BR", "ru", "es-ES", "es-MX", "sv", "tr", "vi", "en-GB", "th"]
 }
 
 platform :mac do
@@ -32,7 +32,7 @@ platform :mac do
     # Create release notes hash for all supported locales
     notes = {}
     APP_CONFIG[:locales].each do |locale|
-      notes[locale] = changelog
+      UI.message("Creating release notes for #{locale}")
       UI.message("Created release notes for #{locale}: #{changelog[0,50]}#{changelog.length > 50 ? '...' : ''}")
     end
     
