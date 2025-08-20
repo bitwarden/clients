@@ -18,7 +18,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
-import { DeactivatedOrg, NoResults, Vault2 } from "@bitwarden/assets/svg";
+import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -136,7 +136,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   /** Visual state of the vault */
   protected vaultState: VaultState | null = null;
 
-  protected vaultIcon = Vault2;
+  protected vaultIcon = VaultOpen;
   protected deactivatedIcon = DeactivatedOrg;
   protected noResultsIcon = NoResults;
 

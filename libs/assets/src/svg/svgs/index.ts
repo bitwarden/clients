@@ -63,7 +63,7 @@ export * from "./two-factor-auth-yubico.icon";
 export * from "./two-factor-timeout.icon";
 export * from "./user-lock.icon";
 export * from "./user-verification-biometrics-fingerprint.icon";
-export * from "./vault-2";
+export * from "./vault-open";
 export * from "./vault.icon";
 export * from "./vault";
 export * from "./wave.icon";
