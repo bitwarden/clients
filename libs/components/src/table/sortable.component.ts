@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
 import { Component, HostBinding, OnInit, input } from "@angular/core";
@@ -26,7 +24,7 @@ export class SortableComponent implements OnInit {
   /**
    * Mark the column as sortable and specify the key to sort by
    */
-  readonly bitSortable = input<string>();
+  readonly bitSortable = input.required<string>();
 
   readonly default = input(false, {
     transform: (value: SortDirection | boolean | "") => {
@@ -63,7 +61,7 @@ export class SortableComponent implements OnInit {
     if (!this.isActive) {
       return undefined;
     }
-    return this.sort.direction === "asc" ? "ascending" : "descending";
+    return this.sort?.direction === "asc" ? "ascending" : "descending";
   }
 
   protected setActive() {

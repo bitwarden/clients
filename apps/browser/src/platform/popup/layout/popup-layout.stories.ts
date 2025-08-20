@@ -67,14 +67,10 @@ class ExtensionPoppedContainerComponent {}
               <button type="button" bitBadge variant="primary">Fill</button>
             </bit-item-action>
             <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone" aria-label="Copy item"></button>
+              <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
             </bit-item-action>
             <bit-item-action>
-              <button
-                type="button"
-                bitIconButton="bwi-ellipsis-v"
-                aria-label="More options"
-              ></button>
+              <button type="button" bitIconButton="bwi-ellipsis-v" label="More options"></button>
             </bit-item-action>
           </ng-container>
         </bit-item>
@@ -102,13 +98,7 @@ class MockAddButtonComponent {}
 @Component({
   selector: "mock-popout-button",
   template: `
-    <button
-      bitIconButton="bwi-popout"
-      size="small"
-      type="button"
-      title="Pop out"
-      aria-label="Pop out"
-    ></button>
+    <button bitIconButton="bwi-popout" size="small" type="button" label="Pop out"></button>
   `,
   imports: [IconButtonModule],
 })
@@ -278,7 +268,13 @@ class MockSettingsPageComponent {}
       <popup-footer slot="footer">
         <button type="button" bitButton buttonType="primary">Save</button>
         <button type="button" bitButton buttonType="secondary">Cancel</button>
-        <button slot="end" type="button" buttonType="danger" bitIconButton="bwi-trash"></button>
+        <button
+          slot="end"
+          type="button"
+          buttonType="danger"
+          bitIconButton="bwi-trash"
+          label="Delete"
+        ></button>
       </popup-footer>
     </popup-page>
   `,
@@ -343,7 +339,7 @@ export default {
               generator: "Generator",
               send: "Send",
               settings: "Settings",
-              labelWithNotification: (label: string) => `${label}: New Notification`,
+              labelWithNotification: (label: string | undefined) => `${label}: New Notification`,
             });
           },
         },
@@ -671,17 +667,13 @@ export const WithVirtualScrollChild: Story = {
                       <button type="button" bitBadge variant="primary">Fill</button>
                     </bit-item-action>
                     <bit-item-action>
-                      <button
-                        type="button"
-                        bitIconButton="bwi-clone"
-                        aria-label="Copy item"
-                      ></button>
+                      <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
                     </bit-item-action>
                     <bit-item-action>
                       <button
                         type="button"
                         bitIconButton="bwi-ellipsis-v"
-                        aria-label="More options"
+                        label="More options"
                       ></button>
                     </bit-item-action>
                   </ng-container>

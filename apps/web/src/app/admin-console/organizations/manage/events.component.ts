@@ -34,6 +34,8 @@ import {
   openChangePlanDialog,
 } from "../../../billing/organizations/change-plan-dialog.component";
 import { EventService } from "../../../core";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 import { EventExportService } from "../../../tools/event-export";
 import { BaseEventsComponent } from "../../common/base.events.component";
 
@@ -46,9 +48,8 @@ const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
 };
 
 @Component({
-  selector: "app-org-events",
   templateUrl: "events.component.html",
-  standalone: false,
+  imports: [SharedModule, HeaderModule],
 })
 export class EventsComponent extends BaseEventsComponent implements OnInit, OnDestroy {
   exportFileName = "org-events";

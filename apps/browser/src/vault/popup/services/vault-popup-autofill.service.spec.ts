@@ -125,6 +125,10 @@ describe("VaultPopupAutofillService", () => {
     });
 
     it("should only fetch the current tab once when subscribed to multiple times", async () => {
+      (BrowserApi.getTabFromCurrentWindow as jest.Mock).mockClear();
+
+      service.refreshCurrentTab();
+
       const firstTracked = subscribeTo(service.currentAutofillTab$);
       const secondTracked = subscribeTo(service.currentAutofillTab$);
 
@@ -195,6 +199,7 @@ describe("VaultPopupAutofillService", () => {
 
       // Refresh the current tab so the mockedPageDetails$ are used
       service.refreshCurrentTab();
+      (service as any)._currentPageDetails$ = of(mockPageDetails);
     });
 
     describe("doAutofill()", () => {
