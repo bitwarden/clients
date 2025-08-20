@@ -64,6 +64,13 @@ export default {
         disable: true,
       },
     },
+    background: {
+      options: ["alt", "default"],
+      control: { type: "radio" },
+      table: {
+        defaultValue: "default",
+      },
+    },
   },
   parameters: {
     design: {
@@ -94,8 +101,7 @@ export const Default: Story = {
             bitIconButton="bwi-trash"
             buttonType="danger"
             size="default"
-            title="Delete"
-            aria-label="Delete"></button>
+            label="Delete"></button>
         </ng-container>
       </bit-dialog>
     `,
@@ -144,7 +150,7 @@ export const ScrollingContent: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog title="Scrolling Example" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog title="Scrolling Example" [background]="background" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding">
         <span bitDialogContent>
           Dialog body text goes here.<br />
           <ng-container *ngFor="let _ of [].constructor(100)">
@@ -168,7 +174,7 @@ export const TabContent: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog title="Tab Content Example" [dialogSize]="dialogSize" [disablePadding]="disablePadding">
+      <bit-dialog title="Tab Content Example" [background]="background" [dialogSize]="dialogSize" [disablePadding]="disablePadding">
         <span bitDialogContent>
           <bit-tab-group>
               <bit-tab label="First Tab">First Tab Content</bit-tab>
@@ -205,14 +211,14 @@ export const WithCards: Story = {
     },
     template: /*html*/ `
       <form [formGroup]="formObj">
-      <bit-dialog background="alt" [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
+      <bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding">
         <ng-container bitDialogContent>
           <bit-section>
             <bit-section-header>
               <h2 bitTypography="h6">
                 Foo
               </h2>
-              <button type="button" bitIconButton="bwi-star" size="small" slot="end"></button>
+              <button type="button" label="Favorite" bitIconButton="bwi-star" size="small" slot="end"></button>
             </bit-section-header>
             <bit-card>
               <bit-form-field>
@@ -232,7 +238,7 @@ export const WithCards: Story = {
               <h2 bitTypography="h6">
                 Bar
               </h2>
-              <button type="button" bitIconButton="bwi-star" size="small" slot="end"></button>
+              <button label="Favorite" type="button" bitIconButton="bwi-star" size="small" slot="end"></button>
             </bit-section-header>
             <bit-card>
               <bit-form-field>
@@ -258,8 +264,7 @@ export const WithCards: Story = {
             bitIconButton="bwi-trash"
             buttonType="danger"
             size="default"
-            title="Delete"
-            aria-label="Delete"></button>
+            label="Delete"></button>
         </ng-container>
       </bit-dialog>
   </form>
@@ -269,5 +274,6 @@ export const WithCards: Story = {
     dialogSize: "default",
     title: "Default",
     subtitle: "Subtitle",
+    background: "alt",
   },
 };

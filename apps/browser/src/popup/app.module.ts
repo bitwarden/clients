@@ -9,7 +9,6 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
@@ -96,7 +95,6 @@ import "../platform/popup/locales";
     TabsV2Component,
     UserVerificationComponent,
     RemovePasswordComponent,
-    EnvironmentSelectorComponent,
   ],
   exports: [],
   providers: [CurrencyPipe, DatePipe],

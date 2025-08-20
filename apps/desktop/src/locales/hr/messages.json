@@ -1225,11 +1225,17 @@
   "twoStepLogin": {
     "message": "Prijava dvostrukom autentifikacijom"
   },
+  "vaultTimeoutHeader": {
+    "message": "Istek trezora"
+  },
   "vaultTimeout": {
     "message": "Istek trezora"
   },
   "vaultTimeout1": {
     "message": "Vrijeme isteka"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Radnja nakon isteka"
   },
   "vaultTimeoutDesc": {
     "message": "Odaberi kada će isteći trezor i koja će se radnja izvršiti."
@@ -2511,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Vrijeme isteka premašuje ograničenje koju je postavila tvoja organizacija."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Pravila tvrtke primijenjena su na vrijeme isteka"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je $HOURS$:$MINUTES$ h.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Tvoja organizacija je zadano postavila kraće vrijeme isteka. Najviše: $HOURS$:$MINUTES$",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Pozivnica prihvaćena"
   },
@@ -2992,9 +3027,6 @@
     "message": "Prikaži/Sakrij broj znakova",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokušavaš li pristupiti svom računu?"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ pokušava pristupiti",
     "placeholders": {
@@ -3003,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
+  },
+  "webApp": {
+    "message": "Web aplikacija"
+  },
+  "mobile": {
+    "message": "Mobitel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Proširenje",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Poslužitelj"
+  },
+  "loginRequest": {
+    "message": "Zahtjev za prijavu"
   },
   "deviceType": {
     "message": "Vrsta uređaja"
@@ -3018,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Odbij pristup"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
   "justNow": {
     "message": "Upravo"
@@ -4005,6 +4065,12 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Prikaži više"
+  },
+  "showLess": {
+    "message": "Pokaži manje"
   },
   "enableAutotype": {
     "message": "Omogući automatski unos"

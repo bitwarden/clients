@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "A Bitwarden zárolás feloldása az eszközön vagy: "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "A fiókhoz próbálunk hozzáférni?"
-  },
   "accessAttemptBy": {
     "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
     "placeholders": {
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "A kérés a továbbiakban már nem érvényes."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "A bejelentkezési kérelem jóváhagyásra került: $EMAIL$ - $DEVICE$",
     "placeholders": {
@@ -5284,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Mellékletek letöltése"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Adjuk meg a jelszót a Send elem megtekintéséhez.",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Send megtekintése",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Az elérendő küldés nem létezik vagy már nem elérhető.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "A szervezet adat tulajdonjogának érvényesítése"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Szükséges, hogy minden elem egy szervezet tulajdonában legyen, megújítva a fiókszintű elemek tárolásának lehetőségét.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Minden elem a szervezet tulajdonába és elmentésre kerül, lehetővé téve az egész szervezetre kiterjedő vezérlést, láthatóságot és jelentést. Ha be van kapcsolva, minden tag számára elérhető egy alapértelmezett gyűjtemény az elemek tárolására. Tudjunk meg többet a kezelésről:",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "hitelesítő életciklus",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Biztosan folytatni szeretnénk?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "a tagok számára hozzáférhető marad"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "nem lesz automatikusan kiválasztva új elemek létrehozásakor"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "nem kezelhető az Adminisztrációs konzolból, amíg a felhasználó ki nem kerül a rendszerből"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "A házirend kikapcsolásával az alapértelmezett gyűjtemény:"
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Bővebben:",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Személyes tulajdon"
@@ -10980,5 +11000,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Korlátlan titkos elem és projekt"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Az előfizetés törlésre került."
+  },
+  "providersubCanceledmessage": {
+    "message": "Az ismételt feliratkozáshoz lépjünk kapcsolatba a Bitwarden Ügyféltámogatással."
+  },
+  "showMore": {
+    "message": "Több megjelenítése"
+  },
+  "showLess": {
+    "message": "Kevesebb megjelenítése"
   }
 }

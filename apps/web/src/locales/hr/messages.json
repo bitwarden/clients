@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Otključaj Bitwarden na svojem uređaju ili na "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokušavaš li pristupiti svom računu?"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ pokušava pristupiti",
     "placeholders": {
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Ovaj zahtjev više nije valjan."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
     "placeholders": {
@@ -5284,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Preuzmi privitke"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Za pregled ovog Senda unesi lozinku",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Pogledaj Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Send kojem pokušavaš pristupiti više ne postoji ili više nije dostupan.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "Provedi vlasništvo nad podacima organizacije"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Zahtijevaj da su sve stavke u vlasništvu organizacije čime se onemogućuje spremanje stavki na osobnoj razini.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Sve će stavke biti u vlasništvu i spremljene u organizaciji, što će omogućiti kontrolu, vidljivost i izvještavanje na razini cijele organizacije. Kada je uključeno, svakom će članu biti dostupna zadana kolekcija za pohranu stavki. Saznaj više o upravljanju ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "životnim ciklusom vjerodajnica",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Sigurno želiš nastaviti?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "zadana zbirka će ostati dostupna članovima"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "zadana zbirka neće biti automatski odabrana kod stvaranja novih stavki"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "zadanom zbirkom se neće moći upravljati iz Admin konzole dok se ne ukloni korisnika"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Isključivanjem ovog pravila: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Saznaj više o ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Ukloni osobni trezor"
@@ -6176,7 +6196,7 @@
     "message": "min."
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Pravila tvoje organizacije utječu na vremenski istek trezora. Najveće dozvoljeno vremensko ograničenje trezora je $HOURS$ sati i $MINUTES$ minuta",
+    "message": "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je $HOURS$:$MINUTES$ h.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -9478,7 +9498,7 @@
     "message": "Pošaljite podatke o događajima svojoj Logscale instanci"
   },
   "failedToSaveIntegration": {
-    "message": "Failed to save integration. Please try again later."
+    "message": "Spremanje integracije nije uspjelo. Pokušaj ponovno kasnije."
   },
   "deviceIdMissing": {
     "message": "Nedostaje ID uređaja"
@@ -9565,10 +9585,10 @@
     "message": "URL"
   },
   "bearerToken": {
-    "message": "Bearer Token"
+    "message": "Token nositelja"
   },
   "index": {
-    "message": "Index"
+    "message": "Indeks"
   },
   "selectAPlan": {
     "message": "Odaberi plan"
@@ -10980,5 +11000,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Neograničen broj tajni i projekata"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Pretplata otkazana"
+  },
+  "providersubCanceledmessage": {
+    "message": "Za ponovnu pretplatu, kontaktiraj Bitwarden korisničku podršku."
+  },
+  "showMore": {
+    "message": "Prikaži više"
+  },
+  "showLess": {
+    "message": "Pokaži manje"
   }
 }

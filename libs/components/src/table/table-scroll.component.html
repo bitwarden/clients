@@ -13,7 +13,9 @@
     </thead>
     <tbody>
       <tr *cdkVirtualFor="let r of rows$; trackBy: trackBy(); templateCacheSize: 0" bitRow>
-        <ng-container *ngTemplateOutlet="rowDef.template; context: { $implicit: r }"></ng-container>
+        <ng-container
+          *ngTemplateOutlet="rowDef().template; context: { $implicit: r }"
+        ></ng-container>
       </tr>
     </tbody>
   </table>

@@ -3,7 +3,8 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { UserId } from "@bitwarden/user-core";
 
 export abstract class ImportCollectionServiceAbstraction {
-  getAllAdminCollections: (organizationId: string) => Promise<CollectionView[]>;
+  getAllAdminCollections: (organizationId: string, userId: UserId) => Promise<CollectionView[]>;
 }

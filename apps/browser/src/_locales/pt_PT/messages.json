@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Este pedido já não é válido."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Está a tentar aceder à sua conta?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Início de sessão confirmado para $EMAIL$ no $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "O pedido de início de sessão já expirou."
   },
@@ -3747,7 +3728,7 @@
     "description": "European Union"
   },
   "accessDenied": {
-    "message": "Acesso negado. Não tem permissão para visualizar esta página."
+    "message": "Acesso negado. Não tem permissão para ver esta página."
   },
   "general": {
     "message": "Geral"
@@ -4402,7 +4383,7 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "A \"expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
+    "message": "A \"Expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
@@ -5592,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "O WebAssembly não é suportado no seu navegador ou não está ativado. O WebAssembly é necessário para utilizar a app Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Mostrar mais"
+  },
+  "showLess": {
+    "message": "Mostrar menos"
   }
 }
