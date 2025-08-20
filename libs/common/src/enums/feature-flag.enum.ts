@@ -12,7 +12,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   CreateDefaultLocation = "pm-19467-create-default-location",
-  CollectionVaultRefactor = "",
+  CollectionVaultRefactor = "pm-25030-resolve-ts-upgrade-errors",
 
   /* Auth */
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
