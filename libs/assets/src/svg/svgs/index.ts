@@ -1,5 +1,7 @@
 export * from "./active-send.icon";
 export { default as AdminConsoleLogo } from "./admin-console";
+export * from "./background-left-illustration";
+export * from "./background-right-illustration";
 export * from "./bitwarden-icon";
 export * from "./bitwarden-logo.icon";
 export * from "./browser-extension";
