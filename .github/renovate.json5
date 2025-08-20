@@ -392,6 +392,7 @@
         "open",
         "proper-lockfile",
         "qrcode-parser",
+        "@tailwindcss/container-queries",
       ],
       description: "Vault owned dependencies",
       commitMessagePrefix: "[deps] Vault:",
