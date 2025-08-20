@@ -29,11 +29,22 @@ platform :mac do
   lane :prepare_release_notes do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     
-    # Create release notes hash for all supported locales
-    notes = {}
+    # Create metadata directories and files for all locales
     APP_CONFIG[:locales].each do |locale|
+      dir = "metadata/#{locale}"
+      FileUtils.mkdir_p(dir)
+      File.write("#{dir}/release_notes.txt", changelog)
       UI.message("Creating release notes for #{locale}")
-      UI.message("Created release notes for #{locale}: #{changelog[0,50]}#{changelog.length > 50 ? '...' : ''}")
+    end
+
+    # Create release notes hash for deliver
+    notes = APP_CONFIG[:locales].each_with_object({}) do |locale, hash|
+      file_path = "metadata/#{locale}/release_notes.txt"
+      if File.exist?(file_path)
+        hash[locale] = File.read(file_path)
+      else
+        UI.important("No release notes found for #{locale} at #{file_path}, skipping.")
+      end
     end
     
     UI.success("✅ Prepared release notes for #{APP_CONFIG[:locales].count} locales")
@@ -47,21 +58,6 @@ platform :mac do
     UI.message("📦 App ID: #{APP_CONFIG[:app_identifier]}")
     UI.message("🔢 Build Number: #{build_number}")
     UI.message("🌍 Locales: #{APP_CONFIG[:locales].count}")
-  end
-
-  locales.each do |locale|
-    dir = "metadata/#{locale}"
-    FileUtils.mkdir_p(dir)
-    File.write("#{dir}/release_notes.txt", changelog)
-  end
-
-  notes = locales.each_with_object({}) do |locale, hash|
-    file_path = "metadata/#{locale}/release_notes.txt"
-    if File.exist?(file_path)
-      hash[locale] = File.read(file_path)
-    else
-      UI.important("No release notes found for #{locale} at #{file_path}, skipping.")
-    end
   end
 
   desc "Publish desktop to the Mac App Store"
