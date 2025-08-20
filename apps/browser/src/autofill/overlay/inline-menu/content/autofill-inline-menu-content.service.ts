@@ -403,25 +403,36 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     });
   };
 
+  private checkPageRisks = async () => {
+    const pageIsOpaque = await this.getPageIsOpaque();
+    const pageTopLayerInUse = await this.getPageTopLayerInUse();
+
+    const risksFound = !pageIsOpaque || pageTopLayerInUse;
+
+    if (risksFound) {
+      this.closeInlineMenu();
+    }
+
+    return risksFound;
+  };
+
   /*
    * Checks for known risks at the page level
    */
-  private async handlePageMutations(mutations: MutationRecord[]) {
-    for (const mutation of mutations) {
-      if (mutation.type === "attributes") {
-        await this.checkPageRisks();
-      }
+  private handlePageMutations = async (mutations: MutationRecord[]) => {
+    if (mutations.some(({ type }) => type === "attributes")) {
+      await this.checkPageRisks();
     }
-  }
+  };
 
   /**
    * Checks if the page top layer has content (will obscure/overlap the inline menu)
    */
-  private getPageTopLayerInUse() {
+  private getPageTopLayerInUse = () => {
     const pageHasOpenPopover = !!globalThis.document.querySelector(":popover-open");
 
     return pageHasOpenPopover;
-  }
+  };
 
   /**
    * Checks the opacity of the page body and body parent, since the inline menu experience
@@ -429,7 +440,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * of parents below the body. Assumes the target element will be a direct child of the page
    * `body` (enforced elsewhere).
    */
-  private getPageIsOpaque() {
+  private getPageIsOpaque = () => {
     // These are computed style values, so we don't need to worry about non-float values
     // for `opacity`, here
     const htmlOpacity = globalThis.window.getComputedStyle(
@@ -443,20 +454,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     const opacityThreshold = 0.6;
 
     return parseFloat(htmlOpacity) > opacityThreshold && parseFloat(bodyOpacity) > opacityThreshold;
-  }
-
-  private async checkPageRisks() {
-    const pageIsOpaque = await this.getPageIsOpaque();
-    const pageTopLayerInUse = await this.getPageTopLayerInUse();
-
-    const risksFound = !pageIsOpaque || pageTopLayerInUse;
-
-    if (risksFound) {
-      this.closeInlineMenu();
-    }
-
-    return risksFound;
-  }
+  };
 
   /**
    * Processes the mutation of the element that contains the inline menu. Will trigger when an

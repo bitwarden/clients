@@ -44,7 +44,7 @@ describe("AutofillInlineMenuContentService", () => {
     jest.spyOn(autofillInlineMenuContentService as any, "getPageIsOpaque");
     jest
       .spyOn(autofillInlineMenuContentService as any, "getPageTopLayerInUse")
-      .mockImplementation(() => false);
+      .mockResolvedValue(false);
   });
 
   afterEach(() => {
@@ -393,9 +393,10 @@ describe("AutofillInlineMenuContentService", () => {
     it("closes the inline menu if the page has content in the top layer", async () => {
       document.querySelector("html").style.opacity = "1";
       document.body.style.opacity = "1";
+
       jest
         .spyOn(autofillInlineMenuContentService as any, "getPageTopLayerInUse")
-        .mockImplementation(() => true);
+        .mockResolvedValue(true);
 
       await autofillInlineMenuContentService["handlePageMutations"]([mockBodyMutationRecord]);
 
