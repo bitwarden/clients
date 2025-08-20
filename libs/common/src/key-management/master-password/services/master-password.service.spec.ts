@@ -13,13 +13,13 @@ import {
   mockAccountServiceWith,
 } from "../../../../spec";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
+import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";

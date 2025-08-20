@@ -1,0 +1,68 @@
+/**
+ * Bitwarden Tailwind configuration to use with preflight enabled
+ */
+
+@import "./tw-theme.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply tw-text-base tw-text-main;
+  }
+
+  h1 {
+    @apply tw-text-3xl tw-font-semibold tw-text-main tw-mb-2;
+  }
+  h2 {
+    @apply tw-text-2xl tw-font-semibold tw-text-main tw-mb-2;
+  }
+  h3 {
+    @apply tw-text-xl tw-font-semibold tw-text-main tw-mb-2;
+  }
+  h4 {
+    @apply tw-text-lg tw-font-semibold tw-text-main tw-mb-2;
+  }
+  h5 {
+    @apply tw-text-base tw-font-bold tw-text-main tw-mb-1.5;
+  }
+  h6 {
+    @apply tw-text-sm tw-font-bold tw-text-main tw-mb-1.5;
+  }
+
+  code {
+    @apply tw-text-code;
+  }
+
+  p {
+    @apply tw-mb-4;
+  }
+
+  ul {
+    @apply tw-mb-4 tw-list-disc tw-ps-10;
+  }
+
+  ul ul,
+  ul ol {
+    @apply tw-mb-0;
+  }
+
+  /* Bootstrap considered this to have higher priority than classes */
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+
+  hr {
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  html.theme_dark hr {
+    border-color: #4c525f;
+  }
+
+  select {
+    appearance: none;
+  }
+}

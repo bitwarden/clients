@@ -1757,6 +1757,54 @@ describe("CollectAutofillContentService", () => {
 
       expect(parsedText).toEqual("Hello! This is a test string.");
     });
+
+    it("preserves extended Latin letters like Š and ć", () => {
+      const text = "Šifra   ćevapčići  korisnika";
+      const result = collectAutofillContentService["trimAndRemoveNonPrintableText"](text);
+      expect(result).toEqual("Šifra ćevapčići korisnika");
+    });
+
+    it("removes zero-width and control characters", () => {
+      const text = "Hello\u200B\u200C\u200D\u2060World\x00\x1F!";
+      const result = collectAutofillContentService["trimAndRemoveNonPrintableText"](text);
+      expect(result).toEqual("Hello World !");
+    });
+
+    it("removes leading and trailing whitespace", () => {
+      const text = "   padded text with spaces   ";
+      const result = collectAutofillContentService["trimAndRemoveNonPrintableText"](text);
+      expect(result).toEqual("padded text with spaces");
+    });
+
+    it("replaces multiple whitespaces (tabs, newlines, spaces) with one space", () => {
+      const text = "one\t\ntwo  \n  three\t\tfour";
+      const result = collectAutofillContentService["trimAndRemoveNonPrintableText"](text);
+      expect(result).toEqual("one two three four");
+    });
+
+    it("preserves emoji and symbols", () => {
+      const text = "Text with emoji 🐍🚀 and ©®✓ symbols";
+      const result = collectAutofillContentService["trimAndRemoveNonPrintableText"](text);
+      expect(result).toEqual("Text with emoji 🐍🚀 and ©®✓ symbols");
+    });
+
+    it("handles RTL and LTR marks", () => {
+      const text = "abc\u200F\u202Edеf";
+      const result = collectAutofillContentService["trimAndRemoveNonPrintableText"](text);
+      expect(result).toEqual("abc dеf");
+    });
+
+    it("handles mathematical unicode letters", () => {
+      const text = "Unicode math: 𝒜𝒷𝒸𝒹";
+      const result = collectAutofillContentService["trimAndRemoveNonPrintableText"](text);
+      expect(result).toEqual("Unicode math: 𝒜𝒷𝒸𝒹");
+    });
+
+    it("removes only invisible non-printables, keeps Japanese", () => {
+      const text = "これは\u200Bテストです";
+      const result = collectAutofillContentService["trimAndRemoveNonPrintableText"](text);
+      expect(result).toEqual("これは テストです");
+    });
   });
 
   describe("recursivelyGetTextFromPreviousSiblings", () => {

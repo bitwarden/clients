@@ -15,6 +15,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
@@ -52,6 +53,7 @@ export class InitService {
     private autotypeService: DesktopAutotypeService,
     private sdkLoadService: SdkLoadService,
     @Inject(DOCUMENT) private document: Document,
+    private readonly migrationRunner: MigrationRunner,
   ) {}
 
   init() {
@@ -59,7 +61,7 @@ export class InitService {
       await this.sdkLoadService.loadAndInit();
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
-      await this.stateService.init({ runMigrations: false }); // Desktop will run them in main process
+      await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
 
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const setUserKeyInMemoryPromises = [];

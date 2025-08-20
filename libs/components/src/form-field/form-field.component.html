@@ -29,10 +29,10 @@
         >
           <label
             class="tw-flex tw-gap-1 tw-text-sm tw-text-muted -tw-translate-y-[0.675rem] tw-mb-0 tw-max-w-full tw-pointer-events-auto"
-            [attr.for]="input.labelForId"
+            [attr.for]="input().labelForId"
           >
             <ng-container *ngTemplateOutlet="labelContent"></ng-container>
-            @if (input.required) {
+            @if (input().required) {
               <span class="tw-text-[0.625rem] tw-relative tw-bottom-[-1px]">
                 ({{ "required" | i18n }})</span
               >
@@ -56,7 +56,7 @@
         <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
       </div>
       <div
-        class="tw-w-full tw-relative tw-py-1 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100"
+        class="tw-w-full tw-relative tw-py-1 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea]:tw-my-1"
         data-default-content
         [ngClass]="[
           prefixHasChildren() ? '' : 'tw-rounded-s-lg tw-ps-3',
@@ -78,7 +78,7 @@
   <div class="tw-w-full tw-relative">
     <label
       class="tw-flex tw-gap-1 tw-text-sm tw-text-muted tw-mb-0 tw-max-w-full"
-      [attr.for]="input.labelForId"
+      [attr.for]="input().labelForId"
     >
       <ng-container *ngTemplateOutlet="labelContent"></ng-container>
     </label>
@@ -109,11 +109,11 @@
   </div>
 }
 
-@switch (input.hasError) {
+@switch (input().hasError) {
   @case (false) {
     <ng-content select="bit-hint"></ng-content>
   }
   @case (true) {
-    <bit-error [error]="input.error"></bit-error>
+    <bit-error [error]="input().error"></bit-error>
   }
 }

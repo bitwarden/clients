@@ -5,11 +5,5 @@
       {{ title() }}
     </h2>
   </div>
-  <button
-    bitIconButton="bwi-close"
-    type="button"
-    bitDrawerClose
-    [attr.title]="'close' | i18n"
-    [attr.aria-label]="'close' | i18n"
-  ></button>
+  <button bitIconButton="bwi-close" type="button" bitDrawerClose [label]="'close' | i18n"></button>
 </header>

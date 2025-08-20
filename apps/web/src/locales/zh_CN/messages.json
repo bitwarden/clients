@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "解锁您设备上的 Bitwarden 或通过"
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "您正在尝试访问您的账户吗？"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ 的访问尝试",
     "placeholders": {
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "此请求已失效。"
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "已确认 $EMAIL$ 在 $DEVICE$ 上的登录",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "已批准 $EMAIL$ 在 $DEVICE$ 上的登录请求",
     "placeholders": {
@@ -5284,6 +5265,14 @@
   "downloadAttachments": {
     "message": "下载附件"
   },
+  "sendAccessPasswordTitle": {
+    "message": "输入密码后查看此 Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "查看 Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "您尝试访问的 Send 不存在或不再可用。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "强制组织数据所有权"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "要求所有项目归一个组织所有，移除将项目存储到账户级的选项。",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "凭据的生命周期",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "您确定要继续吗？"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "将继续向会员开放"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "创建新项目时不会自动选择"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "在用户下线之前，无法从管理控制台进行管理"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "By turning this policy off, the default collection: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "进一步了解",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "禁用个人密码库"
@@ -9478,7 +9498,7 @@
     "message": "将事件数据发送到您的 Logscale 实例"
   },
   "failedToSaveIntegration": {
-    "message": "Failed to save integration. Please try again later."
+    "message": "无法保存集成。请稍后再试。"
   },
   "deviceIdMissing": {
     "message": "缺少设备 ID"
@@ -9565,7 +9585,7 @@
     "message": "URL"
   },
   "bearerToken": {
-    "message": "Bearer Token"
+    "message": "Bearer 令牌"
   },
   "index": {
     "message": "Index"
@@ -10947,7 +10967,7 @@
     }
   },
   "restoreProviderPortalAccessViaCustomerSupport": {
-    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "message": "要恢复您的提供商门户访问权限，请联系 Bitwarden 客户支持续费您的订阅。",
     "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
   },
   "restoreProviderPortalAccessViaPaymentMethod": {
@@ -10961,7 +10981,7 @@
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
   "subscribetoEnterprise": {
-    "message": "Subscribe to $PLAN$",
+    "message": "订阅为 $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -10980,5 +11000,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "不限数量的机密和工程"
+  },
+  "providersubscriptionCanceled": {
+    "message": "订阅已取消"
+  },
+  "providersubCanceledmessage": {
+    "message": "要重新订阅，请联系 Bitwarden 客户支持。"
+  },
+  "showMore": {
+    "message": "显示更多"
+  },
+  "showLess": {
+    "message": "显示更少"
   }
 }

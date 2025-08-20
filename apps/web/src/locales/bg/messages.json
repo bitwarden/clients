@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Отключете Битоурден на устройството си или в "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Опитвате ли се да получите достъп до акаунта си?"
-  },
   "accessAttemptBy": {
     "message": "Опит за достъп от $EMAIL$",
     "placeholders": {
@@ -3977,22 +3974,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Тази заявка вече не е активна."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Вписването за $EMAIL$ на $DEVICE$ е одобрено",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Вие отказахте опит за вписване от друго устройство. Ако това наистина сте били Вие, опитайте да се впишете от устройството отново."
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Заявката за вписване за $EMAIL$ на $DEVICE$ е одобрена",
     "placeholders": {
@@ -5284,6 +5265,14 @@
   "downloadAttachments": {
     "message": "Сваляне на прикачените файлове"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Въведете паролата, за да видите това Изпращане",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Преглед на Изпращането",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Изпращането, което се опитвате да достъпите, е изтрито или вече не е налично.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5432,37 @@
   },
   "organizationDataOwnership": {
     "message": "Задължителна собственост на организационните данни"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Изискване на всички елементи да бъдат притежавани от организация, премахвайки възможността за съхраняване на елементи в отделен акаунт.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Всички елементи ще се притежават от и съхраняват в организацията, което ще означава, че управлението, видимостта и докладите ще се извършват от организацията. Когато това и включено, всеки член ще може да съхранява елементите си в стандартна колекция. Научете повече относно управлението на ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "жизнения цикъл на данните за удостоверяване",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Наистина ли искате да продължите?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "ще остане достъпна за членовете"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "няма да бъде автоматично избрана при създаване на нови елементи"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "не може да се управлява от Конзолата за администриране, докато потребителят не бъде премахнат"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Изключвайки тази политика, стандартната колекция: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Научете повече относно ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Индивидуално притежание"
@@ -10980,5 +11000,17 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Неограничен брой тайни и проекти"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Абонаментът е преустановен"
+  },
+  "providersubCanceledmessage": {
+    "message": "Ако искате да се абонирате отново, свържете се с поддръжката на Битуорден."
+  },
+  "showMore": {
+    "message": "Показване на повече"
+  },
+  "showLess": {
+    "message": "Показване на по-малко"
   }
 }
