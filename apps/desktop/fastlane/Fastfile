@@ -49,6 +49,21 @@ platform :mac do
     UI.message("🌍 Locales: #{APP_CONFIG[:locales].count}")
   end
 
+  locales.each do |locale|
+    dir = "metadata/#{locale}"
+    FileUtils.mkdir_p(dir)
+    File.write("#{dir}/release_notes.txt", changelog)
+  end
+
+  notes = locales.each_with_object({}) do |locale, hash|
+    file_path = "metadata/#{locale}/release_notes.txt"
+    if File.exist?(file_path)
+      hash[locale] = File.read(file_path)
+    else
+      UI.important("No release notes found for #{locale} at #{file_path}, skipping.")
+    end
+  end
+
   desc "Publish desktop to the Mac App Store"
   lane :publish do |options|
     build_number = options[:build_number] || ENV["BUILD_NUMBER"]
