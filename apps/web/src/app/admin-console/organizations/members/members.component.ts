@@ -1,16 +1,18 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, computed, Signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
+  catchError,
   combineLatest,
   concatMap,
+  filter,
   firstValueFrom,
   from,
   lastValueFrom,
   map,
   merge,
+  Observable,
+  of,
   shareReplay,
   switchMap,
 } from "rxjs";
@@ -53,7 +55,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -103,7 +105,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected dataSource = new MembersTableDataSource();
 
   organization: Signal<Organization>;
-  status: OrganizationUserStatusType = null;
+  status: OrganizationUserStatusType | undefined;
   orgResetPasswordPolicyEnabled = false;
 
   protected canUseSecretsManager: Signal<boolean> = computed(
@@ -112,11 +114,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected showUserManagementControls: Signal<boolean> = computed(
     () => this.organization()?.canManageUsers ?? false,
   );
-  protected billingMetadata: Signal<OrganizationBillingMetadataResponse>;
+  protected billingMetadata: Signal<OrganizationBillingMetadataResponse | null>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 66;
   protected rowHeightClass = `tw-h-[66px]`;
+
+  private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   constructor(
     apiService: ApiService,
@@ -160,23 +164,21 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const organization$ = this.route.params.pipe(
       concatMap((params) =>
-        this.accountService.activeAccount$.pipe(
-          switchMap((account) =>
+        this.userId$.pipe(
+          switchMap((userId) =>
             this.organizationService
-              .organizations$(account?.id)
+              .organizations$(userId)
               .pipe(getOrganizationById(params.organizationId)),
           ),
         ),
       ),
+      filter((organization): organization is Organization => organization != null),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    this.organization = toSignal(organization$);
+    this.organization = toSignal(organization$, { requireSync: true });
 
-    const policies$ = combineLatest([
-      this.accountService.activeAccount$.pipe(getUserId),
-      organization$,
-    ]).pipe(
+    const policies$ = combineLatest([this.userId$, organization$]).pipe(
       switchMap(([userId, organization]) => {
         if (organization?.isProviderUser) {
           return from(this.policyApiService.getPolicies(organization.id)).pipe(
@@ -186,6 +188,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
         return this.policyService.policies$(userId);
       }),
+      filter((policies): policies is Policy[] => policies != null),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     combineLatest([this.route.queryParams, policies$, organization$])
@@ -194,14 +198,21 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
           // Backfill pub/priv key if necessary
           if (organization.canManageUsersPassword && !organization.hasPublicAndPrivateKeys) {
             const orgShareKey = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(
-                getUserId,
+              this.userId$.pipe(
                 switchMap((userId) => this.keyService.orgKeys$(userId)),
-                map((orgKeys) => orgKeys[organization.id] ?? null),
+                map((orgKeys) => {
+                  if (orgKeys == null) {
+                    throw new Error("Organization keys not found for provided User.");
+                  }
+                  return orgKeys[organization.id] ?? null;
+                }),
               ),
             );
 
             const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
+            if (orgKeys[1].encryptedString == null) {
+              throw new Error("Encrypted private key is null.");
+            }
             const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
             const response = await this.organizationApiService.updateKeys(organization.id, request);
             if (response != null) {
@@ -214,7 +225,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
           const resetPasswordPolicy = policies
             .filter((policy) => policy.type === PolicyType.ResetPassword)
             .find((p) => p.organizationId === organization.id);
-          this.orgResetPasswordPolicyEnabled = resetPasswordPolicy?.enabled;
+          this.orgResetPasswordPolicyEnabled = resetPasswordPolicy?.enabled ?? false;
 
           await this.load();
 
@@ -234,9 +245,14 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     this.billingMetadata = toSignal(
       organization$.pipe(
         switchMap((organization) =>
-          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)),
+          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)).pipe(),
         ),
+        catchError((error: unknown) => {
+          this.logService.error("Failed to load billing metadata", error);
+          return of(null);
+        }),
       ),
+      { initialValue: null },
     );
 
     organization$
@@ -253,17 +269,22 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async getUsers(): Promise<OrganizationUserView[]> {
-    let groupsPromise: Promise<Map<string, string>>;
-    let collectionsPromise: Promise<Map<string, string>>;
+    const organization = this.organization();
+    if (!organization) {
+      return [];
+    }
+
+    let groupsPromise: Promise<Map<string, string>> | undefined;
+    let collectionsPromise: Promise<Map<string, string>> | undefined;
 
     // We don't need both groups and collections for the table, so only load one
-    const userPromise = this.organizationUserApiService.getAllUsers(this.organization().id, {
-      includeGroups: this.organization().useGroups,
-      includeCollections: !this.organization().useGroups,
+    const userPromise = this.organizationUserApiService.getAllUsers(organization.id, {
+      includeGroups: organization.useGroups,
+      includeCollections: !organization.useGroups,
     });
 
     // Depending on which column is displayed, we need to load the group/collection names
-    if (this.organization().useGroups) {
+    if (organization.useGroups) {
       groupsPromise = this.getGroupNameMap();
     } else {
       collectionsPromise = this.getCollectionNameMap();
@@ -275,22 +296,30 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       collectionsPromise,
     ]);
 
-    return usersResponse.data?.map<OrganizationUserView>((r) => {
-      const userView = OrganizationUserView.fromResponse(r);
+    return (
+      usersResponse.data?.map<OrganizationUserView>((r) => {
+        const userView = OrganizationUserView.fromResponse(r);
 
-      userView.groupNames = userView.groups
-        .map((g) => groupNamesMap.get(g))
-        .sort(this.i18nService.collator?.compare);
-      userView.collectionNames = userView.collections
-        .map((c) => collectionNamesMap.get(c.id))
-        .sort(this.i18nService.collator?.compare);
+        userView.groupNames = userView.groups
+          .map((g) => groupNamesMap?.get(g))
+          .filter((name): name is string => name != null)
+          .sort(this.i18nService.collator?.compare);
+        userView.collectionNames = userView.collections
+          .map((c) => collectionNamesMap?.get(c.id))
+          .filter((name): name is string => name != null)
+          .sort(this.i18nService.collator?.compare);
 
-      return userView;
-    });
+        return userView;
+      }) ?? []
+    );
   }
 
   async getGroupNameMap(): Promise<Map<string, string>> {
-    const groups = await this.groupService.getAll(this.organization().id);
+    const organization = this.organization();
+    if (!organization) {
+      return new Map();
+    }
+    const groups = await this.groupService.getAll(organization.id);
     const groupNameMap = new Map<string, string>();
     groups.forEach((g) => groupNameMap.set(g.id, g.name));
     return groupNameMap;
@@ -300,7 +329,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
    * Retrieve a map of all collection IDs <-> names for the organization.
    */
   async getCollectionNameMap() {
-    const response = from(this.apiService.getCollections(this.organization().id)).pipe(
+    const organization = this.organization();
+    if (!organization) {
+      return new Map();
+    }
+    const response = from(this.apiService.getCollections(organization.id)).pipe(
       map((res) =>
         res.data.map((r) =>
           Collection.fromCollectionData(new CollectionData(r as CollectionDetailsResponse)),
@@ -309,9 +342,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     );
 
     const decryptedCollections$ = combineLatest([
-      this.accountService.activeAccount$.pipe(
-        getUserId,
+      this.userId$.pipe(
         switchMap((userId) => this.keyService.orgKeys$(userId)),
+        filter((collections) => collections != null),
       ),
       response,
     ]).pipe(
@@ -329,34 +362,53 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   removeUser(id: string): Promise<void> {
-    return this.organizationUserApiService.removeOrganizationUser(this.organization().id, id);
+    const organization = this.organization();
+    if (!organization) {
+      return Promise.reject("Organization not available");
+    }
+    return this.organizationUserApiService.removeOrganizationUser(organization.id, id);
   }
 
   revokeUser(id: string): Promise<void> {
-    return this.organizationUserApiService.revokeOrganizationUser(this.organization().id, id);
+    const organization = this.organization();
+    if (!organization) {
+      return Promise.reject("Organization not available");
+    }
+    return this.organizationUserApiService.revokeOrganizationUser(organization.id, id);
   }
 
   restoreUser(id: string): Promise<void> {
-    return this.organizationUserApiService.restoreOrganizationUser(this.organization().id, id);
+    const organization = this.organization();
+    if (!organization) {
+      return Promise.reject("Organization not available");
+    }
+    return this.organizationUserApiService.restoreOrganizationUser(organization.id, id);
   }
 
   reinviteUser(id: string): Promise<void> {
-    return this.organizationUserApiService.postOrganizationUserReinvite(this.organization().id, id);
+    const organization = this.organization();
+    if (!organization) {
+      return Promise.reject("Organization not available");
+    }
+    return this.organizationUserApiService.postOrganizationUserReinvite(organization.id, id);
   }
 
   async confirmUser(user: OrganizationUserView, publicKey: Uint8Array): Promise<void> {
+    const organization = this.organization();
+    if (!organization) {
+      throw new Error("Organization not available");
+    }
+
     if (
       await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
     ) {
-      await firstValueFrom(
-        this.organizationUserService.confirmUser(this.organization(), user, publicKey),
-      );
+      await firstValueFrom(this.organizationUserService.confirmUser(organization, user, publicKey));
     } else {
       const request = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(
-          getUserId,
+        this.userId$.pipe(
           switchMap((userId) => this.keyService.orgKeys$(userId)),
-          map((orgKeys) => orgKeys[this.organization().id] ?? null),
+          filter((collections) => collections != null),
+          map((orgKeys) => orgKeys[organization.id]),
           switchMap((orgKey) => this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey)),
           map((encKey) => {
             const req = new OrganizationUserConfirmRequest();
@@ -366,8 +418,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         ),
       );
 
-      return await this.organizationUserApiService.postOrganizationUserConfirm(
-        this.organization().id,
+      await this.organizationUserApiService.postOrganizationUserConfirm(
+        organization.id,
         user.id,
         request,
       );
@@ -386,14 +438,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       await this.actionPromise;
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("revokedUserId", this.userNamePipe.transform(user)),
       });
       await this.load();
     } catch (e) {
       this.validationService.showError(e);
     }
-    this.actionPromise = null;
+    this.actionPromise = undefined;
   }
 
   async restore(user: OrganizationUserView) {
@@ -402,14 +453,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       await this.actionPromise;
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("restoredUserId", this.userNamePipe.transform(user)),
       });
       await this.load();
     } catch (e) {
       this.validationService.showError(e);
     }
-    this.actionPromise = null;
+    this.actionPromise = undefined;
   }
 
   allowResetPassword(orgUser: OrganizationUserView): boolean {
@@ -534,8 +584,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         kind: "Add",
         organizationId: this.organization().id,
         allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
-        occupiedSeatCount: this.billingMetadata().organizationOccupiedSeats,
-        isOnSecretsManagerStandalone: this.billingMetadata().isOnSecretsManagerStandalone,
+        occupiedSeatCount: this.billingMetadata()?.organizationOccupiedSeats ?? 0,
+        isOnSecretsManagerStandalone: this.billingMetadata()?.isOnSecretsManagerStandalone ?? false,
       },
     });
 
@@ -555,7 +605,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     const reference = openChangePlanDialog(this.dialogService, {
       data: {
         organizationId: this.organization().id,
-        subscription: null,
         productTierType: this.organization().productTierType,
       },
     });
@@ -568,9 +617,14 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async invite() {
+    const organization = this.organization();
+    if (!organization) {
+      return;
+    }
+
     if (
-      this.organization().hasReseller &&
-      this.organization().seats === this.billingMetadata().organizationOccupiedSeats
+      organization.hasReseller &&
+      organization.seats === this.billingMetadata()?.organizationOccupiedSeats
     ) {
       this.toastService.showToast({
         variant: "error",
@@ -582,8 +636,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     if (
-      this.billingMetadata().organizationOccupiedSeats === this.organization().seats &&
-      isFixedSeatPlan(this.organization().productTierType)
+      this.billingMetadata()?.organizationOccupiedSeats === organization.seats &&
+      isFixedSeatPlan(organization.productTierType)
     ) {
       await this.handleSeatLimitForFixedTiers();
 
@@ -601,7 +655,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         organizationId: this.organization().id,
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
-        isOnSecretsManagerStandalone: this.billingMetadata().isOnSecretsManagerStandalone,
+        isOnSecretsManagerStandalone: this.billingMetadata()?.isOnSecretsManagerStandalone ?? false,
         initialTab: initialTab,
         managedByOrganization: user.managedByOrganization,
       },
@@ -723,7 +777,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     } catch (e) {
       this.validationService.showError(e);
     }
-    this.actionPromise = null;
+    this.actionPromise = undefined;
   }
 
   async bulkConfirm() {
@@ -893,14 +947,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       await this.actionPromise;
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("organizationUserDeleted", this.userNamePipe.transform(user)),
       });
       this.dataSource.removeUser(user);
     } catch (e) {
       this.validationService.showError(e);
     }
-    this.actionPromise = null;
+    this.actionPromise = undefined;
   }
 
   private async noMasterPasswordConfirmationDialog(user: OrganizationUserView) {

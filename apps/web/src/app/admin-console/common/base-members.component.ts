@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -66,20 +64,20 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
 
   protected abstract dataSource: PeopleTableDataSource<UserView>;
 
-  firstLoaded: boolean;
+  firstLoaded: boolean = false;
 
   /**
-   * The currently selected status filter, or null to show all active users.
+   * The currently selected status filter, or undefined to show all active users.
    */
-  status: StatusType | null;
+  status?: StatusType;
 
   /**
    * The currently executing promise - used to avoid multiple user actions executing at once.
    */
-  actionPromise: Promise<void>;
+  actionPromise?: Promise<void>;
 
   protected searchControl = new FormControl("", { nonNullable: true });
-  protected statusToggle = new BehaviorSubject<StatusType | null>(null);
+  protected statusToggle = new BehaviorSubject<StatusType | undefined>(undefined);
 
   constructor(
     protected apiService: ApiService,
@@ -105,6 +103,7 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
   abstract removeUser(id: string): Promise<void>;
   abstract reinviteUser(id: string): Promise<void>;
   abstract confirmUser(user: UserView, publicKey: Uint8Array): Promise<void>;
+  abstract invite(): void;
 
   async load() {
     // Load new users from the server
@@ -118,10 +117,6 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
     }
 
     this.firstLoaded = true;
-  }
-
-  invite() {
-    this.edit(null);
   }
 
   protected async removeUserConfirmationDialog(user: UserView) {
@@ -143,14 +138,13 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
       await this.actionPromise;
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("removedUserId", this.userNamePipe.transform(user)),
       });
       this.dataSource.removeUser(user);
     } catch (e) {
       this.validationService.showError(e);
     }
-    this.actionPromise = null;
+    this.actionPromise = undefined;
   }
 
   async reinvite(user: UserView) {
@@ -163,13 +157,12 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
       await this.actionPromise;
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("hasBeenReinvited", this.userNamePipe.transform(user)),
       });
     } catch (e) {
       this.validationService.showError(e);
     }
-    this.actionPromise = null;
+    this.actionPromise = undefined;
   }
 
   async confirm(user: UserView) {
@@ -182,14 +175,13 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
 
         this.toastService.showToast({
           variant: "success",
-          title: null,
           message: this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
         });
       } catch (e) {
         this.validationService.showError(e);
         throw e;
       } finally {
-        this.actionPromise = null;
+        this.actionPromise = undefined;
       }
     };
 
@@ -204,11 +196,14 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
       const autoConfirm = await firstValueFrom(
         this.organizationManagementPreferencesService.autoConfirmFingerPrints.state$,
       );
+      if (user == null) {
+        throw new Error("Cannot confirm null user.");
+      }
       if (autoConfirm == null || !autoConfirm) {
         const dialogRef = UserConfirmComponent.open(this.dialogService, {
           data: {
             name: this.userNamePipe.transform(user),
-            userId: user != null ? user.userId : null,
+            userId: user.id,
             publicKey: publicKey,
             confirmUser: () => confirmUser(publicKey),
           },
