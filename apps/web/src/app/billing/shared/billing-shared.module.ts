@@ -6,7 +6,6 @@ import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 import { AddCreditDialogComponent } from "./add-credit-dialog.component";
-import { AdjustPaymentDialogComponent } from "./adjust-payment-dialog/adjust-payment-dialog.component";
 import { AdjustStorageDialogComponent } from "./adjust-storage-dialog/adjust-storage-dialog.component";
 import { BillingHistoryComponent } from "./billing-history.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
@@ -38,7 +37,6 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
     UpdateLicenseComponent,
     UpdateLicenseDialogComponent,
     OffboardingSurveyComponent,
-    AdjustPaymentDialogComponent,
     AdjustStorageDialogComponent,
     IndividualSelfHostingLicenseUploaderComponent,
     OrganizationSelfHostingLicenseUploaderComponent,
