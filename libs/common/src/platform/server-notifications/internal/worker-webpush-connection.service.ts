@@ -40,7 +40,7 @@ interface PushEvent {
 }
 
 /**
- * An implementation for connecting to web push based notifications running in a Worker.
+ * An implementation for connecting to web push based server notifications running in a Worker.
  */
 export class WorkerWebPushConnectionService implements WebPushConnectionService {
   private pushEvent = new Subject<PushEvent>();
@@ -75,7 +75,7 @@ export class WorkerWebPushConnectionService implements WebPushConnectionService 
   }
 
   supportStatus$(userId: UserId): Observable<SupportStatus<WebPushConnector>> {
-    // Check the server config to see if it supports sending WebPush notifications
+    // Check the server config to see if it supports sending WebPush server notifications
     // FIXME: get config of server for the specified userId, once ConfigService supports it
     return this.configService.serverConfig$.pipe(
       map((config) =>
