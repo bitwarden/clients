@@ -1,4 +1,3 @@
-import { Observable } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { KeyDefinition, StateUpdateOptions, StorageKey } from "@bitwarden/state";
@@ -26,12 +25,6 @@ export async function getStoredValue<T>(
 export function globalKeyBuilder(keyDefinition: KeyDefinition<unknown>): StorageKey {
   return `global_${keyDefinition.stateDefinition.name}_${keyDefinition.key}` as StorageKey;
 }
-
-export const DEFAULT_OPTIONS = {
-  shouldUpdate: () => true,
-  combineLatestWith: null as Observable<unknown>,
-  msTimeout: 1000,
-};
 
 export function populateOptionsWithDefault<T, TCombine>(
   options: Partial<StateUpdateOptions<T, TCombine>>,

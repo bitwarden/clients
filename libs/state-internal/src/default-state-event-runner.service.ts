@@ -52,7 +52,12 @@ export class DefaultStateEventRunnerService implements StateEventRunnerService {
         }
       } catch (err: unknown) {
         let errorMessage = "Unknown Error";
-        if (typeof err === "object" && "message" in err && typeof err.message === "string") {
+        if (
+          err != null &&
+          typeof err === "object" &&
+          "message" in err &&
+          typeof err.message === "string"
+        ) {
           errorMessage = err.message;
         }
 
