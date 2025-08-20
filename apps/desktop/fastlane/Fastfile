@@ -101,7 +101,7 @@ platform :mac do
       build_number: build_number,
       skip_binary_upload: true,
       skip_screenshots: true,
-      skip_metadata: true, # Skip metadata (managed outside of automation)
+      skip_metadata: false, 
       release_notes: notes,
       submit_for_review: submit_for_review,
       phased_release: true, # Enable 7-day phased rollout
