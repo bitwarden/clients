@@ -202,4 +202,23 @@ describe("ApiService", () => {
       ).rejects.toMatchObject(error);
     },
   );
+
+  describe("getHibpBreach", () => {
+    it("should properly URL encode username with special characters", async () => {
+      const mockResponse = [{ name: "test" }];
+      const username = "connect#bwpm@simplelogin.co";
+
+      jest.spyOn(sut, "send").mockResolvedValue(mockResponse);
+
+      await sut.getHibpBreach(username);
+
+      expect(sut.send).toHaveBeenCalledWith(
+        "GET",
+        "/hibp/breach?username=" + encodeURIComponent(username),
+        null,
+        true,
+        true,
+      );
+    });
+  });
 });
