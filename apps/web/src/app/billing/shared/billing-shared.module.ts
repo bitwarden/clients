@@ -11,7 +11,6 @@ import { AdjustStorageDialogComponent } from "./adjust-storage-dialog/adjust-sto
 import { BillingHistoryComponent } from "./billing-history.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
 import { PaymentComponent } from "./payment/payment.component";
-import { PaymentMethodComponent } from "./payment-method.component";
 import { PlanCardComponent } from "./plan-card/plan-card.component";
 import { PricingSummaryComponent } from "./pricing-summary/pricing-summary.component";
 import { IndividualSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/individual-self-hosting-license-uploader.component";
@@ -35,7 +34,6 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
   declarations: [
     AddCreditDialogComponent,
     BillingHistoryComponent,
-    PaymentMethodComponent,
     SecretsManagerSubscribeComponent,
     UpdateLicenseComponent,
     UpdateLicenseDialogComponent,
