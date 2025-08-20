@@ -1,10 +1,11 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  BaseCollectionRequest,
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
+  CreateCollectionRequest,
+  UpdateCollectionRequest,
 } from "@bitwarden/admin-console/common";
 
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -270,12 +271,12 @@ export abstract class ApiService {
   ): Promise<ListResponse<CollectionAccessDetailsResponse>>;
   abstract postCollection(
     organizationId: string,
-    request: BaseCollectionRequest,
+    request: UpdateCollectionRequest,
   ): Promise<CollectionDetailsResponse>;
   abstract putCollection(
     organizationId: string,
     id: string,
-    request: BaseCollectionRequest,
+    request: CreateCollectionRequest,
   ): Promise<CollectionDetailsResponse>;
   abstract deleteCollection(organizationId: string, id: string): Promise<any>;
   abstract deleteManyCollections(organizationId: string, collectionIds: string[]): Promise<any>;

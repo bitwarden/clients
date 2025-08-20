@@ -423,11 +423,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       .map(convertToSelectionView);
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const savedCollection = await this.collectionAdminService.save(
-      collectionView,
-      userId,
-      this.editMode,
-    );
+
+    const collectionResponse = this.editMode
+      ? await this.collectionAdminService.update(collectionView, userId)
+      : await this.collectionAdminService.create(collectionView, userId);
 
     this.toastService.showToast({
       variant: "success",
@@ -437,7 +436,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       ),
     });
 
-    this.close(CollectionDialogAction.Saved, savedCollection);
+    this.close(CollectionDialogAction.Saved, collectionResponse);
   };
 
   protected delete = async () => {

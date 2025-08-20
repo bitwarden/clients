@@ -6,6 +6,10 @@ export abstract class BaseCollectionRequest {
   groups: SelectionReadOnlyRequest[] = [];
   users: SelectionReadOnlyRequest[] = [];
 
+  static isUpdate = (request: BaseCollectionRequest): request is UpdateCollectionRequest => {
+    return request instanceof UpdateCollectionRequest;
+  };
+
   protected constructor(c: {
     users?: SelectionReadOnlyRequest[];
     groups?: SelectionReadOnlyRequest[];

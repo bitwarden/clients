@@ -10,10 +10,13 @@ export abstract class CollectionAdminService {
     organizationId: string,
     userId: UserId,
   ): Observable<CollectionAdminView[]>;
-  abstract save(
+  abstract update(
     collection: CollectionAdminView,
     userId: UserId,
-    editMode: boolean,
+  ): Promise<CollectionDetailsResponse>;
+  abstract create(
+    collection: CollectionAdminView,
+    userId: UserId,
   ): Promise<CollectionDetailsResponse>;
   abstract delete(organizationId: string, collectionId: string): Promise<void>;
   abstract bulkAssignAccess(

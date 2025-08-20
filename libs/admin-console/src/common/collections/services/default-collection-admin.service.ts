@@ -52,36 +52,55 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     );
   }
 
-  async save(
+  async update(
     collection: CollectionAdminView,
     userId: UserId,
-    editMode: boolean,
   ): Promise<CollectionDetailsResponse> {
-    const request = await this.encrypt(collection, userId, editMode);
-
-    let response: CollectionDetailsResponse;
-    if (collection.id == null) {
-      response = await this.apiService.postCollection(collection.organizationId, request);
-      collection.id = response.id;
-    } else {
-      response = await this.apiService.putCollection(
-        collection.organizationId,
-        collection.id,
-        request,
-      );
+    const request = await this.encrypt(collection, userId, true);
+    if (!BaseCollectionRequest.isUpdate(request)) {
+      throw new Error("Cannot update collection with CreatCollectionRequest.");
     }
 
-    if (response.assigned) {
-      await this.collectionService.upsert(new CollectionData(response), userId);
-    } else {
-      await this.collectionService.delete([collection.id as CollectionId], userId);
+    const response = await this.apiService.postCollection(collection.organizationId, request);
+    collection.id = response.id;
+
+    await this.updateLocalCollections(response, collection, userId);
+
+    return response;
+  }
+
+  async create(
+    collection: CollectionAdminView,
+    userId: UserId,
+  ): Promise<CollectionDetailsResponse> {
+    const request = await this.encrypt(collection, userId, false);
+    if (BaseCollectionRequest.isUpdate(request)) {
+      throw new Error("Cannot create collection with UpdateCollectionRequest.");
     }
+
+    const response = await this.apiService.putCollection(
+      collection.organizationId,
+      collection.id,
+      request,
+    );
+
+    await this.updateLocalCollections(response, collection, userId);
 
     return response;
   }
 
   async delete(organizationId: string, collectionId: string): Promise<void> {
     await this.apiService.deleteCollection(organizationId, collectionId);
+  }
+
+  private async updateLocalCollections(
+    response: CollectionDetailsResponse,
+    collection: CollectionAdminView,
+    userId: UserId,
+  ) {
+    response.assigned
+      ? await this.collectionService.upsert(new CollectionData(response), userId)
+      : await this.collectionService.delete([collection.id as CollectionId], userId);
   }
 
   async bulkAssignAccess(
@@ -136,8 +155,8 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
   private async encrypt(
     model: CollectionAdminView,
     userId: UserId,
-    editMode: boolean = false,
-  ): Promise<BaseCollectionRequest> {
+    editMode: boolean,
+  ): Promise<UpdateCollectionRequest | CreateCollectionRequest> {
     if (!model.organizationId) {
       throw new Error("Collection has no organization id.");
     }
