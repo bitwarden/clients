@@ -9,6 +9,8 @@ import {
   input,
   booleanAttribute,
   AfterViewInit,
+  ElementRef,
+  OnDestroy,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -39,9 +41,12 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
     CdkScrollable,
   ],
 })
-export class DialogComponent implements AfterViewInit {
-  protected dialogRef = inject(DialogRef, { optional: true });
+export class DialogComponent implements AfterViewInit, OnDestroy {
   private scrollableBody = viewChild.required(CdkScrollable);
+  private scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
+  private observer?: IntersectionObserver;
+
+  protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
   protected isScrollable = false;
 
@@ -107,11 +112,21 @@ export class DialogComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.isScrollable = this.canScroll();
+    if (this.scrollBottom()) {
+      this.observer = new IntersectionObserver(
+        ([entry]) => {
+          this.isScrollable = !entry.isIntersecting;
+        },
+        {
+          root: this.scrollableBody().getElementRef().nativeElement,
+          threshold: 0.01,
+        },
+      );
+      this.observer.observe(this.scrollBottom().nativeElement);
+    }
   }
 
-  canScroll(): boolean {
-    const el = this.scrollableBody().getElementRef().nativeElement as HTMLElement;
-    return el.scrollHeight > el.clientHeight;
+  ngOnDestroy() {
+    this.observer?.disconnect();
   }
 }
