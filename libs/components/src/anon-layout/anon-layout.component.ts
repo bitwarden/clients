@@ -20,6 +20,8 @@ import { IconModule } from "../icon";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
+import { LeftIllustration, RightIllustration } from "./illustrations";
+
 export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 @Component({
@@ -33,6 +35,9 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     // AnonLayout should take up full height of parent container for proper footer placement.
     return ["tw-h-full"];
   }
+
+  readonly leftIllustration = LeftIllustration;
+  readonly rightIllustration = RightIllustration;
 
   readonly title = input<string>();
   readonly subtitle = input<string>();

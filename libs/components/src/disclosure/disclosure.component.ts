@@ -28,6 +28,7 @@ let nextId = 0;
   *   bitIconButton="bwi-sliders"
   *   [buttonType]="'muted'"
   *   [bitDisclosureTriggerFor]="disclosureRef"
+  *   [label]="'Settings' | i18n"
   * ></button>
   * <bit-disclosure #disclosureRef open>click button to hide this content</bit-disclosure>
   * ```

@@ -93,7 +93,7 @@
     "chromatic": "13.1.2",
     "concurrently": "9.2.0",
     "copy-webpack-plugin": "13.0.0",
-    "cross-env": "7.0.3",
+    "cross-env": "10.0.0",
     "css-loader": "7.1.2",
     "electron": "36.4.0",
     "electron-builder": "26.0.12",
