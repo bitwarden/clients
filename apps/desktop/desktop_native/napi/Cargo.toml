@@ -19,6 +19,7 @@ base64 = { workspace = true }
 hex = { workspace = true }
 anyhow = { workspace = true }
 desktop_core = { path = "../core" }
+bitwarden_chromium_importer = { path = "../bitwarden_chromium_importer" }
 log = { workspace = true }
 napi = { workspace = true, features = ["async"] }
 napi-derive = { workspace = true }

@@ -24,6 +24,7 @@ export class ChromeCsvImporter extends BaseImporter implements Importer {
       cipher.login.username = this.getValueOrDefault(value.username);
       cipher.login.password = this.getValueOrDefault(value.password);
       cipher.login.uris = this.makeUriArray(value.url);
+      cipher.notes = this.getValueOrDefault(value.note);
       this.cleanupCipher(cipher);
       result.ciphers.push(cipher);
     });
