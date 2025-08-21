@@ -376,8 +376,8 @@ jobs:
           
           echo "📝 Release notes (${#CHANGELOG} chars): ${CHANGELOG:0:100}..."
           
-          # Format release notes: convert double spaces to newlines + add test markers
-          FORMATTED_CHANGELOG="$(echo "$CHANGELOG" | sed 's/  /\n\n• /g' | sed '1s/^/• /')"
+          # Format release notes: add double newline after every period for App Store Connect
+          FORMATTED_CHANGELOG="$(echo "$CHANGELOG" | sed 's/\./.\n\n/g')"
           echo "📝 Formatted release notes: $FORMATTED_CHANGELOG"
           
           # Validate changelog length (App Store limit is 4000 chars)
