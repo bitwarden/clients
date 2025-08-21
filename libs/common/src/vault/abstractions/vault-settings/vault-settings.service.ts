@@ -23,11 +23,6 @@ export abstract class VaultSettingsService {
   abstract clickItemsToAutofillVaultView$: Observable<boolean>;
 
   /**
-   * An observable monitoring the state of the enable context menu setting.
-   */
-  abstract enableContextMenu$: Observable<boolean>;
-
-  /**
    * Saves the enable passkeys setting to disk.
    * @param value The new value for the passkeys setting.
    */
@@ -48,9 +43,4 @@ export abstract class VaultSettingsService {
    * Autofill suggestions setting.
    */
   abstract setClickItemsToAutofillVaultView(value: boolean): Promise<void>;
-  /**
-   * Saves the enable context menu setting to disk.
-   * @param value The new value for the enable context menu setting.
-   */
-  abstract setEnableContextMenu(value: boolean): Promise<void>;
 }

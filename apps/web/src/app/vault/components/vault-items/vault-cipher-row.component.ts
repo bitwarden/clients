@@ -9,7 +9,6 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { firstValueFrom } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -310,8 +309,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   @HostListener("contextmenu", ["$event"])
   protected async onRightClick(event: MouseEvent) {
-    const enableContextMenu = await firstValueFrom(this.vaultSettingsService.enableContextMenu$);
-    if (!this.disabled && enableContextMenu) {
+    if (event.shiftKey && event.ctrlKey) {
+      return;
+    }
+
+    if (!this.disabled) {
       this.menuTrigger.toggleMenuOnRightClick(event);
     }
   }

@@ -117,6 +117,12 @@ export class MenuTriggerForDirective implements OnDestroy {
     }
   }
 
+  /**
+   * Updates the position of the menu overlay based on the mouse event coordinates.
+   * This is typically called when the menu is already open and the user right-clicks again,
+   * allowing the menu to reposition itself to the new cursor location.
+   * @param event The MouseEvent containing the new clientX and clientY coordinates
+   */
   private updateMenuPosition(event: MouseEvent) {
     if (this.overlayRef == null) {
       return;
@@ -187,9 +193,9 @@ export class MenuTriggerForDirective implements OnDestroy {
    */
   private setupMenuCloseListener() {
     this.overlayRef
-      .outsidePointerEvents()
+      ?.outsidePointerEvents()
       .pipe(skip(1), takeUntil(this.overlayRef.detachments()))
-      .subscribe((event) => {
+      .subscribe((_) => {
         this.destroyMenu();
       });
   }
