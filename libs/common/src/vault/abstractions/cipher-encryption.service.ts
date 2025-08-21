@@ -78,6 +78,20 @@ export abstract class CipherEncryptionService {
    */
   abstract decryptMany(ciphers: Cipher[], userId: UserId): Promise<CipherListView[]>;
   /**
+   * Decrypts many ciphers using the SDK for the given userId, and returns a list of
+   * failures.
+   *
+   * @param ciphers The encrypted cipher objects
+   * @param userId The user ID whose key will be used for decryption
+   *
+   * @returns A promise that resolves to a tuple containing an array of decrypted
+   * cipher list views, and an array of ciphers that failed to decrypt.
+   */
+  abstract decryptManyWithFailures(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<[CipherListView[], Cipher[]]>;
+  /**
    * Decrypts an attachment's content from a response object.
    *
    * @param cipher The encrypted cipher object that owns the attachment

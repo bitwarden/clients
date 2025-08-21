@@ -489,14 +489,25 @@ export class CipherService implements CipherServiceAbstraction {
   ): Promise<[CipherView[], CipherView[]] | null> {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
       const decryptStartTime = performance.now();
-      const decrypted = await this.decryptCiphersWithSdk(ciphers, userId);
+
+      const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
+        ciphers,
+        userId,
+      );
+      const decryptedCipherViews = await Promise.all(
+        decrypted.map((c) => this.getFullCipherView(c)),
+      );
+      const failedCipherViews = failures.map((c) => {
+        const cipher_view = new CipherView(c);
+        cipher_view.decryptionFailure = true;
+        return cipher_view;
+      });
 
       this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
         ["Items", ciphers.length],
       ]);
 
-      // With SDK, failed ciphers are not returned
-      return [decrypted, []];
+      return [decryptedCipherViews, failedCipherViews];
     }
 
     const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId));

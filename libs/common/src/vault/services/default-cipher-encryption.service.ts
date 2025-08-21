@@ -6,6 +6,7 @@ import {
   CipherListView,
   BitwardenClient,
   CipherView as SdkCipherView,
+  DecryptCipherListResult,
 } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
@@ -236,6 +237,33 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt cipher list: ${error}`);
           return EMPTY;
+        }),
+      ),
+    );
+  }
+
+  async decryptManyWithFailures(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<[CipherListView[], Cipher[]]> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map((sdk) => {
+          if (!sdk) {
+            throw new Error("SDK is undefined");
+          }
+
+          using ref = sdk.take();
+
+          const result: DecryptCipherListResult = ref.value
+            .vault()
+            .ciphers()
+            .decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher()));
+
+          const decryptedCiphers = result.successes;
+          const failedCiphers = result.failures.map((cipher) => Cipher.fromSdkCipher(cipher));
+
+          return [decryptedCiphers, failedCiphers];
         }),
       ),
     );
