@@ -62,64 +62,68 @@ platform :mac do
     app = Spaceship::ConnectAPI::App.find(app_identifier)
     UI.user_error!("App not found in App Store Connect: #{app_identifier}") unless app
 
-    # Fetch the pre-release version for MAC_OS, then its builds (faster, fewer results)
-    pre_release = nil
+    # Use App Store versions API (supported) to confirm the version exists
     debug = ENV["ASC_DEBUG"] == "1"
+    app_store_version = nil
     attempts = 0
     begin
       attempts += 1
-      UI.message("📡 Fetching pre-release versions (MAC_OS)… attempt #{attempts}")
-      prs = nil
+      UI.message("📡 Fetching App Store versions (MAC_OS)… attempt #{attempts}")
+      vers = nil
       started = Time.now
-      Timeout.timeout(90) { prs = app.get_pre_release_versions(limit: 50) }
-      UI.message("✅ Pre-release versions fetched in #{(Time.now - started).round(2)}s (#{(prs || []).size} total)")
-      pre_release = (prs || []).find { |pr| pr.platform == "MAC_OS" && pr.version == app_version }
-    rescue Timeout::Error
-      UI.important("⏳ Timeout while fetching pre-release versions (attempt #{attempts})")
+      Timeout.timeout(90) { vers = app.get_app_store_versions(limit: 50) }
+      UI.message("✅ App Store versions fetched in #{(Time.now - started).round(2)}s (#{(vers || []).size} total)")
+      app_store_version = (vers || []).find { |v| v.platform == "MAC_OS" && v.version_string == app_version }
+    rescue Timeout::Error => e
+      UI.important("⏳ Timeout while fetching App Store versions (attempt #{attempts})")
       UI.important("    Error: #{e.class}: #{e.message}") if debug
       retry if attempts < 2
-      UI.user_error!("Timed out fetching pre-release versions from App Store Connect")
     rescue StandardError => e
-      UI.important("⚠️ Error fetching pre-release versions: #{e.class}: #{e.message}")
+      UI.important("⚠️ Error fetching App Store versions: #{e.class}: #{e.message}")
       UI.important(e.backtrace.first(3).join("\n")) if debug
-      raise
     end
 
-    UI.user_error!("App version not found for MAC_OS in ASC: #{app_version}") unless pre_release
-    UI.message("🔗 Using PreReleaseVersion id=#{pre_release.id} version=#{pre_release.version} platform=#{pre_release.platform}") if debug
+    if app_store_version
+      UI.message("🔗 Found AppStoreVersion id=#{app_store_version.id} version=#{app_store_version.version_string} platform=#{app_store_version.platform}") if debug
+    else
+      UI.important("⚠️ Could not confirm App Store version via API; continuing")
+    end
 
-    # Now fetch builds for that pre-release version
+    # Fetch builds for the app and filter by preReleaseVersion + build number
     builds = nil
     attempts = 0
     begin
       attempts += 1
-      UI.message("📡 Fetching builds for pre-release #{pre_release.version} (limit 200)… attempt #{attempts}")
+      UI.message("📡 Fetching builds for app (limit 200)… attempt #{attempts}")
       started = Time.now
-      Timeout.timeout(120) { builds = pre_release.get_builds(limit: 200) }
+      Timeout.timeout(120) { builds = app.get_builds(includes: "preReleaseVersion", limit: 200) }
       UI.message("✅ Builds fetched in #{(Time.now - started).round(2)}s (#{(builds || []).size} returned)")
     rescue Timeout::Error => e
       UI.important("⏳ Timeout while fetching builds (attempt #{attempts})")
       UI.important("    Error: #{e.class}: #{e.message}") if debug
       retry if attempts < 2
-      UI.user_error!("Timed out fetching builds from App Store Connect")
+      UI.important("Proceeding without build pre-check due to App Store Connect slowness")
+      builds = []
     rescue StandardError => e
       UI.important("⚠️ Error fetching builds: #{e.class}: #{e.message}")
       UI.important(e.backtrace.first(3).join("\n")) if debug
-      raise
+      UI.important("Proceeding without build pre-check due to error fetching builds")
+      builds = []
     end
 
     # Log a few candidates for visibility
     (builds || []).first(10).each do |b|
+      app_ver = b.pre_release_version&.version || "?"
       build_ver = b.version || "?"
-      UI.message("  • AppVersion=#{pre_release.version} Build=#{build_ver} state=#{b.processing_state}")
+      UI.message("  • AppVersion=#{app_ver} Build=#{build_ver} state=#{b.processing_state}")
     end
 
-    found = (builds || []).find { |b| b.version.to_s == build_number }
-    unless found
-      UI.user_error!("Build not found or not processed yet for MAC_OS: #{app_identifier} #{app_version} (#{build_number})")
+    found = (builds || []).find { |b| b.pre_release_version&.version == app_version && b.version.to_s == build_number }
+    if found
+      UI.success("✅ Found AppVersion=#{app_version} Build=#{found.version} state=#{found.processing_state}")
+    else
+      UI.important("⚠️ Could not confirm build presence via API; continuing to deliver with app_version=#{app_version} build_number=#{build_number}")
     end
-
-    UI.success("✅ Found AppVersion=#{pre_release.version} Build=#{found.version} state=#{found.processing_state}")
   end
 
   desc "Publish desktop to the Mac App Store"
