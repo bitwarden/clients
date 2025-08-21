@@ -49,199 +49,6 @@ platform :mac do
     UI.message("🌍 Locales: #{APP_CONFIG[:locales].count}")
   end
 
-  # Quick existence check (no polling) for the specific macOS build in App Store Connect
-  private_lane :assert_build_exists do |options|
-    require 'spaceship'
-
-    app_identifier = APP_CONFIG[:app_identifier]
-    app_version = options[:app_version].to_s.strip
-    build_number = options[:build_number].to_s.strip
-
-    UI.message("🔎 Checking for MAC_OS build #{app_identifier} #{app_version} (#{build_number}) in App Store Connect...")
-
-    app = Spaceship::ConnectAPI::App.find(app_identifier)
-    UI.user_error!("App not found in App Store Connect: #{app_identifier}") unless app
-
-    # Use App Store versions API (supported) to confirm the version exists
-    debug = ENV["ASC_DEBUG"] == "1"
-    app_store_version = nil
-    attempts = 0
-    begin
-      attempts += 1
-      UI.message("📡 Fetching App Store versions (MAC_OS)… attempt #{attempts}")
-      vers = nil
-      started = Time.now
-      Timeout.timeout(90) { vers = app.get_app_store_versions(limit: 50) }
-      UI.message("✅ App Store versions fetched in #{(Time.now - started).round(2)}s (#{(vers || []).size} total)")
-      app_store_version = (vers || []).find { |v| v.platform == "MAC_OS" && v.version_string == app_version }
-    rescue Timeout::Error => e
-      UI.important("⏳ Timeout while fetching App Store versions (attempt #{attempts})")
-      UI.important("    Error: #{e.class}: #{e.message}") if debug
-      retry if attempts < 2
-    rescue StandardError => e
-      UI.important("⚠️ Error fetching App Store versions: #{e.class}: #{e.message}")
-      UI.important(e.backtrace.first(3).join("\n")) if debug
-    end
-
-    if app_store_version
-      UI.message("🔗 Found AppStoreVersion id=#{app_store_version.id} version=#{app_store_version.version_string} platform=#{app_store_version.platform}") if debug
-    else
-      UI.important("⚠️ Could not confirm App Store version via API; continuing")
-    end
-
-    # Fetch builds for the app and filter by preReleaseVersion + build number
-    builds = nil
-    attempts = 0
-    begin
-      attempts += 1
-      UI.message("📡 Fetching builds for app (limit 200)… attempt #{attempts}")
-      started = Time.now
-      Timeout.timeout(120) { builds = app.get_builds(includes: "preReleaseVersion", limit: 200) }
-      UI.message("✅ Builds fetched in #{(Time.now - started).round(2)}s (#{(builds || []).size} returned)")
-    rescue Timeout::Error => e
-      UI.important("⏳ Timeout while fetching builds (attempt #{attempts})")
-      UI.important("    Error: #{e.class}: #{e.message}") if debug
-      retry if attempts < 2
-      UI.important("Proceeding without build pre-check due to App Store Connect slowness")
-      builds = []
-    rescue StandardError => e
-      UI.important("⚠️ Error fetching builds: #{e.class}: #{e.message}")
-      UI.important(e.backtrace.first(3).join("\n")) if debug
-      UI.important("Proceeding without build pre-check due to error fetching builds")
-      builds = []
-    end
-
-    # Log a few candidates for visibility
-    (builds || []).first(10).each do |b|
-      app_ver = b.pre_release_version&.version || "?"
-      build_ver = b.version || "?"
-      UI.message("  • AppVersion=#{app_ver} Build=#{build_ver} state=#{b.processing_state}")
-    end
-
-    found = (builds || []).find { |b| b.pre_release_version&.version == app_version && b.version.to_s == build_number }
-    if found
-      UI.success("✅ Found AppVersion=#{app_version} Build=#{found.version} state=#{found.processing_state}")
-    else
-      UI.important("⚠️ Could not confirm build presence via API; continuing to deliver with app_version=#{app_version} build_number=#{build_number}")
-    end
-  end
-
-  # Explicitly select a build for the App Store version (macOS workaround)
-  private_lane :select_build_for_version do |options|
-    require 'spaceship'
-    
-    app_version = options[:app_version].to_s.strip
-    build_number = options[:build_number].to_s.strip
-    
-    UI.message("🔗 Checking if build #{build_number} is selected for version #{app_version}...")
-    
-    app = Spaceship::ConnectAPI::App.find(APP_CONFIG[:app_identifier])
-    return unless app
-    
-    # Find the App Store version
-    versions = app.get_app_store_versions(limit: 50)
-    app_store_version = versions.find { |v| v.platform == "MAC_OS" && v.version_string == app_version }
-    
-    unless app_store_version
-      UI.important("⚠️ App Store version not found: #{app_version} (MAC_OS)")
-      return
-    end
-    
-    # Check if build is already linked
-    begin
-      current_build = app_store_version.build
-      if current_build && current_build.version.to_s == build_number
-        UI.success("✅ Build #{build_number} is already selected for version #{app_version}")
-        return
-      end
-    rescue StandardError => e
-      UI.message("Could not check current build: #{e.message}")
-    end
-    
-    # Find and select the build
-    builds = app.get_builds(includes: "preReleaseVersion", limit: 200)
-    build = builds.find { |b| b.pre_release_version&.version == app_version && b.version.to_s == build_number }
-    
-    unless build
-      UI.user_error!("❌ Build not found: #{app_version} (#{build_number})")
-    end
-    
-    # Check build is in valid state
-    if build.processing_state != "VALID"
-      UI.user_error!("❌ Build #{build_number} is not in VALID state (current: #{build.processing_state})")
-    end
-    
-    # Try to select the build using the Spaceship API
-    begin
-      # Use the Spaceship ConnectAPI method to update the build relationship
-      Spaceship::ConnectAPI.patch_request(
-        "appStoreVersions/#{app_store_version.id}/relationships/build",
-        body: {
-          data: {
-            type: "builds",
-            id: build.id
-          }
-        }
-      )
-      UI.success("✅ Successfully selected build #{build_number} for version #{app_version}")
-    rescue StandardError => e
-      UI.user_error!("❌ Failed to select build: #{e.message}. This might be a fastlane/macOS platform issue.")
-    end
-  end
-
-  # Post-submit verification that the App Store version has a build linked
-  private_lane :verify_build_linked do |options|
-    require 'spaceship'
-
-    app_identifier = APP_CONFIG[:app_identifier]
-    app_version = options[:app_version].to_s.strip
-    build_number = options[:build_number].to_s.strip
-
-    UI.message("🔎 Verifying build linkage for #{app_identifier} #{app_version} (#{build_number})…")
-
-    app = Spaceship::ConnectAPI::App.find(app_identifier)
-    unless app
-      UI.important("⚠️ App not found for verification: #{app_identifier}")
-      next
-    end
-
-    versions = nil
-    begin
-      Timeout.timeout(60) do
-        # Attempt to include build relationship for fewer round-trips
-        versions = app.get_app_store_versions(limit: 50, includes: "build")
-      end
-    rescue StandardError => e
-      UI.important("⚠️ Error fetching App Store versions for verification: #{e.class}: #{e.message}")
-      versions = app.get_app_store_versions(limit: 50) rescue []
-    end
-
-    asv = (versions || []).find { |v| v.platform == "MAC_OS" && v.version_string == app_version }
-    unless asv
-      UI.important("⚠️ Could not find App Store version #{app_version} (MAC_OS) for verification")
-      next
-    end
-
-    begin
-      build = asv.build
-    rescue StandardError
-      # Some fastlane versions lazy-load this; fall back to fetching
-      build = nil
-    end
-
-    if build.nil?
-      UI.important("❌ No build is currently linked to App Store version #{app_version} (MAC_OS).")
-      UI.important("   If this persists, we may need to explicitly set the build relation via API.")
-    else
-      linked_bn = build.version.to_s
-      linked_av = build.pre_release_version&.version
-      if linked_bn == build_number && linked_av == app_version
-        UI.success("✅ Verified: build #{linked_bn} is linked to version #{app_version} (MAC_OS)")
-      else
-        UI.important("⚠️ A different build appears linked: appVersion=#{linked_av} build=#{linked_bn}")
-      end
-    end
-  end
 
   desc "Publish desktop to the Mac App Store"
   lane :publish do |options|
@@ -285,14 +92,8 @@ platform :mac do
       is_key_content_base64: true
     )
 
-    UI.message("🎯 Intending to select build #{build_number} for version #{app_version} (platform: osx)")
-
-    # Ensure the exact MAC_OS build exists before deliver tries to select it
-    assert_build_exists(app_version: app_version, build_number: build_number)
-
-    # Release notes already prepared and returned from prepare_release_notes lane
     UI.message("📝 Using release notes for #{notes.keys.count} locales")
-
+    UI.message("🎯 Publishing version #{app_version} with build #{build_number}")
 
     # Upload to App Store Connect
     deliver(
@@ -303,7 +104,7 @@ platform :mac do
       metadata_path: "metadata",
       skip_binary_upload: true,
       skip_screenshots: true,
-      skip_metadata: false, 
+      skip_metadata: true, 
       release_notes: notes,
       edit_live: false,
       submit_for_review: submit_for_review,
@@ -313,12 +114,6 @@ platform :mac do
       automatic_release: true,
       force: true
     )
-    
-    # Explicitly select the build for macOS (workaround for platform-specific issue)
-    select_build_for_version(app_version: app_version, build_number: build_number)
-    
-    # Verify that the requested build is linked to the App Store version
-    verify_build_linked(app_version: app_version, build_number: build_number)
 
     if submit_for_review
       UI.success("🎉 Successfully submitted Bitwarden Desktop #{app_version} #{build_number} for App Store review!")
