@@ -40,11 +40,11 @@ platform :mac do
 
   desc "Display configuration information"
   lane :show_config do |options|
-  build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
-  app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
+    build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
+    app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
     
     UI.message("📦 App ID: #{APP_CONFIG[:app_identifier]}")
-  UI.message("🏷️ Version: #{app_version.empty? ? '(not set)' : app_version}")
+    UI.message("🏷️ Version: #{app_version.empty? ? '(not set)' : app_version}")
     UI.message("🔢 Build Number: #{build_number}")
     UI.message("🌍 Locales: #{APP_CONFIG[:locales].count}")
   end
@@ -126,10 +126,124 @@ platform :mac do
     end
   end
 
+  # Explicitly select a build for the App Store version (macOS workaround)
+  private_lane :select_build_for_version do |options|
+    require 'spaceship'
+    
+    app_version = options[:app_version].to_s.strip
+    build_number = options[:build_number].to_s.strip
+    
+    UI.message("🔗 Checking if build #{build_number} is selected for version #{app_version}...")
+    
+    app = Spaceship::ConnectAPI::App.find(APP_CONFIG[:app_identifier])
+    return unless app
+    
+    # Find the App Store version
+    versions = app.get_app_store_versions(limit: 50)
+    app_store_version = versions.find { |v| v.platform == "MAC_OS" && v.version_string == app_version }
+    
+    unless app_store_version
+      UI.important("⚠️ App Store version not found: #{app_version} (MAC_OS)")
+      return
+    end
+    
+    # Check if build is already linked
+    begin
+      current_build = app_store_version.build
+      if current_build && current_build.version.to_s == build_number
+        UI.success("✅ Build #{build_number} is already selected for version #{app_version}")
+        return
+      end
+    rescue StandardError => e
+      UI.message("Could not check current build: #{e.message}")
+    end
+    
+    # Find and select the build
+    builds = app.get_builds(includes: "preReleaseVersion", limit: 200)
+    build = builds.find { |b| b.pre_release_version&.version == app_version && b.version.to_s == build_number }
+    
+    unless build
+      UI.user_error!("❌ Build not found: #{app_version} (#{build_number})")
+    end
+    
+    # Check build is in valid state
+    if build.processing_state != "VALID"
+      UI.user_error!("❌ Build #{build_number} is not in VALID state (current: #{build.processing_state})")
+    end
+    
+    # Try to select the build using direct API call
+    begin
+      client = Spaceship::ConnectAPI.client
+      client.patch("appStoreVersions/#{app_store_version.id}/relationships/build", {
+        data: {
+          type: "builds",
+          id: build.id
+        }
+      })
+      UI.success("✅ Successfully selected build #{build_number} for version #{app_version}")
+    rescue StandardError => e
+      UI.user_error!("❌ Failed to select build: #{e.message}. This might be a fastlane/macOS platform issue.")
+    end
+  end
+
+  # Post-submit verification that the App Store version has a build linked
+  private_lane :verify_build_linked do |options|
+    require 'spaceship'
+
+    app_identifier = APP_CONFIG[:app_identifier]
+    app_version = options[:app_version].to_s.strip
+    build_number = options[:build_number].to_s.strip
+
+    UI.message("🔎 Verifying build linkage for #{app_identifier} #{app_version} (#{build_number})…")
+
+    app = Spaceship::ConnectAPI::App.find(app_identifier)
+    unless app
+      UI.important("⚠️ App not found for verification: #{app_identifier}")
+      next
+    end
+
+    versions = nil
+    begin
+      Timeout.timeout(60) do
+        # Attempt to include build relationship for fewer round-trips
+        versions = app.get_app_store_versions(limit: 50, includes: "build")
+      end
+    rescue StandardError => e
+      UI.important("⚠️ Error fetching App Store versions for verification: #{e.class}: #{e.message}")
+      versions = app.get_app_store_versions(limit: 50) rescue []
+    end
+
+    asv = (versions || []).find { |v| v.platform == "MAC_OS" && v.version_string == app_version }
+    unless asv
+      UI.important("⚠️ Could not find App Store version #{app_version} (MAC_OS) for verification")
+      next
+    end
+
+    begin
+      build = asv.build
+    rescue StandardError
+      # Some fastlane versions lazy-load this; fall back to fetching
+      build = nil
+    end
+
+    if build.nil?
+      UI.important("❌ No build is currently linked to App Store version #{app_version} (MAC_OS).")
+      UI.important("   If this persists, we may need to explicitly set the build relation via API.")
+    else
+      linked_bn = build.version.to_s
+      linked_av = build.pre_release_version&.version
+      if linked_bn == build_number && linked_av == app_version
+        UI.success("✅ Verified: build #{linked_bn} is linked to version #{app_version} (MAC_OS)")
+      else
+        UI.important("⚠️ A different build appears linked: appVersion=#{linked_av} build=#{linked_bn}")
+      end
+    end
+  end
+
   desc "Publish desktop to the Mac App Store"
   lane :publish do |options|
-  build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
-  app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
+    build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
+    app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
     changelog = options[:changelog] || "Bug fixes and improvements"
     submit_for_review = options[:submit_for_review] == "true" || options[:submit_for_review] == true
     is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
@@ -140,13 +254,13 @@ platform :mac do
       UI.header("🚀 Publishing Bitwarden Desktop to Mac App Store")
     end
     
-  # Show configuration info
-  show_config(build_number: build_number, app_version: app_version)
+    # Show configuration info
+    show_config(build_number: build_number, app_version: app_version)
     
-  # Validate app_version
+    # Validate app_version
     UI.user_error!("❌ APP_VERSION is required") if app_version.nil? || app_version.empty?
-  # Validate build_number
-  UI.user_error!("❌ BUILD_NUMBER is required") if build_number.nil? || build_number.empty?
+    # Validate build_number
+    UI.user_error!("❌ BUILD_NUMBER is required") if build_number.nil? || build_number.empty?
     
     # Prepare release notes for all locales
     notes = prepare_release_notes(changelog: changelog)
@@ -168,10 +282,10 @@ platform :mac do
       is_key_content_base64: true
     )
 
-  UI.message("🎯 Intending to select build #{build_number} for version #{app_version} (platform: osx)")
+    UI.message("🎯 Intending to select build #{build_number} for version #{app_version} (platform: osx)")
 
-  # Ensure the exact MAC_OS build exists before deliver tries to select it
-  assert_build_exists(app_version: app_version, build_number: build_number)
+    # Ensure the exact MAC_OS build exists before deliver tries to select it
+    assert_build_exists(app_version: app_version, build_number: build_number)
 
     # Release notes already prepared and returned from prepare_release_notes lane
     UI.message("📝 Using release notes for #{notes.keys.count} locales")
@@ -183,6 +297,7 @@ platform :mac do
       app_identifier: APP_CONFIG[:app_identifier],
       app_version: app_version,
       build_number: build_number,
+      metadata_path: "metadata",
       skip_binary_upload: true,
       skip_screenshots: true,
       skip_metadata: false, 
@@ -196,6 +311,12 @@ platform :mac do
       force: true
     )
     
+    # Explicitly select the build for macOS (workaround for platform-specific issue)
+    select_build_for_version(app_version: app_version, build_number: build_number)
+    
+    # Verify that the requested build is linked to the App Store version
+    verify_build_linked(app_version: app_version, build_number: build_number)
+
     if submit_for_review
       UI.success("🎉 Successfully submitted Bitwarden Desktop #{app_version} #{build_number} for App Store review!")
     else
