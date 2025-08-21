@@ -114,10 +114,8 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
       Object.prototype.hasOwnProperty.call(redundantState, "launchPaymentModalAutomatically")
     ) {
       this.launchPaymentModalAutomatically = redundantState.launchPaymentModalAutomatically;
-    } else if (queryParam === "true") {
-      this.launchPaymentModalAutomatically = true;
     } else {
-      this.launchPaymentModalAutomatically = false;
+      this.launchPaymentModalAutomatically = queryParam === "true";
     }
   }
   ngOnDestroy(): void {
