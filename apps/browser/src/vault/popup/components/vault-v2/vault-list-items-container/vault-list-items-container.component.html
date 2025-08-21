@@ -42,7 +42,7 @@
       type="button"
       size="small"
       (click)="onRefresh.emit()"
-      [appA11yTitle]="'refresh' | i18n"
+      [label]="'refresh' | i18n"
     ></button>
     <span bitTypography="body2" slot="end">
       <span
@@ -141,8 +141,7 @@
                 bitIconButton="bwi-external-link"
                 size="small"
                 (click)="launchCipher(cipher)"
-                [attr.aria-label]="'launchWebsiteName' | i18n: cipher.name"
-                [title]="'launchWebsiteName' | i18n: cipher.name"
+                [label]="'launchWebsiteName' | i18n: cipher.name"
               ></button>
             </bit-item-action>
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
