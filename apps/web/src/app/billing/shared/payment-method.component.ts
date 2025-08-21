@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
@@ -42,21 +40,21 @@ import {
 export class PaymentMethodComponent implements OnInit, OnDestroy {
   loading = false;
   firstLoaded = false;
-  billing: BillingPaymentResponse;
-  org: OrganizationSubscriptionResponse;
-  sub: SubscriptionResponse;
+  billing?: BillingPaymentResponse;
+  org?: OrganizationSubscriptionResponse;
+  sub?: SubscriptionResponse;
   paymentMethodType = PaymentMethodType;
-  organizationId: string;
+  organizationId?: string;
   isUnpaid = false;
-  organization: Organization;
+  organization?: Organization;
 
   verifyBankForm = this.formBuilder.group({
-    amount1: new FormControl<number>(null, [
+    amount1: new FormControl<number>(0, [
       Validators.required,
       Validators.max(99),
       Validators.min(0),
     ]),
-    amount2: new FormControl<number>(null, [
+    amount2: new FormControl<number>(0, [
       Validators.required,
       Validators.max(99),
       Validators.min(0),
@@ -64,7 +62,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
   });
 
   launchPaymentModalAutomatically = false;
-  protected freeTrialData: FreeTrial;
+  protected freeTrialData?: FreeTrial;
 
   constructor(
     protected apiService: ApiService,
@@ -84,7 +82,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
   ) {
     const state = this.router.getCurrentNavigation()?.extras?.state;
-    // incase the above state is undefined or null we use redundantState
+    // In case the above state is undefined or null, we use redundantState
     const redundantState: any = location.getState();
     if (state && Object.prototype.hasOwnProperty.call(state, "launchPaymentModalAutomatically")) {
       this.launchPaymentModalAutomatically = state.launchPaymentModalAutomatically;
@@ -129,17 +127,23 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     }
     this.loading = true;
     if (this.forOrganization) {
-      const billingPromise = this.organizationApiService.getBilling(this.organizationId);
+      const billingPromise = this.organizationApiService.getBilling(this.organizationId!);
       const organizationSubscriptionPromise = this.organizationApiService.getSubscription(
-        this.organizationId,
+        this.organizationId!,
       );
+
       const userId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
+
+      if (!userId) {
+        throw new Error("User ID is not found");
+      }
+
       const organizationPromise = await firstValueFrom(
         this.organizationService
           .organizations$(userId)
-          .pipe(getOrganizationById(this.organizationId)),
+          .pipe(getOrganizationById(this.organizationId!)),
       );
 
       [this.billing, this.org, this.organization] = await Promise.all([
@@ -171,14 +175,16 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
   };
 
   addCredit = async () => {
-    const dialogRef = openAddCreditDialog(this.dialogService, {
-      data: {
-        organizationId: this.organizationId,
-      },
-    });
-    const result = await lastValueFrom(dialogRef.closed);
-    if (result === AddCreditDialogResult.Added) {
-      await this.load();
+    if (this.forOrganization) {
+      const dialogRef = openAddCreditDialog(this.dialogService, {
+        data: {
+          organizationId: this.organizationId!,
+        },
+      });
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === AddCreditDialogResult.Added) {
+        await this.load();
+      }
     }
   };
 
@@ -194,7 +200,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
 
     if (result === AdjustPaymentDialogResultType.Submitted) {
       this.location.replaceState(this.location.path(), "", {});
-      if (this.launchPaymentModalAutomatically && !this.organization.enabled) {
+      if (this.launchPaymentModalAutomatically && !this.organization?.enabled) {
         await this.syncService.fullSync(true);
       }
       this.launchPaymentModalAutomatically = false;
@@ -208,18 +214,22 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     }
 
     const request = new VerifyBankRequest();
-    request.amount1 = this.verifyBankForm.value.amount1;
-    request.amount2 = this.verifyBankForm.value.amount2;
-    await this.organizationApiService.verifyBank(this.organizationId, request);
+    request.amount1 = this.verifyBankForm.value.amount1!;
+    request.amount2 = this.verifyBankForm.value.amount2!;
+    await this.organizationApiService.verifyBank(this.organizationId!, request);
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: "",
       message: this.i18nService.t("verifiedBankAccount"),
     });
     await this.load();
   };
 
   determineOrgsWithUpcomingPaymentIssues() {
+    if (!this.organization || !this.org || !this.billing) {
+      throw new Error("Organization, organization subscription, or billing is not defined");
+    }
+
     this.freeTrialData = this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
       this.organization,
       this.org,
