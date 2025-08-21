@@ -967,6 +967,7 @@ pub mod chromium_importer {
     }
 }
 
+#[napi]
 pub mod autotype {
     #[napi]
     pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
