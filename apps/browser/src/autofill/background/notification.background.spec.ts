@@ -913,9 +913,6 @@ describe("NotificationBackground", () => {
           taskService.pendingTasks$.mockImplementation(() =>
             of([mockSecurityTask, mockSecurityTask2]),
           );
-          jest
-            .spyOn(notificationBackground as any, "getNotificationFlag")
-            .mockResolvedValueOnce(true);
           jest.spyOn(notificationBackground as any, "getOrgData").mockResolvedValueOnce([
             {
               id: mockOrgId,
