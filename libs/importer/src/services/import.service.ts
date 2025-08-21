@@ -145,7 +145,7 @@ export class ImportService implements ImportServiceAbstraction {
       map(([type, enabled]) => {
         let loaders = availableLoaders(type, client);
         if (!enabled) {
-          loaders = loaders.filter((loader) => loader !== Loader.chromium);
+          loaders = loaders?.filter((loader) => loader !== Loader.chromium);
         }
 
         const capabilities: ImporterMetadata = { type, loaders };
