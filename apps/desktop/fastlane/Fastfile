@@ -3,7 +3,6 @@ default_platform(:mac)
 # Static configuration for the Mac desktop app
 require 'json'
 require 'base64'
-require 'timeout'
 
 APP_CONFIG = {
   app_identifier: "com.bitwarden.desktop",
@@ -110,7 +109,7 @@ platform :mac do
       submit_for_review: submit_for_review,
       phased_release: true, # Enable 7-day phased rollout
       precheck_include_in_app_purchases: false,
-      run_precheck_before_submit: false,
+      run_precheck_before_submit: true,
       automatic_release: true,
       force: true
     )
