@@ -1,5 +1,5 @@
 import { hasModifierKey } from "@angular/cdk/keycodes";
-import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
+import { ConnectedPosition, Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
   Directive,
@@ -14,6 +14,41 @@ import { merge, Subscription } from "rxjs";
 import { filter, skip, takeUntil } from "rxjs/operators";
 
 import { MenuComponent } from "./menu.component";
+
+/**
+ * Position strategies for context menus.
+ * Tries positions in order: below-right, above-right, below-left, above-left
+ */
+const CONTEXT_MENU_POSITIONS: ConnectedPosition[] = [
+  // below-right
+  {
+    originX: "start",
+    originY: "top",
+    overlayX: "start",
+    overlayY: "top",
+  },
+  // above-right
+  {
+    originX: "start",
+    originY: "bottom",
+    overlayX: "start",
+    overlayY: "bottom",
+  },
+  // below-left
+  {
+    originX: "end",
+    originY: "top",
+    overlayX: "end",
+    overlayY: "top",
+  },
+  // above-left
+  {
+    originX: "end",
+    originY: "bottom",
+    overlayX: "end",
+    overlayY: "bottom",
+  },
+];
 
 @Directive({
   selector: "[bitMenuTriggerFor]",
@@ -89,14 +124,10 @@ export class MenuTriggerForDirective implements OnDestroy {
       ? this.overlay
           .position()
           .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
-          .withPositions([
-            {
-              originX: "start",
-              originY: "top",
-              overlayX: "start",
-              overlayY: "top",
-            },
-          ])
+          .withPositions(CONTEXT_MENU_POSITIONS)
+          .withLockedPosition(false)
+          .withFlexibleDimensions(false)
+          .withPush(true)
       : this.defaultMenuConfig.positionStrategy;
 
     const config = { ...this.defaultMenuConfig, positionStrategy, hasBackdrop: !event };
