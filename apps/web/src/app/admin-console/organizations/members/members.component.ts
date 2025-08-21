@@ -114,7 +114,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected showUserManagementControls: Signal<boolean> = computed(
     () => this.organization()?.canManageUsers ?? false,
   );
-  protected billingMetadata: Signal<OrganizationBillingMetadataResponse | null>;
+  protected billingMetadata: Signal<OrganizationBillingMetadataResponse | undefined>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 66;
@@ -189,7 +189,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         return this.policyService.policies$(userId);
       }),
       filter((policies): policies is Policy[] => policies != null),
-      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     combineLatest([this.route.queryParams, policies$, organization$])
@@ -209,11 +208,15 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
               ),
             );
 
-            const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
-            if (orgKeys[1].encryptedString == null) {
+            const [orgPublicKey, encryptedOrgPrivateKey] =
+              await this.keyService.makeKeyPair(orgShareKey);
+            if (encryptedOrgPrivateKey.encryptedString == null) {
               throw new Error("Encrypted private key is null.");
             }
-            const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
+            const request = new OrganizationKeysRequest(
+              orgPublicKey,
+              encryptedOrgPrivateKey.encryptedString,
+            );
             const response = await this.organizationApiService.updateKeys(organization.id, request);
             if (response != null) {
               await this.syncService.fullSync(true); // Replace organizations with new data
@@ -245,14 +248,14 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     this.billingMetadata = toSignal(
       organization$.pipe(
         switchMap((organization) =>
-          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)).pipe(),
+          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)),
         ),
         catchError((error: unknown) => {
           this.logService.error("Failed to load billing metadata", error);
-          return of(null);
+          return of();
         }),
       ),
-      { initialValue: null },
+      { initialValue: undefined },
     );
 
     organization$
