@@ -4,6 +4,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
+  debounceTime,
   firstValueFrom,
   map,
   Observable,
@@ -164,6 +165,7 @@ export class VaultPopupAutofillService {
         }),
       );
     }),
+    debounceTime(50),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 

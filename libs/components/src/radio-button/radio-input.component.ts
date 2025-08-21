@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, HostBinding, input, Input, Optional, Self } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
@@ -86,7 +84,7 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   set disabled(value: any) {
     this._disabled = value != null && value !== false;
   }
-  private _disabled: boolean;
+  private _disabled?: boolean;
 
   // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
@@ -99,14 +97,15 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   set required(value: any) {
     this._required = value != null && value !== false;
   }
-  private _required: boolean;
+  private _required?: boolean;
 
   get hasError() {
-    return this.ngControl?.status === "INVALID" && this.ngControl?.touched;
+    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
   }
 
   get error(): [string, any] {
-    const key = Object.keys(this.ngControl.errors)[0];
-    return [key, this.ngControl.errors[key]];
+    const errors = this.ngControl?.errors ?? {};
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
   }
 }

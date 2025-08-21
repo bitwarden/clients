@@ -55,14 +55,19 @@ export class Collection extends Domain {
     encryptService: EncryptService,
     orgKey: OrgKey,
   ): Promise<Collection> {
-    return Object.assign(
-      new Collection({
-        name: await encryptService.encryptString(view.name, orgKey),
-        id: view.id,
-        organizationId: view.organizationId,
-      }),
-      view,
-    );
+    const collection = new Collection({
+      name: await encryptService.encryptString(view.name, orgKey),
+      id: view.id,
+      organizationId: view.organizationId,
+    });
+
+    collection.externalId = view.externalId;
+    collection.readOnly = view.readOnly;
+    collection.hidePasswords = view.hidePasswords;
+    collection.manage = view.manage;
+    collection.type = view.type;
+
+    return collection;
   }
 
   decrypt(orgKey: OrgKey, encryptService: EncryptService): Promise<CollectionView> {

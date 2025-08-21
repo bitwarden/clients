@@ -345,7 +345,8 @@ export class LegacyPasswordGenerationService implements PasswordGenerationServic
       timeout({
         // timeout after 1 second
         each: 1000,
-        with() {
+        // TODO(PM-22309): Typescript 5.8 update, confirm type
+        with(): any[] {
           return [];
         },
       }),
@@ -370,7 +371,8 @@ export class LegacyPasswordGenerationService implements PasswordGenerationServic
       timeout({
         // timeout after 1 second
         each: 1000,
-        with() {
+        // TODO(PM-22309): Typescript 5.8 update, confirm type
+        with(): any[] {
           return [];
         },
       }),
