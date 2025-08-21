@@ -52,12 +52,12 @@ export const Default = {
   render: (args: { dataSource: typeof iconsData }) => ({
     props: args,
     template: /*html*/ `
-    <div class="tw-bg-secondary-100 tw-grid tw-grid-cols-[repeat(auto-fit,minmax(224px,1fr))] tw-gap-2">
+    <div class="tw-bg-secondary-100 tw-p-2 tw-grid tw-grid-cols-[repeat(auto-fit,minmax(224px,1fr))] tw-gap-2">
       @for (icon of dataSource; track icon.name) {
-        <div class="tw-size-56 tw-border tw-border-text-main">
-          <div class="tw-text-xs">{{icon.name}}</div>
-          <div class="tw-size-52">
-            <bit-icon [icon]="icon.icon"></bit-icon>
+        <div class="tw-size-56 tw-border tw-border-secondary-300 tw-rounded-md">
+          <div class="tw-text-xs tw-text-center">{{icon.name}}</div>
+          <div class="tw-size-52 tw-w-full tw-content-center">
+            <bit-icon [icon]="icon.icon" class="tw-flex tw-justify-center tw-max-h-full"></bit-icon>
           </div>
         </div>
       }
