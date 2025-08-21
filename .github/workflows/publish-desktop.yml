@@ -17,16 +17,16 @@ on:
         required: true
         type: string
         default: latest
-      electron_publish:
-        description: 'Publish to Electron (auto-updater)'
-        required: true
-        default: true
-        type: boolean
       electron_rollout_percentage:
         description: 'Staged Rollout Percentage for Electron (ignored if Electron publish disabled)'
         required: false
         default: '10'
         type: string
+      electron_publish:
+        description: 'Publish to Electron (auto-updater)'
+        required: true
+        default: true
+        type: boolean
       snap_publish:
         description: 'Publish to Snap store'
         required: true

@@ -19,9 +19,9 @@ platform :mac do
     # This handles copy-pasted text from Jira where bullet points become sentences with double spaces
     formatted_changelog = changelog.gsub(/\.  /, ".\n")
     
-    # Create metadata directories and files for all locales
+    # Create release notes directories and files for all locales
     APP_CONFIG[:locales].each do |locale|
-      dir = "metadata/#{locale}"
+      dir = "release_notes/#{locale}"
       FileUtils.mkdir_p(dir)
       File.write("#{dir}/release_notes.txt", formatted_changelog)
       UI.message("Creating release notes for #{locale}")
@@ -29,7 +29,7 @@ platform :mac do
 
     # Create release notes hash for deliver
     notes = APP_CONFIG[:locales].each_with_object({}) do |locale, hash|
-      file_path = "metadata/#{locale}/release_notes.txt"
+      file_path = "release_notes/#{locale}/release_notes.txt"
       if File.exist?(file_path)
         hash[locale] = File.read(file_path)
       else
@@ -108,7 +108,7 @@ platform :mac do
       skip_screenshots: true,
       skip_metadata: true, 
       release_notes: notes,
-      edit_live: true,
+      edit_live: false,
       submit_for_review: true, # if this is false, the build number does not attach to the draft
       phased_release: true, # Enable 7-day phased rollout
       precheck_include_in_app_purchases: false,
