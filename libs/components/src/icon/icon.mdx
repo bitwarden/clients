@@ -24,9 +24,10 @@ import { IconModule } from "@bitwarden/components";
      [SVG Formatter Beautifier](https://codebeautify.org/svg-formatter-beautifier) to make applying
      classes easier.
 
-2. **Rename the file** as a `<name>.icon.ts` TypeScript file.
+2. **Rename the file** as a `<name>.icon.ts` TypeScript file and place it in the `libs/assets/svg`
+   lib.
 
-3. **Import** `svgIcon` from `@bitwarden/components`.
+3. **Import** `svgIcon` from `./icon-service`.
 
 4. **Define and export** a `const` to represent your `svgIcon`.
 
@@ -77,7 +78,7 @@ import { IconModule } from "@bitwarden/components";
    to allow the SVG to scale to fit its container.
 
    - **Note:** Scaling is required for any SVG used as an
-     [AnonLayout](?path=/docs/auth-anon-layout--docs) `pageIcon`.
+     [AnonLayout](?path=/docs/component-library-anon-layout--docs) `pageIcon`.
 
 7. **Import your SVG const** anywhere you want to use the SVG.
 
@@ -87,8 +88,8 @@ import { IconModule } from "@bitwarden/components";
 
        ```typescript
        import { Component } from "@angular/core";
-       import { ExampleIcon } from "your/path/here";
        import { IconModule } from '@bitwarden/components';
+       import { ExampleIcon, Example2Icon } from "@bitwarden/assets/svg";
 
        @Component({
          selector: "app-example",

@@ -11,17 +11,20 @@ import {
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import {
+  AnonLayoutBitwardenShield,
+  BackgroundLeftIllustration,
+  BackgroundRightIllustration,
+  BitwardenLogo,
+  Icon,
+} from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { IconModule, Icon } from "../icon";
-import { BitwardenLogo } from "../icon/icons";
-import { AnonLayoutBitwardenShield } from "../icon/logos";
+import { IconModule } from "../icon";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
-
-import { LeftIllustration, RightIllustration } from "./illustrations";
 
 export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
@@ -37,8 +40,8 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     return ["tw-h-full"];
   }
 
-  readonly leftIllustration = LeftIllustration;
-  readonly rightIllustration = RightIllustration;
+  readonly leftIllustration = BackgroundLeftIllustration;
+  readonly rightIllustration = BackgroundRightIllustration;
 
   readonly title = input<string>();
   readonly subtitle = input<string>();
