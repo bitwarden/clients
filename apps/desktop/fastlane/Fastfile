@@ -15,8 +15,14 @@ platform :mac do
   lane :prepare_release_notes do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     
-    # Release notes are pre-formatted by the workflow, just pass through
-    formatted_changelog = changelog.strip
+    # Split on periods and format with bullet points
+    # Try different formatting approaches for App Store Connect
+    formatted_changelog = changelog
+      .split('.')
+      .map(&:strip)
+      .reject(&:empty?)
+      .map { |item| "• #{item}" }
+      .join("\n")
     
     UI.message("Original changelog: #{changelog[0,100]}#{changelog.length > 100 ? '...' : ''}")
     UI.message("Formatted changelog: #{formatted_changelog[0,100]}#{formatted_changelog.length > 100 ? '...' : ''}")
@@ -108,7 +114,7 @@ platform :mac do
       metadata_path: "metadata",
       skip_binary_upload: true,
       skip_screenshots: true,
-      skip_metadata: true, 
+      skip_metadata: false, # Enable metadata upload to include release notes 
       release_notes: notes,
       edit_live: false,
       submit_for_review: true, # if this is false, the build number does not attach to the draft
