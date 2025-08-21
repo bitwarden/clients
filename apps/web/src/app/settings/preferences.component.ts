@@ -33,7 +33,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { DialogService } from "@bitwarden/components";
 
 import { HeaderModule } from "../layouts/header/header.module";
@@ -65,7 +64,6 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     vaultTimeout: [null as VaultTimeout | null],
     vaultTimeoutAction: [VaultTimeoutAction.Lock],
     enableFavicons: true,
-    enableContextMenu: false,
     theme: [ThemeTypes.Light as Theme],
     locale: [null as string | null],
   });
@@ -75,7 +73,6 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     private policyService: PolicyService,
     private i18nService: I18nService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private vaultSettingsService: VaultSettingsService,
     private platformUtilsService: PlatformUtilsService,
     private themeStateService: ThemeStateService,
     private domainSettingsService: DomainSettingsService,
@@ -178,7 +175,6 @@ export class PreferencesComponent implements OnInit, OnDestroy {
         this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAcct.id),
       ),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
-      enableContextMenu: await firstValueFrom(this.vaultSettingsService.enableContextMenu$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: (await firstValueFrom(this.i18nService.userSetLocale$)) ?? null,
     };
@@ -208,7 +204,6 @@ export class PreferencesComponent implements OnInit, OnDestroy {
       values.vaultTimeoutAction,
     );
     await this.domainSettingsService.setShowFavicons(values.enableFavicons);
-    await this.vaultSettingsService.setEnableContextMenu(values.enableContextMenu);
     await this.themeStateService.setSelectedTheme(values.theme);
     await this.i18nService.setLocale(values.locale);
     if (values.locale !== this.startingLocale) {

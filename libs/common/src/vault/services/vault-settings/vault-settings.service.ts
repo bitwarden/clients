@@ -8,7 +8,6 @@ import {
   SHOW_IDENTITIES_CURRENT_TAB,
   USER_ENABLE_PASSKEYS,
   CLICK_ITEMS_AUTOFILL_VAULT_VIEW,
-  ENABLE_CONTEXT_MENU,
 } from "../key-state/vault-settings.state";
 import { RestrictedItemTypesService } from "../restricted-item-types.service";
 
@@ -61,16 +60,6 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
-  private enableContextMenuState: ActiveUserState<boolean> =
-    this.stateProvider.getActive(ENABLE_CONTEXT_MENU);
-  /**
-   * {@link VaultSettingsServiceAbstraction.enableContextMenu$}
-   */
-  readonly enableContextMenu$: Observable<boolean> = this.enableContextMenuState.state$.pipe(
-    map((x) => x ?? false),
-    shareReplay({ bufferSize: 1, refCount: false }),
-  );
-
   constructor(
     private stateProvider: StateProvider,
     private restrictedItemTypesService: RestrictedItemTypesService,
@@ -102,12 +91,5 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
    */
   async setEnablePasskeys(value: boolean): Promise<void> {
     await this.enablePasskeysState.update(() => value);
-  }
-
-  /**
-   * {@link VaultSettingsServiceAbstraction.setEnableContextMenu}
-   */
-  async setEnableContextMenu(value: boolean): Promise<void> {
-    await this.enableContextMenuState.update(() => value);
   }
 }

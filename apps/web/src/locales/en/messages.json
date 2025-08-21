@@ -11118,12 +11118,6 @@
   "showLess": {
     "message": "Show less"
   },
-  "enableContextMenu": {
-    "message": "Enable context menu"
-  },
-  "enableContextMenuDescription": {
-    "message": "Show additional options when right-clicking on vault items. Disable this to use the browser's default context menu."
-  },
   "missingTaxId": {
     "message": "Missing Tax ID"
   },
