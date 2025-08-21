@@ -490,24 +490,13 @@ export class CipherService implements CipherServiceAbstraction {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
       const decryptStartTime = performance.now();
 
-      const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
-        ciphers,
-        userId,
-      );
-      const decryptedCipherViews = await Promise.all(
-        decrypted.map((c) => this.getFullCipherView(c)),
-      );
-      const failedCipherViews = failures.map((c) => {
-        const cipher_view = new CipherView(c);
-        cipher_view.decryptionFailure = true;
-        return cipher_view;
-      });
+      const result = await this.decryptCiphersWithSdk(ciphers, userId);
 
       this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
         ["Items", ciphers.length],
       ]);
 
-      return [decryptedCipherViews, failedCipherViews];
+      return result;
     }
 
     const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId));
@@ -2034,10 +2023,22 @@ export class CipherService implements CipherServiceAbstraction {
    * @returns The decrypted ciphers.
    * @private
    */
-  private async decryptCiphersWithSdk(ciphers: Cipher[], userId: UserId): Promise<CipherView[]> {
-    const decryptedViews = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
+  private async decryptCiphersWithSdk(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<CipherView[], CipherView[]> {
+    const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
+      ciphers,
+      userId,
+    );
+    const decryptedViews = await Promise.all(decrypted.map((c) => this.getFullCipherView(c)));
+    const failedViews = failures.map((c) => {
+      const cipher_view = new CipherView(c);
+      cipher_view.decryptionFailure = true;
+      return cipher_view;
+    });
 
-    return decryptedViews.sort(this.getLocaleSortingFunction());
+    return [decryptedViews.sort(this.getLocaleSortingFunction()), failedViews];
   }
 
   /** Fetches the full `CipherView` when a `CipherListView` is passed. */
