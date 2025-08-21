@@ -15,13 +15,12 @@ platform :mac do
   lane :prepare_release_notes do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     
-    # Format release notes: handle flattened multiline input from workflow dispatch
-    # The workflow converts newlines to spaces, so we detect sentence boundaries and restore newlines
+    # Format release notes: handle workflow dispatch converting newlines to double spaces
+    # GitHub workflow dispatch converts multiline input newlines to exactly 2 spaces
     formatted_changelog = changelog
-      .gsub(/\.\s+([A-Z])/, ".\n\\1")           # Period + space + Capital letter = end of sentence
-      .gsub(/([a-z])\s{2,}([A-Z])/, "\\1\n\\2") # Lowercase + 2+ spaces + Capital = likely new sentence
-      .gsub(/\n\s+/, "\n")                      # Clean up: remove spaces after newlines
-      .gsub(/\s+\n/, "\n")                      # Clean up: remove spaces before newlines
+      .gsub(/  /, "\n")                         # Convert double spaces to newlines (main fix)
+      .gsub(/\n+/, "\n")                        # Clean up: convert multiple newlines to single
+      .gsub(/^(.+)$/, "- \\1")                  # Add bullet point to each line for readability
       .strip                                    # Remove leading/trailing whitespace
     
     UI.message("Original changelog: #{changelog[0,100]}#{changelog.length > 100 ? '...' : ''}")
