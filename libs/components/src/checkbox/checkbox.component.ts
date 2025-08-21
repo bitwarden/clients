@@ -21,6 +21,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-align-sub",
     "tw-flex-none", // Flexbox fix for bit-form-control
     "!tw-p-1",
+    // Give checkbox explicit height and width to fix iOS rendering bug
     "tw-h-[calc(1.12rem_+_theme(spacing.2))]",
     "tw-w-[calc(1.12rem_+_theme(spacing.2))]",
     "after:tw-inset-1",
