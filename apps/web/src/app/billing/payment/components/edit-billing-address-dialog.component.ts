@@ -3,18 +3,31 @@ import { Component, Inject } from "@angular/core";
 
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogConfig, DialogRef, DialogService, ToastService } from "@bitwarden/components";
-
-import { SharedModule } from "../../../shared";
-import { BillingClient } from "../../services";
-import { BillableEntity } from "../../types";
-import { BillingAddress, getTaxIdTypeForCountry } from "../types";
+import {
+  CalloutTypes,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
+import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
+import {
+  BillingAddress,
+  getTaxIdTypeForCountry,
+} from "@bitwarden/web-vault/app/billing/payment/types";
+import { BitwardenSubscriber } from "@bitwarden/web-vault/app/billing/types";
+import {
+  TaxIdWarningType,
+  TaxIdWarningTypes,
+} from "@bitwarden/web-vault/app/billing/warnings/types";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { EnterBillingAddressComponent } from "./enter-billing-address.component";
 
 type DialogParams = {
-  owner: BillableEntity;
+  subscriber: BitwardenSubscriber;
   billingAddress: BillingAddress | null;
+  taxIdWarning?: TaxIdWarningType;
 };
 
 type DialogResult =
@@ -30,11 +43,18 @@ type DialogResult =
           {{ "editBillingAddress" | i18n }}
         </span>
         <div bitDialogContent>
+          @let callout = taxIdWarningCallout;
+          @if (callout) {
+            <bit-callout [type]="callout.type" [title]="callout.title">
+              {{ callout.message }}
+            </bit-callout>
+          }
           <app-enter-billing-address
             [scenario]="{
               type: 'update',
               existing: dialogParams.billingAddress,
               supportsTaxId,
+              taxIdWarning: dialogParams.taxIdWarning,
             }"
             [group]="formGroup"
           ></app-enter-billing-address>
@@ -57,13 +77,13 @@ type DialogResult =
   `,
   standalone: true,
   imports: [EnterBillingAddressComponent, SharedModule],
-  providers: [BillingClient],
+  providers: [SubscriberBillingClient],
 })
 export class EditBillingAddressDialogComponent {
   protected formGroup = EnterBillingAddressComponent.getFormGroup();
 
   constructor(
-    private billingClient: BillingClient,
+    private billingClient: SubscriberBillingClient,
     @Inject(DIALOG_DATA) protected dialogParams: DialogParams,
     private dialogRef: DialogRef<DialogResult>,
     private i18nService: I18nService,
@@ -93,7 +113,7 @@ export class EditBillingAddressDialogComponent {
       : { ...addressFields, taxId: null };
 
     const result = await this.billingClient.updateBillingAddress(
-      this.dialogParams.owner,
+      this.dialogParams.subscriber,
       billingAddress,
     );
 
@@ -125,7 +145,7 @@ export class EditBillingAddressDialogComponent {
   };
 
   get supportsTaxId(): boolean {
-    switch (this.dialogParams.owner.type) {
+    switch (this.dialogParams.subscriber.type) {
       case "account": {
         return false;
       }
@@ -134,10 +154,41 @@ export class EditBillingAddressDialogComponent {
           ProductTierType.TeamsStarter,
           ProductTierType.Teams,
           ProductTierType.Enterprise,
-        ].includes(this.dialogParams.owner.data.productTierType);
+        ].includes(this.dialogParams.subscriber.data.productTierType);
       }
       case "provider": {
         return true;
+      }
+    }
+  }
+
+  get taxIdWarningCallout(): {
+    type: CalloutTypes;
+    title: string;
+    message: string;
+  } | null {
+    if (
+      !this.supportsTaxId ||
+      !this.dialogParams.taxIdWarning ||
+      this.dialogParams.taxIdWarning === TaxIdWarningTypes.PendingVerification
+    ) {
+      return null;
+    }
+
+    switch (this.dialogParams.taxIdWarning) {
+      case TaxIdWarningTypes.Missing: {
+        return {
+          type: "warning",
+          title: this.i18nService.t("missingTaxIdCalloutTitle"),
+          message: this.i18nService.t("missingTaxIdCalloutDescription"),
+        };
+      }
+      case TaxIdWarningTypes.FailedVerification: {
+        return {
+          type: "warning",
+          title: this.i18nService.t("unverifiedTaxIdCalloutTitle"),
+          message: this.i18nService.t("unverifiedTaxIdCalloutDescription"),
+        };
       }
     }
   }

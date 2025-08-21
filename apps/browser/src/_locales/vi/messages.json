@@ -1836,7 +1836,7 @@
     "message": "số thẻ"
   },
   "ex": {
-    "message": "Ví dụ:"
+    "message": "ví dụ."
   },
   "title": {
     "message": "Tiêu đề"
@@ -2458,7 +2458,7 @@
     "message": "Nhận dạng sinh trắc học không được hỗ trợ"
   },
   "biometricsNotSupportedDesc": {
-    "message": "Nhận dạng sinh trắc học trên trình duyệt không được hỗ trợ trên thiết bị này"
+    "message": "Nhận dạng sinh trắc học trên trình duyệt không được hỗ trợ trên thiết bị này."
   },
   "biometricsNotUnlockedTitle": {
     "message": "Người dùng đã khoá hoặc đã đăng xuất"
@@ -3656,25 +3656,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "Yêu cầu này không còn hiệu lực."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Bạn đang cố gắng truy cập tài khoản của mình?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Đã xác nhận đăng nhập cho $EMAIL$ trên $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu thực sự là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Yêu cầu đăng nhập đã hết hạn."
@@ -5592,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly không được hỗ trợ trên trình duyệt của bạn hoặc chưa được kích hoạt. WebAssembly là yêu cầu bắt buộc để sử dụng ứng dụng Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Xem thêm"
+  },
+  "showLess": {
+    "message": "Thu gọn"
   }
 }

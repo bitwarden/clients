@@ -277,7 +277,7 @@
     "message": "Şifre çözme sorunu"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden, aşağıda listelenen kasa öğelerinin şifresini çözemedi."
   },
   "contactCSToAvoidDataLossPart1": {
     "message": "Contact customer success",
@@ -809,7 +809,7 @@
     "message": "Ana parola ipucu"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Parola gücü puanı: $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -942,14 +942,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Bu cihazda 30 gün boyunca sorma"
   },
   "selectAnotherMethod": {
     "message": "Başka bir yöntem seç",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Kurtarma kodu kullan"
   },
   "insertU2f": {
     "message": "Güvenlik anahtarınızı bilgisayarınızın USB portuna takın. Bir düğmesi varsa dokunun."
@@ -1015,7 +1015,7 @@
     "message": "İki aşamalı giriş seçenekleri"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "İki aşamalı giriş yöntemini seçin"
   },
   "selfHostedEnvironment": {
     "message": "Şirket içinde barındırılan ortam"
@@ -1024,7 +1024,7 @@
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "For advanced configuration, you can specify the base URL of each service independently."
+    "message": "İleri düzey yapılandırma için her hizmetin taban URL'sini bağımsız olarak belirleyebilirsiniz."
   },
   "selfHostedEnvFormInvalid": {
     "message": "You must add either the base Server URL or at least one custom environment."
@@ -1225,11 +1225,17 @@
   "twoStepLogin": {
     "message": "İki aşamalı giriş"
   },
+  "vaultTimeoutHeader": {
+    "message": "Kasa zaman aşımı"
+  },
   "vaultTimeout": {
     "message": "Kasa zaman aşımı"
   },
   "vaultTimeout1": {
     "message": "Zaman aşımı"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Zaman aşımı eylemi"
   },
   "vaultTimeoutDesc": {
     "message": "Kasa zaman aşımı eyleminin ne zaman gerçekleştirileceğini seçin."
@@ -1853,10 +1859,10 @@
     "message": "Hesabınızı silmek kalıcıdır. Geri alınamaz."
   },
   "cannotDeleteAccount": {
-    "message": "Cannot delete account"
+    "message": "Hesap silinemiyor"
   },
   "cannotDeleteAccountDesc": {
-    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+    "message": "Hesabınızın sahibi bir kuruluş olduğu için bu işlem tamamlanamadı. Bilgi almak için kuruluş yöneticinizle iletişime geçin."
   },
   "accountDeleted": {
     "message": "Hesap silindi"
@@ -2371,10 +2377,10 @@
     "message": "WebAuthn ile doğrula"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Güvenlik anahtarını oku"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Güvenlik anahtarı etkileşimi bekleniyor..."
   },
   "hideEmail": {
     "message": "E-posta adresimi alıcılardan gizle."
@@ -2510,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Kasa zaman aşımınız, kuruluşunuz tarafından belirlenen kısıtlamaları aşıyor."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Zaman aşımı ayarlarınıza kurumsal ilke gereksinimleri uygulandı"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Kuruluş ilkeleriniz izin verilen maksimum kasa zaman aşımını $HOURS$ saat $MINUTES$ dakika olarak belirlemiş.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Zaman aşımınız kuruluşunuzun belirlediği maksimum süreyi aşıyor: Maksimum $HOURS$ saat $MINUTES$ dakika",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Davet kabul edildi"
@@ -2666,7 +2701,7 @@
     "message": "Parola üretildi"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Parola cümlesi üretildi"
   },
   "usernameGenerated": {
     "message": "Kullanıcı adı üretildi"
@@ -2689,7 +2724,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Güçlü bir parola cümlesi üretmek için en az $RECOMMENDED$ kelime kullanın.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2699,7 +2734,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Güçlü bir parola cümlesi üretmek için en az $RECOMMENDED$ kelime kullanın.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2731,7 +2766,7 @@
     "message": "Bu parolayı kullan"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Bu parola cümlesini kullan"
   },
   "useThisUsername": {
     "message": "Bu kullanıcı adını kullan"
@@ -2992,9 +3027,6 @@
     "message": "Karakter sayacını aç/kapat",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Hesabınıza erişmeye mi çalışıyorsunuz?"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ erişim denemesi",
     "placeholders": {
@@ -3003,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "$DEVICE$ cihazında $EMAIL$ girişi onaylandı",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Başka bir cihazdan giriş isteğini reddettiniz. Yanlışlıkla yaptıysanız aynı cihazdan yeniden giriş yapmayı deneyin."
+  },
+  "webApp": {
+    "message": "Web uygulaması"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Uzantı",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Masaüstü",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Sunucu"
+  },
+  "loginRequest": {
+    "message": "Giriş isteği"
   },
   "deviceType": {
     "message": "Cihaz türü"
@@ -3018,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Erişimi reddet"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "$DEVICE$ cihazında $EMAIL$ girişi onaylandı",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Başka bir cihazdan giriş isteğini reddettiniz. Yanlışlıkla yaptıysanız aynı cihazdan yeniden giriş yapmayı deneyin."
   },
   "justNow": {
     "message": "Az önce"
@@ -3664,19 +3724,19 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "Önce PIN veya parola gerektiğinden biyometrik kilit açılamıyor."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "Biyometrik kilit açma şu anda kullanılamıyor."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biyometrik kilit açma, yanlış yapılandırılmış sistem dosyaları nedeniyle kullanılamıyor."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biyometrik kilit açma, yanlış yapılandırılmış sistem dosyaları nedeniyle kullanılamıyor."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "Biyometrik kilit açma, Bitwarden masaüstü uygulamasında $EMAIL$ etkin olmadığı için kullanılamıyor.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4005,6 +4065,12 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Daha fazla göster"
+  },
+  "showLess": {
+    "message": "Daha az göster"
   },
   "enableAutotype": {
     "message": "Enable Autotype"

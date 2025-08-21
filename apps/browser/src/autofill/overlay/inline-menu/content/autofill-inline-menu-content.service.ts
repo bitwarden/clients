@@ -29,8 +29,11 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private isFirefoxBrowser =
     globalThis.navigator.userAgent.indexOf(" Firefox/") !== -1 ||
     globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
-  private buttonElement: HTMLElement;
-  private listElement: HTMLElement;
+  private buttonElement?: HTMLElement;
+  private listElement?: HTMLElement;
+  private htmlMutationObserver: MutationObserver;
+  private bodyMutationObserver: MutationObserver;
+  private pageIsOpaque = true;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private containerElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
@@ -49,6 +52,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   constructor() {
+    this.checkPageOpacity();
     this.setupMutationObserver();
   }
 
@@ -281,6 +285,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * that the inline menu elements are always present at the bottom of the menu container.
    */
   private setupMutationObserver = () => {
+    this.htmlMutationObserver = new MutationObserver(this.handlePageMutations);
+    this.bodyMutationObserver = new MutationObserver(this.handlePageMutations);
+
     this.inlineMenuElementsMutationObserver = new MutationObserver(
       this.handleInlineMenuElementMutationObserverUpdate,
     );
@@ -295,6 +302,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * elements are not modified by the website.
    */
   private observeCustomElements() {
+    this.htmlMutationObserver?.observe(document.querySelector("html"), { attributes: true });
+    this.bodyMutationObserver?.observe(document.body, { attributes: true });
+
     if (this.buttonElement) {
       this.inlineMenuElementsMutationObserver?.observe(this.buttonElement, {
         attributes: true,
@@ -395,11 +405,56 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     });
   };
 
+  private checkPageOpacity = () => {
+    this.pageIsOpaque = this.getPageIsOpaque();
+
+    if (!this.pageIsOpaque) {
+      this.closeInlineMenu();
+    }
+  };
+
+  private handlePageMutations = (mutations: MutationRecord[]) => {
+    for (const mutation of mutations) {
+      if (mutation.type === "attributes") {
+        this.checkPageOpacity();
+      }
+    }
+  };
+
+  /**
+   * Checks the opacity of the page body and body parent, since the inline menu experience
+   * will inherit the opacity, despite being otherwise encapsulated from styling changes
+   * of parents below the body. Assumes the target element will be a direct child of the page
+   * `body` (enforced elsewhere).
+   */
+  private getPageIsOpaque() {
+    // These are computed style values, so we don't need to worry about non-float values
+    // for `opacity`, here
+    const htmlOpacity = globalThis.window.getComputedStyle(
+      globalThis.document.querySelector("html"),
+    ).opacity;
+    const bodyOpacity = globalThis.window.getComputedStyle(
+      globalThis.document.querySelector("body"),
+    ).opacity;
+
+    // Any value above this is considered "opaque" for our purposes
+    const opacityThreshold = 0.6;
+
+    return parseFloat(htmlOpacity) > opacityThreshold && parseFloat(bodyOpacity) > opacityThreshold;
+  }
+
   /**
    * Processes the mutation of the element that contains the inline menu. Will trigger when an
    * idle moment in the execution of the main thread is detected.
    */
   private processContainerElementMutation = async (containerElement: HTMLElement) => {
+    // If the computed opacity of the body and parent is not sufficiently opaque, tear
+    // down and prevent building the inline menu experience.
+    this.checkPageOpacity();
+    if (!this.pageIsOpaque) {
+      return;
+    }
+
     const lastChild = containerElement.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
