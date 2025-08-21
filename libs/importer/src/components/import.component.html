@@ -171,7 +171,7 @@
       "Export" to save the JSON file.
     </ng-container>
     -->
-        <ng-container *ngIf="isChromiumBrowser$(format) | async">
+        <ng-container *ngIf="showChromiumInstructions$ | async">
           <span *ngIf="format !== 'chromecsv'">
             The process is exactly the same as importing from Google Chrome.
           </span>
@@ -188,17 +188,21 @@
             >
           </p>
           <bit-radio-group
-            [hidden]="!(isChromiumImporterEnabled$ | async)"
-            formControlName="chromeType"
+            [hidden]="!(browserImporterAvailable$ | async)"
+            formControlName="chromiumLoader"
           >
             <bit-radio-button
               class="tw-block"
-              id="import_bit-radio-button_chrome-direct"
-              value="direct"
+              id="import_bit-radio-button_chrome-browser"
+              value="browser"
             >
               <bit-label>{{ "importDirectlyFromBrowser" | i18n }}</bit-label>
             </bit-radio-button>
-            <bit-radio-button class="tw-block" id="import_bit-radio-button_chrome-csv" value="csv">
+            <bit-radio-button
+              class="tw-block"
+              id="import_bit-radio-button_chrome-file"
+              value="file"
+            >
               <bit-label>{{ "importFromCSV" | i18n }}</bit-label>
             </bit-radio-button>
           </bit-radio-group>

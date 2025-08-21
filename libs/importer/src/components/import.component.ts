@@ -4,9 +4,11 @@ import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   EventEmitter,
   Inject,
   Input,
+  NgZone,
   OnDestroy,
   OnInit,
   Optional,
@@ -16,15 +18,20 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
-import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom, of } from "rxjs";
-import { combineLatestWith, filter, map, switchMap, takeUntil, tap } from "rxjs/operators";
+import {
+  Observable,
+  Subject,
+  lastValueFrom,
+  combineLatest,
+  firstValueFrom,
+  ReplaySubject,
+} from "rxjs";
+import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -35,16 +42,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -65,16 +66,10 @@ import {
   ToastService,
   LinkModule,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 
+import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
 import { ImportOption, ImportResult, ImportType } from "../models";
-import {
-  ImportApiService,
-  ImportApiServiceAbstraction,
-  ImportCollectionServiceAbstraction,
-  ImportService,
-  ImportServiceAbstraction,
-} from "../services";
+import { ImportCollectionServiceAbstraction, ImportServiceAbstraction } from "../services";
 
 import { ImportChromeComponent } from "./chrome";
 import {
@@ -82,32 +77,8 @@ import {
   ImportErrorDialogComponent,
   ImportSuccessDialogComponent,
 } from "./dialog";
+import { ImporterProviders } from "./importer-providers";
 import { ImportLastPassComponent } from "./lastpass";
-
-const safeProviders: SafeProvider[] = [
-  safeProvider({
-    provide: ImportApiServiceAbstraction,
-    useClass: ImportApiService,
-    deps: [ApiService],
-  }),
-  safeProvider({
-    provide: ImportServiceAbstraction,
-    useClass: ImportService,
-    deps: [
-      CipherService,
-      FolderService,
-      ImportApiServiceAbstraction,
-      I18nService,
-      CollectionService,
-      KeyService,
-      EncryptService,
-      PinServiceAbstraction,
-      AccountService,
-      SdkService,
-      RestrictedItemTypesService,
-    ],
-  }),
-];
 
 @Component({
   selector: "tools-import",
@@ -130,7 +101,7 @@ const safeProviders: SafeProvider[] = [
     SectionComponent,
     LinkModule,
   ],
-  providers: safeProviders,
+  providers: ImporterProviders,
 })
 export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   featuredImportOptions: ImportOption[];
@@ -195,7 +166,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     fileContents: [],
     file: [],
     lastPassType: ["direct" as "csv" | "direct"],
-    chromeType: ["direct" as "csv" | "direct"],
+    // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
+    chromiumLoader: [Loader.file as DataLoader],
   });
 
   @ViewChild(BitSubmitDirective)
@@ -220,37 +192,28 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  protected isChromiumBrowser$(format: ImportType): Observable<boolean> {
-    return of(
-      format === "chromecsv" ||
-        format === "operacsv" ||
-        format === "vivaldicsv" ||
-        format === "bravecsv" ||
-        format === "edgecsv",
+  private _maybeImporter$ = new ReplaySubject<ImporterMetadata | undefined>(1);
+  private importer$ = this._maybeImporter$.pipe(
+    filter((importer): importer is ImporterMetadata => !!importer),
+  );
+
+  /** emits `true` when the chromium instruction block should be visible. */
+  protected readonly showChromiumInstructions$ = this._maybeImporter$.pipe(
+    map((importer) => importer?.instructions === Instructions.chromium),
+  );
+
+  /** emits `true` when direct browser import is available. */
+  // FIXME: use the capabilities list to populate `chromiumLoader` and replace the explicit
+  //        strategy check with a check for multiple loaders
+  protected readonly browserImporterAvailable$ = this.importer$.pipe(
+    map((importer) => importer.loaders.includes(Loader.chromium)),
+  );
+
+  /** emits `true` when the chromium loader is selected. */
+  protected readonly showChromiumOptions$ =
+    this.formGroup.controls.chromiumLoader.valueChanges.pipe(
+      map((chromiumLoader) => chromiumLoader === Loader.chromium),
     );
-  }
-
-  protected isChromiumImporterEnabled$ = combineLatest([
-    this.formGroup.controls.format.valueChanges,
-    this.configService.getFeatureFlag$(FeatureFlag.UseChromiumImporter),
-  ]).pipe(
-    map(
-      ([format, useChromiumImporterFeatureFlag]) =>
-        this.isChromiumBrowser$(format) &&
-        this.platformUtilsService.getClientType() === ClientType.Desktop &&
-        useChromiumImporterFeatureFlag,
-    ),
-  );
-
-  protected readonly showChromiumOptions$ = combineLatest([
-    this.formGroup.controls.chromeType.valueChanges,
-    this.isChromiumImporterEnabled$,
-  ]).pipe(
-    map(
-      ([chromeType, isChromiumImporterEnabled]) =>
-        isChromiumImporterEnabled && chromeType === "direct",
-    ),
-  );
 
   constructor(
     protected i18nService: I18nService,
@@ -270,24 +233,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected toastService: ToastService,
     protected accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
-  ) {
-    this.isChromiumImporterEnabled$
-      .pipe(
-        // eslint-disable-next-line
-        tap((boolValue) => console.log("isChromiumImporterEnabled", boolValue)),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
-
-    this.showChromiumOptions$
-      .pipe(
-        // eslint-disable-next-line
-        tap((boolValue) => console.log("showChromiumOptions", boolValue)),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
-  }
+    private destroyRef: DestroyRef,
+    private ngZone: NgZone,
+  ) {}
 
   protected get importBlockedByPolicy(): boolean {
     return this._importBlockedByPolicy;
@@ -306,6 +254,17 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   async ngOnInit() {
     this.setImportOptions();
+
+    this.importService
+      .metadata$(this.formGroup.controls.format.valueChanges)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (importer) => {
+          this.ngZone.run(() => {
+            this._maybeImporter$.next(importer);
+          });
+        },
+      });
 
     if (this.organizationId) {
       await this.handleOrganizationImportInit();
