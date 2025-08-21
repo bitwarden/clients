@@ -4,10 +4,11 @@ import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { Params } from "@angular/router";
 
+import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { OrganizationSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/organization-sponsorship.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { IconModule, Icons, ToastService } from "@bitwarden/components";
+import { IconModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BaseAcceptComponent } from "../../../common/base.accept.component";
@@ -22,7 +23,7 @@ import { BaseAcceptComponent } from "../../../common/base.accept.component";
   imports: [CommonModule, I18nPipe, IconModule],
 })
 export class AcceptFamilySponsorshipComponent extends BaseAcceptComponent {
-  protected logo = Icons.BitwardenLogo;
+  protected logo = BitwardenLogo;
   failedShortMessage = "inviteAcceptFailedShort";
   failedMessage = "inviteAcceptFailed";
 
