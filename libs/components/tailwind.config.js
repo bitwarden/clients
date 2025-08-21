@@ -16,12 +16,4 @@ config.safelist = [
   },
 ];
 
-config.plugins = [...config.plugins, require("@tailwindcss/container-queries")];
-config.theme.extend = {
-  ...config.theme.extend,
-  container: {
-    "5xl": "1100px",
-  },
-};
-
 module.exports = config;
