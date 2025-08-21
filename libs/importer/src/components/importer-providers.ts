@@ -13,8 +13,10 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { ExtensionRegistry } from "@bitwarden/common/tools/extension/extension-registry.abstraction";
+import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
 import {
   createSystemServiceProvider,
   SystemServiceProvider,
@@ -43,6 +45,18 @@ export const ImporterProviders: SafeProvider[] = [
     provide: ImportApiServiceAbstraction,
     useClass: ImportApiService,
     deps: [ApiService],
+  }),
+  safeProvider({
+    provide: LegacyEncryptorProvider,
+    useClass: KeyServiceLegacyEncryptorProvider,
+    deps: [EncryptService, KeyService],
+  }),
+  safeProvider({
+    provide: ExtensionRegistry,
+    useFactory: () => {
+      return buildExtensionRegistry();
+    },
+    deps: [],
   }),
   safeProvider({
     provide: SYSTEM_SERVICE_PROVIDER,
