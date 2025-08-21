@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { concatMap, firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { concatMap, firstValueFrom, lastValueFrom, takeUntil } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -60,8 +60,6 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   placeholderEvents = placeholderEvents as EventView[];
 
   private orgUsersUserIdMap = new Map<string, any>();
-  private destroy$ = new Subject<void>();
-
   readonly ProductTierType = ProductTierType;
 
   protected isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
@@ -75,18 +73,18 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     i18nService: I18nService,
     exportService: EventExportService,
     platformUtilsService: PlatformUtilsService,
-    private router: Router,
     logService: LogService,
     private userNamePipe: UserNamePipe,
-    private organizationService: OrganizationService,
+    protected organizationService: OrganizationService,
     private organizationUserApiService: OrganizationUserApiService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private providerService: ProviderService,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
-    private accountService: AccountService,
+    protected accountService: AccountService,
     private dialogService: DialogService,
     private configService: ConfigService,
+    protected activeRoute: ActivatedRoute,
   ) {
     super(
       eventService,
@@ -96,10 +94,15 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       logService,
       fileDownloadService,
       toastService,
+      activeRoute,
+      accountService,
+      organizationService,
     );
   }
 
   async ngOnInit() {
+    this.initBase();
+
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.route.params
       .pipe(
@@ -232,10 +235,5 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       return;
     }
     await this.load();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
