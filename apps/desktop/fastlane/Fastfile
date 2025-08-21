@@ -40,9 +40,11 @@ platform :mac do
 
   desc "Display configuration information"
   lane :show_config do |options|
-    build_number = options[:build_number] || ENV["BUILD_NUMBER"]
+  build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
+  app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
     
     UI.message("📦 App ID: #{APP_CONFIG[:app_identifier]}")
+  UI.message("🏷️ Version: #{app_version.empty? ? '(not set)' : app_version}")
     UI.message("🔢 Build Number: #{build_number}")
     UI.message("🌍 Locales: #{APP_CONFIG[:locales].count}")
   end
@@ -73,18 +75,22 @@ platform :mac do
     # Log a few candidates for visibility
     builds.first(10).each do |b|
       platform = (b.respond_to?(:app_platform) && b.app_platform) || b.pre_release_version&.platform || "?"
-      UI.message("  • Build #{b.version} (#{b.build_version}) platform=#{platform} state=#{b.processing_state}")
+      app_ver = b.pre_release_version&.version || "?"
+      build_ver = b.version || "?"
+      UI.message("  • AppVersion=#{app_ver} Build=#{build_ver} platform=#{platform} state=#{b.processing_state}")
     end
 
     found = builds.find do |b|
       platform = (b.respond_to?(:app_platform) && b.app_platform) || b.pre_release_version&.platform
-      (platform == "MAC_OS") && b.version == app_version && b.build_version.to_s == build_number
+      app_ver = b.pre_release_version&.version
+      build_ver = b.version.to_s
+      (platform == "MAC_OS") && app_ver == app_version && build_ver == build_number
     end
     unless found
       UI.user_error!("Build not found or not processed yet for MAC_OS: #{app_identifier} #{app_version} (#{build_number})")
     end
 
-    UI.success("✅ Found build #{found.version} (#{found.build_version}) state=#{found.processing_state}")
+  UI.success("✅ Found AppVersion=#{found.pre_release_version&.version} Build=#{found.version} state=#{found.processing_state}")
   end
 
   desc "Publish desktop to the Mac App Store"
@@ -101,11 +107,13 @@ platform :mac do
       UI.header("🚀 Publishing Bitwarden Desktop to Mac App Store")
     end
     
-    # Show configuration info
-    show_config(build_number: build_number)
+  # Show configuration info
+  show_config(build_number: build_number, app_version: app_version)
     
-    # Validate app_version
+  # Validate app_version
     UI.user_error!("❌ APP_VERSION is required") if app_version.nil? || app_version.empty?
+  # Validate build_number
+  UI.user_error!("❌ BUILD_NUMBER is required") if build_number.nil? || build_number.empty?
     
     # Prepare release notes for all locales
     notes = prepare_release_notes(changelog: changelog)
