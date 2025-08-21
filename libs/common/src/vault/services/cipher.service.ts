@@ -1141,7 +1141,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
     await this.clearEncryptedCiphersState(userId);
-    await this.updateEncryptedCipherState(() => ciphers, userId, true);
+    await this.updateEncryptedCipherState(() => ciphers, userId);
   }
 
   /**
