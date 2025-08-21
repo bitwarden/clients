@@ -3,6 +3,7 @@ default_platform(:mac)
 # Static configuration for the Mac desktop app
 require 'json'
 require 'base64'
+require 'timeout'
 
 APP_CONFIG = {
   app_identifier: "com.bitwarden.desktop",
@@ -60,10 +61,14 @@ platform :mac do
     UI.user_error!("App not found in App Store Connect: #{app_identifier}") unless app
 
     # Use API compatible with current fastlane version: fetch builds for app, then filter in Ruby
-    builds = app.get_builds(
-      includes: "preReleaseVersion",
-      limit: 200
-    )
+    UI.message("📡 Fetching builds from App Store Connect (limit 50)...")
+    builds = nil
+    Timeout.timeout(90) do
+      builds = app.get_builds(
+        includes: "preReleaseVersion",
+        limit: 50
+      )
+    end
 
     # Log a few candidates for visibility
     builds.first(10).each do |b|
@@ -141,6 +146,7 @@ platform :mac do
       skip_screenshots: true,
       skip_metadata: false, 
       release_notes: notes,
+      edit_live: false,
       submit_for_review: submit_for_review,
       phased_release: true, # Enable 7-day phased rollout
       precheck_include_in_app_purchases: false,
