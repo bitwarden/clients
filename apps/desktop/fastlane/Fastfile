@@ -15,9 +15,18 @@ platform :mac do
   lane :prepare_release_notes do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     
-    # Format release notes: convert double spaces to newlines for better formatting
-    # This handles copy-pasted text from Jira where bullet points become sentences with double spaces
-    formatted_changelog = changelog.gsub(/\.  /, ".\n")
+    # Format release notes: handle various copy-paste formats from Jira
+    # This converts common patterns from copy-pasted bullet points into proper newlines
+    formatted_changelog = changelog
+      .gsub(/\.\s{2,}/, ".\n")      # Period followed by 2+ spaces -> period + newline
+      .gsub(/\s{3,}/, "\n")         # 3+ consecutive spaces -> newline  
+      .gsub(/\n\s*\n/, "\n")        # Multiple newlines -> single newline
+      .gsub(/^\s+/, '')             # Remove leading whitespace from lines
+      .gsub(/\s+$/, '')             # Remove trailing whitespace from lines
+      .strip                        # Remove leading/trailing whitespace from entire string
+    
+    UI.message("Original changelog: #{changelog[0,100]}#{changelog.length > 100 ? '...' : ''}")
+    UI.message("Formatted changelog: #{formatted_changelog[0,100]}#{formatted_changelog.length > 100 ? '...' : ''}")
     
     # Create release notes directories and files for all locales
     APP_CONFIG[:locales].each do |locale|
