@@ -4,8 +4,6 @@ import { Router } from "@angular/router";
 import { filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -37,7 +35,6 @@ export class VaultBannersComponent implements OnInit {
     private i18nService: I18nService,
     private accountService: AccountService,
     private messageListener: MessageListener,
-    private configService: ConfigService,
   ) {
     this.premiumBannerVisible$ = this.activeUserId$.pipe(
       filter((userId): userId is UserId => userId != null),
@@ -71,16 +68,12 @@ export class VaultBannersComponent implements OnInit {
   }
 
   async navigateToPaymentMethod(organizationId: string): Promise<void> {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-    );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
     const navigationExtras = {
       state: { launchPaymentModalAutomatically: true },
     };
 
     await this.router.navigate(
-      ["organizations", organizationId, "billing", route],
+      ["organizations", organizationId, "billing", "payment-details"],
       navigationExtras,
     );
   }
