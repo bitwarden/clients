@@ -171,15 +171,18 @@ platform :mac do
       UI.user_error!("❌ Build #{build_number} is not in VALID state (current: #{build.processing_state})")
     end
     
-    # Try to select the build using direct API call
+    # Try to select the build using the Spaceship API
     begin
-      client = Spaceship::ConnectAPI.client
-      client.patch("appStoreVersions/#{app_store_version.id}/relationships/build", {
-        data: {
-          type: "builds",
-          id: build.id
+      # Use the Spaceship ConnectAPI method to update the build relationship
+      Spaceship::ConnectAPI.patch_request(
+        "appStoreVersions/#{app_store_version.id}/relationships/build",
+        body: {
+          data: {
+            type: "builds",
+            id: build.id
+          }
         }
-      })
+      )
       UI.success("✅ Successfully selected build #{build_number} for version #{app_version}")
     rescue StandardError => e
       UI.user_error!("❌ Failed to select build: #{e.message}. This might be a fastlane/macOS platform issue.")
