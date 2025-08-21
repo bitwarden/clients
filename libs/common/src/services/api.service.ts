@@ -97,7 +97,7 @@ import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
-import { DeviceType } from "../enums";
+import { ClientType, DeviceType } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
@@ -154,8 +154,6 @@ export type HttpOperations = {
 export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;
   private deviceType: string;
-  private isWebClient = false;
-  private isDesktopClient = false;
   private refreshTokenPromise: Promise<string> | undefined;
 
   /**
@@ -178,22 +176,6 @@ export class ApiService implements ApiServiceAbstraction {
   ) {
     this.device = platformUtilsService.getDevice();
     this.deviceType = this.device.toString();
-    this.isWebClient =
-      this.device === DeviceType.IEBrowser ||
-      this.device === DeviceType.ChromeBrowser ||
-      this.device === DeviceType.EdgeBrowser ||
-      this.device === DeviceType.FirefoxBrowser ||
-      this.device === DeviceType.OperaBrowser ||
-      this.device === DeviceType.SafariBrowser ||
-      this.device === DeviceType.UnknownBrowser ||
-      this.device === DeviceType.VivaldiBrowser;
-    this.isDesktopClient =
-      this.device === DeviceType.WindowsDesktop ||
-      this.device === DeviceType.MacOsDesktop ||
-      this.device === DeviceType.LinuxDesktop ||
-      this.device === DeviceType.WindowsCLI ||
-      this.device === DeviceType.MacOsCLI ||
-      this.device === DeviceType.LinuxCLI;
   }
 
   // Auth APIs
@@ -215,7 +197,6 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
-    request.alterIdentityTokenHeaders(headers);
 
     const identityToken =
       request instanceof UserApiTokenRequest
@@ -838,7 +819,9 @@ export class ApiService implements ApiServiceAbstraction {
   // Sync APIs
 
   async getSync(): Promise<SyncResponse> {
-    const path = this.isDesktopClient || this.isWebClient ? "/sync?excludeDomains=true" : "/sync";
+    const path = !this.platformUtilsService.supportsAutofill()
+      ? "/sync?excludeDomains=true"
+      : "/sync";
     const r = await this.send("GET", path, null, true, true);
     return new SyncResponse(r);
   }
@@ -1277,6 +1260,50 @@ export class ApiService implements ApiServiceAbstraction {
     const r = await this.send(
       "GET",
       this.addEventParameters("/ciphers/" + id + "/events", start, end, token),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
+  async getEventsSecret(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/secrets/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
+  async getEventsProject(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/projects/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
       null,
       true,
       true,
@@ -1875,7 +1902,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   private async getCredentials(): Promise<RequestCredentials> {
     const env = await firstValueFrom(this.environmentService.environment$);
-    if (!this.isWebClient || env.hasBaseUrl()) {
+    if (this.platformUtilsService.getClientType() !== ClientType.Web || env.hasBaseUrl()) {
       return "include";
     }
     return undefined;

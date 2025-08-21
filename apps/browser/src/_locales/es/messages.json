@@ -197,7 +197,7 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
-    "message": "Autorrellenar"
+    "message": "Autocompletar"
   },
   "autoFillLogin": {
     "message": "Autocompletar inicio de sesión"
@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Buscar en caja fuerte"
   },
+  "resetSearch": {
+    "message": "Restablecer búsqueda"
+  },
   "edit": {
     "message": "Editar"
   },
@@ -881,13 +884,13 @@
     "message": "Pulsa tu YubiKey para identificarte"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Se requiere inicio de sesión en dos pasos para tu cuenta. Sigue los pasos siguientes para terminar de iniciar sesión."
+    "message": "Se requiere el inicio de sesión en dos pasos de Duo en tu cuenta. Sigue los siguientes pasos para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Sigue los pasos de abajo para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Sigue los siguientes pasos de abajo para terminar de iniciar sesión con tu clave de seguridad."
+    "message": "Sigue los siguientes pasos para terminar de iniciar sesión con tu clave de seguridad."
   },
   "restartRegistration": {
     "message": "Reiniciar registro"
@@ -1173,6 +1176,12 @@
     "message": "¡Oh no! No pudimos guardar esto. Intenta introducir los datos manualmente.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
   "enableChangedPasswordNotification": {
     "message": "Solicitar la actualización de los datos de inicio de sesión existentes"
   },
@@ -1447,7 +1456,7 @@
     "message": "Copiar TOTP automáticamente"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Si tu entrada tiene una clave de autenticación adjunta, el código de verificación TOTP es copiado automáticamente al portapapeles cuando autorellenas una entrada."
+    "message": "Si tu entrada tiene una clave de autenticación, copiar el código de verificación TOTP a tu portapapeles cuando autocompletes el inicio de sesión."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Pedir datos biométricos al ejecutar"
@@ -1654,25 +1663,25 @@
     "message": "Autocompletar al cargar la página"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "Habilitar autorrellenar al cargar la página"
+    "message": "Autocompletar al cargar la página"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "Si se detecta un formulario, realizar automáticamente un autorellenado cuando la web cargue."
+    "message": "Si se detecta un formulario de inicio de sesión, autocompletar cuando cargue la página web."
   },
   "experimentalFeature": {
-    "message": "Los sitios web vulnerados o no confiables pueden explotar el autorelleno al cargar la página."
+    "message": "Los sitios web vulnerados o no confiables pueden explotar el autocompletado al cargar la página."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
     "message": "Más información sobre riesgos"
   },
   "learnMoreAboutAutofill": {
-    "message": "Más información sobre el relleno automático"
+    "message": "Más información sobre el autocompletado"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "Configuración de autorrelleno por defecto para elementos de inicio de sesión"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "Después de activar el autorelleno en Carga de página, puede activar o desactivar la función para entradas individuales. Esta es la configuración predeterminada para elementos de inicio de sesión que no están configurados por separado."
+    "message": "Puedes desactivar el autocompletado al cargar la página para elementos individuales de inicio de sesión desde la vista de Edición del elemento."
   },
   "itemAutoFillOnPageLoad": {
     "message": "Auto-relleno en carga de página (si está habilitado en opciones)"
@@ -1822,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Código de seguridad"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "ex": {
     "message": "ej."
@@ -2269,16 +2281,16 @@
     "message": "Confirmación de la acción del tiempo de espera"
   },
   "autoFillAndSave": {
-    "message": "Autorellenar y guardar"
+    "message": "Autocompletar y guardar"
   },
   "fillAndSave": {
     "message": "Rellenar y guardar"
   },
   "autoFillSuccessAndSavedUri": {
-    "message": "Objeto autorellenado y URI guardada"
+    "message": "Elemento autocompletado y URI guardada"
   },
   "autoFillSuccess": {
-    "message": "Objeto autorellenado"
+    "message": "Elemento autocompletado "
   },
   "insecurePageWarning": {
     "message": "Atención: Esta es una página HTTP no segura, y cualquier información que envíes puede ser vista y cambiada por otros. Este inicio de sesión fue guardado originalmente en una página segura (HTTPS)."
@@ -2516,7 +2528,7 @@
     "message": "El autorrelleno y otras funcionalidades relacionadas no se ofrecerán para estos sitios web. Debe actualizar la página para que los cambios surtan efecto."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autorelleno está desactivado para este sitio web."
+    "message": "Autocompletado está bloqueado para este sitio web."
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Cambia esto en los ajustes"
@@ -2697,7 +2709,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Detalles del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
@@ -2919,6 +2931,9 @@
   "emailVerificationRequiredDesc": {
     "message": "Debes verificar tu correo electrónico para usar esta función. Puedes verificar tu correo electrónico en la caja fuerte web."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Contraseña maestra establecida correctamente"
+  },
   "updatedMasterPassword": {
     "message": "Contraseña maestra actualizada"
   },
@@ -3091,7 +3106,7 @@
     "message": "Exportando caja fuerte personal"
   },
   "exportingIndividualVaultDescription": {
-    "message": "Solo se exportarán los elementos individuales de la caja fuerte asociados con $EMAIL$. Los elementos de la bóveda de la organización no se incluirán. Solo se exportará la información de los elementos individuales y no incluirá adjuntos asociados.",
+    "message": "Solo se exportarán los elementos individuales de la caja fuerte asociados a $EMAIL$. Los elementos de la caja fuerte de la organización no se incluirán. Solo se exportará la información de los elementos de la caja fuerte y no se incluirá adjuntos asociados.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3451,6 +3466,31 @@
   "logInRequestSent": {
     "message": "Solicitud enviada"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Dispositivo"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Contraseña maestra guardada"
+  },
   "exposedMasterPassword": {
     "message": "Contraseña maestra comprometida"
   },
@@ -3485,7 +3525,7 @@
     "message": "Las políticas de su organización han activado autocompletar al cargar la página."
   },
   "howToAutofill": {
-    "message": "Cómo autorellenar"
+    "message": "Cómo autocompletar"
   },
   "autofillSelectInfoWithCommand": {
     "message": "Selecciona un elemento de esta pantalla, usa el acceso directo $COMMAND$ o explora otras opciones en ajustes.",
@@ -3544,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Remember this device to make future logins seamless"
   },
+  "manageDevices": {
+    "message": "Gestionar dispositivos"
+  },
+  "currentSession": {
+    "message": "Sesión actual"
+  },
+  "mobile": {
+    "message": "Móvil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensión",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Escritorio",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Caja fuerte Web"
+  },
+  "webApp": {
+    "message": "Aplicación Web"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Solicitud pendiente"
+  },
+  "firstLogin": {
+    "message": "Primer inicio de sesión"
+  },
+  "trusted": {
+    "message": "De confianza"
+  },
+  "needsApproval": {
+    "message": "Necesita aprobación"
+  },
+  "devices": {
+    "message": "Dispositivos"
+  },
+  "accessAttemptBy": {
+    "message": "Intento de acceso de $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirmar acceso"
+  },
+  "denyAccess": {
+    "message": "Denegar acceso"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Tipo de Dispositivo"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Se requiere aprobación del dispositivo. Seleccione una opción de aprobación a continuación:"
   },
@@ -3564,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "Solicitar aprobación del administrador"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Se requiere un identificador único de inicio de sesión de la organización."
@@ -4244,6 +4378,26 @@
     "message": "Formatos comunes",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "¿Continuar a los ajustes del navegador?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4427,17 +4581,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copiar $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5410,14 +5564,20 @@
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Crea fácilmente contraseñas seguras y únicas haciendo clic en el botón Generar contraseña para ayudarte a mantener tus inicios de sesión seguros.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "No tienes permisos para ver esta página. Intenta iniciar sesión con otra cuenta."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "WebAssembly no está soportado por tu navegador o no está habilitado. WebAssembly es necesario para usar la aplicación de Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

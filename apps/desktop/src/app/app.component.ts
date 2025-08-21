@@ -24,11 +24,12 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
   DESKTOP_SSO_CALLBACK,
   LogoutReason,
@@ -39,6 +40,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -60,7 +62,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -68,6 +70,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
@@ -152,7 +155,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private messagingService: MessagingService,
     private collectionService: CollectionService,
     private searchService: SearchService,
-    private notificationsService: NotificationsService,
+    private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsService,
     private systemService: SystemService,
     private processReloadService: ProcessReloadServiceAbstraction,
@@ -172,6 +175,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
+    private restrictedItemTypesService: RestrictedItemTypesService,
+    private readonly tokenService: TokenService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -474,7 +479,7 @@ export class AppComponent implements OnInit, OnDestroy {
           case "openLoginApproval":
             if (message.notificationId != null) {
               this.dialogService.closeAll();
-              const dialogRef = LoginApprovalComponent.open(this.dialogService, {
+              const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
                 notificationId: message.notificationId,
               });
               await firstValueFrom(dialogRef.closed);
@@ -523,10 +528,12 @@ export class AppComponent implements OnInit, OnDestroy {
   private async updateAppMenu() {
     let updateRequest: MenuUpdateRequest;
     const stateAccounts = await firstValueFrom(this.accountService.accounts$);
+
     if (stateAccounts == null || Object.keys(stateAccounts).length < 1) {
       updateRequest = {
         accounts: null,
         activeUserId: null,
+        restrictedCipherTypes: null,
       };
     } else {
       const accounts: { [userId: string]: MenuAccount } = {};
@@ -557,6 +564,9 @@ export class AppComponent implements OnInit, OnDestroy {
         activeUserId: await firstValueFrom(
           this.accountService.activeAccount$.pipe(map((a) => a?.id)),
         ),
+        restrictedCipherTypes: (
+          await firstValueFrom(this.restrictedItemTypesService.restricted$)
+        ).map((restrictedItems) => restrictedItems.cipherType),
       };
     }
 
@@ -670,13 +680,13 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.keyService.clearKeys(userBeingLoggedOut);
       await this.cipherService.clear(userBeingLoggedOut);
       await this.folderService.clear(userBeingLoggedOut);
-      await this.collectionService.clear(userBeingLoggedOut);
       await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
 
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 
       await this.stateService.clean({ userId: userBeingLoggedOut });
+      await this.tokenService.clearAccessToken(userBeingLoggedOut);
       await this.accountService.clean(userBeingLoggedOut);
 
       // HACK: Wait for the user logging outs authentication status to transition to LoggedOut

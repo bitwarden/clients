@@ -11,24 +11,6 @@
         }}</span>
         <!-- Discount Badge -->
         <div class="tw-flex tw-items-center tw-gap-2">
-          <span
-            class="tw-mr-1"
-            [hidden]="isSubscriptionCanceled"
-            *ngIf="
-              this.discountPercentageFromSub > 0
-                ? discountPercentageFromSub
-                : this.discountPercentage && selectedInterval === planIntervals.Annually
-            "
-            bitBadge
-            variant="success"
-            >{{
-              "upgradeDiscount"
-                | i18n
-                  : (selectedInterval === planIntervals.Annually && discountPercentageFromSub == 0
-                      ? this.discountPercentage
-                      : this.discountPercentageFromSub)
-            }}</span
-          >
           <!-- Plan Interval Toggle -->
           <div class="tw-inline-block" *ngIf="!isSubscriptionCanceled">
             <bit-toggle-group
@@ -377,7 +359,7 @@
               type="button"
               [bitIconButton]="totalOpened ? 'bwi-angle-down' : 'bwi-angle-up'"
               size="small"
-              aria-hidden="true"
+              [label]="totalOpened ? ('hidePricingSummary' | i18n) : ('showPricingSummary' | i18n)"
             ></button>
           </p>
         </div>
@@ -929,7 +911,7 @@
         </div>
         <!-- discountPercentage to PM Only -->
         <div
-          *ngIf="totalOpened && discountPercentage && !organization.useSecretsManager"
+          *ngIf="totalOpened && !organization.useSecretsManager"
           class="tw-flex tw-flex-wrap tw-gap-4"
         >
           <bit-hint class="tw-w-1/2">

@@ -47,8 +47,8 @@ export class Fido2Utils {
       .replace(/=/g, "");
   }
 
-  static stringToBuffer(str: string): Uint8Array {
-    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str));
+  static stringToBuffer(str: string): ArrayBuffer {
+    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)).buffer;
   }
 
   static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {

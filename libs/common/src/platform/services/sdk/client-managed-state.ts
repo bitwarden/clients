@@ -1,7 +1,7 @@
 import { firstValueFrom, map } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherRecordMapper } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherRecordMapper } from "@bitwarden/common/vault/models/domain/cipher-sdk-mapper";
 import { StateClient, Repository } from "@bitwarden/sdk-internal";
 
 import { StateProvider, UserKeyDefinition } from "../../state";

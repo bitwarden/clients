@@ -1,5 +1,5 @@
 <ng-template>
-  @if (icon) {
+  @if (icon(); as icon) {
     <i class="bwi {{ icon }} !tw-me-2" aria-hidden="true"></i>
   }
   <ng-content></ng-content>

@@ -3,18 +3,25 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
 
-import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
+import {
+  CipherFormConfig,
+  OptionalInitialValues,
+} from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 import { ItemDetailsSectionComponent } from "./item-details-section.component";
@@ -25,21 +32,23 @@ const createMockCollection = (
   organizationId: string,
   readOnly = false,
   canEdit = true,
-) => {
+): CollectionView => {
   return {
-    id,
+    id: id as CollectionId,
     name,
-    organizationId,
+    organizationId: organizationId as OrganizationId,
     externalId: "",
     readOnly,
     hidePasswords: false,
     manage: true,
     assigned: true,
     type: CollectionTypes.DefaultUserCollection,
+    isDefaultCollection: true,
     canEditItems: jest.fn().mockReturnValue(canEdit),
     canEdit: jest.fn(),
     canDelete: jest.fn(),
     canViewCollectionInfo: jest.fn(),
+    encrypt: jest.fn(),
   };
 };
 
@@ -48,6 +57,8 @@ describe("ItemDetailsSectionComponent", () => {
   let fixture: ComponentFixture<ItemDetailsSectionComponent>;
   let cipherFormProvider: MockProxy<CipherFormContainer>;
   let i18nService: MockProxy<I18nService>;
+  let mockConfigService: MockProxy<ConfigService>;
+  let mockPolicyService: MockProxy<PolicyService>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
   const getInitialCipherView = jest.fn(() => null);
@@ -66,12 +77,19 @@ describe("ItemDetailsSectionComponent", () => {
       compare: (a: string, b: string) => a.localeCompare(b),
     } as Intl.Collator;
 
+    mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+    mockPolicyService = mock<PolicyService>();
+    mockPolicyService.policiesByType$.mockReturnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
       providers: [
         { provide: CipherFormContainer, useValue: cipherFormProvider },
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: { activeAccount$ } },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: PolicyService, useValue: mockPolicyService },
       ],
     }).compileComponents();
 
@@ -229,7 +247,7 @@ describe("ItemDetailsSectionComponent", () => {
       fixture.detectChanges();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
-      const { value, label } = select.componentInstance.items[0];
+      const { value, label } = select.componentInstance.items()[0];
 
       expect(value).toBeNull();
       expect(label).toBe("test@example.com");
@@ -245,7 +263,7 @@ describe("ItemDetailsSectionComponent", () => {
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
 
-      const { value, label } = select.componentInstance.items[0];
+      const { value, label } = select.componentInstance.items()[0];
       expect(value).toBeNull();
       expect(label).toBe("test@example.com");
     });
@@ -369,7 +387,7 @@ describe("ItemDetailsSectionComponent", () => {
       expect(collectionSelect).toBeNull();
     });
 
-    it("should enable/show collection control when an organization is selected", async () => {
+    it("should enable/show collection control when an organization is selected", fakeAsync(() => {
       component.config.organizationDataOwnershipDisabled = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
@@ -378,12 +396,12 @@ describe("ItemDetailsSectionComponent", () => {
       ];
 
       fixture.detectChanges();
-      await fixture.whenStable();
+      tick();
 
       component.itemDetailsForm.controls.organizationId.setValue("org1");
 
+      tick();
       fixture.detectChanges();
-      await fixture.whenStable();
 
       const collectionSelect = fixture.nativeElement.querySelector(
         "bit-multi-select[formcontrolname='collectionIds']",
@@ -391,7 +409,7 @@ describe("ItemDetailsSectionComponent", () => {
 
       expect(component.itemDetailsForm.controls.collectionIds.enabled).toBe(true);
       expect(collectionSelect).not.toBeNull();
-    });
+    }));
 
     it("should set collectionIds to originalCipher collections on first load", async () => {
       component.config.mode = "clone";
@@ -488,6 +506,9 @@ describe("ItemDetailsSectionComponent", () => {
 
       component.itemDetailsForm.controls.organizationId.setValue("org1");
 
+      fixture.detectChanges();
+      await fixture.whenStable();
+
       expect(component["collectionOptions"].map((c) => c.id)).toEqual(["col1", "col2", "col3"]);
     });
   });
@@ -543,9 +564,33 @@ describe("ItemDetailsSectionComponent", () => {
       fixture.detectChanges();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
-      const { label } = select.componentInstance.items[0];
+      const { label } = select.componentInstance.items()[0];
 
       expect(label).toBe("org1");
+    });
+  });
+
+  describe("getDefaultCollectionId", () => {
+    it("returns matching default when flag & policy match", async () => {
+      const def = createMockCollection("def1", "Def", "orgA");
+      component.config.collections = [def] as CollectionView[];
+      component.config.organizationDataOwnershipDisabled = false;
+      component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));
+
+      const id = await (component as any).getDefaultCollectionId("orgA");
+      expect(id).toEqual("def1");
+    });
+
+    it("returns undefined when no default found", async () => {
+      component.config.collections = [createMockCollection("c1", "C1", "orgB")] as CollectionView[];
+      component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));
+
+      const result = await (component as any).getDefaultCollectionId("orgA");
+      expect(result).toBeUndefined();
     });
   });
 });

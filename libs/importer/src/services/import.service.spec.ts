@@ -3,16 +3,18 @@ import { mock, MockProxy } from "jest-mock-extended";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BitwardenPasswordProtectedImporter } from "../importers/bitwarden/bitwarden-password-protected-importer";
@@ -34,6 +36,7 @@ describe("ImportService", () => {
   let pinService: MockProxy<PinServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
   let sdkService: MockSdkService;
+  let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -45,6 +48,7 @@ describe("ImportService", () => {
     encryptService = mock<EncryptService>();
     pinService = mock<PinServiceAbstraction>();
     sdkService = new MockSdkService();
+    restrictedItemTypesService = mock<RestrictedItemTypesService>();
 
     importService = new ImportService(
       cipherService,
@@ -57,13 +61,14 @@ describe("ImportService", () => {
       pinService,
       accountService,
       sdkService,
+      restrictedItemTypesService,
     );
   });
 
   describe("getImporterInstance", () => {
     describe("Get bitPasswordProtected importer", () => {
       let importer: Importer;
-      const organizationId = Utils.newGuid();
+      const organizationId = Utils.newGuid() as OrganizationId;
       const password = Utils.newGuid();
       const promptForPassword_callback = async () => {
         return password;
@@ -94,7 +99,7 @@ describe("ImportService", () => {
   });
 
   describe("setImportTarget", () => {
-    const organizationId = Utils.newGuid();
+    const organizationId = Utils.newGuid() as OrganizationId;
 
     let importResult: ImportResult;
 
@@ -140,20 +145,29 @@ describe("ImportService", () => {
       );
     });
 
-    const mockImportTargetCollection = new CollectionView();
-    mockImportTargetCollection.id = "myImportTarget";
-    mockImportTargetCollection.name = "myImportTarget";
-    mockImportTargetCollection.organizationId = organizationId;
+    const mockName = "myImportTarget";
+    const mockId = "myImportTarget" as CollectionId;
+    const mockImportTargetCollection = new CollectionView({
+      name: mockName,
+      id: mockId,
+      organizationId,
+    });
 
-    const mockCollection1 = new CollectionView();
-    mockCollection1.id = "collection1";
-    mockCollection1.name = "collection1";
-    mockCollection1.organizationId = organizationId;
+    const mockName1 = "collection1";
+    const mockId1 = "collection1" as CollectionId;
+    const mockCollection1 = new CollectionView({
+      name: mockName1,
+      id: mockId1,
+      organizationId,
+    });
 
-    const mockCollection2 = new CollectionView();
-    mockCollection1.id = "collection2";
-    mockCollection1.name = "collection2";
-    mockCollection1.organizationId = organizationId;
+    const mockName2 = "collection2";
+    const mockId2 = "collection2" as CollectionId;
+    const mockCollection2 = new CollectionView({
+      name: mockName2,
+      id: mockId2,
+      organizationId,
+    });
 
     it("passing importTarget adds it to collections", async () => {
       await importService["setImportTarget"](

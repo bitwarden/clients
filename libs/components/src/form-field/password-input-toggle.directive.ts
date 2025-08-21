@@ -5,7 +5,7 @@ import {
   Host,
   HostBinding,
   HostListener,
-  Input,
+  model,
   OnChanges,
   Output,
 } from "@angular/core";
@@ -18,12 +18,15 @@ import { BitFormFieldComponent } from "./form-field.component";
 
 @Directive({
   selector: "[bitPasswordInputToggle]",
+  host: {
+    "[attr.aria-pressed]": "toggled()",
+  },
 })
 export class BitPasswordInputToggleDirective implements AfterContentInit, OnChanges {
   /**
    * Whether the input is toggled to show the password.
    */
-  @HostBinding("attr.aria-pressed") @Input() toggled = false;
+  readonly toggled = model(false);
   @Output() toggledChange = new EventEmitter<boolean>();
 
   @HostBinding("attr.title") title = this.i18nService.t("toggleVisibility");
@@ -33,8 +36,8 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
    * Click handler to toggle the state of the input type.
    */
   @HostListener("click") onClick() {
-    this.toggled = !this.toggled;
-    this.toggledChange.emit(this.toggled);
+    this.toggled.update((toggled) => !toggled);
+    this.toggledChange.emit(this.toggled());
 
     this.update();
   }
@@ -46,7 +49,7 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   ) {}
 
   get icon() {
-    return this.toggled ? "bwi-eye-slash" : "bwi-eye";
+    return this.toggled() ? "bwi-eye-slash" : "bwi-eye";
   }
 
   ngOnChanges(): void {
@@ -54,17 +57,19 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   }
 
   ngAfterContentInit(): void {
-    if (this.formField.input?.type) {
-      this.toggled = this.formField.input.type !== "password";
+    const input = this.formField.input();
+    if (input?.type) {
+      this.toggled.set(input.type() !== "password");
     }
-    this.button.icon = this.icon;
+    this.button.icon.set(this.icon);
   }
 
   private update() {
-    this.button.icon = this.icon;
-    if (this.formField.input?.type != null) {
-      this.formField.input.type = this.toggled ? "text" : "password";
-      this.formField.input.spellcheck = this.toggled ? false : undefined;
+    this.button.icon.set(this.icon);
+    const input = this.formField.input();
+    if (input?.type != null) {
+      input.type.set(this.toggled() ? "text" : "password");
+      input?.spellcheck?.set(this.toggled() ? false : undefined);
     }
   }
 }

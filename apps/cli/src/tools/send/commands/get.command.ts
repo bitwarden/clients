@@ -4,6 +4,8 @@ import { OptionValues } from "commander";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -22,6 +24,7 @@ export class SendGetCommand extends DownloadCommand {
     private searchService: SearchService,
     encryptService: EncryptService,
     apiService: ApiService,
+    private accountService: AccountService,
   ) {
     super(encryptService, apiService);
   }
@@ -77,7 +80,8 @@ export class SendGetCommand extends DownloadCommand {
         return await send.decrypt();
       }
     } else if (id.trim() !== "") {
-      let sends = await this.sendService.getAllDecryptedFromState();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      let sends = await this.sendService.getAllDecryptedFromState(activeUserId);
       sends = this.searchService.searchSends(sends, id);
       if (sends.length > 1) {
         return sends;

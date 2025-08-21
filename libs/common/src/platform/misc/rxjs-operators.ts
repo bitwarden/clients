@@ -16,6 +16,6 @@ export const getById = <TId, T extends { id: TId }>(id: TId) =>
 export const getByIds = <TId, T extends { id: TId }>(ids: TId[]) => {
   const idSet = new Set(ids);
   return map<T[], T[]>((objects) => {
-    return objects.filter((o) => idSet.has(o.id));
+    return objects.filter((o) => o.id && idSet.has(o.id));
   });
 };

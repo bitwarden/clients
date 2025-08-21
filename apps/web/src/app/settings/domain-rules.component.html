@@ -32,7 +32,7 @@
           type="button"
           buttonType="danger"
           (click)="remove(i)"
-          appA11yTitle="{{ 'remove' | i18n }}"
+          label="{{ 'remove' | i18n }}"
         ></button>
       </div>
       <button bitButton type="button" (click)="add()" buttonType="secondary" class="tw-mb-2">
@@ -60,9 +60,9 @@
             <button
               type="button"
               bitIconButton="bwi-ellipsis-v"
-              buttonType="secondary"
               [bitMenuTriggerFor]="appListDropdown"
               class="tw-border-0 tw-bg-transparent tw-p-0"
+              [label]="'editDomain' | i18n"
             ></button>
             <bit-menu #appListDropdown>
               <a href="#" bitMenuItem appStopClick (click)="toggleExcluded(d)" *ngIf="!d.excluded">

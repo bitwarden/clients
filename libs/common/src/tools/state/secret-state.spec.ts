@@ -8,7 +8,7 @@ import {
   mockAccountServiceWith,
   awaitAsync,
 } from "../../../spec";
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { GENERATOR_DISK } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";

@@ -1,18 +1,24 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { Observable } from "rxjs";
+
 import { CollectionDetailsResponse } from "@bitwarden/admin-console/common";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { CollectionAccessSelectionView, CollectionAdminView } from "../models";
 
 export abstract class CollectionAdminService {
-  getAll: (organizationId: string) => Promise<CollectionAdminView[]>;
-  get: (organizationId: string, collectionId: string) => Promise<CollectionAdminView | undefined>;
-  save: (collection: CollectionAdminView) => Promise<CollectionDetailsResponse>;
-  delete: (organizationId: string, collectionId: string) => Promise<void>;
-  bulkAssignAccess: (
+  abstract collectionAdminViews$(
+    organizationId: string,
+    userId: UserId,
+  ): Observable<CollectionAdminView[]>;
+  abstract save(
+    collection: CollectionAdminView,
+    userId: UserId,
+  ): Promise<CollectionDetailsResponse>;
+  abstract delete(organizationId: string, collectionId: string): Promise<void>;
+  abstract bulkAssignAccess(
     organizationId: string,
     collectionIds: string[],
     users: CollectionAccessSelectionView[],
     groups: CollectionAccessSelectionView[],
-  ) => Promise<void>;
+  ): Promise<void>;
 }

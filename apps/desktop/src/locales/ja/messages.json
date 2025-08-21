@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "保管庫を検索"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "アイテムの追加"
   },
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "認証コード (TOTP) をコピー"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "長さ"
@@ -1208,11 +1225,17 @@
   "twoStepLogin": {
     "message": "2段階認証"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "保管庫のタイムアウト"
   },
   "vaultTimeout1": {
     "message": "タイムアウト"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "保管庫がタイムアウトし、選択したアクションを実行するタイミングを選択します。"
@@ -1424,6 +1447,9 @@
   "copySecurityCode": {
     "message": "セキュリティコードのコピー",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "プレミアム会員"
@@ -1796,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "Windows Hello でロック解除"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "追加の Windows Hello 設定"
-  },
   "unlockWithPolkit": {
     "message": "システム認証でロック解除"
   },
@@ -1814,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "Bitwarden の認証を行います。"
   },
-  "autoPromptWindowsHello": {
-    "message": "起動時に Windows Hello を要求する"
-  },
-  "autoPromptPolkit": {
-    "message": "起動時にシステム認証を要求する"
-  },
   "autoPromptTouchId": {
     "message": "起動時に Touch ID を要求する"
   },
@@ -1828,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "アプリ起動時にパスワードを要求"
-  },
-  "recommendedForSecurity": {
-    "message": "セキュリティ向上のためおすすめします。"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "再起動時にマスターパスワードでロック"
@@ -2392,6 +2406,9 @@
   "passwordConfirmationDesc": {
     "message": "この操作は保護されています。続行するには、確認のためにマスターパスワードを再入力してください。"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "マスターパスワードを更新しました"
   },
@@ -2403,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。"
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "あなたの組織は信頼できるデバイスの暗号化を無効化しました。保管庫にアクセスするにはマスターパスワードを設定してください。"
@@ -2490,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "保管庫のタイムアウトが組織によって設定された制限を超えています。"
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "招待が承認されました"
@@ -2972,9 +3027,6 @@
     "message": "文字カウントを切り替える",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "アカウントにアクセスしようとしていますか？"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ によるログインの試行",
     "placeholders": {
@@ -2983,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "デバイス種別"
@@ -2998,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "アクセスを拒否"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "$EMAIL$ に $DEVICE$ でのログインを承認しました",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "別のデバイスからのログイン試行を拒否しました。本当にあなたであった場合は、もう一度デバイスでログインしてみてください。"
   },
   "justNow": {
     "message": "たった今"
@@ -3140,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "管理者の承認を要求する"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "region": {
     "message": "リージョン"
@@ -3532,6 +3618,30 @@
     "message": "一般的な形式",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "成功"
   },
@@ -3638,25 +3748,25 @@
     "message": "生体認証によるロック解除は、不明な理由により現在利用できません。"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "アイテムの詳細"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "アイテム名"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "ログイン資格情報"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "追加のオプション"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "アイテムの履歴"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "直近の編集"
   },
   "upload": {
-    "message": "Upload"
+    "message": "アップロード"
   },
   "authorize": {
     "message": "認可"
@@ -3740,10 +3850,10 @@
     "message": "移動"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "新しいフォルダー"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "フォルダー名"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -3955,5 +4065,17 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

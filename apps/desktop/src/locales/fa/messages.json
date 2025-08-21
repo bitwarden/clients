@@ -24,7 +24,7 @@
     "message": "هویت"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "یادداشت"
   },
   "typeSecureNote": {
     "message": "یادداشت امن"
@@ -40,6 +40,9 @@
   },
   "searchVault": {
     "message": "جستجوی گاوصندوق"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "addItem": {
     "message": "افزودن مورد"
@@ -571,6 +574,20 @@
   },
   "copyVerificationCodeTotp": {
     "message": "کپی کد تأیید (TOTP)"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "length": {
     "message": "طول"
@@ -1208,11 +1225,17 @@
   "twoStepLogin": {
     "message": "ورود دو مرحله‌ای"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "متوقف شدن گاو‌صندوق"
   },
   "vaultTimeout1": {
     "message": "پایان زمان"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "انتخاب کنید که گاو‌صندوق شما چه زمانی عمل توقف زمانی گاوصندوق را انجام دهد."
@@ -1424,6 +1447,9 @@
   "copySecurityCode": {
     "message": "کپی کد امنیتی",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "عضویت پرمیوم"
@@ -1717,10 +1743,10 @@
     "message": "حساب کاربری محدود شده است"
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "نمی‌توان انواع مورد کارت را درون ریزی کرد"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "یک سیاست تعیین شده توسط یک یا چند سازمان، مانع از درون ریزی کارت‌ها به گاوصندوق‌های شما شده است."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "عدم تطابق \"کلمه عبور پرونده\" و \"تأیید کلمه عبور پرونده\" با یکدیگر."
@@ -1796,9 +1822,6 @@
   "unlockWithWindowsHello": {
     "message": "قفل گشایی با Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "تنظیمات اضافی Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "باز کردن قفل با احراز هویت سیستم"
   },
@@ -1814,12 +1837,6 @@
   "touchIdConsentMessage": {
     "message": "قفل گاوصندوق خود را باز کنید"
   },
-  "autoPromptWindowsHello": {
-    "message": "درخواست Windows Hello در هنگام راه‌اندازی"
-  },
-  "autoPromptPolkit": {
-    "message": "در زمان اجرا درخواست احراز هویت سیستم را بده"
-  },
   "autoPromptTouchId": {
     "message": "درخواست Touch ID در هنگام راه‌اندازی"
   },
@@ -1828,9 +1845,6 @@
   },
   "requirePasswordWithoutPinOnStart": {
     "message": "هنگام شروع برنامه، کلمه عبور مورد نیاز است"
-  },
-  "recommendedForSecurity": {
-    "message": "برای امنیت توصیه می‌شود."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "در زمان شروع مجدد، با کلمه عبور اصلی قفل کن"
@@ -2392,6 +2406,9 @@
   "passwordConfirmationDesc": {
     "message": "این عمل محافظت می‌شود. برای ادامه، لطفاً کلمه عبور اصلی خود را دوباره وارد کنید تا هویت‌تان را تأیید کنید."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "کلمه عبور اصلی با موفقیت تنظیم شد"
+  },
   "updatedMasterPassword": {
     "message": "کلمه عبور اصلی به‌روزرسانی شد"
   },
@@ -2403,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "کلمه عبور اصلی شما با یک یا چند سیاست سازمان‌تان مطابقت ندارد. برای دسترسی به گاوصندوق، باید همین حالا کلمه عبور اصلی خود را به‌روزرسانی کنید. در صورت ادامه، شما از نشست فعلی خود خارج می‌شوید و باید دوباره وارد سیستم شوید. نشست فعال در دستگاه‌های دیگر ممکن است تا یک ساعت همچنان فعال باقی بمانند."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "سازمان شما رمزگذاری دستگاه‌های مورد اعتماد را غیرفعال کرده است. لطفاً برای دسترسی به گاوصندوق خود یک کلمه عبور اصلی تنظیم کنید."
@@ -2490,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "مهلت زمانی شما بیش از محدودیت‌های تعیین شده توسط سازمان‌تان است."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "دعوتنامه پذیرفته شد"
@@ -2972,9 +3027,6 @@
     "message": "تغییر تعداد کاراکترها",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "آیا در تلاش برای دسترسی به حساب کاربری خود هستید؟"
-  },
   "accessAttemptBy": {
     "message": "تلاش برای دسترسی به سیستم توسط $EMAIL$",
     "placeholders": {
@@ -2983,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "نوع دستگاه"
@@ -2998,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "دسترسی را رد کن"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "ورود به سیستم برای $EMAIL$ در $DEVICE$ تأیید شد",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "شما تلاش برای ورود به سیستم از دستگاه دیگری را رد کردید. اگر واقعاً این شما بودید، سعی کنید دوباره با دستگاه وارد شوید."
   },
   "justNow": {
     "message": "همین الان"
@@ -3140,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "درخواست تأیید مدیر"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "region": {
     "message": "منطقه"
@@ -3532,6 +3618,30 @@
     "message": "فرمت‌های رایج",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "تشخیص تطابق نشانی اینترنتی روشی است که Bitwarden برای شناسایی پیشنهادهای پر کردن خودکار استفاده می‌کند.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"عبارت منظم\" یک گزینه پیشرفته است که خطر افشای اطلاعات ورود را افزایش می‌دهد.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"شروع با\" یک گزینه پیشرفته است که خطر افشای اطلاعات ورود را افزایش می‌دهد.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "اطلاعات بیشتر درباره‌ی تشخیص تطابق",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "success": {
     "message": "موفقیت آمیز بود"
   },
@@ -3823,28 +3933,28 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "اختصاص به مجموعه‌ها"
   },
   "assignToTheseCollections": {
-    "message": "Assign to these collections"
+    "message": "اختصاص به این مجموعه‌ها"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "فقط اعضای سازمانی که به این مجموعه‌ها دسترسی دارند قادر به مشاهده این مورد خواهند بود."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "فقط اعضای سازمانی که به این مجموعه‌ها دسترسی دارند قادر به مشاهده این موارد خواهند بود."
   },
   "noCollectionsAssigned": {
-    "message": "No collections have been assigned"
+    "message": "هیچ مجموعه‌ای اختصاص داده نشده است"
   },
   "assign": {
-    "message": "Assign"
+    "message": "اختصاص بدهید"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "فقط اعضای سازمانی که به این مجموعه‌ها دسترسی دارند قادر به مشاهده این موارد خواهند بود."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "شما $TOTAL_COUNT$ مورد را انتخاب کرده‌اید. نمی‌توانید $READONLY_COUNT$ مورد را به‌روزرسانی کنید زیرا دسترسی ویرایش ندارید.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -3856,10 +3966,10 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "مجموعه‌ها را برای اختصاص انتخاب کنید"
   },
   "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ به طور دائمی به سازمان انتخاب شده منتقل خواهند شد. شما دیگر مالک این موارد نخواهید بود.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3868,7 +3978,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ به طور دائمی به $ORG$ منتقل خواهند شد. شما دیگر مالک این موارد نخواهید بود.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3881,10 +3991,10 @@
     }
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "۱ مورد به طور دائمی به سازمان انتخاب شده منتقل خواهد شد. شما دیگر مالک این مورد نخواهید بود."
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "۱ مورد به طور دائمی به $ORG$ منتقل خواهد شد. شما دیگر مالک این مورد نخواهید بود.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -3893,13 +4003,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "مجموعه‌ها با موفقیت اختصاص داده شدند"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "شما چیزی را انتخاب نکرده‌اید."
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "موارد به $ORGNAME$ منتقل شدند",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3908,7 +4018,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "مورد به $ORGNAME$ منتقل شد",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3917,7 +4027,7 @@
     }
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "موارد انتخاب شده به $ORGNAME$ منتقل شدند",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3955,5 +4065,17 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

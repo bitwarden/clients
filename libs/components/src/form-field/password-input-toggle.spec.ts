@@ -20,7 +20,13 @@ import { BitPasswordInputToggleDirective } from "./password-input-toggle.directi
       <bit-form-field>
         <bit-label>Password</bit-label>
         <input bitInput type="password" />
-        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        <button
+          type="button"
+          label="Toggle password visibility"
+          bitIconButton
+          bitSuffix
+          bitPasswordInputToggle
+        ></button>
       </bit-form-field>
     </form>
   `,
@@ -55,20 +61,20 @@ describe("PasswordInputToggle", () => {
     button = buttonEl.componentInstance;
     const formFieldEl = fixture.debugElement.query(By.directive(BitFormFieldComponent));
     const formField: BitFormFieldComponent = formFieldEl.componentInstance;
-    input = formField.input;
+    input = formField.input();
   });
 
   describe("initial state", () => {
     it("has correct icon", () => {
-      expect(button.icon).toBe("bwi-eye");
+      expect(button.icon()).toBe("bwi-eye");
     });
 
     it("input is type password", () => {
-      expect(input.type).toBe("password");
+      expect(input.type!()).toBe("password");
     });
 
     it("spellcheck is disabled", () => {
-      expect(input.spellcheck).toBe(undefined);
+      expect(input.spellcheck!()).toBe(undefined);
     });
   });
 
@@ -78,15 +84,15 @@ describe("PasswordInputToggle", () => {
     });
 
     it("has correct icon", () => {
-      expect(button.icon).toBe("bwi-eye-slash");
+      expect(button.icon()).toBe("bwi-eye-slash");
     });
 
     it("input is type text", () => {
-      expect(input.type).toBe("text");
+      expect(input.type!()).toBe("text");
     });
 
     it("spellcheck is disabled", () => {
-      expect(input.spellcheck).toBe(false);
+      expect(input.spellcheck!()).toBe(false);
     });
   });
 
@@ -97,15 +103,15 @@ describe("PasswordInputToggle", () => {
     });
 
     it("has correct icon", () => {
-      expect(button.icon).toBe("bwi-eye");
+      expect(button.icon()).toBe("bwi-eye");
     });
 
     it("input is type password", () => {
-      expect(input.type).toBe("password");
+      expect(input.type!()).toBe("password");
     });
 
     it("spellcheck is disabled", () => {
-      expect(input.spellcheck).toBe(undefined);
+      expect(input.spellcheck!()).toBe(undefined);
     });
   });
 });

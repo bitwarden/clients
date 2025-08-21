@@ -4,6 +4,8 @@ import AutofillInit from "../../../content/autofill-init";
 import { DomQueryService } from "../../../services/abstractions/dom-query.service";
 import DomElementVisibilityService from "../../../services/dom-element-visibility.service";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
+import * as utils from "../../../utils";
+import { sendExtensionMessage } from "../../../utils";
 import { NotificationTypeData } from "../abstractions/overlay-notifications-content.service";
 
 import { OverlayNotificationsContentService } from "./overlay-notifications-content.service";
@@ -17,6 +19,11 @@ describe("OverlayNotificationsContentService", () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
+    jest
+      .spyOn(utils, "sendExtensionMessage")
+      .mockImplementation((command: string) =>
+        Promise.resolve(command === "notificationRefreshFlagValue" ? false : true),
+      );
     domQueryService = mock<DomQueryService>();
     domElementVisibilityService = new DomElementVisibilityService();
     overlayNotificationsContentService = new OverlayNotificationsContentService();
@@ -42,6 +49,37 @@ describe("OverlayNotificationsContentService", () => {
       await flushPromises();
 
       expect(bodyAppendChildSpy).not.toHaveBeenCalled();
+    });
+
+    it("applies correct styles when notificationRefreshFlag is true", async () => {
+      (sendExtensionMessage as jest.Mock).mockResolvedValue(true);
+      sendMockExtensionMessage({
+        command: "openNotificationBar",
+        data: {
+          type: "change",
+          typeData: mock<NotificationTypeData>(),
+        },
+      });
+      await flushPromises();
+
+      const barElement = overlayNotificationsContentService["notificationBarElement"]!;
+      expect(barElement.style.height).toBe("400px");
+      expect(barElement.style.right).toBe("0px");
+    });
+
+    it("applies correct styles when notificationRefreshFlag is false", async () => {
+      sendMockExtensionMessage({
+        command: "openNotificationBar",
+        data: {
+          type: "change",
+          typeData: mock<NotificationTypeData>(),
+        },
+      });
+      await flushPromises();
+
+      const barElement = overlayNotificationsContentService["notificationBarElement"]!;
+      expect(barElement.style.height).toBe("82px");
+      expect(barElement.style.right).toBe("10px");
     });
 
     it("closes the notification bar if the notification bar type has changed", async () => {
@@ -174,10 +212,7 @@ describe("OverlayNotificationsContentService", () => {
 
       jest.advanceTimersByTime(150);
 
-      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
-        { command: "bgRemoveTabFromNotificationQueue" },
-        expect.any(Function),
-      );
+      expect(sendExtensionMessage).toHaveBeenCalledWith("bgRemoveTabFromNotificationQueue");
     });
 
     it("closes the notification bar without a fadeout", () => {

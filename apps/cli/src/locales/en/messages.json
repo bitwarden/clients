@@ -215,5 +215,8 @@
   },
   "youHaveBeenLoggedOut": {
     "message": "You have been logged out."
+  },
+  "myItems": {
+    "message": "My Items"
   }
 }

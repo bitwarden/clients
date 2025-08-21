@@ -1,13 +1,13 @@
-import { Directive, HostBinding, Input } from "@angular/core";
+import { Directive, HostBinding, input } from "@angular/core";
 
 @Directive({
   selector: "tr[bitRow]",
 })
 export class RowDirective {
-  @Input() alignContent: "top" | "middle" | "bottom" | "baseline" = "middle";
+  readonly alignContent = input<"top" | "middle" | "bottom" | "baseline">("middle");
 
   get alignmentClass(): string {
-    switch (this.alignContent) {
+    switch (this.alignContent()) {
       case "top":
         return "tw-align-top";
       case "middle":
@@ -25,7 +25,7 @@ export class RowDirective {
       "tw-border-b",
       "tw-border-secondary-300",
       "tw-border-solid",
-      "hover:tw-bg-background-alt",
+      "hover:tw-bg-hover-default",
       "last:tw-border-0",
       this.alignmentClass,
     ];

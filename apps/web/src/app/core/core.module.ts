@@ -10,6 +10,10 @@ import {
   OrganizationUserApiService,
   CollectionService,
 } from "@bitwarden/admin-console/common";
+import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
+import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
+import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -29,16 +33,16 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   LoginComponentService,
-  SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
   TwoFactorAuthDuoComponentService,
-  ChangePasswordService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
+import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -51,6 +55,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -61,6 +66,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Urls,
@@ -73,13 +79,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
   UnsupportedWebPushConnectionService,
   WebPushConnectionService,
-} from "@bitwarden/common/platform/notifications/internal";
+} from "@bitwarden/common/platform/server-notifications/internal";
 import { AppIdService as DefaultAppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -106,20 +111,20 @@ import {
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
+import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 
 import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import {
   WebChangePasswordService,
-  WebSetPasswordJitService,
   WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
   WebTwoFactorAuthDuoComponentService,
   LinkSsoService,
+  WebSetInitialPasswordService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
-import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
@@ -234,9 +239,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ThemeStateService,
-    useFactory: (globalStateProvider: GlobalStateProvider) =>
-      // Web chooses to have Light as the default theme
-      new DefaultThemeStateService(globalStateProvider, ThemeTypes.Light),
+    useClass: DefaultThemeStateService,
     deps: [GlobalStateProvider],
   }),
   safeProvider({
@@ -244,16 +247,20 @@ const safeProviders: SafeProvider[] = [
     useValue: ClientType.Web,
   }),
   safeProvider({
+    provide: OrganizationInviteService,
+    useClass: WebOrganizationInviteService,
+    deps: [GlobalStateProvider],
+  }),
+  safeProvider({
     provide: RegistrationFinishServiceAbstraction,
     useClass: WebRegistrationFinishService,
     deps: [
       KeyServiceAbstraction,
       AccountApiServiceAbstraction,
-      AcceptOrganizationInviteService,
+      OrganizationInviteService,
       PolicyApiServiceAbstraction,
       LogService,
       PolicyService,
-      AccountService,
     ],
   }),
   safeProvider({
@@ -268,19 +275,21 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: SetPasswordJitService,
-    useClass: WebSetPasswordJitService,
+    provide: SetInitialPasswordService,
+    useClass: WebSetInitialPasswordService,
     deps: [
       ApiService,
-      MasterPasswordApiService,
-      KeyServiceAbstraction,
       EncryptService,
       I18nServiceAbstraction,
       KdfConfigService,
+      KeyServiceAbstraction,
+      MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
+      OrganizationInviteService,
+      RouterService,
     ],
   }),
   safeProvider({
@@ -292,7 +301,7 @@ const safeProviders: SafeProvider[] = [
     provide: LoginComponentService,
     useClass: WebLoginComponentService,
     deps: [
-      AcceptOrganizationInviteService,
+      OrganizationInviteService,
       LogService,
       PolicyApiServiceAbstraction,
       InternalPolicyService,
@@ -304,6 +313,7 @@ const safeProviders: SafeProvider[] = [
       SsoLoginServiceAbstraction,
       Router,
       AccountService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -356,7 +366,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginDecryptionOptionsService,
     useClass: WebLoginDecryptionOptionsService,
-    deps: [MessagingService, RouterService, AcceptOrganizationInviteService],
+    deps: [MessagingService, RouterService, OrganizationInviteService],
   }),
   safeProvider({
     provide: IpcService,
@@ -376,7 +386,18 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       UserKeyRotationService,
+      RouterService,
     ],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: DefaultDeviceManagementComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: OrganizationIntegrationApiService,
+    useClass: OrganizationIntegrationApiService,
+    deps: [ApiService],
   }),
 ];
 
