@@ -15,11 +15,15 @@ platform :mac do
   lane :prepare_release_notes do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     
+    # Format release notes: convert double spaces to newlines for better formatting
+    # This handles copy-pasted text from Jira where bullet points become sentences with double spaces
+    formatted_changelog = changelog.gsub(/\.  /, ".\n")
+    
     # Create metadata directories and files for all locales
     APP_CONFIG[:locales].each do |locale|
       dir = "metadata/#{locale}"
       FileUtils.mkdir_p(dir)
-      File.write("#{dir}/release_notes.txt", changelog)
+      File.write("#{dir}/release_notes.txt", formatted_changelog)
       UI.message("Creating release notes for #{locale}")
     end
 
@@ -54,7 +58,6 @@ platform :mac do
     build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
     app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
     changelog = options[:changelog] || "Bug fixes and improvements"
-    submit_for_review = options[:submit_for_review] == "true" || options[:submit_for_review] == true
     is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
     
     if is_dry_run
@@ -105,19 +108,15 @@ platform :mac do
       skip_screenshots: true,
       skip_metadata: true, 
       release_notes: notes,
-      edit_live: false,
-      submit_for_review: submit_for_review,
+      edit_live: true,
+      submit_for_review: true, # if this is false, the build number does not attach to the draft
       phased_release: true, # Enable 7-day phased rollout
       precheck_include_in_app_purchases: false,
-      run_precheck_before_submit: true,
+      run_precheck_before_submit: false,
       automatic_release: true,
       force: true
     )
 
-    if submit_for_review
-      UI.success("🎉 Successfully submitted Bitwarden Desktop #{app_version} #{build_number} for App Store review!")
-    else
-      UI.success("📤 Successfully uploaded Bitwarden Desktop #{app_version} #{build_number} to App Store Connect")
-    end
+    UI.success("🎉 Successfully submitted Bitwarden Desktop #{app_version} #{build_number} for App Store review!")
   end
 end

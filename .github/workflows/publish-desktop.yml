@@ -47,11 +47,6 @@ on:
         required: false
         type: string
         default: 'Bug fixes and improvements'
-      auto_submit_for_review:
-        description: 'Auto-submit for Apple review'
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   setup:
@@ -391,8 +386,7 @@ jobs:
             app_version:"${{ env._PKG_VERSION }}" \
             build_number:$BUILD_NUMBER \
             changelog:"$CHANGELOG" \
-            dry_run:$IS_DRY_RUN \
-            submit_for_review:"${{ inputs.auto_submit_for_review }}"
+            dry_run:$IS_DRY_RUN
 
   update-deployment:
     name: Update Deployment Status
