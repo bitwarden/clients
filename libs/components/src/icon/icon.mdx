@@ -19,7 +19,6 @@ import { IconModule } from "@bitwarden/components";
 ## Developer Instructions
 
 1. **Download the SVG** and import it as an `.svg` initially into the IDE of your choice.
-
    - The SVG should be formatted using either a built-in formatter or an external tool like
      [SVG Formatter Beautifier](https://codebeautify.org/svg-formatter-beautifier) to make applying
      classes easier.
@@ -36,7 +35,6 @@ import { IconModule } from "@bitwarden/components";
    ```
 
 5. **Replace any hardcoded strokes or fills** with the appropriate Tailwind class.
-
    - **Note:** Stroke is used when styling the outline of an SVG path, while fill is used when
      styling the inside of an SVG path.
 
@@ -76,14 +74,11 @@ import { IconModule } from "@bitwarden/components";
 6. **Remove any hardcoded width or height attributes** if your SVG has a configured
    [viewBox](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox) attribute in order
    to allow the SVG to scale to fit its container.
-
    - **Note:** Scaling is required for any SVG used as an
      [AnonLayout](?path=/docs/component-library-anon-layout--docs) `pageIcon`.
 
 7. **Import your SVG const** anywhere you want to use the SVG.
-
    - **Angular Component Example:**
-
      - **TypeScript:**
 
        ```typescript
