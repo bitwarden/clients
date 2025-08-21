@@ -6,7 +6,7 @@ import { Loader, Instructions } from "./data";
 import { ImporterMetadata } from "./types";
 
 const importers = [
-  { id: "chromecsv", loaders: [Loader.file], instructions: Instructions.chromium },
+  { id: "chromecsv", loaders: [Loader.file, Loader.chromium], instructions: Instructions.chromium },
   { id: "operacsv", loaders: [Loader.file, Loader.chromium], instructions: Instructions.chromium },
   {
     id: "vivaldicsv",
