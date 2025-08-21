@@ -15,13 +15,8 @@ platform :mac do
   lane :prepare_release_notes do |options|
     changelog = options[:changelog] || "Bug fixes and improvements"
     
-    # Format release notes: handle workflow dispatch converting newlines to double spaces
-    # GitHub workflow dispatch converts multiline input newlines to exactly 2 spaces
-    formatted_changelog = changelog
-      .gsub(/  /, "\n")                         # Convert double spaces to newlines (main fix)
-      .gsub(/\n+/, "\n")                        # Clean up: convert multiple newlines to single
-      .gsub(/^(.+)$/, "- \\1")                  # Add bullet point to each line for readability
-      .strip                                    # Remove leading/trailing whitespace
+    # Release notes are pre-formatted by the workflow, just pass through
+    formatted_changelog = changelog.strip
     
     UI.message("Original changelog: #{changelog[0,100]}#{changelog.length > 100 ? '...' : ''}")
     UI.message("Formatted changelog: #{formatted_changelog[0,100]}#{formatted_changelog.length > 100 ? '...' : ''}")

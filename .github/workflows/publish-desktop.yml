@@ -376,16 +376,20 @@ jobs:
           
           echo "📝 Release notes (${#CHANGELOG} chars): ${CHANGELOG:0:100}..."
           
+          # Format release notes: convert double spaces to newlines (same as iOS approach)
+          FORMATTED_CHANGELOG="$(echo "$CHANGELOG" | sed 's/  /\n/g')"
+          echo "📝 Formatted release notes: $FORMATTED_CHANGELOG"
+          
           # Validate changelog length (App Store limit is 4000 chars)
-          if [ ${#CHANGELOG} -gt 4000 ]; then
-            echo "❌ Release notes too long: ${#CHANGELOG} characters (max 4000)"
+          if [ ${#FORMATTED_CHANGELOG} -gt 4000 ]; then
+            echo "❌ Release notes too long: ${#FORMATTED_CHANGELOG} characters (max 4000)"
             exit 1
           fi
           
           fastlane publish --verbose \
             app_version:"${{ env._PKG_VERSION }}" \
             build_number:$BUILD_NUMBER \
-            changelog:"$CHANGELOG" \
+            changelog:"$FORMATTED_CHANGELOG" \
             dry_run:$IS_DRY_RUN
 
   update-deployment:
