@@ -59,16 +59,22 @@ platform :mac do
     app = Spaceship::ConnectAPI::App.find(app_identifier)
     UI.user_error!("App not found in App Store Connect: #{app_identifier}") unless app
 
-    builds = Spaceship::ConnectAPI::Build.all(
-      filter: {
-        app: app.id,
-        version: app_version,
-        appPlatform: "MAC_OS"
-      },
+    # Use API compatible with current fastlane version: fetch builds for app, then filter in Ruby
+    builds = app.get_builds(
+      includes: "preReleaseVersion",
       limit: 200
     )
 
-    found = builds.find { |b| b.version == app_version && b.build_version.to_s == build_number }
+    # Log a few candidates for visibility
+    builds.first(10).each do |b|
+      platform = (b.respond_to?(:app_platform) && b.app_platform) || b.pre_release_version&.platform || "?"
+      UI.message("  • Build #{b.version} (#{b.build_version}) platform=#{platform} state=#{b.processing_state}")
+    end
+
+    found = builds.find do |b|
+      platform = (b.respond_to?(:app_platform) && b.app_platform) || b.pre_release_version&.platform
+      (platform == "MAC_OS") && b.version == app_version && b.build_version.to_s == build_number
+    end
     unless found
       UI.user_error!("Build not found or not processed yet for MAC_OS: #{app_identifier} #{app_version} (#{build_number})")
     end
