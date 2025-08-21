@@ -2,21 +2,7 @@ default_platform(:mac)
 
 # Static configuration for the Mac desktop app
 require 'json'
-
-# Read App Store Connect supported locales from electron-builder.json
-# def load_app_store_locales
-#   config_path = File.expand_path("../electron-builder.json", __dir__)
-#   config = JSON.parse(File.read(config_path))
-#   bundle_localizations = config.dig("mac", "extendInfo", "CFBundleLocalizations") || []
-  
-#   # Convert to App Store Connect locale format
-#   bundle_localizations.map do |locale|
-#     case locale
-#     when "en" then "en-US"  # App Store requires en-US format
-#     else locale  # Others should match (pt-BR, zh-Hans, etc.)
-#     end
-#   end.sort
-# end
+require 'base64'
 
 APP_CONFIG = {
   app_identifier: "com.bitwarden.desktop",
@@ -60,10 +46,40 @@ platform :mac do
     UI.message("🌍 Locales: #{APP_CONFIG[:locales].count}")
   end
 
+  # Quick existence check (no polling) for the specific macOS build in App Store Connect
+  private_lane :assert_build_exists do |options|
+    require 'spaceship'
+
+    app_identifier = APP_CONFIG[:app_identifier]
+    app_version = options[:app_version].to_s.strip
+    build_number = options[:build_number].to_s.strip
+
+    UI.message("🔎 Checking for MAC_OS build #{app_identifier} #{app_version} (#{build_number}) in App Store Connect...")
+
+    app = Spaceship::ConnectAPI::App.find(app_identifier)
+    UI.user_error!("App not found in App Store Connect: #{app_identifier}") unless app
+
+    builds = Spaceship::ConnectAPI::Build.all(
+      filter: {
+        app: app.id,
+        version: app_version,
+        appPlatform: "MAC_OS"
+      },
+      limit: 200
+    )
+
+    found = builds.find { |b| b.version == app_version && b.build_version.to_s == build_number }
+    unless found
+      UI.user_error!("Build not found or not processed yet for MAC_OS: #{app_identifier} #{app_version} (#{build_number})")
+    end
+
+    UI.success("✅ Found build #{found.version} (#{found.build_version}) state=#{found.processing_state}")
+  end
+
   desc "Publish desktop to the Mac App Store"
   lane :publish do |options|
-    build_number = options[:build_number] || ENV["BUILD_NUMBER"]
-    app_version = options[:app_version] || ENV["APP_VERSION"]
+  build_number = (options[:build_number] || ENV["BUILD_NUMBER"]).to_s.strip
+  app_version = (options[:app_version] || ENV["APP_VERSION"]).to_s.strip
     changelog = options[:changelog] || "Bug fixes and improvements"
     submit_for_review = options[:submit_for_review] == "true" || options[:submit_for_review] == true
     is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
@@ -100,6 +116,11 @@ platform :mac do
       is_key_content_base64: true
     )
 
+  UI.message("🎯 Intending to select build #{build_number} for version #{app_version} (platform: osx)")
+
+  # Ensure the exact MAC_OS build exists before deliver tries to select it
+  assert_build_exists(app_version: app_version, build_number: build_number)
+
     # Release notes already prepared and returned from prepare_release_notes lane
     UI.message("📝 Using release notes for #{notes.keys.count} locales")
 
@@ -123,9 +144,9 @@ platform :mac do
     )
     
     if submit_for_review
-      UI.success("🎉 Successfully submitted Bitwarden Desktop v#{build_number} for App Store review!")
+      UI.success("🎉 Successfully submitted Bitwarden Desktop #{app_version} #{build_number} for App Store review!")
     else
-      UI.success("📤 Successfully uploaded Bitwarden Desktop v#{build_number} to App Store Connect")
+      UI.success("📤 Successfully uploaded Bitwarden Desktop #{app_version} #{build_number} to App Store Connect")
     end
   end
 end

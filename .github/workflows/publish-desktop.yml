@@ -315,7 +315,7 @@ jobs:
 
   mas:
     name: Deploy Mac App Store
-    runs-on: macos-14
+    runs-on: macos-15
     needs: setup
     permissions:
       contents: read
