@@ -21,6 +21,8 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-align-sub",
     "tw-flex-none", // Flexbox fix for bit-form-control
     "!tw-p-1",
+    "tw-h-[calc(1.12rem_+_theme(spacing.2))]",
+    "tw-w-[calc(1.12rem_+_theme(spacing.2))]",
     "after:tw-inset-1",
     // negative margin to negate the positioning added by the padding
     "!-tw-mt-1",
