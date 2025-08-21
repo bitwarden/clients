@@ -270,11 +270,11 @@ describe("DefaultSyncService", () => {
         await sut.fullSync(true, true);
 
         expect(masterPasswordAbstraction.setMasterPasswordUnlockData).toHaveBeenCalledWith(
-          {
-            salt: salt as MasterPasswordSalt,
-            kdf: kdf,
-            masterKeyWrappedUserKey: encryptedUserKey as MasterKeyWrappedUserKey,
-          } as MasterPasswordUnlockData,
+          new MasterPasswordUnlockData(
+            salt as MasterPasswordSalt,
+            kdf,
+            encryptedUserKey as MasterKeyWrappedUserKey,
+          ),
           user1,
         );
       });

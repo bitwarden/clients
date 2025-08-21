@@ -261,11 +261,11 @@ describe("LoginStrategy", () => {
         UserDecryptionOptions.fromResponse(idTokenResponse),
       );
       expect(masterPasswordService.mock.setMasterPasswordUnlockData).toHaveBeenCalledWith(
-        {
-          salt: email as MasterPasswordSalt,
-          kdf: new PBKDF2KdfConfig(kdfIterations),
-          masterKeyWrappedUserKey: encryptedUserKey as MasterKeyWrappedUserKey,
-        } as MasterPasswordUnlockData,
+        new MasterPasswordUnlockData(
+          email as MasterPasswordSalt,
+          new PBKDF2KdfConfig(kdfIterations),
+          encryptedUserKey as MasterKeyWrappedUserKey,
+        ),
         userId,
       );
       expect(messagingService.send).toHaveBeenCalledWith("loggedIn");

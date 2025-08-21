@@ -25,7 +25,11 @@ import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
-import { MasterPasswordSalt, MasterPasswordUnlockData } from "../types/master-password.types";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "../types/master-password.types";
 
 import { MASTER_PASSWORD_UNLOCK_KEY, MasterPasswordService } from "./master-password.service";
 
@@ -346,7 +350,7 @@ describe("MasterPasswordService", () => {
         expect(mockUserState.update).toHaveBeenCalled();
 
         const updateFn = mockUserState.update.mock.calls[0][0];
-        expect(updateFn(null)).toEqual(masterPasswordUnlockData);
+        expect(updateFn(null)).toEqual(masterPasswordUnlockData.toJSON());
       },
     );
 
@@ -381,7 +385,7 @@ describe("MasterPasswordService", () => {
       const kdfPBKDF2: KdfConfig = new PBKDF2KdfConfig(600_000);
       const kdfArgon2: KdfConfig = new Argon2KdfConfig(4, 64, 3);
       const salt = "test@bitwarden.com" as MasterPasswordSalt;
-      const encryptedUserKey = makeEncString("testUserKet");
+      const encryptedUserKey = makeEncString("testUserKet") as MasterKeyWrappedUserKey;
 
       it("returns null when value is null", () => {
         const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(
@@ -401,11 +405,9 @@ describe("MasterPasswordService", () => {
         };
 
         const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(data);
-        expect(deserialized).toEqual({
-          salt: salt,
-          kdf: kdfPBKDF2,
-          masterKeyWrappedUserKey: encryptedUserKey,
-        } as MasterPasswordUnlockData);
+        expect(deserialized).toEqual(
+          new MasterPasswordUnlockData(salt, kdfPBKDF2, encryptedUserKey),
+        );
       });
 
       it("returns master password unlock data when value is present and kdf type is argon2", () => {
@@ -421,11 +423,9 @@ describe("MasterPasswordService", () => {
         };
 
         const deserialized = MASTER_PASSWORD_UNLOCK_KEY.deserializer(data);
-        expect(deserialized).toEqual({
-          salt: salt,
-          kdf: kdfArgon2,
-          masterKeyWrappedUserKey: encryptedUserKey,
-        } as MasterPasswordUnlockData);
+        expect(deserialized).toEqual(
+          new MasterPasswordUnlockData(salt, kdfArgon2, encryptedUserKey),
+        );
       });
     });
   });

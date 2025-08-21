@@ -35,10 +35,10 @@ export class MasterPasswordUnlockResponse extends BaseResponse {
   }
 
   toMasterPasswordUnlockData() {
-    return {
-      salt: this.salt,
-      kdf: this.kdf.toKdfConfig(),
-      masterKeyWrappedUserKey: this.masterKeyWrappedUserKey,
-    } as MasterPasswordUnlockData;
+    return new MasterPasswordUnlockData(
+      this.salt,
+      this.kdf.toKdfConfig(),
+      this.masterKeyWrappedUserKey,
+    );
   }
 }
