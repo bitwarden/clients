@@ -187,7 +187,6 @@ import { BrowserSystemNotificationService } from "../../platform/system-notifica
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
-import { VaultBrowserStateService } from "../../vault/services/vault-browser-state.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
@@ -438,13 +437,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OBSERVABLE_DISK_STORAGE,
     useExisting: AbstractStorageService,
-  }),
-  safeProvider({
-    provide: VaultBrowserStateService,
-    useFactory: (stateProvider: StateProvider) => {
-      return new VaultBrowserStateService(stateProvider);
-    },
-    deps: [StateProvider],
   }),
   safeProvider({
     provide: FileDownloadService,
