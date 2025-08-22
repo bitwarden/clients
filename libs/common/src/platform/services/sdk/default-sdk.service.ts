@@ -12,6 +12,7 @@ import {
   of,
   takeWhile,
   throwIfEmpty,
+  firstValueFrom,
 } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -20,6 +21,7 @@ import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key
 import {
   BitwardenClient,
   ClientSettings,
+  JsRustIterator,
   DeviceType as SdkDeviceType,
   TokenProvider,
   UnsignedSharedKey,
@@ -86,7 +88,46 @@ export class DefaultSdkService implements SdkService {
     private keyService: KeyService,
     private stateProvider?: StateProvider,
     private userAgent: string | null = null,
-  ) {}
+  ) {
+    (window as any).sdkService = this; // Expose the service to the global window object for debugging purposes
+  }
+
+  async testIterator() {
+    const client = await firstValueFrom(this.client$);
+
+    class JsAsyncIterator implements AsyncIterator<number> {
+      constructor(private iterator: JsRustIterator) {}
+    }
+
+    class JsIterator implements Iterator<number> {
+      constructor(private iterator: JsRustIterator) {}
+
+      next(): IteratorResult<number, any> {
+        const nextValue = this.iterator.next();
+        if (nextValue === undefined) {
+          return { value: undefined, done: true };
+        }
+
+        return { value: nextValue };
+      }
+    }
+
+    class JsIterable implements Iterable<number | undefined> {
+      constructor(private iterator: JsRustIterator) {}
+
+      [Symbol.iterator]() {
+        return new JsIterator(this.iterator);
+      }
+    }
+
+    const rustIterator = client.platform().iter().create_js_iterator();
+    const iterable = new JsIterable(rustIterator);
+
+    for (const value of iterable) {
+      // eslint-disable-next-line no-console
+      console.log("Iterable value: ", value);
+    }
+  }
 
   userClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
     return this.sdkClientOverrides.pipe(
