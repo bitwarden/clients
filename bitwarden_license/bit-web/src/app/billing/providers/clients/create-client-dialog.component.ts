@@ -1,6 +1,9 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
@@ -130,6 +133,7 @@ export class CreateClientDialogComponent implements OnInit {
     private i18nService: I18nService,
     private toastService: ToastService,
     private webProviderService: WebProviderService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -198,13 +202,14 @@ export class CreateClientDialogComponent implements OnInit {
     if (!selectedPlanCard) {
       return;
     }
-
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await this.webProviderService.createClientOrganization(
       this.dialogParams.providerId,
       this.formGroup.controls.organizationName.value,
       this.formGroup.controls.clientOwnerEmail.value,
       selectedPlanCard.type,
       this.formGroup.controls.seats.value,
+      activeUserId,
     );
 
     this.toastService.showToast({

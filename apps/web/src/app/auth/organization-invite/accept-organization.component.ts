@@ -2,8 +2,11 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,13 +32,18 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     protected authService: AuthService,
     private acceptOrganizationInviteService: AcceptOrganizationInviteService,
     private organizationInviteService: OrganizationInviteService,
+    private accountService: AccountService,
   ) {
     super(router, platformUtilsService, i18nService, route, authService);
   }
 
   async authedHandler(qParams: Params): Promise<void> {
     const invite = this.fromParams(qParams);
-    const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(invite);
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(
+      invite,
+      activeUserId,
+    );
 
     if (!success) {
       return;
