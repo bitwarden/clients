@@ -2,7 +2,7 @@
 @if (organization) {
   <app-organization-free-trial-warning
     [organization]="organization"
-    (clicked)="navigateToPaymentMethod()"
+    (clicked)="navigateToPaymentMethod(organization)"
   >
   </app-organization-free-trial-warning>
   <app-header>
@@ -16,7 +16,7 @@
       type="button"
       bitButton
       buttonType="primary"
-      (click)="invite()"
+      (click)="invite(organization)"
       [disabled]="!firstLoaded"
       *ngIf="showUserManagementControls()"
     >
@@ -114,7 +114,7 @@
 
                 <bit-menu #headerMenu>
                   <ng-container *ngIf="canUseSecretsManager()">
-                    <button type="button" bitMenuItem (click)="bulkEnableSM()">
+                    <button type="button" bitMenuItem (click)="bulkEnableSM(organization)">
                       {{ "activateSecretsManager" | i18n }}
                     </button>
                     <bit-menu-divider></bit-menu-divider>
@@ -122,7 +122,7 @@
                   <button
                     type="button"
                     bitMenuItem
-                    (click)="bulkReinvite()"
+                    (click)="bulkReinvite(organization)"
                     *ngIf="showBulkReinviteUsers"
                   >
                     <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
@@ -131,7 +131,7 @@
                   <button
                     type="button"
                     bitMenuItem
-                    (click)="bulkConfirm()"
+                    (click)="bulkConfirm(organization)"
                     *ngIf="showBulkConfirmUsers"
                   >
                     <span class="tw-text-success">
@@ -142,7 +142,7 @@
                   <button
                     type="button"
                     bitMenuItem
-                    (click)="bulkRestore()"
+                    (click)="bulkRestore(organization)"
                     *ngIf="showBulkRestoreUsers"
                   >
                     <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
@@ -151,7 +151,7 @@
                   <button
                     type="button"
                     bitMenuItem
-                    (click)="bulkRevoke()"
+                    (click)="bulkRevoke(organization)"
                     *ngIf="showBulkRevokeUsers"
                   >
                     <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
@@ -160,7 +160,7 @@
                   <button
                     type="button"
                     bitMenuItem
-                    (click)="bulkRemove()"
+                    (click)="bulkRemove(organization)"
                     *ngIf="showBulkRemoveUsers"
                   >
                     <span class="tw-text-danger">
@@ -171,7 +171,7 @@
                   <button
                     type="button"
                     bitMenuItem
-                    (click)="bulkDelete()"
+                    (click)="bulkDelete(organization)"
                     *ngIf="showBulkDeleteUsers"
                   >
                     <span class="tw-text-danger">
@@ -194,7 +194,7 @@
                 <input type="checkbox" bitCheckbox [(ngModel)]="$any(u).checked" />
               </td>
               <ng-container *ngIf="showUserManagementControls(); else readOnlyUserInfo">
-                <td bitCell (click)="edit(u)" class="tw-cursor-pointer">
+                <td bitCell (click)="edit(u, organization)" class="tw-cursor-pointer">
                   <div class="tw-flex tw-items-center">
                     <bit-avatar
                       size="small"
@@ -290,7 +290,11 @@
                 <td
                   bitCell
                   (click)="
-                    edit(u, organization.useGroups ? memberTab.Groups : memberTab.Collections)
+                    edit(
+                      u,
+                      organization,
+                      organization.useGroups ? memberTab.Groups : memberTab.Collections
+                    )
                   "
                   class="tw-cursor-pointer"
                 >
@@ -314,7 +318,7 @@
               <ng-container *ngIf="showUserManagementControls(); else readOnlyRoleCell">
                 <td
                   bitCell
-                  (click)="edit(u, memberTab.Role)"
+                  (click)="edit(u, organization, memberTab.Role)"
                   class="tw-cursor-pointer tw-text-sm tw-text-muted"
                 >
                   {{ u.type | userType }}
@@ -335,7 +339,7 @@
                   ></i>
                   <span class="tw-sr-only">{{ "userUsingTwoStep" | i18n }}</span>
                 </ng-container>
-                <ng-container *ngIf="showEnrolledStatus($any(u))">
+                <ng-container *ngIf="showEnrolledStatus($any(u), organization)">
                   <i
                     class="bwi bwi-key"
                     title="{{ 'enrolledAccountRecovery' | i18n }}"
@@ -379,18 +383,26 @@
                         u.status === userStatusType.Accepted || u.status === userStatusType.Invited
                       "
                     ></bit-menu-divider>
-                    <button type="button" bitMenuItem (click)="edit(u, memberTab.Role)">
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="edit(u, organization, memberTab.Role)"
+                    >
                       <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
                     </button>
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="edit(u, memberTab.Groups)"
+                      (click)="edit(u, organization, memberTab.Groups)"
                       *ngIf="organization.useGroups"
                     >
                       <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
                     </button>
-                    <button type="button" bitMenuItem (click)="edit(u, memberTab.Collections)">
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="edit(u, organization, memberTab.Collections)"
+                    >
                       <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
                       {{ "collections" | i18n }}
                     </button>
@@ -398,7 +410,7 @@
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="openEventsDialog(u)"
+                      (click)="openEventsDialog(u, organization)"
                       *ngIf="organization.useEvents && u.status === userStatusType.Confirmed"
                     >
                       <i aria-hidden="true" class="bwi bwi-file-text"></i> {{ "eventLogs" | i18n }}
@@ -409,8 +421,8 @@
                   <button
                     type="button"
                     bitMenuItem
-                    (click)="resetPassword(u)"
-                    *ngIf="allowResetPassword(u)"
+                    (click)="resetPassword(u, organization)"
+                    *ngIf="allowResetPassword(u, organization)"
                   >
                     <i aria-hidden="true" class="bwi bwi-key"></i> {{ "recoverAccount" | i18n }}
                   </button>
@@ -419,7 +431,7 @@
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="restore(u)"
+                      (click)="restore(u, organization)"
                       *ngIf="u.status === userStatusType.Revoked"
                     >
                       <i aria-hidden="true" class="bwi bwi-plus-circle"></i>
@@ -428,7 +440,7 @@
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="revoke(u)"
+                      (click)="revoke(u, organization)"
                       *ngIf="u.status !== userStatusType.Revoked"
                     >
                       <i aria-hidden="true" class="bwi bwi-minus-circle"></i>
@@ -448,7 +460,7 @@
                       *ngIf="u.managedByOrganization"
                       type="button"
                       bitMenuItem
-                      (click)="deleteUser(u)"
+                      (click)="deleteUser(u, organization)"
                     >
                       <span class="tw-text-danger">
                         <i class="bwi bwi-trash" aria-hidden="true"></i>

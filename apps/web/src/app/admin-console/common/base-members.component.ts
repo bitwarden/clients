@@ -12,6 +12,7 @@ import {
   ProviderUserStatusType,
   ProviderUserType,
 } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -98,16 +99,20 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
       );
   }
 
-  abstract edit(user: UserView): void;
-  abstract getUsers(): Promise<ListResponse<UserView> | UserView[]>;
-  abstract removeUser(id: string): Promise<void>;
-  abstract reinviteUser(id: string): Promise<void>;
-  abstract confirmUser(user: UserView, publicKey: Uint8Array): Promise<void>;
-  abstract invite(): void;
+  abstract edit(user: UserView, organization?: Organization): void;
+  abstract getUsers(organization?: Organization): Promise<ListResponse<UserView> | UserView[]>;
+  abstract removeUser(id: string, organization?: Organization): Promise<void>;
+  abstract reinviteUser(id: string, organization?: Organization): Promise<void>;
+  abstract confirmUser(
+    user: UserView,
+    publicKey: Uint8Array,
+    organization?: Organization,
+  ): Promise<void>;
+  abstract invite(organization?: Organization): void;
 
-  async load() {
+  async load(organization?: Organization) {
     // Load new users from the server
-    const response = await this.getUsers();
+    const response = await this.getUsers(organization);
 
     // GetUsers can return a ListResponse or an Array
     if (response instanceof ListResponse) {
@@ -127,13 +132,13 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
     });
   }
 
-  async remove(user: UserView) {
+  async remove(user: UserView, organization?: Organization) {
     const confirmed = await this.removeUserConfirmationDialog(user);
     if (!confirmed) {
       return false;
     }
 
-    this.actionPromise = this.removeUser(user.id);
+    this.actionPromise = this.removeUser(user.id, organization);
     try {
       await this.actionPromise;
       this.toastService.showToast({
@@ -147,12 +152,12 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
     this.actionPromise = undefined;
   }
 
-  async reinvite(user: UserView) {
+  async reinvite(user: UserView, organization?: Organization) {
     if (this.actionPromise != null) {
       return;
     }
 
-    this.actionPromise = this.reinviteUser(user.id);
+    this.actionPromise = this.reinviteUser(user.id, organization);
     try {
       await this.actionPromise;
       this.toastService.showToast({
@@ -165,10 +170,10 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
     this.actionPromise = undefined;
   }
 
-  async confirm(user: UserView) {
+  async confirm(user: UserView, organization?: Organization) {
     const confirmUser = async (publicKey: Uint8Array) => {
       try {
-        this.actionPromise = this.confirmUser(user, publicKey);
+        this.actionPromise = this.confirmUser(user, publicKey, organization);
         await this.actionPromise;
         user.status = this.userStatusType.Confirmed;
         this.dataSource.replaceUser(user);
