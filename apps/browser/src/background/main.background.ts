@@ -298,7 +298,6 @@ import { OffscreenStorageService } from "../platform/storage/offscreen-storage.s
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { BrowserSystemNotificationService } from "../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
-import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
@@ -363,7 +362,6 @@ export default class MainBackground {
   providerService: ProviderServiceAbstraction;
   keyConnectorService: KeyConnectorServiceAbstraction;
   userVerificationService: UserVerificationServiceAbstraction;
-  vaultFilterService: VaultFilterService;
   usernameGenerationService: UsernameGenerationServiceAbstraction;
   encryptService: EncryptService;
   folderApiService: FolderApiServiceAbstraction;
@@ -916,18 +914,6 @@ export default class MainBackground {
       this.pinService,
       this.kdfConfigService,
       this.biometricsService,
-    );
-
-    this.vaultFilterService = new VaultFilterService(
-      this.organizationService,
-      this.folderService,
-      this.cipherService,
-      this.collectionService,
-      this.policyService,
-      this.stateProvider,
-      this.accountService,
-      this.configService,
-      this.i18nService,
     );
 
     this.vaultSettingsService = new VaultSettingsService(
@@ -1599,7 +1585,6 @@ export default class MainBackground {
       this.cipherService.clear(userBeingLoggedOut),
       this.folderService.clear(userBeingLoggedOut),
       this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
-      this.vaultFilterService.clear(),
       this.biometricStateService.logout(userBeingLoggedOut),
       this.popupViewCacheBackgroundService.clearState(),
       /* We intentionally do not clear:
