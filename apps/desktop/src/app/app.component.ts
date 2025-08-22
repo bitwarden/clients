@@ -299,12 +299,22 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+              getUserId(this.accountService.activeAccount$),
             );
             const publicKey = await firstValueFrom(this.keyService.userPublicKey$(activeUserId));
-            const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
-            const dialogRef = FingerprintDialogComponent.open(this.dialogService, { fingerprint });
-            await firstValueFrom(dialogRef.closed);
+            if (publicKey == null) {
+              this.logService.error(
+                "[AppComponent] No public key available for the user: " +
+                  activeUserId +
+                  " fingerprint can't be displayed.",
+              );
+            } else {
+              const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+              const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
+                fingerprint,
+              });
+              await firstValueFrom(dialogRef.closed);
+            }
             break;
           }
           case "deleteAccount":
