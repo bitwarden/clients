@@ -97,7 +97,7 @@ import {
   PasswordDepot17XmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
-import { ImporterMetadata, Loader } from "../metadata";
+import { ImporterMetadata, Importers, Loader } from "../metadata";
 import {
   featuredImportOptions,
   ImportOption,
@@ -149,6 +149,10 @@ export class ImportService implements ImportServiceAbstraction {
         }
 
         const capabilities: ImporterMetadata = { type, loaders };
+        if (type in Importers) {
+          capabilities.instructions = Importers[type].instructions;
+        }
+
         this.logger.debug({ importType: type, capabilities }, "capabilities updated");
 
         return capabilities;

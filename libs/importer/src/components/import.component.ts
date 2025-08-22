@@ -24,7 +24,7 @@ import {
   lastValueFrom,
   combineLatest,
   firstValueFrom,
-  ReplaySubject,
+  BehaviorSubject,
 } from "rxjs";
 import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
 
@@ -192,13 +192,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private _maybeImporter$ = new ReplaySubject<ImporterMetadata | undefined>(1);
-  private importer$ = this._maybeImporter$.pipe(
-    filter((importer): importer is ImporterMetadata => !!importer),
-  );
+  private importer$ = new BehaviorSubject<ImporterMetadata | undefined>(undefined);
 
   /** emits `true` when the chromium instruction block should be visible. */
-  protected readonly showChromiumInstructions$ = this._maybeImporter$.pipe(
+  protected readonly showChromiumInstructions$ = this.importer$.pipe(
     map((importer) => importer?.instructions === Instructions.chromium),
   );
 
@@ -206,7 +203,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   // FIXME: use the capabilities list to populate `chromiumLoader` and replace the explicit
   //        strategy check with a check for multiple loaders
   protected readonly browserImporterAvailable$ = this.importer$.pipe(
-    map((importer) => importer.loaders.includes(Loader.chromium)),
+    map((importer) => (importer?.loaders ?? []).includes(Loader.chromium)),
   );
 
   /** emits `true` when the chromium loader is selected. */
@@ -260,10 +257,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (importer) => {
-          this.ngZone.run(() => {
-            this._maybeImporter$.next(importer);
-          });
+          this.importer$.next(importer);
         },
+        error: (err: unknown) => this.logService.error("an error occurred", err),
       });
 
     if (this.organizationId) {

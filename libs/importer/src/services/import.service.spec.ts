@@ -25,7 +25,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { BitwardenPasswordProtectedImporter } from "../importers/bitwarden/bitwarden-password-protected-importer";
 import { Importer } from "../importers/importer";
-import { ImporterMetadata, Loader } from "../metadata";
+import { ImporterMetadata, Instructions, Loader } from "../metadata";
 import { ImportType } from "../models";
 import { ImportResult } from "../models/import-result";
 
@@ -323,6 +323,7 @@ describe("ImportService", () => {
       expect(result).toEqual({
         type: testType,
         loaders: expect.any(Array),
+        instructions: Instructions.chromium,
       });
       expect(result.type).toBe(testType);
     });
