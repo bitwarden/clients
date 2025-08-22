@@ -732,7 +732,7 @@
     "message": "Labot vienumu"
   },
   "viewItem": {
-    "message": "Skatīt vienumu"
+    "message": "Apskatīt vienumu"
   },
   "newItemHeader": {
     "message": "Jauns/a $TYPE$",
@@ -1502,10 +1502,10 @@
     "message": "Atlasīt divpakāpju pieteikšanās veidu"
   },
   "recoveryCodeDesc": {
-    "message": "Zaudēta piekļuve visiem divpakāpju pieteikšanās nodrošinātājiem? Jāizmanto atkopšanas kods, lai izslēgtu visus sava konta divpakāpju pieteikšanās nodrošinātājus."
+    "message": "Zaudēta piekļuve visiem divpakāpju pieteikšanās nodrošinātājiem? Jāizmanto atkopes kods, lai izslēgtu visus sava konta divpakāpju pieteikšanās nodrošinātājus."
   },
   "recoveryCodeTitle": {
-    "message": "Atgūšanas kods"
+    "message": "Atkopes kods"
   },
   "authenticatorAppTitle": {
     "message": "Autentificētāja lietotne"
@@ -2180,7 +2180,7 @@
     "message": "Ja ir uzstādīta vienotā pieteikšanās vai tas ir iecerēts, identitātes nodrošinātājs jau var būt piemērojis divpakāpju pieteikšanos."
   },
   "twoStepLoginRecoveryWarning": {
-    "message": "Divpakāpju pieteikšanās var pastāvīgi liegt piekļuvi Bitwarden kontam. Atkopšanas kods ļauj piekļūt tam gadījumā, kad vairs nav iespējams izmantot ierasto divpakāpju pieteikšanās nodrošinātāju (piemēram, ir pazaudēta ierīce). Bitwarden atbalsts nevarēs palīdzēt, ja tiks pazaudēta piekļuve kontam. Ir ieteicams, ka atkopšanas kods tiek pierakstīts vai izdrukāts un turēts drošā vietā."
+    "message": "Divpakāpju pieteikšanās var pastāvīgi liegt piekļuvi Bitwarden kontam. Atkopes kods ļauj piekļūt tam gadījumā, kad vairs nav iespējams izmantot ierasto divpakāpju pieteikšanās nodrošinātāju (piemēram, ir pazaudēta ierīce). Bitwarden atbalsts nevarēs palīdzēt, ja tiks pazaudēta piekļuve kontam. Ir ieteicams, ka atkopes kods tiek pierakstīts vai izdrukāts un turēts drošā vietā."
   },
   "restrictedItemTypePolicy": {
     "message": "Noņemt karšu vienumu veidu"
@@ -2198,7 +2198,7 @@
     "message": "Vienreizējas izmantošanas atkopes kodu var izmantot, lai izslēgtu divpakāpju pieteikšanos gadījumā, ja tiek zaudēta piekļuve savam divpakāpju pieteikšanās nodrošinātājam. Bitwarden iesaka pierakstīt atkopes kodu un glabāt to drošā vietā."
   },
   "viewRecoveryCode": {
-    "message": "Skatīt atkopšanas kodu"
+    "message": "Apskatīt atkopes kodu"
   },
   "providers": {
     "message": "Nodrošinātāji",
@@ -2451,14 +2451,11 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Radās sarežģījumi, nolasot drošības atslēgu. Jāmēģina vēlreiz."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Platformas ierobežojumu dēļ WebAuth nevar izmantot visās Bitwarden lietotnēs. Ir ieteicams iespējot vēl kādu divpakāpju pieteikšanās nodrošinātāju, lai varētu piekļūt kontam, kad nav iespējams izmantot WebAuth."
-  },
   "twoFactorRecoveryYourCode": {
-    "message": "Bitwarden divpakāpju pieteikšanās atkopšanas kods"
+    "message": "Bitwarden divpakāpju pieteikšanās atkopes kods"
   },
   "twoFactorRecoveryNoCode": {
-    "message": "Vēl nav iespējots neviens divpakāpju pieteikšanās nodrošinātājs. Kad tas būs izdarīts, šeit varēs apskatīt atkopšanas kodu."
+    "message": "Vēl nav iespējots neviens divpakāpju pieteikšanās nodrošinātājs. Kad tas būs izdarīts, šeit varēs apskatīt atkopes kodu."
   },
   "printCode": {
     "message": "Izdrukāt kodu",
@@ -2922,7 +2919,7 @@
     "message": "Lejupielādēt licenci"
   },
   "viewBillingToken": {
-    "message": "Skatīt norēķinu pilnvaru"
+    "message": "Apskatīt norēķinu tekstvienību"
   },
   "updateLicense": {
     "message": "Atjaunināt licenci"
@@ -3597,13 +3594,13 @@
     }
   },
   "viewAllLogInOptions": {
-    "message": "Skatīt visas pieteikšanās iespējas"
+    "message": "Apskatīt visas pieteikšanās iespējas"
   },
   "viewAllLoginOptions": {
-    "message": "Skatīt visas pieteikšanās iespējas"
+    "message": "Apskatīt visas pieteikšanās iespējas"
   },
   "viewedItemId": {
-    "message": "Skatīts vienums $ID$.",
+    "message": "Apskatīts vienums $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3612,7 +3609,7 @@
     }
   },
   "viewedPasswordItemId": {
-    "message": "Skatīta vienuma $ID$ parole.",
+    "message": "Apskatīta vienuma $ID$ parole.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3621,7 +3618,7 @@
     }
   },
   "viewedHiddenFieldItemId": {
-    "message": "Skatīts vienuma $ID$ slēpts lauks.",
+    "message": "Apskatīts vienuma $ID$ slēpts lauks.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3630,7 +3627,7 @@
     }
   },
   "viewedCardNumberItemId": {
-    "message": "Skatīts vienuma $ID$ kartes numurs.",
+    "message": "Apskatīts vienuma $ID$ kartes numurs.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3639,7 +3636,7 @@
     }
   },
   "viewedSecurityCodeItemId": {
-    "message": "Skatīts vienuma $ID$ drošības kods.",
+    "message": "Apskatīts vienuma $ID$ drošības kods.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3648,7 +3645,7 @@
     }
   },
   "viewCollectionWithName": {
-    "message": "Skatīt krājumu - $NAME$",
+    "message": "Apskatīt krājumu - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4027,7 +4024,7 @@
     "message": ", lai labotu savu e-pasta adresi."
   },
   "view": {
-    "message": "Skatīt"
+    "message": "Apskatīt"
   },
   "invalidDateRange": {
     "message": "Nederīgs datumu apgabals."
@@ -4229,7 +4226,7 @@
     "message": "Atcerēties e-pasta adresi"
   },
   "recoverAccountTwoStepDesc": {
-    "message": "Ja kontam nevar piekļūt ar ierastajiem divpakāpju pieteikšanās veidiem, var izmantot atkopšanas kodu, lai atspējotu visus konta divpakāpju pieteikšanās nodrošinātājus."
+    "message": "Ja kontam nevar piekļūt ar ierastajiem divpakāpju pieteikšanās veidiem, var izmantot atkopes kodu, lai atspējotu visus konta divpakāpju pieteikšanās nodrošinātājus."
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
     "message": "Pieteikties ar vienreizējas izmantošanas atkopes kodu zemāk. Tas kontā izslēgs visus divpakāpju nodrošinātājus."
@@ -4323,7 +4320,7 @@
     }
   },
   "viewInvoice": {
-    "message": "Skatīt rēķinu"
+    "message": "Apskatīt rēķinu"
   },
   "downloadInvoice": {
     "message": "Lejupielādēt rēķinu"
@@ -4816,7 +4813,7 @@
     "description": "'OAuth 2.0' is a programming protocol. It should probably not be translated."
   },
   "viewApiKey": {
-    "message": "Skatīt API atslēgu"
+    "message": "Apskatīt API atslēgu"
   },
   "rotateApiKey": {
     "message": "Mainīt API atslēgu"
@@ -5588,7 +5585,7 @@
     "message": "Pārvaldīt lietotājus"
   },
   "manageAccountRecovery": {
-    "message": "Pārvaldīt konta atkopšanu"
+    "message": "Pārvaldīt konta atkopi"
   },
   "disableRequiredError": {
     "message": "Vispirms pašrocīgi ir jāatspējo nosacījums $POLICYNAME$, lai varētu atspējot šo.",
@@ -5697,7 +5694,7 @@
     "message": "Piešķirt dalībniekiem piekļuvi:"
   },
   "viewAndSelectTheMembers": {
-    "message": "skatīt un atlasīt dalībniekus, kuriem piešķirt piekļuvi Noslēpumu pārvaldniekam."
+    "message": "apskatīt un atlasīt dalībniekus, kuriem piešķirt piekļuvi Noslēpumu pārvaldniekam."
   },
   "openYourOrganizations": {
     "message": "Jāatver savas apvienības"
@@ -5784,13 +5781,13 @@
     "message": "Paroles norāde nedrīkst būt tāda pati kā parole."
   },
   "enrollAccountRecovery": {
-    "message": "Pieteikties konta atkopšanai"
+    "message": "Pieteikties konta atkopei"
   },
   "enrolledAccountRecovery": {
-    "message": "Pieteicies konta atkopšanai"
+    "message": "Pieteicies konta atkopei"
   },
   "withdrawAccountRecovery": {
-    "message": "Atsaukt konta atkopšanu"
+    "message": "Atsaukt konta atkopi"
   },
   "enrollPasswordResetSuccess": {
     "message": "Pievienošana bija veiksmīga."
@@ -5799,7 +5796,7 @@
     "message": "Izņemšana bija veiksmīga."
   },
   "eventEnrollAccountRecovery": {
-    "message": "Lietotājs $ID$ pieteicās konta atkopšanai.",
+    "message": "Lietotājs $ID$ pieteicās konta atkopei.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5808,7 +5805,7 @@
     }
   },
   "eventWithdrawAccountRecovery": {
-    "message": "Lietotājs $ID$ atsauca konta atkopšanu.",
+    "message": "Lietotājs $ID$ atsauca konta atkopi.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5880,7 +5877,7 @@
     "message": "Ievietošana sarakstā ļaus apvienības pārvaldniekiem mainīt galveno paroli. Vai tiešām ievietot sarakstā?"
   },
   "accountRecoveryPolicy": {
-    "message": "Kontu atkopšanas pārvaldība"
+    "message": "Kontu atkopes pārvaldība"
   },
   "accountRecoveryPolicyDesc": {
     "message": "Atkarībā no šifrēšanas veida, var atkopt kontus, kad ir aizmirsta galvenā parole vai pazaudētas uzticamās ierīces."
@@ -6008,7 +6005,7 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
-    "message": "Lietotāju pārvaldīšanai ir jābūt iespējotai arī ar konta atkopšanas pārvaldīšanas atļauju"
+    "message": "Lietotāju pārvaldīšanai ir jābūt iespējotai arī ar konta atkopes pārvaldīšanas atļauju"
   },
   "setupProvider": {
     "message": "Nodrošinātāja iestatīšana"
@@ -6148,7 +6145,7 @@
     "message": "Atjaunināt galveno paroli"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Jānomaina sava galvenā'parole, lai pabeigtu konta atkopi."
+    "message": "Jānomaina sava galvenā parole, lai pabeigtu konta atkopi."
   },
   "updateMasterPasswordSubtitle": {
     "message": "Galvenā parole neatbilst šīs apvienības prasībām. Jānomaina sava galvenā parole, lai turpinātu."
@@ -6683,7 +6680,7 @@
     "message": "Bezmaksas ar pabalstītājdarbību"
   },
   "viewBillingSyncToken": {
-    "message": "Apskatīt norēķinu sinhronizēšanas pilnvaru"
+    "message": "Apskatīt norēķinu sinhronizēšanas tekstvienību"
   },
   "generateBillingToken": {
     "message": "Izveidot norēķinu pilnvaru"
@@ -6879,7 +6876,7 @@
     }
   },
   "accessDenied": {
-    "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai skatītu šo lapu."
+    "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai apskatītu šo lapu."
   },
   "masterPassword": {
     "message": "Galvenā parole"
@@ -7549,7 +7546,7 @@
     "description": "The action to modify an existing project."
   },
   "viewProject": {
-    "message": "Skatīt projektu",
+    "message": "Apskatīt projektu",
     "description": "The action to view details of a project."
   },
   "deleteProject": {
@@ -7628,7 +7625,7 @@
     "description": "Title for the action to delete a single service account."
   },
   "viewServiceAccount": {
-    "message": "Skatīt pakalpojumu kontu",
+    "message": "Apskatīt pakalpojumu kontu",
     "description": "Action to view the details of a service account."
   },
   "deleteServiceAccountDialogMessage": {
@@ -8292,7 +8289,7 @@
     "message": "Svarīgi:"
   },
   "viewAll": {
-    "message": "Skatīt visu"
+    "message": "Apskatīt visu"
   },
   "showingPortionOfTotal": {
     "message": "Rāda $PORTION$ no $TOTAL$",
@@ -8554,7 +8551,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart2": {
-    "message": "nosacījums,",
+    "message": "pamatnostādne,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink2": {
@@ -8566,11 +8563,11 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink3": {
-    "message": "kontu atkopšanas pārvaldības",
+    "message": "kontu atkopes pārvaldības",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart4": {
-    "message": "nosacījums tiks ieslēgts, kad šī iespēja tiks izmantota.",
+    "message": "pamatnostādne tiks ieslēgta, kad šī iespēja tiks izmantota.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -8607,7 +8604,7 @@
     "message": "Atkopt kontu"
   },
   "updatedTempPassword": {
-    "message": "Lietotājs atjaunināja konta atkopšanas izsniegtu paroli."
+    "message": "Lietotājs atjaunināja konta atkopes izsniegtu paroli."
   },
   "activatedAccessToSecretsManager": {
     "message": "Ieslēgta piekļuve Noslēpumu pārvaldniekam",
@@ -9002,7 +8999,7 @@
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Sākas ar' ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
+    "message": "“Sākas ar” ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -9262,7 +9259,7 @@
     "description": "Title for the action to delete a single machine account."
   },
   "viewMachineAccount": {
-    "message": "Skatīt mašīnas kontu",
+    "message": "Apskatīt mašīnas kontu",
     "description": "Action to view the details of a machine account."
   },
   "deleteMachineAccountDialogMessage": {
@@ -9543,7 +9540,7 @@
     }
   },
   "smSdkTooltip": {
-    "message": "Skatīt $SDK$ glabātavu",
+    "message": "Apskatīt $SDK$ glabātavu",
     "placeholders": {
       "sdk": {
         "content": "$1",
@@ -9561,7 +9558,7 @@
     }
   },
   "smSdkAriaLabel": {
-    "message": "skatīt $SDK$ glabātavu jaunā cilnē.",
+    "message": "apskatīt $SDK$ glabātavu jaunā cilnē.",
     "placeholders": {
       "sdk": {
         "content": "$1",
@@ -9657,7 +9654,7 @@
     "message": "Jāievada informācija par sava uzņēmuma apvienību"
   },
   "viewItemsIn": {
-    "message": "Skatīt $NAME$ vienumus",
+    "message": "Apskatīt $NAME$ vienumus",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -9691,10 +9688,10 @@
     }
   },
   "viewInfo": {
-    "message": "Skatīt informāciju"
+    "message": "Apskatīt informāciju"
   },
   "viewAccess": {
-    "message": "Skatīt piekļuvi"
+    "message": "Apskatīt piekļuvi"
   },
   "noCollectionsSelected": {
     "message": "Nav atlasīts neviens krājums."
@@ -9778,7 +9775,7 @@
     "message": "Apliecināts"
   },
   "viewSecret": {
-    "message": "Skatīt noslēpumu"
+    "message": "Apskatīt noslēpumu"
   },
   "noClients": {
     "message": "Nav klientu, ko parādīt"
@@ -10189,7 +10186,7 @@
     "message": "Bezparoles vienotā pieteikšanās (SSO)"
   },
   "accountRecovery": {
-    "message": "Konta atkopšana"
+    "message": "Konta atkope"
   },
   "customRoles": {
     "message": "Pielāgotas lomas"

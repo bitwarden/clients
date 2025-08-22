@@ -59,7 +59,6 @@ export class ServiceAccountsListComponent implements OnDestroy, OnInit {
 
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
     private dialogService: DialogService,
     private organizationService: OrganizationService,

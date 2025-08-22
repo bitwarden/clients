@@ -3,7 +3,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, switchMap } from "rxjs";
+import { Subject, switchMap } from "rxjs";
 import { first, takeUntil } from "rxjs/operators";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
@@ -11,8 +11,6 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { ProviderSetupRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-setup.request";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ProviderKey } from "@bitwarden/common/types/key";
@@ -41,10 +39,6 @@ export class SetupComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  requireProviderPaymentMethodDuringSetup$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup,
-  );
-
   constructor(
     private router: Router,
     private i18nService: I18nService,
@@ -52,7 +46,6 @@ export class SetupComponent implements OnInit, OnDestroy {
     private keyService: KeyService,
     private syncService: SyncService,
     private validationService: ValidationService,
-    private configService: ConfigService,
     private providerApiService: ProviderApiServiceAbstraction,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
@@ -117,15 +110,9 @@ export class SetupComponent implements OnInit, OnDestroy {
 
   submit = async () => {
     try {
-      const requireProviderPaymentMethodDuringSetup = await firstValueFrom(
-        this.requireProviderPaymentMethodDuringSetup$,
-      );
-
       this.formGroup.markAllAsTouched();
 
-      const paymentValid = requireProviderPaymentMethodDuringSetup
-        ? this.paymentComponent.validate()
-        : true;
+      const paymentValid = this.paymentComponent.validate();
       const taxInformationValid = this.taxInformationComponent.validate();
 
       if (!paymentValid || !taxInformationValid || !this.formGroup.valid) {
@@ -152,9 +139,7 @@ export class SetupComponent implements OnInit, OnDestroy {
       request.taxInfo.city = taxInformation.city;
       request.taxInfo.state = taxInformation.state;
 
-      if (requireProviderPaymentMethodDuringSetup) {
-        request.paymentSource = await this.paymentComponent.tokenize();
-      }
+      request.paymentSource = await this.paymentComponent.tokenize();
 
       const provider = await this.providerApiService.postProviderSetup(this.providerId, request);
 

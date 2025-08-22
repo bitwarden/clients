@@ -143,10 +143,14 @@ export class OrganizationVaultExportService
         if (exportData != null) {
           if (exportData.collections != null && exportData.collections.length > 0) {
             exportData.collections.forEach((c) => {
-              const collection = new Collection(new CollectionData(c as CollectionDetailsResponse));
+              const collection = Collection.fromCollectionData(
+                new CollectionData(c as CollectionDetailsResponse),
+              );
               exportPromises.push(
                 firstValueFrom(this.keyService.activeUserOrgKeys$)
-                  .then((keys) => collection.decrypt(keys[organizationId as OrganizationId]))
+                  .then((keys) =>
+                    collection.decrypt(keys[organizationId as OrganizationId], this.encryptService),
+                  )
                   .then((decCol) => {
                     decCollections.push(decCol);
                   }),
@@ -191,7 +195,9 @@ export class OrganizationVaultExportService
       this.apiService.getCollections(organizationId).then((c) => {
         if (c != null && c.data != null && c.data.length > 0) {
           c.data.forEach((r) => {
-            const collection = new Collection(new CollectionData(r as CollectionDetailsResponse));
+            const collection = Collection.fromCollectionData(
+              new CollectionData(r as CollectionDetailsResponse),
+            );
             collections.push(collection);
           });
         }

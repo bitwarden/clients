@@ -808,6 +808,37 @@ export class EventService {
     }
     const a = this.makeAnchor(shortId);
     a.setAttribute("href", "#/organizations/" + ev.organizationId + "/members?search=" + shortId);
+=======
+    const a = this.makeAnchor(shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/secrets?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.secretId +
+        "&type=all",
+    );
+    return a.outerHTML;
+  }
+
+  formatProjectId(ev: EventResponse, options: EventOptions): string {
+    const shortId = this.getShortId(ev.projectId);
+    if (options.disableLink) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute(
+      "href",
+      "#/sm/" +
+        ev.organizationId +
+        "/projects?search=" +
+        shortId +
+        "&viewEvents=" +
+        ev.projectId +
+        "&type=all",
+    );
     return a.outerHTML;
   }
 

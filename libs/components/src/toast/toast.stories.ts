@@ -20,6 +20,7 @@ const toastServiceExampleTemplate = `
 @Component({
   selector: "toast-service-example",
   template: toastServiceExampleTemplate,
+  imports: [ButtonModule],
 })
 export class ToastServiceExampleComponent {
   @Input()

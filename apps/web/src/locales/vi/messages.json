@@ -1968,7 +1968,7 @@
     "message": "Đã đóng tài khoản của bạn và đã xóa tất cả những dữ liệu liên quan."
   },
   "deleteOrganizationWarning": {
-    "message": "Tổ \u001d\u001d\u001dchức sẽ bị xóa vĩnh viễn và không thể hoàn tác."
+    "message": "Tổ chức sẽ bị xóa vĩnh viễn và không thể hoàn tác."
   },
   "myAccount": {
     "message": "Tài khoản của tôi"
@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Có vấn đề khi đọc khóa bảo mật. Vui lòng thử lại."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Do hạn chế của nền tảng, WebAuthn không thể sử dụng trên tất cả các ứng dụng Bitwarden. Bạn nên thiết lập một nhà cung cấp đăng nhập hai bước khác để có thể truy cập tài khoản của mình khi WebAuthn không thể sử dụng."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Mã khôi phục đăng nhập hai bước của Bitwarden"
   },
@@ -2634,7 +2631,7 @@
     }
   },
   "dataBreachReport": {
-    "message": "Dữ liệu bị rò rĩ"
+    "message": "Rò rỉ dữ liệu"
   },
   "breachDesc": {
     "message": "Tài khoản bị xâm phạm có thể lộ thông tin cá nhân của bạn. Hãy bảo vệ tài khoản bị xâm phạm bằng cách kích hoạt xác thực hai yếu tố (2FA) hoặc tạo mật khẩu mạnh hơn."
@@ -2643,7 +2640,7 @@
     "message": "Kiểm tra các tên đăng nhập hoặc địa chỉ email mà bạn sử dụng."
   },
   "checkBreaches": {
-    "message": "Kiểm tra các vi phạm"
+    "message": "Kiểm tra các xâm phạm"
   },
   "breachUsernameNotFound": {
     "message": "$USERNAME$ không được tìm thấy trong bất kỳ vụ rò rỉ dữ liệu nào đã biết.",
@@ -2684,10 +2681,10 @@
     "message": "Người dùng bị ảnh hưởng"
   },
   "breachOccurred": {
-    "message": "Vụ vi phạm đã xảy ra"
+    "message": "Vụ xâm phạm đã xảy ra"
   },
   "breachReported": {
-    "message": "Sự cố vi phạm đã được báo cáo"
+    "message": "Sự cố xâm phạm đã được báo cáo"
   },
   "reportError": {
     "message": "Đã xảy ra lỗi khi cố gắng tải báo cáo. Vui lòng thử lại"
@@ -3137,7 +3134,7 @@
     "message": "Dành cho doanh nghiệp và các tổ chức nhóm khác."
   },
   "planNameTeamsStarter": {
-    "message": "Nhóm Starter"
+    "message": "Gói Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Doanh nghiệp"
@@ -3251,7 +3248,7 @@
     }
   },
   "trialSecretsManagerThankYou": {
-    "message": "Cảm ơn bạn đã đăng ký Bitwarden Secrets Manager gói $PLAN$!",
+    "message": "Cảm ơn bạn đã đăng ký Trình quản lý Bí mật Bitwarden gói $PLAN$!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -5282,7 +5279,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "noSendsInList": {
-    "message": "Chưa có mục Gửi.",
+    "message": "Chưa có Send nào.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emergencyAccess": {
@@ -5682,7 +5679,7 @@
     "message": "Các sản phẩm khác từ Bitwarden"
   },
   "requestAccessToSecretsManager": {
-    "message": "Yêu cầu quyền truy cập Trình quản lý bí mật"
+    "message": "Yêu cầu quyền truy cập Trình quản lý Bí mật"
   },
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
     "message": "Bạn cần được quản trị viên phê duyệt để dùng thử Trình quản lý bí mật."
@@ -5691,7 +5688,7 @@
     "message": "Access request for secrets manager email sent to admins."
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Xin chào,\n\nTôi muốn đề nghị đăng ký sử dụng Bitwarden Secrets Manager cho nhóm của chúng ta. Sự hỗ trợ của bạn sẽ rất đáng trân trọng!\n\nBitwarden Secrets Manager là giải pháp quản lý bí mật được mã hóa đầu cuối, giúp lưu trữ, chia sẻ và triển khai an toàn các thông tin xác thực của máy như khóa API, mật khẩu cơ sở dữ liệu và chứng chỉ xác thực.\n\nSecrets Manager sẽ giúp chúng ta:\n\n* Nâng cao bảo mật\n* Tinh giản quy trình hoạt động\n* Ngăn chặn rò rỉ bí mật tốn kém\n\nĐể yêu cầu dùng thử miễn phí cho nhóm, vui lòng liên hệ với Bitwarden.\n\nCảm ơn bạn đã hỗ trợ!\n"
+    "message": "Xin chào,\n\nTôi muốn đề nghị đăng ký sử dụng Trình quản lý Bí mật Bitwarden cho nhóm của chúng ta. Sự hỗ trợ của bạn sẽ rất đáng trân trọng!\n\nTrình quản lý Bí mật Bitwarden là giải pháp quản lý bí mật được mã hóa đầu cuối, giúp lưu trữ, chia sẻ và triển khai an toàn các thông tin xác thực của máy như khóa API, mật khẩu cơ sở dữ liệu và chứng chỉ xác thực.\n\nSecrets Manager sẽ giúp chúng ta:\n\n* Nâng cao bảo mật\n* Tinh giản quy trình hoạt động\n* Ngăn chặn rò rỉ bí mật tốn kém\n\nĐể yêu cầu dùng thử miễn phí cho nhóm, vui lòng liên hệ với Bitwarden.\n\nCảm ơn bạn đã hỗ trợ!"
   },
   "giveMembersAccess": {
     "message": "Cấp quyền truy cập cho thành viên:"
@@ -5964,7 +5961,7 @@
     "message": "Đã xác nhận thành công"
   },
   "bulkReinviteMessage": {
-    "message": "Đã mời lại thành côngvv"
+    "message": "Đã mời lại thành công"
   },
   "bulkRemovedMessage": {
     "message": "Đã xóa thành công"
@@ -6081,7 +6078,7 @@
     "message": "Thêm tổ chức mới"
   },
   "myProvider": {
-    "message": "My Provider"
+    "message": "Nhà cung cấp của tôi"
   },
   "addOrganizationConfirmation": {
     "message": "Bạn có chắc chắn muốn thêm $ORGANIZATION$ làm khách hàng của $PROVIDER$ không?",
@@ -6752,7 +6749,7 @@
     "message": "Để thiết lập tổ chĐể thiết lập tổ chức của bạn trên máy chủ riêng, bạn sẽ cần tải lên tệp giấy phép. Để hỗ trợ gói Gia đình miễn phí và các tính năng thanh toán nâng cao cho tổ chức tự lưu trữ của bạn, bạn sẽ cần thiết lập đồng bộ thanh toán.ức của bạn trên máy chủ riêng, bạn sẽ cần tải lên tệp giấy phép. Để hỗ trợ gói Gia đình miễn phí và các tính năng thanh toán nâng cao cho tổ chức tự lưu trữ của bạn, bạn sẽ cần thiết lập đồng bộ thanh toán."
   },
   "billingSyncApiKeyRotated": {
-    "message": "Đã xoay mã thông báo"
+    "message": "Token đã được xoay"
   },
   "billingSyncKeyDesc": {
     "message": "Cần mã thông báo đồng bộ thanh toán từ cài đặt đăng ký của tổ chức trên đám mây của bạn để hoàn tất biểu mẫu này."
@@ -7042,7 +7039,7 @@
     }
   },
   "awaitingSyncSingular": {
-    "message": "Token đã được xoay vòng cách đây $DAYS$ ngày. Hãy cập nhật token đồng bộ thanh toán trong cài đặt tổ chức tự lưu trữ của bạn.",
+    "message": "Token đã được xoay cách đây $DAYS$ ngày. Hãy cập nhật token đồng bộ thanh toán trong cài đặt tổ chức tự lưu trữ của bạn.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -7051,7 +7048,7 @@
     }
   },
   "awaitingSyncPlural": {
-    "message": "Token đã được xoay vòng cách đây $DAYS$ ngày. Hãy cập nhật token đồng bộ thanh toán trong cài đặt tổ chức tự lưu trữ của bạn.",
+    "message": "Token đã được xoay cách đây $DAYS$ ngày. Hãy cập nhật token đồng bộ thanh toán trong cài đặt tổ chức tự lưu trữ của bạn.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -7754,7 +7751,7 @@
     }
   },
   "deleteProjectInputLabel": {
-    "message": "Nhập $CONFIRM$ để tiếp tục",
+    "message": "Nhập \"$CONFIRM$\" để tiếp tục",
     "description": "Users are prompted to type 'confirm' to delete a project",
     "placeholders": {
       "confirm": {
@@ -7815,7 +7812,7 @@
     "description": "Title for the section displaying access tokens."
   },
   "createAccessToken": {
-    "message": "Tạo access token",
+    "message": "Tạo token truy cập",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -7831,7 +7828,7 @@
     "description": "Title to be displayed when there are no access tokens to display in the list."
   },
   "accessTokensNoItemsDesc": {
-    "message": "Để bắt đầu, hãy tạo một access token",
+    "message": "Để bắt đầu, hãy tạo một token truy cập",
     "description": "Message to be displayed when there are no access tokens to display in the list."
   },
   "downloadAccessToken": {
@@ -7877,7 +7874,7 @@
     "description": "Toast message after deleting one or multiple access tokens."
   },
   "noAccessTokenSelected": {
-    "message": "Không có access token nào được chọn để thu hồi",
+    "message": "Chưa chọn token truy cập để thu hồi",
     "description": "Toast error message after trying to delete access tokens but not selecting any access tokens."
   },
   "submenu": {
@@ -8280,7 +8277,7 @@
     "message": "Tiếp tục sẽ đăng xuất bạn khỏi tất cả các phiên hoạt động. Bạn sẽ cần đăng nhập lại và hoàn tất đăng nhập hai bước (nếu có). Chúng tôi khuyến nghị xuất kho mật khẩu của bạn trước khi thay đổi cài đặt mã hóa để tránh mất dữ liệu."
   },
   "secretsManager": {
-    "message": "Quản lý Bí mật"
+    "message": "Trình quản lý Bí mật"
   },
   "secretsManagerAccessDescription": {
     "message": "Kích hoạt quyền truy cập Trình quản lý Bí mật cho người dùng."
@@ -8994,7 +8991,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "Bitwarden phát hiện khớp đường dẫn (URI) để xác định các đề xuất tự động điền.",
+    "message": "Phát hiện khớp URI là cách Bitwarden xác định các gợi ý tự động điền.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -9018,7 +9015,7 @@
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
-    "message": "Để duy trì gói đăng ký của bạn cho $ORG$,",
+    "message": "Để duy trì gói đăng ký của bạn cho $ORG$, ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
     "placeholders": {
       "org": {
@@ -9041,7 +9038,7 @@
     "message": "Cảm ơn bạn đã đăng ký Trình quản lý Bí mật Bitwarden!"
   },
   "smFreeTrialConfirmationEmail": {
-    "message": "Chúng tôi đã gửi email xác nhận đến địa chỉ email của bạn tại"
+    "message": "Chúng tôi đã gửi email xác nhận đến địa chỉ email của bạn tại "
   },
   "sorryToSeeYouGo": {
     "message": "Rất tiếc khi thấy bạn rời đi! Hãy giúp cải thiện Bitwarden bằng cách chia sẻ lý do bạn hủy.",
@@ -9082,7 +9079,7 @@
     "message": "Chào mừng bạn đến với ứng dụng web mới được cải tiến. Tìm hiểu thêm về những thay đổi."
   },
   "releaseBlog": {
-    "message": "Đọc blog giới thiệu sản phẩm\n"
+    "message": "Đọc blog giới thiệu sản phẩm"
   },
   "adminConsole": {
     "message": "Bảng điều khiển dành cho quản trị viên"
@@ -9477,10 +9474,10 @@
     "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "bwdc": {
-    "message": "Trình kết nối thư mục Bitwarden\n\n"
+    "message": "Trình kết nối thư mục Bitwarden"
   },
   "bwdcDesc": {
-    "message": "Cấu hình Bitwarden Directory Connector để tự động cấp phép người dùng và nhóm bằng cách sử dụng hướng dẫn triển khai cho Nhà cung cấp danh tính của bạn."
+    "message": "Cấu hình Trình kết nối thư mục Bitwarden để tự động cấp phép người dùng và nhóm bằng cách sử dụng hướng dẫn triển khai cho Nhà cung cấp danh tính của bạn."
   },
   "eventManagement": {
     "message": "Quản lý sự kiện"
@@ -9543,7 +9540,7 @@
     }
   },
   "smSdkTooltip": {
-    "message": "Xem kho lưu trữ $SDK$ ",
+    "message": "Xem kho lưu trữ $SDK$",
     "placeholders": {
       "sdk": {
         "content": "$1",
@@ -9582,7 +9579,7 @@
     "message": "Tạo một tổ chức khách hàng mới để quản lý với tư cách Nhà cung cấp. Các ghế bổ sung sẽ được phản ánh trong chu kỳ thanh toán tiếp theo."
   },
   "url": {
-    "message": "URL"
+    "message": "Địa chỉ (URL)"
   },
   "bearerToken": {
     "message": "Bearer Token"
@@ -9833,7 +9830,7 @@
     "message": "Số vòng lặp KDF cao hơn có thể giúp bảo vệ mật khẩu chính của bạn khỏi bị kẻ tấn công tấn công brute force."
   },
   "incrementsOf100,000": {
-    "message": "từng bước 100.000"
+    "message": "tăng theo bội số 100.000"
   },
   "smallIncrements": {
     "message": "bước nhỏ"
@@ -9851,7 +9848,7 @@
     }
   },
   "providerReinstate": {
-    "message": "Liên hệ với Bộ phận Hỗ trợ Khách hàng để khôi phục gói đăng ký của bạn."
+    "message": " Liên hệ với Bộ phận Hỗ trợ Khách hàng để khôi phục gói đăng ký của bạn."
   },
   "secretPeopleDescription": {
     "message": "Grant groups or people access to this secret. Permissions set for people will override permissions set by groups."
@@ -9973,7 +9970,7 @@
     "message": "Dữ liệu"
   },
   "purchasedSeatsRemoved": {
-    "message": "Đã xóa ghế đã mua"
+    "message": "đã xóa ghế đã mua"
   },
   "environmentVariables": {
     "message": "Biến môi trường"
@@ -10069,7 +10066,7 @@
     "message": "Lưu trữ tại chỗ tùy chọn"
   },
   "upgradeFreeOrganization": {
-    "message": "Nâng cấp tổ chức $NAME$ của bạn",
+    "message": "Nâng cấp tổ chức $NAME$ của bạn ",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10216,7 +10213,7 @@
     "message": "Trình quản lý mật khẩu Bitwarden"
   },
   "secretsManagerComplimentaryPasswordManager": {
-    "message": "Gói đăng ký Password Manager miễn phí một năm của bạn sẽ được nâng cấp lên gói đã chọn. Bạn sẽ không bị tính phí cho đến khi thời gian miễn phí kết thúc."
+    "message": "Gói đăng ký Trình quản lý Mật khẩu miễn phí một năm của bạn sẽ được nâng cấp lên gói đã chọn. Bạn sẽ không bị tính phí cho đến khi thời gian miễn phí kết thúc."
   },
   "fileSavedToDevice": {
     "message": "Đã lưu file. Xem mục tải xuống trên thiết bị của bạn."
@@ -10704,7 +10701,7 @@
     "message": "Số ghế được chỉ định vượt quá số ghế có sẵn."
   },
   "userkeyRotationDisclaimerEmergencyAccessText": {
-    "message": "Cụm từ vân tay cho $NUM_USERS$ liên hệ mà bạn đã bật quyền truy cập khẩn cấp.",
+    "message": "Cụm từ xác thực cho $NUM_USERS$ liên hệ mà bạn đã bật quyền truy cập khẩn cấp.",
     "placeholders": {
       "num_users": {
         "content": "$1",
@@ -10713,7 +10710,7 @@
     }
   },
   "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
-    "message": "Cụm từ vân tay cho tổ chức $ORG_NAME$ mà bạn đã bật khôi phục tài khoản.",
+    "message": "Cụm từ xác thực cho tổ chức $ORG_NAME$ mà bạn đã bật khôi phục tài khoản.",
     "placeholders": {
       "org_name": {
         "content": "$1",

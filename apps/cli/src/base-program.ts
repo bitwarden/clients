@@ -129,7 +129,7 @@ export abstract class BaseProgram {
     if (!userId) {
       fail();
     }
-    const authed = await this.serviceContainer.stateService.getIsAuthenticated({ userId });
+    const authed = await firstValueFrom(this.serviceContainer.tokenService.hasAccessToken$(userId));
     if (!authed) {
       fail();
     }
