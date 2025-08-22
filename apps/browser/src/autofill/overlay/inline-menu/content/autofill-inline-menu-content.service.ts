@@ -293,6 +293,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     this.containerElementMutationObserver = new MutationObserver(
       this.handleContainerElementMutationObserverUpdate,
     );
+
+    this.observePageAttributes();
   };
 
   /**
@@ -300,9 +302,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * elements are not modified by the website.
    */
   private observeCustomElements() {
-    this.htmlMutationObserver?.observe(document.querySelector("html"), { attributes: true });
-    this.bodyMutationObserver?.observe(document.body, { attributes: true });
-
     if (this.buttonElement) {
       this.inlineMenuElementsMutationObserver?.observe(this.buttonElement, {
         attributes: true,
@@ -312,6 +311,20 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.listElement) {
       this.inlineMenuElementsMutationObserver?.observe(this.listElement, { attributes: true });
     }
+  }
+
+  /**
+   * Sets up mutation observers to verify that the page `html` and `body` attributes
+   * are not altered in a way that would impact safe display of the inline menu.
+   */
+  private observePageAttributes() {
+    this.htmlMutationObserver?.observe(document.querySelector("html"), { attributes: true });
+    this.bodyMutationObserver?.observe(document.body, { attributes: true });
+  }
+
+  private unobservePageAttributes() {
+    this.htmlMutationObserver?.disconnect();
+    this.bodyMutationObserver?.disconnect();
   }
 
   /**
@@ -443,12 +456,15 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private getPageIsOpaque = () => {
     // These are computed style values, so we don't need to worry about non-float values
     // for `opacity`, here
-    const htmlOpacity = globalThis.window.getComputedStyle(
-      globalThis.document.querySelector("html"),
-    ).opacity;
-    const bodyOpacity = globalThis.window.getComputedStyle(
-      globalThis.document.querySelector("body"),
-    ).opacity;
+    const htmlElement = globalThis.document.querySelector("html");
+    const bodyElement = globalThis.document.querySelector("body");
+
+    if (!htmlElement || !bodyElement) {
+      return false;
+    }
+
+    const htmlOpacity = globalThis.window.getComputedStyle(htmlElement)?.opacity || "0";
+    const bodyOpacity = globalThis.window.getComputedStyle(bodyElement)?.opacity || "0";
 
     // Any value above this is considered "opaque" for our purposes
     const opacityThreshold = 0.6;
@@ -607,5 +623,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   destroy() {
     this.closeInlineMenu();
     this.clearPersistentLastChildOverrideTimeout();
+    this.unobservePageAttributes();
   }
 }
