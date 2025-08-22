@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Turvavõtme lugemisel tekkis tõrge. Proovi uuesti."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Platvormide piirangute tõttu ei saa WebAuthn'i kõikide Bitwardeni rakendustega kasutada. Võiksid seada sisse teise kahe-astmelise kinnitamise meetodi juhuks, kui WebAuthn'i ei saa kasutada."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwardeni kaheastmelise logimise varukood"
   },

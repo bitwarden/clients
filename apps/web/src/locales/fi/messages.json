@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Suojausavainta luettaessa havaittiin ongelma. Yritä uudelleen."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Alustakohtaisten rajoitusten vuoksi WebAuthn-avaimet eivät ole käytettävissä kaikissa Bitwarden-sovelluksissa ja sinun tulisi määrittää vaihtoehtoinen kaksivaiheisen tunnistautumisen vahvistustapa, jotta pääset tilillesi myös silloin kun WebAuthn-laitteesi ei ole käytettävissä."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwardenin kaksivaiheisen kirjautumisen palautuskoodisi"
   },

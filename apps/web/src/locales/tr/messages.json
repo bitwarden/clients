@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Güvenlik anahtarını okurken bir sorun oluştu. Tekrar deneyin."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Platform sınırlamaları nedeniyle WebAuthn tüm Bitwarden uygulamalarında kullanılamaz. WebAuthn kullanılamadığında hesabınıza erişebilmek için başka bir iki aşamalı doğrulama yöntemi ayarlamanız gerekir."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden iki aşamalı giriş kurtarma kodunuz"
   },

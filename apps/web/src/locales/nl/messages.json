@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Er was een probleem met het lezen van de beveiligingssleutel. Probeer het nogmaals."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Vanwege platformbeperkingen kan WebAuthn niet in alle Bitwarden-applicaties gebruikt worden. Stel een andere tweestapsaanmeldingsaanbieder in zodat je je account kunt benaderen wanneer WebAuthn niet beschikbaar is."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Je herstelcode voor Bitwarden-tweestapsaanmelding"
   },
