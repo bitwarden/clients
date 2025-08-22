@@ -17,8 +17,6 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -26,6 +24,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { CipherArchiveService } from "@bitwarden/vault";
 
 import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
@@ -156,10 +155,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected toastService: ToastService,
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
-    protected configService: ConfigService,
     protected accountService: AccountService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherService: CipherService,
+    protected cipherArchiveService: CipherArchiveService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -250,17 +249,14 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
     // PM19148: Innovation Archive
-    if (
-      await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
-      )
-    ) {
+    if (await this.cipherArchiveService.userCanArchive(userId)) {
       builderFilter.archiveFilter = await this.addArchiveFilter();
     }
     builderFilter.trashFilter = await this.addTrashFilter();

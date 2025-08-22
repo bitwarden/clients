@@ -86,6 +86,8 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
+  CipherArchiveService,
+  DefaultCipherArchiveService,
 } from "@bitwarden/vault";
 
 import {
@@ -154,6 +156,10 @@ const SearchTextDebounceInterval = 200;
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
     DefaultCipherFormConfigService,
+    {
+      provide: CipherArchiveService,
+      useClass: DefaultCipherArchiveService,
+    },
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
