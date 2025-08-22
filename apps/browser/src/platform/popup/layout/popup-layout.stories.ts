@@ -4,6 +4,16 @@ import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import {
+  GeneratorActive,
+  GeneratorInactive,
+  SendActive,
+  SendInactive,
+  SettingsActive,
+  SettingsInactive,
+  VaultActive,
+  VaultInactive,
+} from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -13,7 +23,6 @@ import {
   BannerModule,
   ButtonModule,
   I18nMockService,
-  Icons,
   IconButtonModule,
   ItemModule,
   NoItemsModule,
@@ -404,26 +413,26 @@ const navButtons = (showBerry = false) => [
   {
     label: "vault",
     page: "/tabs/vault",
-    icon: Icons.VaultInactive,
-    iconActive: Icons.VaultActive,
+    icon: VaultInactive,
+    iconActive: VaultActive,
   },
   {
     label: "generator",
     page: "/tabs/generator",
-    icon: Icons.GeneratorInactive,
-    iconActive: Icons.GeneratorActive,
+    icon: GeneratorInactive,
+    iconActive: GeneratorActive,
   },
   {
     label: "send",
     page: "/tabs/send",
-    icon: Icons.SendInactive,
-    iconActive: Icons.SendActive,
+    icon: SendInactive,
+    iconActive: SendActive,
   },
   {
     label: "settings",
     page: "/tabs/settings",
-    icon: Icons.SettingsInactive,
-    iconActive: Icons.SettingsActive,
+    icon: SettingsInactive,
+    iconActive: SettingsActive,
     showBerry: showBerry,
   },
 ];
