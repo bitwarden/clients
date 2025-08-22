@@ -15,9 +15,23 @@ export interface RawBadgeState {
   icon: BadgeIcon;
 }
 
+export interface Tab {
+  tabId: number;
+  windowId: number;
+  url: string;
+}
+
+function tabFromChromeTab(tab: chrome.tabs.Tab): Tab {
+  return {
+    tabId: tab.id!,
+    windowId: tab.windowId,
+    url: tab.url!,
+  };
+}
+
 export interface BadgeBrowserApi {
   activeTab$: Observable<chrome.tabs.TabActiveInfo | undefined>;
-  // activeTabs$: Observable<chrome.tabs.Tab[]>;
+  activeTabsUpdated$: Observable<Tab[]>;
 
   setState(state: RawBadgeState, tabId?: number): Promise<void>;
   getTabs(): Promise<number[]>;
@@ -29,7 +43,45 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
   private sidebarAction = BrowserApi.getSidebarAction(self);
 
   private onTabActivated$ = fromChromeEvent(chrome.tabs.onActivated).pipe(
-    switchMap(async ([activeInfo]) => activeInfo),
+    map(([activeInfo]) => activeInfo),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  activeTabsUpdated$ = concat(
+    defer(async () => {
+      const tabs = await this.getActiveTabs();
+      return tabs
+        .filter((tab) => tab.id != undefined && tab.url != undefined)
+        .map((tab) => tabFromChromeTab(tab));
+    }),
+    merge(
+      this.onTabActivated$.pipe(
+        switchMap(async (activeInfo) => {
+          const tab = await BrowserApi.getTab(activeInfo.tabId);
+
+          if (tab == undefined || tab.id == undefined || tab.url == undefined) {
+            return [];
+          }
+
+          return [tabFromChromeTab(tab)];
+        }),
+      ),
+      fromChromeEvent(chrome.tabs.onUpdated).pipe(
+        filter(
+          ([_, changeInfo]) =>
+            // Only emit if the url was updated
+            changeInfo.url != undefined,
+        ),
+        map(([_tabId, _changeInfo, tab]) => [tabFromChromeTab(tab)]),
+      ),
+      fromChromeEvent(chrome.webNavigation.onCommitted).pipe(
+        map(([details]) => {
+          details.transitionType === "";
+        }),
+      ),
+    ),
+  ).pipe(
+    filter((tabs) => tabs.length > 0),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 

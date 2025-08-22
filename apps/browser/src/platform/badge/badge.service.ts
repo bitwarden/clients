@@ -26,6 +26,13 @@ const BADGE_STATES = new KeyDefinition(BADGE_MEMORY, "badgeStates", {
 export class BadgeService {
   private serviceState: GlobalState<Record<string, StateSetting>>;
 
+  /**
+   * An observable that emits whenever one or multiple tabs are updated and might need its state updated.
+   * Use this to know exactly which tabs to calculate the badge state for.
+   * This is not the same as `onActivated` which only emits when the active tab changes.
+   */
+  activeTabsUpdated$ = this.badgeApi.activeTab$;
+
   constructor(
     private stateProvider: StateProvider,
     private badgeApi: BadgeBrowserApi,
