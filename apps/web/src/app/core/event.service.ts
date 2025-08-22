@@ -808,18 +808,6 @@ export class EventService {
     }
     const a = this.makeAnchor(shortId);
     a.setAttribute("href", "#/organizations/" + ev.organizationId + "/members?search=" + shortId);
-=======
-    const a = this.makeAnchor(shortId);
-    a.setAttribute(
-      "href",
-      "#/sm/" +
-        ev.organizationId +
-        "/secrets?search=" +
-        shortId +
-        "&viewEvents=" +
-        ev.secretId +
-        "&type=all",
-    );
     return a.outerHTML;
   }
 
