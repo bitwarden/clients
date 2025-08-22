@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "セキュリティキーの読み取り中に問題が発生しました。もう一度やり直して下さい。"
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "プラットフォームの制限により、 WebAuthn は全ての Bitwarden アプリケーションで使用できるわけではありません。 WebAuthn が使用できない場合に備えて、他の2段階認証プロバイダーを設定しておくことをおすすめします。"
-  },
   "twoFactorRecoveryYourCode": {
     "message": "二段階認証のリカバリーコード"
   },

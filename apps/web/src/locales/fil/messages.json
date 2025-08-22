@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Nagkaproblema sa pagbabasa ng security key. Pakisubukan ulit."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Code pang-recover mo sa dalawang-hakbang na pag-log in sa Bitwarden"
   },

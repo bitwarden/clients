@@ -122,7 +122,7 @@
           type="button"
           bitIconButton="bwi-close"
           buttonType="muted"
-          appA11yTitle="{{ 'remove' | i18n }} {{ item.labelName }}"
+          label="{{ 'remove' | i18n }} {{ item.labelName }}"
           [disabled]="disabled"
           (click)="selectionList.deselectItem(item.id); handleBlur()"
         ></button>

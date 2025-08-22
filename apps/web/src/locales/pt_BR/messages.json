@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Houve um problema ao ler a chave de segurança. Tente novamente."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Devido as limitações da plataforma, o WebAuthn não pode ser usado em todos os aplicativos do Bitwarden. Configure outro provedor de login em duas etapas para poder acessar sua conta quando a WebAuthn não puder ser usada."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Seu código de recuperação de login em duas etapas do Bitwarden"
   },

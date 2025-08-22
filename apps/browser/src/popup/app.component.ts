@@ -28,13 +28,13 @@ import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { LogoutReason, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -102,7 +102,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private i18nService: I18nService,
     private router: Router,
-    private stateService: StateService,
+    private readonly tokenService: TokenService,
     private vaultBrowserStateService: VaultBrowserStateService,
     private cipherService: CipherService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -321,7 +321,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async clearComponentStates() {
-    if (!(await this.stateService.getIsAuthenticated())) {
+    if (this.activeUserId == null) {
+      return;
+    }
+    if (!(await firstValueFrom(this.tokenService.hasAccessToken$(this.activeUserId)))) {
       return;
     }
 

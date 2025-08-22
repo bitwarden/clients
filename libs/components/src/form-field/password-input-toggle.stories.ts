@@ -48,7 +48,7 @@ export const Default: Story = {
         <bit-form-field>
           <bit-label>Password</bit-label>
           <input bitInput type="password" />
-          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+          <button type="button" label="Toggle password visibility" bitIconButton bitSuffix bitPasswordInputToggle></button>
         </bit-form-field>
       </form>
     `,
@@ -63,7 +63,7 @@ export const Binding: Story = {
         <bit-form-field>
           <bit-label>Password</bit-label>
           <input bitInput type="password" />
-          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle [(toggled)]="toggled"></button>
+          <button type="button" label="Toggle password visibility" bitIconButton bitSuffix bitPasswordInputToggle [(toggled)]="toggled"></button>
         </bit-form-field>
   
         <label class="tw-text-main">
