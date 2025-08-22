@@ -48,13 +48,16 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
 
     if (isPasswordProtectedSshKey) {
       for (;;) {
-        const password = await this.getSshKeyPassword();
-        if (password === "" || password == null) {
+        const result = await this.getSshKeyPassword();
+        if (!result || result.password == null || result.password === "") {
           return null;
         }
 
         try {
-          parsedKey = import_ssh_key(key, password);
+          parsedKey = import_ssh_key(key, result.password);
+          // Carry user's remember preference and provided passphrase forward
+          (parsedKey as any).__rememberPassphrase = result.rememberPassphrase === true;
+          (parsedKey as any).__providedPassphrase = result.password;
           break;
         } catch (e) {
           const error = e as SshKeyImportError;
@@ -76,11 +79,19 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
       message: this.i18nService.t("sshKeyImported"),
     });
 
+    // If user opted to remember passphrase, persist it with the item; otherwise do not store it.
+    const remember = (parsedKey as any).__rememberPassphrase === true;
+    const provided = (parsedKey as any).__providedPassphrase as string | undefined;
+
     return new SshKeyData(
       new SshKeyApi({
         privateKey: parsedKey!.privateKey,
         publicKey: parsedKey!.publicKey,
         keyFingerprint: parsedKey!.fingerprint,
+        // Preserve metadata from SDK for fidelity and UX
+        originalPrivateKey: (parsedKey as any).originalPrivateKey,
+        isEncrypted: (parsedKey as any).isEncrypted,
+        sshKeyPassphrase: remember ? provided : undefined,
       }),
     );
   }
@@ -99,8 +110,8 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
     }
   }
 
-  private async getSshKeyPassword(): Promise<string | undefined> {
-    const dialog = this.dialogService.open<string>(SshKeyPasswordPromptComponent, {
+  private async getSshKeyPassword(): Promise<{ password: string; rememberPassphrase: boolean } | undefined> {
+    const dialog = this.dialogService.open<{ password: string; rememberPassphrase: boolean }>(SshKeyPasswordPromptComponent, {
       ariaModal: true,
     });
 
