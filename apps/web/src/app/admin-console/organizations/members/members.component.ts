@@ -114,7 +114,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected showUserManagementControls: Signal<boolean> = computed(
     () => this.organization()?.canManageUsers ?? false,
   );
-  protected billingMetadata$: Observable<OrganizationBillingMetadataResponse>;
+  protected _billingMetadata$: Observable<OrganizationBillingMetadataResponse> | undefined;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 66;
@@ -241,16 +241,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         takeUntilDestroyed(),
       )
       .subscribe();
-
-    this.billingMetadata$ = organization$.pipe(
-      switchMap((organization) =>
-        this.billingApiService.getOrganizationBillingMetadata(organization.id),
-      ),
-      catchError((error: unknown) => {
-        this.logService.error("Failed to load billing metadata", error);
-        return of();
-      }),
-    );
 
     organization$
       .pipe(
@@ -552,9 +542,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         organizationId: organization.id,
         allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
         occupiedSeatCount:
-          (await firstValueFrom(this.billingMetadata$)).organizationOccupiedSeats ?? 0,
+          (await firstValueFrom(this.getBillingMetadata(organization))).organizationOccupiedSeats ??
+          0,
         isOnSecretsManagerStandalone:
-          (await firstValueFrom(this.billingMetadata$)).isOnSecretsManagerStandalone ?? false,
+          (await firstValueFrom(this.getBillingMetadata(organization)))
+            .isOnSecretsManagerStandalone ?? false,
       },
     });
 
@@ -588,7 +580,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   async invite(organization: Organization) {
     if (
       organization.hasReseller &&
-      organization.seats === (await firstValueFrom(this.billingMetadata$)).organizationOccupiedSeats
+      organization.seats ===
+        (await firstValueFrom(this.getBillingMetadata(organization))).organizationOccupiedSeats
     ) {
       this.toastService.showToast({
         variant: "error",
@@ -600,7 +593,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     if (
-      (await firstValueFrom(this.billingMetadata$)).organizationOccupiedSeats ===
+      (await firstValueFrom(this.getBillingMetadata(organization))).organizationOccupiedSeats ===
         organization.seats &&
       isFixedSeatPlan(organization.productTierType)
     ) {
@@ -625,7 +618,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone:
-          (await firstValueFrom(this.billingMetadata$)).isOnSecretsManagerStandalone ?? false,
+          (await firstValueFrom(this.getBillingMetadata(organization)))
+            .isOnSecretsManagerStandalone ?? false,
         initialTab: initialTab,
         managedByOrganization: user.managedByOrganization,
       },
@@ -975,5 +969,22 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     await this.router.navigate(["organizations", `${organization.id}`, "billing", route], {
       state: { launchPaymentModalAutomatically: true },
     });
+  }
+
+  private getBillingMetadata(
+    organization: Organization,
+  ): Observable<OrganizationBillingMetadataResponse> {
+    if (this._billingMetadata$ == null) {
+      this._billingMetadata$ = from(
+        this.billingApiService.getOrganizationBillingMetadata(organization.id),
+      ).pipe(
+        catchError((error: unknown) => {
+          this.logService.error("Failed to load billing metadata", error);
+          return of();
+        }),
+      );
+    }
+
+    return this._billingMetadata$;
   }
 }
