@@ -2026,7 +2026,7 @@ export class CipherService implements CipherServiceAbstraction {
   private async decryptCiphersWithSdk(
     ciphers: Cipher[],
     userId: UserId,
-  ): Promise<CipherView[], CipherView[]> {
+  ): Promise<[CipherView[], CipherView[]]> {
     const [decrypted, failures] = await this.cipherEncryptionService.decryptManyWithFailures(
       ciphers,
       userId,
