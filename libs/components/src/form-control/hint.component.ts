@@ -8,7 +8,6 @@ let nextId = 0;
   host: {
     class: "tw-text-muted tw-font-normal tw-inline-block tw-mt-1 tw-text-xs",
   },
-  standalone: true,
 })
 export class BitHintComponent {
   @HostBinding() id = `bit-hint-${nextId++}`;

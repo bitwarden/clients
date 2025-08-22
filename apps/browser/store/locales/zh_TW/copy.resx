@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - 免費密碼管理工具</value>
+    <value>Bitwarden 密碼管理工具</value>
   </data>
   <data name="Summary" xml:space="preserve">
     <value>無論在家、在辦公或在途中，Bitwarden 都能輕易的保護你的密碼、登入金鑰和敏感資訊。</value>

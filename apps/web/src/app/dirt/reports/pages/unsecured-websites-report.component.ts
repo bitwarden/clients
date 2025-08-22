@@ -10,6 +10,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/components/vault-item-dialog/vault-item-dialog.component";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
@@ -92,5 +93,21 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
   protected canManageCipher(c: CipherView): boolean {
     // this will only ever be false from the org view;
     return true;
+  }
+
+  async determinedUpdatedCipherReportStatus(
+    result: VaultItemDialogResult,
+    updatedCipherView: CipherView,
+  ): Promise<CipherView | null> {
+    if (result === VaultItemDialogResult.Deleted) {
+      return null;
+    }
+
+    // If the cipher still contains unsecured URIs, return it as is
+    if (this.cipherContainsUnsecured(updatedCipherView)) {
+      return updatedCipherView;
+    }
+
+    return null;
   }
 }

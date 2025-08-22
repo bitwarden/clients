@@ -14,7 +14,6 @@ import {
 @Component({
   selector: "vault-carousel-slide",
   templateUrl: "./carousel-slide.component.html",
-  standalone: true,
   imports: [CommonModule],
 })
 export class VaultCarouselSlideComponent implements OnInit {

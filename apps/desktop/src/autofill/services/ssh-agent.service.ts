@@ -63,9 +63,16 @@ export class SshAgentService implements OnDestroy {
   ) {}
 
   async init() {
-    if (!(await ipc.platform.sshAgent.isLoaded())) {
-      await ipc.platform.sshAgent.init();
-    }
+    this.desktopSettingsService.sshAgentEnabled$
+      .pipe(
+        concatMap(async (enabled) => {
+          if (!(await ipc.platform.sshAgent.isLoaded()) && enabled) {
+            await ipc.platform.sshAgent.init();
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     await this.initListeners();
   }

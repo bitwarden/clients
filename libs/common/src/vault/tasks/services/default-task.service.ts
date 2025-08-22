@@ -15,11 +15,9 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { NotificationType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -43,20 +41,14 @@ export class DefaultTaskService implements TaskService {
     private stateProvider: StateProvider,
     private apiService: ApiService,
     private organizationService: OrganizationService,
-    private configService: ConfigService,
     private authService: AuthService,
-    private notificationService: NotificationsService,
+    private notificationService: ServerNotificationsService,
     private messageListener: MessageListener,
   ) {}
 
   tasksEnabled$ = perUserCache$((userId) => {
-    return combineLatest([
-      this.organizationService
-        .organizations$(userId)
-        .pipe(map((orgs) => orgs.some((o) => o.useRiskInsights))),
-      this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks),
-    ]).pipe(
-      map(([atLeastOneOrgEnabled, flagEnabled]) => atLeastOneOrgEnabled && flagEnabled),
+    return this.organizationService.organizations$(userId).pipe(
+      map((orgs) => orgs.some((o) => o.useRiskInsights)),
       distinctUntilChanged(),
     );
   });
@@ -160,7 +152,7 @@ export class DefaultTaskService implements TaskService {
     return this.notificationService.notifications$.pipe(
       filter(
         ([notification, userId]) =>
-          notification.type === NotificationType.PendingSecurityTasks &&
+          notification.type === NotificationType.RefreshSecurityTasks &&
           filterByUserIds.includes(userId),
       ),
       map(([, userId]) => userId),
@@ -179,7 +171,7 @@ export class DefaultTaskService implements TaskService {
   }
 
   /**
-   * Creates a subscription for pending security task notifications or completed syncs for unlocked users.
+   * Creates a subscription for pending security task server notifications or completed syncs for unlocked users.
    */
   listenForTaskNotifications(): Subscription {
     return this.authService.authStatuses$

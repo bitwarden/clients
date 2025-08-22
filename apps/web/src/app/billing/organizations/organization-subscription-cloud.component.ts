@@ -5,6 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { SubscriptionHiddenIcon } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -39,7 +40,6 @@ import {
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
 import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
-import { SubscriptionHiddenIcon } from "./icons/subscription-hidden.icon";
 import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
 
 @Component({
@@ -496,9 +496,10 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   get showChangePlanButton() {
     return (
-      !this.showChangePlan &&
-      this.sub.plan.productTier !== ProductTierType.Enterprise &&
-      !this.sub.subscription?.cancelled
+      (!this.showChangePlan &&
+        this.sub.plan.productTier !== ProductTierType.Enterprise &&
+        !this.sub.subscription?.cancelled) ||
+      (this.sub.subscription?.cancelled && this.sub.plan.productTier === ProductTierType.Free)
     );
   }
 

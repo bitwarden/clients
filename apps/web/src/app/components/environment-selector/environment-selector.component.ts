@@ -15,7 +15,6 @@ import { SharedModule } from "../../shared";
 @Component({
   selector: "environment-selector",
   templateUrl: "environment-selector.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class EnvironmentSelectorComponent implements OnInit {

@@ -3,6 +3,8 @@ import { NgModule } from "@angular/core";
 
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
+import { ScrollLayoutDirective } from "@bitwarden/components";
+import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
 import { LooseComponentsModule } from "../../../shared";
 import { SharedOrganizationModule } from "../shared";
@@ -14,7 +16,6 @@ import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
 import { UserDialogModule } from "./components/member-dialog";
-import { ResetPasswordComponent } from "./components/reset-password.component";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
 
@@ -27,6 +28,8 @@ import { MembersComponent } from "./members.component";
     PasswordCalloutComponent,
     ScrollingModule,
     PasswordStrengthV2Component,
+    ScrollLayoutDirective,
+    OrganizationFreeTrialWarningComponent,
   ],
   declarations: [
     BulkConfirmDialogComponent,
@@ -35,7 +38,6 @@ import { MembersComponent } from "./members.component";
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
     MembersComponent,
-    ResetPasswordComponent,
     BulkDeleteDialogComponent,
   ],
 })

@@ -6,6 +6,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { ButtonModule } from "../button";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -19,6 +20,7 @@ const toastServiceExampleTemplate = `
 @Component({
   selector: "toast-service-example",
   template: toastServiceExampleTemplate,
+  imports: [ButtonModule],
 })
 export class ToastServiceExampleComponent {
   @Input()
@@ -33,8 +35,13 @@ export default {
 
   decorators: [
     moduleMetadata({
-      imports: [CommonModule, BrowserAnimationsModule, ButtonModule, ToastModule],
-      declarations: [ToastServiceExampleComponent],
+      imports: [
+        CommonModule,
+        BrowserAnimationsModule,
+        ButtonModule,
+        ToastModule,
+        ToastServiceExampleComponent,
+      ],
     }),
     applicationConfig({
       providers: [
@@ -75,11 +82,22 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width]">
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="success"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="info"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="warning"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="error"></bit-toast>
+      <div class="tw-min-w tw-max-w-[--bit-toast-width]">
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)}></bit-toast>
+      </div>
+    `,
+  }),
+};
+
+export const Variants: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width] tw-gap-2">
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="success"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="info"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="warning"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="error"></bit-toast>
       </div>
     `,
   }),
@@ -93,8 +111,8 @@ export const LongContent: Story = {
   args: {
     title: "Foo",
     message: [
-      "Lorem ipsum dolor sit amet, consectetur adipisci",
-      "Lorem ipsum dolor sit amet, consectetur adipisci",
+      "Maecenas commodo posuere quam, vel malesuada nulla accumsan ac.",
+      "Pellentesque interdum ligula ante, eget bibendum ante lacinia congue.",
     ],
   },
 };

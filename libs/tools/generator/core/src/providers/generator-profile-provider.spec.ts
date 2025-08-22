@@ -172,7 +172,7 @@ describe("GeneratorProfileProvider", () => {
       await awaitAsync();
       const result = await firstValueFrom(stateProvider.getUserState$(SettingsKey, SomeUser));
 
-      expect(result).toEqual({ foo: "next value" });
+      expect(result).toMatchObject({ foo: "next value" });
     });
 
     it("waits for the user to become available", async () => {

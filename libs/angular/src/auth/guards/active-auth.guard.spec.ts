@@ -13,7 +13,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 
 import { activeAuthGuard } from "./active-auth.guard";
 
-@Component({ template: "" })
+@Component({ template: "", standalone: false })
 class EmptyComponent {}
 
 describe("activeAuthGuard", () => {

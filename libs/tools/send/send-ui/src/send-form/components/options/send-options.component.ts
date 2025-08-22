@@ -36,7 +36,6 @@ import { SendFormContainer } from "../../send-form-container";
 @Component({
   selector: "tools-send-options",
   templateUrl: "./send-options.component.html",
-  standalone: true,
   imports: [
     AsyncActionsModule,
     ButtonModule,

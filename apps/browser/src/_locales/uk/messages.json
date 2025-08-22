@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Пошук"
   },
+  "resetSearch": {
+    "message": "Скинути пошук"
+  },
   "edit": {
     "message": "Змінити"
   },
@@ -1072,7 +1075,7 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationNewItemAria": {
-    "message": "New Item, opens in new window",
+    "message": "Новий запис, відкривається у новому вікні",
     "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
   },
   "notificationEditTooltip": {
@@ -1093,15 +1096,15 @@
     }
   },
   "notificationLoginSaveConfirmation": {
-    "message": "saved to Bitwarden.",
+    "message": "збережено до Bitwarden.",
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
-    "message": "updated in Bitwarden.",
+    "message": "оновлено в Bitwarden.",
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "message": "Вибрати $ITEMTYPE$, $ITEMNAME$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1121,7 +1124,7 @@
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "Розблокуйте, щоб зберегти цей запис",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "На жаль, не вдається зберегти. Введіть дані вручну.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "Після зміни пароля потрібно буде ввійти в систему з новим паролем. Активні сеанси на інших пристроях буде завершено протягом години."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Змініть свій головний пароль, щоб завершити відновлення облікового запису."
   },
   "enableChangedPasswordNotification": {
     "message": "Запитувати про оновлення запису"
@@ -1360,13 +1369,13 @@
     "message": "Оберіть файл"
   },
   "maxFileSize": {
-    "message": "Максимальний розмір файлу 500 Мб."
+    "message": "Максимальний розмір файлу 500 МБ."
   },
   "featureUnavailable": {
     "message": "Функція недоступна"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Потрібно перенести ключ шифрування. Увійдіть у вебсховище та оновіть свій ключ шифрування."
+  "legacyEncryptionUnsupported": {
+    "message": "Застаріле шифрування більше не підтримується. Зверніться до служби підтримки, щоб відновити обліковий запис."
   },
   "premiumMembership": {
     "message": "Преміум статус"
@@ -1823,6 +1832,9 @@
   "securityCode": {
     "message": "Код безпеки"
   },
+  "cardNumber": {
+    "message": "номер картки"
+  },
   "ex": {
     "message": "зразок"
   },
@@ -1921,6 +1933,9 @@
   },
   "typeSshKey": {
     "message": "Ключ SSH"
+  },
+  "typeNote": {
+    "message": "Нотатка"
   },
   "newItemHeader": {
     "message": "Новий $TYPE$",
@@ -2042,7 +2057,7 @@
     "message": "Починається з"
   },
   "regEx": {
-    "message": "Звичайний вираз",
+    "message": "Регулярний вираз",
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
@@ -2153,8 +2168,8 @@
   "setYourPinCode": {
     "message": "Встановіть PIN-код для розблокування Bitwarden. Налаштування PIN-коду будуть скинуті, якщо ви коли-небудь повністю вийдете з програми."
   },
-  "setYourPinCode1": {
-    "message": "PIN-код буде використовуватися для розблокування Bitwarden замість головного пароля. У разі повного виходу з Bitwarden, ваш PIN-код буде скинуто."
+  "setPinCode": {
+    "message": "Ви можете використовувати цей PIN-код для розблокування Bitwarden. PIN-код буде скинуто, якщо ви вийдете з програми."
   },
   "pinRequired": {
     "message": "Необхідний PIN-код."
@@ -2203,6 +2218,9 @@
   },
   "useThisPassword": {
     "message": "Використати цей пароль"
+  },
+  "useThisPassphrase": {
+    "message": "Використати цю парольну фразу"
   },
   "useThisUsername": {
     "message": "Використати це ім'я користувача"
@@ -2481,6 +2499,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Політика організації заблокувала імпортування записів до вашого особистого сховища."
   },
+  "restrictCardTypeImport": {
+    "message": "Не вдається імпортувати записи карток"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Політика принаймні однієї організації не дозволяє вам імпортувати записи карток до сховища."
+  },
   "domainsTitle": {
     "message": "Домени",
     "description": "A category title describing the concept of web domains"
@@ -2512,6 +2536,10 @@
   "change": {
     "message": "Змінити"
   },
+  "changePassword": {
+    "message": "Змінити пароль",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Змінити пароль – $ITEMNAME$",
     "placeholders": {
@@ -2520,6 +2548,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "Ризикований пароль"
   },
   "atRiskPasswords": {
     "message": "Ризиковані паролі"
@@ -2554,6 +2585,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Пароль для цього сайту ризикований. Організація $ORGANIZATION$ попросила вас змінити його.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ хоче, щоб ви змінили цей пароль, тому що він ризикований. Перейдіть до налаштувань облікового запису, щоб змінити пароль.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Перегляньте і змініть один ризикований пароль"
@@ -2673,6 +2724,10 @@
   "allSends": {
     "message": "Усі відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Досягнуто максимальної кількості доступів",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Типово приховувати текст"
@@ -2876,6 +2931,9 @@
   "emailVerificationRequiredDesc": {
     "message": "Для використання цієї функції необхідно підтвердити електронну пошту. Ви можете виконати підтвердження у вебсховищі."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Головний пароль успішно встановлено"
+  },
   "updatedMasterPassword": {
     "message": "Головний пароль оновлено"
   },
@@ -3015,13 +3073,13 @@
     "message": "Не знайдено унікальний ідентифікатор."
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "Головний пароль більше не є обов'язковим для учасників зазначеної організації. Підтвердьте вказаний нижче домен з адміністратором вашої організації."
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Назва організації"
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "Домен Key Connector"
   },
   "leaveOrganization": {
     "message": "Покинути організацію"
@@ -3408,6 +3466,31 @@
   "logInRequestSent": {
     "message": "Запит надіслано"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Запит входу підтверджено для $EMAIL$ на $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були ви, спробуйте ввійти з пристроєм знову."
+  },
+  "device": {
+    "message": "Пристрій"
+  },
+  "loginStatus": {
+    "message": "Стан входу в систему"
+  },
+  "masterPasswordChanged": {
+    "message": "Головний пароль збережено"
+  },
   "exposedMasterPassword": {
     "message": "Головний пароль викрито"
   },
@@ -3501,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Запам'ятайте цей пристрій, щоб спростити майбутні входи в систему"
   },
+  "manageDevices": {
+    "message": "Керувати пристроями"
+  },
+  "currentSession": {
+    "message": "Поточний сеанс"
+  },
+  "mobile": {
+    "message": "Мобільний",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Розширення",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Комп'ютер",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Вебсховище"
+  },
+  "webApp": {
+    "message": "Вебпрограма"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Запит в очікуванні"
+  },
+  "firstLogin": {
+    "message": "Перший вхід"
+  },
+  "trusted": {
+    "message": "Надійний"
+  },
+  "needsApproval": {
+    "message": "Потребує підтвердження"
+  },
+  "devices": {
+    "message": "Пристрої"
+  },
+  "accessAttemptBy": {
+    "message": "Спроба доступу з $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Підтвердити доступ"
+  },
+  "denyAccess": {
+    "message": "Заборонити доступ"
+  },
+  "time": {
+    "message": "Час"
+  },
+  "deviceType": {
+    "message": "Тип пристрою"
+  },
+  "loginRequest": {
+    "message": "Запит входу"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Цей запит більше недійсний."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Термін дії запиту на вхід завершився."
+  },
+  "justNow": {
+    "message": "Щойно"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Запитано $MINUTES$ хвилин тому",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Необхідне підтвердження пристрою. Виберіть варіант підтвердження нижче:"
   },
@@ -3521,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "Запит підтвердження адміністратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Не вдалося завершити вхід"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Ви повинні ввійти до системи на довіреному пристрої або попросити адміністратора призначити вам пароль."
   },
   "ssoIdentifierRequired": {
     "message": "Потрібен SSO-ідентифікатор організації."
@@ -3607,20 +3784,12 @@
   "trustUser": {
     "message": "Довіряти користувачу"
   },
-  "sendsNoItemsTitle": {
-    "message": "Немає активних відправлень",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Використовуйте відправлення, щоб безпечно надавати доступ іншим до зашифрованої інформації.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Безпечно надсилайте конфіденційну інформацію",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Безпечно діліться файлами й даними з ким завгодно, на будь-якій платформі. Ваша інформація наскрізно зашифрована та має обмежений доступ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4209,6 +4378,26 @@
     "message": "Поширені формати",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Виявлення збігів URI – це спосіб ідентифікації пропозицій автозаповнення Bitwarden.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "Регулярний вираз – це функція, що має підвищений ризик розкриття облікових даних, призначена для досвідчених користувачів.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Починається з\" – це функція, що має підвищений ризик розкриття облікових даних, призначена для досвідчених користувачів.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Докладніше про виявлення збігів",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Додаткові налаштування",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Відкрити налаштування браузера?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4392,17 +4581,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Копіювати $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Копіювати $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5028,13 +5217,16 @@
     "message": "Біометричне розблокування зараз недоступне з невідомої причини."
   },
   "unlockVault": {
-    "message": "Unlock your vault in seconds"
+    "message": "Розблоковуйте сховище за секунди"
   },
   "unlockVaultDesc": {
-    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+    "message": "Ви можете налаштувати розблокування і час очікування для швидшого доступу до сховища."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "Розблокування PIN-кодом встановлено"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Біометричне розблокування налаштовано"
   },
   "authenticating": {
     "message": "Аутентифікація"
@@ -5286,7 +5478,7 @@
     "message": "Зберігайте скільки завгодно паролів на необмеженій кількості пристроїв, використовуючи Bitwarden для мобільних пристроїв, браузерів та комп'ютерів."
   },
   "nudgeBadgeAria": {
-    "message": "1 notification"
+    "message": "1 сповіщення"
   },
   "emptyVaultNudgeTitle": {
     "message": "Імпортуйте наявні паролі"
@@ -5301,13 +5493,13 @@
     "message": "Вітаємо у вашому сховищі!"
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "Автозаповнення записів для поточної сторінки"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "Обрані записи для швидкого доступу"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "Пошук інших елементів у сховищі"
   },
   "newLoginNudgeTitle": {
     "message": "Заощаджуйте час з автозаповненням"
@@ -5359,23 +5551,33 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Швидко створюйте паролі"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Легко створюйте надійні та унікальні паролі, натиснувши на",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "щоб зберегти свої записи в безпеці.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Легко створюйте надійні та унікальні паролі, натиснувши кнопку Генерувати пароль, щоб зберегти свої записи в безпеці.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
-    "message": "You do not have permissions to view this page. Try logging in with a different account."
+    "message": "У вас немає дозволу переглядати цю сторінку. Спробуйте ввійти з іншим обліковим записом."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly не підтримується або не ввімкнено у вашому браузері. WebAssembly є обов'язковою вимогою для програми Bitwarden.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Розгорнути"
+  },
+  "showLess": {
+    "message": "Згорнути"
   }
 }

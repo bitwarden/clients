@@ -1,40 +1,46 @@
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
-export type FilterFunction = (cipher: CipherView) => boolean;
+export type FilterFunction = (cipher: CipherViewLike) => boolean;
 
 export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunction {
   return (cipher) => {
+    const type = CipherViewLikeUtils.getType(cipher);
+    const isDeleted = CipherViewLikeUtils.isDeleted(cipher);
+
     if (filter.type === "favorites" && !cipher.favorite) {
       return false;
     }
-    if (filter.type === "card" && cipher.type !== CipherType.Card) {
+    if (filter.type === "card" && type !== CipherType.Card) {
       return false;
     }
-    if (filter.type === "identity" && cipher.type !== CipherType.Identity) {
+    if (filter.type === "identity" && type !== CipherType.Identity) {
       return false;
     }
-    if (filter.type === "login" && cipher.type !== CipherType.Login) {
+    if (filter.type === "login" && type !== CipherType.Login) {
       return false;
     }
-    if (filter.type === "note" && cipher.type !== CipherType.SecureNote) {
+    if (filter.type === "note" && type !== CipherType.SecureNote) {
       return false;
     }
-    if (filter.type === "sshKey" && cipher.type !== CipherType.SshKey) {
+    if (filter.type === "sshKey" && type !== CipherType.SshKey) {
       return false;
     }
-    if (filter.type === "trash" && !cipher.isDeleted) {
+    if (filter.type === "trash" && !isDeleted) {
       return false;
     }
     // Hide trash unless explicitly selected
-    if (filter.type !== "trash" && cipher.isDeleted) {
+    if (filter.type !== "trash" && isDeleted) {
       return false;
     }
     // No folder
-    if (filter.folderId === Unassigned && cipher.folderId !== null) {
+    if (filter.folderId === Unassigned && cipher.folderId != null) {
       return false;
     }
     // Folder
@@ -63,7 +69,7 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
       filter.collectionId !== undefined &&
       filter.collectionId !== All &&
       filter.collectionId !== Unassigned &&
-      (cipher.collectionIds == null || !cipher.collectionIds.includes(filter.collectionId))
+      (cipher.collectionIds == null || !cipher.collectionIds.includes(filter.collectionId as any))
     ) {
       return false;
     }

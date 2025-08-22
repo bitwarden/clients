@@ -14,7 +14,6 @@ import { SharedModule } from "../../../shared";
 
 @Component({
   templateUrl: "delete-account-dialog.component.html",
-  standalone: true,
   imports: [SharedModule, UserVerificationFormInputComponent],
 })
 export class DeleteAccountDialogComponent {

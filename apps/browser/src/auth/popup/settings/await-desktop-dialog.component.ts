@@ -5,7 +5,6 @@ import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components
 
 @Component({
   templateUrl: "await-desktop-dialog.component.html",
-  standalone: true,
   imports: [JslibModule, ButtonModule, DialogModule],
 })
 export class AwaitDesktopDialogComponent {

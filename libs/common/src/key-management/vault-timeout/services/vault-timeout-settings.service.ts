@@ -16,10 +16,7 @@ import {
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  PinServiceAbstraction,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";
@@ -33,6 +30,7 @@ import { TokenService } from "../../../auth/abstractions/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
+import { PinServiceAbstraction } from "../../pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
@@ -92,7 +90,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       clientSecret,
     ]);
 
-    await this.keyService.refreshAdditionalKeys();
+    await this.keyService.refreshAdditionalKeys(userId);
   }
 
   availableVaultTimeoutActions$(userId?: string): Observable<VaultTimeoutAction[]> {

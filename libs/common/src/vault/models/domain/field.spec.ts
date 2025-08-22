@@ -1,6 +1,14 @@
+import {
+  Field as SdkField,
+  FieldType,
+  LoginLinkedIdType,
+  CardLinkedIdType,
+  IdentityLinkedIdType,
+} from "@bitwarden/sdk-internal";
+
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { CardLinkedId, FieldType, IdentityLinkedId, LoginLinkedId } from "../../enums";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { CardLinkedId, IdentityLinkedId, LoginLinkedId } from "../../enums";
 import { FieldData } from "../../models/data/field.data";
 import { Field } from "../../models/domain/field";
 
@@ -102,6 +110,35 @@ describe("Field", () => {
       identityField.type = FieldType.Linked;
       identityField.linkedId = IdentityLinkedId.LicenseNumber;
       expect(identityField.toSdkField().linkedId).toBe(415);
+    });
+
+    it("should map from SDK Field", () => {
+      // Test Login LinkedId
+      const loginField: SdkField = {
+        name: undefined,
+        value: undefined,
+        type: FieldType.Linked,
+        linkedId: LoginLinkedIdType.Username,
+      };
+      expect(Field.fromSdkField(loginField)!.linkedId).toBe(100);
+
+      // Test Card LinkedId
+      const cardField: SdkField = {
+        name: undefined,
+        value: undefined,
+        type: FieldType.Linked,
+        linkedId: CardLinkedIdType.Number,
+      };
+      expect(Field.fromSdkField(cardField)!.linkedId).toBe(305);
+
+      // Test Identity LinkedId
+      const identityFieldSdkField: SdkField = {
+        name: undefined,
+        value: undefined,
+        type: FieldType.Linked,
+        linkedId: IdentityLinkedIdType.LicenseNumber,
+      };
+      expect(Field.fromSdkField(identityFieldSdkField)!.linkedId).toBe(415);
     });
   });
 });

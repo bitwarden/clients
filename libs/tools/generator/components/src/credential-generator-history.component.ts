@@ -27,7 +27,6 @@ import { GeneratorModule } from "./generator.module";
 import { translate } from "./util";
 
 @Component({
-  standalone: true,
   selector: "bit-credential-generator-history",
   templateUrl: "credential-generator-history.component.html",
   imports: [

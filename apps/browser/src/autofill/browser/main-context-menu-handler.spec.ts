@@ -1,7 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import {
   AUTOFILL_CARD_ID,
   AUTOFILL_ID,
@@ -17,11 +18,14 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { MainContextMenuHandler } from "./main-context-menu-handler";
 
@@ -63,12 +67,14 @@ const createCipher = (data?: {
 };
 
 describe("context-menu", () => {
-  let stateService: MockProxy<StateService>;
+  let tokenService: MockProxy<TokenService>;
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let accountService: MockProxy<AccountService>;
+  let restricted$: BehaviorSubject<RestrictedCipherType[]>;
+  let restrictedItemTypesService: RestrictedItemTypesService;
 
   let removeAllSpy: jest.SpyInstance<void, [callback?: () => void]>;
   let createSpy: jest.SpyInstance<
@@ -79,12 +85,16 @@ describe("context-menu", () => {
   let sut: MainContextMenuHandler;
 
   beforeEach(() => {
-    stateService = mock();
+    tokenService = mock();
     autofillSettingsService = mock();
     i18nService = mock();
     logService = mock();
     billingAccountProfileStateService = mock();
     accountService = mock();
+    restricted$ = new BehaviorSubject<RestrictedCipherType[]>([]);
+    restrictedItemTypesService = {
+      restricted$,
+    } as Partial<RestrictedItemTypesService> as RestrictedItemTypesService;
 
     removeAllSpy = jest
       .spyOn(chrome.contextMenus, "removeAll")
@@ -99,12 +109,13 @@ describe("context-menu", () => {
 
     i18nService.t.mockImplementation((key) => key);
     sut = new MainContextMenuHandler(
-      stateService,
+      tokenService,
       autofillSettingsService,
       i18nService,
       logService,
       billingAccountProfileStateService,
       accountService,
+      restrictedItemTypesService,
     );
 
     jest.spyOn(MainContextMenuHandler, "remove");
@@ -146,6 +157,24 @@ describe("context-menu", () => {
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
       expect(createSpy).toHaveBeenCalledTimes(11);
+    });
+
+    it("has menu enabled and has premium, but card type is restricted", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+
+      restricted$.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+
+      const createdMenu = await sut.init();
+      expect(createdMenu).toBeTruthy();
+      expect(createSpy).toHaveBeenCalledTimes(10);
+    });
+    it("has menu enabled, does not have premium, and card type is restricted", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      restricted$.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+
+      const createdMenu = await sut.init();
+      expect(createdMenu).toBeTruthy();
+      expect(createSpy).toHaveBeenCalledTimes(9);
     });
   });
 
@@ -247,7 +276,7 @@ describe("context-menu", () => {
     it("removes menu items that require code injection", async () => {
       billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
       autofillSettingsService.enableContextMenu$ = of(true);
-      stateService.getIsAuthenticated.mockResolvedValue(true);
+      tokenService.hasAccessToken$.mockReturnValue(of(true));
 
       const optionId = "1";
       await sut.loadOptions("TEST_TITLE", optionId, createCipher());
@@ -288,7 +317,7 @@ describe("context-menu", () => {
     });
 
     it("Loads context menu items that ask the user to unlock their vault if they are authed", async () => {
-      stateService.getIsAuthenticated.mockResolvedValue(true);
+      tokenService.hasAccessToken$.mockReturnValue(of(true));
 
       await sut.noAccess();
 
@@ -296,7 +325,7 @@ describe("context-menu", () => {
     });
 
     it("Loads context menu items that ask the user to login to their vault if they are not authed", async () => {
-      stateService.getIsAuthenticated.mockResolvedValue(false);
+      tokenService.hasAccessToken$.mockReturnValue(of(false));
 
       await sut.noAccess();
 

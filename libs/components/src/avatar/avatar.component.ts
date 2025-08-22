@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { Component, Input, OnChanges } from "@angular/core";
+import { Component, OnChanges, input } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -9,34 +7,39 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
 
 const SizeClasses: Record<SizeTypes, string[]> = {
-  xlarge: ["tw-h-24", "tw-w-24"],
-  large: ["tw-h-16", "tw-w-16"],
-  default: ["tw-h-10", "tw-w-10"],
-  small: ["tw-h-7", "tw-w-7"],
-  xsmall: ["tw-h-6", "tw-w-6"],
+  xlarge: ["tw-h-24", "tw-w-24", "tw-min-w-24"],
+  large: ["tw-h-16", "tw-w-16", "tw-min-w-16"],
+  default: ["tw-h-10", "tw-w-10", "tw-min-w-10"],
+  small: ["tw-h-7", "tw-w-7", "tw-min-w-7"],
+  xsmall: ["tw-h-6", "tw-w-6", "tw-min-w-6"],
 };
 
+/**
+  * Avatars display a unique color that helps a user visually recognize their logged in account.
+
+  * A variance in color across the avatar component is important as it is used in Account Switching as a
+  * visual indicator to recognize which of a personal or work account a user is logged into.
+*/
 @Component({
   selector: "bit-avatar",
   template: `@if (src) {
-    <img [src]="src" title="{{ title || text }}" [ngClass]="classList" />
+    <img [src]="src" title="{{ title() || text() }}" [ngClass]="classList" />
   }`,
-  standalone: true,
   imports: [NgClass],
 })
 export class AvatarComponent implements OnChanges {
-  @Input() border = false;
-  @Input() color?: string;
-  @Input() id?: string;
-  @Input() text?: string;
-  @Input() title: string;
-  @Input() size: SizeTypes = "default";
+  readonly border = input(false);
+  readonly color = input<string>();
+  readonly id = input<string>();
+  readonly text = input<string>();
+  readonly title = input<string>();
+  readonly size = input<SizeTypes>("default");
 
   private svgCharCount = 2;
   private svgFontSize = 20;
   private svgFontWeight = 300;
   private svgSize = 48;
-  src: SafeResourceUrl;
+  src?: SafeResourceUrl;
 
   constructor(public sanitizer: DomSanitizer) {}
 
@@ -45,14 +48,20 @@ export class AvatarComponent implements OnChanges {
   }
 
   get classList() {
-    return ["tw-rounded-full"]
-      .concat(SizeClasses[this.size] ?? [])
-      .concat(this.border ? ["tw-border", "tw-border-solid", "tw-border-secondary-600"] : []);
+    return ["tw-rounded-full", "tw-inline"]
+      .concat(SizeClasses[this.size()] ?? [])
+      .concat(this.border() ? ["tw-border", "tw-border-solid", "tw-border-secondary-600"] : []);
   }
 
   private generate() {
-    let chars: string = null;
-    const upperCaseText = this.text?.toUpperCase() ?? "";
+    const color = this.color();
+    const text = this.text();
+    const id = this.id();
+    if (!text && !color && !id) {
+      throw new Error("Must supply `text`, `color`, or `id` input.");
+    }
+    let chars: string | null = null;
+    const upperCaseText = text?.toUpperCase() ?? "";
 
     chars = this.getFirstLetters(upperCaseText, this.svgCharCount);
 
@@ -61,17 +70,17 @@ export class AvatarComponent implements OnChanges {
     }
 
     // If the chars contain an emoji, only show it.
-    if (chars.match(Utils.regexpEmojiPresentation)) {
-      chars = chars.match(Utils.regexpEmojiPresentation)[0];
+    const emojiMatch = chars.match(Utils.regexpEmojiPresentation);
+    if (emojiMatch) {
+      chars = emojiMatch[0];
     }
 
     let svg: HTMLElement;
-    let hexColor = this.color;
-
-    if (!Utils.isNullOrWhitespace(this.color)) {
+    let hexColor = color ?? "";
+    if (!Utils.isNullOrWhitespace(hexColor)) {
       svg = this.createSvgElement(this.svgSize, hexColor);
-    } else if (!Utils.isNullOrWhitespace(this.id)) {
-      hexColor = Utils.stringToColor(this.id.toString());
+    } else if (!Utils.isNullOrWhitespace(id ?? "")) {
+      hexColor = Utils.stringToColor(id!.toString());
       svg = this.createSvgElement(this.svgSize, hexColor);
     } else {
       hexColor = Utils.stringToColor(upperCaseText);
@@ -89,7 +98,7 @@ export class AvatarComponent implements OnChanges {
     );
   }
 
-  private getFirstLetters(data: string, count: number): string {
+  private getFirstLetters(data: string, count: number): string | null {
     const parts = data.split(" ");
     if (parts.length > 1) {
       let text = "";

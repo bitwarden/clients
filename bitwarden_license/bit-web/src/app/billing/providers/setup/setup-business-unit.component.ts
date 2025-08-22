@@ -3,7 +3,7 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { filter, map, switchMap } from "rxjs/operators";
 
-import { BitwardenLogo } from "@bitwarden/auth/angular";
+import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";

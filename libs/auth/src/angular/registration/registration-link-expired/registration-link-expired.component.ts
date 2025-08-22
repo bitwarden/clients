@@ -6,11 +6,10 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { RegistrationExpiredLinkIcon } from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { ButtonModule, IconModule } from "@bitwarden/components";
-
-import { RegistrationExpiredLinkIcon } from "../../icons/registration-expired-link.icon";
 
 /**
  * RegistrationLinkExpiredComponentData
@@ -21,7 +20,6 @@ export interface RegistrationLinkExpiredComponentData {
 }
 
 @Component({
-  standalone: true,
   selector: "auth-registration-link-expired",
   templateUrl: "./registration-link-expired.component.html",
   imports: [CommonModule, JslibModule, RouterModule, IconModule, ButtonModule],

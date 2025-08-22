@@ -15,11 +15,12 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { BiometricsCommands } from "@bitwarden/key-management";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import {
   closeUnlockPopout,
   openSsoAuthResultPopout,
@@ -44,9 +45,8 @@ export default class RuntimeBackground {
     private main: MainBackground,
     private autofillService: AutofillService,
     private platformUtilsService: BrowserPlatformUtilsService,
-    private notificationsService: NotificationsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    private processReloadSerivce: ProcessReloadServiceAbstraction,
+    private processReloadService: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
@@ -239,7 +239,7 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        this.processReloadSerivce.cancelProcessReload();
+        this.processReloadService.cancelProcessReload();
 
         if (item) {
           await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
@@ -254,7 +254,6 @@ export default class RuntimeBackground {
         // @TODO these need to happen last to avoid blocking `tabSendMessageData` above
         // The underlying cause exists within `cipherService.getAllDecrypted` via
         // `getAllDecryptedForUrl` and is anticipated to be refactored
-        await this.main.refreshBadge();
         await this.main.refreshMenu(false);
 
         await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
@@ -278,7 +277,6 @@ export default class RuntimeBackground {
       case "syncCompleted":
         if (msg.successfully) {
           setTimeout(async () => {
-            await this.main.refreshBadge();
             await this.main.refreshMenu();
           }, 2000);
           await this.configService.ensureConfigFetched();
@@ -294,11 +292,14 @@ export default class RuntimeBackground {
         await this.main.openAtRisksPasswordsPage();
         this.announcePopupOpen();
         break;
+      case VaultMessages.OpenBrowserExtensionToUrl:
+        await this.main.openTheExtensionToPage(msg.url);
+        this.announcePopupOpen();
+        break;
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":
       case "deletedCipher":
-        await this.main.refreshBadge();
         await this.main.refreshMenu();
         break;
       case "bgReseedStorage": {
@@ -421,6 +422,11 @@ export default class RuntimeBackground {
     return await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
   }
 
+  /**
+   * Opens the popup.
+   *
+   * @deprecated Migrating to the browser actions service.
+   */
   private async openPopup() {
     await this.main.openPopup();
   }
@@ -447,7 +453,7 @@ export default class RuntimeBackground {
   /** Sends a message to each tab that the popup was opened */
   private announcePopupOpen() {
     const announceToAllTabs = async () => {
-      const isOpen = await this.platformUtilsService.isViewOpen();
+      const isOpen = await this.platformUtilsService.isPopupOpen();
       const tabs = await this.getBwTabs();
 
       if (isOpen && tabs.length > 0) {

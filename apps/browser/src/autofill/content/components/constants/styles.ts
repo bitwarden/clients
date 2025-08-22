@@ -174,6 +174,17 @@ export const buildIconColorRule = (color: string, rule: RuleName = ruleNames.fil
   ${rule}: ${color};
 `;
 
+export const animations = {
+  spin: `
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(359deg);
+    }
+  `,
+};
+
 export function scrollbarStyles(theme: Theme, color?: { thumb?: string; track?: string }) {
   const thumbColor = color?.thumb || themes[theme].secondary["500"];
   const trackColor = color?.track || themes[theme].background.alt;

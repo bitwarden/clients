@@ -68,7 +68,6 @@ export enum SubscriptionProduct {
   selector: "app-trial-billing-step",
   templateUrl: "trial-billing-step.component.html",
   imports: [BillingSharedModule],
-  standalone: true,
 })
 export class TrialBillingStepComponent implements OnInit, OnDestroy {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
@@ -260,6 +259,15 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     return planType ? this.applicablePlans.find((plan) => plan.type === planType) : null;
   }
 
+  protected get showTaxIdField(): boolean {
+    switch (this.organizationInfo.type) {
+      case ProductTierType.Families:
+        return false;
+      default:
+        return true;
+    }
+  }
+
   private getBillingInformationFromTaxInfoComponent(): BillingInformation {
     return {
       postalCode: this.taxInfoComponent.getTaxInformation()?.postalCode,
@@ -305,6 +313,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     this.fetchingTaxAmount = true;
 
     if (!this.taxInfoComponent.validate()) {
+      this.fetchingTaxAmount = false;
       return 0;
     }
 
@@ -327,7 +336,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
 
     const response = await this.taxService.previewTaxAmountForOrganizationTrial(request);
     this.fetchingTaxAmount = false;
-    return response.taxAmount;
+    return response;
   };
 
   get price() {

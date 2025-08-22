@@ -12,13 +12,14 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfType, KeyService } from "@bitwarden/key-management";
 
@@ -36,6 +37,8 @@ describe("OrganizationUserResetPasswordService", () => {
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationApiService: MockProxy<OrganizationApiService>;
   let i18nService: MockProxy<I18nService>;
+  const mockUserId = Utils.newGuid() as UserId;
+  let accountService: FakeAccountService;
 
   beforeAll(() => {
     keyService = mock<KeyService>();
@@ -44,6 +47,7 @@ describe("OrganizationUserResetPasswordService", () => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     organizationApiService = mock<OrganizationApiService>();
     i18nService = mock<I18nService>();
+    accountService = mockAccountServiceWith(mockUserId);
 
     sut = new OrganizationUserResetPasswordService(
       keyService,
@@ -52,6 +56,7 @@ describe("OrganizationUserResetPasswordService", () => {
       organizationUserApiService,
       organizationApiService,
       i18nService,
+      accountService,
     );
   });
 
@@ -142,7 +147,10 @@ describe("OrganizationUserResetPasswordService", () => {
 
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-      keyService.getOrgKey.mockResolvedValue(mockOrgKey);
+      keyService.orgKeys$.mockReturnValue(
+        of({ [mockOrgId]: mockOrgKey } as Record<OrganizationId, OrgKey>),
+      );
+
       encryptService.decryptToBytes.mockResolvedValue(mockRandomBytes);
 
       encryptService.rsaDecrypt.mockResolvedValue(mockRandomBytes);
@@ -170,7 +178,7 @@ describe("OrganizationUserResetPasswordService", () => {
     });
 
     it("should throw an error if the org key is null", async () => {
-      keyService.getOrgKey.mockResolvedValue(null);
+      keyService.orgKeys$.mockReturnValue(of(null));
       await expect(
         sut.resetMasterPassword(mockNewMP, mockEmail, mockOrgUserId, mockOrgId),
       ).rejects.toThrow();

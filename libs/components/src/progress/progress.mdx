@@ -1,13 +1,15 @@
-import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
 
 import * as stories from "./progress.stories";
 
 <Meta of={stories} />
 
-# Progress
+```ts
+import { ProgressModule } from "@bitwarden/components";
+```
 
-Progress indicators may be used to visually indicate progress or to visually measure some other
-value, such as a password strength indicator.
+<Title />
+<Description />
 
 <Primary />
 <Controls />

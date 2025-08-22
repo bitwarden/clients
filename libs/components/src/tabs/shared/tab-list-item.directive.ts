@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FocusableOption } from "@angular/cdk/a11y";
-import { Directive, ElementRef, HostBinding, Input } from "@angular/core";
+import { Directive, ElementRef, HostBinding, Input, input } from "@angular/core";
 
 /**
  * Directive used for styling tab header items for both nav links (anchor tags)
@@ -9,11 +7,13 @@ import { Directive, ElementRef, HostBinding, Input } from "@angular/core";
  */
 @Directive({
   selector: "[bitTabListItem]",
-  standalone: true,
 })
 export class TabListItemDirective implements FocusableOption {
-  @Input() active: boolean;
-  @Input() disabled: boolean;
+  readonly active = input<boolean>();
+  // TODO: Skipped for signal migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
+  @Input() disabled = false;
 
   @HostBinding("attr.disabled")
   get disabledAttr() {
@@ -33,7 +33,7 @@ export class TabListItemDirective implements FocusableOption {
   @HostBinding("class")
   get classList(): string[] {
     return this.baseClassList
-      .concat(this.active ? this.activeClassList : [])
+      .concat(this.active() ? this.activeClassList : [])
       .concat(this.disabled ? this.disabledClassList : [])
       .concat(this.textColorClassList);
   }
@@ -46,7 +46,7 @@ export class TabListItemDirective implements FocusableOption {
     if (this.disabled) {
       return ["!tw-text-secondary-300", "hover:!tw-text-secondary-300"];
     }
-    if (this.active) {
+    if (this.active()) {
       return ["!tw-text-primary-600", "hover:!tw-text-primary-700"];
     }
     return ["!tw-text-main", "hover:!tw-text-main"];
@@ -82,7 +82,7 @@ export class TabListItemDirective implements FocusableOption {
   get activeClassList(): string[] {
     return [
       "tw--mb-px",
-      "tw-border-x-secondary-300",
+      "tw-border-x-secondary-100",
       "tw-border-t-primary-600",
       "tw-border-b",
       "tw-border-b-background",

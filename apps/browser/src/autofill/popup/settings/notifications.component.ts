@@ -23,7 +23,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 
 @Component({
   templateUrl: "notifications.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

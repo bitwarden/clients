@@ -1,11 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
+import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, firstValueFrom, map, switchMap } from "rxjs";
-import { filter } from "rxjs/operators";
+import { BehaviorSubject, combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -13,8 +13,12 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   DialogService,
   IconButtonModule,
@@ -28,18 +32,17 @@ import { VaultPopupAutofillService } from "../../../services/vault-popup-autofil
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
 @Component({
-  standalone: true,
   selector: "app-item-more-options",
   templateUrl: "./item-more-options.component.html",
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
 })
-export class ItemMoreOptionsComponent implements OnInit {
-  private _cipher$ = new BehaviorSubject<CipherView>(undefined);
+export class ItemMoreOptionsComponent {
+  private _cipher$ = new BehaviorSubject<CipherViewLike>(undefined);
 
   @Input({
     required: true,
   })
-  set cipher(c: CipherView) {
+  set cipher(c: CipherViewLike) {
     this._cipher$.next(c);
   }
 
@@ -67,13 +70,38 @@ export class ItemMoreOptionsComponent implements OnInit {
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
    * @protected
    */
-  protected canClone$ = this._cipher$.pipe(
-    filter((c) => c != null),
-    switchMap((c) => this.cipherAuthorizationService.canCloneCipher$(c)),
+  protected canClone$ = combineLatest([
+    this._cipher$,
+    this.restrictedItemTypesService.restricted$,
+  ]).pipe(
+    filter(([c]) => c != null),
+    switchMap(([c, restrictedTypes]) => {
+      // This will check for restrictions from org policies before allowing cloning.
+      const isItemRestricted = restrictedTypes.some(
+        (restrictType) => restrictType.cipherType === CipherViewLikeUtils.getType(c),
+      );
+      if (!isItemRestricted) {
+        return this.cipherAuthorizationService.canCloneCipher$(c);
+      }
+      return new BehaviorSubject(false);
+    }),
   );
 
-  /** Boolean dependent on the current user having access to an organization */
-  protected hasOrganizations = false;
+  /** Observable Boolean dependent on the current user having access to an organization and editable collections */
+  protected canAssignCollections$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => {
+      return combineLatest([
+        this.organizationService.hasOrganizations(userId),
+        this.collectionService.decryptedCollections$(userId),
+      ]).pipe(
+        map(([hasOrgs, collections]) => {
+          const canEditCollections = collections.some((c) => !c.readOnly);
+          return hasOrgs && canEditCollections;
+        }),
+      );
+    }),
+  );
 
   constructor(
     private cipherService: CipherService,
@@ -86,12 +114,9 @@ export class ItemMoreOptionsComponent implements OnInit {
     private accountService: AccountService,
     private organizationService: OrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private collectionService: CollectionService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
-
-  async ngOnInit(): Promise<void> {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.hasOrganizations = await firstValueFrom(this.organizationService.hasOrganizations(userId));
-  }
 
   get canEdit() {
     return this.cipher.edit;
@@ -100,15 +125,22 @@ export class ItemMoreOptionsComponent implements OnInit {
   get canViewPassword() {
     return this.cipher.viewPassword;
   }
+
+  get decryptionFailure() {
+    return CipherViewLikeUtils.decryptionFailure(this.cipher);
+  }
+
   /**
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
-    return [CipherType.Login, CipherType.Card, CipherType.Identity].includes(this.cipher.type);
+    return ([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).includes(
+      CipherViewLikeUtils.getType(this.cipher),
+    );
   }
 
   get isLogin() {
-    return this.cipher.type === CipherType.Login;
+    return CipherViewLikeUtils.getType(this.cipher) === CipherType.Login;
   }
 
   get favoriteText() {
@@ -116,11 +148,13 @@ export class ItemMoreOptionsComponent implements OnInit {
   }
 
   async doAutofill() {
-    await this.vaultPopupAutofillService.doAutofill(this.cipher);
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
+    await this.vaultPopupAutofillService.doAutofill(cipher);
   }
 
   async doAutofillAndSave() {
-    await this.vaultPopupAutofillService.doAutofillAndSave(this.cipher, false);
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
+    await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false);
   }
 
   async onView() {
@@ -129,7 +163,7 @@ export class ItemMoreOptionsComponent implements OnInit {
       return;
     }
     await this.router.navigate(["/view-cipher"], {
-      queryParams: { cipherId: this.cipher.id, type: this.cipher.type },
+      queryParams: { cipherId: this.cipher.id, type: CipherViewLikeUtils.getType(this.cipher) },
     });
   }
 
@@ -137,11 +171,14 @@ export class ItemMoreOptionsComponent implements OnInit {
    * Toggles the favorite status of the cipher and updates it on the server.
    */
   async toggleFavorite() {
-    this.cipher.favorite = !this.cipher.favorite;
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
+
+    cipher.favorite = !cipher.favorite;
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
-    const encryptedCipher = await this.cipherService.encrypt(this.cipher, activeUserId);
+
+    const encryptedCipher = await this.cipherService.encrypt(cipher, activeUserId);
     await this.cipherService.updateWithServer(encryptedCipher);
     this.toastService.showToast({
       variant: "success",
@@ -165,7 +202,7 @@ export class ItemMoreOptionsComponent implements OnInit {
       return;
     }
 
-    if (this.cipher.login?.hasFido2Credentials) {
+    if (CipherViewLikeUtils.hasFido2Credentials(this.cipher)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
@@ -181,7 +218,7 @@ export class ItemMoreOptionsComponent implements OnInit {
       queryParams: {
         clone: true.toString(),
         cipherId: this.cipher.id,
-        type: this.cipher.type.toString(),
+        type: CipherViewLikeUtils.getType(this.cipher).toString(),
       } as AddEditQueryParams,
     });
   }

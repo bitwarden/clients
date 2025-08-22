@@ -35,36 +35,36 @@ describe("ImportService", () => {
         {
           name: "Sarah Johnson",
           email: "sjohnson@email.com",
-          collectionsCount: 4,
-          groupsCount: 2,
-          itemsCount: 20,
+          collectionsCount: 3,
+          groupsCount: 1,
+          itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
         },
         {
           name: "James Lull",
           email: "jlull@email.com",
-          collectionsCount: 4,
-          groupsCount: 2,
-          itemsCount: 20,
+          collectionsCount: 2,
+          groupsCount: 1,
+          itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
         },
         {
           name: "Beth Williams",
           email: "bwilliams@email.com",
-          collectionsCount: 4,
-          groupsCount: 2,
-          itemsCount: 20,
+          collectionsCount: 2,
+          groupsCount: 1,
+          itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
         },
         {
           name: "Ray Williams",
           email: "rwilliams@email.com",
-          collectionsCount: 4,
-          groupsCount: 2,
-          itemsCount: 20,
+          collectionsCount: 3,
+          groupsCount: 3,
+          itemsCount: 0,
           userGuid: expect.any(String),
           usesKeyConnector: expect.any(Boolean),
         },
@@ -82,8 +82,8 @@ describe("ImportService", () => {
           (item) =>
             (item.name === "Sarah Johnson" &&
               item.group === "Group 1" &&
-              item.totalItems === "20") ||
-            (item.name === "James Lull" && item.group === "Group 4" && item.totalItems === "5"),
+              item.totalItems === "0") ||
+            (item.name === "James Lull" && item.group === "Group 4" && item.totalItems === "0"),
         )
         .map((item) => ({
           name: item.name,
@@ -102,7 +102,7 @@ describe("ImportService", () => {
             twoStepLogin: "memberAccessReportTwoFactorEnabledTrue",
             accountRecovery: "memberAccessReportAuthenticationEnabledTrue",
             group: "Group 1",
-            totalItems: "20",
+            totalItems: "0",
           }),
           expect.objectContaining({
             email: "jlull@email.com",
@@ -110,7 +110,7 @@ describe("ImportService", () => {
             twoStepLogin: "memberAccessReportTwoFactorEnabledFalse",
             accountRecovery: "memberAccessReportAuthenticationEnabledFalse",
             group: "Group 4",
-            totalItems: "5",
+            totalItems: "0",
           }),
         ]),
       );
@@ -131,7 +131,7 @@ describe("ImportService", () => {
             twoStepLogin: "memberAccessReportTwoFactorEnabledTrue",
             accountRecovery: "memberAccessReportAuthenticationEnabledTrue",
             group: "Alice Group 1",
-            totalItems: "10",
+            totalItems: "0",
           }),
           expect.objectContaining({
             email: "rbrown@email.com",

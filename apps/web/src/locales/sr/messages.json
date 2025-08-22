@@ -547,12 +547,6 @@
     "message": "Пребаци проширење",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Генерисање лозинке"
-  },
-  "generatePassphrase": {
-    "message": "Генеришите приступну фразу"
-  },
   "checkPassword": {
     "message": "Проверите да ли је лозинка изложена."
   },
@@ -2158,6 +2152,12 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Омогућавање пријаве у два корака може вас трајно закључати са вашег Bitwarden-а налога. Код за опоравак омогућава вам приступ вашем налогу у случају да више не можете да користите свог уобичајеног добављача услуге пријављивања у два корака (нпр. ако изгубите уређај). Подршка Bitwarden-а неће вам моћи помоћи ако изгубите приступ свом налогу. Препоручујемо да запишете или одштампате код за опоравак и сачувате га на сигурном месту."
+  },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Ваш јединствени кôд за опоравак може се користити за искључивање у два корака у случају да изгубите приступ свом двоструком провајдеру пријаве. Bitwarden препоручује да запишете кôд за опоравак и држите га на сигурном месту."
@@ -4478,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Ажурирање кључа за шифровање не може да се настави"
-  },
   "editFieldLabel": {
     "message": "Уреди $LABEL$",
     "placeholders": {
@@ -4533,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Приликом ажурирања кључа за шифровање, ваше фасцикле нису могле да се дешифрују. Да бисте наставили са ажурирањем, ваше фасцикле морају бити избрисане. Ниједна ставка у сефу неће бити избрисана ако наставите."
-  },
-  "keyUpdated": {
-    "message": "Кључ је ажуриран"
-  },
-  "updateEncryptionKey": {
-    "message": "Ажурирајте кључ за шифровање"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Променили смо шему шифровања да бисмо пружили бољу безбедност. Ажурирајте кључ за шифровање сада тако што ћете унети испод главну лозинку."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Након ажурирања кључа за шифровање, мораћете да се одјавите и вратите у све Bitwarden апликације које тренутно користите (као што су мобилна апликација или додаци прегледача). Ако се не одјавите и поново пријавите (чиме се преузима ваш нови кључ за шифровање), може доћи до оштећења података. Покушаћемо аутоматски да се одјавимо, али може доћи до одлагања."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Сваки рачун са ограничен извоз који сте сачували постаће неважећи."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Претплата"
@@ -6824,6 +6812,24 @@
   "generateEmail": {
     "message": "Генеришите имејл"
   },
+  "generatePassword": {
+    "message": "Генерисање лозинке"
+  },
+  "generatePassphrase": {
+    "message": "Генеришите приступну фразу"
+  },
+  "passwordGenerated": {
+    "message": "Лозинка генерисана"
+  },
+  "passphraseGenerated": {
+    "message": "Приступна фраза је генерисана"
+  },
+  "usernameGenerated": {
+    "message": "Корисничко име генерисано"
+  },
+  "emailGenerated": {
+    "message": "Имејл генерисан"
+  },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6892,9 @@
   },
   "useThisPassword": {
     "message": "Употреби ову лозинку"
+  },
+  "useThisPassphrase": {
+    "message": "Употреби ову приступну фразу"
   },
   "useThisUsername": {
     "message": "Употреби ово корисничко име"
@@ -8603,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Уређај поуздан"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Нема активних Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Употребите Send да безбедно делите шифроване информације са било ким.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Позови кориснике"
@@ -10553,6 +10554,31 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "sendsTitleNoItems": {
+    "message": "Шаљите бзбедно осетљиве информације",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Делите датотеке и податке безбедно са било ким, на било којој платформи. Ваше информације ће остати шифроване од почетка-до-краја уз ограничење изложености.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Брзо креирајте лозинке"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Лако креирајте снажне и јединствене лозинке кликом на",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "да вам помогне да задржите своје пријаве сигурно.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Лако креирајте снажне и јединствене лозинке кликом на дугме „Генерирате лозинку“ да вам помогне да чувате своје пријаве на сигурно.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Уштедите време са ауто-пуњењем"
   },
@@ -10610,5 +10636,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Кликните на Pay with PayPal да бисте додали начин лпаћања."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Ако уклоните $EMAIL$, спонзорство за овај породични план ће се завршити. Седиште у вашој организацији постаће доступно за чланове или спонзорства након што је спонзорисан датум обнове организације на $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

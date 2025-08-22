@@ -33,6 +33,15 @@ export class BrowserApi {
   }
 
   /**
+   * Gets all open browser windows, including their tabs.
+   *
+   * @returns A promise that resolves to an array of browser windows.
+   */
+  static async getWindows(): Promise<chrome.windows.Window[]> {
+    return new Promise((resolve) => chrome.windows.getAll({ populate: true }, resolve));
+  }
+
+  /**
    * Gets the current window or the window with the given id.
    *
    * @param windowId - The id of the window to get. If not provided, the current window is returned.
@@ -437,7 +446,7 @@ export class BrowserApi {
    * @param event - The event in which to add the listener to.
    * @param callback - The callback you want registered onto the event.
    */
-  static addListener<T extends (...args: readonly unknown[]) => unknown>(
+  static addListener<T extends (...args: readonly any[]) => any>(
     event: chrome.events.Event<T>,
     callback: T,
   ) {

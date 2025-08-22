@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
@@ -29,11 +29,11 @@ export class BitwardenPasswordProtectedImporter extends BitwardenJsonImporter im
     encryptService: EncryptService,
     i18nService: I18nService,
     cipherService: CipherService,
-    pinService: PinServiceAbstraction,
+    private pinService: PinServiceAbstraction,
     accountService: AccountService,
     private promptForPassword_callback: () => Promise<string>,
   ) {
-    super(keyService, encryptService, i18nService, cipherService, pinService, accountService);
+    super(keyService, encryptService, i18nService, cipherService, accountService);
   }
 
   async parse(data: string): Promise<ImportResult> {

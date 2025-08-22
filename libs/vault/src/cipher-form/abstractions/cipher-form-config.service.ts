@@ -77,7 +77,7 @@ type BaseCipherFormConfig = {
    * Flag to indicate if the user is allowed to create ciphers in their own Vault. If false, configuration must
    * supply a list of organizations that the user can create ciphers in.
    */
-  allowPersonalOwnership: boolean;
+  organizationDataOwnershipDisabled: boolean;
 
   /**
    * The original cipher that is being edited or cloned. This can be undefined when creating a new cipher.
@@ -131,18 +131,18 @@ type CreateNewCipherConfig = BaseCipherFormConfig & {
 type CombinedAddEditConfig = ExistingCipherConfig | CreateNewCipherConfig;
 
 /**
- * Configuration object for the cipher form when personal ownership is allowed.
+ * Configuration object for the cipher form when organization data ownership is not allowed.
  */
-type PersonalOwnershipAllowed = CombinedAddEditConfig & {
-  allowPersonalOwnership: true;
+type OrganizationDataOwnershipDisabled = CombinedAddEditConfig & {
+  organizationDataOwnershipDisabled: true;
 };
 
 /**
- * Configuration object for the cipher form when personal ownership is not allowed.
+ * Configuration object for the cipher form when organization data ownership is allowed.
  * Organizations must be provided.
  */
-type PersonalOwnershipNotAllowed = CombinedAddEditConfig & {
-  allowPersonalOwnership: false;
+type OrganizationDataOwnershipEnabled = CombinedAddEditConfig & {
+  organizationDataOwnershipDisabled: false;
   organizations: Organization[];
 };
 
@@ -150,7 +150,7 @@ type PersonalOwnershipNotAllowed = CombinedAddEditConfig & {
  * Configuration object for the cipher form.
  * Determines the behavior of the form and the controls that are displayed/enabled.
  */
-export type CipherFormConfig = PersonalOwnershipAllowed | PersonalOwnershipNotAllowed;
+export type CipherFormConfig = OrganizationDataOwnershipDisabled | OrganizationDataOwnershipEnabled;
 
 /**
  * Service responsible for building the configuration object for the cipher form.

@@ -1,7 +1,7 @@
 <ng-container>
   <bit-table-scroll [dataSource]="dataSource" [rowSize]="53">
     <ng-container header>
-      <th *ngIf="isCriticalAppsFeatureEnabled"></th>
+      <th></th>
       <th bitCell></th>
       <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
       <th bitSortable="atRiskPasswordCount" bitCell>{{ "atRiskPasswords" | i18n }}</th>
@@ -12,7 +12,7 @@
     <ng-template bitRowDef let-row>
       <td
         bitCell
-        *ngIf="isCriticalAppsFeatureEnabled && showRowCheckBox"
+        *ngIf="showRowCheckBox"
         [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
       >
         <input
@@ -32,7 +32,7 @@
         <i class="bwi bwi-star-f" *ngIf="row.isMarkedAsCritical"></i>
       </td>
       <td bitCell>
-        <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+        <app-vault-icon *ngIf="row.ciphers.length > 0" [cipher]="row.ciphers[0]"></app-vault-icon>
       </td>
       <td
         class="tw-cursor-pointer"
@@ -84,7 +84,7 @@
           type="button"
           bitIconButton="bwi-ellipsis-v"
           size="small"
-          appA11yTitle="{{ 'options' | i18n }}"
+          label="{{ 'options' | i18n }}"
         ></button>
 
         <bit-menu #rowMenu>

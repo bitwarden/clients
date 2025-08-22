@@ -13,6 +13,7 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -56,6 +57,7 @@ describe("UserApiLoginStrategy", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
+  let configService: MockProxy<ConfigService>;
 
   let apiLogInStrategy: UserApiLoginStrategy;
   let credentials: UserApiLoginCredentials;
@@ -88,6 +90,7 @@ describe("UserApiLoginStrategy", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
+    configService = mock<ConfigService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.getTwoFactorToken.mockResolvedValue(null);
@@ -115,6 +118,7 @@ describe("UserApiLoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
+      configService,
     );
 
     credentials = new UserApiLoginCredentials(apiClientId, apiClientSecret);
@@ -166,7 +170,7 @@ describe("UserApiLoginStrategy", () => {
       mockVaultTimeoutAction,
       mockVaultTimeout,
     );
-    expect(stateService.addAccount).toHaveBeenCalled();
+    expect(environmentService.seedUserEnvironment).toHaveBeenCalled();
   });
 
   it("sets the encrypted user key and private key from the identity token response", async () => {
@@ -176,7 +180,10 @@ describe("UserApiLoginStrategy", () => {
 
     await apiLogInStrategy.logIn(credentials);
 
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(tokenResponse.key, userId);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+      tokenResponse.key,
+      userId,
+    );
     expect(keyService.setPrivateKey).toHaveBeenCalledWith(tokenResponse.privateKey, userId);
   });
 

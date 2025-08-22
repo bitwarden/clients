@@ -8,6 +8,8 @@ import { firstValueFrom, switchMap } from "rxjs";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { EventView } from "@bitwarden/common/models/view/event.view";
@@ -26,7 +28,7 @@ import { EventService } from "../../../core";
 import { SharedModule } from "../../../shared";
 
 export interface EntityEventsDialogParams {
-  entity: "user" | "cipher";
+  entity: "user" | "cipher" | "secret" | "project";
   entityId: string;
 
   organizationId?: string;
@@ -38,7 +40,6 @@ export interface EntityEventsDialogParams {
 @Component({
   imports: [SharedModule],
   templateUrl: "entity-events.component.html",
-  standalone: true,
 })
 export class EntityEventsComponent implements OnInit, OnDestroy {
   loading = true;
@@ -73,6 +74,8 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private router: Router,
     private activeRoute: ActivatedRoute,
+    private accountService: AccountService,
+    protected organizationService: OrganizationService,
   ) {}
 
   async ngOnInit() {
@@ -157,6 +160,22 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
       );
     } else if (this.params.entity === "user") {
       response = await this.apiService.getEventsOrganizationUser(
+        this.params.organizationId,
+        this.params.entityId,
+        dates[0],
+        dates[1],
+        clearExisting ? null : this.continuationToken,
+      );
+    } else if (this.params.entity === "secret") {
+      response = await this.apiService.getEventsSecret(
+        this.params.organizationId,
+        this.params.entityId,
+        dates[0],
+        dates[1],
+        clearExisting ? null : this.continuationToken,
+      );
+    } else if (this.params.entity === "project") {
+      response = await this.apiService.getEventsProject(
         this.params.organizationId,
         this.params.entityId,
         dates[0],

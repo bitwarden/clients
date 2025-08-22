@@ -13,6 +13,7 @@ import {
 import { BehaviorSubject, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { UserVerificationBiometricsIcon } from "@bitwarden/assets/svg";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { UserVerificationOptions } from "@bitwarden/common/auth/types/user-verification-options";
@@ -30,8 +31,6 @@ import {
   IconModule,
   LinkModule,
 } from "@bitwarden/components";
-
-import { UserVerificationBiometricsIcon } from "../icons";
 
 import { ActiveClientVerificationOption } from "./active-client-verification-option.enum";
 
@@ -56,7 +55,6 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
       transition(":enter", [style({ opacity: 0 }), animate("100ms", style({ opacity: 1 }))]),
     ]),
   ],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

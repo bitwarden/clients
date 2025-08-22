@@ -6,7 +6,6 @@ import { SideNavService } from "./side-nav.service";
 @Component({
   selector: "bit-nav-divider",
   templateUrl: "./nav-divider.component.html",
-  standalone: true,
   imports: [CommonModule],
 })
 export class NavDividerComponent {

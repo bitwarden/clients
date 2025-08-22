@@ -12,7 +12,10 @@ import { UpdateProfileRequest } from "@bitwarden/common/auth/models/request/upda
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserPublicKey } from "@bitwarden/common/types/key";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { DynamicAvatarComponent } from "../../../components/dynamic-avatar.component";
 import { SharedModule } from "../../../shared";
@@ -23,13 +26,13 @@ import { ChangeAvatarDialogComponent } from "./change-avatar-dialog.component";
 @Component({
   selector: "app-profile",
   templateUrl: "profile.component.html",
-  standalone: true,
   imports: [SharedModule, DynamicAvatarComponent, AccountFingerprintComponent],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   loading = true;
   profile: ProfileResponse;
   fingerprintMaterial: string;
+  userPublicKey: UserPublicKey;
   managingOrganization$: Observable<Organization>;
   private destroy$ = new Subject<void>();
 
@@ -45,16 +48,24 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private toastService: ToastService,
     private organizationService: OrganizationService,
+    private keyService: KeyService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
     this.profile = await this.apiService.getProfile();
-    this.loading = false;
-    this.fingerprintMaterial = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.fingerprintMaterial = userId;
+    const publicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
+    if (publicKey == null) {
+      this.logService.error(
+        "[ProfileComponent] No public key available for the user: " +
+          userId +
+          " fingerprint can't be displayed.",
+      );
+    } else {
+      this.userPublicKey = publicKey;
+    }
 
     this.managingOrganization$ = this.organizationService
       .organizations$(userId)
@@ -71,6 +82,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .subscribe((name) => {
         this.profile.name = name;
       });
+
+    this.loading = false;
   }
 
   openChangeAvatar = async () => {

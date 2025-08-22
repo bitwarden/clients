@@ -15,7 +15,6 @@ import { ChangeKdfModule } from "./change-kdf/change-kdf.module";
 
 @Component({
   templateUrl: "security-keys.component.html",
-  standalone: true,
   imports: [SharedModule, ChangeKdfModule],
 })
 export class SecurityKeysComponent implements OnInit {

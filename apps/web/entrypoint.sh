@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Setup
 
@@ -19,20 +19,28 @@ then
     LGID=65534
 fi
 
-# Create user and group
+if [ "$(id -u)" = "0" ]; then
+    # Create user and group
 
-groupadd -o -g $LGID $GROUPNAME >/dev/null 2>&1 ||
-groupmod -o -g $LGID $GROUPNAME >/dev/null 2>&1
-useradd -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1 ||
-usermod -o -u $LUID -g $GROUPNAME -s /bin/false $USERNAME >/dev/null 2>&1
-mkhomedir_helper $USERNAME
+    addgroup -g "$LGID" -S "$GROUPNAME" 2>/dev/null || true
+    adduser -u "$LUID" -G "$GROUPNAME" -S -D -H "$USERNAME" 2>/dev/null || true
+    mkdir -p /home/$USERNAME
+    chown $USERNAME:$GROUPNAME /home/$USERNAME
 
-# The rest...
+    # The rest...
 
-chown -R $USERNAME:$GROUPNAME /etc/bitwarden
-cp /etc/bitwarden/web/app-id.json /app/app-id.json
-chown -R $USERNAME:$GROUPNAME /app
-chown -R $USERNAME:$GROUPNAME /bitwarden_server
+    chown -R $USERNAME:$GROUPNAME /etc/bitwarden
+    chown -R $USERNAME:$GROUPNAME /app
+    chown -R $USERNAME:$GROUPNAME /bitwarden_server
 
-exec gosu $USERNAME:$GROUPNAME dotnet /bitwarden_server/Server.dll \
-    /contentRoot=/app /webRoot=. /serveUnknown=false /webVault=true
+    gosu_cmd="gosu $USERNAME:$GROUPNAME"
+else
+    gosu_cmd=""
+fi
+
+exec $gosu_cmd /bitwarden_server/Server \
+    /contentRoot=/app \
+    /webRoot=. \
+    /serveUnknown=false \
+    /webVault=true \
+    /appIdLocation=/etc/bitwarden/web/app-id.json

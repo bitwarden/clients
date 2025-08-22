@@ -9,8 +9,6 @@ export enum BiometricAction {
   SetKeyForUser = "setKeyForUser",
   RemoveKeyForUser = "removeKeyForUser",
 
-  SetClientKeyHalf = "setClientKeyHalf",
-
   Setup = "setup",
 
   GetShouldAutoprompt = "getShouldAutoprompt",
@@ -19,20 +17,12 @@ export enum BiometricAction {
 
 export type BiometricMessage =
   | {
-      action: BiometricAction.SetClientKeyHalf;
-      userId: string;
-      key: string | null;
-    }
-  | {
       action: BiometricAction.SetKeyForUser;
       userId: string;
       key: string;
     }
   | {
-      action: Exclude<
-        BiometricAction,
-        BiometricAction.SetClientKeyHalf | BiometricAction.SetKeyForUser
-      >;
+      action: Exclude<BiometricAction, BiometricAction.SetKeyForUser>;
       userId?: string;
       data?: any;
     };

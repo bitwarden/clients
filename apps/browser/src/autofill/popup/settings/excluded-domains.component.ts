@@ -45,7 +45,6 @@ import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popu
 @Component({
   selector: "app-excluded-domains",
   templateUrl: "excluded-domains.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CardComponent,

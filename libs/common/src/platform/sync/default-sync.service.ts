@@ -53,7 +53,6 @@ import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 import { LogService } from "../abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -87,7 +86,6 @@ export class DefaultSyncService extends CoreSyncService {
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
-    stateService: StateService,
     private providerService: ProviderService,
     folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
@@ -96,12 +94,12 @@ export class DefaultSyncService extends CoreSyncService {
     private avatarService: AvatarService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: UserId) => Promise<void>,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private tokenService: TokenService,
+    tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
   ) {
     super(
-      stateService,
+      tokenService,
       folderService,
       folderApiService,
       messageSender,
@@ -225,7 +223,10 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    // Users with no master password will not have a key.
+    if (response?.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    }
     await this.keyService.setPrivateKey(response.privateKey, response.id);
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(

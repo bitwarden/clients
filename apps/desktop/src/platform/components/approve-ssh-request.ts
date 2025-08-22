@@ -24,7 +24,6 @@ export interface ApproveSshRequestParams {
 @Component({
   selector: "app-approve-ssh-request",
   templateUrl: "approve-ssh-request.html",
-  standalone: true,
   imports: [
     DialogModule,
     CommonModule,

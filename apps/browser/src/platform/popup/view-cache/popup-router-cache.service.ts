@@ -15,7 +15,7 @@ import { filter, first, firstValueFrom, map, Observable, of, switchMap, tap } fr
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
 import { POPUP_ROUTE_HISTORY_KEY } from "../../../platform/services/popup-view-cache-background.service";
-import BrowserPopupUtils from "../browser-popup-utils";
+import BrowserPopupUtils from "../../browser/browser-popup-utils";
 
 /**
  * Preserves route history when opening and closing the popup
@@ -105,9 +105,11 @@ export class PopupRouterCacheService {
    * Navigate back in history
    */
   async back() {
-    await this.state.update((prevState) => (prevState ? prevState.slice(0, -1) : []));
+    const history = await this.state.update((prevState) =>
+      prevState ? prevState.slice(0, -1) : [],
+    );
 
-    if (this.hasNavigated) {
+    if (this.hasNavigated && history.length) {
       this.location.back();
       return;
     }

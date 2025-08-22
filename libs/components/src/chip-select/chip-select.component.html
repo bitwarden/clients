@@ -14,7 +14,7 @@
   <!-- Primary button -->
   <button
     type="button"
-    class="tw-inline-flex tw-gap-1.5 tw-items-center tw-justify-between tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-py-1 tw-pl-3 last:tw-pr-3 [&:not(:last-child)]:tw-pr-0 tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
+    class="tw-inline-flex tw-gap-1.5 tw-items-center tw-justify-between tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-py-1 tw-ps-3 last:tw-pe-3 [&:not(:last-child)]:tw-pe-0 tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
     data-fvw-target
     [ngClass]="{
       'tw-cursor-not-allowed': disabled,
@@ -28,13 +28,14 @@
     #chipSelectButton
   >
     <span class="tw-inline-flex tw-items-center tw-gap-1.5 tw-truncate">
-      <i class="bwi !tw-text-[inherit]" [ngClass]="icon"></i>
+      <i class="bwi !tw-text-[inherit]" [ngClass]="icon" aria-hidden="true"></i>
       <span class="tw-truncate">{{ label }}</span>
     </span>
     @if (!selectedOption) {
       <i
         class="bwi tw-mt-0.5"
         [ngClass]="menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
+        aria-hidden="true"
       ></i>
     }
   </button>
@@ -45,13 +46,13 @@
       type="button"
       [attr.aria-label]="'removeItem' | i18n: label"
       [disabled]="disabled"
-      class="tw-bg-transparent hover:tw-bg-transparent tw-outline-none tw-rounded-full tw-py-0.5 tw-px-1 tw-mr-1 tw-text-[color:inherit] tw-text-[length:inherit] tw-border-solid tw-border tw-border-transparent hover:tw-border-text-contrast hover:disabled:tw-border-transparent tw-flex tw-items-center tw-justify-center focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:hover:tw-border-transparent"
+      class="tw-bg-transparent hover:tw-bg-hover-contrast tw-outline-none tw-rounded-full tw-py-0.5 tw-px-1 tw-me-1 tw-text-[color:inherit] tw-text-[length:inherit] tw-border-solid tw-border tw-border-transparent tw-flex tw-items-center tw-justify-center focus-visible:tw-ring-2 tw-ring-text-contrast hover:disabled:tw-bg-transparent"
       [ngClass]="{
         'tw-cursor-not-allowed': disabled,
       }"
       (click)="clear()"
     >
-      <i class="bwi bwi-close tw-text-xs"></i>
+      <i class="bwi bwi-close tw-text-xs" aria-hidden="true"></i>
     </button>
   }
 </div>
@@ -68,10 +69,10 @@
           bitMenuItem
           (click)="viewOption(parent, $event)"
           class="tw-text-[length:inherit]"
-          [title]="'backTo' | i18n: parent.label ?? placeholderText"
+          [title]="'backTo' | i18n: parent.label ?? placeholderText()"
         >
           <i slot="start" class="bwi bwi-angle-left" aria-hidden="true"></i>
-          {{ "backTo" | i18n: parent.label ?? placeholderText }}
+          {{ "backTo" | i18n: parent.label ?? placeholderText() }}
         </button>
         <button
           type="button"
@@ -101,7 +102,7 @@
           }
           {{ option.label }}
           @if (option.children?.length) {
-            <i slot="end" class="bwi bwi-angle-right"></i>
+            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
           }
         </button>
       }

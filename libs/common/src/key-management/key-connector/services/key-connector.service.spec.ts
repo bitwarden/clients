@@ -5,21 +5,23 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { KdfType, KeyService } from "@bitwarden/key-management";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationData } from "../../../admin-console/models/data/organization.data";
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "../../../admin-console/models/response/profile-organization.response";
+import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
 import { KeyConnectorUserKeyResponse } from "../../../auth/models/response/key-connector-user-key.response";
 import { TokenService } from "../../../auth/services/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { KeyGenerationService } from "../../../platform/services/key-generation.service";
 import { OrganizationId, UserId } from "../../../types/guid";
-import { MasterKey } from "../../../types/key";
+import { MasterKey, UserKey } from "../../../types/key";
+import { KeyGenerationService } from "../../crypto";
+import { EncString } from "../../crypto/models/enc-string";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 
@@ -50,7 +52,7 @@ describe("KeyConnectorService", () => {
   const keyConnectorUrl = "https://key-connector-url.com";
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
 
     masterPasswordService = new FakeMasterPasswordService();
     accountService = mockAccountServiceWith(mockUserId);
@@ -400,6 +402,106 @@ describe("KeyConnectorService", () => {
       await expect(
         firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
       ).rejects.toBeInstanceOf(TimeoutError);
+    });
+  });
+
+  describe("convertNewSsoUserToKeyConnector", () => {
+    const tokenResponse = mock<IdentityTokenResponse>();
+    const passwordKey = new SymmetricCryptoKey(new Uint8Array(64));
+    const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+    const mockEmail = "test@example.com";
+    const mockMasterKey = getMockMasterKey();
+    let mockMakeUserKeyResult: [UserKey, EncString];
+
+    beforeEach(() => {
+      const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+      const mockKeyPair = ["mockPubKey", new EncString("mockEncryptedPrivKey")] as [
+        string,
+        EncString,
+      ];
+      const encString = new EncString("mockEncryptedString");
+      mockMakeUserKeyResult = [mockUserKey, encString] as [UserKey, EncString];
+
+      tokenResponse.kdf = KdfType.PBKDF2_SHA256;
+      tokenResponse.kdfIterations = 100000;
+      tokenResponse.kdfMemory = 16;
+      tokenResponse.kdfParallelism = 4;
+      tokenResponse.keyConnectorUrl = keyConnectorUrl;
+
+      keyGenerationService.createKey.mockResolvedValue(passwordKey);
+      keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
+      keyService.makeUserKey.mockResolvedValue(mockMakeUserKeyResult);
+      keyService.makeKeyPair.mockResolvedValue(mockKeyPair);
+      tokenService.getEmail.mockResolvedValue(mockEmail);
+    });
+
+    it("sets up a new SSO user with key connector", async () => {
+      await keyConnectorService.convertNewSsoUserToKeyConnector(
+        tokenResponse,
+        mockOrgId,
+        mockUserId,
+      );
+
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+        passwordKey.keyB64,
+        mockEmail,
+        expect.any(Object),
+      );
+      expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
+        mockMasterKey,
+        mockUserId,
+      );
+      expect(keyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
+      expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
+      expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+        mockMakeUserKeyResult[1],
+        mockUserId,
+      );
+      expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
+      expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
+        tokenResponse.keyConnectorUrl,
+        expect.any(KeyConnectorUserKeyRequest),
+      );
+      expect(apiService.postSetKeyConnectorKey).toHaveBeenCalled();
+    });
+
+    it("handles api error", async () => {
+      apiService.postUserKeyToKeyConnector.mockRejectedValue(new Error("API error"));
+
+      try {
+        await keyConnectorService.convertNewSsoUserToKeyConnector(
+          tokenResponse,
+          mockOrgId,
+          mockUserId,
+        );
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error?.message).toBe("Key Connector error");
+      }
+
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+        passwordKey.keyB64,
+        mockEmail,
+        expect.any(Object),
+      );
+      expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
+        mockMasterKey,
+        mockUserId,
+      );
+      expect(keyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
+      expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
+      expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+        mockMakeUserKeyResult[1],
+        mockUserId,
+      );
+      expect(keyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
+      expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
+        tokenResponse.keyConnectorUrl,
+        expect.any(KeyConnectorUserKeyRequest),
+      );
+      expect(apiService.postSetKeyConnectorKey).not.toHaveBeenCalled();
     });
   });
 

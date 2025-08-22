@@ -11,6 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -35,13 +36,13 @@ import { WebCipherFormGenerationService } from "../services/web-cipher-form-gene
 /**
  * The result of the AddEditCipherDialogV2 component.
  */
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum AddEditCipherDialogResult {
-  Edited = "edited",
-  Added = "added",
-  Canceled = "canceled",
-}
+export const AddEditCipherDialogResult = {
+  Edited: "edited",
+  Added: "added",
+  Canceled: "canceled",
+} as const;
+
+type AddEditCipherDialogResult = UnionOfValues<typeof AddEditCipherDialogResult>;
 
 /**
  * The close result of the AddEditCipherDialogV2 component.
@@ -64,7 +65,6 @@ export interface AddEditCipherDialogCloseResult {
 @Component({
   selector: "app-vault-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     AsyncActionsModule,

@@ -21,7 +21,6 @@ import { SharedModule } from "../../shared";
 @Component({
   selector: "app-tax-info",
   templateUrl: "tax-info.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class TaxInfoComponent implements OnInit, OnDestroy {

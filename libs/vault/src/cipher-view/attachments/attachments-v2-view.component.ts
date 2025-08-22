@@ -25,7 +25,6 @@ import { DownloadAttachmentComponent } from "../../components/download-attachmen
 @Component({
   selector: "app-attachments-v2-view",
   templateUrl: "attachments-v2-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

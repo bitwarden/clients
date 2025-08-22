@@ -55,207 +55,15 @@ export const WithContent: Story = {
     template: /* HTML */ `
       <bit-layout>
         <bit-side-nav>
-          <bit-nav-item text="Item A" route="#" icon="bwi-lock"></bit-nav-item>
-          <bit-nav-group text="Tree A" icon="bwi-family" [open]="true">
-            <bit-nav-group
-              text="Level 1 - with children (empty)"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-group>
-            <bit-nav-item
-              text="Level 1 - no children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-item>
-            <bit-nav-group
-              text="Level 1 - with children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-              [open]="true"
-            >
-              <bit-nav-group
-                text="Level 2 - with children"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-                [open]="true"
-              >
-                <bit-nav-item
-                  text="Level 3 - no children, no icon"
-                  route="#"
-                  variant="tree"
-                ></bit-nav-item>
-                <bit-nav-group
-                  text="Level 3 - with children"
-                  route="#"
-                  icon="bwi-collection-shared"
-                  variant="tree"
-                  [open]="true"
-                >
-                  <bit-nav-item
-                    text="Level 4 - no children, no icon"
-                    route="#"
-                    variant="tree"
-                  ></bit-nav-item>
-                </bit-nav-group>
-              </bit-nav-group>
-              <bit-nav-group
-                text="Level 2 - with children (empty)"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-                [open]="true"
-              ></bit-nav-group>
-              <bit-nav-item
-                text="Level 2 - no children"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-              ></bit-nav-item>
-            </bit-nav-group>
-            <bit-nav-item
-              text="Level 1 - no children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-item>
+          <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
+            <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child B" route="b"></bit-nav-item>
+            <bit-nav-item text="Child C" route="c" icon="bwi-filter"></bit-nav-item>
           </bit-nav-group>
-          <bit-nav-group text="Tree B" icon="bwi-collection-shared" [open]="true">
-            <bit-nav-group
-              text="Level 1 - with children (empty)"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-group>
-            <bit-nav-item
-              text="Level 1 - no children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-item>
-            <bit-nav-group
-              text="Level 1 - with children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-              [open]="true"
-            >
-              <bit-nav-group
-                text="Level 2 - with children"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-                [open]="true"
-              >
-                <bit-nav-item
-                  text="Level 3 - no children, no icon"
-                  route="#"
-                  variant="tree"
-                ></bit-nav-item>
-                <bit-nav-group
-                  text="Level 3 - with children"
-                  route="#"
-                  icon="bwi-collection-shared"
-                  variant="tree"
-                  [open]="true"
-                >
-                  <bit-nav-item
-                    text="Level 4 - no children, no icon"
-                    route="#"
-                    variant="tree"
-                  ></bit-nav-item>
-                </bit-nav-group>
-              </bit-nav-group>
-              <bit-nav-group
-                text="Level 2 - with children (empty)"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-                [open]="true"
-              ></bit-nav-group>
-              <bit-nav-item
-                text="Level 2 - no children"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-              ></bit-nav-item>
-            </bit-nav-group>
-            <bit-nav-item
-              text="Level 1 - no children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-item>
-          </bit-nav-group>
-          <bit-nav-group text="Tree C" icon="bwi-key" [open]="true">
-            <bit-nav-group
-              text="Level 1 - with children (empty)"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-group>
-            <bit-nav-item
-              text="Level 1 - no children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-item>
-            <bit-nav-group
-              text="Level 1 - with children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-              [open]="true"
-            >
-              <bit-nav-group
-                text="Level 2 - with children"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-                [open]="true"
-              >
-                <bit-nav-item
-                  text="Level 3 - no children, no icon"
-                  route="#"
-                  variant="tree"
-                ></bit-nav-item>
-                <bit-nav-group
-                  text="Level 3 - with children"
-                  route="#"
-                  icon="bwi-collection-shared"
-                  variant="tree"
-                  [open]="true"
-                >
-                  <bit-nav-item
-                    text="Level 4 - no children, no icon"
-                    route="#"
-                    variant="tree"
-                  ></bit-nav-item>
-                </bit-nav-group>
-              </bit-nav-group>
-              <bit-nav-group
-                text="Level 2 - with children (empty)"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-                [open]="true"
-              ></bit-nav-group>
-              <bit-nav-item
-                text="Level 2 - no children"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-              ></bit-nav-item>
-            </bit-nav-group>
-            <bit-nav-item
-              text="Level 1 - no children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-item>
+          <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-filter">
+            <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child B"></bit-nav-item>
+            <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
           </bit-nav-group>
         </bit-side-nav>
         <bit-callout title="Foobar"> Hello world! </bit-callout>
@@ -277,77 +85,15 @@ export const Secondary: Story = {
     template: /* HTML */ `
       <bit-layout>
         <bit-side-nav variant="secondary">
-          <bit-nav-item text="Item A" icon="bwi-collection-shared"></bit-nav-item>
-          <bit-nav-item text="Item B" icon="bwi-collection-shared"></bit-nav-item>
-          <bit-nav-divider></bit-nav-divider>
-          <bit-nav-item text="Item C" icon="bwi-collection-shared"></bit-nav-item>
-          <bit-nav-item text="Item D" icon="bwi-collection-shared"></bit-nav-item>
-          <bit-nav-group text="Tree example" icon="bwi-collection-shared" [open]="true">
-            <bit-nav-group
-              text="Level 1 - with children (empty)"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-group>
-            <bit-nav-item
-              text="Level 1 - no children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-item>
-            <bit-nav-group
-              text="Level 1 - with children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-              [open]="true"
-            >
-              <bit-nav-group
-                text="Level 2 - with children"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-                [open]="true"
-              >
-                <bit-nav-item
-                  text="Level 3 - no children, no icon"
-                  route="#"
-                  variant="tree"
-                ></bit-nav-item>
-                <bit-nav-group
-                  text="Level 3 - with children"
-                  route="#"
-                  icon="bwi-collection-shared"
-                  variant="tree"
-                  [open]="true"
-                >
-                  <bit-nav-item
-                    text="Level 4 - no children, no icon"
-                    route="#"
-                    variant="tree"
-                  ></bit-nav-item>
-                </bit-nav-group>
-              </bit-nav-group>
-              <bit-nav-group
-                text="Level 2 - with children (empty)"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-                [open]="true"
-              ></bit-nav-group>
-              <bit-nav-item
-                text="Level 2 - no children"
-                route="#"
-                icon="bwi-collection-shared"
-                variant="tree"
-              ></bit-nav-item>
-            </bit-nav-group>
-            <bit-nav-item
-              text="Level 1 - no children"
-              route="#"
-              icon="bwi-collection-shared"
-              variant="tree"
-            ></bit-nav-item>
+          <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
+            <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child B" route="b"></bit-nav-item>
+            <bit-nav-item text="Child C" route="c" icon="bwi-filter"></bit-nav-item>
+          </bit-nav-group>
+          <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-filter">
+            <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child B"></bit-nav-item>
+            <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
           </bit-nav-group>
         </bit-side-nav>
         <bit-callout title="Foobar"> Hello world! </bit-callout>

@@ -10,7 +10,6 @@ import { SharedModule } from "../../../shared";
   selector: "app-send-access-password",
   templateUrl: "send-access-password.component.html",
   imports: [SharedModule],
-  standalone: true,
 })
 export class SendAccessPasswordComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

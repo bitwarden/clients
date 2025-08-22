@@ -12,7 +12,6 @@ import { BadgeModule, ButtonModule, ButtonType, MenuModule } from "@bitwarden/co
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  standalone: true,
   imports: [JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule, BadgeModule],
 })
 export class NewSendDropdownComponent implements OnInit {

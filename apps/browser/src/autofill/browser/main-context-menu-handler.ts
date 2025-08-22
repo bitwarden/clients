@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import {
   AUTOFILL_CARD_ID,
   AUTOFILL_ID,
@@ -23,10 +24,10 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
@@ -151,12 +152,13 @@ export class MainContextMenuHandler {
   ];
 
   constructor(
-    private stateService: StateService,
+    private tokenService: TokenService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private logService: LogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   /**
@@ -181,6 +183,10 @@ export class MainContextMenuHandler {
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       );
 
+      const isCardRestricted = (
+        await firstValueFrom(this.restrictedItemTypesService.restricted$)
+      ).some((rt) => rt.cipherType === CipherType.Card);
+
       for (const menuItem of this.initContextMenuItems) {
         const {
           requiresPremiumAccess,
@@ -190,6 +196,9 @@ export class MainContextMenuHandler {
         } = menuItem;
 
         if (requiresPremiumAccess && !hasPremium) {
+          continue;
+        }
+        if (menuItem.id.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {
           continue;
         }
 
@@ -334,7 +343,11 @@ export class MainContextMenuHandler {
 
   async noAccess() {
     if (await this.init()) {
-      const authed = await this.stateService.getIsAuthenticated();
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const authed =
+        userId != null && (await firstValueFrom(this.tokenService.hasAccessToken$(userId)));
       this.loadOptions(
         this.i18nService.t(authed ? "unlockVaultMenu" : "loginToVaultMenu"),
         NOOP_COMMAND_SUFFIX,

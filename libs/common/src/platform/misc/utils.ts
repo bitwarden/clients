@@ -252,6 +252,7 @@ export class Utils {
   }
 
   // ref: http://stackoverflow.com/a/2117523/1090359
+  /** @deprecated Use newGuid from @bitwarden/guid instead */
   static newGuid(): string {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
       const r = (Math.random() * 16) | 0;
@@ -260,8 +261,10 @@ export class Utils {
     });
   }
 
-  static guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  /** @deprecated Use guidRegex from @bitwarden/guid instead */
+  static guidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 
+  /** @deprecated Use isGuid from @bitwarden/guid instead */
   static isGuid(id: string) {
     return RegExp(Utils.guidRegex, "i").test(id);
   }

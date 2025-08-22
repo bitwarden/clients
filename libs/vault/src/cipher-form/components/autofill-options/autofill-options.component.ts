@@ -39,7 +39,6 @@ interface UriField {
 @Component({
   selector: "vault-autofill-options",
   templateUrl: "./autofill-options.component.html",
-  standalone: true,
   imports: [
     DragDropModule,
     SectionHeaderComponent,

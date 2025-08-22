@@ -33,29 +33,6 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     });
   }
 
-  async argon2(
-    password: string | Uint8Array,
-    salt: string | Uint8Array,
-    iterations: number,
-    memory: number,
-    parallelism: number,
-  ): Promise<Uint8Array> {
-    const nodePassword = this.toNodeValue(password);
-    const nodeSalt = this.toNodeBuffer(this.toUint8Buffer(salt));
-
-    const argon2 = await import("argon2");
-    const hash = await argon2.hash(nodePassword, {
-      salt: nodeSalt,
-      raw: true,
-      hashLength: 32,
-      timeCost: iterations,
-      memoryCost: memory,
-      parallelism: parallelism,
-      type: argon2.argon2id,
-    });
-    return this.toUint8Buffer(hash);
-  }
-
   // ref: https://tools.ietf.org/html/rfc5869
   async hkdf(
     ikm: Uint8Array,

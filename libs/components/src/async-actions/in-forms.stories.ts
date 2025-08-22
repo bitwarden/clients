@@ -7,12 +7,14 @@ import { delay, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 
+import { A11yTitleDirective } from "../a11y";
 import { ButtonModule } from "../button";
 import { FormFieldModule } from "../form-field";
 import { IconButtonModule } from "../icon-button";
 import { InputModule } from "../input/input.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
+import { AsyncActionsModule } from "./async-actions.module";
 import { BitActionDirective } from "./bit-action.directive";
 import { BitSubmitDirective } from "./bit-submit.directive";
 import { BitFormButtonDirective } from "./form-button.directive";
@@ -27,19 +29,27 @@ const template = `
     <bit-form-field>
       <bit-label>Email</bit-label>
       <input bitInput formControlName="email" />
-      <button type="button" bitSuffix bitIconButton="bwi-refresh" bitFormButton [bitAction]="refresh"></button>
+      <button type="button" label="Refresh" bitSuffix bitIconButton="bwi-refresh" bitFormButton [bitAction]="refresh"></button>
     </bit-form-field>
 
-    <button class="tw-mr-2" type="submit" buttonType="primary" bitButton bitFormButton>Submit</button>
-    <button class="tw-mr-2" type="button" buttonType="secondary" bitButton bitFormButton>Cancel</button>
-    <button class="tw-mr-2" type="button" buttonType="danger" bitButton bitFormButton [bitAction]="delete">Delete</button>
-    <button class="tw-mr-2" type="button" buttonType="secondary" bitButton bitFormButton [disabled]="true">Disabled</button>
-    <button class="tw-mr-2" type="button" buttonType="secondary" bitIconButton="bwi-star" bitFormButton [bitAction]="delete">Delete</button>
+    <button class="tw-me-2" type="submit" buttonType="primary" bitButton bitFormButton>Submit</button>
+    <button class="tw-me-2" type="button" buttonType="secondary" bitButton bitFormButton>Cancel</button>
+    <button class="tw-me-2" type="button" buttonType="danger" bitButton bitFormButton [bitAction]="delete">Delete</button>
+    <button class="tw-me-2" type="button" buttonType="secondary" bitButton bitFormButton [disabled]="true">Disabled</button>
+    <button class="tw-me-2" type="button" buttonType="muted" bitIconButton="bwi-star" label="Delete" bitFormButton [bitAction]="delete">Delete</button>
   </form>`;
 
 @Component({
   selector: "app-promise-example",
   template,
+  imports: [
+    A11yTitleDirective,
+    AsyncActionsModule,
+    ButtonModule,
+    FormFieldModule,
+    IconButtonModule,
+    ReactiveFormsModule,
+  ],
 })
 class PromiseExampleComponent {
   formObj = this.formBuilder.group({
@@ -77,6 +87,14 @@ class PromiseExampleComponent {
 @Component({
   selector: "app-observable-example",
   template,
+  imports: [
+    A11yTitleDirective,
+    AsyncActionsModule,
+    ButtonModule,
+    FormFieldModule,
+    IconButtonModule,
+    ReactiveFormsModule,
+  ],
 })
 class ObservableExampleComponent {
   formObj = this.formBuilder.group({
@@ -109,7 +127,6 @@ export default {
   title: "Component Library/Async Actions/In Forms",
   decorators: [
     moduleMetadata({
-      declarations: [PromiseExampleComponent, ObservableExampleComponent],
       imports: [
         BitSubmitDirective,
         BitFormButtonDirective,
@@ -120,6 +137,8 @@ export default {
         ButtonModule,
         IconButtonModule,
         BitActionDirective,
+        PromiseExampleComponent,
+        ObservableExampleComponent,
       ],
       providers: [
         {

@@ -26,7 +26,6 @@ import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config
  * Outputs the selected region to the parent component so it can respond as necessary.
  */
 @Component({
-  standalone: true,
   selector: "auth-registration-env-selector",
   templateUrl: "registration-env-selector.component.html",
   imports: [CommonModule, JslibModule, ReactiveFormsModule, FormFieldModule, SelectModule],

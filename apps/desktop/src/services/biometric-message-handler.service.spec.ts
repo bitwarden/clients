@@ -90,8 +90,10 @@ describe("BiometricMessageHandlerService", () => {
         reloadProcess: jest.fn(),
       },
     };
-    cryptoFunctionService.rsaEncrypt.mockResolvedValue(Utils.fromUtf8ToArray("encrypted"));
     cryptoFunctionService.randomBytes.mockResolvedValue(new Uint8Array(64) as CsprngArray);
+    cryptoFunctionService.rsaEncrypt.mockResolvedValue(
+      Utils.fromUtf8ToArray("encrypted") as CsprngArray,
+    );
 
     service = new BiometricMessageHandlerService(
       cryptoFunctionService,
@@ -333,38 +335,6 @@ describe("BiometricMessageHandlerService", () => {
         appId: "appId",
         command: "invalidateEncryption",
       });
-    });
-
-    it("should show update dialog when legacy unlock is requested with fingerprint active", async () => {
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
-        "connectedApp_appId",
-      ]);
-      (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: false,
-        }),
-      );
-      encryptService.decryptString.mockResolvedValue(
-        JSON.stringify({
-          command: "biometricUnlock",
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        }),
-      );
-      await service.handleMessage({
-        appId: "appId",
-        message: {
-          command: "biometricUnlock",
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        },
-      });
-      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
     });
 
     it("should send verify fingerprint when fingerprinting is required on modern unlock, and dialog is accepted, and set to trusted", async () => {

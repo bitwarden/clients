@@ -3,17 +3,18 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { UserNotificationSettingsService } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -25,19 +26,20 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
+import { NotificationType } from "../enums/notification-type.enum";
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
 import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
 import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
 
 import {
-  AddChangePasswordQueueMessage,
+  AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
   AddUnlockVaultQueueMessage,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
 } from "./abstractions/notification.background";
+import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import NotificationBackground from "./notification.background";
 
 jest.mock("rxjs", () => {
@@ -58,19 +60,28 @@ describe("NotificationBackground", () => {
   const collectionService = mock<CollectionService>();
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
-  const policyService = mock<DefaultPolicyService>();
+  const policyAppliesToUser$ = new BehaviorSubject<boolean>(true);
+  const policyService = mock<PolicyService>({
+    policyAppliesToUser$: jest.fn().mockReturnValue(policyAppliesToUser$),
+  });
   const folderService = mock<FolderService>();
-  const userNotificationSettingsService = mock<UserNotificationSettingsService>();
+  const enableChangedPasswordPromptMock$ = new BehaviorSubject(true);
+  const userNotificationSettingsService = mock<UserNotificationSettingsServiceAbstraction>();
+  userNotificationSettingsService.enableChangedPasswordPrompt$ = enableChangedPasswordPromptMock$;
+
   const domainSettingsService = mock<DomainSettingsService>();
   const environmentService = mock<EnvironmentService>();
   const logService = mock<LogService>();
+  const selectedThemeMock$ = new BehaviorSubject(ThemeTypes.Light);
   const themeStateService = mock<ThemeStateService>();
+  themeStateService.selectedTheme$ = selectedThemeMock$;
   const configService = mock<ConfigService>();
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
 
+  const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
-    id: "testId" as UserId,
+    id: userId,
     email: "test@example.com",
     emailVerified: true,
     name: "Test User",
@@ -163,7 +174,7 @@ describe("NotificationBackground", () => {
     });
   });
 
-  describe("notification bar extension message handlers", () => {
+  describe("notification bar extension message handlers and triggers", () => {
     beforeEach(() => {
       notificationBackground.init();
     });
@@ -274,7 +285,7 @@ describe("NotificationBackground", () => {
       });
     });
 
-    describe("bgAddLogin message handler", () => {
+    describe("bgTriggerAddLoginNotification message handler", () => {
       let tab: chrome.tabs.Tab;
       let sender: chrome.runtime.MessageSender;
       let getEnableAddedLoginPromptSpy: jest.SpyInstance;
@@ -282,7 +293,12 @@ describe("NotificationBackground", () => {
       let pushAddLoginToQueueSpy: jest.SpyInstance;
       let pushChangePasswordToQueueSpy: jest.SpyInstance;
       let getAllDecryptedForUrlSpy: jest.SpyInstance;
-
+      const mockModifyLoginCipherFormData: ModifyLoginCipherFormData = {
+        username: "test",
+        password: "password",
+        uri: "https://example.com",
+        newPassword: null,
+      };
       beforeEach(() => {
         tab = createChromeTabMock();
         sender = mock<chrome.runtime.MessageSender>({ tab });
@@ -303,43 +319,34 @@ describe("NotificationBackground", () => {
       });
 
       it("skips attempting to add the login if the user is logged out", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgAddLogin",
-          login: { username: "test", password: "password", url: "https://example.com" },
-        };
+        const data: ModifyLoginCipherFormData = mockModifyLoginCipherFormData;
         activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerAddLoginNotification(data, tab);
 
         expect(getEnableAddedLoginPromptSpy).not.toHaveBeenCalled();
         expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
       });
 
       it("skips attempting to add the login if the login data does not contain a valid url", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgAddLogin",
-          login: { username: "test", password: "password", url: "" },
+        const data: ModifyLoginCipherFormData = {
+          ...mockModifyLoginCipherFormData,
+          uri: "",
         };
         activeAccountStatusMock$.next(AuthenticationStatus.Locked);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerAddLoginNotification(data, tab);
 
         expect(getEnableAddedLoginPromptSpy).not.toHaveBeenCalled();
         expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
       });
 
       it("skips attempting to add the login if the user with a locked vault has disabled the login notification", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgAddLogin",
-          login: { username: "test", password: "password", url: "https://example.com" },
-        };
+        const data: ModifyLoginCipherFormData = mockModifyLoginCipherFormData;
         activeAccountStatusMock$.next(AuthenticationStatus.Locked);
         getEnableAddedLoginPromptSpy.mockReturnValueOnce(false);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerAddLoginNotification(data, tab);
 
         expect(getEnableAddedLoginPromptSpy).toHaveBeenCalled();
         expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
@@ -348,16 +355,12 @@ describe("NotificationBackground", () => {
       });
 
       it("skips attempting to add the login if the user with an unlocked vault has disabled the login notification", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgAddLogin",
-          login: { username: "test", password: "password", url: "https://example.com" },
-        };
+        const data: ModifyLoginCipherFormData = mockModifyLoginCipherFormData;
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getEnableAddedLoginPromptSpy.mockReturnValueOnce(false);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([]);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerAddLoginNotification(data, tab);
 
         expect(getEnableAddedLoginPromptSpy).toHaveBeenCalled();
         expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
@@ -366,10 +369,7 @@ describe("NotificationBackground", () => {
       });
 
       it("skips attempting to change the password for an existing login if the user has disabled changing the password notification", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgAddLogin",
-          login: { username: "test", password: "password", url: "https://example.com" },
-        };
+        const data: ModifyLoginCipherFormData = mockModifyLoginCipherFormData;
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
         getEnableChangedPasswordPromptSpy.mockReturnValueOnce(false);
@@ -377,8 +377,7 @@ describe("NotificationBackground", () => {
           mock<CipherView>({ login: { username: "test", password: "oldPassword" } }),
         ]);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerAddLoginNotification(data, tab);
 
         expect(getEnableAddedLoginPromptSpy).toHaveBeenCalled();
         expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
@@ -388,18 +387,14 @@ describe("NotificationBackground", () => {
       });
 
       it("skips attempting to change the password for an existing login if the password has not changed", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgAddLogin",
-          login: { username: "test", password: "password", url: "https://example.com" },
-        };
+        const data: ModifyLoginCipherFormData = mockModifyLoginCipherFormData;
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
           mock<CipherView>({ login: { username: "test", password: "password" } }),
         ]);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerAddLoginNotification(data, tab);
 
         expect(getEnableAddedLoginPromptSpy).toHaveBeenCalled();
         expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
@@ -408,39 +403,55 @@ describe("NotificationBackground", () => {
       });
 
       it("adds the login to the queue if the user has a locked account", async () => {
-        const login = { username: "test", password: "password", url: "https://example.com" };
-        const message: NotificationBackgroundExtensionMessage = { command: "bgAddLogin", login };
+        const data: ModifyLoginCipherFormData = mockModifyLoginCipherFormData;
         activeAccountStatusMock$.next(AuthenticationStatus.Locked);
         getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerAddLoginNotification(data, tab);
 
-        expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith("example.com", login, sender.tab, true);
+        expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
+          "example.com",
+          {
+            url: data.uri,
+            username: data.username,
+            password: data.password,
+          },
+          sender.tab,
+          true,
+        );
       });
 
       it("adds the login to the queue if the user has an unlocked account and the login is new", async () => {
-        const login = {
-          username: undefined,
-          password: "password",
-          url: "https://example.com",
-        } as any;
-        const message: NotificationBackgroundExtensionMessage = { command: "bgAddLogin", login };
+        const data: ModifyLoginCipherFormData = {
+          ...mockModifyLoginCipherFormData,
+          username: null,
+        };
+
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
           mock<CipherView>({ login: { username: "anotherTestUsername", password: "password" } }),
         ]);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerAddLoginNotification(data, tab);
 
-        expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith("example.com", login, sender.tab);
+        expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
+          "example.com",
+          {
+            url: data.uri,
+            username: data.username,
+            password: data.password,
+          },
+          sender.tab,
+        );
       });
 
       it("adds a change password message to the queue if the user has changed an existing cipher's password", async () => {
-        const login = { username: "tEsT", password: "password", url: "https://example.com" };
-        const message: NotificationBackgroundExtensionMessage = { command: "bgAddLogin", login };
+        const data: ModifyLoginCipherFormData = {
+          ...mockModifyLoginCipherFormData,
+          username: "tEsT",
+        };
+
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getEnableAddedLoginPromptSpy.mockResolvedValueOnce(true);
         getEnableChangedPasswordPromptSpy.mockResolvedValueOnce(true);
@@ -451,23 +462,28 @@ describe("NotificationBackground", () => {
           }),
         ]);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerAddLoginNotification(data, tab);
 
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           "cipher-id",
           "example.com",
-          login.password,
+          data.password,
           sender.tab,
         );
       });
     });
 
-    describe("bgChangedPassword message handler", () => {
+    describe("bgTriggerChangedPasswordNotification message handler", () => {
       let tab: chrome.tabs.Tab;
       let sender: chrome.runtime.MessageSender;
       let pushChangePasswordToQueueSpy: jest.SpyInstance;
       let getAllDecryptedForUrlSpy: jest.SpyInstance;
+      const mockModifyLoginCipherFormData: ModifyLoginCipherFormData = {
+        username: null,
+        uri: null,
+        password: "currentPassword",
+        newPassword: "newPassword",
+      };
 
       beforeEach(() => {
         tab = createChromeTabMock();
@@ -480,69 +496,51 @@ describe("NotificationBackground", () => {
       });
 
       it("skips attempting to add the change password message to the queue if the passed url is not valid", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgChangedPassword",
-          data: { newPassword: "newPassword", currentPassword: "currentPassword", url: "" },
-        };
+        const data: ModifyLoginCipherFormData = mockModifyLoginCipherFormData;
 
-        sendMockExtensionMessage(message);
-        await flushPromises();
+        await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
       });
 
       it("adds a change password message to the queue if the user does not have an unlocked account", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            currentPassword: "currentPassword",
-            url: "https://example.com",
-          },
+        const data: ModifyLoginCipherFormData = {
+          ...mockModifyLoginCipherFormData,
+          uri: "https://example.com",
         };
+
         activeAccountStatusMock$.next(AuthenticationStatus.Locked);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           null,
           "example.com",
-          message.data?.newPassword,
+          data?.newPassword,
           sender.tab,
           true,
         );
       });
 
       it("skips adding a change password message to the queue if the multiple ciphers exist for the passed URL and the current password is not found within the list of ciphers", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            currentPassword: "currentPassword",
-            url: "https://example.com",
-          },
+        const data: ModifyLoginCipherFormData = {
+          ...mockModifyLoginCipherFormData,
+          uri: "https://example.com",
         };
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
           mock<CipherView>({ login: { username: "test", password: "password" } }),
         ]);
-
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
         expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
       });
 
       it("skips adding a change password message if more than one existing cipher is found with a matching password ", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            currentPassword: "currentPassword",
-            url: "https://example.com",
-          },
+        const data: ModifyLoginCipherFormData = {
+          ...mockModifyLoginCipherFormData,
+          uri: "https://example.com",
         };
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
@@ -550,21 +548,16 @@ describe("NotificationBackground", () => {
           mock<CipherView>({ login: { username: "test2", password: "password" } }),
         ]);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
         expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
       });
 
       it("adds a change password message to the queue if a single cipher matches the passed current password", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            currentPassword: "currentPassword",
-            url: "https://example.com",
-          },
+        const data: ModifyLoginCipherFormData = {
+          ...mockModifyLoginCipherFormData,
+          uri: "https://example.com",
         };
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
@@ -574,24 +567,20 @@ describe("NotificationBackground", () => {
           }),
         ]);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           "cipher-id",
           "example.com",
-          message.data?.newPassword,
+          data?.newPassword,
           sender.tab,
         );
       });
 
       it("skips adding a change password message if no current password is passed in the message and more than one cipher is found for a url", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            url: "https://example.com",
-          },
+        const data: ModifyLoginCipherFormData = {
+          ...mockModifyLoginCipherFormData,
+          uri: "https://example.com",
         };
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
@@ -599,20 +588,17 @@ describe("NotificationBackground", () => {
           mock<CipherView>({ login: { username: "test2", password: "password" } }),
         ]);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
         expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
       });
 
       it("adds a change password message to the queue if no current password is passed with the message, but a single cipher is matched for the uri", async () => {
-        const message: NotificationBackgroundExtensionMessage = {
-          command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            url: "https://example.com",
-          },
+        const data: ModifyLoginCipherFormData = {
+          ...mockModifyLoginCipherFormData,
+          uri: "https://example.com",
+          password: null,
         };
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
@@ -622,13 +608,12 @@ describe("NotificationBackground", () => {
           }),
         ]);
 
-        sendMockExtensionMessage(message, sender);
-        await flushPromises();
+        await notificationBackground.triggerChangedPasswordNotification(data, tab);
 
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           "cipher-id",
           "example.com",
-          message.data?.newPassword,
+          data?.newPassword,
           sender.tab,
         );
       });
@@ -776,7 +761,7 @@ describe("NotificationBackground", () => {
           notificationBackground["notificationQueue"] = [
             mock<AddUnlockVaultQueueMessage>({
               tab,
-              type: NotificationQueueMessageType.UnlockVault,
+              type: NotificationType.UnlockVault,
             }),
           ];
 
@@ -798,7 +783,7 @@ describe("NotificationBackground", () => {
           };
           notificationBackground["notificationQueue"] = [
             mock<AddLoginQueueMessage>({
-              type: NotificationQueueMessageType.AddLogin,
+              type: NotificationType.AddLogin,
               tab,
               domain: "another.com",
             }),
@@ -818,11 +803,11 @@ describe("NotificationBackground", () => {
             edit: false,
             folder: "folder-id",
           };
-          const queueMessage = mock<AddChangePasswordQueueMessage>({
-            type: NotificationQueueMessageType.ChangePassword,
+          const queueMessage = mock<AddChangePasswordNotificationQueueMessage>({
+            type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            newPassword: "newPassword",
+            data: { newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -840,7 +825,7 @@ describe("NotificationBackground", () => {
           expect(createWithServerSpy).not.toHaveBeenCalled();
           expect(updatePasswordSpy).toHaveBeenCalledWith(
             cipherView,
-            queueMessage.newPassword,
+            queueMessage.data.newPassword,
             message.edit,
             sender.tab,
             "testId",
@@ -866,11 +851,11 @@ describe("NotificationBackground", () => {
             edit: false,
             folder: "folder-id",
           };
-          const queueMessage = mock<AddChangePasswordQueueMessage>({
-            type: NotificationQueueMessageType.ChangePassword,
+          const queueMessage = mock<AddChangePasswordNotificationQueueMessage>({
+            type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            newPassword: "newPassword",
+            data: { newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -889,7 +874,7 @@ describe("NotificationBackground", () => {
           expect(createWithServerSpy).not.toHaveBeenCalled();
           expect(updatePasswordSpy).toHaveBeenCalledWith(
             cipherView,
-            queueMessage.newPassword,
+            queueMessage.data.newPassword,
             message.edit,
             sender.tab,
             "testId",
@@ -946,11 +931,11 @@ describe("NotificationBackground", () => {
             edit: false,
             folder: "folder-id",
           };
-          const queueMessage = mock<AddChangePasswordQueueMessage>({
-            type: NotificationQueueMessageType.ChangePassword,
+          const queueMessage = mock<AddChangePasswordNotificationQueueMessage>({
+            type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            newPassword: "newPassword",
+            data: { newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
@@ -968,7 +953,7 @@ describe("NotificationBackground", () => {
           expect(createWithServerSpy).not.toHaveBeenCalled();
           expect(updatePasswordSpy).toHaveBeenCalledWith(
             cipherView,
-            queueMessage.newPassword,
+            queueMessage.data.newPassword,
             message.edit,
             sender.tab,
             mockCipherId,
@@ -998,7 +983,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
             username: "test",
@@ -1033,11 +1018,11 @@ describe("NotificationBackground", () => {
             edit: true,
             folder: "folder-id",
           };
-          const queueMessage = mock<AddChangePasswordQueueMessage>({
-            type: NotificationQueueMessageType.ChangePassword,
+          const queueMessage = mock<AddChangePasswordNotificationQueueMessage>({
+            type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            newPassword: "newPassword",
+            data: { newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>();
@@ -1050,7 +1035,7 @@ describe("NotificationBackground", () => {
 
           expect(updatePasswordSpy).toHaveBeenCalledWith(
             cipherView,
-            queueMessage.newPassword,
+            queueMessage.data.newPassword,
             message.edit,
             sender.tab,
             "testId",
@@ -1085,7 +1070,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
             username: "test",
@@ -1124,7 +1109,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
             username: "test",
@@ -1141,8 +1126,11 @@ describe("NotificationBackground", () => {
           convertAddLoginQueueMessageToCipherViewSpy.mockReturnValueOnce(cipherView);
           editItemSpy.mockResolvedValueOnce(undefined);
           cipherEncryptSpy.mockResolvedValueOnce({
-            ...cipherView,
-            id: "testId",
+            cipher: {
+              ...cipherView,
+              id: "testId",
+            },
+            encryptedFor: userId,
           });
 
           sendMockExtensionMessage(message, sender);
@@ -1174,7 +1162,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationType.AddLogin,
             tab,
             domain: "example.com",
             username: "test",
@@ -1188,6 +1176,13 @@ describe("NotificationBackground", () => {
           folderExistsSpy.mockResolvedValueOnce(true);
           convertAddLoginQueueMessageToCipherViewSpy.mockReturnValueOnce(cipherView);
           editItemSpy.mockResolvedValueOnce(undefined);
+          cipherEncryptSpy.mockResolvedValueOnce({
+            cipher: {
+              ...cipherView,
+              id: "testId",
+            },
+            encryptedFor: userId,
+          });
           const errorMessage = "fetch error";
           createWithServerSpy.mockImplementation(() => {
             throw new Error(errorMessage);
@@ -1218,11 +1213,11 @@ describe("NotificationBackground", () => {
             edit: false,
             folder: "folder-id",
           };
-          const queueMessage = mock<AddChangePasswordQueueMessage>({
-            type: NotificationQueueMessageType.ChangePassword,
+          const queueMessage = mock<AddChangePasswordNotificationQueueMessage>({
+            type: NotificationType.ChangePassword,
             tab,
             domain: "example.com",
-            newPassword: "newPassword",
+            data: { newPassword: "newPassword" },
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({ reprompt: CipherRepromptType.None });
@@ -1278,7 +1273,7 @@ describe("NotificationBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab });
         const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
         notificationBackground["notificationQueue"] = [
-          mock<AddUnlockVaultQueueMessage>({ type: NotificationQueueMessageType.UnlockVault, tab }),
+          mock<AddUnlockVaultQueueMessage>({ type: NotificationType.UnlockVault, tab }),
         ];
 
         sendMockExtensionMessage(message, sender);
@@ -1294,7 +1289,7 @@ describe("NotificationBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab: secondaryTab });
         notificationBackground["notificationQueue"] = [
           mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationType.AddLogin,
             tab,
             domain: "another.com",
           }),
@@ -1311,12 +1306,12 @@ describe("NotificationBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab });
         const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
         const firstNotification = mock<AddLoginQueueMessage>({
-          type: NotificationQueueMessageType.AddLogin,
+          type: NotificationType.AddLogin,
           tab,
           domain: "example.com",
         });
         const secondNotification = mock<AddLoginQueueMessage>({
-          type: NotificationQueueMessageType.AddLogin,
+          type: NotificationType.AddLogin,
           tab: createChromeTabMock({ id: 3 }),
           domain: "another.com",
         });
