@@ -7,11 +7,6 @@ export class SshKeyApi extends BaseResponse {
   publicKey: string;
   keyFingerprint: string;
 
-  // New fields for lossless encrypted key preservation and UX
-  originalPrivateKey?: string;
-  isEncrypted?: boolean;
-  sshKeyPassphrase?: string;
-
   constructor(data: any = null) {
     super(data);
     if (data == null) {
@@ -20,10 +15,5 @@ export class SshKeyApi extends BaseResponse {
     this.privateKey = this.getResponseProperty("PrivateKey");
     this.publicKey = this.getResponseProperty("PublicKey");
     this.keyFingerprint = this.getResponseProperty("KeyFingerprint");
-
-    // Map new optional properties if present
-    this.originalPrivateKey = this.getResponseProperty("OriginalPrivateKey");
-    this.isEncrypted = this.getResponseProperty("IsEncrypted");
-    this.sshKeyPassphrase = this.getResponseProperty("SshKeyPassphrase");
   }
 }

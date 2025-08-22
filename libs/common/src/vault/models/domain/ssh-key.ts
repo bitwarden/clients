@@ -15,11 +15,6 @@ export class SshKey extends Domain {
   publicKey: EncString;
   keyFingerprint: EncString;
 
-  // New fields for preserving encrypted PEM and passphrase
-  originalPrivateKey?: EncString;
-  isEncrypted?: boolean;
-  sshKeyPassphrase?: EncString;
-
   constructor(obj?: SshKeyData) {
     super();
     if (obj == null) {
@@ -33,8 +28,6 @@ export class SshKey extends Domain {
         privateKey: null,
         publicKey: null,
         keyFingerprint: null,
-        originalPrivateKey: null,
-        sshKeyPassphrase: null,
       },
       [],
     );
@@ -48,7 +41,7 @@ export class SshKey extends Domain {
     return this.decryptObj<SshKey, SshKeyView>(
       this,
       new SshKeyView(),
-      ["privateKey", "publicKey", "keyFingerprint", "originalPrivateKey", "sshKeyPassphrase"],
+      ["privateKey", "publicKey", "keyFingerprint"],
       orgId,
       encKey,
       "DomainType: SshKey; " + context,
@@ -61,8 +54,6 @@ export class SshKey extends Domain {
       privateKey: null,
       publicKey: null,
       keyFingerprint: null,
-      originalPrivateKey: null,
-      sshKeyPassphrase: null,
     });
     return c;
   }
@@ -92,9 +83,6 @@ export class SshKey extends Domain {
       privateKey: this.privateKey.toSdk(),
       publicKey: this.publicKey.toSdk(),
       fingerprint: this.keyFingerprint.toSdk(),
-      originalPrivateKey: this.originalPrivateKey?.toSdk(),
-      isEncrypted: this.isEncrypted,
-      sshKeyPassphrase: this.sshKeyPassphrase?.toSdk(),
     };
   }
 
@@ -111,9 +99,6 @@ export class SshKey extends Domain {
     sshKey.privateKey = EncString.fromJSON(obj.privateKey);
     sshKey.publicKey = EncString.fromJSON(obj.publicKey);
     sshKey.keyFingerprint = EncString.fromJSON(obj.fingerprint);
-    sshKey.originalPrivateKey = EncString.fromJSON((obj as any).originalPrivateKey);
-    sshKey.isEncrypted = (obj as any).isEncrypted;
-    sshKey.sshKeyPassphrase = EncString.fromJSON((obj as any).sshKeyPassphrase);
 
     return sshKey;
   }

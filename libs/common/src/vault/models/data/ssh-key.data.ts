@@ -7,11 +7,6 @@ export class SshKeyData {
   publicKey: string;
   keyFingerprint: string;
 
-  // New fields to preserve original encrypted key and optional passphrase
-  originalPrivateKey?: string;
-  isEncrypted?: boolean;
-  sshKeyPassphrase?: string;
-
   constructor(data?: SshKeyApi) {
     if (data == null) {
       return;
@@ -20,10 +15,5 @@ export class SshKeyData {
     this.privateKey = data.privateKey;
     this.publicKey = data.publicKey;
     this.keyFingerprint = data.keyFingerprint;
-
-    // Map new optional properties if present
-    this.originalPrivateKey = data.originalPrivateKey;
-    this.isEncrypted = data.isEncrypted;
-    this.sshKeyPassphrase = data.sshKeyPassphrase;
   }
 }
