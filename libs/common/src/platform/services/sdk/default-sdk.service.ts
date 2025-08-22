@@ -84,7 +84,7 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
-    private stateProvider?: StateProvider,
+    private stateProvider: StateProvider,
     private userAgent: string | null = null,
   ) {}
 
@@ -246,11 +246,8 @@ export class DefaultSdkService implements SdkService {
       ),
     });
 
-    // This is optional to avoid having to mock it on the tests
-    if (this.stateProvider) {
-      // Initialize the SDK managed database and the client managed repositories.
-      await initializeState(userId, client.platform().state(), this.stateProvider);
-    }
+    // Initialize the SDK managed database and the client managed repositories.
+    await initializeState(userId, client.platform().state(), this.stateProvider);
   }
 
   private toSettings(env: Environment): ClientSettings {
