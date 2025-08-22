@@ -36,7 +36,7 @@ import { TableDataSource, TableModule } from "../../../table";
               <button
                 bitIconButton="bwi-ellipsis-v"
                 type="button"
-                aria-label="Options"
+                label="Options"
                 (click)="openDefaultDialog()"
               ></button>
             </td>

@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "היתה בעיה בקריאת מפתח האבטחה. נסה בשנית."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "עקב מגבלות פלטפורמה, לא ניתן להשתמש ב־WebAuthn בכל היישומים של Bitwarden. עליך להגדיר ספק כניסה דו־שלבית אחר כך שתוכל לגשת לחשבון שלך כאשר לא ניתן להשתמש ב־WebAuthn."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "קוד השחזור שלך עבור כניסה דו שלבית לBitwarden"
   },

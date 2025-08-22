@@ -2451,9 +2451,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Problem med at læse sikkerhedsnøglen. Forsøg igen."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Gendannelseskoden til Bitwarden totrins-login"
   },
