@@ -1,21 +1,21 @@
 <form *ngIf="authed" [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="large" [title]="'twoStepLogin' | i18n" [subtitle]="'YubiKey'">
     <ng-container bitDialogContent>
-      <app-callout
+      <bit-callout
         *ngIf="enabled"
         type="success"
         title="{{ 'enabled' | i18n }}"
         icon="bwi bwi-check-circle"
       >
         {{ "twoStepLoginProviderEnabled" | i18n }}
-      </app-callout>
-      <app-callout type="warning">
+      </bit-callout>
+      <bit-callout type="warning">
         <p bitTypography="body1">{{ "twoFactorYubikeyWarning" | i18n }}</p>
         <ul class="tw-mb-0" bitTypography="body1">
           <li>{{ "twoFactorYubikeySupportUsb" | i18n }}</li>
           <li>{{ "twoFactorYubikeySupportMobile" | i18n }}</li>
         </ul>
-      </app-callout>
+      </bit-callout>
       <img class="tw-float-right mfaType3" alt="YubiKey OTP security key logo" />
       <p bitTypography="body1">{{ "twoFactorYubikeyAdd" | i18n }}:</p>
       <ol bitTypography="body1">
@@ -28,7 +28,7 @@
       <div class="tw-grid tw-grid-cols-12 tw-gap-4" formArrayName="formKeys">
         <div class="tw-col-span-6" *ngFor="let k of keys; let i = index">
           <div [formGroupName]="i">
-            <bit-label>{{ "yubikeyX" | i18n: i + 1 }}</bit-label>
+            <bit-label>{{ "yubikeyX" | i18n: (i + 1).toString() }}</bit-label>
             <bit-form-field *ngIf="!keys[i].existingKey">
               <input bitInput type="password" formControlName="key" appInputVerbatim />
             </bit-form-field>
@@ -39,7 +39,7 @@
                 type="button"
                 buttonType="danger"
                 (click)="remove(i)"
-                appA11yTitle="{{ 'remove' | i18n }}"
+                label="{{ 'remove' | i18n }}"
               ></button>
             </div>
           </div>

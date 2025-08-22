@@ -1,12 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Overlay } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ButtonModule, DialogService } from "@bitwarden/components";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  ButtonModule,
+  DialogService,
+} from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
@@ -25,15 +31,16 @@ export interface GeneratorDialogResult {
   generatedValue?: string;
 }
 
-export enum GeneratorDialogAction {
-  Selected = "selected",
-  Canceled = "canceled",
-}
+export const GeneratorDialogAction = {
+  Selected: "selected",
+  Canceled: "canceled",
+} as const;
+
+type GeneratorDialogAction = UnionOfValues<typeof GeneratorDialogAction>;
 
 @Component({
   selector: "app-vault-generator-dialog",
   templateUrl: "./vault-generator-dialog.component.html",
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,

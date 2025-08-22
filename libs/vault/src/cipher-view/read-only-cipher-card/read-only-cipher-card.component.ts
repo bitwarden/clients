@@ -5,7 +5,6 @@ import { CardComponent, BitFormFieldComponent } from "@bitwarden/components";
 @Component({
   selector: "read-only-cipher-card",
   templateUrl: "./read-only-cipher-card.component.html",
-  standalone: true,
   imports: [CardComponent],
 })
 /**

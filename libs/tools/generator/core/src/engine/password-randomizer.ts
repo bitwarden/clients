@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 
+import { Type } from "../metadata";
 import {
   CredentialGenerator,
   GenerateRequest,
@@ -24,7 +25,10 @@ export class PasswordRandomizer
   /** Instantiates the password randomizer
    *  @param randomizer data source for random data
    */
-  constructor(private randomizer: Randomizer) {}
+  constructor(
+    private randomizer: Randomizer,
+    private currentTime: () => number,
+  ) {}
 
   /** create a password from ASCII codepoints
    *  @param request refines the generated password
@@ -86,8 +90,8 @@ export class PasswordRandomizer
 
       return new GeneratedCredential(
         password,
-        "password",
-        Date.now(),
+        Type.password,
+        this.currentTime(),
         request.source,
         request.website,
       );
@@ -97,8 +101,8 @@ export class PasswordRandomizer
 
       return new GeneratedCredential(
         passphrase,
-        "passphrase",
-        Date.now(),
+        Type.password,
+        this.currentTime(),
         request.source,
         request.website,
       );

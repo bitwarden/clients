@@ -1,3 +1,4 @@
+<!-- eslint-disable tailwindcss/no-custom-classname -->
 <ng-container *ngIf="filters && filters.length">
   <div *ngIf="headerInfo.showHeader" class="filter-heading">
     <button
@@ -83,13 +84,13 @@
             ></i>
             &nbsp;{{ f.node.name }}
           </button>
-          <span class="ml-auto tw-flex tw-items-center">
+          <span class="tw-ml-auto tw-flex tw-items-center">
             <button
               type="button"
               *ngIf="editInfo && f.node.id"
               class="edit-button"
               (click)="onEdit(f)"
-              appA11yTitle="{{ editInfo.text | i18n }}"
+              appA11yTitle="{{ 'editWithName' | i18n: editInfo.filterName : f.node.name }}"
             >
               <i class="bwi bwi-pencil bwi-fw" aria-hidden="true"></i>
             </button>

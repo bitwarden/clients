@@ -3,7 +3,6 @@ import { Component } from "@angular/core";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 @Component({
-  standalone: true,
   selector: "bit-kitchen-sink-table",
   imports: [KitchenSinkSharedModule],
   template: `
@@ -24,6 +23,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
               type="button"
               bitIconButton="bwi-ellipsis-v"
               [bitMenuTriggerFor]="menu1"
+              label="Options"
             ></button>
             <bit-menu #menu1>
               <a href="#" bitMenuItem>Anchor link</a>
@@ -41,6 +41,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
               type="button"
               bitIconButton="bwi-ellipsis-v"
               [bitMenuTriggerFor]="menu2"
+              label="Options"
             ></button>
             <bit-menu #menu2>
               <a href="#" bitMenuItem>Anchor link</a>

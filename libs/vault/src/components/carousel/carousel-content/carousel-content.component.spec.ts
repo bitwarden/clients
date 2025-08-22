@@ -7,7 +7,6 @@ import { VaultCarouselContentComponent } from "./carousel-content.component";
 
 @Component({
   selector: "app-test-template-ref",
-  standalone: true,
   imports: [VaultCarouselContentComponent],
   template: `
     <ng-template #template>

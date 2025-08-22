@@ -13,7 +13,6 @@ import { FormFieldModule } from "@bitwarden/components";
  */
 @Component({
   selector: "app-user-verification",
-  standalone: true,
   imports: [CommonModule, JslibModule, ReactiveFormsModule, FormFieldModule, FormsModule],
   templateUrl: "user-verification.component.html",
   providers: [

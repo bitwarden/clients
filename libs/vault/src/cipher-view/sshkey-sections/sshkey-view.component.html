@@ -1,17 +1,25 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "typeSshKey" | i18n }}</h2>
   </bit-section-header>
-  <bit-card class="[&_bit-form-field:last-of-type]:tw-mb-0">
+  <read-only-cipher-card>
     <bit-form-field>
       <bit-label>{{ "sshPrivateKey" | i18n }}</bit-label>
-      <input readonly bitInput [value]="sshKey.privateKey" aria-readonly="true" type="password" />
+      <input
+        readonly
+        bitInput
+        [value]="sshKey.privateKey"
+        aria-readonly="true"
+        type="password"
+        data-testid="private-key"
+      />
       <button
         bitSuffix
         type="button"
         bitIconButton
         bitPasswordInputToggle
         data-testid="toggle-privateKey"
+        [(toggled)]="revealSshKey"
       ></button>
       <button
         bitIconButton="bwi-clone"
@@ -19,32 +27,44 @@
         type="button"
         [appCopyClick]="sshKey.privateKey"
         showToast
-        [appA11yTitle]="'copyValue' | i18n"
+        [label]="'copyValue' | i18n"
       ></button>
     </bit-form-field>
     <bit-form-field>
       <bit-label>{{ "sshPublicKey" | i18n }}</bit-label>
-      <input readonly bitInput [value]="sshKey.publicKey" aria-readonly="true" />
+      <input
+        readonly
+        bitInput
+        [value]="sshKey.publicKey"
+        aria-readonly="true"
+        data-testid="public-key"
+      />
       <button
         bitIconButton="bwi-clone"
         bitSuffix
         type="button"
         [appCopyClick]="sshKey.publicKey"
         showToast
-        [appA11yTitle]="'copyValue' | i18n"
+        [label]="'copyValue' | i18n"
       ></button>
     </bit-form-field>
     <bit-form-field>
       <bit-label>{{ "sshFingerprint" | i18n }}</bit-label>
-      <input readonly bitInput [value]="sshKey.keyFingerprint" aria-readonly="true" />
+      <input
+        readonly
+        bitInput
+        [value]="sshKey.keyFingerprint"
+        aria-readonly="true"
+        data-testid="fingerprint"
+      />
       <button
         bitIconButton="bwi-clone"
         bitSuffix
         type="button"
         [appCopyClick]="sshKey.keyFingerprint"
         showToast
-        [appA11yTitle]="'copyValue' | i18n"
+        [label]="'copyValue' | i18n"
       ></button>
     </bit-form-field>
-  </bit-card>
-</bit-section>
+  </read-only-cipher-card>
+</section>

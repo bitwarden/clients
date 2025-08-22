@@ -14,11 +14,6 @@ export abstract class TokenRequest {
     this.device = device != null ? device : null;
   }
 
-  // eslint-disable-next-line
-  alterIdentityTokenHeaders(headers: Headers) {
-    // Implemented in subclass if required
-  }
-
   setTwoFactor(twoFactor: TokenTwoFactorRequest | undefined) {
     this.twoFactor = twoFactor;
   }

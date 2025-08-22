@@ -2,13 +2,13 @@
   class="tw-mb-1 tw-min-w-[--bit-toast-width] tw-text-main tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-pointer-events-auto tw-cursor-default tw-overflow-hidden tw-shadow-lg {{
     bgColor
   }}"
-  [attr.role]="variant === 'error' ? 'alert' : null"
+  [attr.role]="variant() === 'error' ? 'alert' : null"
 >
   <div class="tw-flex tw-items-center tw-gap-4 tw-px-2 tw-pb-1 tw-pt-2">
     <i aria-hidden="true" class="bwi tw-text-xl tw-py-1.5 tw-px-2.5 {{ iconClass }}"></i>
     <div>
-      <span class="tw-sr-only">{{ variant | i18n }}</span>
-      @if (title) {
+      <span class="tw-sr-only">{{ variant() | i18n }}</span>
+      @if (title(); as title) {
         <p data-testid="toast-title" class="tw-font-semibold tw-mb-0">{{ title }}</p>
       }
       @for (m of messageArray; track m) {
@@ -19,12 +19,14 @@
     </div>
     <!-- Overriding hover and focus-visible colors for a11y against colored background -->
     <button
-      class="tw-ml-auto hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
+      class="tw-ms-auto hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
       bitIconButton="bwi-close"
       buttonType="main"
       type="button"
+      size="small"
       (click)="this.onClose.emit()"
+      [label]="'close' | i18n"
     ></button>
   </div>
-  <div class="tw-h-1 tw-w-full tw-bg-text-main/30" [style.width]="progressWidth + '%'"></div>
+  <div class="tw-h-1 tw-w-full tw-bg-text-main/30" [style.width]="progressWidth() + '%'"></div>
 </div>

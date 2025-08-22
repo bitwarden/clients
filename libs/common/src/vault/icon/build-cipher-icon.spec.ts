@@ -89,7 +89,7 @@ describe("buildCipherIcon", () => {
 
       expect(iconDetails).toEqual({
         icon: "bwi-globe",
-        image: undefined,
+        image: null,
         fallbackImage: "",
         imageEnabled: false,
       });
@@ -102,7 +102,7 @@ describe("buildCipherIcon", () => {
 
       expect(iconDetails).toEqual({
         icon: "bwi-globe",
-        image: undefined,
+        image: null,
         fallbackImage: "",
         imageEnabled: true,
       });

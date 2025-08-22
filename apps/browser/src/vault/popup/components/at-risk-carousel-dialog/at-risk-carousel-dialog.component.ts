@@ -1,13 +1,21 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component, inject, signal } from "@angular/core";
 
-import { ButtonModule, DialogModule, DialogService, TypographyModule } from "@bitwarden/components";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import {
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { DarkImageSourceDirective, VaultCarouselModule } from "@bitwarden/vault";
 
-export enum AtRiskCarouselDialogResult {
-  Dismissed = "dismissed",
-}
+export const AtRiskCarouselDialogResult = {
+  Dismissed: "dismissed",
+} as const;
+
+type AtRiskCarouselDialogResult = UnionOfValues<typeof AtRiskCarouselDialogResult>;
 
 @Component({
   selector: "vault-at-risk-carousel-dialog",
@@ -20,7 +28,6 @@ export enum AtRiskCarouselDialogResult {
     DarkImageSourceDirective,
     I18nPipe,
   ],
-  standalone: true,
 })
 export class AtRiskCarouselDialogComponent {
   private dialogRef = inject(DialogRef);

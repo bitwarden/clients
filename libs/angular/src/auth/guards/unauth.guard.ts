@@ -4,8 +4,8 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -50,7 +50,7 @@ async function unauthGuard(
   const tdeEnabled = await firstValueFrom(
     deviceTrustService.supportsDeviceTrustByUserId$(activeUser.id),
   );
-  const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$);
+  const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(activeUser.id));
 
   // If locked, TDE is enabled, and the user hasn't decrypted yet, then redirect to the
   // login decryption options component.

@@ -24,25 +24,20 @@
 
 <div class="tw-flex tw-flex-row -tw-mx-2.5">
   <div class="tw-basis-1/4 tw-max-w-1/4 tw-px-2.5">
-    <div class="groupings">
-      <div class="content">
-        <div class="inner-content">
-          <app-vault-filter
-            #vaultFilter
-            [activeFilter]="activeFilter"
-            [searchText]="currentSearchText$ | async"
-            (searchTextChanged)="filterSearchText($event)"
-            (onEditFolder)="editFolder($event)"
-          ></app-vault-filter>
-        </div>
-      </div>
-    </div>
+    <app-vault-filter
+      #vaultFilter
+      [activeFilter]="activeFilter"
+      [searchText]="currentSearchText$ | async"
+      (searchTextChanged)="filterSearchText($event)"
+      (onEditFolder)="editFolder($event)"
+    ></app-vault-filter>
   </div>
   <div class="tw-basis-3/4 tw-max-w-3/4 tw-px-2.5">
     <bit-callout type="warning" *ngIf="activeFilter.isDeleted">
       {{ trashCleanupWarning }}
     </bit-callout>
     <app-vault-items
+      #vaultItems
       [ciphers]="ciphers"
       [collections]="collections"
       [allCollections]="allCollections"
@@ -65,7 +60,7 @@
       class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
     >
       <i
-        class="bwi bwi-spinner bwi-spin text-muted"
+        class="bwi bwi-spinner bwi-spin tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>
@@ -84,16 +79,9 @@
         (click)="addCipher()"
         *ngIf="filter.type !== 'trash'"
       >
-        <i class="bwi bwi-plus-f bwi-fw" aria-hidden="true"></i>
+        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
         {{ "newItem" | i18n }}
       </button>
     </div>
   </div>
 </div>
-
-<ng-template #attachments></ng-template>
-<ng-template #folderAddEdit></ng-template>
-<ng-template #cipherAddEdit></ng-template>
-<ng-template #share></ng-template>
-<ng-template #collectionsModal></ng-template>
-<ng-template #updateKeyTemplate></ng-template>

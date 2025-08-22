@@ -1,13 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ClientType } from "@bitwarden/common/enums";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
@@ -15,22 +16,20 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { generate_ssh_key } from "@bitwarden/sdk-internal";
 
+import { SshImportPromptService } from "../../../services/ssh-import-prompt.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 @Component({
   selector: "vault-sshkey-section",
   templateUrl: "./sshkey-section.component.html",
-  standalone: true,
   imports: [
     CardComponent,
-    SectionComponent,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,
@@ -60,11 +59,15 @@ export class SshKeySectionComponent implements OnInit {
     keyFingerprint: [""],
   });
 
+  showImport = false;
+  private destroyRef = inject(DestroyRef);
+
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
-    private i18nService: I18nService,
     private sdkService: SdkService,
+    private sshImportPromptService: SshImportPromptService,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.cipherFormContainer.registerChildForm("sshKeyDetails", this.sshKeyForm);
     this.sshKeyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
@@ -87,6 +90,17 @@ export class SshKeySectionComponent implements OnInit {
     }
 
     this.sshKeyForm.disable();
+
+    // Web does not support clipboard access
+    if (this.platformUtilsService.getClientType() !== ClientType.Web) {
+      this.showImport = true;
+    }
+
+    // Disable the form if the cipher form container is enabled
+    // to prevent user interaction
+    this.cipherFormContainer.formEnabled$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.sshKeyForm.disable());
   }
 
   /** Set form initial form values from the current cipher */
@@ -98,6 +112,17 @@ export class SshKeySectionComponent implements OnInit {
       publicKey,
       keyFingerprint,
     });
+  }
+
+  async importSshKeyFromClipboard() {
+    const key = await this.sshImportPromptService.importSshKeyFromClipboard();
+    if (key != null) {
+      this.sshKeyForm.setValue({
+        privateKey: key.privateKey,
+        publicKey: key.publicKey,
+        keyFingerprint: key.keyFingerprint,
+      });
+    }
   }
 
   private async generateSshKey() {

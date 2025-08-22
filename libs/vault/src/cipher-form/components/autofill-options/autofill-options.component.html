@@ -1,16 +1,20 @@
-<bit-section [formGroup]="autofillOptionsForm">
+<section class="tw-mb-5 bit-compact:tw-mb-4" [formGroup]="autofillOptionsForm">
   <bit-section-header>
     <h2 bitTypography="h6">
       {{ "autofillOptions" | i18n }}
     </h2>
   </bit-section-header>
 
-  <bit-card>
+  <bit-card cdkDropList (cdkDropListDropped)="onUriItemDrop($event)">
     <ng-container formArrayName="uris">
       <vault-autofill-uri-option
         *ngFor="let uri of uriControls; let i = index"
+        cdkDrag
+        [cdkDragDisabled]="uriControls.length <= 1"
         [formControlName]="i"
         (remove)="removeUri(i)"
+        (onKeydown)="onUriItemKeydown($event, i)"
+        [canReorder]="uriControls.length > 1"
         [canRemove]="uriControls.length > 1"
         [defaultMatchDetection]="defaultMatchDetection$ | async"
         [index]="i"
@@ -34,4 +38,4 @@
       <bit-select formControlName="autofillOnPageLoad" [items]="autofillOptions"></bit-select>
     </bit-form-field>
   </bit-card>
-</bit-section>
+</section>

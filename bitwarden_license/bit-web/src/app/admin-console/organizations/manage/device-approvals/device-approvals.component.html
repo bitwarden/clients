@@ -1,7 +1,7 @@
 <app-header>
   <ng-container slot="title-suffix" *ngIf="loading || actionInProgress">
     <i
-      class="bwi bwi-spinner bwi-spin text-muted"
+      class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
@@ -25,7 +25,7 @@
           bitIconButton="bwi-ellipsis-v"
           size="small"
           type="button"
-          appA11yTitle="{{ 'options' | i18n }}"
+          label="{{ 'options' | i18n }}"
         ></button>
         <bit-menu #headerMenu>
           <button
@@ -56,7 +56,7 @@
     <tr bitRow alignContent="top" *ngFor="let r of rows$ | async">
       <td bitCell class="tw-flex-col">
         <div>{{ r.email }}</div>
-        <code class="tw-text-sm">{{ r.publicKey | fingerprint: r.email | async }}</code>
+        <code class="tw-text-sm">{{ r.fingerprintPhrase }}</code>
       </td>
       <td bitCell class="tw-flex-col">
         <div>{{ r.requestDeviceType }}</div>
@@ -71,7 +71,7 @@
           bitIconButton="bwi-ellipsis-v"
           size="small"
           type="button"
-          appA11yTitle="{{ 'options' | i18n }}"
+          label="{{ 'options' | i18n }}"
         ></button>
         <bit-menu #rowMenu>
           <button

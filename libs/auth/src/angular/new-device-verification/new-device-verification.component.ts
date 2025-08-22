@@ -2,30 +2,34 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  ToastService,
 } from "@bitwarden/components";
 
-import { LoginEmailServiceAbstraction } from "../../common/abstractions/login-email.service";
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
 
 /**
  * Component for verifying a new device via a one-time password (OTP).
  */
 @Component({
-  standalone: true,
   selector: "app-new-device-verification",
   templateUrl: "./new-device-verification.component.html",
   imports: [
@@ -60,10 +64,11 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private logService: LogService,
-    private toastService: ToastService,
     private i18nService: I18nService,
-    private syncService: SyncService,
-    private loginEmailService: LoginEmailServiceAbstraction,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private configService: ConfigService,
+    private accountService: AccountService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -140,22 +145,38 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (authResult.forcePasswordReset) {
-        await this.router.navigate(["/update-temp-password"]);
-        return;
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.loginSuccessHandlerService.run(authResult.userId);
+
+      // TODO: PM-22663 use the new service to handle routing.
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+      const forceSetPasswordReason = await firstValueFrom(
+        this.masterPasswordService.forceSetPasswordReason$(activeUserId),
+      );
+
+      if (
+        forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
+        forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
+      ) {
+        await this.router.navigate(["/change-password"]);
+      } else {
+        await this.router.navigate(["/vault"]);
       }
-
-      this.loginEmailService.clearValues();
-
-      await this.syncService.fullSync(true);
-
-      // If verification succeeds, navigate to vault
-      await this.router.navigate(["/vault"]);
     } catch (e) {
       this.logService.error(e);
-      const errorMessage =
-        (e as any)?.response?.error_description ?? this.i18nService.t("errorOccurred");
+      let errorMessage =
+        ((e as any)?.response?.error_description as string) ?? this.i18nService.t("errorOccurred");
+
+      if (errorMessage.includes("Invalid New Device OTP")) {
+        errorMessage = this.i18nService.t("invalidVerificationCode");
+      }
+
       codeControl.setErrors({ serverError: { message: errorMessage } });
+      // For enter key press scenarios, we have to manually mark the control as touched
+      // to get the error message to display
+      codeControl.markAsTouched();
     }
   };
 }

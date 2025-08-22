@@ -1,13 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
@@ -62,7 +65,21 @@ export class AccessPolicyService {
     private keyService: KeyService,
     protected apiService: ApiService,
     protected encryptService: EncryptService,
+    private accountService: AccountService,
   ) {}
+
+  private getOrganizationKey$(organizationId: string) {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      filter((orgKeys) => !!orgKeys),
+      map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
+    );
+  }
+
+  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
+    return await firstValueFrom(this.getOrganizationKey$(organizationId));
+  }
 
   async getProjectPeopleAccessPolicies(
     projectId: string,
@@ -268,10 +285,6 @@ export class AccessPolicyService {
     };
   }
 
-  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.keyService.getOrgKey(organizationId);
-  }
-
   private getAccessPolicyRequest(
     granteeId: string,
     view: UserAccessPolicyView | GroupAccessPolicyView | ServiceAccountAccessPolicyView,
@@ -350,7 +363,7 @@ export class AccessPolicyService {
       ...this.createBaseAccessPolicyView(response),
       grantedProjectId: response.grantedProjectId,
       grantedProjectName: response.grantedProjectName
-        ? await this.encryptService.decryptToUtf8(
+        ? await this.encryptService.decryptString(
             new EncString(response.grantedProjectName),
             organizationKey,
           )
@@ -394,7 +407,7 @@ export class AccessPolicyService {
           ...this.createBaseAccessPolicyView(response),
           serviceAccountId: response.serviceAccountId,
           serviceAccountName: response.serviceAccountName
-            ? await this.encryptService.decryptToUtf8(
+            ? await this.encryptService.decryptString(
                 new EncString(response.serviceAccountName),
                 orgKey,
               )
@@ -420,7 +433,7 @@ export class AccessPolicyService {
 
         if (r.type === "serviceAccount" || r.type === "project") {
           view.name = r.name
-            ? await this.encryptService.decryptToUtf8(new EncString(r.name), orgKey)
+            ? await this.encryptService.decryptString(new EncString(r.name), orgKey)
             : null;
         } else {
           view.name = r.name;

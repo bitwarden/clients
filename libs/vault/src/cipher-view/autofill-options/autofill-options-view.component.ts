@@ -14,7 +14,6 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -22,12 +21,10 @@ import {
 @Component({
   selector: "app-autofill-options-view",
   templateUrl: "autofill-options-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
     CardComponent,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,

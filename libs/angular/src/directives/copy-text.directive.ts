@@ -7,6 +7,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 @Directive({
   selector: "[appCopyText]",
+  standalone: false,
 })
 export class CopyTextDirective {
   constructor(

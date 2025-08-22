@@ -1,8 +1,6 @@
-﻿@import "~nord/src/sass/nord.scss";
+﻿$dark-icon-themes: "theme_dark";
 
-$dark-icon-themes: "theme_dark", "theme_nord";
-
-$font-family-sans-serif: "DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-sans-serif: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
 $font-family-monospace: Menlo, Monaco, Consolas, "Courier New", monospace;
 $font-size-base: 14px;
 $font-size-large: 18px;
@@ -165,65 +163,6 @@ $themes: (
     svgSuffix: "-dark.svg",
     hrColor: #bac0ce,
     codeColor: $code-color-dark,
-  ),
-  nord: (
-    textColor: $nord5,
-    borderColor: $nord0,
-    backgroundColor: $nord2,
-    borderColorAlt: $nord5,
-    backgroundColorAlt: $nord1,
-    // Ensure the `window.main.ts` is updated with this value
-    backgroundColorAlt2: $nord1,
-    scrollbarColor: $nord4,
-    scrollbarHoverColor: $nord6,
-    boxBackgroundColor: $nord2,
-    boxBackgroundHoverColor: $nord3,
-    boxBorderColor: $nord1,
-    headerBackgroundColor: $nord2,
-    headerBorderColor: $nord0,
-    headerInputBackgroundColor: $nord6,
-    headerInputBackgroundFocusColor: $nord5,
-    headerInputColor: $nord2,
-    headerInputPlaceholderColor: $nord3,
-    listItemBackgroundColor: $nord2,
-    listItemBackgroundHoverColor: $nord3,
-    listItemBorderColor: $nord1,
-    disabledIconColor: $nord5,
-    headingColor: $nord4,
-    headingButtonColor: $nord5,
-    headingButtonHoverColor: $nord6,
-    labelColor: $nord4,
-    mutedColor: $nord4,
-    totpStrokeColor: $nord4,
-    boxRowButtonColor: $nord4,
-    boxRowButtonHoverColor: $nord6,
-    inputBorderColor: $nord0,
-    inputBackgroundColor: $nord2,
-    inputPlaceholderColor: lighten($nord3, 20%),
-    buttonBackgroundColor: $nord3,
-    buttonBorderColor: $nord0,
-    buttonColor: $nord5,
-    buttonPrimaryColor: $nord8,
-    buttonDangerColor: $nord11,
-    primaryColor: $nord9,
-    primaryAccentColor: $nord8,
-    dangerColor: $nord11,
-    successColor: $nord14,
-    infoColor: $nord9,
-    warningColor: $nord12,
-    logoSuffix: "white",
-    mfaLogoSuffix: "-w.png",
-    passwordNumberColor: $nord8,
-    passwordSpecialColor: $nord12,
-    passwordCountText: $nord5,
-    calloutBorderColor: $nord1,
-    calloutBackgroundColor: $nord2,
-    toastTextColor: #000000,
-    accountSwitcherBackgroundColor: $nord0,
-    accountSwitcherTextColor: $nord5,
-    svgSuffix: "-dark.svg",
-    hrColor: $nord4,
-    codeColor: $code-color-nord,
   ),
 );
 

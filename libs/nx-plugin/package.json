@@ -1,0 +1,12 @@
+{
+  "name": "@bitwarden/nx-plugin",
+  "version": "0.0.1",
+  "description": "Custom Nx tools like generators and executors for Bitwarden projects",
+  "private": true,
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "Platform",
+  "generators": "./generators.json"
+}

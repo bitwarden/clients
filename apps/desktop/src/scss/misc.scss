@@ -252,12 +252,6 @@ p.lead {
   }
 }
 
-#hcaptcha_iframe {
-  width: 100%;
-  border: none;
-  transition: height 0.25s linear;
-}
-
 form,
 .form {
   .form-group {
@@ -445,10 +439,6 @@ img,
 .help-block,
 .form-text.text-muted {
   user-select: none;
-}
-
-app-vault-view .box-footer {
-  user-select: auto;
 }
 
 /* override for vault icon in desktop */

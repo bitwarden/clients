@@ -10,6 +10,7 @@ import { GroupView } from "../../core";
 @Component({
   selector: "app-group-badge",
   templateUrl: "group-name-badge.component.html",
+  standalone: false,
 })
 export class GroupNameBadgeComponent implements OnChanges {
   @Input() selectedGroups: SelectionReadOnlyRequest[];

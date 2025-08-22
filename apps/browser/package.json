@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/browser",
-  "version": "2025.2.2",
+  "version": "2025.8.0",
   "scripts": {
     "build": "npm run build:chrome",
     "build:chrome": "cross-env BROWSER=chrome MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
@@ -19,10 +19,10 @@
     "build:prod:firefox": "cross-env NODE_ENV=production npm run build:firefox",
     "build:prod:opera": "cross-env NODE_ENV=production npm run build:opera",
     "build:prod:safari": "cross-env NODE_ENV=production npm run build:safari",
-    "dist:chrome": "npm run build:prod:chrome && mkdir -p dist && ./scripts/compress.ps1 dist-chrome.zip",
-    "dist:edge": "npm run build:prod:edge && mkdir -p dist && ./scripts/compress.ps1 dist-edge.zip",
-    "dist:firefox": "npm run build:prod:firefox && mkdir -p dist && ./scripts/compress.ps1 dist-firefox.zip",
-    "dist:opera": "npm run build:prod:opera && mkdir -p dist && ./scripts/compress.ps1 dist-opera.zip",
+    "dist:chrome": "npm run build:prod:chrome && mkdir -p dist && ./scripts/compress.sh dist-chrome.zip",
+    "dist:edge": "npm run build:prod:edge && mkdir -p dist && ./scripts/compress.sh dist-edge.zip",
+    "dist:firefox": "npm run build:prod:firefox && mkdir -p dist && ./scripts/compress.sh dist-firefox.zip",
+    "dist:opera": "npm run build:prod:opera && mkdir -p dist && ./scripts/compress.sh dist-opera.zip",
     "dist:safari": "npm run build:prod:safari && ./scripts/package-safari.ps1",
     "dist:firefox:mv3": "cross-env MANIFEST_VERSION=3 npm run dist:firefox",
     "dist:opera:mv3": "cross-env MANIFEST_VERSION=3 npm run dist:opera",

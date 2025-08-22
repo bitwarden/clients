@@ -1,5 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { TaxInfoResponse } from "@bitwarden/common/billing/models/response/tax-info.response";
 
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { ProviderOrganizationOrganizationDetailsResponse } from "../../admin-console/models/response/provider/provider-organization.response";
@@ -18,66 +17,78 @@ import { PaymentMethodResponse } from "../models/response/payment-method.respons
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export abstract class BillingApiServiceAbstraction {
-  cancelOrganizationSubscription: (
+  abstract cancelOrganizationSubscription(
     organizationId: string,
     request: SubscriptionCancellationRequest,
-  ) => Promise<void>;
+  ): Promise<void>;
 
-  cancelPremiumUserSubscription: (request: SubscriptionCancellationRequest) => Promise<void>;
+  abstract cancelPremiumUserSubscription(request: SubscriptionCancellationRequest): Promise<void>;
 
-  createProviderClientOrganization: (
+  abstract createProviderClientOrganization(
     providerId: string,
     request: CreateClientOrganizationRequest,
-  ) => Promise<void>;
+  ): Promise<void>;
 
-  createSetupIntent: (paymentMethodType: PaymentMethodType) => Promise<string>;
+  abstract createSetupIntent(paymentMethodType: PaymentMethodType): Promise<string>;
 
-  getOrganizationBillingMetadata: (
+  abstract getOrganizationBillingMetadata(
     organizationId: string,
-  ) => Promise<OrganizationBillingMetadataResponse>;
+  ): Promise<OrganizationBillingMetadataResponse>;
 
-  getOrganizationPaymentMethod: (organizationId: string) => Promise<PaymentMethodResponse>;
+  abstract getOrganizationPaymentMethod(organizationId: string): Promise<PaymentMethodResponse>;
 
-  getPlans: () => Promise<ListResponse<PlanResponse>>;
+  abstract getPlans(): Promise<ListResponse<PlanResponse>>;
 
-  getProviderClientInvoiceReport: (providerId: string, invoiceId: string) => Promise<string>;
+  abstract getProviderClientInvoiceReport(providerId: string, invoiceId: string): Promise<string>;
 
-  getProviderClientOrganizations: (
+  abstract getProviderClientOrganizations(
     providerId: string,
-  ) => Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>>;
+  ): Promise<ListResponse<ProviderOrganizationOrganizationDetailsResponse>>;
 
-  getProviderInvoices: (providerId: string) => Promise<InvoicesResponse>;
+  abstract getProviderInvoices(providerId: string): Promise<InvoicesResponse>;
 
-  getProviderSubscription: (providerId: string) => Promise<ProviderSubscriptionResponse>;
+  abstract getProviderSubscription(providerId: string): Promise<ProviderSubscriptionResponse>;
 
-  updateOrganizationPaymentMethod: (
+  abstract getProviderTaxInformation(providerId: string): Promise<TaxInfoResponse>;
+
+  abstract updateOrganizationPaymentMethod(
     organizationId: string,
     request: UpdatePaymentMethodRequest,
-  ) => Promise<void>;
+  ): Promise<void>;
 
-  updateOrganizationTaxInformation: (
+  abstract updateOrganizationTaxInformation(
     organizationId: string,
     request: ExpandedTaxInfoUpdateRequest,
-  ) => Promise<void>;
+  ): Promise<void>;
 
-  updateProviderClientOrganization: (
+  abstract updateProviderClientOrganization(
     providerId: string,
     organizationId: string,
     request: UpdateClientOrganizationRequest,
-  ) => Promise<any>;
+  ): Promise<any>;
 
-  updateProviderTaxInformation: (
+  abstract updateProviderPaymentMethod(
+    providerId: string,
+    request: UpdatePaymentMethodRequest,
+  ): Promise<void>;
+
+  abstract updateProviderTaxInformation(
     providerId: string,
     request: ExpandedTaxInfoUpdateRequest,
-  ) => Promise<void>;
+  ): Promise<void>;
 
-  verifyOrganizationBankAccount: (
+  abstract verifyOrganizationBankAccount(
     organizationId: string,
     request: VerifyBankAccountRequest,
-  ) => Promise<void>;
+  ): Promise<void>;
 
-  restartSubscription: (
+  abstract verifyProviderBankAccount(
+    providerId: string,
+    request: VerifyBankAccountRequest,
+  ): Promise<void>;
+
+  abstract restartSubscription(
     organizationId: string,
     request: OrganizationCreateRequest,
-  ) => Promise<void>;
+  ): Promise<void>;
 }

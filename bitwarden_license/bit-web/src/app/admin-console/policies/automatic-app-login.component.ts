@@ -19,6 +19,7 @@ export class AutomaticAppLoginPolicy extends BasePolicy {
 @Component({
   selector: "policy-automatic-app-login",
   templateUrl: "automatic-app-login.component.html",
+  standalone: false,
 })
 export class AutomaticAppLoginPolicyComponent extends BasePolicyComponent {
   data = this.formBuilder.group({

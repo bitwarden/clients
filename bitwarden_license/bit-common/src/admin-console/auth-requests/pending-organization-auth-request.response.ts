@@ -9,6 +9,7 @@ export class PendingOrganizationAuthRequestResponse extends BaseResponse {
   requestDeviceIdentifier: string;
   requestDeviceType: string;
   requestIpAddress: string;
+  requestCountryName: string;
   creationDate: string;
 
   constructor(response: any) {
@@ -21,6 +22,7 @@ export class PendingOrganizationAuthRequestResponse extends BaseResponse {
     this.requestDeviceIdentifier = this.getResponseProperty("RequestDeviceIdentifier");
     this.requestDeviceType = this.getResponseProperty("RequestDeviceType");
     this.requestIpAddress = this.getResponseProperty("RequestIpAddress");
+    this.requestCountryName = this.getResponseProperty("RequestCountryName");
     this.creationDate = this.getResponseProperty("CreationDate");
   }
 }

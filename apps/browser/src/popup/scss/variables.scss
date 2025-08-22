@@ -1,8 +1,6 @@
-﻿@import "~nord/src/sass/nord.scss";
+﻿$dark-icon-themes: "theme_dark";
 
-$dark-icon-themes: "theme_dark", "theme_solarizedDark", "theme_nord";
-
-$font-family-sans-serif: "DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-sans-serif: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
 $font-family-monospace: Menlo, Monaco, Consolas, "Courier New", monospace;
 $font-size-base: 16px;
 $font-size-large: 18px;
@@ -47,24 +45,6 @@ $button-color-danger: darken($brand-danger, 10%);
 
 $code-color: #c01176;
 $code-color-dark: #f08dc7;
-$code-color-nord: #dbb1d5;
-
-$solarizedDarkBase03: #002b36;
-$solarizedDarkBase02: #073642;
-$solarizedDarkBase01: #586e75;
-$solarizedDarkBase00: #657b83;
-$solarizedDarkBase0: #839496;
-$solarizedDarkBase1: #93a1a1;
-$solarizedDarkBase2: #eee8d5;
-$solarizedDarkBase3: #fdf6e3;
-$solarizedDarkYellow: #b58900;
-$solarizedDarkOrange: #cb4b16;
-$solarizedDarkRed: #dc322f;
-$solarizedDarkMagenta: #d33682;
-$solarizedDarkViolet: #6c71c4;
-$solarizedDarkBlue: #268bd2;
-$solarizedDarkCyan: #2aa198;
-$solarizedDarkGreen: #859900;
 
 $themes: (
   light: (
@@ -192,131 +172,6 @@ $themes: (
       hue-rotate(184deg) brightness(87%) contrast(93%),
     webkitCalendarPickerHoverFilter: brightness(0) saturate(100%) invert(100%) sepia(0%)
       saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%),
-    codeColor: $code-color-dark,
-  ),
-  nord: (
-    textColor: $nord5,
-    hoverColorTransparent: rgba($text-color, 0.15),
-    borderColor: $nord0,
-    backgroundColor: $nord1,
-    borderColorAlt: $nord5,
-    backgroundColorAlt: $nord2,
-    scrollbarColor: $nord4,
-    scrollbarHoverColor: $nord6,
-    boxBackgroundColor: $nord2,
-    boxBackgroundHoverColor: $nord3,
-    boxBorderColor: $nord1,
-    tabBackgroundColor: $nord1,
-    tabBackgroundHoverColor: $nord2,
-    headerColor: $nord5,
-    headerBackgroundColor: $nord1,
-    headerBackgroundHoverColor: $nord2,
-    headerBorderColor: $nord0,
-    headerInputBackgroundColor: $nord6,
-    headerInputBackgroundFocusColor: $nord5,
-    headerInputColor: $nord2,
-    headerInputPlaceholderColor: $nord3,
-    listItemBackgroundHoverColor: $nord3,
-    disabledIconColor: $nord4,
-    disabledBoxOpacity: 0.5,
-    headingColor: $nord4,
-    labelColor: $nord4,
-    mutedColor: $nord4,
-    totpStrokeColor: $nord4,
-    boxRowButtonColor: $nord4,
-    boxRowButtonHoverColor: $nord6,
-    inputBorderColor: $nord0,
-    inputBackgroundColor: $nord2,
-    inputPlaceholderColor: lighten($nord3, 20%),
-    buttonBackgroundColor: $nord3,
-    buttonBorderColor: $nord0,
-    buttonColor: $nord5,
-    buttonPrimaryColor: $nord8,
-    buttonDangerColor: $nord11,
-    primaryColor: $nord9,
-    primaryAccentColor: $nord8,
-    dangerColor: $nord11,
-    successColor: $nord14,
-    infoColor: $nord9,
-    warningColor: $nord12,
-    logoSuffix: "white",
-    mfaLogoSuffix: "-w.png",
-    passwordNumberColor: $nord8,
-    passwordSpecialColor: $nord12,
-    passwordCountText: $nord5,
-    calloutBorderColor: $nord0,
-    calloutBackgroundColor: $nord2,
-    toastTextColor: #000000,
-    svgSuffix: "-dark.svg",
-    transparentColor: rgba(0, 0, 0, 0),
-    dateInputColorScheme: dark,
-    webkitCalendarPickerFilter: brightness(0) saturate(100%) invert(94%) sepia(5%) saturate(454%)
-      hue-rotate(185deg) brightness(93%) contrast(96%),
-    // has no hover so use same color
-    webkitCalendarPickerHoverFilter: brightness(0) saturate(100%) invert(94%) sepia(5%)
-      saturate(454%) hue-rotate(185deg) brightness(93%) contrast(96%),
-    codeColor: $code-color-nord,
-  ),
-  solarizedDark: (
-    textColor: $solarizedDarkBase2,
-    hoverColorTransparent: rgba($text-color, 0.15),
-    borderColor: $solarizedDarkBase03,
-    backgroundColor: $solarizedDarkBase03,
-    borderColorAlt: $solarizedDarkBase01,
-    backgroundColorAlt: $solarizedDarkBase02,
-    scrollbarColor: $solarizedDarkBase0,
-    scrollbarHoverColor: $solarizedDarkBase2,
-    boxBackgroundColor: $solarizedDarkBase02,
-    boxBackgroundHoverColor: lighten($solarizedDarkBase02, 5%),
-    boxBorderColor: $solarizedDarkBase02,
-    tabBackgroundColor: $solarizedDarkBase02,
-    tabBackgroundHoverColor: $solarizedDarkBase01,
-    headerColor: $solarizedDarkBase1,
-    headerBackgroundColor: $solarizedDarkBase02,
-    headerBackgroundHoverColor: $solarizedDarkBase01,
-    headerBorderColor: $solarizedDarkBase03,
-    headerInputBackgroundColor: darken($solarizedDarkBase0, 5%),
-    headerInputBackgroundFocusColor: $solarizedDarkBase1,
-    headerInputColor: $solarizedDarkBase02,
-    headerInputPlaceholderColor: lighten($solarizedDarkBase02, 5%),
-    listItemBackgroundHoverColor: lighten($solarizedDarkBase02, 5%),
-    disabledIconColor: $solarizedDarkBase0,
-    disabledBoxOpacity: 0.5,
-    headingColor: $solarizedDarkBase0,
-    labelColor: $solarizedDarkBase0,
-    mutedColor: $solarizedDarkBase0,
-    totpStrokeColor: $solarizedDarkBase0,
-    boxRowButtonColor: $solarizedDarkBase0,
-    boxRowButtonHoverColor: $solarizedDarkBase2,
-    inputBorderColor: $solarizedDarkBase03,
-    inputBackgroundColor: $solarizedDarkBase01,
-    inputPlaceholderColor: lighten($solarizedDarkBase00, 20%),
-    buttonBackgroundColor: $solarizedDarkBase00,
-    buttonBorderColor: $solarizedDarkBase03,
-    buttonColor: $solarizedDarkBase1,
-    buttonPrimaryColor: $solarizedDarkCyan,
-    buttonDangerColor: $solarizedDarkRed,
-    primaryColor: $solarizedDarkGreen,
-    primaryAccentColor: $solarizedDarkCyan,
-    dangerColor: $solarizedDarkRed,
-    successColor: $solarizedDarkGreen,
-    infoColor: $solarizedDarkGreen,
-    warningColor: $solarizedDarkYellow,
-    logoSuffix: "white",
-    mfaLogoSuffix: "-w.png",
-    passwordNumberColor: $solarizedDarkCyan,
-    passwordSpecialColor: $solarizedDarkYellow,
-    passwordCountText: $solarizedDarkBase2,
-    calloutBorderColor: $solarizedDarkBase03,
-    calloutBackgroundColor: $solarizedDarkBase01,
-    toastTextColor: #000000,
-    svgSuffix: "-solarized.svg",
-    transparentColor: rgba(0, 0, 0, 0),
-    dateInputColorScheme: dark,
-    webkitCalendarPickerFilter: brightness(0) saturate(100%) invert(61%) sepia(13%) saturate(289%)
-      hue-rotate(138deg) brightness(92%) contrast(90%),
-    webkitCalendarPickerHoverFilter: brightness(0) saturate(100%) invert(94%) sepia(10%)
-      saturate(462%) hue-rotate(345deg) brightness(103%) contrast(87%),
     codeColor: $code-color-dark,
   ),
 );

@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
 import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
 import { Component, OnInit, QueryList, ViewChildren } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -21,7 +22,6 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -39,9 +39,8 @@ interface UriField {
 @Component({
   selector: "vault-autofill-options",
   templateUrl: "./autofill-options.component.html",
-  standalone: true,
   imports: [
-    SectionComponent,
+    DragDropModule,
     SectionHeaderComponent,
     TypographyModule,
     JslibModule,
@@ -228,5 +227,59 @@ export class AutofillOptionsComponent implements OnInit {
 
   removeUri(i: number) {
     this.autofillOptionsForm.controls.uris.removeAt(i);
+  }
+
+  /** Create a new list of LoginUriViews from the form objects and update the cipher */
+  private updateUriFields() {
+    this.cipherFormContainer.patchCipher((cipher) => {
+      cipher.login.uris = this.uriControls.map(
+        (control) =>
+          Object.assign(new LoginUriView(), {
+            uri: control.value.uri,
+            match: control.value.matchDetection ?? null,
+          }) as LoginUriView,
+      );
+      return cipher;
+    });
+  }
+
+  /** Reorder the controls to match the new order after a "drop" event */
+  onUriItemDrop(event: CdkDragDrop<HTMLDivElement>) {
+    moveItemInArray(this.uriControls, event.previousIndex, event.currentIndex);
+    this.updateUriFields();
+  }
+
+  /** Handles a uri item keyboard up or down event */
+  async onUriItemKeydown(event: KeyboardEvent, index: number) {
+    if (event.key === "ArrowUp" && index !== 0) {
+      await this.reorderUriItems(event, index, "Up");
+    }
+
+    if (event.key === "ArrowDown" && index !== this.uriControls.length - 1) {
+      await this.reorderUriItems(event, index, "Down");
+    }
+  }
+
+  /** Reorders the uri items from a keyboard up or down event */
+  async reorderUriItems(event: KeyboardEvent, previousIndex: number, direction: "Up" | "Down") {
+    const currentIndex = previousIndex + (direction === "Up" ? -1 : 1);
+    event.preventDefault();
+    await this.liveAnnouncer.announce(
+      this.i18nService.t(
+        `reorderField${direction}`,
+        this.i18nService.t("websiteUri"),
+        currentIndex + 1,
+        this.uriControls.length,
+      ),
+      "assertive",
+    );
+    moveItemInArray(this.uriControls, previousIndex, currentIndex);
+    this.updateUriFields();
+    // Refocus the button after the reorder
+    // Angular re-renders the list when moving an item up which causes the focus to be lost
+    // Wait for the next tick to ensure the button is rendered before focusing
+    requestAnimationFrame(() => {
+      (event.target as HTMLButtonElement).focus();
+    });
   }
 }

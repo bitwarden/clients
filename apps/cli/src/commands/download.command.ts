@@ -2,8 +2,6 @@
 // @ts-strict-ignore
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
 import { Response } from "../models/response";
 import { FileResponse } from "../models/response/file.response";
@@ -25,15 +23,15 @@ export abstract class DownloadCommand {
   /**
    * Fetches an attachment via the url, decrypts it's content and saves it to a file
    * @param url - url used to retrieve the attachment
-   * @param key - SymmetricCryptoKey to decrypt the file contents
    * @param fileName - filename used when written to disk
+   * @param decrypt - Function used to decrypt the response
    * @param output - If output is empty or `--raw` was passed to the initial command the content is output onto stdout
    * @returns Promise<FileResponse>
    */
   protected async saveAttachmentToFile(
     url: string,
-    key: SymmetricCryptoKey,
     fileName: string,
+    decrypt: (resp: globalThis.Response) => Promise<Uint8Array>,
     output?: string,
   ) {
     const response = await this.apiService.nativeFetch(
@@ -46,8 +44,7 @@ export abstract class DownloadCommand {
     }
 
     try {
-      const encBuf = await EncArrayBuffer.fromResponse(response);
-      const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
+      const decBuf = await decrypt(response);
       if (process.env.BW_SERVE === "true") {
         const res = new FileResponse(Buffer.from(decBuf), fileName);
         return Response.success(res);

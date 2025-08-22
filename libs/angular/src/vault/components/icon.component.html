@@ -1,17 +1,44 @@
-<div class="tw-flex tw-justify-center tw-items-center" aria-hidden="true">
+<!-- Applying width and height styles directly to synchronize icon sizing between web/browser/desktop -->
+<div
+  class="tw-flex tw-justify-center tw-items-center"
+  [ngStyle]="coloredIcon() ? { width: '36px', height: '36px' } : {}"
+  aria-hidden="true"
+>
   <ng-container *ngIf="data$ | async as data">
-    <img
-      [src]="data.image"
-      [appFallbackSrc]="data.fallbackImage"
-      *ngIf="data.imageEnabled && data.image"
-      class="tw-size-6 tw-rounded-md"
-      alt=""
-      decoding="async"
-      loading="lazy"
-    />
-    <i
-      class="tw-w-6 tw-text-muted bwi bwi-lg {{ data.icon }}"
-      *ngIf="!data.imageEnabled || !data.image"
-    ></i>
+    @if (data.imageEnabled && data.image) {
+      <img
+        [src]="data.image"
+        class="tw-rounded-md"
+        alt=""
+        decoding="async"
+        loading="lazy"
+        [ngClass]="{
+          'tw-invisible tw-absolute': !imageLoaded(),
+          'tw-size-6': !coloredIcon(),
+        }"
+        [ngStyle]="coloredIcon() ? { width: '36px', height: '36px' } : {}"
+        (load)="imageLoaded.set(true)"
+        (error)="imageLoaded.set(false)"
+      />
+    }
+    @if (!data.imageEnabled || !data.image || !imageLoaded()) {
+      <div
+        [ngClass]="{
+          'tw-flex tw-items-center tw-justify-center': coloredIcon(),
+          'tw-bg-illustration-bg-primary tw-rounded-full':
+            data.icon?.startsWith('bwi-') && coloredIcon(),
+        }"
+        [ngStyle]="coloredIcon() ? { width: '36px', height: '36px' } : {}"
+      >
+        <i
+          class="tw-text-muted bwi bwi-lg {{ data.icon }}"
+          [ngStyle]="{
+            color: coloredIcon() ? 'rgb(var(--color-illustration-outline))' : null,
+            width: data.icon?.startsWith('credit-card') && coloredIcon() ? '36px' : null,
+            height: data.icon?.startsWith('credit-card') && coloredIcon() ? '30px' : null,
+          }"
+        ></i>
+      </div>
+    }
   </ng-container>
 </div>

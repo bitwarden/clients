@@ -2,9 +2,12 @@ import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { MenuModule } from "../menu";
+import { I18nMockService } from "../utils";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
@@ -26,6 +29,16 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [LinkModule, MenuModule, IconButtonModule, RouterModule, BreadcrumbComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              moreBreadcrumbs: "More breadcrumbs",
+            });
+          },
+        },
+      ],
     }),
     applicationConfig({
       providers: [
@@ -85,7 +98,7 @@ export const SecondLevel: Story = {
   args: {
     items: [
       { name: "Acme Vault", route: "/" },
-      { icon: "bwi-collection", name: "Collection", route: "collection" },
+      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
     ] as Breadcrumb[],
   },
 };
@@ -95,12 +108,12 @@ export const Overflow: Story = {
   args: {
     items: [
       { name: "Acme Vault", route: "" },
-      { icon: "bwi-collection", name: "Collection", route: "collection" },
-      { icon: "bwi-collection", name: "Middle-Collection 1", route: "middle-collection-1" },
-      { icon: "bwi-collection", name: "Middle-Collection 2", route: "middle-collection-2" },
-      { icon: "bwi-collection", name: "Middle-Collection 3", route: "middle-collection-3" },
-      { icon: "bwi-collection", name: "Middle-Collection 4", route: "middle-collection-4" },
-      { icon: "bwi-collection", name: "End Collection", route: "end-collection" },
+      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
+      { icon: "bwi-collection-shared", name: "Middle-Collection 1", route: "middle-collection-1" },
+      { icon: "bwi-collection-shared", name: "Middle-Collection 2", route: "middle-collection-2" },
+      { icon: "bwi-collection-shared", name: "Middle-Collection 3", route: "middle-collection-3" },
+      { icon: "bwi-collection-shared", name: "Middle-Collection 4", route: "middle-collection-4" },
+      { icon: "bwi-collection-shared", name: "End Collection", route: "end-collection" },
     ] as Breadcrumb[],
   },
 };

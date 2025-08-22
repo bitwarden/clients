@@ -12,6 +12,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 @Component({
   templateUrl: "billing-history-view.component.html",
+  standalone: false,
 })
 export class BillingHistoryViewComponent implements OnInit {
   loading = false;

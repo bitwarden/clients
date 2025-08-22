@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { shareReplay } from "rxjs";
@@ -13,7 +13,6 @@ import {
   CheckboxModule,
   FormFieldModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -25,10 +24,8 @@ import { CustomFieldsComponent } from "../custom-fields/custom-fields.component"
 @Component({
   selector: "vault-additional-options-section",
   templateUrl: "./additional-options-section.component.html",
-  standalone: true,
   imports: [
     CommonModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     JslibModule,
@@ -58,6 +55,8 @@ export class AdditionalOptionsSectionComponent implements OnInit {
 
   /** True when the form is in `partial-edit` mode */
   isPartialEdit = false;
+
+  @Input() disableSectionMargin: boolean;
 
   constructor(
     private cipherFormContainer: CipherFormContainer,

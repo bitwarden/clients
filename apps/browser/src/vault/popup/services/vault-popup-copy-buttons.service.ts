@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { map, Observable } from "rxjs";
+import { map, Observable, shareReplay } from "rxjs";
 
 import {
   GlobalStateProvider,
@@ -31,6 +31,7 @@ export class VaultPopupCopyButtonsService {
 
   showQuickCopyActions$: Observable<boolean> = this.displayMode$.pipe(
     map((displayMode) => displayMode === "quick"),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   async setShowQuickCopyActions(value: boolean) {

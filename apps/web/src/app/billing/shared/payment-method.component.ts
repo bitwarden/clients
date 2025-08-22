@@ -18,7 +18,9 @@ import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BillingPaymentResponse } from "@bitwarden/common/billing/models/response/billing-payment.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VerifyBankRequest } from "@bitwarden/common/models/request/verify-bank.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -35,8 +37,8 @@ import {
 
 @Component({
   templateUrl: "payment-method.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class PaymentMethodComponent implements OnInit, OnDestroy {
   loading = false;
   firstLoaded = false;
@@ -79,6 +81,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     protected syncService: SyncService,
+    private configService: ConfigService,
   ) {
     const state = this.router.getCurrentNavigation()?.extras?.state;
     // incase the above state is undefined or null we use redundantState
@@ -105,6 +108,14 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/settings/subscription"]);
         return;
+      }
+
+      const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+        FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+      );
+
+      if (managePaymentDetailsOutsideCheckout) {
+        await this.router.navigate(["../payment-details"], { relativeTo: this.route });
       }
 
       await this.load();
@@ -143,6 +154,8 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
 
       [this.billing, this.sub] = await Promise.all([billingPromise, subPromise]);
     }
+    // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+    // eslint-disable-next-line no-constant-binary-expression
     this.isUnpaid = this.subscription?.status === "unpaid" ?? false;
     this.loading = false;
     // If the flag `launchPaymentModalAutomatically` is set to true,
@@ -238,9 +251,8 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
       case PaymentMethodType.Card:
         return ["bwi-credit-card"];
       case PaymentMethodType.BankAccount:
-        return ["bwi-bank"];
       case PaymentMethodType.Check:
-        return ["bwi-money"];
+        return ["bwi-billing"];
       case PaymentMethodType.PayPal:
         return ["bwi-paypal text-primary"];
       default:

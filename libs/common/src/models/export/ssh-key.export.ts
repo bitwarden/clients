@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SshKey as SshKeyDomain } from "../../vault/models/domain/ssh-key";
 import { SshKeyView as SshKeyView } from "../../vault/models/view/ssh-key.view";
 
@@ -24,9 +24,9 @@ export class SshKeyExport {
   }
 
   static toDomain(req: SshKeyExport, domain = new SshKeyDomain()) {
-    domain.privateKey = req.privateKey != null ? new EncString(req.privateKey) : null;
-    domain.publicKey = req.publicKey != null ? new EncString(req.publicKey) : null;
-    domain.keyFingerprint = req.keyFingerprint != null ? new EncString(req.keyFingerprint) : null;
+    domain.privateKey = new EncString(req.privateKey);
+    domain.publicKey = new EncString(req.publicKey);
+    domain.keyFingerprint = new EncString(req.keyFingerprint);
     return domain;
   }
 

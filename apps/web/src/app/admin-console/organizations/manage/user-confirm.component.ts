@@ -1,13 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+
+import { SharedModule } from "../../../shared";
 
 export type UserConfirmDialogData = {
   name: string;
@@ -17,8 +18,8 @@ export type UserConfirmDialogData = {
 };
 
 @Component({
-  selector: "app-user-confirm",
   templateUrl: "user-confirm.component.html",
+  imports: [SharedModule],
 })
 export class UserConfirmComponent implements OnInit {
   name: string;

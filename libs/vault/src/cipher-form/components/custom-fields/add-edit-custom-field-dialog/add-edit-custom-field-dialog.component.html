@@ -26,7 +26,7 @@
         </bit-hint>
       </bit-form-field>
     </div>
-    <div bitDialogFooter class="tw-flex tw-gap-2 tw-w-full">
+    <ng-container bitDialogFooter>
       <button bitButton buttonType="primary" type="submit" [disabled]="customFieldForm.invalid">
         {{ (variant === "add" ? "add" : "save") | i18n }}
       </button>
@@ -40,9 +40,9 @@
         buttonType="danger"
         class="tw-ml-auto"
         bitIconButton="bwi-trash"
-        [appA11yTitle]="'deleteCustomField' | i18n: customFieldForm.value.label"
+        [label]="'deleteCustomField' | i18n: customFieldForm.value.label"
         (click)="removeField()"
       ></button>
-    </div>
+    </ng-container>
   </bit-dialog>
 </form>

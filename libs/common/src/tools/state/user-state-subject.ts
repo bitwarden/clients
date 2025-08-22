@@ -30,7 +30,7 @@ import {
 } from "rxjs";
 
 import { Account } from "../../auth/abstractions/account.service";
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SingleUserState, UserKeyDefinition } from "../../platform/state";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { SemanticLogger } from "../log";
@@ -161,6 +161,14 @@ export class UserStateSubject<
     this.outputSubscription = userState$
       .pipe(
         switchMap((userState) => userState.state$),
+        map((stored) => {
+          if (stored && typeof stored === "object" && ALWAYS_UPDATE_KLUDGE in stored) {
+            // related: ALWAYS_UPDATE_KLUDGE FIXME
+            delete stored[ALWAYS_UPDATE_KLUDGE];
+          }
+
+          return stored;
+        }),
         this.declassify(encryptor$),
         this.adjust(combineLatestWith(constraints$)),
         takeUntil(anyComplete(account$)),
@@ -477,7 +485,12 @@ export class UserStateSubject<
    * @returns the subscription
    */
   subscribe(observer?: Partial<Observer<State>> | ((value: State) => void) | null): Subscription {
-    return this.output.pipe(map((wc) => wc.state)).subscribe(observer);
+    return this.output
+      .pipe(
+        map((wc) => wc.state),
+        distinctUntilChanged(),
+      )
+      .subscribe(observer);
   }
 
   // using subjects to ensure the right semantics are followed;

@@ -24,7 +24,6 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
  */
 @Directive({
   selector: "[appDarkImgSrc]",
-  standalone: true,
 })
 export class DarkImageSourceDirective implements OnInit {
   private themeService = inject(ThemeStateService);
@@ -54,8 +53,7 @@ export class DarkImageSourceDirective implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([theme, systemTheme]) => {
         const appliedTheme = theme === "system" ? systemTheme : theme;
-        const isDark =
-          appliedTheme === "dark" || appliedTheme === "nord" || appliedTheme === "solarizedDark";
+        const isDark = appliedTheme === "dark";
         this.src = isDark ? this.darkImgSrc() : this.lightImgSrc;
       });
   }

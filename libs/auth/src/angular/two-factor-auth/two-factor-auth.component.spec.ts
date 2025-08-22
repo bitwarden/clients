@@ -1,12 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
+import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   LoginStrategyServiceAbstraction,
@@ -19,15 +16,20 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  MasterPasswordServiceAbstraction,
+} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -35,14 +37,15 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { DialogService, ToastService, AnonLayoutWrapperDataService } from "@bitwarden/components";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
-
+import { TwoFactorAuthComponentCacheService } from "./two-factor-auth-component-cache.service";
 import { TwoFactorAuthComponentService } from "./two-factor-auth-component.service";
 import { TwoFactorAuthComponent } from "./two-factor-auth.component";
 
-@Component({})
+@Component({ standalone: false })
 class TestTwoFactorComponent extends TwoFactorAuthComponent {}
 
 describe("TwoFactorAuthComponent", () => {
@@ -65,7 +68,7 @@ describe("TwoFactorAuthComponent", () => {
   let mockLoginEmailService: MockProxy<LoginEmailServiceAbstraction>;
   let mockUserDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let mockSsoLoginService: MockProxy<SsoLoginServiceAbstraction>;
-  let mockMasterPasswordService: FakeMasterPasswordService;
+  let mockMasterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let mockAccountService: FakeAccountService;
   let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
@@ -73,6 +76,9 @@ describe("TwoFactorAuthComponent", () => {
   let anonLayoutWrapperDataService: MockProxy<AnonLayoutWrapperDataService>;
   let mockEnvService: MockProxy<EnvironmentService>;
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
+  let mockTwoFactorAuthCompCacheService: MockProxy<TwoFactorAuthComponentCacheService>;
+  let mockAuthService: MockProxy<AuthService>;
+  let mockConfigService: MockProxy<ConfigService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -103,15 +109,20 @@ describe("TwoFactorAuthComponent", () => {
     mockUserDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     mockSsoLoginService = mock<SsoLoginServiceAbstraction>();
     mockAccountService = mockAccountServiceWith(userId);
-    mockMasterPasswordService = new FakeMasterPasswordService();
+    mockMasterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
+    mockAuthService = mock<AuthService>();
+    mockConfigService = mock<ConfigService>();
 
     mockEnvService = mock<EnvironmentService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
 
     anonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
+
+    mockTwoFactorAuthCompCacheService = mock<TwoFactorAuthComponentCacheService>();
+    mockTwoFactorAuthCompCacheService.getCachedData.mockReturnValue(null);
 
     mockUserDecryptionOpts = {
       noMasterPassword: new UserDecryptionOptions({
@@ -156,7 +167,9 @@ describe("TwoFactorAuthComponent", () => {
       }),
     };
 
-    selectedUserDecryptionOptions = new BehaviorSubject<UserDecryptionOptions>(undefined);
+    selectedUserDecryptionOptions = new BehaviorSubject<UserDecryptionOptions>(
+      mockUserDecryptionOpts.withMasterPassword,
+    );
     mockUserDecryptionOptionsService.userDecryptionOptions$ = selectedUserDecryptionOptions;
 
     TestBed.configureTestingModule({
@@ -195,6 +208,13 @@ describe("TwoFactorAuthComponent", () => {
         { provide: EnvironmentService, useValue: mockEnvService },
         { provide: AnonLayoutWrapperDataService, useValue: anonLayoutWrapperDataService },
         { provide: LoginSuccessHandlerService, useValue: mockLoginSuccessHandlerService },
+        {
+          provide: TwoFactorAuthComponentCacheService,
+          useValue: mockTwoFactorAuthCompCacheService,
+        },
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: MasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
       ],
     });
 
@@ -210,36 +230,6 @@ describe("TwoFactorAuthComponent", () => {
   it("should create", () => {
     expect(component).toBeTruthy();
   });
-
-  // Shared tests
-  const testChangePasswordOnSuccessfulLogin = () => {
-    it("navigates to the component's defined change password route when user doesn't have a MP and key connector isn't enabled", async () => {
-      // Act
-      await component.submit("testToken");
-
-      // Assert
-      expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["set-password"], {
-        queryParams: {
-          identifier: component.orgSsoIdentifier,
-        },
-      });
-    });
-  };
-
-  const testForceResetOnSuccessfulLogin = (reasonString: string) => {
-    it(`navigates to the component's defined forcePasswordResetRoute route when response.forcePasswordReset is ${reasonString}`, async () => {
-      // Act
-      await component.submit("testToken");
-
-      // expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["update-temp-password"], {
-        queryParams: {
-          identifier: component.orgSsoIdentifier,
-        },
-      });
-    });
-  };
 
   describe("Standard 2FA scenarios", () => {
     describe("submit", () => {
@@ -265,21 +255,7 @@ describe("TwoFactorAuthComponent", () => {
         // Assert
         expect(mockLoginStrategyService.logInTwoFactor).toHaveBeenCalledWith(
           new TokenTwoFactorRequest(component.selectedProviderType, token, remember),
-          "",
         );
-      });
-
-      it("calls loginEmailService.clearValues() when login is successful", async () => {
-        // Arrange
-        mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
-        // spy on loginEmailService.clearValues
-        const clearValuesSpy = jest.spyOn(mockLoginEmailService, "clearValues");
-
-        // Act
-        await component.submit(token, remember);
-
-        // Assert
-        expect(clearValuesSpy).toHaveBeenCalled();
       });
 
       describe("Set Master Password scenarios", () => {
@@ -294,17 +270,33 @@ describe("TwoFactorAuthComponent", () => {
             selectedUserDecryptionOptions.next(mockUserDecryptionOpts.noMasterPassword);
           });
 
-          testChangePasswordOnSuccessfulLogin();
+          it("navigates to the /set-initial-password route when user doesn't have a MP and key connector isn't enabled", async () => {
+            // Arrange
+            mockConfigService.getFeatureFlag.mockResolvedValue(true);
+
+            // Act
+            await component.submit("testToken");
+
+            // Assert
+            expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+            expect(mockRouter.navigate).toHaveBeenCalledWith(["set-initial-password"], {
+              queryParams: {
+                identifier: component.orgSsoIdentifier,
+              },
+            });
+          });
         });
 
-        it("does not navigate to the change password route when the user has key connector even if user has no master password", async () => {
+        it("does not navigate to the /set-initial-password route when the user has key connector even if user has no master password", async () => {
+          mockConfigService.getFeatureFlag.mockResolvedValue(true);
+
           selectedUserDecryptionOptions.next(
             mockUserDecryptionOpts.noMasterPasswordWithKeyConnector,
           );
 
           await component.submit(token, remember);
 
-          expect(mockRouter.navigate).not.toHaveBeenCalledWith(["set-password"], {
+          expect(mockRouter.navigate).not.toHaveBeenCalledWith(["set-initial-password"], {
             queryParams: {
               identifier: component.orgSsoIdentifier,
             },
@@ -312,28 +304,12 @@ describe("TwoFactorAuthComponent", () => {
         });
       });
 
-      describe("Force Master Password Reset scenarios", () => {
-        [
-          ForceSetPasswordReason.AdminForcePasswordReset,
-          ForceSetPasswordReason.WeakMasterPassword,
-        ].forEach((forceResetPasswordReason) => {
-          const reasonString = ForceSetPasswordReason[forceResetPasswordReason];
-
-          beforeEach(() => {
-            // use standard user with MP because this test is not concerned with password reset.
-            selectedUserDecryptionOptions.next(mockUserDecryptionOpts.withMasterPassword);
-
-            const authResult = new AuthResult();
-            authResult.forcePasswordReset = forceResetPasswordReason;
-            mockLoginStrategyService.logInTwoFactor.mockResolvedValue(authResult);
-          });
-
-          testForceResetOnSuccessfulLogin(reasonString);
-        });
-      });
-
       it("navigates to the component's defined success route (vault is default) when the login is successful", async () => {
         mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
+        mockAuthService.activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
+        mockMasterPasswordService.forceSetPasswordReason$.mockReturnValue(
+          of(ForceSetPasswordReason.None),
+        );
 
         // Act
         await component.submit("testToken");
@@ -355,13 +331,14 @@ describe("TwoFactorAuthComponent", () => {
         async (authType, expectedRoute) => {
           mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
           currentAuthTypeSubject.next(authType);
+          mockAuthService.activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Locked);
 
           // Act
           await component.submit("testToken");
 
           // Assert
           expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-          expect(mockRouter.navigate).toHaveBeenCalledWith(["lock"], {
+          expect(mockRouter.navigate).toHaveBeenCalledWith([expectedRoute], {
             queryParams: {
               identifier: component.orgSsoIdentifier,
             },
@@ -398,7 +375,7 @@ describe("TwoFactorAuthComponent", () => {
             await component.submit(token, remember);
 
             // Assert
-            expect(mockMasterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
+            expect(mockMasterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
               ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
               userId,
             );
@@ -408,29 +385,7 @@ describe("TwoFactorAuthComponent", () => {
           });
         });
 
-        describe("Given Trusted Device Encryption is enabled, user doesn't need to set a MP, and forcePasswordReset is required", () => {
-          [
-            ForceSetPasswordReason.AdminForcePasswordReset,
-            ForceSetPasswordReason.WeakMasterPassword,
-          ].forEach((forceResetPasswordReason) => {
-            const reasonString = ForceSetPasswordReason[forceResetPasswordReason];
-
-            beforeEach(() => {
-              // use standard user with MP because this test is not concerned with password reset.
-              selectedUserDecryptionOptions.next(
-                mockUserDecryptionOpts.withMasterPasswordAndTrustedDevice,
-              );
-
-              const authResult = new AuthResult();
-              authResult.forcePasswordReset = forceResetPasswordReason;
-              mockLoginStrategyService.logInTwoFactor.mockResolvedValue(authResult);
-            });
-
-            testForceResetOnSuccessfulLogin(reasonString);
-          });
-        });
-
-        describe("Given Trusted Device Encryption is enabled, user doesn't need to set a MP, and forcePasswordReset is not required", () => {
+        describe("Given Trusted Device Encryption is enabled and user doesn't need to set a MP", () => {
           let authResult;
           beforeEach(() => {
             selectedUserDecryptionOptions.next(
@@ -438,7 +393,6 @@ describe("TwoFactorAuthComponent", () => {
             );
 
             authResult = new AuthResult();
-            authResult.forcePasswordReset = ForceSetPasswordReason.None;
             mockLoginStrategyService.logInTwoFactor.mockResolvedValue(authResult);
           });
 

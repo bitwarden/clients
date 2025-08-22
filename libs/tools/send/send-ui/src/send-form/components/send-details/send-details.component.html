@@ -1,4 +1,4 @@
-<bit-section [formGroup]="sendDetailsForm">
+<bit-section [formGroup]="sendDetailsForm" disableMargin>
   <bit-section-header class="tw-mt-2">
     <h2 bitTypography="h6">{{ "sendDetails" | i18n }}</h2>
   </bit-section-header>
@@ -30,7 +30,7 @@
         showToast
         bitIconButton="bwi-clone"
         [appCopyClick]="sendLink"
-        [appA11yTitle]="'copySendLink' | i18n"
+        [label]="'copySendLink' | i18n"
       ></button>
     </bit-form-field>
 

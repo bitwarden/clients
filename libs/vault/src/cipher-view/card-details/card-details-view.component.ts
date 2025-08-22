@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -9,8 +9,6 @@ import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  CardComponent,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   FormFieldModule,
@@ -22,12 +20,9 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
 @Component({
   selector: "app-card-details-view",
   templateUrl: "card-details-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
-    CardComponent,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,
@@ -35,9 +30,12 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
     ReadOnlyCipherCardComponent,
   ],
 })
-export class CardDetailsComponent {
+export class CardDetailsComponent implements OnChanges {
   @Input() cipher: CipherView;
   EventType = EventType;
+
+  revealCardNumber: boolean = false;
+  revealCardCode: boolean = false;
 
   constructor(
     private i18nService: I18nService,
@@ -48,6 +46,13 @@ export class CardDetailsComponent {
     return this.cipher.card;
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["cipher"]) {
+      this.revealCardNumber = false;
+      this.revealCardCode = false;
+    }
+  }
+
   get setSectionTitle() {
     if (this.card.brand && this.card.brand !== "Other") {
       return this.i18nService.t("cardBrandDetails", this.card.brand);
@@ -56,6 +61,11 @@ export class CardDetailsComponent {
   }
 
   async logCardEvent(conditional: boolean, event: EventType) {
+    if (event === EventType.Cipher_ClientToggledCardNumberVisible) {
+      this.revealCardNumber = conditional;
+    } else if (event === EventType.Cipher_ClientToggledCardCodeVisible) {
+      this.revealCardCode = conditional;
+    }
     if (conditional) {
       await this.eventCollectionService.collect(
         event,

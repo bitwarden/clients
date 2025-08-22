@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { takeUntil } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,13 +20,13 @@ import { ServiceAccountEventLogApiService } from "./service-account-event-log-ap
 @Component({
   selector: "sm-service-accounts-events",
   templateUrl: "./service-accounts-events.component.html",
+  standalone: false,
 })
 export class ServiceAccountEventsComponent
   extends BaseEventsComponent
   implements OnInit, OnDestroy
 {
   exportFileName = "machine-account-events";
-  private destroy$ = new Subject<void>();
   private serviceAccountId: string;
 
   constructor(
@@ -37,6 +39,8 @@ export class ServiceAccountEventsComponent
     logService: LogService,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
+    protected organizationService: OrganizationService,
+    protected accountService: AccountService,
   ) {
     super(
       eventService,
@@ -46,10 +50,14 @@ export class ServiceAccountEventsComponent
       logService,
       fileDownloadService,
       toastService,
+      route,
+      accountService,
+      organizationService,
     );
   }
 
   async ngOnInit() {
+    this.initBase();
     // eslint-disable-next-line rxjs/no-async-subscribe
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(async (params) => {
       this.serviceAccountId = params.serviceAccountId;
@@ -76,10 +84,5 @@ export class ServiceAccountEventsComponent
       name: this.i18nService.t("machineAccount") + " " + this.serviceAccountId,
       email: "",
     };
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

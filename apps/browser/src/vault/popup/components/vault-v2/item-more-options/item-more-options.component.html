@@ -3,9 +3,8 @@
     type="button"
     bitIconButton="bwi-ellipsis-v"
     size="small"
-    [attr.aria-label]="'moreOptionsLabel' | i18n: cipher.name"
-    [title]="'moreOptionsTitle' | i18n: cipher.name"
-    [disabled]="cipher.decryptionFailure"
+    [label]="'moreOptionsLabel' | i18n: cipher.name"
+    [disabled]="decryptionFailure"
     [bitMenuTriggerFor]="moreOptions"
   ></button>
   <bit-menu #moreOptions>
@@ -31,7 +30,11 @@
       <a bitMenuItem (click)="clone()" *ngIf="canClone$ | async">
         {{ "clone" | i18n }}
       </a>
-      <a bitMenuItem *ngIf="hasOrganizations" (click)="conditionallyNavigateToAssignCollections()">
+      <a
+        bitMenuItem
+        *ngIf="canAssignCollections$ | async"
+        (click)="conditionallyNavigateToAssignCollections()"
+      >
         {{ "assignToCollections" | i18n }}
       </a>
     </ng-container>

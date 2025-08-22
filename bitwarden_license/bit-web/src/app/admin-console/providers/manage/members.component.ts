@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -20,7 +19,7 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { BaseMembersComponent } from "@bitwarden/web-vault/app/admin-console/common/base-members.component";
 import {
@@ -46,14 +45,15 @@ class MembersTableDataSource extends PeopleTableDataSource<ProviderUser> {
 
 @Component({
   templateUrl: "members.component.html",
+  standalone: false,
 })
 export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   accessEvents = false;
   dataSource = new MembersTableDataSource();
   loading = true;
   providerId: string;
-  rowHeight = 69;
-  rowHeightClass = `tw-h-[69px]`;
+  rowHeight = 70;
+  rowHeightClass = `tw-h-[70px]`;
   status: ProviderUserStatusType = null;
 
   userStatusType = ProviderUserStatusType;
@@ -188,7 +188,7 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
 
   async confirmUser(user: ProviderUser, publicKey: Uint8Array): Promise<void> {
     const providerKey = await this.keyService.getProviderKey(this.providerId);
-    const key = await this.encryptService.rsaEncrypt(providerKey.key, publicKey);
+    const key = await this.encryptService.encapsulateKeyUnsigned(providerKey, publicKey);
     const request = new ProviderUserConfirmRequest();
     request.key = key.encryptedString;
     await this.apiService.postProviderUserConfirm(this.providerId, user.id, request);

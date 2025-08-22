@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { SshKeyView as SdkSshKeyView } from "@bitwarden/sdk-internal";
+
 import { SshKey } from "../domain/ssh-key";
 
 import { ItemView } from "./item.view";
@@ -43,5 +45,33 @@ export class SshKeyView extends ItemView {
 
   static fromJSON(obj: Partial<Jsonify<SshKeyView>>): SshKeyView {
     return Object.assign(new SshKeyView(), obj);
+  }
+
+  /**
+   * Converts the SDK SshKeyView to a SshKeyView.
+   */
+  static fromSdkSshKeyView(obj: SdkSshKeyView): SshKeyView | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const sshKeyView = new SshKeyView();
+
+    sshKeyView.privateKey = obj.privateKey ?? null;
+    sshKeyView.publicKey = obj.publicKey ?? null;
+    sshKeyView.keyFingerprint = obj.fingerprint ?? null;
+
+    return sshKeyView;
+  }
+
+  /**
+   * Converts the SshKeyView to an SDK SshKeyView.
+   */
+  toSdkSshKeyView(): SdkSshKeyView {
+    return {
+      privateKey: this.privateKey,
+      publicKey: this.publicKey,
+      fingerprint: this.keyFingerprint,
+    };
   }
 }

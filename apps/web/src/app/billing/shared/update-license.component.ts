@@ -15,6 +15,7 @@ import { UpdateLicenseDialogResult } from "./update-license-types";
 @Component({
   selector: "app-update-license",
   templateUrl: "update-license.component.html",
+  standalone: false,
 })
 export class UpdateLicenseComponent implements OnInit {
   @Input() organizationId: string;

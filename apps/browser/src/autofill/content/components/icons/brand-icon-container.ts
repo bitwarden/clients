@@ -12,8 +12,13 @@ export function BrandIconContainer({ iconLink, theme }: { iconLink?: URL; theme:
 }
 
 const brandIconContainerStyles = css`
+  display: flex;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+
   > svg {
-    width: 20px;
-    height: fit-content;
+    width: auto;
+    height: 100%;
   }
 `;

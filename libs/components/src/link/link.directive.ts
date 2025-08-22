@@ -1,4 +1,7 @@
-import { Input, HostBinding, Directive } from "@angular/core";
+import { input, HostBinding, Directive, inject, ElementRef, booleanAttribute } from "@angular/core";
+
+import { AriaDisableDirective } from "../a11y";
+import { ariaDisableElement } from "../utils";
 
 export type LinkType = "primary" | "secondary" | "contrast" | "light";
 
@@ -58,34 +61,54 @@ const commonStyles = [
   "before:tw-transition",
   "focus-visible:before:tw-ring-2",
   "focus-visible:tw-z-10",
+  "aria-disabled:tw-no-underline",
+  "aria-disabled:tw-pointer-events-none",
+  "aria-disabled:!tw-text-secondary-300",
+  "aria-disabled:hover:!tw-text-secondary-300",
+  "aria-disabled:hover:tw-no-underline",
 ];
 
 @Directive()
 abstract class LinkDirective {
-  @Input()
-  linkType: LinkType = "primary";
+  readonly linkType = input<LinkType>("primary");
 }
 
+/**
+  * Text Links and Buttons can use either the `<a>` or `<button>` tags. Choose which based on the action the button takes:
+
+  * - if navigating to a new page, use a `<a>`
+  * - if taking an action on the current page, use a `<button>`
+
+  * Text buttons or links are most commonly used in paragraphs of text or in forms to customize actions or show/hide additional form options.
+ */
 @Directive({
   selector: "a[bitLink]",
-  standalone: true,
 })
 export class AnchorLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.125rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? []);
+      .concat(linkStyles[this.linkType()] ?? []);
   }
 }
 
 @Directive({
   selector: "button[bitLink]",
-  standalone: true,
+  hostDirectives: [AriaDisableDirective],
 })
 export class ButtonLinkDirective extends LinkDirective {
+  private el = inject(ElementRef<HTMLButtonElement>);
+
+  disabled = input(false, { transform: booleanAttribute });
+
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? []);
+      .concat(linkStyles[this.linkType()] ?? []);
+  }
+
+  constructor() {
+    super();
+    ariaDisableElement(this.el.nativeElement, this.disabled);
   }
 }

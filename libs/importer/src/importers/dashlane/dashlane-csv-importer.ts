@@ -92,7 +92,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
         this.parseIdRecord(cipher, row);
       }
 
-      if ((rowKeys[0] === "type") != null && rowKeys[1] === "title") {
+      if (rowKeys[0] === "type" && rowKeys[1] === "title") {
         this.parsePersonalInformationRecord(cipher, row);
       }
 

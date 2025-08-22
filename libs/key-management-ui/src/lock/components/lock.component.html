@@ -1,10 +1,10 @@
-<ng-template #loading>
-  <div class="tw-flex tw-items-center tw-justify-center" *ngIf="loading">
+<ng-template #spinner>
+  <div class="tw-flex tw-items-center tw-justify-center">
     <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
   </div>
 </ng-template>
 
-<ng-container *ngIf="unlockOptions; else loading">
+<ng-container *ngIf="unlockOptions && !loading; else spinner">
   <!-- Biometrics Unlock -->
   <ng-container *ngIf="activeUnlockOption === UnlockOption.Biometrics">
     <button

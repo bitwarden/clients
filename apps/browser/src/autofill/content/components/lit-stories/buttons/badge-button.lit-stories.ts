@@ -1,15 +1,8 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { BadgeButton } from "../../buttons/badge-button";
-
-type Args = {
-  buttonAction: (e: Event) => void;
-  buttonText: string;
-  disabled?: boolean;
-  theme: Theme;
-};
+import { BadgeButton, BadgeButtonProps } from "../../buttons/badge-button";
 
 export default {
   title: "Components/Buttons/Badge Button",
@@ -31,10 +24,10 @@ export default {
       url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=502-24973&t=2O7uCAkwRZCcjumm-4",
     },
   },
-} as Meta<Args>;
+} as Meta<BadgeButtonProps>;
 
-const Template = (args: Args) => BadgeButton({ ...args });
+const Template = (args: BadgeButtonProps) => BadgeButton({ ...args });
 
-export const Default: StoryObj<Args> = {
+export const Default: StoryObj<BadgeButtonProps> = {
   render: Template,
 };

@@ -1,4 +1,8 @@
-<bit-section [formGroup]="additionalOptionsForm">
+<section
+  class="tw-mb-5 bit-compact:tw-mb-4"
+  [ngClass]="{ 'tw-mb-0': disableSectionMargin && !hasCustomFields }"
+  [formGroup]="additionalOptionsForm"
+>
   <bit-section-header>
     <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
   </bit-section-header>
@@ -27,6 +31,9 @@
       {{ "addField" | i18n }}
     </button>
   </bit-card>
-</bit-section>
+</section>
 
-<vault-custom-fields (numberOfFieldsChange)="handleCustomFieldChange($event)"></vault-custom-fields>
+<vault-custom-fields
+  (numberOfFieldsChange)="handleCustomFieldChange($event)"
+  [disableSectionMargin]="disableSectionMargin"
+></vault-custom-fields>

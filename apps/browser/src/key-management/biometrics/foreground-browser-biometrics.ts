@@ -1,3 +1,4 @@
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -7,6 +8,10 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class ForegroundBrowserBiometricsService extends BiometricsService {
   shouldAutopromptNow = true;
+
+  constructor(private platformUtilsService: PlatformUtilsService) {
+    super();
+  }
 
   async authenticateWithBiometrics(): Promise<boolean> {
     const response = await BrowserApi.sendMessageWithResponse<{
@@ -51,5 +56,20 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
   }
   async setShouldAutopromptNow(value: boolean): Promise<void> {
     this.shouldAutopromptNow = value;
+  }
+
+  async canEnableBiometricUnlock(): Promise<boolean> {
+    const needsPermissionPrompt =
+      !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
+      !this.platformUtilsService.isSafari();
+    return (
+      needsPermissionPrompt ||
+      (
+        await BrowserApi.sendMessageWithResponse<{
+          result: boolean;
+          error: string;
+        }>(BiometricsCommands.CanEnableBiometricUnlock)
+      ).result
+    );
   }
 }

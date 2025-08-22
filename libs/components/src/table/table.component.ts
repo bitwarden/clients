@@ -1,15 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { isDataSource } from "@angular/cdk/collections";
 import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   Component,
-  ContentChild,
   Directive,
-  Input,
   OnDestroy,
   TemplateRef,
+  input,
+  contentChild,
 } from "@angular/core";
 import { Observable } from "rxjs";
 
@@ -17,7 +15,6 @@ import { TableDataSource } from "./table-data-source";
 
 @Directive({
   selector: "ng-template[body]",
-  standalone: true,
 })
 export class TableBodyDirective {
   // eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
@@ -27,16 +24,15 @@ export class TableBodyDirective {
 @Component({
   selector: "bit-table",
   templateUrl: "./table.component.html",
-  standalone: true,
   imports: [CommonModule],
 })
 export class TableComponent implements OnDestroy, AfterContentChecked {
-  @Input() dataSource: TableDataSource<any>;
-  @Input() layout: "auto" | "fixed" = "auto";
+  readonly dataSource = input<TableDataSource<any>>();
+  readonly layout = input<"auto" | "fixed">("auto");
 
-  @ContentChild(TableBodyDirective) templateVariable: TableBodyDirective;
+  readonly templateVariable = contentChild(TableBodyDirective);
 
-  protected rows$: Observable<any[]>;
+  protected rows$?: Observable<any[]>;
 
   private _initialized = false;
 
@@ -47,22 +43,24 @@ export class TableComponent implements OnDestroy, AfterContentChecked {
       "tw-text-main",
       "tw-border-collapse",
       "tw-text-start",
-      this.layout === "auto" ? "tw-table-auto" : "tw-table-fixed",
+      this.layout() === "auto" ? "tw-table-auto" : "tw-table-fixed",
     ];
   }
 
   ngAfterContentChecked(): void {
-    if (!this._initialized && isDataSource(this.dataSource)) {
+    const dataSource = this.dataSource();
+    if (!this._initialized && isDataSource(dataSource)) {
       this._initialized = true;
 
-      const dataStream = this.dataSource.connect();
+      const dataStream = dataSource.connect();
       this.rows$ = dataStream;
     }
   }
 
   ngOnDestroy(): void {
-    if (isDataSource(this.dataSource)) {
-      this.dataSource.disconnect();
+    const dataSource = this.dataSource();
+    if (isDataSource(dataSource)) {
+      dataSource.disconnect();
     }
   }
 }

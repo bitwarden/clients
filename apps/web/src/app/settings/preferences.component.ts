@@ -2,11 +2,24 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { concatMap, filter, firstValueFrom, map, Observable, Subject, takeUntil, tap } from "rxjs";
+import {
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  Subject,
+  switchMap,
+  takeUntil,
+  tap,
+} from "rxjs";
 
+import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import {
   VaultTimeout,
@@ -17,14 +30,18 @@ import {
 } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DialogService } from "@bitwarden/components";
 
+import { HeaderModule } from "../layouts/header/header.module";
+import { SharedModule } from "../shared";
+
 @Component({
   selector: "app-preferences",
   templateUrl: "preferences.component.html",
+  imports: [SharedModule, HeaderModule, VaultTimeoutInputComponent],
 })
 export class PreferencesComponent implements OnInit, OnDestroy {
   // For use in template
@@ -47,7 +64,7 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     vaultTimeout: [null as VaultTimeout | null],
     vaultTimeoutAction: [VaultTimeoutAction.Lock],
     enableFavicons: true,
-    theme: [ThemeType.Light],
+    theme: [ThemeTypes.Light as Theme],
     locale: [null as string | null],
   });
 
@@ -90,9 +107,9 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     localeOptions.splice(0, 0, { name: i18nService.t("default"), value: null });
     this.localeOptions = localeOptions;
     this.themeOptions = [
-      { name: i18nService.t("themeLight"), value: ThemeType.Light },
-      { name: i18nService.t("themeDark"), value: ThemeType.Dark },
-      { name: i18nService.t("themeSystem"), value: ThemeType.System },
+      { name: i18nService.t("themeLight"), value: ThemeTypes.Light },
+      { name: i18nService.t("themeDark"), value: ThemeTypes.Dark },
+      { name: i18nService.t("themeSystem"), value: ThemeTypes.System },
     ];
   }
 
@@ -100,7 +117,12 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     this.availableVaultTimeoutActions$ =
       this.vaultTimeoutSettingsService.availableVaultTimeoutActions$();
 
-    this.vaultTimeoutPolicyCallout = this.policyService.get$(PolicyType.MaximumVaultTimeout).pipe(
+    this.vaultTimeoutPolicyCallout = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+      ),
+      getFirstPolicy,
       filter((policy) => policy != null),
       map((policy) => {
         let timeout;

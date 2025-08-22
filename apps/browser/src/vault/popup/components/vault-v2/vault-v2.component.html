@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async" disablePadding>
+<popup-page [loading]="loading$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -14,11 +14,12 @@
   >
     <bit-no-items [icon]="vaultIcon">
       <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
-      <ng-container slot="description">{{ "autofillSuggestionsTip" | i18n }}</ng-container>
-      <app-new-item-dropdown
-        slot="button"
-        [initialValues]="newItemItemValues$ | async"
-      ></app-new-item-dropdown>
+      <ng-container slot="description">
+        <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ "emptyVaultDescription" | i18n }}</p>
+      </ng-container>
+      <a slot="button" bitButton buttonType="secondary" [routerLink]="['/add-cipher']">
+        {{ "newLogin" | i18n }}
+      </a>
     </bit-no-items>
   </div>
 
@@ -28,14 +29,33 @@
   ></blocked-injection-banner>
 
   <!-- Show search & filters outside of the scroll area of the page -->
-  <ng-container
-    slot="above-scroll-area"
-    *ngIf="vaultState !== VaultStateEnum.Empty && !(loading$ | async)"
-  >
-    <vault-at-risk-password-callout
-      *appIfFeature="FeatureFlag.SecurityTasks"
-    ></vault-at-risk-password-callout>
-    <app-vault-header-v2></app-vault-header-v2>
+  <ng-container slot="above-scroll-area">
+    <ng-container *ngIf="vaultState === VaultStateEnum.Empty && showEmptyVaultSpotlight$ | async">
+      <bit-spotlight
+        [title]="'emptyVaultNudgeTitle' | i18n"
+        [subtitle]="'emptyVaultNudgeBody' | i18n"
+        [buttonText]="'emptyVaultNudgeButton' | i18n"
+        (onButtonClick)="navigateToImport()"
+        (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.EmptyVaultNudge)"
+      >
+      </bit-spotlight>
+    </ng-container>
+    <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
+      <div class="tw-mb-4" *ngIf="showHasItemsVaultSpotlight$ | async">
+        <bit-spotlight
+          [title]="'hasItemsVaultNudgeTitle' | i18n"
+          (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.HasVaultItems)"
+        >
+          <ul class="tw-pl-4 tw-text-main tw-mb-0" bitTypography="body2">
+            <li>{{ "hasItemsVaultNudgeBodyOne" | i18n }}</li>
+            <li>{{ "hasItemsVaultNudgeBodyTwo" | i18n }}</li>
+            <li>{{ "hasItemsVaultNudgeBodyThree" | i18n }}</li>
+          </ul>
+        </bit-spotlight>
+      </div>
+      <vault-at-risk-password-callout></vault-at-risk-password-callout>
+      <app-vault-header-v2></app-vault-header-v2>
+    </ng-container>
   </ng-container>
 
   <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
@@ -64,11 +84,7 @@
       </div>
     </div>
 
-    <div
-      *ngIf="vaultState === null"
-      cdkVirtualScrollingElement
-      class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
-    >
+    <ng-container *ngIf="vaultState === null">
       <app-autofill-vault-list-items></app-autofill-vault-list-items>
       <app-vault-list-items-container
         [title]="'favorites' | i18n"
@@ -83,7 +99,6 @@
         disableSectionMargin
         collapsibleKey="allItems"
       ></app-vault-list-items-container>
-    </div>
+    </ng-container>
   </ng-container>
-  <new-settings-callout></new-settings-callout>
 </popup-page>

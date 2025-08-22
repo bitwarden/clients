@@ -19,16 +19,19 @@ import { organizationRedirectGuard } from "./org-redirect.guard";
 
 @Component({
   template: "<h1>This is the home screen!</h1>",
+  standalone: false,
 })
 export class HomescreenComponent {}
 
 @Component({
   template: "<h1>This is the admin console!</h1>",
+  standalone: false,
 })
 export class AdminConsoleComponent {}
 
 @Component({
   template: "<h1> This is a subroute of the admin console!</h1>",
+  standalone: false,
 })
 export class AdminConsoleSubrouteComponent {}
 

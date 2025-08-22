@@ -22,12 +22,21 @@ export abstract class PlatformUtilsService {
   abstract isVivaldi(): boolean;
   abstract isSafari(): boolean;
   abstract isMacAppStore(): boolean;
-  abstract isViewOpen(): Promise<boolean>;
+  abstract isPopupOpen(): Promise<boolean>;
   abstract launchUri(uri: string, options?: any): void;
   abstract getApplicationVersion(): Promise<string>;
   abstract getApplicationVersionNumber(): Promise<string>;
   abstract supportsWebAuthn(win: Window): boolean;
   abstract supportsDuo(): boolean;
+  /**
+   * Returns true if the device supports autofill functionality
+   */
+  abstract supportsAutofill(): boolean;
+  /**
+   * Returns true if the device supports native file downloads without
+   * the need for `target="_blank"`
+   */
+  abstract supportsFileDownloads(): boolean;
   /**
    * @deprecated use `@bitwarden/components/ToastService.showToast` instead
    *

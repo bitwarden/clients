@@ -1,5 +1,6 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
+
+import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
 
 export interface BulkConfirmationDetails {
   title: string;
@@ -14,6 +15,8 @@ export interface BulkConfirmationStatus {
   description: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum BulkConfirmationResult {
   Continue,
   Cancel,
@@ -22,6 +25,7 @@ export enum BulkConfirmationResult {
 @Component({
   selector: "sm-bulk-confirmation-dialog",
   templateUrl: "./bulk-confirmation-dialog.component.html",
+  standalone: false,
 })
 export class BulkConfirmationDialogComponent implements OnInit {
   constructor(

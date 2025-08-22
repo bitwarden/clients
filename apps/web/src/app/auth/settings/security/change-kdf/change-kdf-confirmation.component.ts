@@ -1,22 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { KdfRequest } from "@bitwarden/common/models/request/kdf.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { KdfConfig, KdfType, KeyService } from "@bitwarden/key-management";
 
 @Component({
   selector: "app-change-kdf-confirmation",
   templateUrl: "change-kdf-confirmation.component.html",
+  standalone: false,
 })
 export class ChangeKdfConfirmationComponent {
   kdfConfig: KdfConfig;
@@ -31,7 +30,6 @@ export class ChangeKdfConfirmationComponent {
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private keyService: KeyService,
     private messagingService: MessagingService,
     @Inject(DIALOG_DATA) params: { kdf: KdfType; kdfConfig: KdfConfig },
@@ -58,6 +56,10 @@ export class ChangeKdfConfirmationComponent {
   };
 
   private async makeKeyAndSaveAsync() {
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (activeAccount == null) {
+      throw new Error("No active account found.");
+    }
     const masterPassword = this.form.value.masterPassword;
 
     // Ensure the KDF config is valid.
@@ -70,13 +72,14 @@ export class ChangeKdfConfirmationComponent {
       request.kdfMemory = this.kdfConfig.memory;
       request.kdfParallelism = this.kdfConfig.parallelism;
     }
-    const masterKey = await this.keyService.getOrDeriveMasterKey(masterPassword);
+    const masterKey = await this.keyService.getOrDeriveMasterKey(masterPassword, activeAccount.id);
     request.masterPasswordHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
-    const email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
-    );
 
-    const newMasterKey = await this.keyService.makeMasterKey(masterPassword, email, this.kdfConfig);
+    const newMasterKey = await this.keyService.makeMasterKey(
+      masterPassword,
+      activeAccount.email,
+      this.kdfConfig,
+    );
     request.newMasterPasswordHash = await this.keyService.hashMasterKey(
       masterPassword,
       newMasterKey,

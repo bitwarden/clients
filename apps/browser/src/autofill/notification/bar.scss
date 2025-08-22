@@ -1,8 +1,8 @@
 ﻿@import "../shared/styles/variables";
 
 body {
-  padding: 0;
   margin: 0;
+  padding: 0;
   height: 100%;
   font-size: 14px;
   line-height: 16px;
@@ -14,16 +14,30 @@ body {
   }
 }
 
+img {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+button,
+select {
+  font-size: $font-size-base;
+  font-family: $font-family-sans-serif;
+}
+
 .outer-wrapper {
-  padding: 0 10px;
-  border-bottom: 2px solid transparent;
-  display: grid;
-  grid-template-columns: 24px auto 55px;
-  grid-column-gap: 10px;
-  box-sizing: border-box;
+  display: block;
+  position: relative;
+  padding: 8px;
   min-height: 42px;
+  border: 1px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px;
+  box-sizing: border-box;
 
   @include themify($themes) {
+    border-color: themed("borderColor");
     border-bottom-color: themed("primaryColor");
   }
 
@@ -50,20 +64,34 @@ body {
   align-self: center;
 }
 
-img {
-  border: 0;
-  margin: 0;
-  padding: 0;
-}
-
 #logo {
   width: 24px;
   height: 24px;
   display: block;
 }
 
+.logo-wrapper {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  overflow: hidden;
+}
+
 #close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   margin-right: 10px;
+  padding: 0;
+
+  &:hover {
+    @include themify($themes) {
+      border-color: rgba(themed("textColor"), 0.2);
+      background-color: rgba(themed("textColor"), 0.2);
+    }
+  }
 }
 
 #close {
@@ -78,15 +106,79 @@ img {
   }
 }
 
-#close-button:hover {
-  @include themify($themes) {
-    border-color: rgba(themed("textColor"), 0.2);
-    background-color: rgba(themed("textColor"), 0.2);
+.notification-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+
+#content .inner-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+
+  .notification-body {
+    width: 100%;
+    padding: 4px 38px 24px 42px;
+    font-weight: 400;
+  }
+
+  .notification-actions {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    justify-content: flex-end;
+
+    #never-save {
+      margin-right: auto;
+      padding: 0;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    #select-folder {
+      width: 125px;
+      margin-right: 6px;
+      font-size: 12px;
+      appearance: none;
+      background-repeat: no-repeat;
+      background-position: center right 4px;
+      background-size: 16px;
+
+      @include themify($themes) {
+        color: themed("mutedTextColor");
+        border-color: themed("mutedTextColor");
+      }
+
+      &:not([disabled]) {
+        display: block;
+      }
+    }
+
+    .primary,
+    .secondary {
+      font-size: 12px;
+    }
+
+    .secondary {
+      margin-right: 6px;
+      border-width: 1px;
+    }
+
+    .primary {
+      margin-right: 2px;
+    }
+
+    &.success-message,
+    &.error-message {
+      padding: 4px 36px 6px 42px;
+    }
   }
 }
 
 button {
-  padding: 0.35rem 15px;
+  padding: 4px 8px;
   border-radius: $border-radius;
   border: 1px solid transparent;
   cursor: pointer;
@@ -133,14 +225,13 @@ button.neutral {
     text-decoration: underline;
 
     @include themify($themes) {
-      background-color: transparent;
       color: darken(themed("primaryColor"), 6%);
     }
   }
 }
 
 select {
-  padding: 0.35rem;
+  padding: 4px 6px;
   border: 1px solid #000000;
   border-radius: $border-radius;
 
@@ -151,16 +242,9 @@ select {
   }
 }
 
-select,
-button {
-  font-size: $font-size-base;
-  font-family: $font-family-sans-serif;
-}
-
 .success-message {
   display: flex;
   align-items: center;
-  align-content: center;
   justify-content: center;
 
   @include themify($themes) {
@@ -184,6 +268,13 @@ button {
   }
 }
 
+.success-event,
+.error-event {
+  .notification-body {
+    display: none;
+  }
+}
+
 @media screen and (max-width: 768px) {
   #select-folder {
     display: none;
@@ -196,131 +287,8 @@ button {
   }
 }
 
-.notification-bar-redesign {
-  button {
-    padding: 4px 8px;
-  }
-
-  select {
-    padding: 4px 6px;
-  }
-
-  .outer-wrapper {
-    display: block;
-    position: relative;
-    padding: 8px;
-    border-top: 1px solid transparent;
-    border-left: 1px solid transparent;
-    border-right: 1px solid transparent;
-    border-radius: 4px;
-
-    @include themify($themes) {
-      border-top-color: themed("borderColor");
-      border-left-color: themed("borderColor");
-      border-right-color: themed("borderColor");
-    }
-  }
-
-  .logo {
-    position: absolute;
-    top: 8px;
-    left: 10px;
-    overflow: hidden;
-  }
-
-  .notification-close {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-
-    #close-button {
-      display: flex;
-      align-content: center;
-      align-items: center;
-      justify-content: center;
-      width: 30px;
-      height: 30px;
-      padding: 0;
-      margin: 0;
-    }
-  }
-
-  #content .inner-wrapper {
-    display: flex;
-    align-items: flex-start;
-    align-content: flex-start;
-    flex-wrap: wrap;
-
-    .notification-body {
-      width: 100%;
-      padding: 4px 38px 24px 42px;
-      font-weight: 400;
-    }
-    .notification-actions {
-      display: flex;
-      align-items: stretch;
-      align-content: stretch;
-      justify-content: flex-end;
-      width: 100%;
-
-      #never-save {
-        margin-right: auto;
-        padding: 0;
-        font-size: 16px;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-      }
-
-      #select-folder {
-        width: 125px;
-        margin-right: 6px;
-        font-size: 12px;
-        appearance: none;
-        background-size: 16px;
-        background-position: center right 4px;
-        background-repeat: no-repeat;
-
-        @include themify($themes) {
-          color: themed("mutedTextColor");
-          border-color: themed("mutedTextColor");
-        }
-
-        &:not([disabled]) {
-          display: block;
-        }
-      }
-
-      .primary,
-      .secondary {
-        font-size: 12px;
-      }
-
-      .secondary {
-        margin-right: 6px;
-        border-width: 1px;
-      }
-
-      .primary {
-        margin-right: 2px;
-      }
-
-      &.success-message,
-      &.error-message {
-        padding: 4px 36px 6px 42px;
-      }
-    }
-  }
-
-  .success-event,
-  .error-event {
-    .notification-body {
-      display: none;
-    }
-  }
-}
-
 .theme_light {
-  .notification-bar-redesign #content .inner-wrapper {
+  #content .inner-wrapper {
     #select-folder {
       background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHhtbG5zOnhsaW5rPSdodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rJyB3aWR0aD0nMTYnIGhlaWdodD0nMTYnIGZpbGw9J25vbmUnPjxwYXRoIHN0cm9rZT0nIzIxMjUyOScgZD0nbTUgNiAzIDMgMy0zJy8+PC9zdmc+");
     }
@@ -328,25 +296,9 @@ button {
 }
 
 .theme_dark {
-  .notification-bar-redesign #content .inner-wrapper {
+  #content .inner-wrapper {
     #select-folder {
       background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxNicgaGVpZ2h0PScxNicgZmlsbD0nbm9uZSc+PHBhdGggc3Ryb2tlPScjZmZmZmZmJyBkPSdtNSA2IDMgMyAzLTMnLz48L3N2Zz4=");
-    }
-  }
-}
-
-.theme_solarizedDark {
-  .notification-bar-redesign #content .inner-wrapper {
-    #select-folder {
-      background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxNicgaGVpZ2h0PScxNicgZmlsbD0nbm9uZSc+PHBhdGggc3Ryb2tlPScjZWVlOGQ1JyBkPSdtNSA2IDMgMyAzLTMnLz48L3N2Zz4=");
-    }
-  }
-}
-
-.theme_nord {
-  .notification-bar-redesign #content .inner-wrapper {
-    #select-folder {
-      background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxNicgaGVpZ2h0PScxNicgZmlsbD0nbm9uZSc+PHBhdGggc3Ryb2tlPScjRTVFOUYwJyBkPSdtNSA2IDMgMyAzLTMnLz48L3N2Zz4=");
     }
   }
 }

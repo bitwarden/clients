@@ -1,58 +1,8 @@
 {
-  "compilerOptions": {
-    "moduleResolution": "node",
-    "noImplicitAny": true,
-    "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "module": "ES2020",
-    "target": "ES2016",
-    "allowJs": true,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "lib": ["ES2021.String"],
-    "paths": {
-      "@bitwarden/admin-console/common": ["../../libs/admin-console/src/common"],
-      "@bitwarden/angular/*": ["../../libs/angular/src/*"],
-      "@bitwarden/auth/common": ["../../libs/auth/src/common"],
-      "@bitwarden/auth/angular": ["../../libs/auth/src/angular"],
-      "@bitwarden/billing": ["../../libs/billing/src"],
-      "@bitwarden/common/*": ["../../libs/common/src/*"],
-      "@bitwarden/components": ["../../libs/components/src"],
-      "@bitwarden/generator-components": ["../../libs/tools/generator/components/src"],
-      "@bitwarden/generator-core": ["../../libs/tools/generator/core/src"],
-      "@bitwarden/generator-history": ["../../libs/tools/generator/extensions/history/src"],
-      "@bitwarden/generator-legacy": ["../../libs/tools/generator/extensions/legacy/src"],
-      "@bitwarden/generator-navigation": ["../../libs/tools/generator/extensions/navigation/src"],
-      "@bitwarden/importer-core": ["../../libs/importer/src"],
-      "@bitwarden/importer-ui": ["../../libs/importer/src/components"],
-      "@bitwarden/key-management": ["../../libs/key-management/src"],
-      "@bitwarden/key-management-ui": ["../../libs/key-management-ui/src"],
-      "@bitwarden/platform": ["../../libs/platform/src"],
-      "@bitwarden/send-ui": ["../../libs/tools/send/send-ui/src"],
-      "@bitwarden/tools-card": ["../../libs/tools/card/src"],
-      "@bitwarden/ui-common": ["../../libs/ui/common/src"],
-      "@bitwarden/ui-common/setup-jest": ["../../libs/ui/common/src/setup-jest"],
-      "@bitwarden/vault-export-core": [
-        "../../libs/tools/export/vault-export/vault-export-core/src"
-      ],
-      "@bitwarden/vault-export-ui": ["../../libs/tools/export/vault-export/vault-export-ui/src"],
-      "@bitwarden/vault": ["../../libs/vault/src"]
-    },
-    "plugins": [
-      {
-        "name": "typescript-strict-plugin"
-      }
-    ],
-    "useDefineForClassFields": false
-  },
-  "angularCompilerOptions": {
-    "strictTemplates": true
-  },
+  "extends": "../../tsconfig.base",
   "include": [
     "src",
     "../../libs/common/src/autofill/constants",
-    "../../libs/common/custom-matchers.d.ts",
-    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"
+    "../../libs/common/custom-matchers.d.ts"
   ]
 }

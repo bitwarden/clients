@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
  */
 @Pipe({
   name: "i18n",
+  standalone: false,
 })
 export class I18nPipe implements PipeTransform {
   constructor(private i18nService: I18nService) {}

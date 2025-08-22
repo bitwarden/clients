@@ -15,7 +15,10 @@ uniffi::setup_scaffolding!();
 mod assertion;
 mod registration;
 
-use assertion::{PasskeyAssertionRequest, PreparePasskeyAssertionCallback};
+use assertion::{
+    PasskeyAssertionRequest, PasskeyAssertionWithoutUserInterfaceRequest,
+    PreparePasskeyAssertionCallback,
+};
 use registration::{PasskeyRegistrationRequest, PreparePasskeyRegistrationCallback};
 
 #[derive(uniffi::Enum, Debug, Serialize, Deserialize)]
@@ -24,6 +27,13 @@ pub enum UserVerification {
     Preferred,
     Required,
     Discouraged,
+}
+
+#[derive(uniffi::Record, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Position {
+    pub x: i32,
+    pub y: i32,
 }
 
 #[derive(Debug, uniffi::Error, Serialize, Deserialize)]
@@ -141,6 +151,14 @@ impl MacOSProviderClient {
     ) {
         self.send_message(request, Box::new(callback));
     }
+
+    pub fn prepare_passkey_assertion_without_user_interface(
+        &self,
+        request: PasskeyAssertionWithoutUserInterfaceRequest,
+        callback: Arc<dyn PreparePasskeyAssertionCallback>,
+    ) {
+        self.send_message(request, Box::new(callback));
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -196,8 +214,7 @@ impl MacOSProviderClient {
                 .remove(&sequence_number)
             {
                 cb.error(BitwardenError::Internal(format!(
-                    "Error sending message: {}",
-                    e
+                    "Error sending message: {e}"
                 )));
             }
         }

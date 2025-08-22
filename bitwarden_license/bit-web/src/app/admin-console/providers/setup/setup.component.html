@@ -1,18 +1,18 @@
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
-<div class="container page-content" *ngIf="!loading">
-  <div class="page-header">
+<div class="tw-max-w-4xl tw-mx-auto" *ngIf="!loading">
+  <div class="tw-mt-5">
     <h1>{{ "setupProvider" | i18n }}</h1>
   </div>
   <p>{{ "setupProviderDesc" | i18n }}</p>
   <form [formGroup]="formGroup" [bitSubmit]="submit">
-    <h2 class="mt-5">{{ "generalInformation" | i18n }}</h2>
+    <h2 class="tw-mt-5">{{ "billingInformation" | i18n }}</h2>
     <div class="tw-grid tw-grid-flow-col tw-grid-cols-12 tw-gap-4">
       <div class="tw-col-span-6">
         <bit-form-field>
@@ -28,6 +28,13 @@
         </bit-form-field>
       </div>
     </div>
+    <h2 class="tw-mt-5">{{ "paymentMethod" | i18n }}</h2>
+    <app-payment
+      [showAccountCredit]="false"
+      [bankAccountWarningOverride]="
+        'verifyProviderBankAccountWithStatementDescriptorWarning' | i18n
+      "
+    />
     <app-manage-tax-information />
     <button class="tw-mt-8" bitButton bitFormButton buttonType="primary" type="submit">
       {{ "submit" | i18n }}

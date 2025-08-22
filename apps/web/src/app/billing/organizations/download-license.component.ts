@@ -1,13 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogConfig, DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogConfig, DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DownloadLicenseDialogResult {
   Cancelled = "cancelled",
   Downloaded = "downloaded",
@@ -19,6 +20,7 @@ type DownloadLicenseDialogData = {
 
 @Component({
   templateUrl: "download-license.component.html",
+  standalone: false,
 })
 export class DownloadLicenceDialogComponent {
   licenseForm = this.formBuilder.group({

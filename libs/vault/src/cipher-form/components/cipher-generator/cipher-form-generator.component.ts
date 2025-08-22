@@ -12,7 +12,6 @@ import { AlgorithmInfo, GeneratedCredential } from "@bitwarden/generator-core";
 @Component({
   selector: "vault-cipher-form-generator",
   templateUrl: "./cipher-form-generator.component.html",
-  standalone: true,
   imports: [CommonModule, GeneratorModule],
 })
 export class CipherFormGeneratorComponent {

@@ -1,11 +1,14 @@
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -16,20 +19,46 @@ import { SecretsManagerImportedSecretRequest } from "../models/requests/sm-impor
 
 import { SecretsManagerPortingApiService } from "./sm-porting-api.service";
 
+const SomeCsprngArray = new Uint8Array(64) as CsprngArray;
+const SomeOrganization = "some organization" as OrganizationId;
+const AnotherOrganization = "another organization" as OrganizationId;
+const SomeOrgKey = new SymmetricCryptoKey(SomeCsprngArray) as OrgKey;
+const AnotherOrgKey = new SymmetricCryptoKey(SomeCsprngArray) as OrgKey;
+const OrgRecords: Record<OrganizationId, OrgKey> = {
+  [SomeOrganization]: SomeOrgKey,
+  [AnotherOrganization]: AnotherOrgKey,
+};
+
 describe("SecretsManagerPortingApiService", () => {
   let sut: SecretsManagerPortingApiService;
 
   const apiService = mock<ApiService>();
   const encryptService = mock<EncryptService>();
   const keyService = mock<KeyService>();
+  let accountService: MockProxy<AccountService>;
+  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
+    id: "testId" as UserId,
+    email: "test@example.com",
+    emailVerified: true,
+    name: "Test User",
+  });
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    sut = new SecretsManagerPortingApiService(apiService, encryptService, keyService);
+    const orgKey$ = new BehaviorSubject(OrgRecords);
+    keyService.orgKeys$.mockReturnValue(orgKey$);
+    accountService = mock<AccountService>();
+    accountService.activeAccount$ = activeAccountSubject;
+    sut = new SecretsManagerPortingApiService(
+      apiService,
+      encryptService,
+      keyService,
+      accountService,
+    );
 
-    encryptService.encrypt.mockResolvedValue(mockEncryptedString);
-    encryptService.decryptToUtf8.mockResolvedValue(mockUnencryptedString);
+    encryptService.encryptString.mockResolvedValue(mockEncryptedString);
+    encryptService.decryptString.mockResolvedValue(mockUnencryptedString);
 
     const mockRandomBytes = new Uint8Array(64) as CsprngArray;
     const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
@@ -51,7 +80,6 @@ describe("SecretsManagerPortingApiService", () => {
 
     it("emits the import successful", async () => {
       const expectedRequest = toRequest([project1, project2], [secret1, secret2]);
-
       let subscriptionCount = 0;
       sut.imports$.subscribe((request) => {
         expect(request).toBeDefined();

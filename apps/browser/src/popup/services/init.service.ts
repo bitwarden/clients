@@ -8,9 +8,10 @@ import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 
@@ -27,13 +28,14 @@ export class InitService {
     private themingService: AbstractThemingService,
     private sdkLoadService: SdkLoadService,
     private viewCacheService: PopupViewCacheService,
+    private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
-      await this.stateService.init({ runMigrations: false }); // Browser background is responsible for migrations
+      await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
       await this.i18nService.init();
       this.twoFactorService.init();
       await this.viewCacheService.init();

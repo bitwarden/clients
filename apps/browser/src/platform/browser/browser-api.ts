@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
+import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 import { DeviceType } from "@bitwarden/common/enums";
 import { isBrowserSafariApi } from "@bitwarden/platform";
 
@@ -28,6 +30,15 @@ export class BrowserApi {
    */
   static isManifestVersion(expectedVersion: 2 | 3) {
     return BrowserApi.manifestVersion === expectedVersion;
+  }
+
+  /**
+   * Gets all open browser windows, including their tabs.
+   *
+   * @returns A promise that resolves to an array of browser windows.
+   */
+  static async getWindows(): Promise<chrome.windows.Window[]> {
+    return new Promise((resolve) => chrome.windows.getAll({ populate: true }, resolve));
   }
 
   /**
@@ -125,10 +136,31 @@ export class BrowserApi {
   }
 
   static async getTabFromCurrentWindowId(): Promise<chrome.tabs.Tab> | null {
-    return await BrowserApi.tabsQueryFirst({
+    return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
       active: true,
       windowId: chrome.windows.WINDOW_ID_CURRENT,
     });
+  }
+
+  static getBrowserClientVendor(clientWindow: Window): BrowserClientVendor {
+    const device = BrowserPlatformUtilsService.getDevice(clientWindow);
+
+    switch (device) {
+      case DeviceType.ChromeExtension:
+      case DeviceType.ChromeBrowser:
+        return BrowserClientVendors.Chrome;
+      case DeviceType.OperaExtension:
+      case DeviceType.OperaBrowser:
+        return BrowserClientVendors.Opera;
+      case DeviceType.EdgeExtension:
+      case DeviceType.EdgeBrowser:
+        return BrowserClientVendors.Edge;
+      case DeviceType.VivaldiExtension:
+      case DeviceType.VivaldiBrowser:
+        return BrowserClientVendors.Vivaldi;
+      default:
+        return BrowserClientVendors.Unknown;
+    }
   }
 
   /**
@@ -153,7 +185,7 @@ export class BrowserApi {
   }
 
   static async getTabFromCurrentWindow(): Promise<chrome.tabs.Tab> | null {
-    return await BrowserApi.tabsQueryFirst({
+    return await BrowserApi.tabsQueryFirstCurrentWindowForSafari({
       active: true,
       currentWindow: true,
     });
@@ -195,6 +227,51 @@ export class BrowserApi {
     }
 
     return null;
+  }
+
+  /**
+   * Drop-in replacement for {@link BrowserApi.tabsQueryFirst}.
+   *
+   * Safari sometimes returns >1 tabs unexpectedly even when
+   * specificing a `windowId` or `currentWindow: true` query option.
+   *
+   * For all of these calls,
+   * ```
+   * await chrome.tabs.query({active: true, currentWindow: true})
+   * await chrome.tabs.query({active: true, windowId: chrome.windows.WINDOW_ID_CURRENT})
+   * await chrome.tabs.query({active: true, windowId: 10})
+   * ```
+   *
+   * Safari could return:
+   * ```
+   * [
+   *   {windowId: 2, pinned: true, title: "Incorrect tab in another window", …},
+   *   {windowId: 10, title: "Correct tab in foreground", …},
+   * ]
+   * ```
+   *
+   * This function captures the current window ID manually before running the query,
+   * then finds and returns the tab with the matching window ID.
+   *
+   * See the `SafariTabsQuery` tests in `browser-api.spec.ts`.
+   *
+   * This workaround can be removed when Safari fixes this bug.
+   */
+  static async tabsQueryFirstCurrentWindowForSafari(
+    options: chrome.tabs.QueryInfo,
+  ): Promise<chrome.tabs.Tab> | null {
+    if (!BrowserApi.isSafariApi) {
+      return await BrowserApi.tabsQueryFirst(options);
+    }
+
+    const currentWindowId = (await BrowserApi.getCurrentWindow()).id;
+    const tabs = await BrowserApi.tabsQuery(options);
+
+    if (tabs.length <= 1 || currentWindowId == null) {
+      return tabs[0];
+    }
+
+    return tabs.find((t) => t.windowId === currentWindowId) ?? tabs[0];
   }
 
   static tabSendMessageData(
@@ -369,7 +446,7 @@ export class BrowserApi {
    * @param event - The event in which to add the listener to.
    * @param callback - The callback you want registered onto the event.
    */
-  static addListener<T extends (...args: readonly unknown[]) => unknown>(
+  static addListener<T extends (...args: readonly any[]) => any>(
     event: chrome.events.Event<T>,
     callback: T,
   ) {
@@ -504,7 +581,9 @@ export class BrowserApi {
    *
    * @param permissions - The permissions to check.
    */
-  static async permissionsGranted(permissions: string[]): Promise<boolean> {
+  static async permissionsGranted(
+    permissions: chrome.runtime.ManifestPermissions[],
+  ): Promise<boolean> {
     return new Promise((resolve) =>
       chrome.permissions.contains({ permissions }, (result) => resolve(result)),
     );
@@ -594,7 +673,11 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
-    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResultDetails) =>
+    if (!(await BrowserApi.permissionsGranted(["privacy"]))) {
+      return false;
+    }
+
+    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
 
     const autofillAddressOverridden: boolean = await new Promise((resolve) =>
@@ -623,10 +706,10 @@ export class BrowserApi {
    *
    * @param value - Determines whether to enable or disable the autofill settings.
    */
-  static updateDefaultBrowserAutofillSettings(value: boolean) {
-    chrome.privacy.services.autofillAddressEnabled.set({ value });
-    chrome.privacy.services.autofillCreditCardEnabled.set({ value });
-    chrome.privacy.services.passwordSavingEnabled.set({ value });
+  static async updateDefaultBrowserAutofillSettings(value: boolean) {
+    await chrome.privacy.services.autofillAddressEnabled.set({ value });
+    await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
+    await chrome.privacy.services.passwordSavingEnabled.set({ value });
   }
 
   /**

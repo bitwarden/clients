@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, forwardRef, Inject, OnInit, ViewChild } from "@angular/core";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
@@ -14,7 +13,13 @@ import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { TaxInfoResponse } from "@bitwarden/common/billing/models/response/tax-info.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { PaymentComponent } from "../payment/payment.component";
 
@@ -22,8 +27,11 @@ export interface AdjustPaymentDialogParams {
   initialPaymentMethod?: PaymentMethodType;
   organizationId?: string;
   productTier?: ProductTierType;
+  providerId?: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AdjustPaymentDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -31,6 +39,7 @@ export enum AdjustPaymentDialogResultType {
 
 @Component({
   templateUrl: "./adjust-payment-dialog.component.html",
+  standalone: false,
 })
 export class AdjustPaymentDialogComponent implements OnInit {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
@@ -44,6 +53,9 @@ export class AdjustPaymentDialogComponent implements OnInit {
   protected initialPaymentMethod: PaymentMethodType;
   protected organizationId?: string;
   protected productTier?: ProductTierType;
+  protected providerId?: string;
+
+  protected loading = true;
 
   protected taxInformation: TaxInformation;
 
@@ -61,6 +73,7 @@ export class AdjustPaymentDialogComponent implements OnInit {
     this.initialPaymentMethod = this.dialogParams.initialPaymentMethod ?? PaymentMethodType.Card;
     this.organizationId = this.dialogParams.organizationId;
     this.productTier = this.dialogParams.productTier;
+    this.providerId = this.dialogParams.providerId;
   }
 
   ngOnInit(): void {
@@ -69,9 +82,26 @@ export class AdjustPaymentDialogComponent implements OnInit {
         .getTaxInfo(this.organizationId)
         .then((response: TaxInfoResponse) => {
           this.taxInformation = TaxInformation.from(response);
+          this.toggleBankAccount();
         })
         .catch(() => {
           this.taxInformation = new TaxInformation();
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    } else if (this.providerId) {
+      this.billingApiService
+        .getProviderTaxInformation(this.providerId)
+        .then((response) => {
+          this.taxInformation = TaxInformation.from(response);
+          this.toggleBankAccount();
+        })
+        .catch(() => {
+          this.taxInformation = new TaxInformation();
+        })
+        .finally(() => {
+          this.loading = false;
         });
     } else {
       this.apiService
@@ -81,21 +111,28 @@ export class AdjustPaymentDialogComponent implements OnInit {
         })
         .catch(() => {
           this.taxInformation = new TaxInformation();
+        })
+        .finally(() => {
+          this.loading = false;
         });
     }
   }
 
   taxInformationChanged(event: TaxInformation) {
     this.taxInformation = event;
-    if (event.country === "US") {
-      this.paymentComponent.showBankAccount = !!this.organizationId;
+    this.toggleBankAccount();
+  }
+
+  toggleBankAccount = () => {
+    if (this.taxInformation.country === "US") {
+      this.paymentComponent.showBankAccount = !!this.organizationId || !!this.providerId;
     } else {
       this.paymentComponent.showBankAccount = false;
       if (this.paymentComponent.selected === PaymentMethodType.BankAccount) {
         this.paymentComponent.select(PaymentMethodType.Card);
       }
     }
-  }
+  };
 
   submit = async (): Promise<void> => {
     if (!this.taxInfoComponent.validate()) {
@@ -104,10 +141,12 @@ export class AdjustPaymentDialogComponent implements OnInit {
     }
 
     try {
-      if (!this.organizationId) {
-        await this.updatePremiumUserPaymentMethod();
-      } else {
+      if (this.organizationId) {
         await this.updateOrganizationPaymentMethod();
+      } else if (this.providerId) {
+        await this.updateProviderPaymentMethod();
+      } else {
+        await this.updatePremiumUserPaymentMethod();
       }
 
       this.toastService.showToast({
@@ -137,20 +176,6 @@ export class AdjustPaymentDialogComponent implements OnInit {
     await this.billingApiService.updateOrganizationPaymentMethod(this.organizationId, request);
   };
 
-  protected get showTaxIdField(): boolean {
-    if (!this.organizationId) {
-      return false;
-    }
-
-    switch (this.productTier) {
-      case ProductTierType.Free:
-      case ProductTierType.Families:
-        return false;
-      default:
-        return true;
-    }
-  }
-
   private updatePremiumUserPaymentMethod = async () => {
     const { type, token } = await this.paymentComponent.tokenize();
 
@@ -167,6 +192,30 @@ export class AdjustPaymentDialogComponent implements OnInit {
     request.state = this.taxInformation.state;
     await this.apiService.postAccountPayment(request);
   };
+
+  private updateProviderPaymentMethod = async () => {
+    const paymentSource = await this.paymentComponent.tokenize();
+
+    const request = new UpdatePaymentMethodRequest();
+    request.paymentSource = paymentSource;
+    request.taxInformation = ExpandedTaxInfoUpdateRequest.From(this.taxInformation);
+
+    await this.billingApiService.updateProviderPaymentMethod(this.providerId, request);
+  };
+
+  protected get showTaxIdField(): boolean {
+    if (this.organizationId) {
+      switch (this.productTier) {
+        case ProductTierType.Free:
+        case ProductTierType.Families:
+          return false;
+        default:
+          return true;
+      }
+    } else {
+      return !!this.providerId;
+    }
+  }
 
   static open = (
     dialogService: DialogService,

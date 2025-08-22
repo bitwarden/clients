@@ -5,7 +5,9 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,8 +21,8 @@ import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export"
 @Component({
   selector: "provider-events",
   templateUrl: "events.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EventsComponent extends BaseEventsComponent implements OnInit {
   exportFileName = "provider-events";
   providerId: string;
@@ -41,6 +43,8 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     private userNamePipe: UserNamePipe,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
+    accountService: AccountService,
+    organizationService: OrganizationService,
   ) {
     super(
       eventService,
@@ -50,6 +54,9 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
       logService,
       fileDownloadService,
       toastService,
+      route,
+      accountService,
+      organizationService,
     );
   }
 
@@ -69,6 +76,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
   }
 
   async load() {
+    this.initBase();
     const response = await this.apiService.getProviderUsers(this.providerId);
     response.data.forEach((u) => {
       const name = this.userNamePipe.transform(u);

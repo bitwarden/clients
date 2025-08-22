@@ -2,12 +2,15 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Logo Bitwarden"
+  },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Rheolydd cyfrineiriau Bitwarden",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Gartref, yn y gweithle, neu ar fynd, mae Bitwarden yn diogelu eich holl gyfrineiriau a gwybodaeth sensitif",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -20,7 +23,7 @@
     "message": "Creu cyfrif"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Newydd i Bitwarden?"
   },
   "logInWithPasskey": {
     "message": "Log in with passkey"
@@ -56,13 +59,13 @@
     "message": "Prif gyfrinair"
   },
   "masterPassDesc": {
-    "message": "The master password is the password you use to access your vault. It is very important that you do not forget your master password. There is no way to recover the password in the event that you forget it."
+    "message": "Y prif gyfrinair yw'r cyfrinair ddefnyddiwch chi i gael mynediad i'ch cell. Mae'n bwysig iawn nad ydych chi'n anghofio eich prif gyfrinair. Does dim modd adfer y cyfrinair pe baech yn ei anghofio."
   },
   "masterPassHintDesc": {
-    "message": "A master password hint can help you remember your password if you forget it."
+    "message": "Gall awgrym o'ch prif gyfrinair eich helpu i'w gofio os ydych chi'n ei anghofio."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Os anghofiwch chi eich cyfrinair, gallwch anfon awgrym i'ch cyfeiriad ebost. $CURRENT$/$MAXIMUM$ nod.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -93,7 +96,7 @@
     "message": "Join organization"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Ymuno â $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -171,7 +174,7 @@
     "message": "Copy fingerprint"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Copïo $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -186,11 +189,11 @@
     "message": "Copy notes"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Copïo",
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Llenwi",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -216,7 +219,7 @@
     "message": "Cynhyrchu cyfrinair (wedi'i gopïo)"
   },
   "copyElementIdentifier": {
-    "message": "Copy custom field name"
+    "message": "Copïo enw maes addasedig"
   },
   "noMatchingLogins": {
     "message": "No matching logins"
@@ -262,12 +265,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "passwordHint": {
-    "message": "Password hint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Enter your account email address to receive your master password hint."
   },
   "getMasterPasswordHint": {
     "message": "Anfon awgrym o'ch prif gyfrinair"
@@ -323,22 +320,22 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "twoStepLogin": {
-    "message": "Mewngofnodi dau agm"
+    "message": "Mewngofnodi dau gam"
   },
   "logOut": {
     "message": "Allgofnodi"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "Ynghylch Bitwarden"
   },
   "about": {
     "message": "Ynghylch"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "Mwy gan Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "Parhau i bitwarden.com?"
   },
   "bitwardenForBusiness": {
     "message": "Bitwarden for Business"
@@ -385,14 +382,23 @@
   "editFolder": {
     "message": "Golygu ffolder"
   },
+  "editFolderWithName": {
+    "message": "Golygu ffolder: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Ffolder newydd"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Enw'r ffolder"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Gallwch nythu ffolder drwy ychwanegu enw ffolder arall wedi'i olynu gan \"/\". Enghraifft: Cymdeithasol/Fforymau"
   },
   "noFoldersAdded": {
     "message": "No folders added"
@@ -456,19 +462,19 @@
     "message": "Cynhyrchu cyfrinair"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Cynhyrchu cyfrinymadrodd"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Cyfrinair wedi'i gynhyrchu"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Cyfrinymadrodd wedi'i gynhyrchu"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Enw defnyddiwr wedi'i gynhyrchu"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Cyfeiriad ebost wedi'i gynhyrchu"
   },
   "regeneratePassword": {
     "message": "Ailgynhyrchu cyfrinair"
@@ -479,28 +485,12 @@
   "length": {
     "message": "Hyd"
   },
-  "uppercase": {
-    "message": "Priflythrennau (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Llythrennau bach (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Rhifau (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Nodau arbennig (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
-    "message": "Include",
+    "message": "Cynnwys",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Cynnwys priflythrennau",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -508,7 +498,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Cynnwys llythrennau bach",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -516,7 +506,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Cynnwys rhifau",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -524,12 +514,8 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Cynnwys nodau arbennig",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Nifer o eiriau"
@@ -551,7 +537,7 @@
     "message": "Isafswm nodau arbennig"
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Osgoi nodau amwys",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -560,6 +546,9 @@
   },
   "searchVault": {
     "message": "Chwilio'r gell"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "edit": {
     "message": "Golygu"
@@ -601,7 +590,7 @@
     "message": "Nodiadau"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Nodyn preifat"
   },
   "note": {
     "message": "Nodyn"
@@ -669,8 +658,8 @@
   "browserNotSupportClipboard": {
     "message": "Dyw eich porwr gwe ddim yn cefnogi copïo drwy'r clipfwrdd yn hawdd. Copïwch â llaw yn lle."
   },
-  "verifyIdentity": {
-    "message": "Gwirio'ch hunaniaeth"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -682,13 +671,13 @@
     "message": "Mae eich cell ar glo. Gwiriwch eich hunaniaeth i barhau."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Mae eich cell ar glo"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Mae eich cyfrif ar glo"
   },
   "or": {
-    "message": "or"
+    "message": "neu"
   },
   "unlock": {
     "message": "Datgloi"
@@ -776,7 +765,7 @@
     "message": "Your master password cannot be recovered if you forget it!"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "Awgrym o'ch prif gyfrinair"
   },
   "errorOccurred": {
     "message": "Bu gwall"
@@ -810,16 +799,16 @@
     "message": "Mae eich cyfrif newydd wedi cael ei greu! Gallwch bellach fewngofnodi."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Mae eich cyfrif wedi cael ei greu!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Rydych wedi cael eich mewngofnodi!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "You successfully logged in"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "Gallwch cau'r ffenestr hon bellach"
   },
   "masterPassSent": {
     "message": "Rydym ni wedi anfon ebost atoch gydag awgrym ar gyfer eich prif gyfrinair."
@@ -874,31 +863,34 @@
     "message": "Logged out"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Rydych wedi cael eich allgofnodi o'ch cyfrif."
   },
   "loginExpired": {
     "message": "Mae eich sesiwn wedi dod i ben."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Mewngofnodi"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Mewngofnodi i Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Rhowch y cod a anfonwyd i'ch ebost"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Rhowch y cod o'ch ap dilysu"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Gwasgwch eich YubiKey i ddilysu"
   },
   "duoTwoFactorRequiredPageSubtitle": {
     "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
   },
   "restartRegistration": {
     "message": "Restart registration"
@@ -910,7 +902,7 @@
     "message": "Please restart registration or try logging in."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Mae'n bosib fod gennych gyfrif eisoes"
   },
   "logOutConfirmation": {
     "message": "Ydych chi'n siŵr eich bod am allgofnodi?"
@@ -921,8 +913,11 @@
   "no": {
     "message": "Na"
   },
+  "location": {
+    "message": "Lleoliad"
+  },
   "unexpectedError": {
-    "message": "An unexpected error has occurred."
+    "message": "Digwyddodd gwall annisgwyl."
   },
   "nameRequired": {
     "message": "Mae angen enw."
@@ -937,13 +932,13 @@
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Parhau i'r ap gwe?"
   },
   "editedFolder": {
     "message": "Ffolder wedi'i chadw"
   },
   "deleteFolderConfirmation": {
-    "message": "Are you sure you want to delete this folder?"
+    "message": "Ydych chi'n sicr yr hoffech chi ddileu'r ffolder hon?"
   },
   "deletedFolder": {
     "message": "Ffolder wedi'i dileu"
@@ -1021,10 +1016,10 @@
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
-    "message": "Ask to add login"
+    "message": "Gofyn i ychwanegu manylion mewngofnodi"
   },
   "vaultSaveOptionsTitle": {
-    "message": "Save to vault options"
+    "message": "Dewisiadau cadw i'r gell"
   },
   "addLoginNotificationDesc": {
     "message": "Ask to add an item if one isn't found in your vault."
@@ -1070,8 +1065,125 @@
   "notificationAddSave": {
     "message": "Cadw"
   },
+  "notificationViewAria": {
+    "message": "View $ITEMNAME$, opens in new window",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Aria label for the view button in notification bar confirmation message"
+  },
+  "notificationNewItemAria": {
+    "message": "New Item, opens in new window",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "Golygu cyn cadw",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Hysbysiad newydd"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
+  },
+  "saveAsNewLoginAction": {
+    "message": "Cadw fel manylion mewngofnodi newydd",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "Save login",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLogin": {
+    "message": "Update existing login",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
   "enableChangedPasswordNotification": {
-    "message": "Ask to update existing login"
+    "message": "Gofyn i ddiweddaru manylion mewngofnodi sy'n bodoli eisoes"
   },
   "changedPasswordNotificationDesc": {
     "message": "Ask to update a login's password when a change is detected on a website."
@@ -1133,10 +1245,6 @@
     "message": "Golau",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
     "message": "Export from"
   },
@@ -1175,7 +1283,7 @@
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Rhybudd",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
@@ -1266,8 +1374,8 @@
   "featureUnavailable": {
     "message": "Feature unavailable"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Aelodaeth uwch"
@@ -1359,23 +1467,11 @@
   "premiumRequiredDesc": {
     "message": "Mae angen aelodaeth uwch i ddefnyddio'r nodwedd hon."
   },
-  "enterVerificationCodeApp": {
-    "message": "Enter the 6 digit verification code from your authenticator app."
-  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Enter the 6 digit verification code that was emailed to $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Anfonwyd ebost dilysu i $EMAIL$.",
@@ -1386,17 +1482,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Fy nghofio i"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Anfon ebost â chod dilysu eto"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Use another two-step login method"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1405,20 +1492,11 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "Rhowch eich YubiKey i mewn i borth USB eich cyfrifiadur, yna gwasgwch y botwm."
-  },
   "insertU2f": {
     "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
   },
-  "webAuthnNewTab": {
-    "message": "To start the WebAuthn 2FA verification. Click the button below to open a new tab and follow the instructions provided in the new tab."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Agor tab newydd"
-  },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Agor mewn tab newydd"
   },
   "webAuthnAuthenticate": {
     "message": "Authenticate WebAuthn"
@@ -1486,9 +1564,6 @@
   "selfHostedEnvironment": {
     "message": "Self-hosted environment"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1500,9 +1575,6 @@
   },
   "customEnvironment": {
     "message": "Amgylchedd addasedig"
-  },
-  "customEnvironmentFooter": {
-    "message": "For advanced users. You can specify the base URL of each service independently."
   },
   "baseUrl": {
     "message": "Server URL"
@@ -1535,6 +1607,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Autofill suggestions"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Easily find autofill suggestions"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Turn off $BROWSER$ autofill",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Turn off autofill"
   },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
@@ -1621,7 +1711,7 @@
     "message": "Autofill the last used identity for the current website"
   },
   "commandGeneratePasswordDesc": {
-    "message": "Generate and copy a new random password to the clipboard"
+    "message": "Cynhyrchu a chopïo cyfrinair hap newydd i'r clipfwrdd"
   },
   "commandLockVaultDesc": {
     "message": "Cloi'r gell"
@@ -1641,11 +1731,14 @@
   "dragToSort": {
     "message": "Drag to sort"
   },
+  "dragToReorder": {
+    "message": "Drag to reorder"
+  },
   "cfTypeText": {
     "message": "Testun"
   },
   "cfTypeHidden": {
-    "message": "Hidden"
+    "message": "Cudd"
   },
   "cfTypeBoolean": {
     "message": "Gwerth Boole"
@@ -1738,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Cod diogelwch"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "ex": {
     "message": "engh."
@@ -1836,10 +1932,13 @@
     "message": "Hunaniaeth"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Allwedd SSH"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "newItemHeader": {
-    "message": "New $TYPE$",
+    "message": "$TYPE$ newydd",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -1848,7 +1947,7 @@
     }
   },
   "editItemHeader": {
-    "message": "Edit $TYPE$",
+    "message": "Golygu $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -1857,7 +1956,7 @@
     }
   },
   "viewItemHeader": {
-    "message": "View $TYPE$",
+    "message": "Gweld $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -1869,10 +1968,10 @@
     "message": "Hanes cyfrineiriau"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Hanes y cynhyrchydd"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Clirio hanes y cynhyrchydd"
   },
   "cleargGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
@@ -1884,7 +1983,7 @@
     "message": "Casgliadau"
   },
   "nCollections": {
-    "message": "$COUNT$ collections",
+    "message": "$COUNT$ o gasgliadau",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1914,7 +2013,7 @@
     "message": "Nodiadau diogel"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "Allweddi SSH"
   },
   "clear": {
     "message": "Clirio",
@@ -1940,11 +2039,11 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Parth sylfaen (awgrymir)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
-    "message": "Domain name",
+    "message": "Enw parth",
     "description": "Domain name. Ex. website.com"
   },
   "host": {
@@ -1994,19 +2093,19 @@
     "message": "Does dim cyfrineiriau i'w rhestru."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Clirio'r hanes"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Dim byd i'w ddangos"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Dydych chi heb gynhyrchu unrhyw beth yn ddiweddar"
   },
   "remove": {
     "message": "Tynnu"
   },
   "default": {
-    "message": "Default"
+    "message": "Rhagosodiad"
   },
   "dateUpdated": {
     "message": "Updated",
@@ -2027,7 +2126,7 @@
     "message": "You do not belong to any organizations. Organizations allow you to securely share items with other users."
   },
   "noCollectionsInList": {
-    "message": "There are no collections to list."
+    "message": "Does dim casgliadau i'w rhestru."
   },
   "ownership": {
     "message": "Perchnogaeth"
@@ -2061,16 +2160,16 @@
     "message": "Datgloi â PIN"
   },
   "setYourPinTitle": {
-    "message": "Set PIN"
+    "message": "Gosod PIN"
   },
   "setYourPinButton": {
-    "message": "Set PIN"
+    "message": "Gosod PIN"
   },
   "setYourPinCode": {
     "message": "Set your PIN code for unlocking Bitwarden. Your PIN settings will be reset if you ever fully log out of the application."
   },
-  "setYourPinCode1": {
-    "message": "Your PIN will be used to unlock Bitwarden instead of your master password. Your PIN will reset if you ever fully log out of Bitwarden."
+  "setPinCode": {
+    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
   },
   "pinRequired": {
     "message": "Mae angen cod PIN."
@@ -2085,7 +2184,7 @@
     "message": "Datgloi â biometreg"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "Datgloi gyda'r prif gyfrinair"
   },
   "awaitDesktop": {
     "message": "Awaiting confirmation from desktop"
@@ -2097,7 +2196,7 @@
     "message": "Lock with master password on browser restart"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Require master password on browser restart"
+    "message": "Gofyn am y prif gyfrinair wrth ailgychwyn y porwr"
   },
   "selectOneCollection": {
     "message": "You must select at least one collection."
@@ -2109,48 +2208,42 @@
     "message": "Clone"
   },
   "passwordGenerator": {
-    "message": "Password generator"
+    "message": "Cynhyrchydd cyfrineiriau"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Cynhyrychydd enwau defnyddiwr"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Defnyddio'r ebost hwn"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Defnyddio'r cyfrinair hwn"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Defnyddio'r enw defnyddiwr hwn"
   },
   "securePasswordGenerated": {
     "message": "Secure password generated! Don't forget to also update your password on the website."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Defnyddiwch y cynhyrchydd",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "i greu cyfrinair cryf ac unigryw",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Addasu'r gell"
   },
   "vaultTimeoutAction": {
     "message": "Vault timeout action"
   },
   "vaultTimeoutAction1": {
     "message": "Timeout action"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "New customization options"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "View all Appearance settings"
   },
   "lock": {
     "message": "Cloi",
@@ -2179,7 +2272,7 @@
     "message": "Item restored"
   },
   "alreadyHaveAccount": {
-    "message": "Already have an account?"
+    "message": "Oes gennych chi gyfrif eisoes?"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Logging out will remove all access to your vault and requires online authentication after the timeout period. Are you sure you want to use this setting?"
@@ -2191,7 +2284,7 @@
     "message": "Llenwi'n awtomatig a chadw"
   },
   "fillAndSave": {
-    "message": "Fill and save"
+    "message": "Llenwi a chadw"
   },
   "autoFillSuccessAndSavedUri": {
     "message": "Item autofilled and URI saved"
@@ -2221,13 +2314,13 @@
     "message": "Gosod prif gyfrinair"
   },
   "currentMasterPass": {
-    "message": "Current master password"
+    "message": "Prif gyfrinair presennol"
   },
   "newMasterPass": {
     "message": "Prif gyfrinair newydd"
   },
   "confirmNewMasterPass": {
-    "message": "Confirm new master password"
+    "message": "Cadarnhau'r prif gyfrinair newydd"
   },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"
@@ -2298,11 +2391,14 @@
   "privacyPolicy": {
     "message": "Polisi preifatrwydd"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Your password hint cannot be the same as your password."
   },
   "ok": {
-    "message": "Ok"
+    "message": "Iawn"
   },
   "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
@@ -2403,6 +2499,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "An organization policy has blocked importing items into your individual vault."
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
@@ -2434,6 +2536,10 @@
   "change": {
     "message": "Change"
   },
+  "changePassword": {
+    "message": "Change password",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Change password - $ITEMNAME$",
     "placeholders": {
@@ -2443,8 +2549,11 @@
       }
     }
   },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Cyfrineiriau mewn perygl"
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
@@ -2477,6 +2586,26 @@
       }
     }
   },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
+  },
   "reviewAndChangeAtRiskPassword": {
     "message": "Review and change one at-risk password"
   },
@@ -2505,15 +2634,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2522,8 +2651,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -2532,7 +2661,7 @@
     "message": "Turned on autofill"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Diystyru"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2596,6 +2725,10 @@
     "message": "Pob Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
@@ -2633,7 +2766,7 @@
     "message": "Disabled"
   },
   "removePasswordConfirmation": {
-    "message": "Are you sure you want to remove the password?"
+    "message": "Ydych chi'n sicr yr hoffech chi dynnu'r cyfrinair?"
   },
   "deleteSend": {
     "message": "Delete Send",
@@ -2798,6 +2931,9 @@
   "emailVerificationRequiredDesc": {
     "message": "You must verify your email to use this feature. You can verify your email in the web vault."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "Diweddarwyd y prif gyfrinair"
   },
@@ -2936,14 +3072,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "No unique identifier found."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Leave organization"
@@ -2971,6 +3107,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3011,10 +3156,10 @@
     "message": "Cynhyrchu enw defnyddiwr"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "Cynhyrchu ebost"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Rhaid iddo fod rhwng $MIN$ a $MAX$ nod.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -3028,7 +3173,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Defnyddiwch $RECOMMENDED$ neu fwy o nodau i gynhyrchu cyfrinair cryf.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3038,7 +3183,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Defnyddiwch $RECOMMENDED$ neu fwy o eiriau i gynhyrchu cyfrinymadrodd cryf.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3101,7 +3246,7 @@
     }
   },
   "forwarderGeneratedBy": {
-    "message": "Generated by Bitwarden.",
+    "message": "Cynhyrchwyd gan Bitwarden.",
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
@@ -3115,7 +3260,7 @@
     }
   },
   "forwaderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Tocyn API $SERVICENAME$ annilys",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3125,7 +3270,7 @@
     }
   },
   "forwaderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Tocyn API $SERVICENAME$ annilys: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3243,15 +3388,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Settings have been edited"
-  },
-  "environmentEditedClick": {
-    "message": "Cliciwch yma"
-  },
-  "environmentEditedReset": {
-    "message": "to reset to pre-configured settings"
-  },
   "serverVersion": {
     "message": "Fersiwn y gweinydd"
   },
@@ -3282,12 +3418,6 @@
   "loginWithMasterPassword": {
     "message": "Mewngofnodi â'ch prif gyfrinair"
   },
-  "loggingInAs": {
-    "message": "Yn mewngofnodi fel"
-  },
-  "notYou": {
-    "message": "Nid chi?"
-  },
   "newAroundHere": {
     "message": "Ydych chi'n newydd?"
   },
@@ -3296,9 +3426,6 @@
   },
   "loginWithDevice": {
     "message": "Mewngofnodi â dyfais"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "fingerprintPhraseHeader": {
     "message": "Ymadrodd unigryw"
@@ -3310,9 +3437,6 @@
     "message": "Resend notification"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
@@ -3341,6 +3465,31 @@
   },
   "logInRequestSent": {
     "message": "Request sent"
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
   },
   "exposedMasterPassword": {
     "message": "Exposed Master Password"
@@ -3403,7 +3552,7 @@
     "message": "Change shortcut"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "Manage shortcuts"
+    "message": "Rheoli llwybrau byr"
   },
   "autofillShortcut": {
     "message": "Autofill keyboard shortcut"
@@ -3435,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Remember this device to make future logins seamless"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Device approval required. Select an approval option below:"
   },
@@ -3456,8 +3693,11 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
-  "approveWithMasterPassword": {
-    "message": "Approve with master password"
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
@@ -3469,10 +3709,10 @@
     "message": "Check your email"
   },
   "followTheLinkInTheEmailSentTo": {
-    "message": "Follow the link in the email sent to"
+    "message": "Dilynwch y ddolen yn yr ebost anfonwyd i"
   },
   "andContinueCreatingYourAccount": {
-    "message": "and continue creating your account."
+    "message": "a pharhau i greu eich cyfrif."
   },
   "noEmail": {
     "message": "Dim ebost?"
@@ -3505,9 +3745,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Your request has been sent to your admin."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
-  },
   "troubleLoggingIn": {
     "message": "Trafferth mewngofnodi?"
   },
@@ -3523,19 +3760,43 @@
   "deviceTrusted": {
     "message": "Device trusted"
   },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
     "message": "Input is required."
   },
   "required": {
-    "message": "required"
+    "message": "gofynnol"
   },
   "search": {
     "message": "Chwilio"
@@ -3725,7 +3986,7 @@
     "description": "Screen reader text (aria-label) for new item button in overlay"
   },
   "newLogin": {
-    "message": "New login",
+    "message": "Manylion mewngofnodi newydd",
     "description": "Button text to display within inline menu when there are no matching items on a login field"
   },
   "addNewLoginItemAria": {
@@ -3733,7 +3994,7 @@
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
-    "message": "New card",
+    "message": "Cerdyn newydd",
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
@@ -3741,7 +4002,7 @@
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
-    "message": "New identity",
+    "message": "Hunaniaeth newydd",
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
@@ -3787,7 +4048,7 @@
     }
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Ceisio eto"
   },
   "verificationRequiredForActionSetPinToContinue": {
     "message": "Verification required for this action. Set a PIN to continue."
@@ -3820,7 +4081,7 @@
     "message": "Enter the verification code that was sent to your email."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Ailanfon cod"
   },
   "total": {
     "message": "Cyfanswm"
@@ -3837,14 +4098,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredForAccount": {
     "message": "Duo two-step login is required for your account."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout extension"
@@ -3930,7 +4185,7 @@
     "message": "Passkey"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Yn cysylltu â"
   },
   "loggedInExclamation": {
     "message": "Logged in!"
@@ -4002,13 +4257,13 @@
     "message": "Enw defnyddiwr neu gyfrinair anghywir"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "Cyfrinair anghywir"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "Cod anghywir"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "PIN anghywir"
   },
   "multifactorAuthenticationFailed": {
     "message": "Multifactor authentication failed"
@@ -4077,6 +4332,9 @@
   "activeAccount": {
     "message": "Cyfrif gweithredol"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
+  },
   "availableAccounts": {
     "message": "Cyfrifon ar gael"
   },
@@ -4084,7 +4342,7 @@
     "message": "Account limit reached. Log out of an account to add another."
   },
   "active": {
-    "message": "active"
+    "message": "gweithredol"
   },
   "locked": {
     "message": "locked"
@@ -4119,6 +4377,26 @@
   "commonImportFormats": {
     "message": "Fformatau cyffredin",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Continue to browser settings?",
@@ -4198,7 +4476,7 @@
     "message": "Passkey removed"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Awgrymiadau"
   },
   "itemSuggestions": {
     "message": "Suggested items"
@@ -4265,6 +4543,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Autofill - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4275,17 +4567,31 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copy $FIELD$, $VALUE$",
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4308,7 +4614,7 @@
     "message": "Admin Console"
   },
   "accountSecurity": {
-    "message": "Account security"
+    "message": "Diogelwch eich cyfrif"
   },
   "notifications": {
     "message": "Hysbysiadau"
@@ -4323,7 +4629,7 @@
     "message": "Error assigning target folder."
   },
   "viewItemsIn": {
-    "message": "View items in $NAME$",
+    "message": "Gweld eitemau yn $NAME$",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -4333,7 +4639,7 @@
     }
   },
   "backTo": {
-    "message": "Back to $NAME$",
+    "message": "Yn ôl i $NAME$",
     "description": "Navigate back to a previous folder or collection",
     "placeholders": {
       "name": {
@@ -4343,10 +4649,10 @@
     }
   },
   "new": {
-    "message": "New"
+    "message": "Newydd"
   },
   "removeItem": {
-    "message": "Remove $NAME$",
+    "message": "Tynnu $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -4421,6 +4727,33 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
+  "getItOnGooglePlay": {
+    "message": "Get it on Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Download on the App Store"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Are you sure you want to permanently delete this attachment?"
@@ -4503,7 +4836,7 @@
     "message": "Delete website"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Rhagosodiad ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -4552,10 +4885,10 @@
     }
   },
   "enableAnimations": {
-    "message": "Enable animations"
+    "message": "Galluogi animeiddio"
   },
   "showAnimations": {
-    "message": "Show animations"
+    "message": "Dangos animeiddio"
   },
   "addAccount": {
     "message": "Ychwanegu cyfrif"
@@ -4630,7 +4963,7 @@
     "message": "Edit field"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Golygu $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4639,7 +4972,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Dileu $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4648,7 +4981,7 @@
     }
   },
   "fieldAdded": {
-    "message": "$LABEL$ added",
+    "message": "Ychwanegwyd $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4664,6 +4997,9 @@
         "example": "Custom field"
       }
     }
+  },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
   },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
@@ -4725,15 +5061,6 @@
   "nothingSelected": {
     "message": "You have not selected anything."
   },
-  "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Items moved to $ORGNAME$",
     "placeholders": {
@@ -4785,7 +5112,7 @@
     "message": "Text Sends"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Gweithredoedd y cyfrif"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
@@ -4794,22 +5121,22 @@
     "message": "Show quick copy actions on Vault"
   },
   "systemDefault": {
-    "message": "System default"
+    "message": "Rhagosodiad y sytem"
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "Enterprise policy requirements have been applied to this setting"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Allwedd breifat"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Allwedd gyhoeddus"
   },
   "sshFingerprint": {
     "message": "Fingerprint"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Math o allwedd"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -4889,6 +5216,18 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
   "authenticating": {
     "message": "Authenticating"
   },
@@ -4900,8 +5239,8 @@
     "message": "Password regenerated",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Save login to Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Save to Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5046,55 +5385,46 @@
     "message": "Generated password"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Modd cryno"
   },
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Important notice"
-  },
-  "setupTwoStepLogin": {
-    "message": "Set up two-step login"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Remind me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
-  },
-  "changeAcctEmail": {
-    "message": "Change account email"
-  },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Lled yr estyniad"
   },
   "wide": {
-    "message": "Wide"
+    "message": "Llydan"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Llydan iawn"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -5110,5 +5440,144 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "settingsVaultOptions": {
+    "message": "Dewisiadau'r gell"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existing passwords"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Import now"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Welcome to your vault!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }

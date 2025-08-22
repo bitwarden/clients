@@ -6,7 +6,7 @@ import { OrganizationBadgeModule } from "../../../vault/individual-vault/organiz
 import { ViewComponent } from "../../../vault/individual-vault/view.component";
 import { CollectionDialogComponent } from "../shared/components/collection-dialog";
 
-import { CollectionBadgeModule } from "./collection-badge/collection-badge.module";
+import { CollectionNameBadgeComponent } from "./collection-badge";
 import { GroupBadgeModule } from "./group-badge/group-badge.module";
 import { VaultRoutingModule } from "./vault-routing.module";
 import { VaultComponent } from "./vault.component";
@@ -17,7 +17,7 @@ import { VaultComponent } from "./vault.component";
     SharedModule,
     LooseComponentsModule,
     GroupBadgeModule,
-    CollectionBadgeModule,
+    CollectionNameBadgeComponent,
     OrganizationBadgeModule,
     CollectionDialogComponent,
     VaultComponent,

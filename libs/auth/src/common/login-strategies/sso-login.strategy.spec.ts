@@ -1,24 +1,27 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -37,10 +40,11 @@ import {
   AuthRequestServiceAbstraction,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "../abstractions";
+import { UserDecryptionOptions } from "../models";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
 
 import { identityTokenResponseFactory } from "./login.strategy.spec";
-import { SsoLoginStrategy } from "./sso-login.strategy";
+import { SsoLoginStrategy, SsoLoginStrategyData } from "./sso-login.strategy";
 
 describe("SsoLoginStrategy", () => {
   let accountService: FakeAccountService;
@@ -65,6 +69,7 @@ describe("SsoLoginStrategy", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
+  let configService: MockProxy<ConfigService>;
 
   let ssoLoginStrategy: SsoLoginStrategy;
   let credentials: SsoLoginCredentials;
@@ -77,6 +82,7 @@ describe("SsoLoginStrategy", () => {
   const ssoCodeVerifier = "SSO_CODE_VERIFIER";
   const ssoRedirectUrl = "SSO_REDIRECT_URL";
   const ssoOrgId = "SSO_ORG_ID";
+  const privateKey = "userKeyEncryptedPrivateKey";
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(userId);
@@ -101,12 +107,16 @@ describe("SsoLoginStrategy", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
+    configService = mock<ConfigService>();
 
     tokenService.getTwoFactorToken.mockResolvedValue(null);
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
       sub: userId,
     });
+    keyService.userEncryptedPrivateKey$
+      .calledWith(userId)
+      .mockReturnValue(of(privateKey as EncryptedString));
 
     const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
     const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
@@ -123,8 +133,11 @@ describe("SsoLoginStrategy", () => {
       mockVaultTimeoutBSub.asObservable(),
     );
 
+    const userDecryptionOptions = new UserDecryptionOptions();
+    userDecryptionOptionsService.userDecryptionOptions$ = of(userDecryptionOptions);
+
     ssoLoginStrategy = new SsoLoginStrategy(
-      null,
+      {} as SsoLoginStrategyData,
       keyConnectorService,
       deviceTrustService,
       authRequestService,
@@ -146,12 +159,14 @@ describe("SsoLoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
+      configService,
     );
     credentials = new SsoLoginCredentials(ssoCode, ssoCodeVerifier, ssoRedirectUrl, ssoOrgId);
   });
 
   it("sends SSO information to server", async () => {
     apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
+    keyService.hasUserKey.mockResolvedValue(true);
 
     await ssoLoginStrategy.logIn(credentials);
 
@@ -174,6 +189,7 @@ describe("SsoLoginStrategy", () => {
   it("does not set keys for new SSO user flow", async () => {
     const tokenResponse = identityTokenResponseFactory();
     tokenResponse.key = null;
+    tokenResponse.privateKey = null;
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
     await ssoLoginStrategy.logIn(credentials);
@@ -192,8 +208,36 @@ describe("SsoLoginStrategy", () => {
     await ssoLoginStrategy.logIn(credentials);
 
     // Assert
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledTimes(1);
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(tokenResponse.key, userId);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledTimes(1);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+      tokenResponse.key,
+      userId,
+    );
+  });
+
+  describe("given the user does not have the `trustedDeviceOption`, does not have a master password, is not using key connector, does not have a user key, but they DO have a `userKeyEncryptedPrivateKey`", () => {
+    it("should set the forceSetPasswordReason to TdeOffboardingUntrustedDevice", async () => {
+      // Arrange
+      const mockUserDecryptionOptions: IUserDecryptionOptionsServerResponse = {
+        HasMasterPassword: false,
+        TrustedDeviceOption: null,
+        KeyConnectorOption: null,
+      };
+      const tokenResponse = identityTokenResponseFactory(null, mockUserDecryptionOptions);
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+      keyService.hasUserKey.mockResolvedValue(false);
+
+      // Act
+      await ssoLoginStrategy.logIn(credentials);
+
+      // Assert
+      expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledTimes(1);
+      expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
+        ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
+        userId,
+      );
+    });
   });
 
   describe("Trusted Device Decryption", () => {

@@ -1,0 +1,26 @@
+<bit-container>
+  @let view = view$ | async;
+  @if (!view) {
+    <ng-container>
+      <i
+        class="bwi bwi-spinner bwi-spin tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </ng-container>
+  } @else {
+    <ng-container>
+      <app-display-payment-method
+        [subscriber]="view.account"
+        [paymentMethod]="view.paymentMethod"
+        (updated)="setPaymentMethod($event)"
+      ></app-display-payment-method>
+
+      <app-display-account-credit
+        [subscriber]="view.account"
+        [credit]="view.credit"
+      ></app-display-account-credit>
+    </ng-container>
+  }
+</bit-container>

@@ -1,9 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
+
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
+import { AccountService } from "../../auth/abstractions/account.service";
+import { getUserId } from "../../auth/services/account.service";
 import {
   AUTOFILL_SETTINGS_DISK,
   AUTOFILL_SETTINGS_DISK_LOCAL,
@@ -152,6 +157,8 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
   constructor(
     private stateProvider: StateProvider,
     private policyService: PolicyService,
+    private accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.autofillOnPageLoadState = this.stateProvider.getActive(AUTOFILL_ON_PAGE_LOAD);
     this.autofillOnPageLoad$ = this.autofillOnPageLoadState.state$.pipe(map((x) => x ?? false));
@@ -169,8 +176,11 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     this.autofillOnPageLoadCalloutIsDismissed$ =
       this.autofillOnPageLoadCalloutIsDismissedState.state$.pipe(map((x) => x ?? false));
 
-    this.activateAutofillOnPageLoadFromPolicy$ = this.policyService.policyAppliesToActiveUser$(
-      PolicyType.ActivateAutofill,
+    this.activateAutofillOnPageLoadFromPolicy$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.ActivateAutofill, userId),
+      ),
     );
 
     this.autofillOnPageLoadPolicyToastHasDisplayedState = this.stateProvider.getActive(
@@ -193,7 +203,16 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     );
 
     this.showInlineMenuCardsState = this.stateProvider.getActive(SHOW_INLINE_MENU_CARDS);
-    this.showInlineMenuCards$ = this.showInlineMenuCardsState.state$.pipe(map((x) => x ?? true));
+    this.showInlineMenuCards$ = combineLatest([
+      this.showInlineMenuCardsState.state$.pipe(map((x) => x ?? true)),
+      this.restrictedItemTypesService.restricted$.pipe(startWith([])),
+    ]).pipe(
+      map(
+        ([enabled, restrictions]) =>
+          // If enabled, show cards inline menu unless card type is restricted
+          enabled && !restrictions.some((r) => r.cipherType === CipherType.Card),
+      ),
+    );
 
     this.enableContextMenuState = this.stateProvider.getGlobal(ENABLE_CONTEXT_MENU);
     this.enableContextMenu$ = this.enableContextMenuState.state$.pipe(map((x) => x ?? true));

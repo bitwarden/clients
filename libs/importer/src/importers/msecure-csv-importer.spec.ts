@@ -8,6 +8,24 @@ describe("MSecureCsvImporter.parse", () => {
     importer = new MSecureCsvImporter();
   });
 
+  it("should correctly parse legacy formatted cards", async () => {
+    const mockCsvData =
+      `aWeirdOldStyleCard|1032,Credit Card,,Security code 1234,Card Number|12|5555 4444 3333 2222,Expiration Date|11|04/0029,Name on Card|9|Obi Wan Kenobi,Security Code|9|444,`.trim();
+    const result = await importer.parse(mockCsvData);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toBe(1);
+    const cipher = result.ciphers[0];
+    expect(cipher.name).toBe("aWeirdOldStyleCard");
+    expect(cipher.type).toBe(CipherType.Card);
+    expect(cipher.card.number).toBe("5555 4444 3333 2222");
+    expect(cipher.card.expiration).toBe("04 / 2029");
+    expect(cipher.card.code).toBe("444");
+    expect(cipher.card.cardholderName).toBe("Obi Wan Kenobi");
+    expect(cipher.notes).toBe("Security code 1234");
+    expect(cipher.card.brand).toBe("");
+  });
+
   it("should correctly parse credit card entries as Secret Notes", async () => {
     const mockCsvData =
       `myCreditCard|155089404,Credit Card,,,Card Number|12|41111111111111111,Expiration Date|11|05/2026,Security Code|9|123,Name on Card|0|John Doe,PIN|9|1234,Issuing Bank|0|Visa,Phone Number|4|,Billing Address|0|,`.trim();

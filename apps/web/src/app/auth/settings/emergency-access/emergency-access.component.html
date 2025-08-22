@@ -52,7 +52,7 @@
               [color]="c.avatarColor"
               size="small"
             ></bit-avatar>
-            <span>
+            <span class="tw-inline-flex tw-gap-2">
               <a bitLink href="#" appStopClick (click)="edit(c)">{{ c.email }}</a>
               <span
                 bitBadge
@@ -89,7 +89,7 @@
             <button
               [bitMenuTriggerFor]="trustedContactOptions"
               type="button"
-              appA11yTitle="{{ 'options' | i18n }}"
+              label="{{ 'options' | i18n }}"
               bitIconButton="bwi-ellipsis-v"
               buttonType="main"
             ></button>
@@ -175,7 +175,7 @@
               [color]="c.avatarColor"
               size="small"
             ></bit-avatar>
-            <span>
+            <span class="tw-inline-flex tw-gap-2">
               <span>{{ c.email }}</span>
               <span bitBadge *ngIf="c.status === emergencyAccessStatusType.Invited">{{
                 "invited" | i18n
@@ -212,7 +212,7 @@
             <button
               [bitMenuTriggerFor]="grantedContactOptions"
               type="button"
-              appA11yTitle="{{ 'options' | i18n }}"
+              label="{{ 'options' | i18n }}"
               bitIconButton="bwi-ellipsis-v"
               buttonType="main"
             ></button>
@@ -272,7 +272,3 @@
     </ng-container>
   </bit-section>
 </bit-container>
-
-<ng-template #addEdit></ng-template>
-<ng-template #takeoverTemplate></ng-template>
-<ng-template #confirmTemplate></ng-template>

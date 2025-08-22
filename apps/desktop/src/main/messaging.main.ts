@@ -6,8 +6,11 @@ import * as path from "path";
 import { app, ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
+import { autostart } from "@bitwarden/desktop-napi";
+
 import { Main } from "../main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { isFlatpak, isLinux, isSnapStore } from "../utils";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
@@ -23,8 +26,11 @@ export class MessagingMain {
 
   async init() {
     this.scheduleNextSync();
-    if (process.platform === "linux") {
-      await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
+    if (isLinux()) {
+      // Flatpak and snap don't have access to or use the startup file. On flatpak, the autostart portal is used
+      if (!isFlatpak() && !isSnapStore()) {
+        await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
+      }
     } else {
       const loginSettings = app.getLoginItemSettings();
       await this.desktopSettingsService.setOpenAtLogin(loginSettings.openAtLogin);
@@ -37,6 +43,10 @@ export class MessagingMain {
 
   async onMessage(message: any) {
     switch (message.command) {
+      case "loadurl":
+        // TODO: Remove this once fakepopup is removed from tray (just used for dev)
+        await this.main.windowMain.loadUrl(message.url, message.modal);
+        break;
       case "scheduleNextSync":
         this.scheduleNextSync();
         break;
@@ -118,20 +128,24 @@ export class MessagingMain {
 
   private addOpenAtLogin() {
     if (process.platform === "linux") {
-      const data = `[Desktop Entry]
-Type=Application
-Version=${app.getVersion()}
-Name=Bitwarden
-Comment=Bitwarden startup script
-Exec=${app.getPath("exe")}
-StartupNotify=false
-Terminal=false`;
+      if (isFlatpak()) {
+        autostart.setAutostart(true, []).catch((e) => {});
+      } else {
+        const data = `[Desktop Entry]
+  Type=Application
+  Version=${app.getVersion()}
+  Name=Bitwarden
+  Comment=Bitwarden startup script
+  Exec=${app.getPath("exe")}
+  StartupNotify=false
+  Terminal=false`;
 
-      const dir = path.dirname(this.linuxStartupFile());
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
+        const dir = path.dirname(this.linuxStartupFile());
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir);
+        }
+        fs.writeFileSync(this.linuxStartupFile(), data);
       }
-      fs.writeFileSync(this.linuxStartupFile(), data);
     } else {
       app.setLoginItemSettings({ openAtLogin: true });
     }
@@ -139,8 +153,12 @@ Terminal=false`;
 
   private removeOpenAtLogin() {
     if (process.platform === "linux") {
-      if (fs.existsSync(this.linuxStartupFile())) {
-        fs.unlinkSync(this.linuxStartupFile());
+      if (isFlatpak()) {
+        autostart.setAutostart(false, []).catch((e) => {});
+      } else {
+        if (fs.existsSync(this.linuxStartupFile())) {
+          fs.unlinkSync(this.linuxStartupFile());
+        }
       }
     } else {
       app.setLoginItemSettings({ openAtLogin: false });

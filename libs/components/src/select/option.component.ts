@@ -1,24 +1,17 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Input, booleanAttribute } from "@angular/core";
+import { Component, booleanAttribute, input } from "@angular/core";
 
-import { Option } from "./option";
+import { MappedOptionComponent } from "./option";
 
 @Component({
   selector: "bit-option",
   template: `<ng-template><ng-content></ng-content></ng-template>`,
-  standalone: true,
 })
-export class OptionComponent<T = unknown> implements Option<T> {
-  @Input()
-  icon?: string;
+export class OptionComponent<T = unknown> implements MappedOptionComponent<T> {
+  readonly icon = input<string>();
 
-  @Input({ required: true })
-  value: T;
+  readonly value = input.required<T>();
 
-  @Input({ required: true })
-  label: string;
+  readonly label = input.required<string>();
 
-  @Input({ transform: booleanAttribute })
-  disabled: boolean;
+  readonly disabled = input(undefined, { transform: booleanAttribute });
 }

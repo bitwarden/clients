@@ -1,12 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -30,17 +33,39 @@ import { ServiceAccountGrantedPoliciesRequest } from "./models/requests/service-
 
 import { trackEmissions } from "@bitwarden/common/../spec";
 
+const SomeCsprngArray = new Uint8Array(64) as CsprngArray;
+const SomeOrganization = "some organization" as OrganizationId;
+const AnotherOrganization = "another organization" as OrganizationId;
+const SomeOrgKey = new SymmetricCryptoKey(SomeCsprngArray) as OrgKey;
+const AnotherOrgKey = new SymmetricCryptoKey(SomeCsprngArray) as OrgKey;
+const OrgRecords: Record<OrganizationId, OrgKey> = {
+  [SomeOrganization]: SomeOrgKey,
+  [AnotherOrganization]: AnotherOrgKey,
+};
+
 describe("AccessPolicyService", () => {
   let sut: AccessPolicyService;
 
   const keyService = mock<KeyService>();
   const apiService = mock<ApiService>();
   const encryptService = mock<EncryptService>();
+  let accountService: MockProxy<AccountService>;
+  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
+    id: "testId" as UserId,
+    email: "test@example.com",
+    emailVerified: true,
+    name: "Test User",
+  });
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    sut = new AccessPolicyService(keyService, apiService, encryptService);
+    const orgKey$ = new BehaviorSubject(OrgRecords);
+    keyService.orgKeys$.mockReturnValue(orgKey$);
+
+    accountService = mock<AccountService>();
+    accountService.activeAccount$ = activeAccountSubject;
+    sut = new AccessPolicyService(keyService, apiService, encryptService, accountService);
   });
 
   it("instantiates", () => {
@@ -138,7 +163,7 @@ describe("AccessPolicyService", () => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
       keyService.getOrgKey.mockResolvedValue(mockOrgKey);
-      encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c.encryptedString));
+      encryptService.decryptString.mockImplementation((c) => Promise.resolve(c.encryptedString));
       const organizationId = Utils.newGuid();
       const serviceAccountId = Utils.newGuid();
 
@@ -175,7 +200,7 @@ describe("AccessPolicyService", () => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
       keyService.getOrgKey.mockResolvedValue(mockOrgKey);
-      encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c.encryptedString));
+      encryptService.decryptString.mockImplementation((c) => Promise.resolve(c.encryptedString));
       const organizationId = Utils.newGuid();
       const projectId = Utils.newGuid();
 

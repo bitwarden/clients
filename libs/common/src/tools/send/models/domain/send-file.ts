@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import Domain from "../../../../platform/models/domain/domain-base";
-import { EncString } from "../../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { SendFileData } from "../data/send-file.data";
 import { SendFileView } from "../view/send-file.view";
@@ -34,15 +34,13 @@ export class SendFile extends Domain {
   }
 
   async decrypt(key: SymmetricCryptoKey): Promise<SendFileView> {
-    const view = await this.decryptObj(
+    return await this.decryptObj<SendFile, SendFileView>(
+      this,
       new SendFileView(this),
-      {
-        fileName: null,
-      },
+      ["fileName"],
       null,
       key,
     );
-    return view;
   }
 
   static fromJSON(obj: Jsonify<SendFile>) {

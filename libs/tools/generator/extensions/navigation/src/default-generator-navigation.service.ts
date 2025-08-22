@@ -41,7 +41,7 @@ export class DefaultGeneratorNavigationService implements GeneratorNavigationSer
    *  @param userId: Identifies the user making the request
    */
   evaluator$(userId: UserId) {
-    const evaluator$ = this.policy.getAll$(PolicyType.PasswordGenerator, userId).pipe(
+    const evaluator$ = this.policy.policiesByType$(PolicyType.PasswordGenerator, userId).pipe(
       reduceCollection(preferPassword, DisabledGeneratorNavigationPolicy),
       distinctIfShallowMatch(),
       map((policy) => new GeneratorNavigationEvaluator(policy)),

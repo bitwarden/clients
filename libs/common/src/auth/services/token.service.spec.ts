@@ -3,16 +3,18 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
+import { KeyGenerationService } from "../../key-management/crypto";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutStringType,
 } from "../../key-management/vault-timeout";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
@@ -293,7 +295,7 @@ describe("TokenService", () => {
 
           const mockEncryptedAccessToken = "encryptedAccessToken";
 
-          encryptService.encrypt.mockResolvedValue({
+          encryptService.encryptString.mockResolvedValue({
             encryptedString: mockEncryptedAccessToken,
           } as any);
 
@@ -504,7 +506,7 @@ describe("TokenService", () => {
             .nextState("encryptedAccessToken");
 
           secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
-          encryptService.decryptToUtf8.mockResolvedValue("decryptedAccessToken");
+          encryptService.decryptString.mockResolvedValue("decryptedAccessToken");
 
           // Need to have global active id set to the user id
           if (!userId) {
@@ -1474,8 +1476,14 @@ describe("TokenService", () => {
           expect(logoutCallback).not.toHaveBeenCalled();
         });
 
-        it("does not error and fallback to disk storage when passed a null value for the refresh token", async () => {
+        it("does not error and does not fallback to disk storage when passed a null value for the refresh token", async () => {
           // Arrange
+
+          // We must have an initial value in disk so that we can assert that it gets cleaned up
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
+            .nextState(refreshToken);
+
           secureStorageService.get.mockResolvedValue(null);
 
           // Act
@@ -1515,7 +1523,7 @@ describe("TokenService", () => {
             .nextState(encryptedAccessToken);
 
           secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
-          encryptService.decryptToUtf8.mockRejectedValue(new Error("Decryption error"));
+          encryptService.decryptString.mockRejectedValue(new Error("Decryption error"));
 
           // Act
           const result = await tokenService.getAccessToken(userIdFromAccessToken);

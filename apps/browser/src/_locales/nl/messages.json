@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden-logo"
+  },
   "extName": {
     "message": "Bitwarden - wachtwoordbeheerder",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -81,7 +84,7 @@
     "message": "Hoofdwachtwoordhint (optioneel)"
   },
   "passwordStrengthScore": {
-    "message": "Score wachtwoordsterkte $SCORE$",
+    "message": "Wachtwoordsterkte score $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -263,12 +266,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Als je het e-mailadres van je account invult, versturen we je je wachtwoordhint"
   },
-  "passwordHint": {
-    "message": "Wachtwoordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Voer het e-mailadres van je account in om je hoofdwachtwoordhint te ontvangen."
-  },
   "getMasterPasswordHint": {
     "message": "Hoofdwachtwoordhint opvragen"
   },
@@ -385,6 +382,15 @@
   "editFolder": {
     "message": "Map bewerken"
   },
+  "editFolderWithName": {
+    "message": "Map bewerken: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Nieuwe map"
   },
@@ -462,7 +468,7 @@
     "message": "Wachtwoord gegenereerd"
   },
   "passphraseGenerated": {
-    "message": "Wachtwoorden gegenereerd"
+    "message": "Wachtwoordzin gegenereerd"
   },
   "usernameGenerated": {
     "message": "Gebruikersnaam gegenereerd"
@@ -478,22 +484,6 @@
   },
   "length": {
     "message": "Lengte"
-  },
-  "uppercase": {
-    "message": "Hoofdletters (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Kleine letters (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Cijfers (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Speciale tekens (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
   },
   "include": {
     "message": "Toevoegen",
@@ -527,10 +517,6 @@
     "message": "Speciale tekens toevoegen",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Aantal woorden"
   },
@@ -560,6 +546,9 @@
   },
   "searchVault": {
     "message": "Kluis doorzoeken"
+  },
+  "resetSearch": {
+    "message": "Zoekopdracht resetten"
   },
   "edit": {
     "message": "Bewerken"
@@ -669,8 +658,8 @@
   "browserNotSupportClipboard": {
     "message": "Je webbrowser ondersteunt kopiëren naar plakbord niet. Kopieer handmatig."
   },
-  "verifyIdentity": {
-    "message": "Identiteit verifiëren"
+  "verifyYourIdentity": {
+    "message": "Verifieer je identiteit"
   },
   "weDontRecognizeThisDevice": {
     "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
@@ -895,10 +884,13 @@
     "message": "Druk op je YubiKey om te verifiëren"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Jouw account vereist Duo-tweestapsaanmelding. Volg de onderstaande stappen om het inloggen te voltooien."
+    "message": "Jouw account vereist Duo tweestapslogin. Volg de onderstaande stappen om het inloggen te voltooien."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Volg de onderstaande stappen om in te loggen."
+    "message": "Volg de onderstaande stappen om het inloggen af te ronden."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Volg onderstaande stappen om in te loggen met je beveiligingssleutel."
   },
   "restartRegistration": {
     "message": "Registratie herstarten"
@@ -920,6 +912,9 @@
   },
   "no": {
     "message": "Nee"
+  },
+  "location": {
+    "message": "Locatie"
   },
   "unexpectedError": {
     "message": "Er is een onverwachte fout opgetreden."
@@ -1054,7 +1049,7 @@
     "message": "Klik op items om automatisch in te vullen op de kluisweergave"
   },
   "clickToAutofill": {
-    "message": "Klik op gesuggereerde items om deze automatisch invullen"
+    "message": "Klik items in de automatisch invullen suggestie om in te vullen"
   },
   "clearClipboard": {
     "message": "Klembord wissen",
@@ -1069,6 +1064,123 @@
   },
   "notificationAddSave": {
     "message": "Ja, nu opslaan"
+  },
+  "notificationViewAria": {
+    "message": "$ITEMNAME$ bekijken, opent in nieuw venster",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Aria label for the view button in notification bar confirmation message"
+  },
+  "notificationNewItemAria": {
+    "message": "Nieuw Item, opent in nieuw venster",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "Bewerken voor opslaan",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Nieuwe melding"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Nieuwe melding",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "opslaan in Bitwarden.",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "bijgewerkt in Bitwarden.",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "$ITEMTYPE$, $ITEMNAME$ selecteren",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
+  },
+  "saveAsNewLoginAction": {
+    "message": "Opslaan als nieuwe login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Login bijwerken",
+    "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Ontgrendel voor het opslaan van deze login",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "Login opslaan",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLogin": {
+    "message": "Bestaande login bijwerken",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login opgeslagen",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login bijgewerkt",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Goed gedaan! Je hebt stappen genomen om jou en $ORGANIZATION$ veiliger te maken.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Bedankt voor het veiliger maken van $ORGANIZATION$. Je moet nog $TASK_COUNT$ wachtwoorden bijwerken.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Volgend wachtwoord veranderen",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
+  "saveFailure": {
+    "message": "Fout bij opslaan",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh nee! We konden dit niet opslaan. Probeer de gegevens handmatig in te voeren.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "Na het wijzigen van je wachtwoord moet je inloggen met je nieuwe wachtwoord. Actieve sessies op andere apparaten worden binnen één uur uitgelogd."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Wijzig je hoofdwachtwoord om je account te herstellen."
   },
   "enableChangedPasswordNotification": {
     "message": "Vraag om bijwerken bestaande login"
@@ -1132,10 +1244,6 @@
   "light": {
     "message": "Licht",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Overbelicht donker",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Exporteren vanuit"
@@ -1266,8 +1374,8 @@
   "featureUnavailable": {
     "message": "Functionaliteit niet beschikbaar"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Migratie van de encryptiesleutel vereist. Login via de website om je sleutel te bij te werken."
+  "legacyEncryptionUnsupported": {
+    "message": "Oude versleuteling wordt niet langer ondersteund. Neem contact op voor ondersteuning om je account te herstellen."
   },
   "premiumMembership": {
     "message": "Premium-abonnement"
@@ -1359,23 +1467,11 @@
   "premiumRequiredDesc": {
     "message": "Je hebt een Premium-abonnement nodig om deze functie te gebruiken."
   },
-  "enterVerificationCodeApp": {
-    "message": "Voer de 6-cijferige verificatiecode uit je authenticatie-app in."
-  },
   "authenticationTimeout": {
     "message": "Authenticatie-timeout"
   },
   "authenticationSessionTimedOut": {
     "message": "De verificatiesessie is verlopen. Start het inlogproces opnieuw op."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Voer de 6-cijferige verificatiecode in die via e-mail is verstuurd naar $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "E-mail met verificatiecode is verzonden naar $EMAIL$.",
@@ -1386,17 +1482,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Mijn gegevens onthouden"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "30 dagen niet meer vragen op dit apparaat"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "E-mail met verificatiecode opnieuw versturen"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Gebruik een andere methode voor tweestapsaanmelding"
+    "message": "30 dagen niet opnieuw vragen op dit apparaat"
   },
   "selectAnotherMethod": {
     "message": "Kies een andere methode",
@@ -1405,17 +1492,8 @@
   "useYourRecoveryCode": {
     "message": "Gebruik je herstelcode"
   },
-  "insertYubiKey": {
-    "message": "Plaats je YubiKey in de USB-poort van je computer en druk op de knop."
-  },
   "insertU2f": {
     "message": "Plaats je beveilingssleutel in de USB-poort van je computer. Als het een knop heeft, druk deze dan in."
-  },
-  "webAuthnNewTab": {
-    "message": "Ga door met WebAuthn 2FA-verificatie in de nieuwe tab."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Nieuwe tab openen"
   },
   "openInNewTab": {
     "message": "Openen in nieuwe tab"
@@ -1427,7 +1505,7 @@
     "message": "Beveiligingssleutel lezen"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Wacht op interactie met beveiligingssleutel..."
+    "message": "Wacht op interactie met beveiligingssleutel…"
   },
   "loginUnavailable": {
     "message": "Login niet beschikbaar"
@@ -1442,7 +1520,7 @@
     "message": "Opties voor tweestapsaanmelding"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Kies methode voor tweestapsaanmelding"
+    "message": "Kies methode voor tweestapslogin"
   },
   "recoveryCodeDesc": {
     "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
@@ -1486,9 +1564,6 @@
   "selfHostedEnvironment": {
     "message": "Zelfgehoste omgeving"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Geef de basis-URL van jouw zelfgehoste Bitwarden-installatie."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specificeer de basis-URL van je zelfgehoste Bitwarden-installatie. Bijvoorbeeld: https://bitwarden.company.com"
   },
@@ -1500,9 +1575,6 @@
   },
   "customEnvironment": {
     "message": "Aangepaste omgeving"
-  },
-  "customEnvironmentFooter": {
-    "message": "Voor gevorderde gebruikers. Je kunt de basis-URL van elke dienst afzonderlijk instellen."
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -1535,6 +1607,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Suggesties automatisch invullen"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Gemakkelijk suggesties voor automatisch invullen vinden"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Schakel de autofill-instellingen van je browser uit, zodat ze niet conflicteren met Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Automatisch invullen van $BROWSER$ uitschakelen",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Automatisch invullen uitschakelen"
   },
   "showInlineMenuLabel": {
     "message": "Suggesties voor automatisch invullen op formuliervelden weergeven"
@@ -1641,6 +1731,9 @@
   "dragToSort": {
     "message": "Slepen om te sorteren"
   },
+  "dragToReorder": {
+    "message": "Sleep om te herschikken"
+  },
   "cfTypeText": {
     "message": "Tekst"
   },
@@ -1738,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Beveiligingscode"
+  },
+  "cardNumber": {
+    "message": "kaartnummer"
   },
   "ex": {
     "message": "bijv."
@@ -1837,6 +1933,9 @@
   },
   "typeSshKey": {
     "message": "SSH-sleutel"
+  },
+  "typeNote": {
+    "message": "Notitie"
   },
   "newItemHeader": {
     "message": "Nieuwe $TYPE$",
@@ -2069,8 +2168,8 @@
   "setYourPinCode": {
     "message": "Stel je PIN-code in voor het ontgrendelen van Bitwarden. Je PIN-code wordt opnieuw ingesteld als je je ooit volledig afmeldt bij de applicatie."
   },
-  "setYourPinCode1": {
-    "message": "Je pincode wordt gebruikt om Bitwarden te ontgrendelen in plaats van je hoofdwachtwoord. Je pincode wordt opnieuw ingesteld als je ooit volledig uitlogt op Bitwarden."
+  "setPinCode": {
+    "message": "Je kunt deze PIN gebruiken voor het ontgrendelen van Bitwarden. Je PIN wordt opnieuw ingesteld als je je ooit volledig afmeldt bij de applicatie."
   },
   "pinRequired": {
     "message": "PIN-code is vereist."
@@ -2120,6 +2219,9 @@
   "useThisPassword": {
     "message": "Dit wachtwoord gebruiken"
   },
+  "useThisPassphrase": {
+    "message": "Deze wachtwoordzin gebruiken"
+  },
   "useThisUsername": {
     "message": "Deze gebruikersnaam gebruiken"
   },
@@ -2135,22 +2237,13 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Kluis-aanpassingen"
+    "message": "Kluis aanpassingen"
   },
   "vaultTimeoutAction": {
     "message": "Actie bij time-out"
   },
   "vaultTimeoutAction1": {
     "message": "Time-out actie"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Nieuwe aanpassingsopties"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Personaliseer je kluiservaring met snelle kopieeracties, compacte modus en meer!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Alle personalisatie-instellingen bekijken"
   },
   "lock": {
     "message": "Vergrendelen",
@@ -2298,6 +2391,9 @@
   "privacyPolicy": {
     "message": "Privacybeleid"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Je nieuwe wachtwoord moet anders zijn dan je huidige wachtwoord."
+  },
   "hintEqualsPassword": {
     "message": "Je wachtwoordhint moet anders zijn dan je wachtwoord."
   },
@@ -2403,6 +2499,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Organisatiebeleid heeft het importeren van items in je persoonlijke kluis geblokkeerd."
   },
+  "restrictCardTypeImport": {
+    "message": "Kan kaart item types niet importeren"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Een beleid ingesteld door 1 of meer organisaties voorkomt dat je kaarten naar je kluizen kunt importeren."
+  },
   "domainsTitle": {
     "message": "Domeinen",
     "description": "A category title describing the concept of web domains"
@@ -2434,6 +2536,10 @@
   "change": {
     "message": "Wijzigen"
   },
+  "changePassword": {
+    "message": "Wachtwoord wijzigen",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Wachtwoord wijzigen - $ITEMNAME$",
     "placeholders": {
@@ -2443,8 +2549,11 @@
       }
     }
   },
+  "atRiskPassword": {
+    "message": "Risicovolle wachtwoorden"
+  },
   "atRiskPasswords": {
-    "message": "Wachtwoorden in gevaar"
+    "message": "Risicovolle wachtwoorden"
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ vraagt je om één wachtwoord te wijzigen omdat deze een risico vormt.",
@@ -2469,13 +2578,33 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Je organisatie(s) vragen je de $COUNT$ wachtwoorden te wijzigen omdat ze een risico vormen.",
+    "message": "Je organisaties vragen je de $COUNT$ wachtwoorden te wijzigen omdat ze een risico vormen.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Je wachtwoord voor deze website is een risico. $ORGANIZATION$ vraagt je deze te veranderen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wil dat je dit wachtwoord verandert omdat het in gevaar is. Navigeer naar je accountinstellingen om het wachtwoord te wijzigen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Eén risicovol wachtwoord beoordelen en wijzigen"
@@ -2502,18 +2631,18 @@
     "message": "Risicovolle wachtwoorden bekijken"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "De wachtwoorden van je organisatie zijn in gevaar omdat ze zwak, hergebruikt en/of blootgelegd zijn.",
+    "message": "De wachtwoorden van je organisatie zijn in gevaar omdat ze zwak, hergebruikt en/of gelekt zijn.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Voorbeeld van een lijst van risicovolle logins"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Voorbeeld van een lijst van risicovolle inloggegevens."
   },
   "generatePasswordSlideDesc": {
-    "message": "Genereer snel een sterk, uniek wachtwoord met het automatisch invulmenu van Bitwaren op de risicovolle website.",
+    "message": "Genereer snel een sterk, uniek wachtwoord met het automatisch invulmenu van Bitwarden op de risicovolle website.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Voorbeeld van het automatisch invulmenu van Bitwarden met een gegenereerd wachtwoord"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Voorbeeld van het automatisch invulmenu van Bitwarden met een gegenereerd wachtwoord."
   },
   "updateInBitwarden": {
     "message": "Bijwerken in Bitwarden"
@@ -2522,8 +2651,8 @@
     "message": "Bitwarden vraagt je vervolgens het wachtwoord bij te werken in de wachtwoordbeheerder.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Voorbeeld van een Bitwarden-melding die de gebruiker aanspoort tot het bijwerken van de login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Voorbeeld van een Bitwarden-melding die de gebruiker aanspoort tot het bijwerken van de login."
   },
   "turnOnAutofill": {
     "message": "Automatisch invullen inschakelen"
@@ -2595,6 +2724,10 @@
   "allSends": {
     "message": "Alle Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Maximum aantal keren benaderd",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Tekst standaard verbergen"
@@ -2798,6 +2931,9 @@
   "emailVerificationRequiredDesc": {
     "message": "Je moet je e-mailadres verifiëren om deze functie te gebruiken. Je kunt je e-mailadres verifiëren in de kluis."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hoofdwachtwoord succesvol ingesteld"
+  },
   "updatedMasterPassword": {
     "message": "Hoofdwachtwoord bijgewerkt"
   },
@@ -2936,14 +3072,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Geen unieke id gevonden."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ gebruikt SSO met een zelf gehoste sleutelserver. Leden van deze organisatie kunnen inloggen zonder hoofdwachtwoord.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie."
+  },
+  "organizationName": {
+    "message": "Organisatienaam"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domein"
   },
   "leaveOrganization": {
     "message": "Organisatie verlaten"
@@ -2971,6 +3107,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Alleen de individuele kluisitems die gekoppeld zijn aan $EMAIL$ worden geëxporteerd. Kluisitems van organisaties worden niet meegenomen. Alleen de informatie over het kluisitem wordt geëxporteerd en niet de bijbehorende bijlagen.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Exporteert alleen de persoonlijke kluis-items, inclusief attachments, gerelateerd aan $EMAIL$. Geen kluis-items van de organisatie",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3243,15 +3388,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Instellingen zijn bijgewerkt"
-  },
-  "environmentEditedClick": {
-    "message": "Klik hier"
-  },
-  "environmentEditedReset": {
-    "message": "om terug te gaan naar vooraf geconfigureerde instellingen"
-  },
   "serverVersion": {
     "message": "Serverversie"
   },
@@ -3282,12 +3418,6 @@
   "loginWithMasterPassword": {
     "message": "Inloggen met je hoofdwachtwoord"
   },
-  "loggingInAs": {
-    "message": "Inloggen als"
-  },
-  "notYou": {
-    "message": "Ben jij dit niet?"
-  },
   "newAroundHere": {
     "message": "Nieuw hier?"
   },
@@ -3296,9 +3426,6 @@
   },
   "loginWithDevice": {
     "message": "Inloggen met apparaat"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Inloggen met apparaat moet aangezet worden in de instellingen van de Bitwarden app. Nood aan een andere optie?"
   },
   "fingerprintPhraseHeader": {
     "message": "Vingerafdrukzin"
@@ -3311,9 +3438,6 @@
   },
   "viewAllLogInOptions": {
     "message": "Alle inlogopties bekijken"
-  },
-  "viewAllLoginOptionsV1": {
-    "message": "Alle inlogopties weergeven"
   },
   "notificationSentDevice": {
     "message": "Er is een melding naar je apparaat verzonden."
@@ -3341,6 +3465,31 @@
   },
   "logInRequestSent": {
     "message": "Verzoek verzonden"
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
+  },
+  "device": {
+    "message": "Apparaat"
+  },
+  "loginStatus": {
+    "message": "Loginstatus"
+  },
+  "masterPasswordChanged": {
+    "message": "Hoofdwachtwoord gewijzigd"
   },
   "exposedMasterPassword": {
     "message": "Gelekt hoofdwachtwoord"
@@ -3435,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Onthoud dit apparaat om in het vervolg naadloos in te loggen"
   },
+  "manageDevices": {
+    "message": "Apparaten beheren"
+  },
+  "currentSession": {
+    "message": "Huidige sessie"
+  },
+  "mobile": {
+    "message": "Mobiel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensie",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Webkluis"
+  },
+  "webApp": {
+    "message": "Web-app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Verzoek in behandeling"
+  },
+  "firstLogin": {
+    "message": "Eerst inloggen"
+  },
+  "trusted": {
+    "message": "Vertrouwd"
+  },
+  "needsApproval": {
+    "message": "Heeft goedkeuring nodig"
+  },
+  "devices": {
+    "message": "Apparaten"
+  },
+  "accessAttemptBy": {
+    "message": "Inlogpoging door $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Toegang bevestigen"
+  },
+  "denyAccess": {
+    "message": "Toegang weigeren"
+  },
+  "time": {
+    "message": "Tijd"
+  },
+  "deviceType": {
+    "message": "Apparaattype"
+  },
+  "loginRequest": {
+    "message": "Log-inverzoek"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Dit verzoek is niet langer geldig."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Inlogverzoek is al verlopen."
+  },
+  "justNow": {
+    "message": "Zojuist"
+  },
+  "requestedXMinutesAgo": {
+    "message": "$MINUTES$ minuten geleden aangevraagd",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Apparaattoestemming vereist. Kies een goedkeuringsoptie hieronder:"
   },
@@ -3456,8 +3693,11 @@
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
   },
-  "approveWithMasterPassword": {
-    "message": "Goedkeuren met hoofdwachtwoord"
+  "unableToCompleteLogin": {
+    "message": "Kan login niet voltooien"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Je moet inloggen op een vertrouwd apparaat of je beheerder vragen om je een wachtwoord toe te wijzen."
   },
   "ssoIdentifierRequired": {
     "message": "Organisatie SSO-identificatie vereist."
@@ -3505,9 +3745,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Je verzoek is naar je beheerder verstuurd."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Je krijgt een melding zodra je bent goedgekeurd."
-  },
   "troubleLoggingIn": {
     "message": "Problemen met inloggen?"
   },
@@ -3523,12 +3760,36 @@
   "deviceTrusted": {
     "message": "Vertrouwd apparaat"
   },
-  "sendsNoItemsTitle": {
-    "message": "Geen actieve Sends",
+  "trustOrganization": {
+    "message": "Organisatie vertrouwen"
+  },
+  "trust": {
+    "message": "Vertrouwen"
+  },
+  "doNotTrust": {
+    "message": "Niet vertrouwen"
+  },
+  "organizationNotTrusted": {
+    "message": "Organisatie is niet vertrouwd"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Bevestig, voor de veiligheid van je account, alleen als je noodtoegang hebt verleend aan deze gebruiker en de vingerafdruk voldoet aan wat er in hun account wordt weergegeven"
+  },
+  "orgTrustWarning": {
+    "message": "Ga, voor de veiligheid van je account, alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
+  },
+  "orgTrustWarning1": {
+    "message": "Deze organisatie heeft een Enterprise-beleid dat je inschrijft voor accountherstel. Inschrijving stelt beheerders van de organisatie in staat om je wachtwoord te wijzigen. Ga alleen verder als je deze organisatie herkent en de vingerafdrukzin die hieronder wordt weergegeven overeenkomt met de vingerafdruk van de organisatie."
+  },
+  "trustUser": {
+    "message": "Gebruiker vertrouwen"
+  },
+  "sendsTitleNoItems": {
+    "message": "Gevoelige informatie veilig versturen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "Gebruik Send voor het veilig delen van versleutelde informatie met wie dan ook.",
+  "sendsBodyNoItems": {
+    "message": "Deel bestanden en gegevens veilig met iedereen, op elk platform. Je informatie blijft end-to-end versleuteld terwijl en blootstelling beperkt.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3837,14 +4098,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Fout bij het verbinden met de Duo-service. Gebruik een andere tweestapsaanmeldingsmethode of neem contact op met Duo voor hulp."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Start Duo en volg de stappen om het inloggen te voltooien."
-  },
   "duoRequiredForAccount": {
     "message": "Jouw account vereist Duo-tweestapsaanmelding."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Open de extensie om in te loggen."
   },
   "popoutExtension": {
     "message": "Pop-out extensie"
@@ -4077,6 +4332,9 @@
   "activeAccount": {
     "message": "Actief account"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
+  },
   "availableAccounts": {
     "message": "Beschikbare accounts"
   },
@@ -4119,6 +4377,26 @@
   "commonImportFormats": {
     "message": "Veelvoorkomende formaten",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI-matche-detectie is hoe Bitwarden invulsuggesties herkent.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Reguliere expressie\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Begint met\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Lees meer over overeenkomstdetectie",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Geavanceerde opties",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Doorgaan naar browserinstellingen?",
@@ -4265,6 +4543,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Item weergeven - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Automatisch invullen - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4275,17 +4567,31 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "$FIELD$, $VALUE$ kopiëren",
+  "autofillTitleWithField": {
+    "message": "Automatisch aanvullen - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopiëren",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4422,6 +4728,33 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Bitwarden downloaden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Bitwarden op alle apparaten downloaden"
+  },
+  "getTheMobileApp": {
+    "message": "De mobiele app downloaden"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Toegang tot je wachtwoorden onderweg met de mobiele Bitwarden-app."
+  },
+  "getTheDesktopApp": {
+    "message": "De desktop-app downloaden"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Toegang tot je kluis zonder browser, vervolgens ontgrendelen met biometrische gegevens om sneller te ontgrendelen in zowel de desktopapp als browserextensie."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Nu van bitwarden.com downloaden"
+  },
+  "getItOnGooglePlay": {
+    "message": "Download op Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Te downloaden in de App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Weet je zeker dat je deze bijlage definitief wilt verwijderen?"
   },
@@ -4472,7 +4805,7 @@
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "Login referenties"
+    "message": "Inloggegevens"
   },
   "authenticatorKey": {
     "message": "Authenticatiesleutel"
@@ -4665,6 +4998,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Website URI herschikken. Gebruik de pijltjestoets om het item omhoog of omlaag te verplaatsen."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ is naar boven verplaatst, positie $INDEX$ van $LENGTH$",
     "placeholders": {
@@ -4724,15 +5060,6 @@
   },
   "nothingSelected": {
     "message": "Je hebt niets geselecteerd."
-  },
-  "movedItemsToOrg": {
-    "message": "Geselecteerde items verplaatst naar $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Items verplaatst naar $ORGNAME$",
@@ -4889,6 +5216,18 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar om een onbekende reden."
   },
+  "unlockVault": {
+    "message": "Ontgrendel je kluis in seconden"
+  },
+  "unlockVaultDesc": {
+    "message": "Je kunt de instellingen voor ontgrendelen en time-out aanpassen om sneller toegang te krijgen tot je kluis."
+  },
+  "unlockPinSet": {
+    "message": "PIN-code ontgrendelen instellen"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Met biometrische set ontgrendelen"
+  },
   "authenticating": {
     "message": "Aan het inloggen"
   },
@@ -4900,8 +5239,8 @@
     "message": "Wachtwoord opnieuw gegenereerd",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Login opslaan in Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Opslaan in Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5051,42 +5390,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Belangrijke mededeling"
-  },
-  "setupTwoStepLogin": {
-    "message": "Tweestapsaanmelding instellen"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Je kunt tweestapsaanmelding instellen als een alternatieve manier om je account te beschermen of je e-mailadres te veranderen naar een waar je toegang toe hebt."
-  },
-  "remindMeLater": {
-    "message": "Herinner me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Heb je betrouwbare toegang tot je e-mail, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nee, dat heb ik niet"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ja, ik heb betrouwbare toegang tot mijn e-mail"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Tweestapsaanmelding inschakelen"
-  },
-  "changeAcctEmail": {
-    "message": "E-mailadres van het account veranderen"
-  },
   "extensionWidth": {
     "message": "Extensiebreedte"
   },
@@ -5095,6 +5398,33 @@
   },
   "extraWide": {
     "message": "Extra breed"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Het wachtwoord dat je hebt ingevoerd is onjuist."
+  },
+  "importSshKey": {
+    "message": "Importeren"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Wachtwoord bevestigen"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Voer het wachtwoord voor de SSH sleutel in."
+  },
+  "enterSshKeyPassword": {
+    "message": "Wachtwoord invoeren"
+  },
+  "invalidSshKey": {
+    "message": "De SSH-sleutel is ongeldig"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Het type SSH-sleutel is niet ondersteund"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Sleutel importeren van klembord"
+  },
+  "sshKeyImported": {
+    "message": "SSH-sleutel succesvol geïmporteerd"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
@@ -5110,5 +5440,144 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Als je biometrische gegevens wilt gebruiken, moet je de desktopapplicatie bijwerken of vingerafdrukontgrendeling uitschakelen in de instellingen van de desktopapplicatie."
+  },
+  "changeAtRiskPassword": {
+    "message": "Risicovol wachtwoord wijzigen"
+  },
+  "settingsVaultOptions": {
+    "message": "Kluis-instellingen"
+  },
+  "emptyVaultDescription": {
+    "message": "De kluis beschermt meer dan alleen je wachtwoorden. Sla hier beveiligde inloggegevens, ID's, kaarten en notities op."
+  },
+  "introCarouselLabel": {
+    "message": "Welkom bij Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, geprioriteerd"
+  },
+  "securityPrioritizedBody": {
+    "message": "Logins, kaarten en identiteiten in je beveiligde kluis opslaan. Bitwarden gebruikt zero-knowledge, end-to-end versleuteling om te beschermen wat belangrijk voor jou is."
+  },
+  "quickLogin": {
+    "message": "Snel en eenvoudig inloggen"
+  },
+  "quickLoginBody": {
+    "message": "Biometrische ontgrendelen en automatisch invullen instellen zodat je kunt inloggen op je accounts zonder één letter te typen."
+  },
+  "secureUser": {
+    "message": "Versterk je logins"
+  },
+  "secureUserBody": {
+    "message": "Gebruik de generator voor het aanmaken en bewaren van sterke, unieke wachtwoorden voor al je accounts."
+  },
+  "secureDevices": {
+    "message": "Jouw gegevens, wanneer en waar je ze nodig hebt"
+  },
+  "secureDevicesBody": {
+    "message": "Onbeperkt wachtwoorden opslaan op alle apparaten met Bitwarden-apps voor mobiel, browser en desktop."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 melding"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Bestaande wachtwoorden importeren"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Gebruik de importer om snel logins naar Bitwarden over te dragen zonder ze handmatig toe te voegen."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Nu importeren"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Welkom in je kluis!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Automatisch invullen van items voor de huidige pagina"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Items als favoriet markeren voor gemakkelijke toegang"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Je kluis doorzoeken naar iets anders"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Tijd besparen met automatisch aanvullen"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Voeg een",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "toe zodat deze login wordt weergegeven als een automatische invulsuggestie.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Naadloos online afrekenen"
+  },
+  "newCardNudgeBody": {
+    "message": "Met kaarten gemakkelijk, veilig en accuraat automatisch invullen van betaalformulieren."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Vereenvoudig het aanmaken van accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Met identiteiten vul je lange registratie- of contactformulieren snel automatisch in."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Houd je gevoelige gegevens veilig"
+  },
+  "newNoteNudgeBody": {
+    "message": "Met notities veilig opslaan van gevoelige gegevens zoals bank- of verzekeringsgegevens."
+  },
+  "newSshNudgeTitle": {
+    "message": "Ontwikkelaars-vriendelijke SSH-toegang"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Sla je sleutels op en verbind met de SSH-agent voor snelle, versleutelde authenticatie.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Meer informatie over SSH-agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Snel wachtwoorden maken"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Maak eenvoudig sterke en unieke wachtwoorden door te klikken op",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "om je te helpen je inloggegevens veilig te houden.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Maak eenvoudig sterke en unieke wachtwoorden door op de knop Wachtwoord genereren te klikken om je logins veilig te houden.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly wordt niet ondersteund in je browser of is niet ingeschakeld. WebAssembly is vereist om de Bitwarden-app te gebruiken.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Meer weergeven"
+  },
+  "showLess": {
+    "message": "Minder weergeven"
   }
 }

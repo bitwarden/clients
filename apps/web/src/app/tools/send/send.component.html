@@ -3,7 +3,7 @@
     <small #actionSpinner [appApiAction]="actionPromise">
       <ng-container *ngIf="$any(actionSpinner).loading">
         <i
-          class="bwi bwi-spinner bwi-spin text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -93,58 +93,60 @@
       <ng-template body let-rows$>
         <tr bitRow *ngFor="let s of rows$ | async">
           <td bitCell (click)="editSend(s)" class="tw-cursor-pointer">
-            <span class="tw-mr-2" aria-hidden="true">
-              <i class="bwi bwi-fw bwi-lg bwi-file" *ngIf="s.type == sendType.File"></i>
-              <i class="bwi bwi-fw bwi-lg bwi-file-text" *ngIf="s.type == sendType.Text"></i>
-            </span>
-            <button type="button" bitLink>
-              {{ s.name }}
-            </button>
-            <ng-container *ngIf="s.disabled">
-              <i
-                class="bwi bwi-exclamation-triangle"
-                appStopProp
-                title="{{ 'disabled' | i18n }}"
-                aria-hidden="true"
-              ></i>
-              <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
-            </ng-container>
-            <ng-container *ngIf="s.password">
-              <i
-                class="bwi bwi-key"
-                appStopProp
-                title="{{ 'password' | i18n }}"
-                aria-hidden="true"
-              ></i>
-              <span class="tw-sr-only">{{ "password" | i18n }}</span>
-            </ng-container>
-            <ng-container *ngIf="s.maxAccessCountReached">
-              <i
-                class="bwi bwi-ban"
-                appStopProp
-                title="{{ 'maxAccessCountReached' | i18n }}"
-                aria-hidden="true"
-              ></i>
-              <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
-            </ng-container>
-            <ng-container *ngIf="s.expired">
-              <i
-                class="bwi bwi-clock"
-                appStopProp
-                title="{{ 'expired' | i18n }}"
-                aria-hidden="true"
-              ></i>
-              <span class="tw-sr-only">{{ "expired" | i18n }}</span>
-            </ng-container>
-            <ng-container *ngIf="s.pendingDelete">
-              <i
-                class="bwi bwi-trash"
-                appStopProp
-                title="{{ 'pendingDeletion' | i18n }}"
-                aria-hidden="true"
-              ></i>
-              <span class="tw-sr-only">{{ "pendingDeletion" | i18n }}</span>
-            </ng-container>
+            <div class="tw-flex tw-gap-2 tw-items-center">
+              <span aria-hidden="true">
+                <i class="bwi bwi-fw bwi-lg bwi-file" *ngIf="s.type == sendType.File"></i>
+                <i class="bwi bwi-fw bwi-lg bwi-file-text" *ngIf="s.type == sendType.Text"></i>
+              </span>
+              <button type="button" bitLink>
+                {{ s.name }}
+              </button>
+              <ng-container *ngIf="s.disabled">
+                <i
+                  class="bwi bwi-exclamation-triangle"
+                  appStopProp
+                  title="{{ 'disabled' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ "disabled" | i18n }}</span>
+              </ng-container>
+              <ng-container *ngIf="s.password">
+                <i
+                  class="bwi bwi-key"
+                  appStopProp
+                  title="{{ 'password' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ "password" | i18n }}</span>
+              </ng-container>
+              <ng-container *ngIf="s.maxAccessCountReached">
+                <i
+                  class="bwi bwi-exclamation-triangle"
+                  appStopProp
+                  title="{{ 'maxAccessCountReached' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
+              </ng-container>
+              <ng-container *ngIf="s.expired">
+                <i
+                  class="bwi bwi-clock"
+                  appStopProp
+                  title="{{ 'expired' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ "expired" | i18n }}</span>
+              </ng-container>
+              <ng-container *ngIf="s.pendingDelete">
+                <i
+                  class="bwi bwi-trash"
+                  appStopProp
+                  title="{{ 'pendingDeletion' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="tw-sr-only">{{ "pendingDeletion" | i18n }}</span>
+              </ng-container>
+            </div>
           </td>
           <td bitCell class="tw-text-muted" (click)="editSend(s)" class="tw-cursor-pointer">
             <small bitTypography="body2" appStopProp>{{ s.deletionDate | date: "medium" }}</small>
@@ -154,7 +156,7 @@
               type="button"
               [bitMenuTriggerFor]="sendOptions"
               bitIconButton="bwi-ellipsis-v"
-              appA11yTitle="{{ 'options' | i18n }}"
+              label="{{ 'options' | i18n }}"
             ></button>
             <bit-menu #sendOptions>
               <button type="button" bitMenuItem (click)="copy(s)">
@@ -181,10 +183,10 @@
         </tr>
       </ng-template>
     </bit-table>
-    <div class="no-items" *ngIf="filteredSends && !filteredSends.length">
+    <div *ngIf="filteredSends && !filteredSends.length">
       <ng-container *ngIf="!loaded">
         <i
-          class="bwi bwi-spinner bwi-spin text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -192,8 +194,8 @@
       </ng-container>
       <ng-container *ngIf="loaded">
         <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-          <ng-container slot="title">{{ "sendsNoItemsTitle" | i18n }}</ng-container>
-          <ng-container slot="description">{{ "sendsNoItemsMessage" | i18n }}</ng-container>
+          <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
+          <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
           <tools-new-send-dropdown
             [hideIcon]="true"
             *ngIf="!disableSend"
@@ -204,4 +206,3 @@
     </div>
   </div>
 </div>
-<ng-template #sendAddEdit></ng-template>

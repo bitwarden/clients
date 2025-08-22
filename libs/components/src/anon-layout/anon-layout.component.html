@@ -1,0 +1,80 @@
+<main
+  class="tw-relative tw-flex tw-w-full tw-mx-auto tw-flex-col tw-bg-background-alt tw-p-5 tw-text-main"
+  [ngClass]="{
+    'tw-min-h-screen': clientType === 'web',
+    'tw-min-h-full': clientType === 'browser' || clientType === 'desktop',
+  }"
+>
+  <a
+    *ngIf="!hideLogo()"
+    [routerLink]="['/']"
+    class="tw-w-[200px] tw-block tw-mb-12 [&>*]:tw-align-top"
+  >
+    <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
+  </a>
+
+  <div class="tw-text-center tw-mb-4 sm:tw-mb-6 tw-mx-auto" [ngClass]="maxWidthClass">
+    <div *ngIf="!hideIcon()" class="tw-w-24 sm:tw-w-28 md:tw-w-32 tw-mx-auto">
+      <bit-icon [icon]="icon()"></bit-icon>
+    </div>
+
+    <ng-container *ngIf="title()">
+      <!-- Small screens -->
+      <h1 bitTypography="h2" class="tw-mt-2 sm:tw-hidden">
+        {{ title() }}
+      </h1>
+      <!-- Medium to Larger screens -->
+      <h1 bitTypography="h1" class="tw-mt-2 tw-hidden sm:tw-block">
+        {{ title() }}
+      </h1>
+    </ng-container>
+
+    <div *ngIf="subtitle()" class="tw-text-sm sm:tw-text-base">{{ subtitle() }}</div>
+  </div>
+
+  <div
+    class="tw-z-10 tw-grow tw-w-full tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
+    [ngClass]="maxWidthClass"
+  >
+    @if (hideCardWrapper()) {
+      <div class="tw-mb-6 sm:tw-mb-10">
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </div>
+    } @else {
+      <div
+        class="tw-rounded-2xl tw-mb-6 sm:tw-mb-10 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
+      >
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </div>
+    }
+    <ng-content select="[slot=secondary]"></ng-content>
+  </div>
+
+  <footer *ngIf="!hideFooter()" class="tw-text-center tw-mt-4 sm:tw-mt-6">
+    <div *ngIf="showReadonlyHostname()" bitTypography="body2">
+      {{ "accessing" | i18n }} {{ hostname }}
+    </div>
+    <ng-container *ngIf="!showReadonlyHostname()">
+      <ng-content select="[slot=environment-selector]"></ng-content>
+    </ng-container>
+    <ng-container *ngIf="!hideYearAndVersion">
+      <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
+      <div bitTypography="body2">{{ version }}</div>
+    </ng-container>
+  </footer>
+
+  <div
+    class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-start-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+  >
+    <bit-icon [icon]="leftIllustration"></bit-icon>
+  </div>
+  <div
+    class="tw-hidden md:tw-block [&_svg]:tw-absolute tw-z-[1] tw-opacity-[.11] [&_svg]:tw-bottom-0 [&_svg]:tw-end-0 [&_svg]:tw-w-[35%] [&_svg]:tw-max-w-[450px]"
+  >
+    <bit-icon [icon]="rightIllustration"></bit-icon>
+  </div>
+</main>
+
+<ng-template #defaultContent>
+  <ng-content></ng-content>
+</ng-template>

@@ -1,10 +1,24 @@
 import { Utils } from "../../platform/misc/utils";
 import { CipherType } from "../enums/cipher-type";
-import { CipherView } from "../models/view/cipher.view";
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
-export function buildCipherIcon(iconsServerUrl: string, cipher: CipherView, showFavicon: boolean) {
-  let icon;
-  let image;
+export interface CipherIconDetails {
+  imageEnabled: boolean;
+  image: string | null;
+  /**
+   * @deprecated Fallback to `icon` instead which will default to "bwi-globe" if no other icon is applicable.
+   */
+  fallbackImage: string;
+  icon: string;
+}
+
+export function buildCipherIcon(
+  iconsServerUrl: string | null,
+  cipher: CipherViewLike,
+  showFavicon: boolean,
+): CipherIconDetails {
+  let icon: string = "bwi-globe";
+  let image: string | null = null;
   let fallbackImage = "";
   const cardIcons: Record<string, string> = {
     Visa: "card-visa",
@@ -18,12 +32,20 @@ export function buildCipherIcon(iconsServerUrl: string, cipher: CipherView, show
     RuPay: "card-ru-pay",
   };
 
-  switch (cipher.type) {
+  if (iconsServerUrl == null) {
+    showFavicon = false;
+  }
+
+  const cipherType = CipherViewLikeUtils.getType(cipher);
+  const uri = CipherViewLikeUtils.uri(cipher);
+  const card = CipherViewLikeUtils.getCard(cipher);
+
+  switch (cipherType) {
     case CipherType.Login:
       icon = "bwi-globe";
 
-      if (cipher.login.uri) {
-        let hostnameUri = cipher.login.uri;
+      if (uri) {
+        let hostnameUri = uri;
         let isWebsite = false;
 
         if (hostnameUri.indexOf("androidapp://") === 0) {
@@ -53,9 +75,7 @@ export function buildCipherIcon(iconsServerUrl: string, cipher: CipherView, show
           try {
             image = `${iconsServerUrl}/${Utils.getHostname(hostnameUri)}/icon.png`;
             fallbackImage = "images/bwi-globe.png";
-            // FIXME: Remove when updating file. Eslint update
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          } catch (e) {
+          } catch {
             // Ignore error since the fallback icon will be shown if image is null.
           }
         }
@@ -68,8 +88,8 @@ export function buildCipherIcon(iconsServerUrl: string, cipher: CipherView, show
       break;
     case CipherType.Card:
       icon = "bwi-credit-card";
-      if (showFavicon && cipher.card.brand in cardIcons) {
-        icon = `credit-card-icon ${cardIcons[cipher.card.brand]}`;
+      if (showFavicon && card?.brand && card.brand in cardIcons) {
+        icon = `credit-card-icon ${cardIcons[card.brand]}`;
       }
       break;
     case CipherType.Identity:

@@ -1,14 +1,23 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  TwoFactorAuthAuthenticatorIcon,
+  TwoFactorAuthDuoIcon,
+  TwoFactorAuthEmailIcon,
+  TwoFactorAuthWebAuthnIcon,
+  TwoFactorAuthYubicoIcon,
+} from "@bitwarden/assets/svg";
+import {
   TwoFactorProviderDetails,
   TwoFactorService,
 } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DialogRef,
   ButtonModule,
   DialogModule,
   DialogService,
@@ -17,20 +26,11 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import {
-  TwoFactorAuthAuthenticatorIcon,
-  TwoFactorAuthDuoIcon,
-  TwoFactorAuthEmailIcon,
-  TwoFactorAuthWebAuthnIcon,
-  TwoFactorAuthYubicoIcon,
-} from "../icons/two-factor-auth";
-
 export type TwoFactorOptionsDialogResult = {
   type: TwoFactorProviderType;
 };
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-options",
   templateUrl: "two-factor-options.component.html",
   imports: [

@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { DragDropModule } from "@angular/cdk/drag-drop";
 import { NgForOf, NgIf } from "@angular/common";
 import {
   Component,
@@ -17,6 +18,7 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from "@angular/forms";
+import { concatMap, pairwise } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -25,16 +27,18 @@ import {
 } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   SelectComponent,
   SelectModule,
 } from "@bitwarden/components";
 
+import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
+
 @Component({
   selector: "vault-autofill-uri-option",
   templateUrl: "./uri-option.component.html",
-  standalone: true,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -43,6 +47,7 @@ import {
     },
   ],
   imports: [
+    DragDropModule,
     FormFieldModule,
     ReactiveFormsModule,
     IconButtonModule,
@@ -64,15 +69,31 @@ export class UriOptionComponent implements ControlValueAccessor {
     matchDetection: [null as UriMatchStrategySetting],
   });
 
-  protected uriMatchOptions: { label: string; value: UriMatchStrategySetting }[] = [
+  protected uriMatchOptions: {
+    label: string;
+    value: UriMatchStrategySetting;
+    disabled?: boolean;
+  }[] = [
     { label: this.i18nService.t("default"), value: null },
     { label: this.i18nService.t("baseDomain"), value: UriMatchStrategy.Domain },
     { label: this.i18nService.t("host"), value: UriMatchStrategy.Host },
-    { label: this.i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
-    { label: this.i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
     { label: this.i18nService.t("exact"), value: UriMatchStrategy.Exact },
     { label: this.i18nService.t("never"), value: UriMatchStrategy.Never },
+    { label: this.i18nService.t("uriAdvancedOption"), value: null, disabled: true },
+    { label: this.i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
+    { label: this.i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
   ];
+
+  protected advancedOptionWarningMap: Partial<Record<UriMatchStrategySetting, string>> = {
+    [UriMatchStrategy.StartsWith]: "startsWithAdvancedOptionWarning",
+    [UriMatchStrategy.RegularExpression]: "regExAdvancedOptionWarning",
+  };
+
+  /**
+   * Whether the option can be reordered. If false, the reorder button will be hidden.
+   */
+  @Input({ required: true })
+  canReorder: boolean;
 
   /**
    * Whether the URI can be removed from the form. If false, the remove button will be hidden.
@@ -101,6 +122,9 @@ export class UriOptionComponent implements ControlValueAccessor {
    */
   @Input({ required: true }) index: number;
 
+  @Output()
+  onKeydown = new EventEmitter<KeyboardEvent>();
+
   /**
    * Emits when the remove button is clicked and URI should be removed from the form.
    */
@@ -112,7 +136,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   protected toggleMatchDetection() {
     this.showMatchDetection = !this.showMatchDetection;
     if (this.showMatchDetection) {
-      setTimeout(() => this.matchDetectionSelect?.select?.focus(), 0);
+      setTimeout(() => this.matchDetectionSelect?.select()?.focus(), 0);
     }
   }
 
@@ -132,7 +156,12 @@ export class UriOptionComponent implements ControlValueAccessor {
   private onChange: any = () => {};
   private onTouched: any = () => {};
 
+  protected handleKeydown(event: KeyboardEvent) {
+    this.onKeydown.emit(event);
+  }
+
   constructor(
+    private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
   ) {
@@ -142,6 +171,36 @@ export class UriOptionComponent implements ControlValueAccessor {
 
     this.uriForm.statusChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.onTouched();
+    });
+
+    this.uriForm.controls.matchDetection.valueChanges
+      .pipe(
+        pairwise(),
+        concatMap(([previous, current]) => this.handleAdvancedMatch(previous, current)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
+
+  private async handleAdvancedMatch(
+    previous: UriMatchStrategySetting,
+    current: UriMatchStrategySetting,
+  ) {
+    const valueChange = previous !== current;
+    const isAdvanced =
+      current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
+
+    if (!valueChange || !isAdvanced) {
+      return;
+    }
+    AdvancedUriOptionDialogComponent.open(this.dialogService, {
+      contentKey: this.advancedOptionWarningMap[current],
+      onContinue: () => {
+        this.uriForm.controls.matchDetection.setValue(current);
+      },
+      onCancel: () => {
+        this.uriForm.controls.matchDetection.setValue(previous);
+      },
     });
   }
 
@@ -178,5 +237,17 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   setDisabledState?(isDisabled: boolean): void {
     isDisabled ? this.uriForm.disable() : this.uriForm.enable();
+  }
+
+  getMatchHints() {
+    const hints = ["uriMatchDefaultStrategyHint"];
+    const strategy = this.uriForm.get("matchDetection")?.value;
+    if (
+      strategy === UriMatchStrategy.StartsWith ||
+      strategy === UriMatchStrategy.RegularExpression
+    ) {
+      hints.push(this.advancedOptionWarningMap[strategy]);
+    }
+    return hints;
   }
 }

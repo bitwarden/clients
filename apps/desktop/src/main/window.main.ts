@@ -5,16 +5,26 @@ import * as path from "path";
 import * as url from "url";
 
 import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
-import { firstValueFrom } from "rxjs";
+import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
 import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowState } from "../platform/models/domain/window-state";
+import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { cleanUserAgent, isDev, isLinux, isMac, isMacAppStore, isWindows } from "../utils";
+import {
+  cleanUserAgent,
+  isDev,
+  isLinux,
+  isMac,
+  isMacAppStore,
+  isSnapStore,
+  isWindows,
+} from "../utils";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
@@ -30,7 +40,7 @@ export class WindowMain {
   session: Electron.Session;
 
   readonly defaultWidth = 950;
-  readonly defaultHeight = 600;
+  readonly defaultHeight = 790;
 
   constructor(
     private biometricStateService: BiometricStateService,
@@ -76,6 +86,25 @@ export class WindowMain {
       }
     });
 
+    this.desktopSettingsService.modalMode$
+      .pipe(
+        pairwise(),
+        concatMap(async ([lastValue, newValue]) => {
+          if (lastValue.isModalModeActive && !newValue.isModalModeActive) {
+            // Reset the window state to the main window state
+            applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+            // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
+            this.win.hide();
+          } else if (!lastValue.isModalModeActive && newValue.isModalModeActive) {
+            // Apply the popup modal styles
+            this.logService.info("Applying popup modal styles", newValue.modalPosition);
+            applyPopupModalStyles(this.win, newValue.modalPosition);
+            this.win.show();
+          }
+        }),
+      )
+      .subscribe();
+
     this.desktopSettingsService.preventScreenshots$.subscribe((prevent) => {
       if (this.win == null) {
         return;
@@ -91,7 +120,6 @@ export class WindowMain {
             app.quit();
             return;
           } else {
-            // eslint-disable-next-line
             app.on("second-instance", (event, argv, workingDirectory) => {
               // Someone tried to run a second instance, we should focus our window.
               if (this.win != null) {
@@ -136,9 +164,8 @@ export class WindowMain {
               }
             }
 
-            // this currently breaks the file portal, so should only be used when
-            // no files are needed but security requirements are super high https://github.com/flatpak/xdg-desktop-portal/issues/785
-            if (process.env.EXPERIMENTAL_PREVENT_DEBUGGER_MEMORY_ACCESS === "true") {
+            // this currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
+            if (!isSnapStore()) {
               this.logService.info("Disabling memory dumps in main process");
               try {
                 await processisolations.disableMemoryAccess();
@@ -182,7 +209,49 @@ export class WindowMain {
     });
   }
 
-  async createWindow(): Promise<void> {
+  /// Show the window with main window styles
+  show() {
+    if (this.win != null) {
+      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      this.win.show();
+    }
+  }
+
+  // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
+  // Only used for development
+  async loadUrl(targetPath: string, modal: boolean = false) {
+    if (this.win == null || this.win.isDestroyed()) {
+      await this.createWindow("modal-app");
+      return;
+    }
+
+    await this.desktopSettingsService.setModalMode(modal);
+    await this.win.loadURL(
+      url.format({
+        protocol: "file:",
+        //pathname: `${__dirname}/index.html`,
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        hash: targetPath,
+        query: {
+          redirectUrl: targetPath,
+        },
+      }),
+      {
+        userAgent: cleanUserAgent(this.win.webContents.userAgent),
+      },
+    );
+    this.win.once("ready-to-show", () => {
+      this.win.show();
+    });
+  }
+
+  /**
+   * Creates the main window. The template argument is used to determine the styling of the window and what url will be loaded.
+   * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.
+   * TODO: We might want to refactor the template argument to accomodate more target pages, e.g. ssh-agent.
+   */
+  async createWindow(template: "full-app" | "modal-app" = "full-app"): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
       this.defaultHeight,
@@ -216,30 +285,61 @@ export class WindowMain {
       },
     });
 
+    if (template === "modal-app") {
+      applyPopupModalStyles(this.win);
+    } else {
+      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+    }
+
     this.win.webContents.on("dom-ready", () => {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
+    });
+
+    // Persist zoom changes immediately when user zooms in/out or resets zoom
+    // We can't depend on higher level web events (like close) to do this
+    // because locking the vault resets window state.
+    this.win.webContents.on("zoom-changed", async () => {
+      const newZoom = this.win.webContents.zoomFactor;
+      this.windowStates[mainWindowSizeKey].zoomFactor = newZoom;
+      await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
     });
 
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
       this.win.maximize();
     }
 
-    // Show it later since it might need to be maximized.
     this.win.show();
 
-    // and load the index.html of the app.
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.win.loadURL(
-      url.format({
-        protocol: "file:",
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-      }),
-      {
-        userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      },
-    );
+    if (template === "full-app") {
+      // and load the index.html of the app.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      void this.win.loadURL(
+        url.format({
+          protocol: "file:",
+          pathname: path.join(__dirname, "/index.html"),
+          slashes: true,
+        }),
+        {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        },
+      );
+    } else {
+      // we're in modal mode - load the passkeys page
+      await this.win.loadURL(
+        url.format({
+          protocol: "file:",
+          pathname: path.join(__dirname, "/index.html"),
+          slashes: true,
+          hash: "/passkeys",
+          query: {
+            redirectUrl: "/passkeys",
+          },
+        }),
+        {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        },
+      );
+    }
 
     // Open the DevTools.
     if (isDev()) {
@@ -298,11 +398,15 @@ export class WindowMain {
   }
 
   // Retrieve the background color
-  // Resolves background color missmatch when starting the application.
+  // Resolves background color mismatch when starting the application.
   async getBackgroundColor(): Promise<string> {
     let theme = await this.storageService.get("global_theming_selection");
 
-    if (theme == null || theme === "system") {
+    if (
+      theme == null ||
+      !Object.values(ThemeTypes).includes(theme as Theme) ||
+      theme === "system"
+    ) {
       theme = nativeTheme.shouldUseDarkColors ? "dark" : "light";
     }
 
@@ -311,8 +415,6 @@ export class WindowMain {
         return "#ededed";
       case "dark":
         return "#15181e";
-      case "nord":
-        return "#3b4252";
     }
   }
 
@@ -334,6 +436,12 @@ export class WindowMain {
       return;
     }
 
+    const modalMode = await firstValueFrom(this.desktopSettingsService.modalMode$);
+
+    if (modalMode.isModalModeActive) {
+      return;
+    }
+
     try {
       const bounds = win.getBounds();
 
@@ -344,8 +452,13 @@ export class WindowMain {
         }
       }
 
-      this.windowStates[configKey].isMaximized = win.isMaximized();
+      // We treat fullscreen as maximized (would be even better to store isFullscreen as its own flag).
+      this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
       this.windowStates[configKey].displayBounds = screen.getDisplayMatching(bounds).bounds;
+
+      // Maybe store these as well?
+      // win.isFocused();
+      // win.isVisible();
 
       if (!win.isMaximized() && !win.isMinimized() && !win.isFullScreen()) {
         this.windowStates[configKey].x = bounds.x;

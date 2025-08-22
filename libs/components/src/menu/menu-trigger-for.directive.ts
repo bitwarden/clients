@@ -1,5 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { hasModifierKey } from "@angular/cdk/keycodes";
 import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
@@ -7,9 +6,9 @@ import {
   ElementRef,
   HostBinding,
   HostListener,
-  Input,
   OnDestroy,
   ViewContainerRef,
+  input,
 } from "@angular/core";
 import { Observable, Subscription } from "rxjs";
 import { filter, mergeWith } from "rxjs/operators";
@@ -20,19 +19,19 @@ import { MenuComponent } from "./menu.component";
   selector: "[bitMenuTriggerFor]",
   exportAs: "menuTrigger",
   standalone: true,
+  host: { "[attr.role]": "this.role()" },
 })
 export class MenuTriggerForDirective implements OnDestroy {
   @HostBinding("attr.aria-expanded") isOpen = false;
   @HostBinding("attr.aria-haspopup") get hasPopup(): "menu" | "dialog" {
-    return this.menu?.ariaRole || "menu";
+    return this.menu()?.ariaRole() || "menu";
   }
-  @HostBinding("attr.role")
-  @Input()
-  role = "button";
 
-  @Input("bitMenuTriggerFor") menu: MenuComponent;
+  readonly role = input("button");
 
-  private overlayRef: OverlayRef;
+  readonly menu = input.required<MenuComponent>({ alias: "bitMenuTriggerFor" });
+
+  private overlayRef: OverlayRef | null = null;
   private defaultMenuConfig: OverlayConfig = {
     panelClass: "bit-menu-panel",
     hasBackdrop: true,
@@ -42,25 +41,17 @@ export class MenuTriggerForDirective implements OnDestroy {
       .position()
       .flexibleConnectedTo(this.elementRef)
       .withPositions([
-        {
-          originX: "start",
-          originY: "bottom",
-          overlayX: "start",
-          overlayY: "top",
-        },
-        {
-          originX: "end",
-          originY: "bottom",
-          overlayX: "end",
-          overlayY: "top",
-        },
+        { originX: "start", originY: "bottom", overlayX: "start", overlayY: "top" },
+        { originX: "end", originY: "bottom", overlayX: "end", overlayY: "top" },
+        { originX: "start", originY: "top", overlayX: "start", overlayY: "bottom" },
+        { originX: "end", originY: "top", overlayX: "end", overlayY: "bottom" },
       ])
       .withLockedPosition(true)
       .withFlexibleDimensions(false)
       .withPush(true),
   };
-  private closedEventsSub: Subscription;
-  private keyDownEventsSub: Subscription;
+  private closedEventsSub: Subscription | null = null;
+  private keyDownEventsSub: Subscription | null = null;
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -77,28 +68,38 @@ export class MenuTriggerForDirective implements OnDestroy {
   }
 
   private openMenu() {
-    if (this.menu == null) {
+    const menu = this.menu();
+    if (menu == null) {
       throw new Error("Cannot find bit-menu element");
     }
 
     this.isOpen = true;
     this.overlayRef = this.overlay.create(this.defaultMenuConfig);
 
-    const templatePortal = new TemplatePortal(this.menu.templateRef, this.viewContainerRef);
+    const templatePortal = new TemplatePortal(menu.templateRef(), this.viewContainerRef);
     this.overlayRef.attach(templatePortal);
 
-    this.closedEventsSub = this.getClosedEvents().subscribe((event: KeyboardEvent | undefined) => {
-      if (["Tab", "Escape"].includes(event?.key)) {
-        // Required to ensure tab order resumes correctly
-        this.elementRef.nativeElement.focus();
-      }
-      this.destroyMenu();
-    });
-    if (this.menu.keyManager) {
-      this.menu.keyManager.setFirstItemActive();
+    this.closedEventsSub =
+      this.getClosedEvents()?.subscribe((event: KeyboardEvent | undefined) => {
+        // Closing the menu is handled in this.destroyMenu, so we want to prevent the escape key
+        // from doing its normal default action, which would otherwise cause a parent component
+        // (like a dialog) or extension window to close
+        if (event?.key === "Escape" && !hasModifierKey(event)) {
+          event.preventDefault();
+        }
+
+        if (event?.key && ["Tab", "Escape"].includes(event.key)) {
+          // Required to ensure tab order resumes correctly
+          this.elementRef.nativeElement.focus();
+        }
+        this.destroyMenu();
+      }) ?? null;
+
+    if (menu.keyManager) {
+      menu.keyManager.setFirstItemActive();
       this.keyDownEventsSub = this.overlayRef
         .keydownEvents()
-        .subscribe((event: KeyboardEvent) => this.menu.keyManager.onKeydown(event));
+        .subscribe((event: KeyboardEvent) => this.menu().keyManager?.onKeydown(event));
     }
   }
 
@@ -109,19 +110,22 @@ export class MenuTriggerForDirective implements OnDestroy {
 
     this.isOpen = false;
     this.disposeAll();
-    this.menu.closed.emit();
+    this.menu().closed.emit();
   }
 
-  private getClosedEvents(): Observable<any> {
+  private getClosedEvents(): Observable<any> | null {
+    if (!this.overlayRef) {
+      return null;
+    }
     const detachments = this.overlayRef.detachments();
     const escKey = this.overlayRef.keydownEvents().pipe(
       filter((event: KeyboardEvent) => {
-        const keys = this.menu.ariaRole === "menu" ? ["Escape", "Tab"] : ["Escape"];
+        const keys = this.menu().ariaRole() === "menu" ? ["Escape", "Tab"] : ["Escape"];
         return keys.includes(event.key);
       }),
     );
     const backdrop = this.overlayRef.backdropClick();
-    const menuClosed = this.menu.closed;
+    const menuClosed = this.menu().closed;
 
     return detachments.pipe(mergeWith(escKey, backdrop, menuClosed));
   }

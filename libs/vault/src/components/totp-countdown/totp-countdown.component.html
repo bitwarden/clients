@@ -1,5 +1,5 @@
 <ng-container *ngIf="totpInfo$ | async as totpInfo">
-  <div class="tw-flex tw-items-center tw-justify-center totp-v2">
+  <div class="tw-flex tw-items-center tw-justify-center">
     <span class="tw-relative tw-flex tw-justify-center tw-items-center" aria-hidden="true">
       <span
         class="tw-absolute"
@@ -7,7 +7,7 @@
         bitTypography="helper"
         >{{ totpInfo.totpSec }}</span
       >
-      <svg class="tw-size-7" transform="rotate(-90)">
+      <svg class="tw-size-7" transform="rotate(-90)" viewBox="0 0 28 28">
         <g>
           <circle
             class="tw-fill-none"

@@ -8,7 +8,7 @@ import {
   SecurityTaskData,
   SecurityTaskResponse,
   SecurityTaskStatus,
-} from "@bitwarden/vault";
+} from "@bitwarden/common/vault/tasks";
 
 import { AdminTaskService, CreateTasksRequest } from "./abstractions/admin-task.abstraction";
 

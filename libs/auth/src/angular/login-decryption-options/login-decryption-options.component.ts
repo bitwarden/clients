@@ -10,23 +10,27 @@ import { catchError, defer, firstValueFrom, from, map, of, switchMap, throwError
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   LoginEmailServiceAbstraction,
+  LogoutService,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -37,17 +41,16 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
-
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum State {
   NewUser,
   ExistingUserUntrustedDevice,
 }
 
 @Component({
-  standalone: true,
   templateUrl: "./login-decryption-options.component.html",
   imports: [
     AsyncActionsModule,
@@ -106,6 +109,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private toastService: ToastService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private validationService: ValidationService,
+    private logoutService: LogoutService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -153,19 +157,17 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   private async handleMissingEmail() {
+    // TODO: PM-15174 - the solution for this bug will allow us to show the toast on app re-init after
+    // the user has been logged out and the process reload has occurred.
     this.toastService.showToast({
       variant: "error",
       title: null,
       message: this.i18nService.t("activeUserEmailNotFoundLoggingYouOut"),
     });
 
-    setTimeout(async () => {
-      // We can't simply redirect to `/login` because the user is authed and the unauthGuard
-      // will prevent navigation. We must logout the user first via messagingService, which
-      // redirects to `/`, which will be handled by the redirectGuard to navigate the user to `/login`.
-      // The timeout just gives the user a chance to see the error toast before process reload runs on logout.
-      await this.loginDecryptionOptionsService.logOut();
-    }, 5000);
+    await this.logoutService.logout(this.activeAccountId);
+    // navigate to root so redirect guard can properly route next active user or null user to correct page
+    await this.router.navigate(["/"]);
   }
 
   private observeAndPersistRememberDeviceValueChanges() {
@@ -247,7 +249,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     }
 
     try {
-      const { publicKey, privateKey } = await this.keyService.initAccount();
+      const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
       const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);
       await this.apiService.postAccountKeys(keysRequest);
 
@@ -284,7 +286,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async approveFromOtherDevice() {
-    this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/login-with-device"]);
   }
 
@@ -297,7 +298,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async requestAdminApproval() {
-    this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/admin-approval-requested"]);
   }
 
@@ -311,7 +311,9 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (confirmed) {
-      this.messagingService.send("logout", { userId: userId });
+      await this.logoutService.logout(userId);
+      // navigate to root so redirect guard can properly route next active user or null user to correct page
+      await this.router.navigate(["/"]);
     }
   }
 }

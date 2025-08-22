@@ -25,13 +25,13 @@
         <bit-label> {{ "dontAskFingerprintAgain" | i18n }}</bit-label>
       </bit-form-control>
     </div>
-    <div bitDialogFooter>
+    <ng-container bitDialogFooter>
       <button type="submit" buttonType="primary" bitButton bitFormButton>
         <span>{{ "confirm" | i18n }}</span>
       </button>
       <button bitButton bitFormButton buttonType="secondary" type="button" bitDialogClose>
         {{ "cancel" | i18n }}
       </button>
-    </div>
+    </ng-container>
   </bit-dialog>
 </form>

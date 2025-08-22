@@ -48,14 +48,14 @@ class MockStateService {
 
 @Component({
   selector: "product-switcher",
-  template: `<button type="button" bitIconButton="bwi-filter"></button>`,
+  template: `<button type="button" bitIconButton="bwi-filter" label="Switch products"></button>`,
+  standalone: false,
 })
 class MockProductSwitcher {}
 
 @Component({
   selector: "dynamic-avatar",
   template: `<bit-avatar [text]="name$ | async"></bit-avatar>`,
-  standalone: true,
   imports: [CommonModule, AvatarModule],
 })
 class MockDynamicAvatar implements Partial<DynamicAvatarComponent> {

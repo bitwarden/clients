@@ -1,10 +1,11 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -12,7 +13,6 @@ import {
   IconButtonModule,
   DialogService,
 } from "@bitwarden/components";
-import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 export interface ApproveSshRequestParams {
   cipherName: string;
@@ -24,12 +24,10 @@ export interface ApproveSshRequestParams {
 @Component({
   selector: "app-approve-ssh-request",
   templateUrl: "approve-ssh-request.html",
-  standalone: true,
   imports: [
     DialogModule,
     CommonModule,
     JslibModule,
-    CipherFormGeneratorComponent,
     ButtonModule,
     IconButtonModule,
     ReactiveFormsModule,

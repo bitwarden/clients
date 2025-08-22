@@ -24,7 +24,6 @@ export type CurrentAccount = {
 @Component({
   selector: "app-current-account",
   templateUrl: "current-account.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, AvatarModule, RouterModule],
 })
 export class CurrentAccountComponent {

@@ -2,20 +2,23 @@ import { DestroyRef, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, fromEvent } from "rxjs";
 
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 
-export enum BrowserPromptState {
-  Loading = "loading",
-  Error = "error",
-  Success = "success",
-  ManualOpen = "manualOpen",
-  MobileBrowser = "mobileBrowser",
-}
+export const BrowserPromptState = {
+  Loading: "loading",
+  Error: "error",
+  Success: "success",
+  ManualOpen: "manualOpen",
+  MobileBrowser: "mobileBrowser",
+} as const;
 
-type PromptErrorStates = BrowserPromptState.Error | BrowserPromptState.ManualOpen;
+export type BrowserPromptState = UnionOfValues<typeof BrowserPromptState>;
+
+type PromptErrorStates = typeof BrowserPromptState.Error | typeof BrowserPromptState.ManualOpen;
 
 @Injectable({
   providedIn: "root",
@@ -54,8 +57,18 @@ export class BrowserExtensionPromptService {
   }
 
   /** Post a message to the extension to open */
-  openExtension() {
-    window.postMessage({ command: VaultMessages.OpenPopup });
+  openExtension(setManualErrorTimeout = false) {
+    window.postMessage({ command: VaultMessages.OpenAtRiskPasswords });
+
+    // Optionally, configure timeout to show the manual open error state if
+    // the extension does not open within one second.
+    if (setManualErrorTimeout) {
+      this.clearExtensionCheckTimeout();
+
+      this.extensionCheckTimeout = window.setTimeout(() => {
+        this.setErrorState(BrowserPromptState.ManualOpen);
+      }, 750);
+    }
   }
 
   /** Send message checking for the browser extension */

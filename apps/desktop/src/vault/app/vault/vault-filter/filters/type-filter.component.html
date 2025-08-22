@@ -20,79 +20,20 @@
   </h2>
 </div>
 <ul id="type-filters" *ngIf="!isCollapsed" class="filter-options">
-  <li
-    class="filter-option"
-    [ngClass]="{ active: activeFilter.cipherType === cipherTypeEnum.Login }"
-  >
-    <span class="filter-buttons">
-      <button
-        type="button"
-        class="filter-button"
-        (click)="applyFilter(cipherTypeEnum.Login)"
-        [attr.aria-pressed]="activeFilter.cipherType === cipherTypeEnum.Login"
-      >
-        <i class="bwi bwi-fw bwi-globe" aria-hidden="true"></i>&nbsp;{{ "typeLogin" | i18n }}
-      </button>
-    </span>
-  </li>
-  <li class="filter-option" [ngClass]="{ active: activeFilter.cipherType === cipherTypeEnum.Card }">
-    <span class="filter-buttons">
-      <button
-        type="button"
-        class="filter-button"
-        (click)="applyFilter(cipherTypeEnum.Card)"
-        [attr.aria-pressed]="activeFilter.cipherType === cipherTypeEnum.Card"
-      >
-        <i class="bwi bwi-fw bwi-credit-card" aria-hidden="true"></i>&nbsp;{{ "typeCard" | i18n }}
-      </button>
-    </span>
-  </li>
-  <li
-    class="filter-option"
-    [ngClass]="{ active: activeFilter.cipherType === cipherTypeEnum.Identity }"
-  >
-    <span class="filter-buttons">
-      <button
-        type="button"
-        class="filter-button"
-        (click)="applyFilter(cipherTypeEnum.Identity)"
-        [attr.aria-pressed]="activeFilter.cipherType === cipherTypeEnum.Identity"
-      >
-        <i class="bwi bwi-fw bwi-id-card" aria-hidden="true"></i>&nbsp;{{ "typeIdentity" | i18n }}
-      </button>
-    </span>
-  </li>
-  <li
-    class="filter-option"
-    [ngClass]="{ active: activeFilter.cipherType === cipherTypeEnum.SecureNote }"
-  >
-    <span class="filter-buttons">
-      <button
-        type="button"
-        class="filter-button"
-        (click)="applyFilter(cipherTypeEnum.SecureNote)"
-        [attr.aria-pressed]="activeFilter.cipherType === cipherTypeEnum.SecureNote"
-      >
-        <i class="bwi bwi-fw bwi-sticky-note" aria-hidden="true"></i>&nbsp;{{
-          "typeSecureNote" | i18n
-        }}
-      </button>
-    </span>
-  </li>
-  <li
-    class="filter-option"
-    [ngClass]="{ active: activeFilter.cipherType === cipherTypeEnum.SshKey }"
-    *ngIf="isSshKeysEnabled"
-  >
-    <span class="filter-buttons">
-      <button
-        type="button"
-        class="filter-button"
-        (click)="applyFilter(cipherTypeEnum.SshKey)"
-        [attr.aria-pressed]="activeFilter.cipherType === cipherTypeEnum.SshKey"
-      >
-        <i class="bwi bwi-fw bwi-key" aria-hidden="true"></i>&nbsp;{{ "typeSshKey" | i18n }}
-      </button>
-    </span>
-  </li>
+  @for (typeFilter of typeFilters$ | async; track typeFilter) {
+    <li class="filter-option" [ngClass]="{ active: activeFilter.cipherType === typeFilter.type }">
+      <span class="filter-buttons">
+        <button
+          type="button"
+          class="filter-button"
+          (click)="applyFilter(typeFilter.type)"
+          [attr.aria-pressed]="activeFilter.cipherType === typeFilter.type"
+        >
+          <i class="bwi bwi-fw {{ typeFilter.icon }}" aria-hidden="true"></i>&nbsp;{{
+            typeFilter.labelKey | i18n
+          }}
+        </button>
+      </span>
+    </li>
+  }
 </ul>

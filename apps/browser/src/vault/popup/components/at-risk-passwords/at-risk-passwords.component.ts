@@ -1,7 +1,19 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { combineLatest, firstValueFrom, map, of, shareReplay, startWith, switchMap } from "rxjs";
+import {
+  combineLatest,
+  concat,
+  concatMap,
+  firstValueFrom,
+  map,
+  of,
+  shareReplay,
+  startWith,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -15,6 +27,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
+import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BadgeModule,
   ButtonModule,
@@ -28,10 +43,7 @@ import {
 import {
   ChangeLoginPasswordService,
   DefaultChangeLoginPasswordService,
-  filterOutNullish,
   PasswordRepromptService,
-  SecurityTaskType,
-  TaskService,
   VaultCarouselModule,
 } from "@bitwarden/vault";
 
@@ -65,7 +77,6 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
   selector: "vault-at-risk-passwords",
-  standalone: true,
   templateUrl: "./at-risk-passwords.component.html",
 })
 export class AtRiskPasswordsComponent implements OnInit {
@@ -82,6 +93,8 @@ export class AtRiskPasswordsComponent implements OnInit {
   private changeLoginPasswordService = inject(ChangeLoginPasswordService);
   private platformUtilsService = inject(PlatformUtilsService);
   private dialogService = inject(DialogService);
+  private endUserNotificationService = inject(EndUserNotificationService);
+  private destroyRef = inject(DestroyRef);
 
   /**
    * The cipher that is currently being launched. Used to show a loading spinner on the badge button.
@@ -139,32 +152,35 @@ export class AtRiskPasswordsComponent implements OnInit {
           (t) =>
             t.type === SecurityTaskType.UpdateAtRiskCredential &&
             t.cipherId != null &&
-            ciphers[t.cipherId] != null,
+            ciphers[t.cipherId] != null &&
+            !ciphers[t.cipherId].isDeleted,
         )
         .map((t) => ciphers[t.cipherId!]),
     ),
   );
 
-  protected pageDescription$ = this.activeUserData$.pipe(
-    switchMap(({ tasks, userId }) => {
-      const orgIds = new Set(tasks.map((t) => t.organizationId));
+  protected pageDescription$ = combineLatest([this.activeUserData$, this.atRiskItems$]).pipe(
+    switchMap(([{ userId }, atRiskCiphers]) => {
+      const orgIds = new Set(
+        atRiskCiphers.filter((c) => c.organizationId).map((c) => c.organizationId),
+      ) as Set<string>;
       if (orgIds.size === 1) {
         const [orgId] = orgIds;
         return this.organizationService.organizations$(userId).pipe(
           getOrganizationById(orgId),
           map((org) =>
             this.i18nService.t(
-              tasks.length === 1
+              atRiskCiphers.length === 1
                 ? "atRiskPasswordDescSingleOrg"
                 : "atRiskPasswordsDescSingleOrgPlural",
               org?.name,
-              tasks.length,
+              atRiskCiphers.length,
             ),
           ),
         );
       }
 
-      return of(this.i18nService.t("atRiskPasswordsDescMultiOrgPlural", tasks.length));
+      return of(this.i18nService.t("atRiskPasswordsDescMultiOrgPlural", atRiskCiphers.length));
     }),
   );
 
@@ -181,6 +197,34 @@ export class AtRiskPasswordsComponent implements OnInit {
         await this.atRiskPasswordPageService.dismissGettingStarted(userId);
       }
     }
+
+    this.markTaskNotificationsAsRead();
+  }
+
+  private markTaskNotificationsAsRead() {
+    this.activeUserData$
+      .pipe(
+        switchMap(({ tasks, userId }) => {
+          return this.endUserNotificationService.unreadNotifications$(userId).pipe(
+            take(1),
+            map((notifications) => {
+              return notifications.filter((notification) => {
+                return tasks.some((task) => task.id === notification.taskId);
+              });
+            }),
+            concatMap((unreadTaskNotifications) => {
+              // TODO: Investigate creating a bulk endpoint to mark notifications as read
+              return concat(
+                ...unreadTaskNotifications.map((n) =>
+                  this.endUserNotificationService.markAsRead(n.id, userId),
+                ),
+              );
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   async viewCipher(cipher: CipherView) {
@@ -223,4 +267,13 @@ export class AtRiskPasswordsComponent implements OnInit {
       this.launchingCipher.set(null);
     }
   };
+
+  /**
+   * This page can be the first page the user sees when the extension launches,
+   * which can conflict with the `PopupRouterCacheService`. This replaces the
+   * built-in back button behavior so the user always navigates to the vault.
+   */
+  protected async navigateToVault() {
+    await this.router.navigate(["/tabs/vault"]);
+  }
 }

@@ -16,7 +16,6 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -27,10 +26,8 @@ import { CipherFormContainer } from "../../cipher-form-container";
 @Component({
   selector: "vault-card-details-section",
   templateUrl: "./card-details-section.component.html",
-  standalone: true,
   imports: [
     CardComponent,
-    SectionComponent,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,
@@ -97,6 +94,10 @@ export class CardDetailsSectionComponent implements OnInit {
 
   EventType = EventType;
 
+  get initialValues() {
+    return this.cipherFormContainer.config.initialValues;
+  }
+
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
@@ -139,12 +140,34 @@ export class CardDetailsSectionComponent implements OnInit {
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 
     if (prefillCipher) {
-      this.setInitialValues(prefillCipher);
+      this.initFromExistingCipher(prefillCipher.card);
+    } else {
+      this.initNewCipher();
     }
 
     if (this.disabled) {
       this.cardDetailsForm.disable();
     }
+  }
+
+  private initFromExistingCipher(existingCard: CardView) {
+    this.cardDetailsForm.patchValue({
+      cardholderName: this.initialValues?.cardholderName ?? existingCard.cardholderName,
+      number: this.initialValues?.number ?? existingCard.number,
+      expMonth: this.initialValues?.expMonth ?? existingCard.expMonth,
+      expYear: this.initialValues?.expYear ?? existingCard.expYear,
+      code: this.initialValues?.code ?? existingCard.code,
+    });
+  }
+
+  private initNewCipher() {
+    this.cardDetailsForm.patchValue({
+      cardholderName: this.initialValues?.cardholderName || "",
+      number: this.initialValues?.number || "",
+      expMonth: this.initialValues?.expMonth || "",
+      expYear: this.initialValues?.expYear || "",
+      code: this.initialValues?.code || "",
+    });
   }
 
   /** Get the section heading based on the card brand */

@@ -28,7 +28,6 @@ import { LastPassDirectImportService } from "./lastpass-direct-import.service";
 @Component({
   selector: "import-lastpass",
   templateUrl: "import-lastpass.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

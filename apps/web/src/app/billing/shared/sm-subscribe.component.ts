@@ -5,12 +5,11 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Subject, startWith, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
+import { SecretsManagerAlt } from "@bitwarden/assets/svg";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-
-import { SecretsManagerLogo } from "../../layouts/secrets-manager-logo";
 
 export interface SecretsManagerSubscription {
   enabled: boolean;
@@ -33,6 +32,7 @@ export const secretsManagerSubscribeFormFactory = (
 @Component({
   selector: "sm-subscribe",
   templateUrl: "sm-subscribe.component.html",
+  standalone: false,
 })
 export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   @Input() formGroup: FormGroup<ControlsOf<SecretsManagerSubscription>>;
@@ -41,7 +41,7 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   @Input() selectedPlan: PlanResponse;
   @Input() customerDiscount: BillingCustomerDiscount;
 
-  logo = SecretsManagerLogo;
+  logo = SecretsManagerAlt;
   productTypes = ProductTierType;
 
   private destroy$ = new Subject<void>();

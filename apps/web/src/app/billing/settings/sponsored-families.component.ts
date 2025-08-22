@@ -36,6 +36,7 @@ interface RequestSponsorshipForm {
 @Component({
   selector: "app-sponsored-families",
   templateUrl: "sponsored-families.component.html",
+  standalone: false,
 })
 export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
   loading = false;
@@ -89,7 +90,7 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
 
     this.availableSponsorshipOrgs$ = combineLatest([
       this.organizationService.organizations$(userId),
-      this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+      this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
     ]).pipe(
       map(([organizations, policies]) =>
         organizations
@@ -112,13 +113,15 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
         });
       }
     });
-
     this.anyOrgsAvailable$ = this.availableSponsorshipOrgs$.pipe(map((orgs) => orgs.length > 0));
 
     this.activeSponsorshipOrgs$ = this.organizationService
       .organizations$(userId)
-      .pipe(map((orgs) => orgs.filter((o) => o.familySponsorshipFriendlyName !== null)));
-
+      .pipe(
+        map((orgs) =>
+          orgs.filter((o) => o.familySponsorshipFriendlyName !== null && !o.isAdminInitiated),
+        ),
+      );
     this.anyActiveSponsorships$ = this.activeSponsorshipOrgs$.pipe(map((orgs) => orgs.length > 0));
 
     this.loading = false;

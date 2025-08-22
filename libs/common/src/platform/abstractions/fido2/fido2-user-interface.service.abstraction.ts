@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 /**
  * Parameters used to ask the user to confirm the creation of a new credential.
  */
@@ -69,11 +67,11 @@ export abstract class Fido2UserInterfaceService<ParentWindowReference> {
    * @param fallbackSupported Whether or not the browser natively supports WebAuthn.
    * @param abortController An abort controller that can be used to cancel/close the session.
    */
-  newSession: (
+  abstract newSession(
     fallbackSupported: boolean,
     window: ParentWindowReference,
     abortController?: AbortController,
-  ) => Promise<Fido2UserInterfaceSession>;
+  ): Promise<Fido2UserInterfaceSession>;
 }
 
 export abstract class Fido2UserInterfaceSession {
@@ -82,11 +80,11 @@ export abstract class Fido2UserInterfaceSession {
    *
    * @param params The parameters to use when asking the user to pick a credential.
    * @param abortController An abort controller that can be used to cancel/close the session.
-   * @returns The ID of the cipher that contains the credentials the user picked.
+   * @returns The ID of the cipher that contains the credentials the user picked. If not cipher was picked, return cipherId = undefined to to let the authenticator throw the error.
    */
-  pickCredential: (
+  abstract pickCredential(
     params: PickCredentialParams,
-  ) => Promise<{ cipherId: string; userVerified: boolean }>;
+  ): Promise<{ cipherId: string; userVerified: boolean }>;
 
   /**
    * Ask the user to confirm the creation of a new credential.
@@ -95,30 +93,30 @@ export abstract class Fido2UserInterfaceSession {
    * @param abortController An abort controller that can be used to cancel/close the session.
    * @returns The ID of the cipher where the new credential should be saved.
    */
-  confirmNewCredential: (
+  abstract confirmNewCredential(
     params: NewCredentialParams,
-  ) => Promise<{ cipherId: string; userVerified: boolean }>;
+  ): Promise<{ cipherId: string; userVerified: boolean }>;
 
   /**
    * Make sure that the vault is unlocked.
    * This will open a window and ask the user to login or unlock the vault if necessary.
    */
-  ensureUnlockedVault: () => Promise<void>;
+  abstract ensureUnlockedVault(): Promise<void>;
 
   /**
    * Inform the user that the operation was cancelled because their vault contains excluded credentials.
    *
    * @param existingCipherIds The IDs of the excluded credentials.
    */
-  informExcludedCredential: (existingCipherIds: string[]) => Promise<void>;
+  abstract informExcludedCredential(existingCipherIds: string[]): Promise<void>;
 
   /**
    * Inform the user that the operation was cancelled because their vault does not contain any useable credentials.
    */
-  informCredentialNotFound: (abortController?: AbortController) => Promise<void>;
+  abstract informCredentialNotFound(abortController?: AbortController): Promise<void>;
 
   /**
    * Close the session, including any windows that may be open.
    */
-  close: () => void;
+  abstract close(): void;
 }

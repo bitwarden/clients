@@ -25,6 +25,8 @@ export interface VaultAttributes {
   type: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CategoryEnum {
   Login = "001",
   CreditCard = "002",
@@ -67,6 +69,8 @@ export interface Details {
   password?: string | null;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LoginFieldTypeEnum {
   TextOrHtml = "T",
   EmailAddress = "E",

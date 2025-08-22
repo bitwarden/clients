@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { firstValueFrom, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -10,22 +10,29 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UpdateProfileRequest } from "@bitwarden/common/auth/models/request/update-profile.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserPublicKey } from "@bitwarden/common/types/key";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
+
+import { DynamicAvatarComponent } from "../../../components/dynamic-avatar.component";
+import { SharedModule } from "../../../shared";
+import { AccountFingerprintComponent } from "../../../shared/components/account-fingerprint/account-fingerprint.component";
 
 import { ChangeAvatarDialogComponent } from "./change-avatar-dialog.component";
 
 @Component({
   selector: "app-profile",
   templateUrl: "profile.component.html",
+  imports: [SharedModule, DynamicAvatarComponent, AccountFingerprintComponent],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   loading = true;
   profile: ProfileResponse;
   fingerprintMaterial: string;
+  userPublicKey: UserPublicKey;
   managingOrganization$: Observable<Organization>;
   private destroy$ = new Subject<void>();
 
@@ -40,34 +47,32 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private dialogService: DialogService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private organizationService: OrganizationService,
+    private keyService: KeyService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
     this.profile = await this.apiService.getProfile();
-    this.loading = false;
-    this.fingerprintMaterial = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    this.managingOrganization$ = this.configService
-      .getFeatureFlag$(FeatureFlag.AccountDeprovisioning)
-      .pipe(
-        switchMap((isAccountDeprovisioningEnabled) =>
-          isAccountDeprovisioningEnabled
-            ? this.organizationService
-                .organizations$(userId)
-                .pipe(
-                  map((organizations) =>
-                    organizations.find((o) => o.userIsManagedByOrganization === true),
-                  ),
-                )
-            : of(null),
-        ),
+    this.fingerprintMaterial = userId;
+    const publicKey = await firstValueFrom(this.keyService.userPublicKey$(userId));
+    if (publicKey == null) {
+      this.logService.error(
+        "[ProfileComponent] No public key available for the user: " +
+          userId +
+          " fingerprint can't be displayed.",
       );
+    } else {
+      this.userPublicKey = publicKey;
+    }
+
+    this.managingOrganization$ = this.organizationService
+      .organizations$(userId)
+      .pipe(
+        map((organizations) => organizations.find((o) => o.userIsManagedByOrganization === true)),
+      );
+
     this.formGroup.get("name").setValue(this.profile.name);
     this.formGroup.get("email").setValue(this.profile.email);
 
@@ -77,6 +82,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .subscribe((name) => {
         this.profile.name = name;
       });
+
+    this.loading = false;
   }
 
   openChangeAvatar = async () => {

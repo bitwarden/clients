@@ -12,7 +12,7 @@
     <div bitDialogContent>
       <ng-container *ngIf="loading">
         <i
-          class="bwi bwi-spinner bwi-spin text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -134,17 +134,11 @@
                       type="checkbox"
                       bitCheckbox
                       formControlName="manageUsers"
-                      (change)="handleDependentPermissions()"
                     />
                     <bit-label>{{ "manageUsers" | i18n }}</bit-label>
                   </bit-form-control>
                   <bit-form-control>
-                    <input
-                      type="checkbox"
-                      bitCheckbox
-                      formControlName="manageResetPassword"
-                      (change)="handleDependentPermissions()"
-                    />
+                    <input type="checkbox" bitCheckbox formControlName="manageResetPassword" />
                     <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
                   </bit-form-control>
                 </div>
@@ -177,10 +171,16 @@
               </bit-label>
             </bit-form-control>
           </ng-container>
-          <bit-form-field>
+          <bit-form-field *ngIf="isExternalIdVisible">
             <bit-label>{{ "externalId" | i18n }}</bit-label>
             <input bitInput type="text" formControlName="externalId" />
             <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
+          </bit-form-field>
+
+          <bit-form-field *ngIf="isSsoExternalIdVisible">
+            <bit-label>{{ "ssoExternalId" | i18n }}</bit-label>
+            <input bitInput type="text" formControlName="ssoExternalId" />
+            <bit-hint>{{ "ssoExternalIdDesc" | i18n }}</bit-hint>
           </bit-form-field>
         </bit-tab>
         <bit-tab *ngIf="organization.useGroups" [label]="'groups' | i18n">
@@ -269,11 +269,7 @@
           {{ "revoke" | i18n }}
         </button>
         <button
-          *ngIf="
-            this.editMode &&
-            (!(accountDeprovisioningEnabled$ | async) ||
-              !(editParams$ | async)?.managedByOrganization)
-          "
+          *ngIf="this.editMode && !(editParams$ | async)?.managedByOrganization"
           type="button"
           buttonType="danger"
           bitButton
@@ -284,11 +280,7 @@
           {{ "remove" | i18n }}
         </button>
         <button
-          *ngIf="
-            this.editMode &&
-            (accountDeprovisioningEnabled$ | async) &&
-            (editParams$ | async)?.managedByOrganization
-          "
+          *ngIf="this.editMode && (editParams$ | async)?.managedByOrganization"
           type="button"
           buttonType="danger"
           bitButton

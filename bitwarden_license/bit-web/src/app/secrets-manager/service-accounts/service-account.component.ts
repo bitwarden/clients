@@ -18,6 +18,7 @@ import { ServiceAccountService } from "./service-account.service";
 @Component({
   selector: "sm-service-account",
   templateUrl: "./service-account.component.html",
+  standalone: false,
 })
 export class ServiceAccountComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

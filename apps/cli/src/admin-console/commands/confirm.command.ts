@@ -1,13 +1,23 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { firstValueFrom, map, switchMap } from "rxjs";
+
 import {
   OrganizationUserApiService,
   OrganizationUserConfirmRequest,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+import { EncString } from "@bitwarden/sdk-internal";
 
 import { Response } from "../../models/response";
 
@@ -17,6 +27,9 @@ export class ConfirmCommand {
     private keyService: KeyService,
     private encryptService: EncryptService,
     private organizationUserApiService: OrganizationUserApiService,
+    private accountService: AccountService,
+    private configService: ConfigService,
+    private i18nService: I18nService,
   ) {}
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -44,7 +57,14 @@ export class ConfirmCommand {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
     try {
-      const orgKey = await this.keyService.getOrgKey(options.organizationId);
+      const orgKey = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.keyService.orgKeys$(userId)),
+          map((orgKeys) => orgKeys[options.organizationId as OrganizationId] ?? null),
+        ),
+      );
+
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
@@ -57,9 +77,14 @@ export class ConfirmCommand {
       }
       const publicKeyResponse = await this.apiService.getUserPublicKey(orgUser.userId);
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-      const key = await this.encryptService.rsaEncrypt(orgKey.key, publicKey);
+      const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
       const req = new OrganizationUserConfirmRequest();
       req.key = key.encryptedString;
+      if (
+        await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
+      ) {
+        req.defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
+      }
       await this.organizationUserApiService.postOrganizationUserConfirm(
         options.organizationId,
         id,
@@ -69,6 +94,12 @@ export class ConfirmCommand {
     } catch (e) {
       return Response.error(e);
     }
+  }
+
+  private async getEncryptedDefaultUserCollectionName(orgKey: OrgKey): Promise<EncString> {
+    const defaultCollectionName = this.i18nService.t("myItems");
+    const encrypted = await this.encryptService.encryptString(defaultCollectionName, orgKey);
+    return encrypted.encryptedString;
   }
 }
 

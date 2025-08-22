@@ -51,14 +51,54 @@
       <h2 class="tw-mb-3 tw-text-base tw-font-semibold">{{ "paymentType" | i18n }}</h2>
       <app-payment [showAccountCredit]="false"></app-payment>
       <app-manage-tax-information
-        (taxInformationChanged)="changedCountry()"
+        [showTaxIdField]="showTaxIdField"
+        (taxInformationChanged)="onTaxInformationChanged()"
       ></app-manage-tax-information>
+
+      @if (trialLength === 0) {
+        @let priceLabel =
+          subscriptionProduct === SubscriptionProduct.PasswordManager
+            ? "passwordManagerPlanPrice"
+            : "secretsManagerPlanPrice";
+
+        <div id="price" class="tw-my-4">
+          <div class="tw-text-muted tw-text-base">
+            {{ priceLabel | i18n }}: {{ getPriceFor(formGroup.value.cadence) | currency: "USD $" }}
+            <div>
+              {{ "estimatedTax" | i18n }}:
+              @if (fetchingTaxAmount) {
+                <ng-container *ngTemplateOutlet="loadingSpinner" />
+              } @else {
+                {{ taxAmount | currency: "USD $" }}
+              }
+            </div>
+          </div>
+          <hr class="tw-my-1 tw-grid tw-grid-cols-3 tw-ml-0" />
+          <p class="tw-text-lg">
+            <strong>{{ "total" | i18n }}: </strong>
+            @if (fetchingTaxAmount) {
+              <ng-container *ngTemplateOutlet="loadingSpinner" />
+            } @else {
+              {{ total | currency: "USD $" }}/{{ interval | i18n }}
+            }
+          </p>
+        </div>
+      }
     </div>
     <div class="tw-flex tw-space-x-2">
       <button type="submit" buttonType="primary" bitButton [loading]="form.loading">
-        {{ "startTrial" | i18n }}
+        {{ (trialLength > 0 ? "startTrial" : "submit") | i18n }}
       </button>
       <button bitButton type="button" buttonType="secondary" (click)="stepBack()">Back</button>
     </div>
   </div>
 </form>
+
+<ng-template #loadingSpinner>
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</ng-template>

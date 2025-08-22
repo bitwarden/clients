@@ -38,15 +38,22 @@
       </div>
       <div *ngIf="managingOrganization$ | async as managingOrganization">
         {{ "accountIsOwnedMessage" | i18n: managingOrganization?.name }}
-        <a href="https://bitwarden.com/help/claimed-accounts">
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://bitwarden.com/help/claimed-accounts"
+        >
           <i class="bwi bwi-question-circle" aria-hidden="true"></i>
         </a>
       </div>
-      <app-account-fingerprint
-        [fingerprintMaterial]="fingerprintMaterial"
-        fingerprintLabel="{{ 'yourAccountsFingerprint' | i18n }}"
-      >
-      </app-account-fingerprint>
+      @if (fingerprintMaterial && userPublicKey) {
+        <app-account-fingerprint
+          [fingerprintMaterial]="fingerprintMaterial"
+          [publicKeyBuffer]="userPublicKey"
+          fingerprintLabel="{{ 'yourAccountsFingerprint' | i18n }}"
+        >
+        </app-account-fingerprint>
+      }
     </div>
   </div>
   <button bitButton bitFormButton type="submit" buttonType="primary">{{ "save" | i18n }}</button>

@@ -102,7 +102,7 @@ describe("LoginCredentialsViewComponent", () => {
       const usernameCopyButton = usernameField.query(By.directive(CopyClickDirective));
       const usernameCopyClickDirective = usernameCopyButton.injector.get(CopyClickDirective);
 
-      expect(usernameCopyClickDirective.valueToCopy).toBe(cipher.login.username);
+      expect(usernameCopyClickDirective.valueToCopy()).toBe(cipher.login.username);
     });
   });
 
@@ -136,7 +136,7 @@ describe("LoginCredentialsViewComponent", () => {
         const passwordCopyButton = passwordField.query(By.directive(CopyClickDirective));
         const passwordCopyClickDirective = passwordCopyButton.injector.get(CopyClickDirective);
 
-        expect(passwordCopyClickDirective.valueToCopy).toBe(cipher.login.password);
+        expect(passwordCopyClickDirective.valueToCopy()).toBe(cipher.login.password);
       });
     });
 
@@ -168,7 +168,7 @@ describe("LoginCredentialsViewComponent", () => {
 
         const passwordColor = passwordField.query(By.directive(ColorPasswordComponent));
 
-        expect(passwordColor.componentInstance.password).toBe(cipher.login.password);
+        expect(passwordColor.componentInstance.password()).toBe(cipher.login.password);
       });
 
       it("records event", () => {

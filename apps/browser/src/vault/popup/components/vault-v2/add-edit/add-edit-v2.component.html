@@ -2,7 +2,7 @@
   <popup-header
     slot="header"
     [pageTitle]="headerText"
-    [backAction]="handleBackButton.bind(this)"
+    [backAction]="handleBackButton"
     showBackButton
   >
     <app-pop-out slot="end" />
@@ -27,6 +27,10 @@
       {{ "save" | i18n }}
     </button>
 
+    <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
+      {{ "cancel" | i18n }}
+    </button>
+
     <button
       slot="end"
       *ngIf="canDeleteCipher$ | async"
@@ -34,7 +38,7 @@
       type="button"
       buttonType="danger"
       bitIconButton="bwi-trash"
-      [appA11yTitle]="'delete' | i18n"
+      [label]="'delete' | i18n"
     ></button>
   </popup-footer>
 </popup-page>

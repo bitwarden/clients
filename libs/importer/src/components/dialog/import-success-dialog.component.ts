@@ -1,10 +1,16 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ButtonModule, DialogModule, TableDataSource, TableModule } from "@bitwarden/components";
+import {
+  DialogRef,
+  DIALOG_DATA,
+  ButtonModule,
+  DialogModule,
+  TableDataSource,
+  TableModule,
+} from "@bitwarden/components";
 
 import { ImportResult } from "../../models";
 
@@ -16,7 +22,6 @@ export interface ResultList {
 
 @Component({
   templateUrl: "./import-success-dialog.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, DialogModule, TableModule, ButtonModule],
 })
 export class ImportSuccessDialogComponent implements OnInit {

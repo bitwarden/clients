@@ -1,9 +1,27 @@
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
   ContentMessageWindowData,
   ContentMessageWindowEventHandlers,
 } from "./abstractions/content-message-handler";
+
+/**
+ * Handlers for window messages from the content script.
+ * NOTE: These handlers should be above the event listener to ensure they are defined before being used.
+ */
+const windowMessageHandlers: ContentMessageWindowEventHandlers = {
+  authResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handleAuthResultMessage(data, referrer),
+  webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handleWebAuthnResultMessage(data, referrer),
+  [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
+  duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
+    handleDuoResultMessage(data, referrer),
+  [VaultMessages.OpenAtRiskPasswords]: () => handleOpenAtRiskPasswordsMessage(),
+  [VaultMessages.OpenBrowserExtensionToUrl]: ({ data }) =>
+    handleOpenBrowserExtensionToUrlMessage(data),
+};
 
 /**
  * IMPORTANT: Safari seems to have a bug where it doesn't properly handle
@@ -17,20 +35,6 @@ setupExtensionDisconnectAction(() => {
   window.removeEventListener("message", handleWindowMessageEvent);
   chrome.runtime.onMessage.removeListener(handleExtensionMessage);
 });
-
-/**
- * Handlers for window messages from the content script.
- */
-const windowMessageHandlers: ContentMessageWindowEventHandlers = {
-  authResult: ({ data, referrer }: { data: any; referrer: string }) =>
-    handleAuthResultMessage(data, referrer),
-  webAuthnResult: ({ data, referrer }: { data: any; referrer: string }) =>
-    handleWebAuthnResultMessage(data, referrer),
-  [VaultMessages.checkBwInstalled]: () => handleExtensionInstallCheck(),
-  duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
-    handleDuoResultMessage(data, referrer),
-  [VaultMessages.OpenPopup]: () => handleOpenPopupMessage(),
-};
 
 /**
  * Handles the post to the web vault showing the extension has been installed
@@ -72,8 +76,13 @@ function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: s
   sendExtensionRuntimeMessage({ command, data: data.data, remember, referrer });
 }
 
-function handleOpenPopupMessage() {
-  sendExtensionRuntimeMessage({ command: VaultMessages.OpenPopup });
+/** @deprecated use {@link handleOpenBrowserExtensionToUrlMessage} */
+function handleOpenAtRiskPasswordsMessage() {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
+}
+
+function handleOpenBrowserExtensionToUrlMessage({ url }: { url?: ExtensionPageUrls }) {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url });
 }
 
 /**

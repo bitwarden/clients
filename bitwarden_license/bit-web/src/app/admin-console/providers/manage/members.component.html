@@ -55,7 +55,7 @@
     >
       {{ "providerUsersNeedConfirmed" | i18n }}
     </bit-callout>
-    <cdk-virtual-scroll-viewport scrollWindow [itemSize]="rowHeight" class="tw-pb-8">
+    <cdk-virtual-scroll-viewport bitScrollLayout [itemSize]="rowHeight" class="tw-pb-8">
       <bit-table [dataSource]="dataSource">
         <ng-container header>
           <tr>
@@ -79,7 +79,7 @@
                 type="button"
                 bitIconButton="bwi-ellipsis-v"
                 size="small"
-                appA11yTitle="{{ 'options' | i18n }}"
+                label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #headerMenu>
                 <button
@@ -177,7 +177,7 @@
                 type="button"
                 bitIconButton="bwi-ellipsis-v"
                 size="small"
-                appA11yTitle="{{ 'options' | i18n }}"
+                label="{{ 'options' | i18n }}"
               ></button>
               <bit-menu #rowMenu>
                 <button

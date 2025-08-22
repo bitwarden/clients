@@ -2,14 +2,12 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
-import { EmailIcon } from "../icons/email.icon";
-import { RecoveryCodeIcon } from "../icons/recovery.icon";
-import { TOTPIcon } from "../icons/totp.icon";
-import { WebAuthnIcon } from "../icons/webauthn.icon";
+import { EmailIcon, RecoveryCodeIcon, TOTPIcon, WebAuthnIcon } from "@bitwarden/assets/svg";
 
 @Component({
   selector: "auth-two-factor-icon",
   templateUrl: "./two-factor-icon.component.html",
+  standalone: false,
 })
 export class TwoFactorIconComponent {
   @Input() provider: any;

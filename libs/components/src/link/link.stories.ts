@@ -1,5 +1,7 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+
 import { AnchorLinkDirective, ButtonLinkDirective } from "./link.directive";
 import { LinkModule } from "./link.module";
 
@@ -27,6 +29,14 @@ export default {
 type Story = StoryObj<ButtonLinkDirective>;
 
 export const Default: Story = {
+  render: (args) => ({
+    template: /*html*/ `
+      <a bitLink ${formatArgsForCodeSnippet<ButtonLinkDirective>(args)}>Your text here</a>
+    `,
+  }),
+};
+
+export const InteractionStates: Story = {
   render: () => ({
     template: /*html*/ `
       <div class="tw-flex tw-gap-4 tw-p-2 tw-mb-6">
@@ -63,22 +73,22 @@ export const Buttons: Story = {
     template: /*html*/ `
     <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-primary-600': linkType === 'contrast' }">
       <div class="tw-block tw-p-2">
-        <button bitLink [linkType]="linkType">Button</button>
+        <button type="button" bitLink [linkType]="linkType">Button</button>
       </div>
       <div class="tw-block tw-p-2">
-        <button bitLink [linkType]="linkType">
+        <button type="button" bitLink [linkType]="linkType">
           <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
           Add Icon Button
         </button>
       </div>
       <div class="tw-block tw-p-2">
-        <button bitLink [linkType]="linkType">
+        <button type="button" bitLink [linkType]="linkType">
           <i class="bwi bwi-fw bwi-sm bwi-angle-right" aria-hidden="true"></i>
           Chevron Icon Button
         </button>
       </div>
       <div class="tw-block tw-p-2">
-        <button bitLink [linkType]="linkType" class="tw-text-sm">Small Button</button>
+        <button type="button" bitLink [linkType]="linkType" class="tw-text-sm">Small Button</button>
       </div>
     </div>
     `,
@@ -124,7 +134,7 @@ export const Inline: Story = {
     props: args,
     template: /*html*/ `
       <span class="tw-text-main">
-        On the internet paragraphs often contain <a bitLink href="#">inline links</a>, but few know that <button bitLink>buttons</button> can be used for similar purposes.
+        On the internet paragraphs often contain <a bitLink href="#">inline links</a>, but few know that <button type="button" bitLink>buttons</button> can be used for similar purposes.
       </span>
     `,
   }),
@@ -137,10 +147,10 @@ export const Disabled: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button bitLink disabled linkType="primary" class="tw-mr-2">Primary</button>
-      <button bitLink disabled linkType="secondary" class="tw-mr-2">Secondary</button>
+      <button type="button" bitLink disabled linkType="primary" class="tw-me-2">Primary</button>
+      <button type="button" bitLink disabled linkType="secondary" class="tw-me-2">Secondary</button>
       <div class="tw-bg-primary-600 tw-p-2 tw-inline-block">
-        <button bitLink disabled linkType="contrast" class="tw-mr-2">Contrast</button>
+        <button type="button" bitLink disabled linkType="contrast">Contrast</button>
       </div>
     `,
   }),

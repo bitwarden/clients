@@ -1,10 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { OtpResult, OobResult } from "../../importers/lastpass/access/models";
 import { Ui } from "../../importers/lastpass/access/ui";

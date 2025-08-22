@@ -1,3 +1,4 @@
+use crate::password::PASSWORD_NOT_FOUND;
 use anyhow::{anyhow, Result};
 use oo7::dbus::{self};
 use std::collections::HashMap;
@@ -20,7 +21,7 @@ async fn get_password_new(service: &str, account: &str) -> Result<String> {
             let secret = res.secret().await?;
             Ok(String::from_utf8(secret.to_vec())?)
         }
-        None => Err(anyhow!("no result")),
+        None => Err(anyhow!(PASSWORD_NOT_FOUND)),
     }
 }
 
@@ -46,7 +47,7 @@ async fn get_password_legacy(service: &str, account: &str) -> Result<String> {
             set_password(service, account, &secret_string).await?;
             Ok(secret_string)
         }
-        None => Err(anyhow!("no result")),
+        None => Err(anyhow!(PASSWORD_NOT_FOUND)),
     }
 }
 
@@ -152,7 +153,7 @@ mod tests {
             Ok(_) => {
                 panic!("Got a result")
             }
-            Err(e) => assert_eq!("no result", e.to_string()),
+            Err(e) => assert_eq!(PASSWORD_NOT_FOUND, e.to_string()),
         }
     }
 
@@ -160,7 +161,7 @@ mod tests {
     async fn test_error_no_password() {
         match get_password("Unknown", "Unknown").await {
             Ok(_) => panic!("Got a result"),
-            Err(e) => assert_eq!("no result", e.to_string()),
+            Err(e) => assert_eq!(PASSWORD_NOT_FOUND, e.to_string()),
         }
     }
 }

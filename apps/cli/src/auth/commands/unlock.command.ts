@@ -4,22 +4,22 @@ import { firstValueFrom, map } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
 
-import { ConvertToKeyConnectorCommand } from "../../commands/convert-to-key-connector.command";
+import { ConvertToKeyConnectorCommand } from "../../key-management/convert-to-key-connector.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
+import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 
 export class UnlockCommand {
@@ -32,9 +32,9 @@ export class UnlockCommand {
     private logService: ConsoleLogService,
     private keyConnectorService: KeyConnectorService,
     private environmentService: EnvironmentService,
-    private syncService: SyncService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private logout: () => Promise<void>,
+    private i18nService: I18nService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -73,14 +73,14 @@ export class UnlockCommand {
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
     await this.keyService.setUserKey(userKey, userId);
 
-    if (await this.keyConnectorService.getConvertAccountRequired()) {
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       const convertToKeyConnectorCommand = new ConvertToKeyConnectorCommand(
         userId,
         this.keyConnectorService,
         this.environmentService,
-        this.syncService,
         this.organizationApiService,
         this.logout,
+        this.i18nService,
       );
       const convertResponse = await convertToKeyConnectorCommand.run();
       if (!convertResponse.success) {

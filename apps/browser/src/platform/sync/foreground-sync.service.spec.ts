@@ -4,10 +4,11 @@ import { Subject } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SyncOptions } from "@bitwarden/common/platform/sync/sync.service";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -21,7 +22,7 @@ import { FullSyncFinishedMessage } from "./sync-service.listener";
 
 describe("ForegroundSyncService", () => {
   const userId = Utils.newGuid() as UserId;
-  const stateService = mock<StateService>();
+  const tokenService = mock<TokenService>();
   const folderService = mock<InternalFolderService>();
   const folderApiService = mock<FolderApiServiceAbstraction>();
   const messageSender = mock<MessageSender>();
@@ -37,7 +38,7 @@ describe("ForegroundSyncService", () => {
   const stateProvider = new FakeStateProvider(accountService);
 
   const sut = new ForegroundSyncService(
-    stateService,
+    tokenService,
     folderService,
     folderApiService,
     messageSender,
@@ -80,7 +81,72 @@ describe("ForegroundSyncService", () => {
       const fullSyncPromise = sut.fullSync(true, false);
       expect(sut.syncInProgress).toBe(true);
 
-      const requestId = getAndAssertRequestId({ forceSync: true, allowThrowOnError: false });
+      const requestId = getAndAssertRequestId({
+        forceSync: true,
+        options: { allowThrowOnError: false, skipTokenRefresh: false },
+      });
+
+      // Pretend the sync has finished
+      messages.next({ successfully: true, errorMessage: null, requestId: requestId });
+
+      const result = await fullSyncPromise;
+
+      expect(sut.syncInProgress).toBe(false);
+      expect(result).toBe(true);
+    });
+
+    const testData: {
+      input: boolean | SyncOptions | undefined;
+      normalized: Required<SyncOptions>;
+    }[] = [
+      {
+        input: undefined,
+        normalized: { allowThrowOnError: false, skipTokenRefresh: false },
+      },
+      {
+        input: true,
+        normalized: { allowThrowOnError: true, skipTokenRefresh: false },
+      },
+      {
+        input: false,
+        normalized: { allowThrowOnError: false, skipTokenRefresh: false },
+      },
+      {
+        input: { allowThrowOnError: false },
+        normalized: { allowThrowOnError: false, skipTokenRefresh: false },
+      },
+      {
+        input: { allowThrowOnError: true },
+        normalized: { allowThrowOnError: true, skipTokenRefresh: false },
+      },
+      {
+        input: { allowThrowOnError: false, skipTokenRefresh: false },
+        normalized: { allowThrowOnError: false, skipTokenRefresh: false },
+      },
+      {
+        input: { allowThrowOnError: true, skipTokenRefresh: false },
+        normalized: { allowThrowOnError: true, skipTokenRefresh: false },
+      },
+      {
+        input: { allowThrowOnError: true, skipTokenRefresh: true },
+        normalized: { allowThrowOnError: true, skipTokenRefresh: true },
+      },
+      {
+        input: { allowThrowOnError: false, skipTokenRefresh: true },
+        normalized: { allowThrowOnError: false, skipTokenRefresh: true },
+      },
+    ];
+
+    it.each(testData)("normalize input $input options correctly", async ({ input, normalized }) => {
+      const messages = new Subject<FullSyncFinishedMessage>();
+      messageListener.messages$.mockReturnValue(messages);
+      const fullSyncPromise = sut.fullSync(true, input);
+      expect(sut.syncInProgress).toBe(true);
+
+      const requestId = getAndAssertRequestId({
+        forceSync: true,
+        options: normalized,
+      });
 
       // Pretend the sync has finished
       messages.next({ successfully: true, errorMessage: null, requestId: requestId });
@@ -97,7 +163,10 @@ describe("ForegroundSyncService", () => {
       const fullSyncPromise = sut.fullSync(false, false);
       expect(sut.syncInProgress).toBe(true);
 
-      const requestId = getAndAssertRequestId({ forceSync: false, allowThrowOnError: false });
+      const requestId = getAndAssertRequestId({
+        forceSync: false,
+        options: { allowThrowOnError: false, skipTokenRefresh: false },
+      });
 
       // Pretend the sync has finished
       messages.next({
@@ -118,7 +187,10 @@ describe("ForegroundSyncService", () => {
       const fullSyncPromise = sut.fullSync(true, true);
       expect(sut.syncInProgress).toBe(true);
 
-      const requestId = getAndAssertRequestId({ forceSync: true, allowThrowOnError: true });
+      const requestId = getAndAssertRequestId({
+        forceSync: true,
+        options: { allowThrowOnError: true, skipTokenRefresh: false },
+      });
 
       // Pretend the sync has finished
       messages.next({

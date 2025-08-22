@@ -1,4 +1,4 @@
-[![Github Workflow build browser on master](https://github.com/bitwarden/clients/actions/workflows/build-browser.yml/badge.svg?branch=master)](https://github.com/bitwarden/clients/actions/workflows/build-browser.yml?query=branch:master)
+[![Github Workflow build browser on main](https://github.com/bitwarden/clients/actions/workflows/build-browser.yml/badge.svg?branch=main)](https://github.com/bitwarden/clients/actions/workflows/build-browser.yml?query=branch:main)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/bitwarden-browser/localized.svg)](https://crowdin.com/project/bitwarden-browser)
 [![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
 
@@ -15,7 +15,7 @@
 
 The Bitwarden browser extension is written using the Web Extension API and Angular.
 
-![My Vault](https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/browser-chrome.png)
+![My Vault](https://raw.githubusercontent.com/bitwarden/brand/main/screenshots/web-browser-extension-generator.png)
 
 ## Documentation
 

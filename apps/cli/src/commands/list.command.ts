@@ -10,7 +10,6 @@ import {
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -19,16 +18,19 @@ import { ListResponse as ApiListResponse } from "@bitwarden/common/models/respon
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { KeyService } from "@bitwarden/key-management";
 
+import { CollectionResponse } from "../admin-console/models/response/collection.response";
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
 import { OrganizationResponse } from "../admin-console/models/response/organization.response";
 import { Response } from "../models/response";
 import { ListResponse } from "../models/response/list.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
-import { CollectionResponse } from "../vault/models/collection.response";
 import { FolderResponse } from "../vault/models/folder.response";
+import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
 export class ListCommand {
   constructor(
@@ -41,6 +43,8 @@ export class ListCommand {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
+    private keyService: KeyService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -134,6 +138,8 @@ export class ListCommand {
       ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
     }
 
+    ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
+
     await this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, ciphers, true);
 
     const res = new ListResponse(ciphers.map((o) => new CipherResponse(o)));
@@ -154,7 +160,10 @@ export class ListCommand {
   }
 
   private async listCollections(options: Options) {
-    let collections = await this.collectionService.getAllDecrypted();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let collections = await firstValueFrom(
+      this.collectionService.decryptedCollections$(activeUserId),
+    );
 
     if (options.organizationId != null) {
       collections = collections.filter((c) => {
@@ -174,13 +183,13 @@ export class ListCommand {
   }
 
   private async listOrganizationCollections(options: Options) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (options.organizationId == null || options.organizationId === "") {
       return Response.badRequest("`organizationid` option is required.");
     }
     if (!Utils.isGuid(options.organizationId)) {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (!userId) {
       return Response.badRequest("No user found.");
     }
@@ -202,8 +211,16 @@ export class ListCommand {
       }
       const collections = response.data
         .filter((c) => c.organizationId === options.organizationId)
-        .map((r) => new Collection(new CollectionData(r as ApiCollectionDetailsResponse)));
-      let decCollections = await this.collectionService.decryptMany(collections);
+        .map((r) =>
+          Collection.fromCollectionData(new CollectionData(r as ApiCollectionDetailsResponse)),
+        );
+      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+      if (orgKeys == null) {
+        throw new Error("Organization keys not found.");
+      }
+      let decCollections = await firstValueFrom(
+        this.collectionService.decryptMany$(collections, orgKeys),
+      );
       if (options.search != null && options.search.trim() !== "") {
         decCollections = CliUtils.searchCollections(decCollections, options.search);
       }

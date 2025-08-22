@@ -2,10 +2,12 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { LoginUri as SdkLoginUri } from "@bitwarden/sdk-internal";
+
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { LoginUriData } from "../data/login-uri.data";
 import { LoginUriView } from "../view/login-uri.view";
@@ -38,11 +40,10 @@ export class LoginUri extends Domain {
     context: string = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<LoginUriView> {
-    return this.decryptObj(
+    return this.decryptObj<LoginUri, LoginUriView>(
+      this,
       new LoginUriView(this),
-      {
-        uri: null,
-      },
+      ["uri"],
       orgId,
       encKey,
       context,
@@ -87,5 +88,31 @@ export class LoginUri extends Domain {
       uri,
       uriChecksum,
     });
+  }
+
+  /**
+   *  Maps LoginUri to SDK format.
+   *
+   * @returns {SdkLoginUri} The SDK login uri object.
+   */
+  toSdkLoginUri(): SdkLoginUri {
+    return {
+      uri: this.uri?.toSdk(),
+      uriChecksum: this.uriChecksum?.toSdk(),
+      match: this.match,
+    };
+  }
+
+  static fromSdkLoginUri(obj: SdkLoginUri): LoginUri | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const view = new LoginUri();
+    view.uri = EncString.fromJSON(obj.uri);
+    view.uriChecksum = obj.uriChecksum ? EncString.fromJSON(obj.uriChecksum) : undefined;
+    view.match = obj.match;
+
+    return view;
   }
 }

@@ -59,7 +59,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return ipc.platform.isMacAppStore;
   }
 
-  isViewOpen(): Promise<boolean> {
+  isPopupOpen(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
@@ -77,15 +77,21 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return (await this.getApplicationVersion()).split(/[+|-]/)[0].trim();
   }
 
-  // Restricted to Windows and Mac. Mac is missing support for pin entry, and Linux is missing support entirely and has to be implemented in another way.
+  // Linux and Mac are missing a ui to enter a pin, so this works for two-factor security keys, when always-uv is not active
   supportsWebAuthn(win: Window): boolean {
-    return (
-      this.getDevice() === DeviceType.WindowsDesktop || this.getDevice() === DeviceType.MacOsDesktop
-    );
+    return true;
   }
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
   }
 
   showToast(

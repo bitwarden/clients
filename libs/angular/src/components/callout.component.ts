@@ -12,6 +12,7 @@ import { CalloutTypes } from "@bitwarden/components";
 @Component({
   selector: "app-callout",
   templateUrl: "callout.component.html",
+  standalone: false,
 })
 export class DeprecatedCalloutComponent implements OnInit {
   @Input() type: CalloutTypes = "info";

@@ -1,7 +1,4 @@
-@import "../../../../libs/components/src/tw-theme.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "../../../../libs/components/src/tw-theme-preflight.css";
 
 /*
  * Web specific global styling.
@@ -14,19 +11,32 @@
  * - Shared styles like Logo.
  */
 @layer components {
-  .tw-h1 {
-    @apply tw-text-3xl tw-font-semibold;
+  body {
+    @apply tw-bg-background;
+    @apply tw-text-main;
   }
 
-  .tw-btn {
-    @apply tw-font-semibold tw-py-1.5 tw-px-3 tw-rounded tw-transition tw-border tw-border-solid tw-text-center tw-no-underline hover:tw-no-underline focus:tw-outline-none;
-  }
+  /**
+   * Stripe form control styling
+   */
+  .tw-stripe-form-control {
+    @apply tw-block tw-w-full tw-h-11 tw-rounded-lg tw-bg-background tw-border tw-border-solid tw-border-secondary-500 tw-px-3 tw-py-2 tw-text-main;
 
-  .tw-btn-secondary {
-    @apply tw-btn;
+    @apply hover:tw-border-primary-600;
 
-    @apply tw-bg-transparent tw-border-text-muted hover:tw-bg-text-muted hover:tw-border-text-muted hover:!tw-text-contrast disabled:tw-bg-transparent disabled:tw-border-text-muted/60 disabled:!tw-text-muted/60 disabled:tw-cursor-not-allowed;
-    @apply tw-text-muted !important;
+    @apply focus:tw-outline-none focus:tw-border-primary-600 focus:tw-border-2 focus:tw-ring-1 focus:tw-ring-inset focus:tw-ring-primary-600;
+
+    &.is-invalid {
+      @apply tw-border-danger-600 hover:tw-border-danger-700;
+    }
+
+    &.is-focused {
+      @apply tw-outline-none tw-border-primary-600 focus:tw-border-primary-600;
+
+      &.is-invalid {
+        @apply tw-border-danger-600;
+      }
+    }
   }
 
   /**
@@ -46,6 +56,16 @@
   }
 
   /**
+   * Logo on old `FrontendLayoutComponent`. Remove when the component is gone.
+   */
+  img.logo {
+    display: block;
+    height: 43px;
+    margin: 0 auto;
+    width: 284px;
+  }
+
+  /**
    * Logo, used both in loading and on "frontend" pages.
    */
   img.new-logo-themed {
@@ -58,5 +78,30 @@
   }
   .theme_dark img.new-logo-themed {
     content: url("../images/logo-white.svg");
+  }
+}
+
+/**
+ * 404 page styling.
+ */
+@layer components {
+  .tw-h1 {
+    @apply tw-text-3xl tw-font-semibold;
+  }
+
+  .tw-btn {
+    @apply tw-font-semibold tw-py-1.5 tw-px-3 tw-rounded-full tw-transition tw-border-2 tw-border-solid tw-text-center tw-no-underline focus:tw-outline-none;
+  }
+
+  .tw-btn-secondary {
+    @apply tw-btn;
+
+    @apply tw-bg-transparent tw-text-primary-600 tw-border-primary-600 hover:tw-bg-hover-default;
+  }
+
+  .tw-link {
+    @apply tw-font-semibold hover:tw-underline hover:tw-decoration-1;
+
+    @apply tw-text-primary-600 hover:tw-text-primary-700 focus-visible:before:tw-ring-primary-600;
   }
 }

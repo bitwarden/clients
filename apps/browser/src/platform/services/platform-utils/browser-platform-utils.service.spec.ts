@@ -126,12 +126,11 @@ describe("Browser Utils Service", () => {
         configurable: true,
         value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
       });
-      jest.spyOn(BrowserPlatformUtilsService, "isFirefox");
 
       browserPlatformUtilsService.getDevice();
 
       expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.FirefoxExtension);
-      expect(BrowserPlatformUtilsService.isFirefox).toHaveBeenCalledTimes(1);
+      expect(browserPlatformUtilsService.isFirefox()).toBe(true);
     });
   });
 
@@ -151,7 +150,7 @@ describe("Browser Utils Service", () => {
         callback(undefined);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(false);
     });
@@ -161,7 +160,7 @@ describe("Browser Utils Service", () => {
         callback(message.command === "checkVaultPopupHeartbeat");
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(true);
     });
@@ -174,7 +173,7 @@ describe("Browser Utils Service", () => {
         callback(undefined);
       });
 
-      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isPopupOpen();
 
       expect(isViewOpen).toBe(false);
 
@@ -185,7 +184,9 @@ describe("Browser Utils Service", () => {
   describe("copyToClipboard", () => {
     const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
     const sendMessageToAppSpy = jest.spyOn(SafariApp, "sendMessageToApp");
-    const clipboardServiceCopySpy = jest.spyOn(BrowserClipboardService, "copy");
+    const clipboardServiceCopySpy = jest
+      .spyOn(BrowserClipboardService, "copy")
+      .mockResolvedValue(undefined);
     let triggerOffscreenCopyToClipboardSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -281,7 +282,9 @@ describe("Browser Utils Service", () => {
   describe("readFromClipboard", () => {
     const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
     const sendMessageToAppSpy = jest.spyOn(SafariApp, "sendMessageToApp");
-    const clipboardServiceReadSpy = jest.spyOn(BrowserClipboardService, "read");
+    const clipboardServiceReadSpy = jest
+      .spyOn(BrowserClipboardService, "read")
+      .mockResolvedValue("");
 
     beforeEach(() => {
       getManifestVersionSpy.mockReturnValue(2);

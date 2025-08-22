@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
-import { EncString } from "../../../../platform/models/domain/enc-string";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
@@ -27,6 +27,7 @@ export class Send extends Domain {
   expirationDate: Date;
   deletionDate: Date;
   password: string;
+  emails: string;
   disabled: boolean;
   hideEmail: boolean;
 
@@ -53,6 +54,7 @@ export class Send extends Domain {
     this.maxAccessCount = obj.maxAccessCount;
     this.accessCount = obj.accessCount;
     this.password = obj.password;
+    this.emails = obj.emails;
     this.disabled = obj.disabled;
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
     this.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;
@@ -79,7 +81,8 @@ export class Send extends Domain {
 
     try {
       const sendKeyEncryptionKey = await keyService.getUserKey();
-      model.key = await encryptService.decryptToBytes(this.key, sendKeyEncryptionKey);
+      // model.key is a seed used to derive a key, not a SymmetricCryptoKey
+      model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
       model.cryptoKey = await keyService.makeSendKey(model.key);
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -87,15 +90,7 @@ export class Send extends Domain {
       // TODO: error?
     }
 
-    await this.decryptObj(
-      model,
-      {
-        name: null,
-        notes: null,
-      },
-      null,
-      model.cryptoKey,
-    );
+    await this.decryptObj<Send, SendView>(this, model, ["name", "notes"], null, model.cryptoKey);
 
     switch (this.type) {
       case SendType.File:

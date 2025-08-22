@@ -14,7 +14,6 @@ import {
   AbstractStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
-import { sequentialize } from "@bitwarden/common/platform/misc/sequentialize";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
@@ -44,7 +43,6 @@ export class LowdbStorageService implements AbstractStorageService {
     this.updates$ = this.updatesSubject.asObservable();
   }
 
-  @sequentialize(() => "lowdbStorageInit")
   async init() {
     if (this.ready) {
       return;

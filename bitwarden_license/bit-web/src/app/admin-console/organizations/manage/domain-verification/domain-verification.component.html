@@ -4,12 +4,8 @@
   </button>
 </app-header>
 
-<p
-  bitTypography="body1"
-  class="tw-text-main tw-w-2/5"
-  *ngIf="accountDeprovisioningEnabled$ | async"
->
-  {{ "claimedDomainsDesc" | i18n }}
+<p bitTypography="body1" class="tw-text-main tw-max-w-4xl">
+  {{ "claimedDomainsDescription" | i18n }}
   <a
     bitLink
     target="_blank"
@@ -24,7 +20,7 @@
 
 <ng-container *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
@@ -58,23 +54,17 @@
             </td>
             <td bitCell>
               <span *ngIf="!orgDomain?.verifiedDate" bitBadge variant="warning">{{
-                ((accountDeprovisioningEnabled$ | async)
-                  ? "domainStatusUnderVerification"
-                  : "domainStatusUnverified"
-                ) | i18n
+                "domainStatusUnderVerification" | i18n
               }}</span>
               <span *ngIf="orgDomain?.verifiedDate" bitBadge variant="success">{{
-                ((accountDeprovisioningEnabled$ | async)
-                  ? "domainStatusClaimed"
-                  : "domainStatusVerified"
-                ) | i18n
+                "domainStatusClaimed" | i18n
               }}</span>
             </td>
             <td bitCell class="tw-text-muted">
               {{ orgDomain.lastCheckedDate | date: "medium" }}
             </td>
 
-            <td bitCell class="table-list-options tw-text-right">
+            <td bitCell class="tw-text-right">
               <button
                 [bitMenuTriggerFor]="orgDomainOptions"
                 class="tw-border-none tw-bg-transparent tw-text-main"
@@ -94,10 +84,7 @@
                   type="button"
                 >
                   <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
-                  {{
-                    ((accountDeprovisioningEnabled$ | async) ? "claimDomain" : "verifyDomain")
-                      | i18n
-                  }}
+                  {{ "claimDomain" | i18n }}
                 </button>
                 <button bitMenuItem (click)="deleteDomain(orgDomain.id)" type="button">
                   <span class="tw-text-danger">

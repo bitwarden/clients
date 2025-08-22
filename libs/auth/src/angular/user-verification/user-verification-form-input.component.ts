@@ -13,12 +13,15 @@ import {
 import { BehaviorSubject, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { UserVerificationBiometricsIcon } from "@bitwarden/assets/svg";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { UserVerificationOptions } from "@bitwarden/common/auth/types/user-verification-options";
 import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -28,8 +31,6 @@ import {
   IconModule,
   LinkModule,
 } from "@bitwarden/components";
-
-import { UserVerificationBiometricsIcon } from "../icons";
 
 import { ActiveClientVerificationOption } from "./active-client-verification-option.enum";
 
@@ -54,7 +55,6 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
       transition(":enter", [style({ opacity: 0 }), animate("100ms", style({ opacity: 1 }))]),
     ]),
   ],
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -68,7 +68,6 @@ import { ActiveClientVerificationOption } from "./active-client-verification-opt
     CalloutModule,
   ],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class UserVerificationFormInputComponent implements ControlValueAccessor, OnInit, OnDestroy {
   @Input() verificationType: "server" | "client" = "server"; // server represents original behavior
   private _invalidSecret = false;

@@ -3,8 +3,8 @@
 import { Jsonify } from "type-fest";
 
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { FolderData } from "../data/folder.data";
 import { FolderView } from "../view/folder.view";
@@ -40,24 +40,18 @@ export class Folder extends Domain {
   }
 
   decrypt(): Promise<FolderView> {
-    return this.decryptObj(
-      new FolderView(this),
-      {
-        name: null,
-      },
-      null,
-    );
+    return this.decryptObj<Folder, FolderView>(this, new FolderView(this), ["name"], null);
   }
 
   async decryptWithKey(
     key: SymmetricCryptoKey,
     encryptService: EncryptService,
   ): Promise<FolderView> {
-    const decrypted = await this.decryptObjWithKey(["name"], key, encryptService, Folder);
-
-    const view = new FolderView(decrypted);
-    view.name = decrypted.name;
-    return view;
+    const folderView = new FolderView();
+    folderView.id = this.id;
+    folderView.revisionDate = this.revisionDate;
+    folderView.name = await encryptService.decryptString(this.name, key);
+    return folderView;
   }
 
   static fromJSON(obj: Jsonify<Folder>) {

@@ -3,9 +3,9 @@
 import { firstValueFrom, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -16,7 +16,6 @@ import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class UserApiLoginStrategyData implements LoginStrategyData {
   tokenRequest: UserApiTokenRequest;
-  captchaBypassToken: string;
 
   static fromJSON(obj: Jsonify<UserApiLoginStrategyData>): UserApiLoginStrategyData {
     return Object.assign(new UserApiLoginStrategyData(), obj, {
@@ -64,7 +63,9 @@ export class UserApiLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
+    if (response.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
 
     if (response.apiUseKeyConnector) {
       const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));

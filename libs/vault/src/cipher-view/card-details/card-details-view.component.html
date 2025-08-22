@@ -1,4 +1,4 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ setSectionTitle }}</h2>
   </bit-section-header>
@@ -33,6 +33,7 @@
         bitIconButton
         bitPasswordInputToggle
         data-testid="toggle-number"
+        [toggled]="revealCardNumber"
         (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardNumberVisible)"
       ></button>
       <button
@@ -42,7 +43,7 @@
         [appCopyClick]="card.number"
         showToast
         [valueLabel]="'number' | i18n"
-        [appA11yTitle]="'copyNumber' | i18n"
+        [label]="'copyNumber' | i18n"
         data-testid="copy-number"
       ></button>
     </bit-form-field>
@@ -76,6 +77,7 @@
         bitIconButton
         bitPasswordInputToggle
         data-testid="toggle-code"
+        [toggled]="revealCardCode"
         (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardCodeVisible)"
       ></button>
       <button
@@ -85,10 +87,10 @@
         [appCopyClick]="card.code"
         showToast
         [valueLabel]="'securityCode' | i18n"
-        [appA11yTitle]="'copySecurityCode' | i18n"
+        [label]="'copySecurityCode' | i18n"
         data-testid="copy-code"
         (click)="logCardEvent(true, EventType.Cipher_ClientCopiedCardCode)"
       ></button>
     </bit-form-field>
   </read-only-cipher-card>
-</bit-section>
+</section>

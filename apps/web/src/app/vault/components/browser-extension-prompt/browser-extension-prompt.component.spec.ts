@@ -13,18 +13,35 @@ import { BrowserExtensionPromptComponent } from "./browser-extension-prompt.comp
 
 describe("BrowserExtensionPromptComponent", () => {
   let fixture: ComponentFixture<BrowserExtensionPromptComponent>;
-
+  let component: BrowserExtensionPromptComponent;
   const start = jest.fn();
-  const pageState$ = new BehaviorSubject(BrowserPromptState.Loading);
+  const openExtension = jest.fn();
+  const pageState$ = new BehaviorSubject<BrowserPromptState>(BrowserPromptState.Loading);
+  const setAttribute = jest.fn();
+  const getAttribute = jest.fn().mockReturnValue("width=1010");
 
   beforeEach(async () => {
     start.mockClear();
+    openExtension.mockClear();
+    setAttribute.mockClear();
+    getAttribute.mockClear();
+
+    // Store original querySelector
+    const originalQuerySelector = document.querySelector.bind(document);
+
+    // Mock querySelector while preserving the document context
+    jest.spyOn(document, "querySelector").mockImplementation(function (selector) {
+      if (selector === 'meta[name="viewport"]') {
+        return { setAttribute, getAttribute } as unknown as HTMLMetaElement;
+      }
+      return originalQuerySelector.call(document, selector);
+    });
 
     await TestBed.configureTestingModule({
       providers: [
         {
           provide: BrowserExtensionPromptService,
-          useValue: { start, pageState$ },
+          useValue: { start, openExtension, pageState$ },
         },
         {
           provide: I18nService,
@@ -34,7 +51,12 @@ describe("BrowserExtensionPromptComponent", () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(BrowserExtensionPromptComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it("calls start on initialization", () => {
@@ -63,6 +85,15 @@ describe("BrowserExtensionPromptComponent", () => {
       const errorText = fixture.debugElement.query(By.css("p")).nativeElement;
       expect(errorText.textContent.trim()).toBe("openingExtensionError");
     });
+
+    it("opens extension on button click", () => {
+      const button = fixture.debugElement.query(By.css("button")).nativeElement;
+
+      button.click();
+
+      expect(openExtension).toHaveBeenCalledTimes(1);
+      expect(openExtension).toHaveBeenCalledWith(true);
+    });
   });
 
   describe("success state", () => {
@@ -86,6 +117,33 @@ describe("BrowserExtensionPromptComponent", () => {
     it("shows mobile message", () => {
       const mobileText = fixture.debugElement.query(By.css("p")).nativeElement;
       expect(mobileText.textContent.trim()).toBe("reopenLinkOnDesktop");
+    });
+
+    it("sets min-width on the body", () => {
+      expect(document.body.style.minWidth).toBe("auto");
+    });
+
+    it("stores viewport content", () => {
+      expect(getAttribute).toHaveBeenCalledWith("content");
+      expect(component["viewportContent"]).toBe("width=1010");
+    });
+
+    it("sets viewport meta tag to be mobile friendly", () => {
+      expect(setAttribute).toHaveBeenCalledWith("content", "width=device-width, initial-scale=1.0");
+    });
+
+    describe("on destroy", () => {
+      beforeEach(() => {
+        fixture.destroy();
+      });
+
+      it("resets body min-width", () => {
+        expect(document.body.style.minWidth).toBe("");
+      });
+
+      it("resets viewport meta tag", () => {
+        expect(setAttribute).toHaveBeenCalledWith("content", "width=1010");
+      });
     });
   });
 

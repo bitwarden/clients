@@ -1,27 +1,32 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, effect, input } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
-import { Icon, isIcon } from "./icon";
+import { Icon, isIcon } from "@bitwarden/assets/svg";
 
 @Component({
   selector: "bit-icon",
+  host: {
+    "[attr.aria-hidden]": "!ariaLabel()",
+    "[attr.aria-label]": "ariaLabel()",
+    "[innerHtml]": "innerHtml",
+  },
   template: ``,
-  standalone: true,
 })
 export class BitIconComponent {
-  @Input() set icon(icon: Icon) {
-    if (!isIcon(icon)) {
-      this.innerHtml = "";
-      return;
-    }
+  innerHtml: SafeHtml | null = null;
 
-    const svg = icon.svg;
-    this.innerHtml = this.domSanitizer.bypassSecurityTrustHtml(svg);
+  readonly icon = input<Icon>();
+
+  readonly ariaLabel = input<string>();
+
+  constructor(private domSanitizer: DomSanitizer) {
+    effect(() => {
+      const icon = this.icon();
+      if (!isIcon(icon)) {
+        return;
+      }
+      const svg = icon.svg;
+      this.innerHtml = this.domSanitizer.bypassSecurityTrustHtml(svg);
+    });
   }
-
-  @HostBinding() innerHtml: SafeHtml;
-
-  constructor(private domSanitizer: DomSanitizer) {}
 }

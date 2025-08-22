@@ -49,8 +49,12 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import {
   openAddEditVaultItemPopout,
   openViewVaultItemPopout,
@@ -65,7 +69,6 @@ import {
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
-import { InlineMenuFormFieldData } from "../services/abstractions/autofill-overlay-content.service";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
 import {
@@ -78,6 +81,7 @@ import {
 } from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
+import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
   CloseInlineMenuMessage,
@@ -187,6 +191,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     editedCipher: () => this.updateOverlayCiphers(),
     deletedCipher: () => this.updateOverlayCiphers(),
     bgSaveCipher: () => this.updateOverlayCiphers(),
+    updateOverlayCiphers: () => this.updateOverlayCiphers(),
     fido2AbortRequest: ({ sender }) => this.abortFido2ActiveRequest(sender.tab.id),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
@@ -459,7 +464,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const cipherView = cipherViews[cipherIndex];
       if (
         !this.cardAndIdentityCiphers.has(cipherView) &&
-        [CipherType.Card, CipherType.Identity].includes(cipherView.type)
+        ([CipherType.Card, CipherType.Identity] as CipherType[]).includes(cipherView.type)
       ) {
         this.cardAndIdentityCiphers.add(cipherView);
       }
@@ -661,20 +666,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return this.inlineMenuFido2Credentials.has(credentialId);
   }
 
+  /**
+   * When focused field data contains account creation field type of totp
+   * and there are totp fields in the current frame for page details return true
+   *
+   * @returns boolean
+   */
   private isTotpFieldForCurrentField(): boolean {
     if (!this.focusedFieldData) {
       return false;
     }
-    const { tabId, frameId } = this.focusedFieldData;
-    const pageDetailsMap = this.pageDetailsForTab[tabId];
-    if (!pageDetailsMap || !pageDetailsMap.has(frameId)) {
+    const totpFields = this.getTotpFields();
+    if (!totpFields) {
       return false;
     }
-    const pageDetail = pageDetailsMap.get(frameId);
     return (
-      pageDetail?.details?.fields?.every((field) =>
-        this.inlineMenuFieldQualificationService.isTotpField(field),
-      ) || false
+      totpFields.length > 0 &&
+      this.focusedFieldData?.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp
     );
   }
 
@@ -794,7 +802,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param focusedFieldData - Optional focused field data to validate against
    */
   private focusedFieldMatchesFillType(
-    fillType: InlineMenuFillTypes,
+    fillType: InlineMenuFillType,
     focusedFieldData?: FocusedFieldData,
   ) {
     const focusedFieldFillType = focusedFieldData
@@ -803,7 +811,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     // When updating the current password for a field, it should fill with a login cipher
     if (
-      focusedFieldFillType === InlineMenuFillType.CurrentPasswordUpdate &&
+      focusedFieldFillType === InlineMenuFillTypes.CurrentPasswordUpdate &&
       fillType === CipherType.Login
     ) {
       return true;
@@ -816,7 +824,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Identifies whether the inline menu is being shown on an account creation field.
    */
   private shouldShowInlineMenuAccountCreation(): boolean {
-    if (this.focusedFieldMatchesFillType(InlineMenuFillType.AccountCreationUsername)) {
+    if (this.focusedFieldMatchesFillType(InlineMenuFillTypes.AccountCreationUsername)) {
       return true;
     }
 
@@ -1149,7 +1157,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     let pageDetails = Array.from(pageDetailsForTab.values());
-    if (this.focusedFieldMatchesFillType(InlineMenuFillType.CurrentPasswordUpdate)) {
+    if (this.focusedFieldMatchesFillType(InlineMenuFillTypes.CurrentPasswordUpdate)) {
       pageDetails = this.getFilteredPageDetails(
         pageDetails,
         this.inlineMenuFieldQualificationService.isUpdateCurrentPasswordField,
@@ -1399,7 +1407,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const pageDetailsMap = this.pageDetailsForTab[currentTabId];
     const pageDetails = pageDetailsMap?.get(currentFrameId);
 
-    const fields = pageDetails.details.fields;
+    const fields = pageDetails?.details?.fields || [];
     const totpFields = fields.filter((f) =>
       this.inlineMenuFieldQualificationService.isTotpField(f),
     );
@@ -1679,7 +1687,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       !this.focusedFieldMatchesFillType(
         focusedFieldData?.inlineMenuFillType,
         previousFocusedFieldData,
-      )
+      ) ||
+      // a TOTP field was just focused to - or unfocused from — a non-TOTP field
+      // may want to generalize this logic if cipher inline menu types exceed [general cipher, TOTP]
+      [focusedFieldData, previousFocusedFieldData].filter(
+        (fd) => fd?.accountCreationFieldType === InlineMenuAccountCreationFieldType.Totp,
+      ).length === 1
     ) {
       const updateAllCipherTypes = !this.focusedFieldMatchesFillType(
         CipherType.Login,
@@ -1697,7 +1710,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private shouldUpdatePasswordGeneratorMenuOnFieldFocus() {
     return (
       this.isInlineMenuButtonVisible &&
-      this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration)
+      this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)
     );
   }
 
@@ -1759,9 +1772,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private shouldUpdateAccountCreationMenuOnFieldFocus(previousFocusedFieldData: FocusedFieldData) {
     const accountCreationFieldBlurred =
       this.focusedFieldMatchesFillType(
-        InlineMenuFillType.AccountCreationUsername,
+        InlineMenuFillTypes.AccountCreationUsername,
         previousFocusedFieldData,
-      ) && !this.focusedFieldMatchesFillType(InlineMenuFillType.AccountCreationUsername);
+      ) && !this.focusedFieldMatchesFillType(InlineMenuFillTypes.AccountCreationUsername);
     return accountCreationFieldBlurred || this.shouldShowInlineMenuAccountCreation();
   }
 
@@ -1800,7 +1813,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Triggers a fill of the generated password into the current tab. Will trigger
-   * a  focus of the last focused field after filling the password.
+   * a focus of the last focused field after filling the password.
    *
    * @param port - The port of the sender
    */
@@ -1844,15 +1857,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
 
     globalThis.setTimeout(async () => {
-      if (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab)) {
-        await this.openInlineMenu(port.sender, true);
-      }
+      await BrowserApi.tabSendMessage(
+        port.sender.tab,
+        {
+          command: "generatedPasswordModifyLogin",
+        },
+        {
+          frameId: this.focusedFieldData.frameId || 0,
+        },
+      );
     }, 300);
   }
 
   /**
    * Verifies whether the save login inline menu view should be shown. This requires that
-   * the login data on the page contains a username and either a current or new password.
+   * the login data on the page contains either a current or new password.
    *
    * @param tab - The tab to check for login data
    */
@@ -1868,8 +1887,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     return (
       (this.shouldShowInlineMenuAccountCreation() ||
-        this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration)) &&
-      !!(loginData.username && (loginData.password || loginData.newPassword))
+        this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)) &&
+      !!(loginData.password || loginData.newPassword)
     );
   }
 
@@ -1878,7 +1897,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param tab - The tab to get the form field data from
    */
-  private async getInlineMenuFormFieldData(tab: chrome.tabs.Tab): Promise<InlineMenuFormFieldData> {
+  private async getInlineMenuFormFieldData(
+    tab: chrome.tabs.Tab,
+  ): Promise<ModifyLoginCipherFormData> {
     return await BrowserApi.tabSendMessage(
       tab,
       {
@@ -2100,6 +2121,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.closeInlineMenu(sender);
+
     await this.openViewVaultItemPopout(sender.tab, {
       cipherId: cipher.id,
       action: SHOW_AUTOFILL_BUTTON,
@@ -2156,7 +2178,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "passwordRegenerated",
         "passwords",
         "regeneratePassword",
-        "saveLoginToBitwarden",
+        "saveToBitwarden",
         "toggleBitwardenVaultOverlay",
         "totpCodeAria",
         "totpSecondsSpanAria",
@@ -2433,7 +2455,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         cipherId: cipherView.id,
         cipherType: addNewCipherType,
       });
-      await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
     } catch (error) {
       this.logService.error("Error building cipher and opening add/edit vault item popout", error);
     }
@@ -3028,7 +3049,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const focusFieldShouldShowPasswordGenerator =
-      this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration) ||
+      this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration) ||
       (showInlineMenuAccountCreation &&
         this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password));
     if (!focusFieldShouldShowPasswordGenerator) {

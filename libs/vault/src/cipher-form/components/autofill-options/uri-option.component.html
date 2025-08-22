@@ -1,35 +1,58 @@
 <ng-container [formGroup]="uriForm">
-  <bit-form-field [class.!tw-mb-1]="showMatchDetection">
-    <bit-label>{{ uriLabel }}</bit-label>
-    <input bitInput formControlName="uri" #uriInput />
-    <button
-      type="button"
-      bitIconButton="bwi-cog"
-      bitSuffix
-      [appA11yTitle]="toggleTitle"
-      (click)="toggleMatchDetection()"
-      data-testid="toggle-match-detection-button"
-    ></button>
-    <button
-      type="button"
-      bitIconButton="bwi-minus-circle"
-      buttonType="danger"
-      bitSuffix
-      [appA11yTitle]="'deleteWebsite' | i18n"
-      *ngIf="canRemove"
-      (click)="removeUri()"
-      data-testid="remove-uri-button"
-    ></button>
-  </bit-form-field>
-
-  <bit-form-field *ngIf="showMatchDetection" class="!tw-mb-5">
-    <bit-label>{{ "matchDetection" | i18n }}</bit-label>
-    <bit-select formControlName="matchDetection" #matchDetectionSelect>
-      <bit-option
-        *ngFor="let o of uriMatchOptions"
-        [label]="o.label"
-        [value]="o.value"
-      ></bit-option>
-    </bit-select>
-  </bit-form-field>
+  <div class="tw-mb-4 tw-pt-1">
+    <div class="tw-flex tw-pt-2" [class.!tw-mb-1]="showMatchDetection">
+      <bit-form-field disableMargin class="tw-flex-1 !tw-pt-0">
+        <bit-label>{{ uriLabel }}</bit-label>
+        <input bitInput formControlName="uri" #uriInput />
+        <button
+          type="button"
+          [bitIconButton]="showMatchDetection ? 'bwi-cog-f' : 'bwi-cog'"
+          bitSuffix
+          [label]="toggleTitle"
+          (click)="toggleMatchDetection()"
+          data-testid="toggle-match-detection-button"
+        ></button>
+        <button
+          type="button"
+          bitIconButton="bwi-minus-circle"
+          buttonType="danger"
+          bitSuffix
+          [label]="'deleteWebsite' | i18n"
+          *ngIf="canRemove"
+          (click)="removeUri()"
+          data-testid="remove-uri-button"
+        ></button>
+      </bit-form-field>
+      <div class="tw-flex tw-items-center tw-ml-1.5">
+        <button
+          type="button"
+          bitIconButton="bwi-drag-and-drop"
+          class="!tw-py-0 !tw-px-1"
+          cdkDragHandle
+          [label]="'reorderToggleButton' | i18n: uriLabel"
+          (keydown)="handleKeydown($event)"
+          data-testid="reorder-toggle-button"
+          *ngIf="canReorder"
+        ></button>
+      </div>
+    </div>
+    <bit-form-field *ngIf="showMatchDetection" class="!tw-mb-5">
+      <bit-label>{{ "matchDetection" | i18n }}</bit-label>
+      <bit-select formControlName="matchDetection" #matchDetectionSelect>
+        <bit-option
+          *ngFor="let o of uriMatchOptions"
+          [label]="o.label"
+          [value]="o.value"
+          [disabled]="o.disabled"
+        ></bit-option>
+      </bit-select>
+      <bit-hint *ngIf="getMatchHints() as hints">
+        {{ hints[0] | i18n }}
+        <ng-container *ngIf="hints.length > 1">
+          <b>{{ "warningCapitalized" | i18n }}:</b>
+          {{ hints[1] | i18n }}
+        </ng-container>
+      </bit-hint>
+    </bit-form-field>
+  </div>
 </ng-container>

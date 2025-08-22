@@ -26,7 +26,7 @@
         </bit-item-content>
         <button
           *ngIf="i < fieldsEditThreshold"
-          appA11yTitle="{{ 'remove' | i18n }}"
+          label="{{ 'remove' | i18n }}"
           bitIconButton="bwi-minus-circle"
           buttonType="danger"
           size="small"
@@ -71,6 +71,9 @@
       (click)="saveChanges()"
     >
       {{ "save" | i18n }}
+    </button>
+    <button (click)="goBack()" bitButton type="button" buttonType="secondary">
+      {{ "cancel" | i18n }}
     </button>
   </popup-footer>
 </popup-page>

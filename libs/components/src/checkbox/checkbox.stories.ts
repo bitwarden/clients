@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { BadgeModule } from "../badge";
 import { FormControlModule } from "../form-control";
+import { FormFieldModule } from "../form-field";
 import { TableModule } from "../table";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -30,6 +31,7 @@ const template = /*html*/ `
 @Component({
   selector: "app-example",
   template,
+  imports: [FormControlModule, CheckboxModule, FormsModule, FormFieldModule, ReactiveFormsModule],
 })
 class ExampleComponent {
   protected formObj = this.formBuilder.group({
@@ -55,8 +57,8 @@ export default {
   title: "Component Library/Form/Checkbox",
   decorators: [
     moduleMetadata({
-      declarations: [ExampleComponent],
       imports: [
+        ExampleComponent,
         FormsModule,
         ReactiveFormsModule,
         FormControlModule,
@@ -195,17 +197,17 @@ export const Custom: Story = {
     props: args,
     template: /*html*/ `
       <div class="tw-flex tw-flex-col tw-w-32">
-        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
+        <label class="tw-text-main tw-gap-2 tw-flex tw-items-center tw-justify-between tw-bg-secondary-300 tw-p-2">
           A-Z
-          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-me-0 focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
-        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
+        <label class="tw-text-main tw-flex tw-items-center tw-justify-between tw-bg-secondary-300 tw-p-2">
           a-z
-          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-me-0 focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
-        <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
+       <label class="tw-text-main tw-flex tw-items-center tw-justify-between tw-bg-secondary-300 tw-p-2">
           0-9
-          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-me-0 focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
       </div>
     `,
@@ -216,7 +218,10 @@ export const Indeterminate: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <input type="checkbox" bitCheckbox [indeterminate]="true">
+      <label>
+        Indeterminate
+        <input type="checkbox" bitCheckbox [indeterminate]="true">
+      </label>
     `,
   }),
 };
@@ -232,7 +237,7 @@ export const InTableRow: Story = {
                 type="checkbox"
                 bitCheckbox
                 id="checkAll"
-                class="tw-mr-2"
+                class="tw-me-2"
               />
               <label for="checkAll" class="tw-mb-0">
                 All
@@ -254,6 +259,9 @@ export const InTableRow: Story = {
                 bitCheckbox
                 id="checkOne"
               />
+              <label for="checkOne" class="tw-sr-only">
+                Check row 0
+              </label>
             </td>
             <td bitCell>Lorem</td>
             <td bitCell>Ipsum</td>

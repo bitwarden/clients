@@ -1,11 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -17,7 +16,9 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendId } from "@bitwarden/common/types/guid";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import {
+  DialogRef,
   DialogService,
   NoItemsModule,
   SearchModule,
@@ -26,7 +27,6 @@ import {
 } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
-  NoSendsIcon,
   SendFormConfig,
   SendAddEditDialogComponent,
   SendItemDialogResult,
@@ -41,7 +41,6 @@ const BroadcasterSubscriptionId = "SendComponent";
 
 @Component({
   selector: "app-send",
-  standalone: true,
   imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule, NewSendDropdownComponent],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],

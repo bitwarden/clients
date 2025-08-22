@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { BehaviorSubject } from "rxjs";
@@ -11,7 +10,7 @@ import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstraction
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
@@ -30,7 +29,7 @@ describe("AddEditFolderDialogComponent", () => {
   const save = jest.fn().mockResolvedValue(null);
   const deleteFolder = jest.fn().mockResolvedValue(null);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
-  const getUserKeyWithLegacySupport = jest.fn().mockResolvedValue("");
+  const getUserKey = jest.fn().mockResolvedValue("");
   const error = jest.fn();
   const close = jest.fn();
   const showToast = jest.fn();
@@ -67,7 +66,7 @@ describe("AddEditFolderDialogComponent", () => {
         {
           provide: KeyService,
           useValue: {
-            getUserKeyWithLegacySupport,
+            getUserKey,
           },
         },
         { provide: LogService, useValue: { error } },

@@ -13,6 +13,7 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-recover-delete",
   templateUrl: "recover-delete.component.html",
+  standalone: false,
 })
 export class RecoverDeleteComponent {
   protected recoverDeleteForm = new FormGroup({

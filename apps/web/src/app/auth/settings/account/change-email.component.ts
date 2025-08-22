@@ -1,29 +1,32 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { EmailTokenRequest } from "@bitwarden/common/auth/models/request/email-token.request";
 import { EmailRequest } from "@bitwarden/common/auth/models/request/email.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+
+import { SharedModule } from "../../../shared";
 
 @Component({
   selector: "app-change-email",
   templateUrl: "change-email.component.html",
+  imports: [SharedModule],
 })
 export class ChangeEmailComponent implements OnInit {
   tokenSent = false;
   showTwoFactorEmailWarning = false;
+  userId: UserId | undefined;
 
-  protected formGroup = this.formBuilder.group({
+  formGroup = this.formBuilder.group({
     step1: this.formBuilder.group({
       masterPassword: ["", [Validators.required]],
       newEmail: ["", [Validators.required, Validators.email]],
@@ -32,26 +35,30 @@ export class ChangeEmailComponent implements OnInit {
   });
 
   constructor(
+    private accountService: AccountService,
     private apiService: ApiService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private keyService: KeyService,
     private messagingService: MessagingService,
-    private logService: LogService,
-    private stateService: StateService,
     private formBuilder: FormBuilder,
     private kdfConfigService: KdfConfigService,
     private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
+    this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     const twoFactorProviders = await this.apiService.getTwoFactorProviders();
     this.showTwoFactorEmailWarning = twoFactorProviders.data.some(
       (p) => p.type === TwoFactorProviderType.Email && p.enabled,
     );
   }
 
-  protected submit = async () => {
+  submit = async () => {
+    if (this.userId == null) {
+      throw new Error("Can't find user");
+    }
+
     // This form has multiple steps, so we need to mark all the groups as touched.
     this.formGroup.controls.step1.markAllAsTouched();
 
@@ -65,37 +72,54 @@ export class ChangeEmailComponent implements OnInit {
     }
 
     const step1Value = this.formGroup.controls.step1.value;
-    const newEmail = step1Value.newEmail.trim().toLowerCase();
+    const newEmail = step1Value.newEmail?.trim().toLowerCase();
+    const masterPassword = step1Value.masterPassword;
+
+    if (newEmail == null || masterPassword == null) {
+      throw new Error("Missing email or password");
+    }
+
+    const existingHash = await this.keyService.hashMasterKey(
+      masterPassword,
+      await this.keyService.getOrDeriveMasterKey(masterPassword, this.userId),
+    );
 
     if (!this.tokenSent) {
       const request = new EmailTokenRequest();
       request.newEmail = newEmail;
-      request.masterPasswordHash = await this.keyService.hashMasterKey(
-        step1Value.masterPassword,
-        await this.keyService.getOrDeriveMasterKey(step1Value.masterPassword),
-      );
+      request.masterPasswordHash = existingHash;
       await this.apiService.postEmailToken(request);
       this.activateStep2();
     } else {
+      const token = this.formGroup.value.token;
+      if (token == null) {
+        throw new Error("Missing token");
+      }
       const request = new EmailRequest();
-      request.token = this.formGroup.value.token;
+      request.token = token;
       request.newEmail = newEmail;
-      request.masterPasswordHash = await this.keyService.hashMasterKey(
-        step1Value.masterPassword,
-        await this.keyService.getOrDeriveMasterKey(step1Value.masterPassword),
-      );
-      const kdfConfig = await this.kdfConfigService.getKdfConfig();
-      const newMasterKey = await this.keyService.makeMasterKey(
-        step1Value.masterPassword,
-        newEmail,
-        kdfConfig,
-      );
+      request.masterPasswordHash = existingHash;
+
+      const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(this.userId));
+      if (kdfConfig == null) {
+        throw new Error("Missing kdf config");
+      }
+      const newMasterKey = await this.keyService.makeMasterKey(masterPassword, newEmail, kdfConfig);
       request.newMasterPasswordHash = await this.keyService.hashMasterKey(
-        step1Value.masterPassword,
+        masterPassword,
         newMasterKey,
       );
-      const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey);
-      request.key = newUserKey[1].encryptedString;
+
+      const userKey = await firstValueFrom(this.keyService.userKey$(this.userId));
+      if (userKey == null) {
+        throw new Error("Can't find UserKey");
+      }
+      const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
+      const encryptedUserKey = newUserKey[1]?.encryptedString;
+      if (encryptedUserKey == null) {
+        throw new Error("Missing Encrypted User Key");
+      }
+      request.key = encryptedUserKey;
 
       await this.apiService.postEmail(request);
       this.reset();

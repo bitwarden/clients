@@ -1,31 +1,23 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-
-import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from "@angular/core";
+import { Component, EventEmitter, Output, TemplateRef, input, viewChild } from "@angular/core";
 import { QueryParamsHandling } from "@angular/router";
 
 @Component({
   selector: "bit-breadcrumb",
   templateUrl: "./breadcrumb.component.html",
-  standalone: true,
 })
 export class BreadcrumbComponent {
-  @Input()
-  icon?: string;
+  readonly icon = input<string>();
 
-  @Input()
-  route?: string | any[] = undefined;
+  readonly route = input<string | any[]>();
 
-  @Input()
-  queryParams?: Record<string, string> = {};
+  readonly queryParams = input<Record<string, string>>({});
 
-  @Input()
-  queryParamsHandling?: QueryParamsHandling;
+  readonly queryParamsHandling = input<QueryParamsHandling>();
 
   @Output()
   click = new EventEmitter();
 
-  @ViewChild(TemplateRef, { static: true }) content: TemplateRef<unknown>;
+  readonly content = viewChild(TemplateRef);
 
   onClick(args: unknown) {
     this.click.next(args);

@@ -22,11 +22,13 @@ import { projectAccessGuard } from "./project-access.guard";
 
 @Component({
   template: "",
+  standalone: false,
 })
 export class GuardedRouteTestComponent {}
 
 @Component({
   template: "",
+  standalone: false,
 })
 export class RedirectTestComponent {}
 

@@ -3,17 +3,17 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router, RouterLink, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ActiveSendIcon } from "@bitwarden/assets/svg";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { ButtonModule, IconModule, ToastService } from "@bitwarden/components";
-import { SendCreatedIcon } from "@bitwarden/send-ui";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
@@ -23,7 +23,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 @Component({
   selector: "app-send-created",
   templateUrl: "./send-created.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,
@@ -31,14 +30,13 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
     PopOutComponent,
     PopupHeaderComponent,
     PopupPageComponent,
-    RouterLink,
     RouterModule,
     PopupFooterComponent,
     IconModule,
   ],
 })
 export class SendCreatedComponent {
-  protected sendCreatedIcon = SendCreatedIcon;
+  protected sendCreatedIcon = ActiveSendIcon;
   protected send: SendView;
   protected daysAvailable = 0;
   protected hoursAvailable = 0;

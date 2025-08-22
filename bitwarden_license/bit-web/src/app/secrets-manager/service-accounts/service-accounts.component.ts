@@ -31,6 +31,7 @@ import { ServiceAccountService } from "./service-account.service";
 @Component({
   selector: "sm-service-accounts",
   templateUrl: "./service-accounts.component.html",
+  standalone: false,
 })
 export class ServiceAccountsComponent implements OnInit {
   protected serviceAccounts$: Observable<ServiceAccountSecretsDetailsView[]>;

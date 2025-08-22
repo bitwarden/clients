@@ -1,3 +1,13 @@
+/*
+    -- Note --
+    
+    As of June 2025, settings should only be added here if they are owned
+    by the platform team. Other settings should be added to the relevant service
+    owned by the team that owns the setting.
+
+    More info: https://bitwarden.atlassian.net/browse/PM-23126
+*/
+
 import { Observable, map } from "rxjs";
 
 import {
@@ -8,7 +18,8 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { WindowState } from "../models/domain/window-state";
+import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
+import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
   DESKTOP_SETTINGS_DISK,
@@ -70,9 +81,22 @@ const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "ssh
   deserializer: (b) => b,
 });
 
+const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
+  DESKTOP_SETTINGS_DISK,
+  "sshAgentRememberAuthorizations",
+  {
+    deserializer: (b) => b,
+    clearOn: [],
+  },
+);
+
 const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
   deserializer: (b) => b,
   clearOn: [], // User setting, no need to clear
+});
+
+const MODAL_MODE = new KeyDefinition<ModalModeState>(DESKTOP_SETTINGS_DISK, "modalMode", {
+  deserializer: (b) => b,
 });
 
 const PREVENT_SCREENSHOTS = new KeyDefinition<boolean>(
@@ -94,7 +118,7 @@ export class DesktopSettingsService {
 
   private readonly closeToTrayState = this.stateProvider.getGlobal(CLOSE_TO_TRAY_KEY);
   /**
-   * Tha applications setting for whether or not to close the application into the system tray.
+   * The applications setting for whether or not to close the application into the system tray.
    */
   closeToTray$ = this.closeToTrayState.state$.pipe(map(Boolean));
 
@@ -155,6 +179,11 @@ export class DesktopSettingsService {
 
   sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
 
+  private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
+  sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
+    map((v) => v ?? SshAgentPromptType.Always),
+  );
+
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
 
   /**
@@ -170,12 +199,24 @@ export class DesktopSettingsService {
    */
   minimizeOnCopy$ = this.minimizeOnCopyState.state$.pipe(map(Boolean));
 
+  private readonly modalModeState = this.stateProvider.getGlobal(MODAL_MODE);
+
+  modalMode$ = this.modalModeState.state$;
+
   constructor(private stateProvider: StateProvider) {
     this.window$ = this.windowState.state$.pipe(
       map((window) =>
         window != null && Object.keys(window).length > 0 ? window : new WindowState(),
       ),
     );
+  }
+
+  /**
+   * This is used to clear the setting on application start to make sure we don't end up
+   * stuck in modal mode if the application is force-closed in modal mode.
+   */
+  async resetModalMode() {
+    await this.modalModeState.update(() => ({ isModalModeActive: false }));
   }
 
   async setHardwareAcceleration(enabled: boolean) {
@@ -276,6 +317,10 @@ export class DesktopSettingsService {
     await this.sshAgentEnabledState.update(() => value);
   }
 
+  async setSshAgentPromptBehavior(value: SshAgentPromptType) {
+    await this.sshAgentPromptBehavior.update(() => value);
+  }
+
   /**
    * Sets the minimize on copy value for the current user.
    * @param value `true` if the application should minimize when a value is copied,
@@ -284,6 +329,17 @@ export class DesktopSettingsService {
    */
   async setMinimizeOnCopy(value: boolean, userId: UserId) {
     await this.stateProvider.getUser(userId, MINIMIZE_ON_COPY).update(() => value);
+  }
+
+  /**
+   * Sets the modal mode of the application. Setting this changes the windows-size and other properties.
+   * @param value `true` if the application is in modal mode, `false` if it is not.
+   */
+  async setModalMode(value: boolean, modalPosition?: { x: number; y: number }) {
+    await this.modalModeState.update(() => ({
+      isModalModeActive: value,
+      modalPosition,
+    }));
   }
 
   /**

@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
@@ -16,19 +16,16 @@ describe("Menu", () => {
   // The overlay is created outside the root debugElement, so we need to query its parent
   const getBitMenuPanel = () => document.querySelector(".bit-menu-panel");
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [MenuModule],
-      declarations: [TestApp],
+      imports: [TestApp],
     });
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.compileComponents();
+    await TestBed.compileComponents();
 
     fixture = TestBed.createComponent(TestApp);
     fixture.detectChanges();
-  }));
+  });
 
   it("should open when the trigger is clicked", async () => {
     const buttonDebugElement = fixture.debugElement.query(By.directive(MenuTriggerForDirective));
@@ -61,17 +58,26 @@ describe("Menu", () => {
 
     expect(getBitMenuPanel()).toBeFalsy();
   });
+
+  it("should not open when the trigger button is disabled", () => {
+    const buttonDebugElement = fixture.debugElement.query(By.directive(MenuTriggerForDirective));
+    buttonDebugElement.nativeElement.setAttribute("disabled", "true");
+    (buttonDebugElement.nativeElement as HTMLButtonElement).click();
+
+    expect(getBitMenuPanel()).toBeFalsy();
+  });
 });
 
 @Component({
   selector: "test-app",
   template: `
-    <button type="button" [bitMenuTriggerFor]="testMenu" class="testclass">Open menu</button>
+    <button type="button" [bitMenuTriggerFor]="testMenu">Open menu</button>
 
     <bit-menu #testMenu>
       <a id="item1" bitMenuItem>Item 1</a>
       <a id="item2" bitMenuItem>Item 2</a>
     </bit-menu>
   `,
+  imports: [MenuModule],
 })
 class TestApp {}

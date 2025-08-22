@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import Domain from "../../../../platform/models/domain/domain-base";
-import { EncString } from "../../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { SendType } from "../../enums/send-type";
 import { SendAccessResponse } from "../response/send-access.response";
@@ -54,14 +54,7 @@ export class SendAccess extends Domain {
   async decrypt(key: SymmetricCryptoKey): Promise<SendAccessView> {
     const model = new SendAccessView(this);
 
-    await this.decryptObj(
-      model,
-      {
-        name: null,
-      },
-      null,
-      key,
-    );
+    await this.decryptObj<SendAccess, SendAccessView>(this, model, ["name"], null, key);
 
     switch (this.type) {
       case SendType.File:

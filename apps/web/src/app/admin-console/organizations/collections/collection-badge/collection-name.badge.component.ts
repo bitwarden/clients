@@ -4,9 +4,13 @@ import { Component, Input } from "@angular/core";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 
+import { SharedModule } from "../../../../shared/shared.module";
+import { GetCollectionNameFromIdPipe } from "../pipes";
+
 @Component({
   selector: "app-collection-badge",
   templateUrl: "collection-name-badge.component.html",
+  imports: [SharedModule, GetCollectionNameFromIdPipe],
 })
 export class CollectionNameBadgeComponent {
   @Input() collectionIds: string[];
