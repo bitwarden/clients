@@ -221,8 +221,6 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
   ): Promise<any>;
   abstract restoreWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
   abstract restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void>;
-  abstract archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void>;
-  abstract unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void>;
   abstract getKeyForCipherKeyDecryption(cipher: Cipher, userId: UserId): Promise<any>;
   abstract setAddEditCipherInfo(value: AddEditCipherInfo, userId: UserId): Promise<void>;
   /**
@@ -270,4 +268,14 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * When a `CipherView` instance is passed, it returns it as is.
    */
   abstract getFullCipherView(c: CipherViewLike): Promise<CipherView>;
+
+  /**
+   * Updates ciphers for the currently active user. Inactive users can only clear all ciphers, for now.
+   * @param update update callback for encrypted cipher data
+   * @returns
+   */
+  abstract updateEncryptedCipherState(
+    update: (current: Record<CipherId, CipherData>) => Record<CipherId, CipherData>,
+    userId?: UserId,
+  ): Promise<Record<CipherId, CipherData>>;
 }

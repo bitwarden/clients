@@ -22,11 +22,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  CanDeleteCipherDirective,
-  DecryptionFailureDialogComponent,
-  PasswordRepromptService,
-} from "@bitwarden/vault";
+import { CanDeleteCipherDirective, CipherArchiveService } from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -55,18 +51,18 @@ import { VaultPopupItemsService } from "../services/vault-popup-items.service";
 export class ArchiveComponent {
   private vaultPopupItemsService = inject(VaultPopupItemsService);
   private dialogService = inject(DialogService);
-  private passwordRepromptService = inject(PasswordRepromptService);
   private router = inject(Router);
   private cipherService = inject(CipherService);
   private accountService = inject(AccountService);
   private logService = inject(LogService);
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
+  private cipherArchiveService = inject(CipherArchiveService);
 
   protected archivedCiphers$ = this.vaultPopupItemsService.archivedCiphers$;
 
   async view(cipher: CipherView) {
-    if (!(await this.canInteract(cipher))) {
+    if (!(await this.cipherArchiveService.canInteract(cipher))) {
       return;
     }
 
@@ -76,7 +72,7 @@ export class ArchiveComponent {
   }
 
   async edit(cipher: CipherView) {
-    if (!(await this.canInteract(cipher))) {
+    if (!(await this.cipherArchiveService.canInteract(cipher))) {
       return;
     }
 
@@ -86,7 +82,7 @@ export class ArchiveComponent {
   }
 
   async delete(cipher: CipherView) {
-    if (!(await this.canInteract(cipher, true))) {
+    if (!(await this.cipherArchiveService.canInteract(cipher, true))) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -115,12 +111,12 @@ export class ArchiveComponent {
   }
 
   async unarchive(cipher: CipherView) {
-    if (!(await this.canInteract(cipher))) {
+    if (!(await this.cipherArchiveService.canInteract(cipher))) {
       return;
     }
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    await this.cipherService.unarchiveWithServer(cipher.id as CipherId, activeUserId);
+    await this.cipherArchiveService.unarchiveWithServer(cipher.id as CipherId, activeUserId);
 
     this.toastService.showToast({
       variant: "success",
@@ -129,7 +125,7 @@ export class ArchiveComponent {
   }
 
   async clone(cipher: CipherView) {
-    if (!(await this.canInteract(cipher))) {
+    if (!(await this.cipherArchiveService.canInteract(cipher))) {
       return;
     }
 
@@ -154,21 +150,21 @@ export class ArchiveComponent {
     });
   }
 
-  /**
-   * Check if the user is able to interact with the cipher
-   * (password re-prompt / decryption failure checks).
-   * @param cipher
-   * @param ignoreDecryptionFailure - If true, the decryption failure check will be ignored.
-   * @private
-   */
-  private async canInteract(cipher: CipherView, ignoreDecryptionFailure = false) {
-    if (cipher.decryptionFailure) {
-      DecryptionFailureDialogComponent.open(this.dialogService, {
-        cipherIds: [cipher.id as CipherId],
-      });
-      return false;
-    }
-
-    return await this.passwordRepromptService.passwordRepromptCheck(cipher);
-  }
+  // /**
+  //  * Check if the user is able to interact with the cipher
+  //  * (password re-prompt / decryption failure checks).
+  //  * @param cipher
+  //  * @param ignoreDecryptionFailure - If true, the decryption failure check will be ignored.
+  //  * @private
+  //  */
+  // private async canInteract(cipher: CipherView, ignoreDecryptionFailure = false) {
+  //   if (cipher.decryptionFailure) {
+  //     DecryptionFailureDialogComponent.open(this.dialogService, {
+  //       cipherIds: [cipher.id as CipherId],
+  //     });
+  //     return false;
+  //   }
+  //
+  //   return await this.passwordRepromptService.passwordRepromptCheck(cipher);
+  // }
 }

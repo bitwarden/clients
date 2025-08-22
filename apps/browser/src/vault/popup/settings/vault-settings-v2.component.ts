@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, signal } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -7,10 +7,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { BadgeComponent, ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
+import { CipherArchiveService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -34,6 +34,9 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 export class VaultSettingsV2Component implements OnInit, OnDestroy {
   lastSync = "--";
 
+  // Check if user is premium and/or has access to archive feature
+  protected userCanArchive = signal<boolean>(false);
+
   protected emptyVaultImportBadge$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) =>
@@ -48,16 +51,24 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private nudgeService: NudgesService,
     private accountService: AccountService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   async ngOnInit() {
     await this.setLastSync();
+    await this.checkCanArchiveStatus();
   }
 
   async ngOnDestroy(): Promise<void> {
     // When a user navigates away from the page, dismiss the empty vault import nudge
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.nudgeService.dismissNudge(NudgeType.VaultSettingsImportNudge, userId);
+  }
+
+  private async checkCanArchiveStatus() {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userArchiveStatus = await this.cipherArchiveService.userCanArchive(userId);
+    this.userCanArchive.set(userArchiveStatus);
   }
 
   async import() {
@@ -92,5 +103,5 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
     }
   }
 
-  protected readonly FeatureFlag = FeatureFlag;
+  // protected readonly FeatureFlag = FeatureFlag;
 }

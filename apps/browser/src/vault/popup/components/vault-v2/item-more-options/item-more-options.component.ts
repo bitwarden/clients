@@ -30,7 +30,7 @@ import {
   MenuModule,
   ToastService,
 } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { CipherArchiveService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
@@ -141,6 +141,7 @@ export class ItemMoreOptionsComponent {
     private collectionService: CollectionService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   get canEdit() {
@@ -271,7 +272,8 @@ export class ItemMoreOptionsComponent {
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.cipherService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
+    await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
+    // await this.cipherService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("itemSentToArchive"),

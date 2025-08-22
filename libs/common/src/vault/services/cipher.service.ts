@@ -14,10 +14,6 @@ import { SemVer } from "semver";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
-import {
-  CipherBulkArchiveRequest,
-  CipherBulkUnarchiveRequest,
-} from "@bitwarden/common/vault/models/request/cipher-bulk-archive.request";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -1169,7 +1165,7 @@ export class CipherService implements CipherServiceAbstraction {
    * @param update update callback for encrypted cipher data
    * @returns
    */
-  private async updateEncryptedCipherState(
+  async updateEncryptedCipherState(
     update: (current: Record<CipherId, CipherData>) => Record<CipherId, CipherData>,
     userId: UserId = null,
   ): Promise<Record<CipherId, CipherData>> {
@@ -1475,46 +1471,6 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     await this.restore({ id: id, revisionDate: response.revisionDate }, userId);
-  }
-
-  async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
-    const request = new CipherBulkArchiveRequest(Array.isArray(ids) ? ids : [ids]);
-    const r = await this.apiService.send("PUT", "/ciphers/archive", request, true, true);
-    const response = new ListResponse(r, CipherResponse);
-
-    await this.updateEncryptedCipherState((ciphers) => {
-      for (const cipher of response.data) {
-        const localCipher = ciphers[cipher.id as CipherId];
-
-        if (localCipher == null) {
-          continue;
-        }
-
-        localCipher.archivedDate = cipher.archivedDate;
-        localCipher.revisionDate = cipher.revisionDate;
-      }
-      return ciphers;
-    }, userId);
-  }
-
-  async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
-    const request = new CipherBulkUnarchiveRequest(Array.isArray(ids) ? ids : [ids]);
-    const r = await this.apiService.send("PUT", "/ciphers/unarchive", request, true, true);
-    const response = new ListResponse(r, CipherResponse);
-
-    await this.updateEncryptedCipherState((ciphers) => {
-      for (const cipher of response.data) {
-        const localCipher = ciphers[cipher.id as CipherId];
-
-        if (localCipher == null) {
-          continue;
-        }
-
-        localCipher.archivedDate = cipher.archivedDate;
-        localCipher.revisionDate = cipher.revisionDate;
-      }
-      return ciphers;
-    }, userId);
   }
 
   /**

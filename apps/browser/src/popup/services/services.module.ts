@@ -141,6 +141,8 @@ import {
   DefaultSshImportPromptService,
   PasswordRepromptService,
   SshImportPromptService,
+  CipherArchiveService,
+  DefaultCipherArchiveService,
 } from "@bitwarden/vault";
 
 import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
@@ -681,6 +683,18 @@ const safeProviders: SafeProvider[] = [
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: ExtensionDeviceManagementComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: CipherArchiveService,
+    useClass: DefaultCipherArchiveService,
+    deps: [
+      CipherService,
+      ApiService,
+      DialogService,
+      PasswordRepromptService,
+      BillingAccountProfileStateService,
+      ConfigService,
+    ],
   }),
 ];
 
