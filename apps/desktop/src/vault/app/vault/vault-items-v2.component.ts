@@ -7,6 +7,7 @@ import { distinctUntilChanged } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -42,6 +43,6 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
   }
 
   trackByFn(index: number, c: C): string {
-    return c.id!;
+    return uuidAsString(c.id!);
   }
 }
