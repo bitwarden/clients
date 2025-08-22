@@ -286,6 +286,7 @@ function handleCloseNotification(e: Event) {
   e.preventDefault();
   sendPlatformMessage({
     command: "bgCloseNotificationBar",
+    fadeOutNotification: true,
   });
 }
 
