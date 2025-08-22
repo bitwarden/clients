@@ -199,18 +199,30 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ) {
+    console.log("SETUP OVERLAY LISTENERS");
+
+    console.log("currentlyInSandboxedIframe()", currentlyInSandboxedIframe());
+    console.log(
+      "this.formFieldElements.has(formFieldElement)",
+      this.formFieldElements.has(formFieldElement),
+    );
+    console.log(
+      "this.isIgnoredField(autofillFieldData, pageDetails)",
+      this.isIgnoredField(autofillFieldData, pageDetails),
+    );
+
     if (
       currentlyInSandboxedIframe() ||
       this.formFieldElements.has(formFieldElement) ||
-      this.isIgnoredField(autofillFieldData, pageDetails)
+      this.isIgnoredField(autofillFieldData, pageDetails).result
     ) {
       return;
     }
-
+    console.log("IS IT HIDDEN");
     if (this.isHiddenField(formFieldElement, autofillFieldData)) {
       return;
     }
-
+    console.log("SETUP ON QUALIFIED FIELD");
     await this.setupOverlayListenersOnQualifiedField(formFieldElement, autofillFieldData);
   }
 
@@ -1048,16 +1060,26 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private isIgnoredField(
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
-  ): boolean {
-    if (this.ignoredFieldTypes.has(autofillFieldData.type)) {
-      return true;
+  ): { result: boolean; message: string } {
+    const message = "isIgnoredField";
+
+    console.log(message, { autofillFieldData });
+
+    const ignoredTypeResult = Array.from(this.ignoredFieldTypes).find(
+      (v) => v === autofillFieldData.type,
+    );
+    if (ignoredTypeResult) {
+      return {
+        result: true,
+        message: `${message} // field type is ignored type: ${ignoredTypeResult}`,
+      };
     }
 
     if (
       this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
     ) {
       void this.setQualifiedLoginFillType(autofillFieldData);
-      return false;
+      return { result: false, message: `${message} // field is for login form` };
     }
 
     if (
@@ -1068,7 +1090,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       autofillFieldData.inlineMenuFillType = CipherType.Card;
-      return false;
+      return {
+        result: false,
+        message: `${message} // field is for credit card form & inline menu cards shown`,
+      };
     }
 
     if (
@@ -1078,7 +1103,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       this.setQualifiedAccountCreationFillType(autofillFieldData);
-      return false;
+      return { result: false, message: `${message} // field is for account creation form` };
     }
 
     if (
@@ -1089,10 +1114,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       autofillFieldData.inlineMenuFillType = CipherType.Identity;
-      return false;
+      return {
+        result: false,
+        message: `${message} // field is for identity form & inline menu identities shown`,
+      };
     }
 
-    return true;
+    return {
+      result: true,
+      message: `${message} // field ignored by default — not in any unignorable condition`,
+    };
   }
 
   /**
@@ -1101,6 +1132,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private async setQualifiedLoginFillType(autofillFieldData: AutofillField) {
+    console.log("setQualifiedLoginFillType");
     autofillFieldData.inlineMenuFillType = CipherType.Login;
     autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType.includes("webauthn");
 

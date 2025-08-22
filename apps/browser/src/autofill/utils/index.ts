@@ -501,6 +501,25 @@ export function isInvalidResponseStatusCode(statusCode: number) {
  * Determines if the current context is within a sandboxed iframe.
  */
 export function currentlyInSandboxedIframe(): boolean {
+  // console.log(
+  //   'String(self.origin).toLowerCase() === "null"',
+  //   String(self.origin).toLowerCase() === "null",
+  //   self,
+  // );
+  // console.log(
+  //   'globalThis.frameElement?.hasAttribute("sandbox")',
+  //   globalThis.frameElement?.hasAttribute("sandbox"),
+  //   globalThis.frameElement,
+  // );
+  // console.log(
+  //   'globalThis.location.hostname === ""',
+  //   globalThis.location.hostname === "",
+  //   globalThis.location,
+  // );
+  // console.log({
+  //   globalThis,
+  // });
+
   return (
     String(self.origin).toLowerCase() === "null" ||
     globalThis.frameElement?.hasAttribute("sandbox") ||

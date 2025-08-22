@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import AutofillField from "../models/autofill-field";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { AutofillFieldQualifier } from "../enums/autofill-field.enums";
+import AutofillField, { DomainMatch } from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
@@ -34,6 +36,7 @@ import {
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import { P } from "@angular/cdk/portal-directives.d-BoG39gYN";
 
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
@@ -168,6 +171,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       [...this.autofillFieldElements].sort((a, b) => a[1].elementNumber - b[1].elementNumber),
     );
   }
+  /**
+   *
+   * @returns string (href)
+   */
+  private getSafeDocumentUrl() {
+    return (document.defaultView || globalThis).location.href;
+  }
 
   /**
    * Formats and returns the AutofillPageDetails object
@@ -181,7 +191,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   ): AutofillPageDetails {
     return {
       title: document.title,
-      url: (document.defaultView || globalThis).location.href,
+      url: this.getSafeDocumentUrl(),
       documentUrl: document.location.href,
       forms: autofillFormsData,
       fields: autofillFieldsData,
@@ -398,7 +408,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     const fieldFormElement = (element as ElementWithOpId<FillableFormFieldElement>).form;
-    const autofillField = {
+    const autofillField: AutofillField = {
       ...autofillFieldBase,
       ...autofillFieldLabels,
       rel: this.getPropertyOrAttribute(element, "rel"),
@@ -416,11 +426,100 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       "aria-disabled": this.getAttributeBoolean(element, "aria-disabled", true),
       "aria-haspopup": this.getAttributeBoolean(element, "aria-haspopup", true),
       "data-stripe": this.getPropertyOrAttribute(element, "data-stripe"),
+      domainMatch: this.matchesXPathForDomain(element) || null,
     };
 
     this.cacheAutofillFieldElement(index, element, autofillField);
     return autofillField;
   };
+
+  matchesXPathForDomain(element: ElementWithOpId<FormFieldElement>): DomainMatch {
+    const url = this.getSafeDocumentUrl();
+    const domain = Utils.getDomain(url);
+    const matchers = [
+      {
+        domain: "cnn.com",
+        xpathQualifiers: [
+          {
+            qualifierType: AutofillFieldQualifier.identityEmail,
+            xpath: '//*[@id="login-email-input"]',
+            fullxpath:
+              "/html/body/div[1]/section[2]/section/section/section/div[2]/div[2]/div/form/div[1]/div/div[1]/input",
+          },
+          {
+            qualifierType: AutofillFieldQualifier.password,
+            xpath: '//*[@id="login-password-input"]',
+            fullxpath:
+              "/html/body/div[1]/section[2]/section/section/section/div[2]/div[2]/div/form/div[2]/div/div[1]/input",
+          },
+        ],
+      },
+      {
+        domain: "bestbuy.com",
+        xpathQualifiers: [
+          {
+            qualifierType: AutofillFieldQualifier.identityEmail,
+            fullxpath:
+              "/html/body/div[1]/div/section/main/div[2]/div/div/div[1]/div/div/div/div/div/form/div[1]/div/input",
+          },
+          {
+            qualifierType: AutofillFieldQualifier.password,
+            fullxpath:
+              "/html/body/div[1]/div/section/main/div[2]/div/div/div[1]/div/div/div/div/div/form/fieldset/fieldset/div[5]/div[2]/div/div/input",
+          },
+        ],
+      },
+      {
+        domain: "samsclub.com",
+        xpathQualifiers: [
+          {
+            qualifierType: AutofillFieldQualifier.identityEmail,
+            fullxpath: "/html/body/div[1]/div/div[1]/div/div/div[1]/form/div[1]/div/input",
+          },
+          {
+            qualifierType: AutofillFieldQualifier.password,
+            fullxpath: "/html/body/div[1]/div/div[1]/div/div/div[1]/form/div[3]/div/div/input",
+          },
+        ],
+      },
+      {
+        domain: "samsung.com",
+        xpathQualifiers: [
+          {
+            qualifierType: AutofillFieldQualifier.identityEmail,
+            fullxpath: "/html/body/div[1]/div/div[2]/div/div[2]/div[1]/form/div/div/input",
+          },
+          {
+            qualifierType: AutofillFieldQualifier.password,
+            fullxpath: "/html/body/div[1]/div/div[2]/div[1]/div[3]/div[1]/form/div/div/input",
+          },
+        ],
+      },
+    ];
+
+    for (const matcher of matchers) {
+      if (matcher.domain === domain) {
+        for (const xpathQualifier of matcher.xpathQualifiers) {
+          const xpathResult = document.evaluate(
+            xpathQualifier.fullxpath,
+            document,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+          );
+
+          const { singleNodeValue: node } = xpathResult;
+
+          if (node && node.isSameNode(element)) {
+            return {
+              domain,
+              fieldType: xpathQualifier.qualifierType,
+              xpathResult,
+            };
+          }
+        }
+      }
+    }
+  }
 
   /**
    * Caches the autofill field element and its data.
