@@ -364,7 +364,13 @@
                       (change)="saveEnableAutotype()"
                     />
                     {{ "enableAutotypeTransitionKey" | i18n }}
-                    <button type="button" bitBadge variant="success" (click)="openPremiumDialog()">
+                    <button
+                      type="button"
+                      bitBadge
+                      variant="success"
+                      (click)="openPremiumDialog()"
+                      *ngIf="!hasPremium"
+                    >
                       {{ "premium" | i18n }}
                     </button>
                   </label>
