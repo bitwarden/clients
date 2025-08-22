@@ -340,4 +340,10 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
       .getUser(userId, MASTER_PASSWORD_UNLOCK_KEY)
       .update(() => masterPasswordUnlockData.toJSON());
   }
+
+  masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {
+    assertNonNullish(userId, "userId");
+
+    return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
+  }
 }

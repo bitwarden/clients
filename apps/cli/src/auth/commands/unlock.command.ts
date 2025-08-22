@@ -1,15 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
@@ -35,6 +38,8 @@ export class UnlockCommand {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private logout: () => Promise<void>,
     private i18nService: I18nService,
+    private masterPasswordUnlockService: MasterPasswordUnlockService,
+    private configService: ConfigService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -48,30 +53,50 @@ export class UnlockCommand {
     }
 
     await this.setNewSessionKey();
-    const [userId, email] = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),
-    );
-
-    const verification = {
-      type: VerificationType.MasterPassword,
-      secret: password,
-    } as MasterPasswordVerification;
-
-    let masterKey: MasterKey;
-    try {
-      const response = await this.userVerificationService.verifyUserByMasterPassword(
-        verification,
-        userId,
-        email,
-      );
-      masterKey = response.masterKey;
-    } catch (e) {
-      // verification failure throws
-      return Response.error(e.message);
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (activeAccount === null) {
+      return Response.error("No active account found");
     }
+    const [userId, email] = [activeAccount.id, activeAccount.email];
 
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
-    await this.keyService.setUserKey(userKey, userId);
+    if (
+      await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.ForceUpdateKDFSettings))
+    ) {
+      try {
+        const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
+          password,
+          activeAccount,
+        );
+
+        await this.keyService.setUserKey(userKey, activeAccount.id);
+      } catch (e) {
+        return Response.error(e.message);
+      }
+    } else {
+      const verification = {
+        type: VerificationType.MasterPassword,
+        secret: password,
+      } as MasterPasswordVerification;
+
+      let masterKey: MasterKey;
+      try {
+        const response = await this.userVerificationService.verifyUserByMasterPassword(
+          verification,
+          userId,
+          email,
+        );
+        masterKey = response.masterKey;
+      } catch (e) {
+        // verification failure throws
+        return Response.error(e.message);
+      }
+
+      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+        masterKey,
+        userId,
+      );
+      await this.keyService.setUserKey(userKey, userId);
+    }
 
     if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       const convertToKeyConnectorCommand = new ConvertToKeyConnectorCommand(
