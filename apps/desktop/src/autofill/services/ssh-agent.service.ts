@@ -35,6 +35,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { ApproveSshRequestComponent } from "../../platform/components/approve-ssh-request";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
+import { decrypt_ssh_key_for_agent } from "@bitwarden/sdk-internal";
 
 @Injectable({
   providedIn: "root",
@@ -158,13 +159,25 @@ export class SshAgentService implements OnDestroy {
                 !cipher.isDeleted &&
                 cipher.organizationId == null,
             );
-            const keys = sshCiphers.map((cipher) => {
-              return {
-                name: cipher.name,
-                privateKey: cipher.sshKey.privateKey,
-                cipherId: cipher.id,
-              };
-            });
+            const keys = await Promise.all(
+              sshCiphers.map(async (cipher: any) => {
+                let pk = cipher.sshKey.privateKey;
+                const original = (cipher.sshKey as any).originalPrivateKey ?? cipher.sshKey.privateKey;
+                const pass = (cipher.sshKey as any).sshKeyPassphrase;
+                if (pass) {
+                  try {
+                    pk = await decrypt_ssh_key_for_agent(original, pass);
+                  } catch {
+                    // leave pk as-is if decryption fails
+                  }
+                }
+                return {
+                  name: cipher.name,
+                  privateKey: pk,
+                  cipherId: cipher.id,
+                };
+              }),
+            );
             await ipc.platform.sshAgent.setKeys(keys);
             await ipc.platform.sshAgent.signRequestResponse(requestId, true);
             return;
@@ -202,7 +215,7 @@ export class SshAgentService implements OnDestroy {
       .subscribe();
 
     this.accountService.activeAccount$.pipe(skip(1), takeUntil(this.destroy$)).subscribe({
-      next: (account) => {
+      next: (account: any) => {
         if (!this.isFeatureFlagEnabled) {
           return;
         }
@@ -241,7 +254,7 @@ export class SshAgentService implements OnDestroy {
       this.desktopSettingsService.sshAgentEnabled$,
     ])
       .pipe(
-        concatMap(async ([, enabled]) => {
+        concatMap(async ([, enabled]: [unknown, boolean]) => {
           if (!this.isFeatureFlagEnabled) {
             return;
           }
@@ -271,13 +284,25 @@ export class SshAgentService implements OnDestroy {
               !cipher.isDeleted &&
               cipher.organizationId == null,
           );
-          const keys = sshCiphers.map((cipher) => {
-            return {
-              name: cipher.name,
-              privateKey: cipher.sshKey.privateKey,
-              cipherId: cipher.id,
-            };
-          });
+          const keys = await Promise.all(
+            sshCiphers.map(async (cipher: any) => {
+              let pk = cipher.sshKey.privateKey;
+              const original = (cipher.sshKey as any).originalPrivateKey ?? cipher.sshKey.privateKey;
+              const pass = (cipher.sshKey as any).sshKeyPassphrase;
+              if (pass) {
+                try {
+                  pk = await decrypt_ssh_key_for_agent(original, pass);
+                } catch {
+                  // leave pk as-is if decryption fails
+                }
+              }
+              return {
+                name: cipher.name,
+                privateKey: pk,
+                cipherId: cipher.id,
+              };
+            }),
+          );
           await ipc.platform.sshAgent.setKeys(keys);
         }),
         takeUntil(this.destroy$),

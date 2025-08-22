@@ -110,6 +110,16 @@ export class CipherRequest {
           cipher.sshKey.keyFingerprint != null
             ? cipher.sshKey.keyFingerprint.encryptedString
             : null;
+
+        // New optional fields for preserving original encrypted PEM and passphrase
+        this.sshKey.originalPrivateKey =
+          cipher.sshKey.originalPrivateKey != null
+            ? cipher.sshKey.originalPrivateKey.encryptedString
+            : null;
+        this.sshKey.sshKeyPassphrase =
+          cipher.sshKey.sshKeyPassphrase != null
+            ? cipher.sshKey.sshKeyPassphrase.encryptedString
+            : null;
         break;
       case CipherType.Card:
         this.card = new CardApi();
