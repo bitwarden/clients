@@ -1,10 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import AutofillInit from "../../../content/autofill-init";
+import { NotificationType } from "../../../enums/notification-type.enum";
 import { DomQueryService } from "../../../services/abstractions/dom-query.service";
 import DomElementVisibilityService from "../../../services/dom-element-visibility.service";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
-import { sendExtensionMessage } from "../../../utils";
+import * as utils from "../../../utils";
 import { NotificationTypeData } from "../abstractions/overlay-notifications-content.service";
 
 import { OverlayNotificationsContentService } from "./overlay-notifications-content.service";
@@ -18,6 +19,7 @@ describe("OverlayNotificationsContentService", () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
+    jest.spyOn(utils, "sendExtensionMessage").mockImplementation(jest.fn());
     domQueryService = mock<DomQueryService>();
     domElementVisibilityService = new DomElementVisibilityService();
     overlayNotificationsContentService = new OverlayNotificationsContentService();
@@ -55,7 +57,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -68,7 +70,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -81,7 +83,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>({
             launchTimestamp: Date.now(),
           }),
@@ -98,7 +100,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -117,7 +119,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -174,8 +176,21 @@ describe("OverlayNotificationsContentService", () => {
       ).toBe("0");
 
       jest.advanceTimersByTime(150);
+    });
 
-      expect(sendExtensionMessage).toHaveBeenCalledWith("bgRemoveTabFromNotificationQueue");
+    it("triggers a fadeout of the notification bar and removes from the notification queue", () => {
+      sendMockExtensionMessage({
+        command: "closeNotificationBar",
+        data: { fadeOutNotification: true, type: NotificationType.ChangePassword },
+      });
+
+      expect(
+        overlayNotificationsContentService["notificationBarIframeElement"]?.style.opacity,
+      ).toBe("0");
+
+      jest.advanceTimersByTime(150);
+
+      expect(utils.sendExtensionMessage).toHaveBeenCalledWith("bgRemoveTabFromNotificationQueue");
     });
 
     it("closes the notification bar without a fadeout", () => {
@@ -195,7 +210,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -219,7 +234,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });
@@ -249,7 +264,7 @@ describe("OverlayNotificationsContentService", () => {
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
-          type: "change",
+          type: NotificationType.ChangePassword,
           typeData: mock<NotificationTypeData>(),
         },
       });

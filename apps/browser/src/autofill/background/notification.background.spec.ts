@@ -817,6 +817,7 @@ describe("NotificationBackground", () => {
             reprompt: CipherRepromptType.None,
           });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
+          taskService.tasksEnabled$.mockImplementation(() => of(false));
 
           sendMockExtensionMessage(message, sender);
           await flushPromises();
@@ -865,7 +866,7 @@ describe("NotificationBackground", () => {
             reprompt: CipherRepromptType.Password,
           });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
-
+          taskService.tasksEnabled$.mockImplementation(() => of(false));
           sendMockExtensionMessage(message, sender);
           await flushPromises();
 
