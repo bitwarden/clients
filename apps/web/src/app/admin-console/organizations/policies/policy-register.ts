@@ -1,5 +1,3 @@
-import { SafeInjectionToken } from "@bitwarden/ui-common";
-
 import { BasePolicy } from "./base-policy.component";
 import { DisableSendPolicy } from "./disable-send.component";
 import { MasterPasswordPolicy } from "./master-password.component";
@@ -13,10 +11,6 @@ import { SendOptionsPolicy } from "./send-options.component";
 import { SingleOrgPolicy } from "./single-org.component";
 import { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.component";
 import { vNextOrganizationDataOwnershipPolicy } from "./vnext-organization-data-ownership.component";
-
-
-
-export const POLICY_REGISTER_TOKEN = new SafeInjectionToken<BasePolicy[]>("POLICY_REGISTER_TOKEN");
 
 /**
  * The policy register for OSS policies.
