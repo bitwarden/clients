@@ -3,6 +3,7 @@
 import { Component } from "@angular/core";
 import { FormBuilder, FormControl } from "@angular/forms";
 
+
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
@@ -11,6 +12,7 @@ import {
   BasePolicy,
   BasePolicyComponent,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class MaximumVaultTimeoutPolicy extends BasePolicy {
   name = "maximumVaultTimeout";
@@ -20,9 +22,8 @@ export class MaximumVaultTimeoutPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-maximum-timeout",
   templateUrl: "maximum-vault-timeout.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
   vaultTimeoutActionOptions: { name: string; value: string }[];

@@ -23,22 +23,30 @@ import {
 } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 import { All } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
-import { PolicyListService } from "../../core/policy-list.service";
-import { BasePolicy } from "../policies";
+import { PolicyListService } from "./policy-list.service";
+import { BasePolicy } from "./base-policy.component";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
 import { PolicyEditDialogComponent, PolicyEditDialogResult } from "./policy-edit-dialog.component";
 import { SharedModule } from "../../../shared";
 import { HeaderModule } from "../../../layouts/header/header.module";
+import { safeProvider } from "@bitwarden/ui-common";
+import { POLICY_REGISTER_TOKEN } from "./policy-register";
 
 @Component({
   templateUrl: "policies.component.html",
   imports: [SharedModule, HeaderModule],
+  providers: [
+    safeProvider({
+      provide: PolicyListService,
+      deps: [POLICY_REGISTER_TOKEN],
+    }),
+  ],
 })
 export class PoliciesComponent implements OnInit {
   loading = true;
   organizationId: string;
-  policies: BasePolicy[];
+  policies: readonly BasePolicy[];
   protected organization$: Observable<Organization>;
 
   private orgPolicies: PolicyResponse[];

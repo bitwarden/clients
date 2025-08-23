@@ -3,11 +3,13 @@
 import { Component } from "@angular/core";
 import { FormBuilder, FormControl } from "@angular/forms";
 
+
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
   BasePolicy,
   BasePolicyComponent,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class AutomaticAppLoginPolicy extends BasePolicy {
   name = "automaticAppLogin";
@@ -17,9 +19,8 @@ export class AutomaticAppLoginPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-automatic-app-login",
   templateUrl: "automatic-app-login.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class AutomaticAppLoginPolicyComponent extends BasePolicyComponent {
   data = this.formBuilder.group({
