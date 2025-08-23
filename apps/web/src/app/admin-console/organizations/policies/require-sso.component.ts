@@ -13,7 +13,7 @@ export class RequireSsoPolicy extends BasePolicy {
   type = PolicyType.RequireSso;
   component = RequireSsoPolicyComponent;
 
-  display(organization: Organization, configService: ConfigService) {
+  display$(organization: Organization, configService: ConfigService) {
     return of(organization.useSso);
   }
 }

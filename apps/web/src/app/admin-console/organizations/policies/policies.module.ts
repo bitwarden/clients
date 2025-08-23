@@ -8,7 +8,7 @@ import { MasterPasswordPolicyComponent } from "./master-password.component";
 import { OrganizationDataOwnershipPolicyComponent } from "./organization-data-ownership.component";
 import { PasswordGeneratorPolicyComponent } from "./password-generator.component";
 import { PoliciesComponent } from "./policies.component";
-import { PolicyEditComponent } from "./policy-edit.component";
+import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { RemoveUnlockWithPinPolicyComponent } from "./remove-unlock-with-pin.component";
 import { RequireSsoPolicyComponent } from "./require-sso.component";
 import { ResetPasswordPolicyComponent } from "./reset-password.component";
@@ -30,7 +30,7 @@ import { TwoFactorAuthenticationPolicyComponent } from "./two-factor-authenticat
     SingleOrgPolicyComponent,
     TwoFactorAuthenticationPolicyComponent,
     PoliciesComponent,
-    PolicyEditComponent,
+    PolicyEditDialogComponent,
     RemoveUnlockWithPinPolicyComponent,
     RestrictedItemTypesPolicyComponent,
   ],
@@ -45,7 +45,7 @@ import { TwoFactorAuthenticationPolicyComponent } from "./two-factor-authenticat
     SingleOrgPolicyComponent,
     TwoFactorAuthenticationPolicyComponent,
     PoliciesComponent,
-    PolicyEditComponent,
+    PolicyEditDialogComponent,
     RemoveUnlockWithPinPolicyComponent,
   ],
 })

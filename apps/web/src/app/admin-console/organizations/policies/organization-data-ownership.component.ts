@@ -14,7 +14,7 @@ export class OrganizationDataOwnershipPolicy extends BasePolicy {
   type = PolicyType.OrganizationDataOwnership;
   component = OrganizationDataOwnershipPolicyComponent;
 
-  display(organization: Organization, configService: ConfigService): Observable<boolean> {
+  display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService
       .getFeatureFlag$(FeatureFlag.CreateDefaultLocation)
       .pipe(map((enabled) => !enabled));

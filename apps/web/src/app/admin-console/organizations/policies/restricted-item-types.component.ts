@@ -14,7 +14,7 @@ export class RestrictedItemTypesPolicy extends BasePolicy {
   type = PolicyType.RestrictedItemTypes;
   component = RestrictedItemTypesPolicyComponent;
 
-  display(organization: Organization, configService: ConfigService): Observable<boolean> {
+  display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.RemoveCardItemTypePolicy);
   }
 }

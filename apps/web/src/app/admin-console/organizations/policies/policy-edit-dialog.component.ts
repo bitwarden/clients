@@ -32,7 +32,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { BasePolicy, BasePolicyComponent } from "../policies";
+import { BasePolicy, BasePolicyComponent } from ".";
 
 export type PolicyEditDialogData = {
   /** Returns policy abstracts. */
@@ -49,10 +49,10 @@ export enum PolicyEditDialogResult {
 }
 @Component({
   selector: "app-policy-edit",
-  templateUrl: "policy-edit.component.html",
+  templateUrl: "policy-edit-dialog.component.html",
   standalone: false,
 })
-export class PolicyEditComponent implements AfterViewInit {
+export class PolicyEditDialogComponent implements AfterViewInit {
   @ViewChild("policyForm", { read: ViewContainerRef, static: true })
   policyFormRef: ViewContainerRef;
 
@@ -152,7 +152,7 @@ export class PolicyEditComponent implements AfterViewInit {
   };
 
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
-    return dialogService.open<PolicyEditDialogResult>(PolicyEditComponent, config);
+    return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 
   protected upgradePlan(): void {
