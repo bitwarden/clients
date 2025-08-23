@@ -8,6 +8,7 @@ import {
   BasePolicy,
   BasePolicyComponent,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class ActivateAutofillPolicy extends BasePolicy {
   name = "activateAutofill";
@@ -21,8 +22,7 @@ export class ActivateAutofillPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-activate-autofill",
   templateUrl: "activate-autofill.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class ActivateAutofillPolicyComponent extends BasePolicyComponent {}

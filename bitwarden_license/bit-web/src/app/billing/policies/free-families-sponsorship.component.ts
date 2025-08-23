@@ -5,6 +5,7 @@ import {
   BasePolicy,
   BasePolicyComponent,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class FreeFamiliesSponsorshipPolicy extends BasePolicy {
   name = "freeFamiliesSponsorship";
@@ -14,8 +15,7 @@ export class FreeFamiliesSponsorshipPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-free-families-sponsorship",
   templateUrl: "free-families-sponsorship.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class FreeFamiliesSponsorshipPolicyComponent extends BasePolicyComponent {}
