@@ -2,6 +2,8 @@ import { Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
+import { SharedModule } from "../../../shared";
+
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
 export class RemoveUnlockWithPinPolicy extends BasePolicy {
@@ -12,8 +14,7 @@ export class RemoveUnlockWithPinPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "remove-unlock-with-pin",
   templateUrl: "remove-unlock-with-pin.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class RemoveUnlockWithPinPolicyComponent extends BasePolicyComponent {}

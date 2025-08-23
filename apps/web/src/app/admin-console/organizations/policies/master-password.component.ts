@@ -16,6 +16,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
+import { SharedModule } from "../../../shared";
+
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
 export class MasterPasswordPolicy extends BasePolicy {
@@ -26,9 +28,8 @@ export class MasterPasswordPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-master-password",
   templateUrl: "master-password.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class MasterPasswordPolicyComponent extends BasePolicyComponent implements OnInit {
   MinPasswordLength = Utils.minimumPasswordLength;
