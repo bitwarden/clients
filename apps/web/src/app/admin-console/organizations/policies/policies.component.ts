@@ -17,21 +17,21 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
+import { safeProvider } from "@bitwarden/ui-common";
 import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 import { All } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
-import { PolicyListService } from "./policy-list.service";
-import { BasePolicy } from "./base-policy.component";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
+import { BasePolicy } from "./base-policy.component";
 import { PolicyEditDialogComponent, PolicyEditDialogResult } from "./policy-edit-dialog.component";
-import { SharedModule } from "../../../shared";
-import { HeaderModule } from "../../../layouts/header/header.module";
-import { safeProvider } from "@bitwarden/ui-common";
-import { POLICY_REGISTER_TOKEN } from "./policy-register";
+import { PolicyListService } from "./policy-list.service";
+import { POLICY_REGISTER_TOKEN } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
