@@ -27,7 +27,7 @@ import { PolicyListService } from "../../core/policy-list.service";
 import { BasePolicy } from "../policies";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
-import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.component";
+import { PolicyEditDialogComponent, PolicyEditDialogResult } from "./policy-edit-dialog.component";
 
 @Component({
   selector: "app-org-policies",
@@ -109,7 +109,7 @@ export class PoliciesComponent implements OnInit {
   }
 
   async edit(policy: BasePolicy) {
-    const dialogRef = PolicyEditComponent.open(this.dialogService, {
+    const dialogRef = PolicyEditDialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: this.organizationId,

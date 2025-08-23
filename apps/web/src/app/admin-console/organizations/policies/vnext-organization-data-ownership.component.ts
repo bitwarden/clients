@@ -18,7 +18,7 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicy {
   component = vNextOrganizationDataOwnershipPolicyComponent;
   showDescription = false;
 
-  override display(organization: Organization, configService: ConfigService): Observable<boolean> {
+  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation);
   }
 }

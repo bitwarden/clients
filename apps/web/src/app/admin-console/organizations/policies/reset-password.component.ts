@@ -20,7 +20,7 @@ export class ResetPasswordPolicy extends BasePolicy {
   type = PolicyType.ResetPassword;
   component = ResetPasswordPolicyComponent;
 
-  display(organization: Organization, configService: ConfigService) {
+  display$(organization: Organization, configService: ConfigService) {
     return of(organization.useResetPassword);
   }
 }
