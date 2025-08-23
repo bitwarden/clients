@@ -2,6 +2,8 @@ import { Component, OnInit } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
+import { SharedModule } from "../../../shared";
+
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
 export class SingleOrgPolicy extends BasePolicy {
@@ -12,9 +14,8 @@ export class SingleOrgPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-single-org",
   templateUrl: "single-org.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class SingleOrgPolicyComponent extends BasePolicyComponent implements OnInit {
   async ngOnInit() {

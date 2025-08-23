@@ -13,6 +13,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { SharedModule } from "../../../shared";
 
 export class ResetPasswordPolicy extends BasePolicy {
   name = "accountRecoveryPolicy";
@@ -26,9 +27,8 @@ export class ResetPasswordPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-reset-password",
   templateUrl: "reset-password.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class ResetPasswordPolicyComponent extends BasePolicyComponent implements OnInit {
   data = this.formBuilder.group({

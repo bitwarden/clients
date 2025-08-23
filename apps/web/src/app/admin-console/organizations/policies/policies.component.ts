@@ -28,11 +28,12 @@ import { BasePolicy } from "../policies";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
 import { PolicyEditDialogComponent, PolicyEditDialogResult } from "./policy-edit-dialog.component";
+import { SharedModule } from "../../../shared";
+import { HeaderModule } from "../../../layouts/header/header.module";
 
 @Component({
-  selector: "app-org-policies",
   templateUrl: "policies.component.html",
-  standalone: false,
+  imports: [SharedModule, HeaderModule],
 })
 export class PoliciesComponent implements OnInit {
   loading = true;

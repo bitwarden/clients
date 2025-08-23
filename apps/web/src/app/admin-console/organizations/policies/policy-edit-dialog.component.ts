@@ -33,6 +33,7 @@ import {
 } from "@bitwarden/components";
 
 import { BasePolicy, BasePolicyComponent } from ".";
+import { SharedModule } from "../../../shared";
 
 export type PolicyEditDialogData = {
   /** Returns policy abstracts. */
@@ -48,9 +49,8 @@ export enum PolicyEditDialogResult {
   UpgradePlan = "upgrade-plan",
 }
 @Component({
-  selector: "app-policy-edit",
   templateUrl: "policy-edit-dialog.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
   @ViewChild("policyForm", { read: ViewContainerRef, static: true })

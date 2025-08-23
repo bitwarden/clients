@@ -6,6 +6,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { SharedModule } from "../../../shared";
 
 export class RequireSsoPolicy extends BasePolicy {
   name = "requireSso";
@@ -19,8 +20,7 @@ export class RequireSsoPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-require-sso",
   templateUrl: "require-sso.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class RequireSsoPolicyComponent extends BasePolicyComponent {}

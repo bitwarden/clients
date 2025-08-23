@@ -3,6 +3,8 @@ import { UntypedFormBuilder } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
+import { SharedModule } from "../../../shared";
+
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
 export class SendOptionsPolicy extends BasePolicy {
@@ -13,9 +15,8 @@ export class SendOptionsPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-send-options",
   templateUrl: "send-options.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
 export class SendOptionsPolicyComponent extends BasePolicyComponent {
   data = this.formBuilder.group({

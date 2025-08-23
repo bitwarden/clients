@@ -8,10 +8,25 @@ import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/po
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
+/**
+ *
+ */
 export abstract class BasePolicy {
+  /**
+   * i18n string for the policy name.
+   */
   abstract name: string;
+  /**
+   * i18n string for the policy description.
+   */
   abstract description: string;
+  /**
+   * The PolicyType enum that this policy represents.
+   */
   abstract type: PolicyType;
+  /**
+   * The component used to edit this policy.
+   */
   abstract component: any;
 
   /**
@@ -20,11 +35,21 @@ export abstract class BasePolicy {
    **/
   showDescription: boolean = true;
 
-  display(organization: Organization, configService: ConfigService): Observable<boolean> {
+  /**
+   * A method that determines whether to display this policy in the Admin Console. Emits true by default.
+   * This can be used to hide the policy based on the organization's plan features or a feature flag value.
+   * Use this to feature flag new policy implementations.
+   */
+  display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return of(true);
   }
 }
 
+/**
+ * A component used to edit the policy in the Admin Console. It is rendered inside the PolicyEditDialogComponent.
+ * This should contain the form controls used to edit the policy (including the Enabled checkbox) and any additional
+ * warnings or callouts.
+ */
 @Directive()
 export abstract class BasePolicyComponent implements OnInit {
   @Input() policyResponse: PolicyResponse | undefined;

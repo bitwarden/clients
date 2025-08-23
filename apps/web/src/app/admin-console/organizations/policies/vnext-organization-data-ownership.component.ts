@@ -24,9 +24,7 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "vnext-policy-organization-data-ownership",
   templateUrl: "vnext-organization-data-ownership.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class vNextOrganizationDataOwnershipPolicyComponent

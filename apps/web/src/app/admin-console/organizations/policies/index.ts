@@ -1,4 +1,3 @@
-export * from "./policies.module";
 export { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 export { DisableSendPolicy } from "./disable-send.component";
 export { MasterPasswordPolicy } from "./master-password.component";
