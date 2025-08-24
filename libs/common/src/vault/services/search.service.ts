@@ -426,11 +426,30 @@ export class SearchService implements SearchServiceAbstraction {
       if (u.uri == null || u.uri === "") {
         return;
       }
-      if (u.hostname != null) {
-        uris.push(u.hostname);
-        return;
-      }
+
+      // Match ports
+      const portMatch = u.uri.match(/:(\d+)(?:[/?#]|$)/);
+      const port = portMatch?.[1];
+
       let uri = u.uri;
+
+      if (u.hostname !== null) {
+        uris.push(u.hostname);
+        if (port) {
+          uris.push(`${u.hostname}:${port}`);
+          uris.push(port);
+        }
+        return;
+      } else {
+        const slash = uri.indexOf("/");
+        const hostPart = slash > -1 ? uri.substring(0, slash) : uri;
+        uris.push(hostPart);
+        if (port) {
+          uris.push(`${hostPart}`);
+          uris.push(port);
+        }
+      }
+
       if (u.match !== UriMatchStrategy.RegularExpression) {
         const protocolIndex = uri.indexOf("://");
         if (protocolIndex > -1) {
