@@ -17,26 +17,29 @@ unsafe extern "C" {
 /// processes would be hooked. With this work-around all processes in the tree are hooked
 #[unsafe(no_mangle)]
 unsafe extern "C" fn unsetenv(name: *const c_char) -> i32 {
-    let name_str = std::ffi::CStr::from_ptr(name).to_str().unwrap();
-    let original_unsetenv: unsafe extern "C" fn(*const c_char) -> i32 =
-        std::mem::transmute(dlsym(libc::RTLD_NEXT, c"unsetenv".as_ptr()));
+    unsafe {
+        let name_str = std::ffi::CStr::from_ptr(name).to_str().unwrap();
+        let original_unsetenv: unsafe extern "C" fn(*const c_char) -> i32 =
+            std::mem::transmute(dlsym(libc::RTLD_NEXT, c"unsetenv".as_ptr()));
 
-    if name_str == "LD_PRELOAD" {
-        // This env variable is provided by the flatpak configuration
-        let ld_preload = std::env::var("MEMORY_SECURITY_LD_PRELOAD").unwrap_or_default();
-        std::env::set_var("LD_PRELOAD", ld_preload);
-        return 0;
+        if name_str == "LD_PRELOAD" {
+            // This env variable is provided by the flatpak configuration
+            let ld_preload = std::env::var("MEMORY_SECURITY_LD_PRELOAD").unwrap_or_default();
+            std::env::set_var("LD_PRELOAD", ld_preload);
+            return 0;
+        }
+
+        original_unsetenv(name)
     }
-
-    original_unsetenv(name)
 }
 
 // Hooks the shared object being loaded into the process
 #[ctor::ctor]
 fn preload_init() {
+    let pid = unsafe { libc::getpid() };
     unsafe {
-        println!("[memory-security] Enabling memory security for process {}", pid);
-        isolate::disable_memory_access();
+        println!("[memory-security] Enabling memory security for process {pid}");
+        isolate::isolate_process();
         isolate::disable_coredumps();
     }
 }

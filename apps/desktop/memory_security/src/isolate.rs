@@ -15,7 +15,7 @@ const RLIMIT_CORE: c_uint = 4;
 const PR_SET_DUMPABLE: c_int = 4;
 
 /// Prevents a process crash from creating a coredump on disk
-pub(crate) fn disable_coredumps() -> () {
+pub(crate) fn disable_coredumps() {
     let rlimit = libc::rlimit {
         rlim_cur: 0,
         rlim_max: 0,
@@ -23,17 +23,14 @@ pub(crate) fn disable_coredumps() -> () {
 
     if unsafe { libc::setrlimit(RLIMIT_CORE, &rlimit) } != 0 {
         let e = std::io::Error::last_os_error();
-        eprintln!("[Process Isolation] Failed to disable core dumping: {}", e);
+        eprintln!("[Process Isolation] Failed to disable core dumping: {e}");
     }
 }
 
 /// Prevents other process from accessing env, memory, attaching debugger
-pub(crate) fn isolate_process() -> () {
+pub(crate) fn isolate_process() {
     if unsafe { libc::prctl(PR_SET_DUMPABLE, 0) } != 0 {
         let e = std::io::Error::last_os_error();
-        eprintln!(
-            "[Process Isolation] Failed to disable memory dumping: {}",
-            e
-        );
+        eprintln!("[Process Isolation] Failed to disable memory dumping: {e}");
     }
 }
