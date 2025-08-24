@@ -58,9 +58,7 @@ export class DesktopAutotypeService {
       ]).pipe(
         map(
           ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus]) =>
-            autotypeEnabled &&
-            windowsDesktopAutotypeFeatureFlag &&
-            authStatus == AuthenticationStatus.Unlocked,
+            autotypeEnabled && authStatus == AuthenticationStatus.Unlocked,
         ),
       );
 
