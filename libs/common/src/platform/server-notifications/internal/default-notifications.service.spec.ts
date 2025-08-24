@@ -233,42 +233,13 @@ describe("NotificationsService", () => {
   });
 
   it.each([
-    // Temporarily rolling back server notifications being connected while locked
-    // { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Unlocked },
-    // { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Locked },
-    // { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Locked },
+    { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Unlocked },
+    { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Locked },
+    { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Locked },
     { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Unlocked },
   ])(
-    "does not re-connect when the user transitions from $initialStatus to $updatedStatus when feature flag is enabled",
+    "does not re-connect when the user transitions from $initialStatus to $updatedStatus",
     async ({ initialStatus, updatedStatus }) => {
-      emitActiveUser(mockUser1);
-      emitNotificationUrl("http://test.example.com");
-      authStatusGetter(mockUser1).next(initialStatus);
-      webPushSupportGetter(mockUser1).next({ type: "not-supported", reason: "test" });
-
-      const notificationsSubscriptions = sut.notifications$.subscribe();
-      await awaitAsync(1);
-
-      authStatusGetter(mockUser1).next(updatedStatus);
-      await awaitAsync(1);
-
-      expect(signalRNotificationConnectionService.connect$).toHaveBeenCalledTimes(1);
-      expect(signalRNotificationConnectionService.connect$).toHaveBeenCalledWith(
-        mockUser1,
-        "http://test.example.com",
-      );
-      notificationsSubscriptions.unsubscribe();
-    },
-  );
-
-  it.each([
-    // Temporarily disabling server notifications connecting while in a locked state
-    // AuthenticationStatus.Locked,
-    AuthenticationStatus.Unlocked,
-  ])(
-    "does not re-connect when the user transitions from $initialStatus to $updatedStatus when feature flag is disabled",
-    async ({ initialStatus, updatedStatus }) => {
-      configService.getFeatureFlag$.mockReturnValue(of(false));
       emitActiveUser(mockUser1);
       emitNotificationUrl("http://test.example.com");
       authStatusGetter(mockUser1).next(initialStatus);
@@ -290,7 +261,7 @@ describe("NotificationsService", () => {
   );
 
   it.each([AuthenticationStatus.Locked, AuthenticationStatus.Unlocked])(
-    "connects when a user transitions from logged out to %s when feature flag is enabled",
+    "connects when a user transitions from logged out to %s",
     async (newStatus: AuthenticationStatus) => {
       emitActiveUser(mockUser1);
       emitNotificationUrl("http://test.example.com");
