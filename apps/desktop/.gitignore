@@ -3,3 +3,4 @@ dist-safari/
 *.env
 PlugIns/safari.appex/
 xcuserdata/
+memory_security/target/

@@ -46,4 +46,6 @@ modules:
         commands:
           - ulimit -c 0
           - export TMPDIR="$XDG_RUNTIME_DIR/app/$FLATPAK_ID"
+          - export ZYPAK_LD_PRELOAD="/app/bin/libmemory_security.so"
+          - export MEMORY_SECURITY_LD_PRELOAD="/app/bin/libmemory_security.so"
           - exec zypak-wrapper /app/bin/bitwarden-app "$@"
