@@ -6,8 +6,14 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
-import { ObservableTracker } from "../../../../spec";
-import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
+import {
+  FakeAccountService,
+  FakeStateProvider,
+  mockAccountServiceWith,
+  ObservableTracker,
+} from "../../../../spec";
+import { AccountInfo } from "../../../auth/abstractions/account.service";
+import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -16,7 +22,7 @@ import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
-import { EncryptedString } from "../../models/domain/enc-string";
+import { Utils } from "../../misc/utils";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
 import { DefaultSdkService } from "./default-sdk.service";
@@ -33,10 +39,11 @@ describe("DefaultSdkService", () => {
     let sdkClientFactory!: MockProxy<SdkClientFactory>;
     let environmentService!: MockProxy<EnvironmentService>;
     let platformUtilsService!: MockProxy<PlatformUtilsService>;
-    let accountService!: MockProxy<AccountService>;
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
     let service!: DefaultSdkService;
+    let accountService!: FakeAccountService;
+    let fakeStateProvider!: FakeStateProvider;
 
     beforeEach(async () => {
       await new TestSdkLoadService().loadAndInit();
@@ -44,9 +51,11 @@ describe("DefaultSdkService", () => {
       sdkClientFactory = mock<SdkClientFactory>();
       environmentService = mock<EnvironmentService>();
       platformUtilsService = mock<PlatformUtilsService>();
-      accountService = mock<AccountService>();
       kdfConfigService = mock<KdfConfigService>();
       keyService = mock<KeyService>();
+      const mockUserId = Utils.newGuid() as UserId;
+      accountService = mockAccountServiceWith(mockUserId);
+      fakeStateProvider = new FakeStateProvider(accountService);
 
       // Can't use `of(mock<Environment>())` for some reason
       environmentService.environment$ = new BehaviorSubject(mock<Environment>());
@@ -58,6 +67,7 @@ describe("DefaultSdkService", () => {
         accountService,
         kdfConfigService,
         keyService,
+        fakeStateProvider,
       );
     });
 
@@ -219,5 +229,9 @@ describe("DefaultSdkService", () => {
 function createMockClient(): MockProxy<BitwardenClient> {
   const client = mock<BitwardenClient>();
   client.crypto.mockReturnValue(mock());
+  client.platform.mockReturnValue({
+    state: jest.fn().mockReturnValue(mock()),
+    free: mock(),
+  });
   return client;
 }

@@ -42,7 +42,7 @@
       type="button"
       size="small"
       (click)="onRefresh.emit()"
-      [appA11yTitle]="'refresh' | i18n"
+      [label]="'refresh' | i18n"
     ></button>
     <span bitTypography="body2" slot="end">
       <span
@@ -97,7 +97,8 @@
             (click)="primaryActionOnSelect(cipher)"
             (dblclick)="launchCipher(cipher)"
             [appA11yTitle]="
-              cipherItemTitleKey()(cipher) | i18n: cipher.name : cipher.login.username
+              cipherItemTitleKey()(cipher)
+                | i18n: cipher.name : CipherViewLikeUtils.getLogin(cipher)?.username
             "
             class="{{ itemHeightClass }}"
           >
@@ -114,11 +115,11 @@
               [appA11yTitle]="orgIconTooltip(cipher)"
             ></i>
             <i
-              *ngIf="cipher.hasAttachments"
+              *ngIf="CipherViewLikeUtils.hasAttachments(cipher)"
               class="bwi bwi-paperclip bwi-sm"
               [appA11yTitle]="'attachments' | i18n"
             ></i>
-            <span slot="secondary">{{ cipher.subTitle }}</span>
+            <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
           </button>
 
           <ng-container slot="end">
@@ -134,14 +135,13 @@
                 {{ "fill" | i18n }}
               </button>
             </bit-item-action>
-            <bit-item-action *ngIf="!showAutofillButton() && cipher.canLaunch">
+            <bit-item-action *ngIf="!showAutofillButton() && CipherViewLikeUtils.canLaunch(cipher)">
               <button
                 type="button"
                 bitIconButton="bwi-external-link"
                 size="small"
                 (click)="launchCipher(cipher)"
-                [attr.aria-label]="'launchWebsiteName' | i18n: cipher.name"
-                [title]="'launchWebsiteName' | i18n: cipher.name"
+                [label]="'launchWebsiteName' | i18n: cipher.name"
               ></button>
             </bit-item-action>
             <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>

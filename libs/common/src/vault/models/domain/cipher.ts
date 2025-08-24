@@ -2,19 +2,20 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { uuidToString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherData } from "../data/cipher.data";
-import { LocalData } from "../data/local.data";
+import { LocalData, fromSdkLocalData, toSdkLocalData } from "../data/local.data";
 import { AttachmentView } from "../view/attachment.view";
 import { CipherView } from "../view/cipher.view";
 import { FieldView } from "../view/field.view";
@@ -347,9 +348,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       organizationId: this.organizationId ?? undefined,
       folderId: this.folderId ?? undefined,
       collectionIds: this.collectionIds ?? [],
-      key: this.key?.toJSON(),
-      name: this.name.toJSON(),
-      notes: this.notes?.toJSON(),
+      key: this.key?.toSdk(),
+      name: this.name.toSdk(),
+      notes: this.notes?.toSdk(),
       type: this.type,
       favorite: this.favorite ?? false,
       organizationUseTotp: this.organizationUseTotp ?? false,
@@ -361,16 +362,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           }
         : undefined,
       viewPassword: this.viewPassword ?? true,
-      localData: this.localData
-        ? {
-            lastUsedDate: this.localData.lastUsedDate
-              ? new Date(this.localData.lastUsedDate).toISOString()
-              : undefined,
-            lastLaunched: this.localData.lastLaunched
-              ? new Date(this.localData.lastLaunched).toISOString()
-              : undefined,
-          }
-        : undefined,
+      localData: toSdkLocalData(this.localData),
       attachments: this.attachments?.map((a) => a.toSdkAttachment()),
       fields: this.fields?.map((f) => f.toSdkField()),
       passwordHistory: this.passwordHistory?.map((ph) => ph.toSdkPasswordHistory()),
@@ -407,5 +399,51 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     return sdkCipher;
+  }
+
+  /**
+   * Maps an SDK Cipher object to a Cipher
+   * @param sdkCipher - The SDK Cipher object
+   */
+  static fromSdkCipher(sdkCipher: SdkCipher | null): Cipher | undefined {
+    if (sdkCipher == null) {
+      return undefined;
+    }
+
+    const cipher = new Cipher();
+
+    cipher.id = sdkCipher.id ? uuidToString(sdkCipher.id) : undefined;
+    cipher.organizationId = sdkCipher.organizationId
+      ? uuidToString(sdkCipher.organizationId)
+      : undefined;
+    cipher.folderId = sdkCipher.folderId ? uuidToString(sdkCipher.folderId) : undefined;
+    cipher.collectionIds = sdkCipher.collectionIds ? sdkCipher.collectionIds.map(uuidToString) : [];
+    cipher.key = EncString.fromJSON(sdkCipher.key);
+    cipher.name = EncString.fromJSON(sdkCipher.name);
+    cipher.notes = EncString.fromJSON(sdkCipher.notes);
+    cipher.type = sdkCipher.type;
+    cipher.favorite = sdkCipher.favorite;
+    cipher.organizationUseTotp = sdkCipher.organizationUseTotp;
+    cipher.edit = sdkCipher.edit;
+    cipher.permissions = CipherPermissionsApi.fromSdkCipherPermissions(sdkCipher.permissions);
+    cipher.viewPassword = sdkCipher.viewPassword;
+    cipher.localData = fromSdkLocalData(sdkCipher.localData);
+    cipher.attachments = sdkCipher.attachments?.map((a) => Attachment.fromSdkAttachment(a)) ?? [];
+    cipher.fields = sdkCipher.fields?.map((f) => Field.fromSdkField(f)) ?? [];
+    cipher.passwordHistory =
+      sdkCipher.passwordHistory?.map((ph) => Password.fromSdkPasswordHistory(ph)) ?? [];
+    cipher.creationDate = new Date(sdkCipher.creationDate);
+    cipher.revisionDate = new Date(sdkCipher.revisionDate);
+    cipher.deletedDate = sdkCipher.deletedDate ? new Date(sdkCipher.deletedDate) : null;
+    cipher.reprompt = sdkCipher.reprompt;
+
+    // Cipher type specific properties
+    cipher.login = Login.fromSdkLogin(sdkCipher.login);
+    cipher.secureNote = SecureNote.fromSdkSecureNote(sdkCipher.secureNote);
+    cipher.card = Card.fromSdkCard(sdkCipher.card);
+    cipher.identity = Identity.fromSdkIdentity(sdkCipher.identity);
+    cipher.sshKey = SshKey.fromSdkSshKey(sdkCipher.sshKey);
+
+    return cipher;
   }
 }

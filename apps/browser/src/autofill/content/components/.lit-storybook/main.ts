@@ -1,8 +1,15 @@
-import path, { dirname, join } from "path";
+import { createRequire } from "module";
+import { dirname, join, resolve } from "path";
+import { fileURLToPath } from "url";
 
 import type { StorybookConfig } from "@storybook/web-components-webpack5";
 import remarkGfm from "remark-gfm";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+
+const currentFile = fileURLToPath(import.meta.url);
+const currentDirectory = dirname(currentFile);
+
+const require = createRequire(import.meta.url);
 
 const getAbsolutePath = (value: string): string =>
   dirname(require.resolve(join(value, "package.json")));
@@ -43,7 +50,7 @@ const config: StorybookConfig = {
     if (config.resolve) {
       config.resolve.plugins = [
         new TsconfigPathsPlugin({
-          configFile: path.resolve(__dirname, "../../../../../tsconfig.json"),
+          configFile: resolve(currentDirectory, "../../../../../tsconfig.json"),
         }),
       ] as any;
     }

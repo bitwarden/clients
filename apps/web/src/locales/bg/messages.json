@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Отказ"
   },
+  "later": {
+    "message": "По-късно"
+  },
   "canceled": {
     "message": "Отказано"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Търсене в групите"
   },
+  "resetSearch": {
+    "message": "Нулиране на търсенето"
+  },
   "allItems": {
     "message": "Всички елементи"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Защитена бележка"
+  },
+  "typeNote": {
+    "message": "Бележка"
   },
   "typeSshKey": {
     "message": "SSH ключ"
@@ -861,8 +870,28 @@
   "copyName": {
     "message": "Копиране на името"
   },
+  "cardNumber": {
+    "message": "номер на карта"
+  },
+  "copyFieldCipherName": {
+    "message": "Копиране на $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Аз"
+  },
+  "myItems": {
+    "message": "Моите елементи"
   },
   "myVault": {
     "message": "Моят трезор"
@@ -1399,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Отключете Битоурден на устройството си или в "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Опитвате ли се да получите достъп до акаунта си?"
-  },
   "accessAttemptBy": {
     "message": "Опит за достъп от $EMAIL$",
     "placeholders": {
@@ -1780,6 +1806,9 @@
   },
   "loggedOutWarning": {
     "message": "Действието ще прекрати и текущата ви сесия, след което ще се наложи отново да се впишете. Активните сесии на другите устройства може да останат такива до един час."
+  },
+  "changePasswordWarning": {
+    "message": "След като промените паролата си, ще трябва да се впишете отново с новата си парола. Сесиите на други устройства също ще бъдат прекратени в рамките на един час."
   },
   "emailChanged": {
     "message": "Електронната поща е сменена"
@@ -2421,9 +2450,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Проблем при изчитането на ключа за сигурност. Пробвайте отново."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Поради платформени ограничения устройствата на WebAuthn не могат да се използват с всички приложения на Битуорден. Ще трябва да настроите друг доставчик на двустепенно удостоверяване, за да имате достъп до акаунта си, когато WebAuthn не може да се ползва."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Код за възстановяване на достъпа до Битуорден при двустепенна идентификация"
@@ -3275,9 +3301,6 @@
   "defaultCollection": {
     "message": "Стандартна колекция"
   },
-  "myItems": {
-    "message": "Моите елементи"
-  },
   "getHelp": {
     "message": "Помощ"
   },
@@ -3478,6 +3501,9 @@
   },
   "webVault": {
     "message": "Трезор по уеб"
+  },
+  "webApp": {
+    "message": "Приложение по уеб"
   },
   "cli": {
     "message": "ИКР"
@@ -3945,8 +3971,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Тази заявка вече не е активна."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Вписването за $EMAIL$ на $DEVICE$ е одобрено",
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Заявката за вписване за $EMAIL$ на $DEVICE$ е одобрена",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3954,12 +3980,12 @@
       },
       "device": {
         "content": "$2",
-        "example": "iOS"
+        "example": "Web app - Chrome"
       }
     }
   },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Вие отказахте опит за вписване от друго устройство. Ако това наистина сте били Вие, опитайте да се впишете от устройството отново."
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Вие отказахте опит за вписване от друго устройство. Ако това сте били Вие, опитайте да се впишете от устройството отново."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Заявката за вписване вече е изтекла."
@@ -4104,6 +4130,9 @@
   },
   "reviewLoginRequest": {
     "message": "Преглед на заявката за вписване"
+  },
+  "loginRequest": {
+    "message": "Заявка за вписване"
   },
   "freeTrialEndPromptCount": {
     "message": "Вашият безплатен пробен период приключва след $COUNT$ дни.",
@@ -4580,6 +4609,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Получавайте съвети, обявления и предложения за участие в проучвания от Битуорден в пощенската си кутия."
+  },
+  "subscribe": {
+    "message": "Абониране"
   },
   "unsubscribe": {
     "message": "Отписване"
@@ -5230,6 +5262,14 @@
   "downloadAttachments": {
     "message": "Сваляне на прикачените файлове"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Въведете паролата, за да видите това Изпращане",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Преглед на Изпращането",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Изпращането, което се опитвате да достъпите, е изтрито или вече не е налично.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5389,6 +5429,37 @@
   },
   "organizationDataOwnership": {
     "message": "Задължителна собственост на организационните данни"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Изискване на всички елементи да бъдат притежавани от организация, премахвайки възможността за съхраняване на елементи в отделен акаунт.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Всички елементи ще се притежават от и съхраняват в организацията, което ще означава, че управлението, видимостта и докладите ще се извършват от организацията. Когато това и включено, всеки член ще може да съхранява елементите си в стандартна колекция. Научете повече относно управлението на ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "жизнения цикъл на данните за удостоверяване",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Наистина ли искате да продължите?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "ще остане достъпна за членовете"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "няма да бъде автоматично избрана при създаване на нови елементи"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "не може да се управлява от Конзолата за администриране, докато потребителят не бъде премахнат"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Изключвайки тази политика, стандартната колекция: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Научете повече относно ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Индивидуално притежание"
@@ -6073,6 +6144,12 @@
   "updateMasterPassword": {
     "message": "Промяна на главната парола"
   },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Променете главната си парола, за да завършите възстановяването на акаунта."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Главната парола не отговаря на изискванията на тази организация. Променете главната си парола, за да продължите."
+  },
   "updateMasterPasswordWarning": {
     "message": "Вашата главна парола наскоро е била сменена от администратор в организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час."
   },
@@ -6237,25 +6314,25 @@
     "message": "OIDC redirect behavior"
   },
   "getClaimsFromUserInfoEndpoint": {
-    "message": "Get claims from user info endpoint"
+    "message": "Получаване на свойствата от адреса за информация за потребителя"
   },
   "additionalScopes": {
     "message": "Custom scopes"
   },
   "additionalUserIdClaimTypes": {
-    "message": "Custom user ID claim types"
+    "message": "Персонализирани типове свойства за потребителски идентификатор"
   },
   "additionalEmailClaimTypes": {
-    "message": "Email claim types"
+    "message": "Типове свойства за е-поща"
   },
   "additionalNameClaimTypes": {
-    "message": "Custom name claim types"
+    "message": "Персонализирани типове свойства за име"
   },
   "acrValues": {
     "message": "Requested authentication context class reference values"
   },
   "expectedReturnAcrValue": {
-    "message": "Expected \"acr\" claim value in response"
+    "message": "В отговора липсва стойност за свойството „acr“"
   },
   "spEntityId": {
     "message": "SP entity ID"
@@ -6378,7 +6455,7 @@
     "message": "Връзката е с изтекла давност. Помолете спонсора да изпрати отново предложението."
   },
   "reclaimedFreePlan": {
-    "message": "Reclaimed free plan"
+    "message": "Възвърнат безплатен план"
   },
   "redeem": {
     "message": "Redeem"
@@ -7900,7 +7977,7 @@
     "message": "Домейнът е запазен"
   },
   "duplicateDomainError": {
-    "message": "Не може да заявите един и същ домейн повече от веднъж."
+    "message": "Не може да присвоите един и същ домейн повече от веднъж."
   },
   "domainNotAvailable": {
     "message": "Някой вече ползва $DOMAIN$. Изберете различен домейн, за да продължите.",
@@ -8453,6 +8530,12 @@
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
   },
+  "unableToCompleteLogin": {
+    "message": "Вписването не може да бъде завършено"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Трябва да се впишете на доверено устройство или да помолите администратора си да Ви зададе парола."
+  },
   "trustedDeviceEncryption": {
     "message": "Шифроване чрез доверено устройство"
   },
@@ -8922,6 +9005,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Повече относно разпознаването на съвпадения",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Разширени настройки",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Внимание",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "За да продължите абонамента си за $ORG$, ",
@@ -9400,6 +9491,12 @@
   "deviceManagementDesc": {
     "message": "Настройте управлението на устройства в Битуорден, като използвате ръководството за внедряване за платформата си."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Изпращане на данни за събитията до Вашата инстанция на Logscale"
+  },
+  "failedToSaveIntegration": {
+    "message": "Интеграцията не беше запазена. Опитайте отново по-късно."
+  },
   "deviceIdMissing": {
     "message": "Липсва идентификатор на устройството"
   },
@@ -9414,6 +9511,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Отворете тази връзка от е-пощата си на компютър."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Свързване на $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Стартиране на ръководството за внедряване за $INTEGRATION$.",
@@ -9471,6 +9577,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Създайте нова организация, която да управлявате като доставчик. Допълнителните места ще бъдат отразени в следващия платежен период."
+  },
+  "url": {
+    "message": "Адрес"
+  },
+  "bearerToken": {
+    "message": "Идентификатор „Bearer“"
+  },
+  "index": {
+    "message": "Индекс"
   },
   "selectAPlan": {
     "message": "Изберете план"
@@ -10220,8 +10335,8 @@
   "organizationUserDeletedDesc": {
     "message": "Потребителят беше премахнат от организацията и всичките му данни бяха изтрити."
   },
-  "deletedUserId": {
-    "message": "Изтрит потребител $ID$ – собственик / администратор е изтрил регистрацията на потребителя",
+  "deletedUserIdEventMessage": {
+    "message": "Потребител № $ID$ е изтрит",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10331,8 +10446,8 @@
   "domainStatusUnderVerification": {
     "message": "В процес на проверка"
   },
-  "claimedDomainsDesc": {
-    "message": "Присвоете домейн, за да получите притежание върху всички членски акаунти, чиито е-пощи са с адрес от този домейн. Членовете ще могат да пропускат еднократното удостоверяване при вписване. Администраторите ще могат също така да изтриват членските акаунти."
+  "claimedDomainsDescription": {
+    "message": "Присвойте домейн, за да притежавате акаунтите на членовете. Страницата за еднократно удостоверяване ще бъде пропускана при вписването на членове с присвоени домейни, а администраторите ще могат да изтриват присвоените акаунти."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Неправилен формат. Пример: mydomain.com. Под-домейните изискват всеки отделен запис да бъде присвоен."
@@ -10745,15 +10860,15 @@
   },
   "gettingStartedWithBitwardenPart1": {
     "message": "За съвети как да се възползвате от Битуорден, посетете",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
     "message": "Центъра за обучения",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Помощния център",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
     "message": "С добавката за браузър на Битуорден можете лесно да създавате нови елементи за вписване, както и да имате достъп до тях направо от лентата с инструменти на браузъра си. Също така, можете да се вписвате лесно и бързо, чрез функцията за автоматично попълване."
@@ -10783,5 +10898,116 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Адресът за таксуване е задължителен за добавянето на средства.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Адрес за фактуриране"
+  },
+  "addBillingAddress": {
+    "message": "Добавяне на адрес за фактуриране"
+  },
+  "editBillingAddress": {
+    "message": "Редактиране на адреса за фактуриране"
+  },
+  "noBillingAddress": {
+    "message": "Няма записан адрес."
+  },
+  "billingAddressUpdated": {
+    "message": "Вашият адрес за фактуриране беше променен."
+  },
+  "paymentDetails": {
+    "message": "Подробности за плащанията"
+  },
+  "paymentMethodUpdated": {
+    "message": "Вашият разплащателен метод е променен."
+  },
+  "bankAccountVerified": {
+    "message": "Вашата банкова сметка е потвърдена."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Наличните средства ще бъдат използвани автоматично за заплащане на фактурите издадени за този акаунт."
+  },
+  "mustBePositiveNumber": {
+    "message": "Трябва да бъде положително число"
+  },
+  "cardSecurityCode": {
+    "message": "Код за сигурност на картата"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Кодът за сигурност на картата, познат още като CVV или CVC, обикновено е 3-цифрено число, което се намира на гърба на картата, или 4-цифрено число, което се намира на предната част на картата, над номера ѝ."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Плащането чрез банкова сметка е налично само за клиенти от САЩ. Ще трябва да потвърдите банковата си сметка. В следващите 1-2 работни дни ще направим малък депозит. Въведете кода от описанието на трансакцията в страницата за подробности за разплащанията, за да потвърдите банковата сметка. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
+  },
+  "taxId": {
+    "message": "Данъчен идентификатор: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
+  },
+  "unpaidInvoices": {
+    "message": "Неплатени фактури"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Абонаментът Ви не е платен. Свържете се с администратора на доставчика си, за да възстанови услугата за Вас и Вашите клиенти.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "Достъпът на $PROVIDER$ е преустановен",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "За да възстановите достъпа до портала на доставчика си, свържете се с поддръжката на Битуорден, за да подновите абонамента си.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Вашият абонамент не е платен. За да възстановите услугата за Вас и Вашите клиенти, добавете разплащателен метод до $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Стартиране на абонамент за $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Вашият 7-дневен пробен период на $PLAN$ започва днес. Добавете разплащателен метод, за да продължите да използвате тези функционалности и след като приключи пробният период: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Неограничен брой тайни и проекти"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Абонаментът е преустановен"
+  },
+  "providersubCanceledmessage": {
+    "message": "Ако искате да се абонирате отново, свържете се с поддръжката на Битуорден."
+  },
+  "showMore": {
+    "message": "Показване на повече"
+  },
+  "showLess": {
+    "message": "Показване на по-малко"
   }
 }

@@ -32,8 +32,8 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -277,9 +277,16 @@ export class MemberDialogComponent implements OnDestroy {
       ),
     );
 
+    const collections = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
+      ),
+    );
+
     combineLatest({
       organization: this.organization$,
-      collections: this.collectionAdminService.getAll(this.params.organizationId),
+      collections,
       userDetails: userDetails$,
       groups: groups$,
     })
@@ -451,28 +458,6 @@ export class MemberDialogComponent implements OnDestroy {
     };
 
     return Object.assign(p, partialPermissions);
-  }
-
-  async handleDependentPermissions() {
-    const separateCustomRolePermissions = await this.configService.getFeatureFlag(
-      FeatureFlag.SeparateCustomRolePermissions,
-    );
-    if (separateCustomRolePermissions) {
-      return;
-    }
-    // Manage Password Reset (Account Recovery) must have Manage Users enabled
-    if (
-      this.permissionsGroup.value.manageResetPassword &&
-      !this.permissionsGroup.value.manageUsers
-    ) {
-      this.permissionsGroup.value.manageUsers = true;
-      (document.getElementById("manageUsers") as HTMLInputElement).checked = true;
-      this.toastService.showToast({
-        variant: "info",
-        title: null,
-        message: this.i18nService.t("accountRecoveryManageUsers"),
-      });
-    }
   }
 
   submit = async () => {

@@ -1,19 +1,18 @@
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
 import {
-  Input,
+  input,
   HostBinding,
   Component,
   model,
   computed,
-  input,
-  ElementRef,
+  booleanAttribute,
   inject,
-  Signal,
+  ElementRef,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
+import { AriaDisableDirective } from "../a11y";
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
 import { ariaDisableElement } from "../utils";
 
@@ -62,9 +61,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
   imports: [NgClass],
-  host: {
-    "[attr.aria-disabled]": "disabledAttr()",
-  },
+  hostDirectives: [AriaDisableDirective],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
@@ -79,7 +76,8 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       "hover:tw-no-underline",
       "focus:tw-outline-none",
     ]
-      .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
+      .concat(this.block() ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
+      .concat(buttonStyles[this.buttonType() ?? "secondary"])
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
@@ -95,13 +93,12 @@ export class ButtonComponent implements ButtonLikeAbstraction {
             ]
           : [],
       )
-      .concat(buttonStyles[this.buttonType ?? "secondary"])
       .concat(buttonSizeStyles[this.size() || "default"]);
   }
 
   protected disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
-    return disabled || this.loading() ? true : undefined;
+    return disabled || this.loading();
   });
 
   /**
@@ -116,22 +113,13 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
-  @Input() buttonType: ButtonType = "secondary";
+  readonly buttonType = input<ButtonType>("secondary");
 
-  size = input<ButtonSize>("default");
+  readonly size = input<ButtonSize>("default");
 
-  private _block = false;
+  readonly block = input(false, { transform: booleanAttribute });
 
-  @Input()
-  get block(): boolean {
-    return this._block;
-  }
-
-  set block(value: boolean | "") {
-    this._block = coerceBooleanProperty(value);
-  }
-
-  loading = model<boolean>(false);
+  readonly loading = model<boolean>(false);
 
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show
@@ -153,6 +141,6 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   private el = inject(ElementRef<HTMLButtonElement>);
 
   constructor() {
-    ariaDisableElement(this.el.nativeElement, this.disabledAttr as Signal<boolean | undefined>);
+    ariaDisableElement(this.el.nativeElement, this.disabledAttr);
   }
 }

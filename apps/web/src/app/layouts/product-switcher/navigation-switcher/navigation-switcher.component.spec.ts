@@ -195,7 +195,7 @@ describe("NavigationProductSwitcherComponent", () => {
 
       const navItem = fixture.debugElement.query(By.directive(NavItemComponent));
 
-      expect(navItem.componentInstance.forceActiveStyles).toBe(true);
+      expect(navItem.componentInstance.forceActiveStyles()).toBe(true);
     });
   });
 

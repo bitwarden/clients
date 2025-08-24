@@ -20,6 +20,7 @@ const toastServiceExampleTemplate = `
 @Component({
   selector: "toast-service-example",
   template: toastServiceExampleTemplate,
+  imports: [ButtonModule],
 })
 export class ToastServiceExampleComponent {
   @Input()
@@ -34,8 +35,13 @@ export default {
 
   decorators: [
     moduleMetadata({
-      imports: [CommonModule, BrowserAnimationsModule, ButtonModule, ToastModule],
-      declarations: [ToastServiceExampleComponent],
+      imports: [
+        CommonModule,
+        BrowserAnimationsModule,
+        ButtonModule,
+        ToastModule,
+        ToastServiceExampleComponent,
+      ],
     }),
     applicationConfig({
       providers: [

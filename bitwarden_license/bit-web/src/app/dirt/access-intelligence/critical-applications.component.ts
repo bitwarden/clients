@@ -6,6 +6,7 @@ import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, debounceTime, map, switchMap } from "rxjs";
 
+import { Security } from "@bitwarden/assets/svg";
 import {
   CriticalAppsService,
   RiskInsightsDataService,
@@ -16,18 +17,11 @@ import {
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
-import {
-  Icons,
-  NoItemsModule,
-  SearchModule,
-  TableDataSource,
-  ToastService,
-} from "@bitwarden/components";
+import { NoItemsModule, SearchModule, TableDataSource, ToastService } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -62,15 +56,10 @@ export class CriticalApplicationsComponent implements OnInit {
   protected loading = false;
   protected organizationId: string;
   protected applicationSummary = {} as ApplicationHealthReportSummary;
-  noItemsIcon = Icons.Security;
-  isNotificationsFeatureEnabled: boolean = false;
+  noItemsIcon = Security;
   enableRequestPasswordChange = false;
 
   async ngOnInit() {
-    this.isNotificationsFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.EnableRiskInsightsNotifications,
-    );
-
     this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
 
     combineLatest([

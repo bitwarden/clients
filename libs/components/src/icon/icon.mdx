@@ -19,14 +19,14 @@ import { IconModule } from "@bitwarden/components";
 ## Developer Instructions
 
 1. **Download the SVG** and import it as an `.svg` initially into the IDE of your choice.
-
    - The SVG should be formatted using either a built-in formatter or an external tool like
      [SVG Formatter Beautifier](https://codebeautify.org/svg-formatter-beautifier) to make applying
      classes easier.
 
-2. **Rename the file** as a `<name>.icon.ts` TypeScript file.
+2. **Rename the file** as a `<name>.icon.ts` TypeScript file and place it in the `libs/assets/svg`
+   lib.
 
-3. **Import** `svgIcon` from `@bitwarden/components`.
+3. **Import** `svgIcon` from `./icon-service`.
 
 4. **Define and export** a `const` to represent your `svgIcon`.
 
@@ -35,7 +35,6 @@ import { IconModule } from "@bitwarden/components";
    ```
 
 5. **Replace any hardcoded strokes or fills** with the appropriate Tailwind class.
-
    - **Note:** Stroke is used when styling the outline of an SVG path, while fill is used when
      styling the inside of an SVG path.
 
@@ -52,7 +51,6 @@ import { IconModule } from "@bitwarden/components";
 
    - If the hex that you have on an SVG path is not listed above, there are a few ways to figure out
      the appropriate Tailwind class:
-
      - **Option 1: Figma**
        - Open the SVG in Figma.
        - Click on an individual path on the SVG until you see the path's properties in the
@@ -76,20 +74,17 @@ import { IconModule } from "@bitwarden/components";
 6. **Remove any hardcoded width or height attributes** if your SVG has a configured
    [viewBox](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox) attribute in order
    to allow the SVG to scale to fit its container.
-
    - **Note:** Scaling is required for any SVG used as an
-     [AnonLayout](?path=/docs/auth-anon-layout--docs) `pageIcon`.
+     [AnonLayout](?path=/docs/component-library-anon-layout--docs) `pageIcon`.
 
 7. **Import your SVG const** anywhere you want to use the SVG.
-
    - **Angular Component Example:**
-
      - **TypeScript:**
 
        ```typescript
        import { Component } from "@angular/core";
-       import { ExampleIcon } from "your/path/here";
        import { IconModule } from '@bitwarden/components';
+       import { ExampleIcon, Example2Icon } from "@bitwarden/assets/svg";
 
        @Component({
          selector: "app-example",

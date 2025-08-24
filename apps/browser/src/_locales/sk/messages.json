@@ -216,7 +216,7 @@
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
-    "message": "Vygenerovať heslo (skopírované)"
+    "message": "Vygenerovať heslo (+skopírovať)"
   },
   "copyElementIdentifier": {
     "message": "Kopírovať názov vlastného poľa"
@@ -546,6 +546,9 @@
   },
   "searchVault": {
     "message": "Prehľadávať trezor"
+  },
+  "resetSearch": {
+    "message": "Resetovať vyhľadávanie"
   },
   "edit": {
     "message": "Upraviť"
@@ -976,7 +979,7 @@
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
-    "message": "Pridaná položka"
+    "message": "Položka bola pridaná"
   },
   "editedItem": {
     "message": "Položka upravená"
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "Ale nie! Nepodarilo sa nám to uložiť. Skúste zadať údaje manuálne.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "Po zmene hesla sa musíte prihlásiť pomocou nového hesla. Aktívne relácie na iných zariadeniach budú do jednej hodiny odhlásené."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Zmeňte hlavné heslo, aby ste dokončili obnovenie účtu."
   },
   "enableChangedPasswordNotification": {
     "message": "Požiadať o aktualizáciu existujúceho prihlasovania"
@@ -1822,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Bezpečnostný kód"
+  },
+  "cardNumber": {
+    "message": "číslo karty"
   },
   "ex": {
     "message": "napr."
@@ -2902,7 +2914,7 @@
     "message": "Skryť moju e-mailovú adresu pri zobrazení."
   },
   "passwordPrompt": {
-    "message": "Znova zadajte hlavné heslo"
+    "message": "Vyzvať na zadanie hesla"
   },
   "passwordConfirmation": {
     "message": "Potvrdenie hlavného hesla"
@@ -3454,6 +3466,31 @@
   "logInRequestSent": {
     "message": "Požiadavka bola odoslaná"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Potvrdené prihlásenie pre $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli vy, skúste sa prihlásiť pomocou zariadenia znova."
+  },
+  "device": {
+    "message": "Zariadenie"
+  },
+  "loginStatus": {
+    "message": "Stav prihlásenia"
+  },
+  "masterPasswordChanged": {
+    "message": "Hlavné heslo uložené"
+  },
   "exposedMasterPassword": {
     "message": "Odhalené hlavné heslo"
   },
@@ -3547,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Zapamätať si toto zariadenie, pre budúce bezproblémové prihlásenie"
   },
+  "manageDevices": {
+    "message": "Spravovať zariadenia"
+  },
+  "currentSession": {
+    "message": "Aktuálna relácia"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Rozšírenie",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Počítač",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Webový trezor"
+  },
+  "webApp": {
+    "message": "Webová aplikácia"
+  },
+  "cli": {
+    "message": "Príkazový riadok (CLI)"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Žiadosť čaká na spracovanie"
+  },
+  "firstLogin": {
+    "message": "Prvé prihlásenie"
+  },
+  "trusted": {
+    "message": "Dôveryhodné"
+  },
+  "needsApproval": {
+    "message": "Potrebuje súhlas"
+  },
+  "devices": {
+    "message": "Zariadenia"
+  },
+  "accessAttemptBy": {
+    "message": "Pokus o prístup z $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Potvrdiť prístup"
+  },
+  "denyAccess": {
+    "message": "Zamietnuť prístup"
+  },
+  "time": {
+    "message": "Čas"
+  },
+  "deviceType": {
+    "message": "Typ zariadenia"
+  },
+  "loginRequest": {
+    "message": "Žiadosť o prihlásenie"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Táto žiadosť už nie je platná."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Platnosť žiadosti o prihlásenie už vypršala."
+  },
+  "justNow": {
+    "message": "Práve teraz"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Vyžiadané pred $MINUTES$ min.",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Vyžaduje sa schválenie zariadenia. Vyberte možnosť schválenia nižšie:"
   },
@@ -3567,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "Žiadosť o schválenie správcom"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nepodarilo sa dokončiť prihlásenie"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Musíte sa prihlásiť na dôveryhodnom zariadení alebo požiadať správcu o priradenie hesla."
   },
   "ssoIdentifierRequired": {
     "message": "Pole identifikátora SSO je povinné."
@@ -4450,17 +4581,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Kopírovať $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Kopírovať $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5442,5 +5573,11 @@
   "wasmNotSupported": {
     "message": "WebAssembly nie je vo vašom prehliadači podporovaný alebo nie je povolený. Na používanie Bitwardenu sa vyžaduje WebAssembly.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Zobraziť viac"
+  },
+  "showLess": {
+    "message": "Zobraziť menej"
   }
 }

@@ -13,16 +13,15 @@ import { AsyncActionsModule } from "./async-actions.module";
 import { BitActionDirective } from "./bit-action.directive";
 
 const template = /*html*/ `
-  <button bitButton buttonType="primary" [bitAction]="action" class="tw-me-2">
+  <button type="button" bitButton buttonType="primary" [bitAction]="action" class="tw-me-2">
     Perform action {{ statusEmoji }}
   </button>
-  <button bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
+  <button type="button" label="Delete" bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
 
 @Component({
   template,
   selector: "app-promise-example",
   imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
-  standalone: true,
 })
 class PromiseExampleComponent {
   statusEmoji = "🟡";

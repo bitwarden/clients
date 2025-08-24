@@ -20,6 +20,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
@@ -42,6 +43,7 @@ export class ListCommand {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
+    private keyService: KeyService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {}
 
@@ -158,7 +160,10 @@ export class ListCommand {
   }
 
   private async listCollections(options: Options) {
-    let collections = await this.collectionService.getAllDecrypted();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let collections = await firstValueFrom(
+      this.collectionService.decryptedCollections$(activeUserId),
+    );
 
     if (options.organizationId != null) {
       collections = collections.filter((c) => {
@@ -178,13 +183,13 @@ export class ListCommand {
   }
 
   private async listOrganizationCollections(options: Options) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (options.organizationId == null || options.organizationId === "") {
       return Response.badRequest("`organizationid` option is required.");
     }
     if (!Utils.isGuid(options.organizationId)) {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (!userId) {
       return Response.badRequest("No user found.");
     }
@@ -206,8 +211,16 @@ export class ListCommand {
       }
       const collections = response.data
         .filter((c) => c.organizationId === options.organizationId)
-        .map((r) => new Collection(new CollectionData(r as ApiCollectionDetailsResponse)));
-      let decCollections = await this.collectionService.decryptMany(collections);
+        .map((r) =>
+          Collection.fromCollectionData(new CollectionData(r as ApiCollectionDetailsResponse)),
+        );
+      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+      if (orgKeys == null) {
+        throw new Error("Organization keys not found.");
+      }
+      let decCollections = await firstValueFrom(
+        this.collectionService.decryptMany$(collections, orgKeys),
+      );
       if (options.search != null && options.search.trim() !== "") {
         decCollections = CliUtils.searchCollections(decCollections, options.search);
       }

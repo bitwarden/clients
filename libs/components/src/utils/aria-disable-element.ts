@@ -1,29 +1,19 @@
-import { Signal, effect } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { fromEvent } from "rxjs";
+import { Signal } from "@angular/core";
+import { toObservable, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 /**
  * a11y helper util used to `aria-disable` elements as opposed to using the HTML `disabled` attr.
  * - Removes HTML `disabled` attr and replaces it with `aria-disabled="true"`
- * - Captures click events and prevents them from propagating
  */
-export function ariaDisableElement(element: HTMLElement, isDisabled: Signal<boolean | undefined>) {
-  effect(() => {
-    if (element.hasAttribute("disabled") || isDisabled()) {
-      // Remove native disabled and set aria-disabled. Capture click event
-      element.removeAttribute("disabled");
-
-      element.setAttribute("aria-disabled", "true");
-    }
-  });
-
-  fromEvent(element, "click")
+export function ariaDisableElement(el: HTMLElement, disabled: Signal<boolean | undefined>) {
+  toObservable(disabled)
     .pipe(takeUntilDestroyed())
-    .subscribe((event: Event) => {
-      if (isDisabled()) {
-        event.stopPropagation();
-        event.preventDefault();
-        return false;
+    .subscribe((isDisabled) => {
+      if (isDisabled) {
+        el.removeAttribute("disabled");
+        el.setAttribute("aria-disabled", "true");
+      } else {
+        el.removeAttribute("aria-disabled");
       }
     });
 }

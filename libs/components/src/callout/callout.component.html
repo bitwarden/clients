@@ -1,14 +1,14 @@
 <aside
   class="tw-mb-4 tw-box-border tw-rounded-lg tw-bg-background tw-ps-3 tw-pe-3 tw-py-2 tw-leading-5 tw-text-main"
-  [ngClass]="calloutClass"
+  [ngClass]="calloutClass()"
   [attr.aria-labelledby]="titleId"
 >
-  @if (title) {
+  @if (titleComputed(); as title) {
     <header
       id="{{ titleId }}"
       class="tw-mb-1 tw-mt-0 tw-text-base tw-font-semibold tw-flex tw-gap-2 tw-items-start"
     >
-      @if (icon) {
+      @if (iconComputed(); as icon) {
         <i
           class="bwi !tw-text-main tw-relative tw-top-[3px]"
           [ngClass]="[icon]"

@@ -158,7 +158,7 @@ export class ProviderSubscriptionStatusComponent {
       }
       case "incomplete_expired":
       case "canceled": {
-        const canceledText = this.i18nService.t("canceled");
+        const canceledText = this.i18nService.t("providersubscriptionCanceled");
         return {
           status: {
             label: defaultStatusLabel,
@@ -171,7 +171,7 @@ export class ProviderSubscriptionStatusComponent {
           callout: {
             severity: "danger",
             header: canceledText,
-            body: this.i18nService.t("subscriptionCanceled"),
+            body: this.i18nService.t("providersubCanceledmessage"),
           },
         };
       }

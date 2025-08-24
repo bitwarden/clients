@@ -1,10 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-
 import { makeEncString, makeSymmetricCryptoKey, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
 
@@ -45,7 +43,7 @@ describe("Folder", () => {
   });
 
   describe("fromJSON", () => {
-    jest.mock("../../../platform/models/domain/enc-string");
+    jest.mock("../../../key-management/crypto/models/enc-string");
     jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
     it("initializes nested objects", () => {
@@ -73,13 +71,8 @@ describe("Folder", () => {
     beforeEach(() => {
       encryptService = mock<EncryptService>();
       // Platform code is not migrated yet
-      encryptService.decryptToUtf8.mockImplementation(
-        (value: EncString, key: SymmetricCryptoKey, decryptTrace: string) => {
-          return Promise.resolve(value.data);
-        },
-      );
-      encryptService.decryptString.mockImplementation((value) => {
-        return Promise.resolve(value.data);
+      encryptService.decryptString.mockImplementation((_value, _key) => {
+        return Promise.resolve("encName");
       });
     });
 

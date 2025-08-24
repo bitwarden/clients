@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
-import { EncString } from "../../../../platform/models/domain/enc-string";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
@@ -27,6 +27,7 @@ export class Send extends Domain {
   expirationDate: Date;
   deletionDate: Date;
   password: string;
+  emails: string;
   disabled: boolean;
   hideEmail: boolean;
 
@@ -53,6 +54,7 @@ export class Send extends Domain {
     this.maxAccessCount = obj.maxAccessCount;
     this.accessCount = obj.accessCount;
     this.password = obj.password;
+    this.emails = obj.emails;
     this.disabled = obj.disabled;
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
     this.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;

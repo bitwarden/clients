@@ -4,8 +4,8 @@ import { Jsonify } from "type-fest";
 
 import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { Attachment } from "../domain/attachment";
 
@@ -45,7 +45,17 @@ export class AttachmentView implements View {
 
   static fromJSON(obj: Partial<Jsonify<AttachmentView>>): AttachmentView {
     const key = obj.key == null ? null : SymmetricCryptoKey.fromJSON(obj.key);
-    const encryptedKey = obj.encryptedKey == null ? undefined : new EncString(obj.encryptedKey);
+
+    let encryptedKey: EncString | undefined;
+    if (obj.encryptedKey != null) {
+      if (typeof obj.encryptedKey === "string") {
+        // If the key is a string, we need to parse it as EncString
+        encryptedKey = EncString.fromJSON(obj.encryptedKey);
+      } else if ((obj.encryptedKey as any) instanceof EncString) {
+        // If the key is already an EncString instance, we can use it directly
+        encryptedKey = obj.encryptedKey;
+      }
+    }
     return Object.assign(new AttachmentView(), obj, { key: key, encryptedKey: encryptedKey });
   }
 
@@ -59,7 +69,7 @@ export class AttachmentView implements View {
       size: this.size,
       sizeName: this.sizeName,
       fileName: this.fileName,
-      key: this.encryptedKey?.toJSON(),
+      key: this.encryptedKey?.toSdk(),
       // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
       decryptedKey: this.key ? this.key.toBase64() : null,
     };
@@ -80,8 +90,8 @@ export class AttachmentView implements View {
     view.sizeName = obj.sizeName ?? null;
     view.fileName = obj.fileName ?? null;
     // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
-    view.key = obj.key ? SymmetricCryptoKey.fromString(obj.decryptedKey) : null;
-    view.encryptedKey = new EncString(obj.key);
+    view.key = obj.decryptedKey ? SymmetricCryptoKey.fromString(obj.decryptedKey) : null;
+    view.encryptedKey = obj.key ? new EncString(obj.key) : undefined;
 
     return view;
   }

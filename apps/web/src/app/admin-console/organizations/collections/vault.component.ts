@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -29,10 +29,12 @@ import {
 import {
   CollectionAdminService,
   CollectionAdminView,
+  CollectionService,
   CollectionView,
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import { Search } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -65,7 +67,6 @@ import {
   BannerModule,
   DialogRef,
   DialogService,
-  Icons,
   NoItemsModule,
   ToastService,
 } from "@bitwarden/components";
@@ -78,8 +79,12 @@ import {
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";
-import { OrganizationResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components/organization-reseller-renewal-warning.component";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/warnings/services/organization-warnings.service";
+import {
+  OrganizationFreeTrialWarningComponent,
+  OrganizationResellerRenewalWarningComponent,
+} from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
+import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
 import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
@@ -88,7 +93,6 @@ import {
 } from "../../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../../billing/types/free-trial";
-import { OrganizationFreeTrialWarningComponent } from "../../../billing/warnings/components/organization-free-trial-warning.component";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
@@ -166,7 +170,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   activeFilter: VaultFilter = new VaultFilter();
 
   protected showAddAccessToggle = false;
-  protected noItemIcon = Icons.Search;
+  protected noItemIcon = Search;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -202,6 +206,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
+
+  @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<CipherView>;
 
   private readonly unpaidSubscriptionDialog$ = this.accountService.activeAccount$.pipe(
     map((account) => account?.id),
@@ -264,6 +270,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private billingNotificationService: BillingNotificationService,
     private organizationWarningsService: OrganizationWarningsService,
+    private collectionService: CollectionService,
   ) {}
 
   async ngOnInit() {
@@ -276,9 +283,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     const filter$ = this.routedVaultFilterService.filter$;
+
+    // FIXME: The RoutedVaultFilterModel uses `organizationId: Unassigned` to represent the individual vault,
+    // but that is never used in Admin Console. This function narrows the type so it doesn't pollute our code here,
+    // but really we should change to using our own vault filter model that only represents valid states in AC.
+    const isOrganizationId = (value: OrganizationId | Unassigned): value is OrganizationId =>
+      value !== Unassigned;
     const organizationId$ = filter$.pipe(
       map((filter) => filter.organizationId),
       filter((filter) => filter !== undefined),
+      filter(isOrganizationId),
       distinctUntilChanged(),
     );
 
@@ -351,7 +365,12 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.allCollectionsWithoutUnassigned$ = this.refresh$.pipe(
       switchMap(() => organizationId$),
-      switchMap((orgId) => this.collectionAdminService.getAll(orgId)),
+      switchMap((orgId) =>
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.collectionAdminService.collectionAdminViews$(orgId, userId)),
+        ),
+      ),
       shareReplay({ refCount: false, bufferSize: 1 }),
     );
 
@@ -371,11 +390,16 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.allCollectionsWithoutUnassigned$,
     ]).pipe(
       map(([organizationId, allCollections]) => {
-        const noneCollection = new CollectionAdminView();
-        noneCollection.name = this.i18nService.t("unassigned");
-        noneCollection.id = Unassigned;
-        noneCollection.organizationId = organizationId;
-        return allCollections.concat(noneCollection);
+        // FIXME: We should not assert that the Unassigned type is a CollectionId.
+        // Instead we should consider representing the Unassigned collection as a different object, given that
+        // it is not actually a collection.
+        return allCollections.concat(
+          new CollectionAdminView({
+            name: this.i18nService.t("unassigned"),
+            id: Unassigned as CollectionId,
+            organizationId,
+          }),
+        );
       }),
     );
 
@@ -536,7 +560,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         const filterFunction = createFilterFunction(filter);
 
         if (await this.searchService.isSearchable(this.userId, searchText)) {
-          return await this.searchService.searchCiphers(
+          return await this.searchService.searchCiphers<CipherView>(
             this.userId,
             searchText,
             [filterFunction],
@@ -647,6 +671,15 @@ export class VaultComponent implements OnInit, OnDestroy {
           enabled
             ? this.organizationWarningsService.showInactiveSubscriptionDialog$(this.organization)
             : this.unpaidSubscriptionDialog$,
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    organization$
+      .pipe(
+        switchMap((organization) =>
+          this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
         ),
         takeUntil(this.destroy$),
       )
@@ -772,7 +805,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async onVaultItemsEvent(event: VaultItemEvent) {
+  async onVaultItemsEvent(event: VaultItemEvent<CipherView>) {
     this.processingEvent = true;
 
     try {
@@ -1068,6 +1101,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     if (unassignedCiphers.length > 0 || editAccessCiphers.length > 0) {
       await this.cipherService.restoreManyWithServer(
         [...unassignedCiphers, ...editAccessCiphers],
+        this.userId,
         this.organization.id,
       );
     }
@@ -1132,6 +1166,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
     try {
       await this.apiService.deleteCollection(this.organization?.id, collection.id);
+      await this.collectionService.delete([collection.id as CollectionId], this.userId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -1416,6 +1451,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private refresh() {
     this.refresh$.next();
+    this.vaultItemsComponent?.clearSelection();
   }
 
   private go(queryParams: any = null) {

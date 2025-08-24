@@ -1,25 +1,22 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-// Set theme on page load
-// This is done outside the Angular app to avoid a flash of unthemed content before it loads
+/**
+ * Set theme on page load based on (in order of priority):
+ *  1. the user's preferred theme from the theme state provider
+ *  2. the user's system theme
+ *  3. default to light theme (theoretically should never happen, but we need some kind of default)
+ *
+ * This is done outside the Angular app to avoid a flash of unthemed content before it loads.
+ */
 const setTheme = () => {
-  const getLegacyTheme = (): string | null => {
-    // MANUAL-STATE-ACCESS: Calling global to get setting before migration
-    // has had a chance to run, can be remove in the future.
-    // Tracking Issue: https://bitwarden.atlassian.net/browse/PM-6676
-    const globalState = window.localStorage.getItem("global");
-
-    const parsedGlobalState = JSON.parse(globalState) as { theme?: string } | null;
-    return parsedGlobalState ? parsedGlobalState.theme : null;
-  };
-
+  /**
+   * If we cannot find a system preference or any other indication of what theme to apply,
+   * then we will default to light. `theme_light` is hardcoded as the default in the web app's
+   * index.html file.
+   */
   const defaultTheme = "light";
   const htmlEl = document.documentElement;
   let theme = defaultTheme;
 
-  // First try the new state providers location, then the legacy location
-  const themeFromState =
-    window.localStorage.getItem("global_theming_selection") ?? getLegacyTheme();
+  const themeFromState = window.localStorage.getItem("global_theming_selection");
 
   if (themeFromState) {
     if (themeFromState.indexOf("system") > -1) {
@@ -27,10 +24,11 @@ const setTheme = () => {
     } else if (themeFromState.indexOf("dark") > -1) {
       theme = "dark";
     }
+  } else {
+    theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
 
   if (!htmlEl.classList.contains("theme_" + theme)) {
-    // The defaultTheme is also set in the html itself to make sure that some theming is always applied
     htmlEl.classList.remove("theme_" + defaultTheme);
     htmlEl.classList.add("theme_" + theme);
   }

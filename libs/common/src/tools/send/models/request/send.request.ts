@@ -17,6 +17,7 @@ export class SendRequest {
   text: SendTextApi;
   file: SendFileApi;
   password: string;
+  emails: string;
   disabled: boolean;
   hideEmail: boolean;
 
@@ -30,6 +31,7 @@ export class SendRequest {
     this.deletionDate = send.deletionDate != null ? send.deletionDate.toISOString() : null;
     this.key = send.key != null ? send.key.encryptedString : null;
     this.password = send.password;
+    this.emails = send.emails;
     this.disabled = send.disabled;
     this.hideEmail = send.hideEmail;
 

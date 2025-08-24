@@ -30,88 +30,39 @@
               </button>
             </h2>
             <ng-container *ngIf="showSecurity">
-              <bit-callout type="info" *ngIf="vaultTimeoutPolicyCallout | async as policy">
-                <span *ngIf="policy.timeout && policy.action">
-                  {{
-                    "vaultTimeoutPolicyWithActionInEffect"
-                      | i18n: policy.timeout.hours : policy.timeout.minutes : (policy.action | i18n)
-                  }}
-                </span>
-                <span *ngIf="policy.timeout && !policy.action">
-                  {{
-                    "vaultTimeoutPolicyInEffect"
-                      | i18n: policy.timeout.hours : policy.timeout.minutes
-                  }}
-                </span>
-                <span *ngIf="!policy.timeout && policy.action">
-                  {{ "vaultTimeoutActionPolicyInEffect" | i18n: (policy.action | i18n) }}
-                </span>
-              </bit-callout>
-              <app-vault-timeout-input
-                [vaultTimeoutOptions]="vaultTimeoutOptions"
-                [formControl]="form.controls.vaultTimeout"
-                ngDefaultControl
-              ></app-vault-timeout-input>
-              <ng-container
-                *ngIf="availableVaultTimeoutActions$ | async as availableVaultTimeoutActions"
-              >
-                <div class="form-group">
-                  <label>{{ "vaultTimeoutAction" | i18n }}</label>
-                  <div class="radio radio-mt-2">
-                    <label for="vaultTimeoutActionLock">
-                      <!--
-                        Using [attr.disabled] because reactive forms don't support disabling individual radio buttons, see:
-                        https://github.com/angular/angular/issues/11763
-                      -->
-                      <input
-                        type="radio"
-                        id="vaultTimeoutActionLock"
-                        value="{{ VaultTimeoutAction.Lock }}"
-                        aria-describedby="vaultTimeoutActionLockHelp"
-                        formControlName="vaultTimeoutAction"
-                        [attr.disabled]="
-                          !availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)
-                            ? true
-                            : null
-                        "
-                      />
-                      {{ "lock" | i18n }}
-                    </label>
-                  </div>
-                  <small id="vaultTimeoutActionLockHelp" class="help-block">{{
-                    "vaultTimeoutActionLockDesc" | i18n
-                  }}</small>
-                  <div class="radio">
-                    <label for="vaultTimeoutActionLogOut">
-                      <input
-                        type="radio"
-                        id="vaultTimeoutActionLogOut"
-                        value="{{ VaultTimeoutAction.LogOut }}"
-                        aria-describedby="vaultTimeoutActionLogOutHelp"
-                        formControlName="vaultTimeoutAction"
-                        [attr.disabled]="
-                          !availableVaultTimeoutActions.includes(VaultTimeoutAction.LogOut)
-                            ? true
-                            : null
-                        "
-                      />
-                      {{ "logOut" | i18n }}
-                    </label>
-                  </div>
-                  <small id="vaultTimeoutActionLogOutHelp" class="help-block">{{
-                    "vaultTimeoutActionLogOutDesc" | i18n
-                  }}</small>
-                </div>
-                <div
-                  *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)"
-                  class="form-group"
+              <bit-section disableMargin>
+                <bit-section-header>
+                  <h2 bitTypography="h6">{{ "vaultTimeoutHeader" | i18n }}</h2>
+                </bit-section-header>
+
+                <auth-vault-timeout-input
+                  [vaultTimeoutOptions]="vaultTimeoutOptions"
+                  [formControl]="form.controls.vaultTimeout"
+                  ngDefaultControl
                 >
-                  <small id="unlockMethodNeededToChangeTimeoutActionHelp" class="help-block">{{
-                    "unlockMethodNeededToChangeTimeoutActionDesc" | i18n
-                  }}</small>
-                </div>
-              </ng-container>
-              <div class="form-group" *ngIf="(pinEnabled$ | async) || this.form.value.pin">
+                </auth-vault-timeout-input>
+
+                <bit-form-field disableMargin>
+                  <bit-label for="vaultTimeoutAction">{{ "vaultTimeoutAction1" | i18n }}</bit-label>
+                  <bit-select id="vaultTimeoutAction" formControlName="vaultTimeoutAction">
+                    <bit-option
+                      *ngFor="let action of availableVaultTimeoutActions"
+                      [value]="action"
+                      [label]="action | i18n"
+                    >
+                    </bit-option>
+                  </bit-select>
+
+                  <bit-hint *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)">
+                    {{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}<br />
+                  </bit-hint>
+                </bit-form-field>
+
+                <bit-hint *ngIf="hasVaultTimeoutPolicy" class="tw-mt-4">
+                  {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
+                </bit-hint>
+              </bit-section>
+              <div class="form-group tw-mt-4" *ngIf="(pinEnabled$ | async) || this.form.value.pin">
                 <div class="checkbox">
                   <label for="pin">
                     <input id="pin" type="checkbox" formControlName="pin" />
@@ -126,13 +77,13 @@
                     {{ biometricText | i18n }}
                   </label>
                 </div>
-                <small class="help-block" *ngIf="this.form.value.biometric && !this.isLinux">{{
-                  additionalBiometricSettingsText | i18n
+                <small class="help-block" *ngIf="this.form.value.biometric && this.isMac">{{
+                  "additionalTouchIdSettings" | i18n
                 }}</small>
               </div>
               <div
                 class="form-group"
-                *ngIf="supportsBiometric && this.form.value.biometric && !this.isLinux"
+                *ngIf="supportsBiometric && this.form.value.biometric && this.isMac"
               >
                 <div class="checkbox form-group-child">
                   <label for="autoPromptBiometrics">
@@ -142,37 +93,9 @@
                       formControlName="autoPromptBiometrics"
                       (change)="updateAutoPromptBiometrics()"
                     />
-                    {{ autoPromptBiometricsText | i18n }}
+                    {{ "autoPromptTouchId" | i18n }}
                   </label>
                 </div>
-              </div>
-              <div
-                class="form-group"
-                *ngIf="
-                  supportsBiometric &&
-                  this.form.value.biometric &&
-                  (userHasMasterPassword || (this.form.value.pin && userHasPinSet)) &&
-                  this.isWindows
-                "
-              >
-                <div class="checkbox form-group-child">
-                  <label for="requirePasswordOnStart">
-                    <input
-                      id="requirePasswordOnStart"
-                      type="checkbox"
-                      formControlName="requirePasswordOnStart"
-                      (change)="updateRequirePasswordOnStart()"
-                    />
-                    @if (pinEnabled$ | async) {
-                      {{ "requirePasswordOnStart" | i18n }}
-                    } @else {
-                      {{ "requirePasswordWithoutPinOnStart" | i18n }}
-                    }
-                  </label>
-                </div>
-                <small class="help-block form-group-child" *ngIf="isWindows">{{
-                  "recommendedForSecurity" | i18n
-                }}</small>
               </div>
             </ng-container>
           </div>
@@ -488,6 +411,22 @@
                 <small class="help-block">{{
                   "enableDuckDuckGoBrowserIntegrationDesc" | i18n
                 }}</small>
+              </div>
+              <div class="form-group" *ngIf="showEnableAutotype">
+                <div class="checkbox">
+                  <label for="enableAutotype">
+                    <input
+                      id="enableAutotype"
+                      type="checkbox"
+                      formControlName="enableAutotype"
+                      (change)="saveEnableAutotype()"
+                    />
+                    {{ "enableAutotype" | i18n }}
+                  </label>
+                </div>
+                <small class="help-block"
+                  ><b>{{ "important" | i18n }}</b> {{ "enableAutotypeDescription" | i18n }}</small
+                >
               </div>
               <div class="form-group">
                 <label for="theme">{{ "theme" | i18n }}</label>

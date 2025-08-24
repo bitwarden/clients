@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   CdkVirtualScrollViewport,
   CdkFixedSizeVirtualScroll,
@@ -9,8 +7,6 @@ import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   Component,
-  ContentChild,
-  Input,
   OnDestroy,
   TemplateRef,
   Directive,
@@ -18,6 +14,8 @@ import {
   AfterViewInit,
   ElementRef,
   TrackByFunction,
+  input,
+  contentChild,
 } from "@angular/core";
 
 import { ScrollLayoutDirective } from "../layout";
@@ -64,12 +62,12 @@ export class TableScrollComponent
   implements AfterContentChecked, AfterViewInit, OnDestroy
 {
   /** The size of the rows in the list (in pixels). */
-  @Input({ required: true }) rowSize: number;
+  readonly rowSize = input.required<number>();
 
   /** Optional trackBy function. */
-  @Input() trackBy: TrackByFunction<any> | undefined;
+  readonly trackBy = input<TrackByFunction<any> | undefined>();
 
-  @ContentChild(BitRowDef) protected rowDef: BitRowDef;
+  protected readonly rowDef = contentChild(BitRowDef);
 
   /**
    * Height of the thead element (in pixels).
@@ -81,7 +79,7 @@ export class TableScrollComponent
   /**
    * Observer for table header, applies padding on resize.
    */
-  private headerObserver: ResizeObserver;
+  private headerObserver?: ResizeObserver;
 
   constructor(
     private zone: NgZone,

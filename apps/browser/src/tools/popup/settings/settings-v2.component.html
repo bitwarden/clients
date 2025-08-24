@@ -76,7 +76,7 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    <bit-item *ngIf="isNudgeFeatureEnabled$ | async">
+    <bit-item>
       <a bit-item-content routerLink="/download-bitwarden">
         <i slot="start" class="bwi bwi-mobile" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center tw-justify-center">
@@ -92,7 +92,7 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    <bit-item *ngIf="isNudgeFeatureEnabled$ | async">
+    <bit-item>
       <a bit-item-content routerLink="/more-from-bitwarden">
         <i slot="start" class="bwi bwi-filter" aria-hidden="true"></i>
         {{ "moreFromBitwarden" | i18n }}
