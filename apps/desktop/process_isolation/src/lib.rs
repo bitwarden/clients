@@ -24,7 +24,7 @@ unsafe extern "C" fn unsetenv(name: *const c_char) -> i32 {
 
         if name_str == "LD_PRELOAD" {
             // This env variable is provided by the flatpak configuration
-            let ld_preload = std::env::var("MEMORY_SECURITY_LD_PRELOAD").unwrap_or_default();
+            let ld_preload = std::env::var("PROCESS_ISOLATION_LD_PRELOAD").unwrap_or_default();
             std::env::set_var("LD_PRELOAD", ld_preload);
             return 0;
         }
@@ -38,7 +38,7 @@ unsafe extern "C" fn unsetenv(name: *const c_char) -> i32 {
 fn preload_init() {
     let pid = unsafe { libc::getpid() };
     unsafe {
-        println!("[memory-security] Enabling memory security for process {pid}");
+        println!("[Process Isolation] Enabling memory security for process {pid}");
         isolate::isolate_process();
         isolate::disable_coredumps();
     }

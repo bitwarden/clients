@@ -31,14 +31,14 @@ async function run(context) {
     fse.chmodSync(wrapperBin, "755");
     console.log("Copied memory-protection wrapper script");
 
-    const memorySecurityPath = path.join(__dirname, "../memory_security/");
+    const memorySecurityPath = path.join(__dirname, "../process_isolation/");
     const memorySecurityLibPath = path.join(
       memorySecurityPath,
       "target",
       "release",
-      "libmemory_security.so",
+      "libprocess_isolation.so",
     );
-    const memorySecurityLibOutPath = path.join(appOutDir, "libmemory_security.so");
+    const memorySecurityLibOutPath = path.join(appOutDir, "libprocess_isolation.so");
     child_process.execSync(`cargo build --release`, { cwd: memorySecurityPath });
     fse.copyFileSync(memorySecurityLibPath, memorySecurityLibOutPath);
   }
