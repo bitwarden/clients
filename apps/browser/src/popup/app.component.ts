@@ -321,6 +321,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async clearComponentStates() {
+    if (this.activeUserId == null) {
+      return;
+    }
     if (!(await firstValueFrom(this.tokenService.hasAccessToken$(this.activeUserId)))) {
       return;
     }

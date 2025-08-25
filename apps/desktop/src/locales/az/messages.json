@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Qoşma saxlanıldı."
   },
+  "addAttachment": {
+    "message": "Qoşma əlavə et"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maksimal fayl həcmi 500 MB-dır"
+  },
   "file": {
     "message": "Fayl"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Açılışda Touch ID-ni soruşun"
-  },
-  "requirePasswordOnStart": {
-    "message": "Tətbiq başladılanda parolu və ya PIN-i tələb et"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Tətbiq başladılanda parolu tələb et"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Yenidən başladılanda ana parol ilə kilidlə"
@@ -3491,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Bir kolleksiya seçin"
   },
-  "importTargetHint": {
-    "message": "Daxilə köçürülən fayl məzmununun $DESTINATION$ yerinə daşınmasını istəyirsinizsə bu variantı seçin",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu variantı seçin"
+  },
+  "importTargetHintFolder": {
+    "message": "Daxilə köçürülən fayl məzmunlarının bir qovluğa daşınmasını istəyirsinizsə bu variantı seçin"
   },
   "importUnassignedItemsError": {
     "message": "Faylda təyin edilməmiş elementlər var."
@@ -4077,5 +4073,9 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }
