@@ -151,6 +151,8 @@ export class WindowMain {
         app.on("ready", async () => {
           if (isMac() || isWindows()) {
             this.enableRendererProcessForceCrashReload = true;
+            // Isolate main the process from debuggers and memory dumping.
+            await processisolations.disableMemoryAccess();
           } else if (isLinux() && !isDev()) {
             if (await processisolations.isCoreDumpingDisabled()) {
               this.logService.info("Coredumps are disabled in renderer process");
