@@ -149,22 +149,4 @@ export class ArchiveComponent {
       },
     });
   }
-
-  // /**
-  //  * Check if the user is able to interact with the cipher
-  //  * (password re-prompt / decryption failure checks).
-  //  * @param cipher
-  //  * @param ignoreDecryptionFailure - If true, the decryption failure check will be ignored.
-  //  * @private
-  //  */
-  // private async canInteract(cipher: CipherView, ignoreDecryptionFailure = false) {
-  //   if (cipher.decryptionFailure) {
-  //     DecryptionFailureDialogComponent.open(this.dialogService, {
-  //       cipherIds: [cipher.id as CipherId],
-  //     });
-  //     return false;
-  //   }
-  //
-  //   return await this.passwordRepromptService.passwordRepromptCheck(cipher);
-  // }
 }
