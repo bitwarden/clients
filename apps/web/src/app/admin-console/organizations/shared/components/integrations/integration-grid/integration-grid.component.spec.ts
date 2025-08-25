@@ -5,8 +5,6 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations/services";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -21,6 +19,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IntegrationCardComponent } from "../integration-card/integration-card.component";
 import { Integration } from "../models";
+import { OrganizationIntegrationService } from "../services/organization-integration.service";
 
 import { IntegrationGridComponent } from "./integration-grid.component";
 
@@ -28,7 +27,7 @@ describe("IntegrationGridComponent", () => {
   let component: IntegrationGridComponent;
   let fixture: ComponentFixture<IntegrationGridComponent>;
   const mockActivatedRoute = mock<ActivatedRoute>();
-  const mockOrgIntegrationApiService = mock<OrganizationIntegrationApiService>();
+  const mockIntegrationService = mock<OrganizationIntegrationService>();
   const integrations: Integration[] = [
     {
       name: "Integration 1",
@@ -74,10 +73,7 @@ describe("IntegrationGridComponent", () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
-        {
-          provide: OrganizationIntegrationApiService,
-          useValue: mockOrgIntegrationApiService,
-        },
+        { provide: OrganizationIntegrationService, useValue: mockIntegrationService },
         {
           provide: ToastService,
           useValue: mock<ToastService>(),

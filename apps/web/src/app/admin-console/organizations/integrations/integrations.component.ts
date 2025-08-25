@@ -2,10 +2,8 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, Subject, switchMap, takeUntil, scheduled, asyncScheduler } from "rxjs";
+import { firstValueFrom, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
 import {
   getOrganizationById,
   OrganizationService,
@@ -22,6 +20,8 @@ import { SharedOrganizationModule } from "../shared";
 import { IntegrationGridComponent } from "../shared/components/integrations/integration-grid/integration-grid.component";
 import { FilterIntegrationsPipe } from "../shared/components/integrations/integrations.pipe";
 import { Integration } from "../shared/components/integrations/models";
+import { OrganizationIntegrationServiceType } from "@bitwarden/common/dirt/integrations/models/organization-integration-service-type";
+import { HecOrganizationIntegrationService } from "@bitwarden/common/dirt/integrations/services/hec-organization-integration-service";
 
 @Component({
   selector: "ac-integrations",
@@ -35,7 +35,6 @@ import { Integration } from "../shared/components/integrations/models";
   ],
 })
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
-  // integrationsList: Integration[] = [];
   tabIndex: number;
   organization$: Observable<Organization>;
   isEventBasedIntegrationsEnabled: boolean = false;
@@ -218,8 +217,10 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     },
   ];
 
-  ngOnInit(): void {
-    const orgId = this.route.snapshot.params.organizationId;
+  async ngOnInit(): Promise<void> {
+    // const orgId = this.route.snapshot.params.organizationId;
+
+    // await this.hecOrganizationIntegrationService.setOrganizationId(orgId, this.integrationsList);
 
     this.organization$ = this.route.params.pipe(
       switchMap((params) =>
@@ -233,24 +234,16 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       ),
     );
 
-    scheduled(this.orgIntegrationApiService.getOrganizationIntegrations(orgId), asyncScheduler)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((integrations) => {
-        // Update the integrations list with the fetched integrations
-        if (integrations && integrations.length > 0) {
-          integrations.forEach((integration) => {
-            const configJson = JSON.parse(integration.configuration || "{}");
-            const serviceName = configJson.service ?? "";
-            const existingIntegration = this.integrationsList.find((i) => i.name === serviceName);
+    const org = await firstValueFrom(this.organization$);
 
-            if (existingIntegration) {
-              // if a configuration exists, then it is connected
-              existingIntegration.isConnected = !!integration.configuration;
-              existingIntegration.configuration = integration.configuration || "";
-            }
-          });
-        }
-      });
+    // Sets the organization ID which also loads the integrations$
+    await this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
+
+    // this.organizationIntegrationService.integrationList$
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe((integrations) => {
+    //     this.integrationsList = integrations;
+    //   });
   }
 
   constructor(
@@ -258,7 +251,8 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private configService: ConfigService,
-    private orgIntegrationApiService: OrganizationIntegrationApiService,
+    // private organizationIntegrationService: OrganizationIntegrationService,
+    private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
   ) {
     this.configService
       .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
@@ -267,23 +261,37 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
         this.isEventBasedIntegrationsEnabled = isEnabled;
       });
 
+    // Add the new event based items to the list
     if (this.isEventBasedIntegrationsEnabled) {
-      this.integrationsList.push({
-        name: "Crowdstrike",
+      const crowdstrikeIntegration: Integration = {
+        name: OrganizationIntegrationServiceType.CrowdStrike,
         linkURL: "",
         image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
         type: IntegrationType.EVENT,
         description: "crowdstrikeEventIntegrationDesc",
         isConnected: false,
-        canSetupConnection: true,
-      });
+      };
+
+      this.integrationsList.push(crowdstrikeIntegration);
     }
+
+    // For all existing event based configurations loop through and assign the
+    // organizationIntegration for the correct services.
+    this.hecOrganizationIntegrationService.integrations$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((integrations) => {
+        integrations.map((integration) => {
+          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
+          item.organizationIntegration = integration;
+        });
+      });
   }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
+  // use in the view
   get IntegrationType(): typeof IntegrationType {
     return IntegrationType;
   }

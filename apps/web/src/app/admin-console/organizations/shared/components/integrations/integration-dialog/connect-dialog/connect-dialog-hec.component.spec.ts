@@ -70,7 +70,9 @@ describe("ConnectDialogHecComponent", () => {
     canSetupConnection: true,
     type: IntegrationType.EVENT,
   } as Integration;
-  const connectInfo: HecConnectDialogParams = { settings: integrationMock };
+  const connectInfo: HecConnectDialogParams = {
+    settings: integrationMock, // Provide appropriate mock template if needed
+  };
 
   beforeEach(async () => {
     dialogRefMock = mock<DialogRef<HecConnectDialogResult>>();
@@ -150,12 +152,10 @@ describe("ConnectDialogHecComponent", () => {
 
     expect(dialogRefMock.close).toHaveBeenCalledWith({
       integrationSettings: integrationMock,
-      configuration: JSON.stringify({
-        url: "https://test.com",
-        bearerToken: "token",
-        index: "1",
-        service: "Test Service",
-      }),
+      url: "https://test.com",
+      bearerToken: "token",
+      index: "1",
+      service: "Test Service",
       success: true,
       error: null,
     });
