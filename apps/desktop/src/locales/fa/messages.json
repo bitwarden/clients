@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "پیوست ذخیره شد"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "پرونده"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "درخواست Touch ID در هنگام راه‌اندازی"
-  },
-  "requirePasswordOnStart": {
-    "message": "هنگام شروع برنامه، کلمه عبور یا کد پین مورد نیاز است"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "هنگام شروع برنامه، کلمه عبور مورد نیاز است"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "در زمان شروع مجدد، با کلمه عبور اصلی قفل کن"

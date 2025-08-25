@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Załącznik został zapisany"
   },
+  "addAttachment": {
+    "message": "Dodaj załącznik"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maksymalny rozmiar pliku to 500 MB"
+  },
   "file": {
     "message": "Plik"
   },
@@ -930,7 +936,7 @@
     "message": "Kod weryfikacyjny jest nieprawidłowy"
   },
   "continue": {
-    "message": "Kontynuuj"
+    "message": "Przejdź"
   },
   "verificationCodeEmailSent": {
     "message": "Wiadomość weryfikacyjna została wysłana na adres $EMAIL$.",
@@ -1840,12 +1846,6 @@
   "autoPromptTouchId": {
     "message": "Poproś o Touch ID przy uruchomieniu"
   },
-  "requirePasswordOnStart": {
-    "message": "Wymagaj hasła lub PIN przy starcie aplikacji"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Wymagaj hasła przy starcie aplikacji"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Zablokuj hasłem głównym po uruchomieniu ponownym"
   },
@@ -2184,7 +2184,7 @@
     "message": "Aby skonfigurować dane biometryczne w przeglądarce, włącz najpierw biometrię w aplikacji desktopowej."
   },
   "biometricsManualSetupTitle": {
-    "message": "Automatyczna konfiguracja niedostępna"
+    "message": "Automatyczna konfiguracja jest niedostępna"
   },
   "biometricsManualSetupDesc": {
     "message": "Ze względu na metodę instalacji, biometria nie może być automatycznie włączona. Czy chcesz otworzyć dokumentację dotyczącą tego, jak to zrobić ręcznie?"
@@ -3018,7 +3018,7 @@
     "message": "Zobacz wszystkie sposoby logowania"
   },
   "viewAllLoginOptions": {
-    "message": "Zobacz wszystkie sposoby logowania"
+    "message": "Pokaż wszystkie metody logowania"
   },
   "resendNotification": {
     "message": "Wyślij ponownie powiadomienie"
@@ -3513,7 +3513,7 @@
     "message": "Nie wybrano pliku"
   },
   "orCopyPasteFileContents": {
-    "message": "lub skopiuj/wklej treść pliku"
+    "message": "lub wklej zawartość pliku"
   },
   "instructionsFor": {
     "message": "Instrukcja dla $NAME$",
@@ -3651,10 +3651,10 @@
     "message": "Włącz akcelerację sprzętową i uruchom ponownie"
   },
   "removePasskey": {
-    "message": "Usuń passkey"
+    "message": "Usuń klucz dostępu"
   },
   "passkeyRemoved": {
-    "message": "Passkey został usunięty"
+    "message": "Klucz dostępu został usunięty"
   },
   "errorAssigningTargetCollection": {
     "message": "Wystąpił błąd podczas przypisywania kolekcji."
@@ -3683,7 +3683,7 @@
     }
   },
   "back": {
-    "message": "Powrót",
+    "message": "Wstecz",
     "description": "Button text to navigate back"
   },
   "removeItem": {
@@ -3792,7 +3792,7 @@
     "message": "podpisania wiadomości"
   },
   "sshActionGitSign": {
-    "message": "podpisania commita w giciem"
+    "message": "podpisania Git commit"
   },
   "unknownApplication": {
     "message": "Aplikacja"
@@ -3807,13 +3807,13 @@
     "message": "Importuj klucz ze schowka"
   },
   "sshKeyImported": {
-    "message": "Klucz SSH zaimportowano pomyślnie"
+    "message": "Klucz SSH został zaimportowany"
   },
   "fileSavedToDevice": {
     "message": "Plik zapisany na urządzeniu. Zarządzaj plikiem na swoim urządzeniu."
   },
   "allowScreenshots": {
-    "message": "Zezwól na przechwytywanie ekranu"
+    "message": "Zezwalaj na wykonywanie zrzutów ekranu"
   },
   "allowScreenshotsDesc": {
     "message": "Zezwól aplikacji desktopowej Bitwarden na przechwytywanie w zrzutach ekranu i przeglądanie w sesjach zdalnego pulpitu. Wyłączenie tej opcji uniemożliwi dostęp na niektórych zewnętrznych wyświetlaczach."
@@ -3825,7 +3825,7 @@
     "message": "Potwierdź, że okno jest nadal widoczne."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
-    "message": "Wymagana aktualizacja rozszerzenia"
+    "message": "Aktualizacja rozszerzenia jest wymagana"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "Rozszerzenie przeglądarki, którego używasz, jest nieaktualne. Zaktualizuj je lub wyłącz weryfikację odcisku palca integracji przeglądarki w ustawieniach aplikacji desktopowej."

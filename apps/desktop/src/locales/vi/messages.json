@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Đã lưu tệp đính kèm"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Tệp"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Yêu cầu xác minh Touch ID khi mở ứng dụng"
-  },
-  "requirePasswordOnStart": {
-    "message": "Yêu cầu mật khẩu hoặc mã PIN khi mở ứng dụng"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Yêu cầu mật khẩu khi khởi động ứng dụng"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"

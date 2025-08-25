@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Bijlage opgeslagen"
   },
+  "addAttachment": {
+    "message": "Bijlage toevoegen"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximale bestandsgrootte is 500 MB"
+  },
   "file": {
     "message": "Bestand"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Vraag om Touch ID bij opstarten"
-  },
-  "requirePasswordOnStart": {
-    "message": "Wachtwoord of pincode vereisen bij starten van de app"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Wachtwoord vereisen bij starten van de app"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bij herstart vergrendelen met hoofdwachtwoord"
