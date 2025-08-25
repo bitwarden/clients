@@ -176,7 +176,7 @@
   "totalApplications": {
     "message": "Total applications"
   },
-  "unmarkAsCriticalApp": {
+  "unmarkAsCritical": {
     "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
