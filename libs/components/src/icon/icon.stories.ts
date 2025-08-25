@@ -15,11 +15,6 @@ export default {
   },
 } as Meta;
 
-type IconWithName = {
-  icon: string;
-  name: string;
-};
-
 const {
   // Filtering out the few non-icons in the libs/assets/svg import
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -33,31 +28,16 @@ const {
   [key: string]: any;
 } = SvgIcons;
 
-function iconsMapped(): IconWithName[] {
-  const iconNames = Object.keys(Icons);
-
-  return iconNames.reduce((result: IconWithName[], iconName) => {
-    result.push({
-      icon: Icons[iconName],
-      name: iconName,
-    });
-
-    return result;
-  }, []);
-}
-
-const iconsData = iconsMapped();
-
 export const Default = {
-  render: (args: { dataSource: typeof iconsData }) => ({
+  render: (args: { icons: [string, any][] }) => ({
     props: args,
     template: /*html*/ `
     <div class="tw-bg-secondary-100 tw-p-2 tw-grid tw-grid-cols-[repeat(auto-fit,minmax(224px,1fr))] tw-gap-2">
-      @for (icon of dataSource; track icon.name) {
+      @for (icon of icons; track icon[0]) {
         <div class="tw-size-56 tw-border tw-border-secondary-300 tw-rounded-md">
-          <div class="tw-text-xs tw-text-center">{{icon.name}}</div>
+          <div class="tw-text-xs tw-text-center">{{icon[0]}}</div>
           <div class="tw-size-52 tw-w-full tw-content-center">
-            <bit-icon [icon]="icon.icon" class="tw-flex tw-justify-center tw-max-h-full"></bit-icon>
+            <bit-icon [icon]="icon[1]" class="tw-flex tw-justify-center tw-max-h-full"></bit-icon>
           </div>
         </div>
       }
@@ -65,6 +45,6 @@ export const Default = {
     `,
   }),
   args: {
-    dataSource: iconsData,
+    icons: Object.entries(Icons),
   },
 };
