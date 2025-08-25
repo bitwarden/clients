@@ -41,6 +41,9 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
+import {
+  PendingAuthRequestsStateService
+} from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -401,6 +404,7 @@ export default class MainBackground {
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
   vaultSettingsService: VaultSettingsServiceAbstraction;
+  pendingAuthRequestStateService: PendingAuthRequestsStateService;
   biometricStateService: BiometricStateService;
   biometricsService: BiometricsService;
   stateEventRunnerService: StateEventRunnerService;
@@ -1129,12 +1133,16 @@ export default class MainBackground {
       this.systemNotificationService = new UnsupportedSystemNotificationsService();
     }
 
+    this.pendingAuthRequestStateService = new PendingAuthRequestsStateService(this.stateProvider);
+
     this.authRequestAnsweringService = new AuthRequestAnsweringService(
       this.accountService,
       this.actionsService,
       this.authService,
       this.i18nService,
       this.masterPasswordService,
+      this.messagingService,
+      this.pendingAuthRequestStateService,
       this.platformUtilsService,
       this.systemNotificationService,
     );

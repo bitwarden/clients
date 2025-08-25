@@ -5,4 +5,6 @@ export abstract class AuthRequestAnsweringServiceAbstraction {
   abstract receivedPendingAuthRequest(userId: UserId, notificationId: string): Promise<void>;
 
   abstract handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void>;
+
+  abstract processPendingAuthRequests(): void;
 }

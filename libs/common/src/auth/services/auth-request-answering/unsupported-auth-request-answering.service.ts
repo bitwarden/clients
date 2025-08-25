@@ -14,4 +14,8 @@ export class UnsupportedAuthRequestAnsweringService
   async receivedPendingAuthRequest(userId: UserId, notificationId: string): Promise<void> {
     throw new Error("Received pending auth request not supported.");
   }
+
+  processPendingAuthRequests(): void {
+    throw new Error("Popup opened not supported.");
+  }
 }
