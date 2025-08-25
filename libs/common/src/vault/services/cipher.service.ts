@@ -600,6 +600,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     includeOtherTypes?: CipherType[],
     defaultMatch: UriMatchStrategySetting = null,
+    overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]> {
     return await firstValueFrom(
       this.cipherViews$(userId).pipe(
@@ -611,6 +612,7 @@ export class CipherService implements CipherServiceAbstraction {
               url,
               includeOtherTypes,
               defaultMatch,
+              overrideNeverMatchStrategy,
             ),
         ),
       ),
@@ -622,6 +624,7 @@ export class CipherService implements CipherServiceAbstraction {
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch: UriMatchStrategySetting = null,
+    overrideNeverMatchStrategy?: true,
   ): Promise<C[]> {
     if (url == null && includeOtherTypes == null) {
       return [];
@@ -646,7 +649,13 @@ export class CipherService implements CipherServiceAbstraction {
       }
 
       if (cipherIsLogin) {
-        return CipherViewLikeUtils.matchesUri(cipher, url, equivalentDomains, defaultMatch);
+        return CipherViewLikeUtils.matchesUri(
+          cipher,
+          url,
+          equivalentDomains,
+          defaultMatch,
+          overrideNeverMatchStrategy,
+        );
       }
 
       return false;

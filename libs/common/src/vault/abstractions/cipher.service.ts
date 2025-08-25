@@ -65,12 +65,16 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
+    /** When true, will override the match strategy for the cipher if it is Never. */
+    overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
+    /** When true, will override the match strategy for the cipher if it is Never. */
+    overrideNeverMatchStrategy?: true,
   ): Promise<C[]>;
   abstract getAllFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
   /**
