@@ -3657,6 +3657,9 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
+  "thatRequestIsNoLongerValidStartingNewRequest": {
+    "message": "That request is no longer valid. Starting a new request."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },

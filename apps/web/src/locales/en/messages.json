@@ -3977,6 +3977,9 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
+  "thatRequestIsNoLongerValidStartingNewRequest": {
+    "message": "That request is no longer valid. Starting a new request."
+  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Login request approved for $EMAIL$ on $DEVICE$",
     "placeholders": {

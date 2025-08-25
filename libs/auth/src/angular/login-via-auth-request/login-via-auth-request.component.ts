@@ -540,7 +540,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
    * @param requestId
    * @private
    */
-  private async retrieveAuthRequest(requestId: string): Promise<AuthRequestResponse> {
+  private async retrieveAuthRequest(requestId: string): Promise<AuthRequestResponse | undefined> {
     let authRequestResponse: AuthRequestResponse | undefined = undefined;
     try {
       // There are two cases here, the first being
@@ -562,16 +562,8 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
         );
       }
     } catch (error) {
-      // If the request no longer exists, we treat it as if it's been answered (and denied).
-      if (error instanceof ErrorResponse && error.statusCode === HttpStatusCode.NotFound) {
-        authRequestResponse = undefined;
-      } else {
-        this.logService.error(error);
-      }
-    }
-
-    if (authRequestResponse === undefined) {
-      throw new Error("Auth request response not generated");
+      this.logService.error(error);
+      this.loading = false;
     }
 
     return authRequestResponse;
@@ -591,6 +583,10 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
       // Request doesn't exist anymore, so we'll clear the cache and start a new request.
       if (!authRequestResponse) {
+        this.toastService.showToast({
+          variant: "info",
+          message: this.i18nService.t("thatRequestIsNoLongerValidStartingNewRequest"),
+        });
         return await this.clearExistingStandardAuthRequestAndStartNewRequest();
       }
 
@@ -641,11 +637,25 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.decryptViaApprovedAuthRequest(
-      authRequestResponse,
-      this.authRequestKeyPair.privateKey,
-      userId,
-    );
+    try {
+      await this.decryptViaApprovedAuthRequest(
+        authRequestResponse,
+        this.authRequestKeyPair.privateKey,
+        userId,
+      );
+    } catch (error) {
+      // If the component privateKey cannot decrypt the authRequestPublicKeyEncryptedUserKey on an auth request response,
+      // it means that auth request is no longer valid (i.e. the newer component privateKey does not belong to the same key pair
+      // as the older publicKey that encrypted the user key). Clear and start a new request.
+      this.logService.error(error);
+      this.toastService.showToast({
+        variant: "info",
+        message: this.i18nService.t("thatRequestIsNoLongerValidStartingNewRequest"),
+      });
+
+      await this.clearExistingStandardAuthRequestAndStartNewRequest();
+      this.loading = false;
+    }
   }
 
   private async handleUnauthenticatedFlows(
