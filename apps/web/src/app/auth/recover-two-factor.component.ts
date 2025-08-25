@@ -100,9 +100,7 @@ export class RecoverTwoFactorComponent implements OnInit {
 
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error) {
-      // If login errors, redirect to login page per product. Don't show error
       this.logService.error("Error logging in automatically: ", (error as Error).message);
-      await this.router.navigate(["/login"], { queryParams: { email: email } });
     }
   }
 }
