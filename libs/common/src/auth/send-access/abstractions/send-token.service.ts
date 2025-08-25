@@ -35,9 +35,9 @@ export abstract class SendTokenService {
    * @param sendId The ID of the send to retrieve the access token for.
    * @returns An observable that emits a SendAccessToken if successful, or a TryGetSendAccessTokenError if not.
    */
-  // abstract tryGetSendAccessToken$: (
-  //   sendId: string,
-  // ) => Observable<SendAccessToken | TryGetSendAccessTokenError>;
+  abstract tryGetSendAccessToken$: (
+    sendId: string,
+  ) => Observable<SendAccessToken | TryGetSendAccessTokenError>;
 
   /**
    * Retrieves a SendAccessToken for the given sendId using the provided credentials.

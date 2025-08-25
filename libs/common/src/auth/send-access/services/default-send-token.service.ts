@@ -1,7 +1,7 @@
 import { Observable, defer, firstValueFrom, from } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { SendAccessTokenApiErrorResponse, SendAccessTokenRequest } from "@bitwarden/sdk-internal";
+import { SendAccessTokenRequest } from "@bitwarden/sdk-internal";
 import {
   GlobalState,
   GlobalStateProvider,
@@ -33,32 +33,6 @@ export const SEND_ACCESS_TOKEN_DICT = KeyDefinition.record<SendAccessToken, stri
     },
   },
 );
-
-// type CredentialsRequiredApiError = Extract<
-//   SendTokenApiError,
-//   "password-required" | "email-and-otp-required" | "unknown-error"
-// >;
-
-// function isCredentialsRequiredApiError(
-//   error: SendTokenApiError,
-// ): error is CredentialsRequiredApiError {
-//   return (
-//     error === "password-hash-required" ||
-//     error === "email-and-otp-required" ||
-//     error === "unknown-error"
-//   );
-// }
-
-export type TryGetSendAccessTokenError = "expired" | SendAccessTokenApiErrorResponse;
-
-// export type GetSendAcccessTokenError = Extract<
-//   SendTokenApiError,
-//   "invalid-password" | "invalid-otp" | "unknown-error"
-// >;
-
-// function isGetSendAccessTokenError(error: SendTokenApiError): error is GetSendAcccessTokenError {
-//   return error === "invalid-password-hash" || error === "invalid-otp" || error === "unknown-error";
-// }
 
 export class DefaultSendTokenService implements SendTokenServiceAbstraction {
   private sendAccessTokenDictGlobalState: GlobalState<Record<string, SendAccessToken>> | undefined;
