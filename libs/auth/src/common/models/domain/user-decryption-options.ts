@@ -2,11 +2,9 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { KeyConnectorUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/key-connector-user-decryption-option.response";
 import { TrustedDeviceUserDecryptionOptionResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/trusted-device-user-decryption-option.response";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { IdentityTokenResponse } from "@bitwarden/common/src/auth/models/response/identity-token.response";
 
 /**
  * Key Connector decryption options. Intended to be sent to the client for use after authentication.

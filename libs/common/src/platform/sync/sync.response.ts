@@ -3,6 +3,7 @@
 import { CollectionDetailsResponse } from "@bitwarden/admin-console/common";
 
 import { PolicyResponse } from "../../admin-console/models/response/policy.response";
+import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
 import { BaseResponse } from "../../models/response/base.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
@@ -18,6 +19,7 @@ export class SyncResponse extends BaseResponse {
   domains?: DomainsResponse;
   policies?: PolicyResponse[] = [];
   sends: SendResponse[] = [];
+  userDecryption?: UserDecryptionResponse;
 
   constructor(response: any) {
     super(response);
@@ -55,6 +57,11 @@ export class SyncResponse extends BaseResponse {
     const sends = this.getResponseProperty("Sends");
     if (sends != null) {
       this.sends = sends.map((s: any) => new SendResponse(s));
+    }
+
+    const userDecryption = this.getResponseProperty("UserDecryption");
+    if (userDecryption != null && typeof userDecryption === "object") {
+      this.userDecryption = new UserDecryptionResponse(userDecryption);
     }
   }
 }
