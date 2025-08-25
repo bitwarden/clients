@@ -1,28 +1,34 @@
+import { Observable } from "rxjs";
+import { SendAccessToken } from "../models/send-access-token";
 import { SendHashedPasswordB64 } from "../types/send-hashed-password-b64.type";
+import { TryGetSendAccessTokenError } from "../types/try-get-send-access-token-error";
 
-export type SendPasswordCredentials = {
-  type: "password";
-  passwordHash: SendHashedPasswordB64;
-};
+// export type SendPasswordCredentials = {
+//   type: "password";
+//   passwordHash: SendHashedPasswordB64;
+// };
 
-// Credentials for sending an OTP to the user's email address.
-// This is used when the send requires email verification with an OTP.
-export type SendEmailCredentials = {
-  type: "email";
-  email: string;
-};
+// // Credentials for sending an OTP to the user's email address.
+// // This is used when the send requires email verification with an OTP.
+// export type SendEmailCredentials = {
+//   type: "email";
+//   email: string;
+// };
 
-// Credentials for getting a send access token using an email and OTP.
-export type SendEmailOtpCredentials = {
-  type: "email-otp";
-  email: string;
-  otp: string;
-};
-export type SendAccessCredentials =
-  | SendPasswordCredentials
-  | SendEmailCredentials
-  | SendEmailOtpCredentials;
+// // Credentials for getting a send access token using an email and OTP.
+// export type SendEmailOtpCredentials = {
+//   type: "email-otp";
+//   email: string;
+//   otp: string;
+// };
+// export type SendAccessCredentials =
+//   | SendPasswordCredentials
+//   | SendEmailCredentials
+//   | SendEmailOtpCredentials;
 
+/**
+ * Service to manage send access tokens.
+ */
 export abstract class SendTokenService {
   /**
    * Attempts to retrieve a SendAccessToken for the given sendId.
@@ -53,7 +59,8 @@ export abstract class SendTokenService {
   // ) => Observable<SendAccessToken | GetSendAcccessTokenError>;
 
   /**
-   * Hashes a password for send access.
+   * Hashes a password for send access which is required to create a {@link SendAccessTokenRequest}
+   * (more specifically, to create a {@link SendAccessCredentials} of type {@link SendPasswordCredentials})
    * @param password The raw password string to hash.
    * @param keyMaterialUrlB64 The base64 URL encoded key material string.
    * @returns A promise that resolves to the hashed password as a SendHashedPasswordB64.

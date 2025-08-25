@@ -1,7 +1,11 @@
 import { Observable, defer, firstValueFrom, from } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { SendAccessTokenRequest } from "@bitwarden/sdk-internal";
+import {
+  SendAccessTokenError,
+  SendAccessTokenRequest,
+  SendAccessTokenResponse,
+} from "@bitwarden/sdk-internal";
 import {
   GlobalState,
   GlobalStateProvider,
@@ -19,8 +23,7 @@ import { Utils } from "../../../platform/misc/utils";
 import { SendTokenService as SendTokenServiceAbstraction } from "../abstractions/send-token.service";
 import { SendAccessToken } from "../models/send-access-token";
 import { SendHashedPasswordB64 } from "../types/send-hashed-password-b64.type";
-
-// import { SendTokenApiError } from "./send-token-api.service";
+import { TryGetSendAccessTokenError } from "../types/try-get-send-access-token-error";
 
 // TODO: add JSDocs
 // TODO: add tests for this service.
@@ -66,7 +69,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     if (sendAccessTokenFromStorage != null) {
       // If it is expired, we return expired token error.
       if (sendAccessTokenFromStorage.isExpired()) {
-        return "expired";
+        return { kind: "expired" };
       } else {
         // If it is not expired, we return it
         return sendAccessTokenFromStorage;
@@ -76,7 +79,6 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     // If we don't have a token in storage, we can try to request a new token from the server.
     const request: SendAccessTokenRequest = {
       sendId: sendId,
-      sendAccessCredentials: undefined,
     };
 
     const anonSdkClient = await firstValueFrom(this.sdkService.client$);
@@ -84,22 +86,23 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     if (anonSdkClient === undefined) {
       throw new Error("SDK client is undefined");
     }
-    const result = await anonSdkClient.auth().send_access().request_send_access_token(request);
 
-    if (result instanceof SendAccessToken) {
+    try {
+      const result: SendAccessTokenResponse = await anonSdkClient
+        .auth()
+        .send_access()
+        .request_send_access_token(request);
+
+      // Convert from SDK shape to SendAccessToken so it can be serialized into & out of state provider
+      const sendAccessToken = SendAccessToken.fromSendAccessTokenResponse(result);
+
       // If we get a token back, we need to store it in the global state.
-      await this.setSendAccessTokenInStorage(sendId, result);
-      return result;
-    }
+      await this.setSendAccessTokenInStorage(sendId, sendAccessToken);
 
-    if (isCredentialsRequiredApiError(result)) {
-      // If we get an expected API error, we return it.
-      // Typically, this will be a "password-required" or "email-and-otp-required" error to communicate that the send requires credentials to access.
-      return result;
+      return sendAccessToken;
+    } catch (error: unknown) {
+      return this.normalizeTryGetSendAccessError(error);
     }
-
-    // If we get an unexpected error, we throw.
-    throw new Error(`Unexpected and unhandled API error retrieving send access token: ${result}`);
   }
 
   // getSendAccessToken$(
@@ -195,6 +198,34 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
         return sendAccessTokenDict;
       });
     }
+  }
+
+  private normalizeTryGetSendAccessError(e: unknown): TryGetSendAccessTokenError {
+    if (this.isSendAccessTokenError(e)) {
+      if (e.kind === "unexpected") {
+        return { kind: "unexpected_server", error: e.data };
+      }
+      return { kind: "expected_server", error: e.data };
+    }
+
+    if (e instanceof Error) {
+      return { kind: "unknown", error: e.message };
+    }
+
+    try {
+      return { kind: "unknown", error: JSON.stringify(e) };
+    } catch {
+      return { kind: "unknown", error: "error cannot be stringified" };
+    }
+  }
+
+  private isSendAccessTokenError(e: unknown): e is SendAccessTokenError {
+    return (
+      typeof e === "object" &&
+      e !== null &&
+      "kind" in e &&
+      (e.kind === "expected" || e.kind === "unexpected")
+    );
   }
 
   private validateSendId(sendId: string): void {
