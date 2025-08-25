@@ -1139,6 +1139,7 @@ export default class MainBackground {
       new SignalRConnectionService(this.apiService, this.logService),
       this.authService,
       this.webPushConnectionService,
+      this.configService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -1384,12 +1385,14 @@ export default class MainBackground {
       this.accountService,
       this.authService,
     );
-  }
 
-  async bootstrap() {
+    // Synchronous startup
     if (this.webPushConnectionService instanceof WorkerWebPushConnectionService) {
       this.webPushConnectionService.start();
     }
+  }
+
+  async bootstrap() {
     this.containerService.attachToGlobal(self);
 
     await this.sdkLoadService.loadAndInit();
