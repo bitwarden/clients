@@ -71,8 +71,8 @@ import { PaymentComponent } from "../shared/payment/payment.component";
 
 type ChangePlanDialogParams = {
   organizationId: string;
-  subscription: OrganizationSubscriptionResponse;
   productTierType: ProductTierType;
+  subscription?: OrganizationSubscriptionResponse;
 };
 
 // FIXME: update to use a const object instead of a typescript enum
