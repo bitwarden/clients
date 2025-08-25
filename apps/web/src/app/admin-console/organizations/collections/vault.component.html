@@ -56,8 +56,8 @@
   (searchTextChanged)="filterSearchText($event)"
 ></app-org-vault-header>
 
-<div class="tw-flex tw-flex-row">
-  <div class="tw-w-1/4 tw-mr-5" *ngIf="!hideVaultFilters">
+<div class="tw-flex tw-flex-col md:tw-flex-row">
+  <div class="tw-mb-5 md:tw-mb-0 md:tw-w-1/4 md:tw-mr-5" *ngIf="!hideVaultFilters">
     <app-organization-vault-filter
       [organization]="organization"
       [activeFilter]="activeFilter"
@@ -65,7 +65,7 @@
       (searchTextChanged)="filterSearchText($event)"
     ></app-organization-vault-filter>
   </div>
-  <div [class]="hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4'">
+  <div [class]="hideVaultFilters ? 'tw-w-full' : 'tw-w-full md:tw-w-3/4'">
     <bit-toggle-group
       *ngIf="showAddAccessToggle && activeFilter.selectedCollectionNode"
       [selected]="addAccessStatus$ | async"
