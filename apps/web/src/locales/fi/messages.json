@@ -177,7 +177,7 @@
     "message": "Sovelluksia yhteensä"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical"
+    "message": "Unmark as critical app"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Critical application successfully unmarked"
