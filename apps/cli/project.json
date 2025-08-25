@@ -1,0 +1,86 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "cli",
+  "projectType": "application",
+  "sourceRoot": "apps/cli/src",
+  "tags": ["scope:cli", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "oss-production",
+      "options": {
+        "outputPath": "dist/apps/cli",
+        "webpackConfig": "apps/cli/webpack.config.js",
+        "tsConfig": "apps/cli/tsconfig.json",
+        "main": "apps/cli/src/bw.ts",
+        "target": "node",
+        "compiler": "tsc"
+      },
+      "configurations": {
+        "oss-development": {
+          "mode": "development",
+          "license": "oss"
+        },
+        "oss-production": {
+          "mode": "production",
+          "license": "oss"
+        },
+        "bit-development": {
+          "mode": "development",
+          "license": "bit",
+          "webpackConfig": "../../bitwarden_license/bit-cli/webpack.config.js"
+        },
+        "bit-production": {
+          "mode": "production",
+          "license": "bit",
+          "webpackConfig": "../../bitwarden_license/bit-cli/webpack.config.js"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:webpack",
+      "options": {
+        "outputPath": "dist/apps/cli",
+        "webpackConfig": "apps/cli/webpack.config.js",
+        "tsConfig": "apps/cli/tsconfig.json",
+        "main": "apps/cli/src/bw.ts",
+        "target": "node",
+        "compiler": "tsc",
+        "watch": true
+      },
+      "configurations": {
+        "oss-development": {
+          "mode": "development",
+          "license": "oss"
+        },
+        "bit-development": {
+          "mode": "development",
+          "license": "bit",
+          "webpackConfig": "../../bitwarden_license/bit-cli/webpack.config.js"
+        }
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/apps/cli/bw.js"
+      },
+      "configurations": {
+        "oss-development": {
+          "dependsOn": ["build:oss-development"]
+        },
+        "oss-production": {
+          "dependsOn": ["build:oss-production"]
+        },
+        "bit-development": {
+          "dependsOn": ["build:bit-development"]
+        },
+        "bit-production": {
+          "dependsOn": ["build:bit-production"]
+        }
+      }
+    }
+  }
+}

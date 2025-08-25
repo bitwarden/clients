@@ -3,87 +3,112 @@ const webpack = require("webpack");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const config = require("./config/config");
 
-if (process.env.NODE_ENV == null) {
-  process.env.NODE_ENV = "development";
-}
-const ENV = (process.env.ENV = process.env.NODE_ENV);
+module.exports = (config, context) => {
+  // Handle case where function is called during project graph generation
+  if (!context || !context.options) {
+    return {
+      mode: "development",
+      target: "node",
+      entry: "./src/bw.ts",
+      output: { filename: "bw.js" },
+      module: { rules: [] },
+      plugins: [],
+    };
+  }
 
-const envConfig = config.load(ENV);
-config.log(envConfig);
+  // Get options from Nx context
+  const mode = context.options.mode || "development";
+  const license = context.options.license || "oss";
 
-const moduleRules = [
-  {
-    test: /\.ts$/,
-    use: "ts-loader",
-    exclude: path.resolve(__dirname, "node_modules"),
-  },
-];
+  // Set environment variables
+  process.env.NODE_ENV = mode;
+  const ENV = mode;
+  process.env.ENV = ENV;
 
-const plugins = [
-  new CopyWebpackPlugin({
-    patterns: [{ from: "./src/locales", to: "locales" }],
-  }),
-  new webpack.DefinePlugin({
-    "process.env.BWCLI_ENV": JSON.stringify(ENV),
-  }),
-  new webpack.BannerPlugin({
-    banner: "#!/usr/bin/env node",
-    raw: true,
-  }),
-  new webpack.IgnorePlugin({
-    resourceRegExp: /^encoding$/,
-    contextRegExp: /node-fetch/,
-  }),
-  new webpack.EnvironmentPlugin({
-    ENV: ENV,
-    BWCLI_ENV: ENV,
-    FLAGS: envConfig.flags,
-    DEV_FLAGS: envConfig.devFlags,
-  }),
-  new webpack.IgnorePlugin({
-    resourceRegExp: /canvas/,
-    contextRegExp: /jsdom$/,
-  }),
-];
+  const envConfig = require("./config/config").load(ENV);
+  require("./config/config").log(envConfig);
 
-const webpackConfig = {
-  mode: ENV,
-  target: "node",
-  devtool: ENV === "development" ? "eval-source-map" : "source-map",
-  node: {
-    __dirname: false,
-    __filename: false,
-  },
-  entry: {
-    bw: "./src/bw.ts",
-  },
-  optimization: {
-    minimize: false,
-  },
-  resolve: {
-    extensions: [".ts", ".js"],
-    symlinks: false,
-    modules: [path.resolve("../../node_modules")],
-    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
-  },
-  output: {
-    filename: "[name].js",
-    path: path.resolve(__dirname, "build"),
-    clean: true,
-  },
-  module: { rules: moduleRules },
-  plugins: plugins,
-  externals: [
-    nodeExternals({
-      modulesDir: "../../node_modules",
-      allowlist: [/@bitwarden/],
+  // Calculate output path
+  const absoluteOutputPath = path.resolve(context.context.root, context.options.outputPath);
+
+  const moduleRules = [
+    {
+      test: /\.ts$/,
+      use: [
+        {
+          loader: "ts-loader",
+          options: {
+            configFile: "apps/cli/tsconfig.json",
+          },
+        },
+      ],
+      exclude: path.resolve(context.context.root, "node_modules"),
+    },
+  ];
+
+  const plugins = [
+    new CopyWebpackPlugin({
+      patterns: [{ from: "apps/cli/src/locales", to: path.join(absoluteOutputPath, "locales") }],
     }),
-  ],
-  experiments: {
-    asyncWebAssembly: true,
-  },
-};
+    new webpack.DefinePlugin({
+      "process.env.BWCLI_ENV": JSON.stringify(ENV),
+    }),
+    new webpack.BannerPlugin({
+      banner: "#!/usr/bin/env node",
+      raw: true,
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^encoding$/,
+      contextRegExp: /node-fetch/,
+    }),
+    new webpack.EnvironmentPlugin({
+      ENV: ENV,
+      BWCLI_ENV: ENV,
+      FLAGS: envConfig.flags || {},
+      DEV_FLAGS: envConfig.devFlags || {},
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /canvas/,
+      contextRegExp: /jsdom$/,
+    }),
+  ];
 
-module.exports = webpackConfig;
+  return {
+    mode: mode,
+    target: "node",
+    devtool: mode === "development" ? "eval-source-map" : "source-map",
+    node: {
+      __dirname: false,
+      __filename: false,
+    },
+    entry: {
+      bw: "apps/cli/src/bw.ts",
+    },
+    optimization: {
+      minimize: false,
+    },
+    resolve: {
+      extensions: [".ts", ".js"],
+      symlinks: false,
+      modules: [path.resolve(context.context.root, "node_modules")],
+      plugins: [new TsconfigPathsPlugin({ configFile: "tsconfig.base.json" })],
+    },
+    output: {
+      filename: "[name].js",
+      path: absoluteOutputPath,
+      clean: true,
+    },
+    module: { rules: moduleRules },
+    plugins: plugins,
+    externals: [
+      nodeExternals({
+        modulesDir: path.resolve(context.context.root, "node_modules"),
+        allowlist: [/@bitwarden/],
+      }),
+    ],
+    experiments: {
+      asyncWebAssembly: true,
+    },
+  };
+};
