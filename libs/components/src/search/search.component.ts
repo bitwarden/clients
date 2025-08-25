@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { NgIf, NgClass } from "@angular/common";
-import { Component, ElementRef, ViewChild, input, model, signal, computed } from "@angular/core";
+import { Component, ElementRef, input, model, signal, computed, viewChild } from "@angular/core";
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
@@ -37,13 +35,13 @@ let nextId = 0;
   imports: [InputModule, ReactiveFormsModule, FormsModule, I18nPipe, NgIf, NgClass],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
-  private notifyOnChange: (v: string) => void;
-  private notifyOnTouch: () => void;
+  private notifyOnChange?: (v: string) => void;
+  private notifyOnTouch?: () => void;
 
-  @ViewChild("input") private input: ElementRef<HTMLInputElement>;
+  private readonly input = viewChild<ElementRef<HTMLInputElement>>("input");
 
   protected id = `search-id-${nextId++}`;
-  protected searchText: string;
+  protected searchText?: string;
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 
@@ -57,7 +55,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly autocomplete = input<string>();
 
   getFocusTarget() {
-    return this.input?.nativeElement;
+    return this.input()?.nativeElement;
   }
 
   onChange(searchText: string) {

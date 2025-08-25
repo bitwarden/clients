@@ -473,19 +473,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       .update(() => encPrivateKey);
   }
 
-  // TODO: Make public key required
-  async getFingerprint(fingerprintMaterial: string, publicKey?: Uint8Array): Promise<string[]> {
+  async getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]> {
     if (publicKey == null) {
-      const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (activeUserId == null) {
-        throw new Error("No active user found.");
-      }
-      publicKey = (await firstValueFrom(this.userPublicKey$(activeUserId))) as Uint8Array;
+      throw new Error("Public key is required to generate a fingerprint.");
     }
 
-    if (publicKey === null) {
-      throw new Error("No public key available.");
-    }
     const keyFingerprint = await this.cryptoFunctionService.hash(publicKey, "sha256");
     const userFingerprint = await this.cryptoFunctionService.hkdfExpand(
       keyFingerprint,
@@ -732,7 +724,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   protected async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
     if (keySuffix === KeySuffixOptions.Auto) {
       const userKey = await this.stateService.getUserKeyAutoUnlock({ userId: userId });
