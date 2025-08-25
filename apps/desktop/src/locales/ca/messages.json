@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "S'ha guardat el fitxer adjunt."
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Fitxer"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Sol·liciteu Touch ID en iniciar"
-  },
-  "requirePasswordOnStart": {
-    "message": "Requereix contrasenya o PIN a l'inici de l'aplicació"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloqueja amb la contrasenya mestra en reiniciar"

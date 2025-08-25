@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Aanhegsel is bewaar"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Lêer"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Vra vir Touch ID by lansering"
-  },
-  "requirePasswordOnStart": {
-    "message": "Vereis wagwoord of PIN wanneer toep geopen word"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"

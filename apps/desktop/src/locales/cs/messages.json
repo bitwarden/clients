@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Příloha byla uložena"
   },
+  "addAttachment": {
+    "message": "Přidat přílohu"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximální velikost souboru je 500 MB"
+  },
   "file": {
     "message": "Soubor"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Požádat o Touch ID při spuštění aplikace"
-  },
-  "requirePasswordOnStart": {
-    "message": "Vyžadovat heslo nebo PIN při spuštění aplikace"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Vyžadovat heslo při spuštění aplikace"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zamknout trezor při restartu pomocí hlavního hesla"

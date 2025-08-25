@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Далучэнне захавана."
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Пытацца пра Touch ID пры запуску"
-  },
-  "requirePasswordOnStart": {
-    "message": "Патрабаваць пароль або PIN пры запуску праграмы"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"

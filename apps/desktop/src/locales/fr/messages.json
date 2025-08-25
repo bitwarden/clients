@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Pièce jointe enregistrée"
   },
+  "addAttachment": {
+    "message": "Ajouter une pièce jointe"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "La taille maximale des fichiers est de 500 Mo"
+  },
   "file": {
     "message": "Fichier"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Demander Touch ID au démarrage de l'application"
-  },
-  "requirePasswordOnStart": {
-    "message": "Exiger un mot de passe ou un code PIN au démarrage de Bitwarden"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Exiger un mot de passe au démarrage de l'application"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Verrouiller avec le mot de passe principal au redémarrage"

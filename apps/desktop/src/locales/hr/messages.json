@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Privitak spremljen"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Datoteka"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Zahtijevaj Touch ID pri pokretanju"
-  },
-  "requirePasswordOnStart": {
-    "message": "Zahtijevaj lozinku ili PIN pri pokretanju"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Zahtijevaj lozinku pri pokretanju"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"

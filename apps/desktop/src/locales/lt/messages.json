@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Priedas išsaugotas"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Failas"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Prašyti Touch ID paleidus programėlę"
-  },
-  "requirePasswordOnStart": {
-    "message": "Reikalauti slaptažodžio arba PIN paleidus programėlę"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"

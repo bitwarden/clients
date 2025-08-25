@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "附件已儲存"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "檔案"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "啟動應用程式時要求 Touch ID"
-  },
-  "requirePasswordOnStart": {
-    "message": "要求在啟動應用程式時輸入密碼或 PIN 碼"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "要求在啟動應用程式時輸入密碼"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "重啟後使用主密碼鎖定"
