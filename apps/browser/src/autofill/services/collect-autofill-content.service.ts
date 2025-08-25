@@ -424,7 +424,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Caches the autofill field element and its data.
-   * Will not cache the element if the index is less than 0.
    *
    * @param index - The index of the autofill field element
    * @param element - The autofill field element to cache
@@ -435,10 +434,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
-    if (index < 0) {
-      return;
-    }
-
+    // Always cache the element, even if index is -1 (for dynamically added fields)
     this.autofillFieldElements.set(element, autofillFieldData);
   }
 
@@ -1123,7 +1119,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupOverlayListenersOnMutatedElements(mutatedElements: Node[]) {
     for (let elementIndex = 0; elementIndex < mutatedElements.length; elementIndex++) {
       const node = mutatedElements[elementIndex];
-      const buildAutofillFieldItem = () => {
+      const buildAutofillFieldItem = async () => {
         if (
           !this.isNodeFormFieldElement(node) ||
           this.autofillFieldElements.get(node as ElementWithOpId<FormFieldElement>)
@@ -1133,7 +1129,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
         // We are setting this item to a -1 index because we do not know its position in the DOM.
         // This value should be updated with the next call to collect page details.
-        void this.buildAutofillFieldItem(node as ElementWithOpId<FormFieldElement>, -1);
+        const formFieldElement = node as ElementWithOpId<FormFieldElement>;
+        const autofillField = await this.buildAutofillFieldItem(formFieldElement, -1);
+
+        // Set up overlay listeners for the new field if we have the overlay service
+        if (autofillField && this.autofillOverlayContentService) {
+          this.setupOverlayOnField(formFieldElement, autofillField);
+
+          if (this.domRecentlyMutated) {
+            this.updateAutofillElementsAfterMutation();
+          }
+        }
       };
 
       requestIdleCallbackPolyfill(buildAutofillFieldItem, { timeout: 1000 });
