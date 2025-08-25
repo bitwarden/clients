@@ -383,8 +383,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 // Convert excluded credentials to an array of credential IDs
                 var excludedCredentialIds: [Data] = []
                 if #available(macOSApplicationExtension 15.0, *) {
-                    if let excludedCreds = request.excludedCredentials {
-                        excludedCredentialIds = excludedCreds.map { $0.credentialID }
+                    // Use a runtime check approach that doesn't reference the property directly
+                    let key = "excludedCredentials"
+                    if let value = (request as AnyObject).value(forKey: key) {
+                        if let excludedCreds = value as? [ASAuthorizationPlatformPublicKeyCredentialDescriptor] {
+                            excludedCredentialIds = excludedCreds.map { $0.credentialID }
+                        }
                     }
                 }
                 
