@@ -14,7 +14,6 @@ pub fn disable_memory_access() -> Result<()> {
     if let Err(e) = secmem_proc::harden_process() {
         println!("ERROR: could not harden process, exiting");
         println!("ERROR: {}", e);
-        return Ok(());
     }
-    return Ok(());
+    Ok(())
 }
