@@ -27,7 +27,6 @@ import { CanDeleteCipherDirective, CipherArchiveService } from "@bitwarden/vault
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
-import { VaultPopupItemsService } from "../services/vault-popup-items.service";
 
 @Component({
   templateUrl: "archive.component.html",
@@ -49,7 +48,6 @@ import { VaultPopupItemsService } from "../services/vault-popup-items.service";
   ],
 })
 export class ArchiveComponent {
-  private vaultPopupItemsService = inject(VaultPopupItemsService);
   private dialogService = inject(DialogService);
   private router = inject(Router);
   private cipherService = inject(CipherService);
@@ -59,7 +57,7 @@ export class ArchiveComponent {
   private i18nService = inject(I18nService);
   private cipherArchiveService = inject(CipherArchiveService);
 
-  protected archivedCiphers$ = this.vaultPopupItemsService.archivedCiphers$;
+  protected archivedCiphers$ = this.cipherArchiveService.archivedCiphers$;
 
   async view(cipher: CipherView) {
     if (!(await this.cipherArchiveService.canInteract(cipher))) {

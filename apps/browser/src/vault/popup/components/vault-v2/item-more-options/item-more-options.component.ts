@@ -273,7 +273,6 @@ export class ItemMoreOptionsComponent {
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
-    // await this.cipherService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("itemSentToArchive"),

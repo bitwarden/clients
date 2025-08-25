@@ -332,19 +332,6 @@ export class VaultPopupItemsService {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
-  /**
-   * Observable that contains the list of ciphers that have been archived.
-   */
-  archivedCiphers$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
-    map((ciphers) => {
-      return ciphers.filter(
-        (cipher) =>
-          CipherViewLikeUtils.isArchived(cipher) && !CipherViewLikeUtils.isDeleted(cipher),
-      );
-    }),
-    shareReplay({ refCount: false, bufferSize: 1 }),
-  );
-
   constructor(
     private cipherService: CipherService,
     private vaultSettingsService: VaultSettingsService,

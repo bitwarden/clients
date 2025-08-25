@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -14,6 +15,10 @@ import {
 } from "@bitwarden/common/vault/models/request/cipher-bulk-archive.request";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService } from "@bitwarden/components";
 
 import { CipherArchiveService } from "../abstractions/cipher-archive.service";
@@ -32,7 +37,31 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     private passwordRepromptService: PasswordRepromptService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {}
+
+  private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    filter((userId): userId is UserId => userId != null),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /**
+   * Observable that contains the list of ciphers that have been archived.
+   */
+  archivedCiphers$: Observable<CipherViewLike[]> = this.userId$.pipe(
+    switchMap((userId) =>
+      this.cipherService.cipherListViews$(userId).pipe(
+        filter((cipher) => cipher != null),
+        map((ciphers) =>
+          ciphers.filter(
+            (cipher) =>
+              CipherViewLikeUtils.isArchived(cipher) && !CipherViewLikeUtils.isDeleted(cipher),
+          ),
+        ),
+      ),
+    ),
+  );
 
   // Check if the user has premium from any source (personal or organization)
   // Check if feature flag is enabled
