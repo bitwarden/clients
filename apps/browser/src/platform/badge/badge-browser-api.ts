@@ -17,20 +17,17 @@ export interface RawBadgeState {
 
 export interface Tab {
   tabId: number;
-  windowId: number;
   url: string;
 }
 
 function tabFromChromeTab(tab: chrome.tabs.Tab): Tab {
   return {
     tabId: tab.id!,
-    windowId: tab.windowId,
     url: tab.url!,
   };
 }
 
 export interface BadgeBrowserApi {
-  activeTab$: Observable<chrome.tabs.TabActiveInfo | undefined>;
   activeTabsUpdated$: Observable<Tab[]>;
 
   setState(state: RawBadgeState, tabId?: number): Promise<void>;
@@ -76,7 +73,9 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
       ),
       fromChromeEvent(chrome.webNavigation.onCommitted).pipe(
         map(([details]) => {
-          details.transitionType === "";
+          const toReturn: Tab[] =
+            details.transitionType === "reload" ? [] : [{ tabId: details.tabId, url: details.url }];
+          return toReturn;
         }),
       ),
     ),
@@ -84,28 +83,6 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
     filter((tabs) => tabs.length > 0),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
-
-  activeTab$ = concat(
-    defer(async () => {
-      const currentTab = await BrowserApi.getTabFromCurrentWindow();
-      if (currentTab == null || currentTab.id === undefined) {
-        return undefined;
-      }
-
-      return { tabId: currentTab.id, windowId: currentTab.windowId };
-    }),
-    merge(
-      this.onTabActivated$,
-      fromChromeEvent(chrome.tabs.onUpdated).pipe(
-        filter(
-          ([_, changeInfo]) =>
-            // Only emit if the url was updated
-            changeInfo.url != undefined,
-        ),
-        map(([tabId, _changeInfo, tab]) => ({ tabId, windowId: tab.windowId })),
-      ),
-    ),
-  ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
   getActiveTabs(): Promise<chrome.tabs.Tab[]> {
     return BrowserApi.getActiveTabs();

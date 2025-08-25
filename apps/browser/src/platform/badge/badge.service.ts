@@ -31,7 +31,7 @@ export class BadgeService {
    * Use this to know exactly which tabs to calculate the badge state for.
    * This is not the same as `onActivated` which only emits when the active tab changes.
    */
-  activeTabsUpdated$ = this.badgeApi.activeTab$;
+  activeTabsUpdated$ = this.badgeApi.activeTabsUpdated$;
 
   constructor(
     private stateProvider: StateProvider,
@@ -47,12 +47,12 @@ export class BadgeService {
    */
   startListening(): Subscription {
     // React to tab changes
-    return this.badgeApi.activeTab$
+    return this.badgeApi.activeTabsUpdated$
       .pipe(
         withLatestFrom(this.serviceState.state$),
-        filter(([activeTab]) => activeTab != undefined),
-        concatMap(async ([activeTab, serviceState]) => {
-          await this.updateBadge(serviceState, activeTab!.tabId);
+        filter(([activeTabs]) => activeTabs.length > 0),
+        concatMap(async ([activeTabs, serviceState]) => {
+          await Promise.all(activeTabs.map((tab) => this.updateBadge(serviceState, tab.tabId)));
         }),
       )
       .subscribe({
