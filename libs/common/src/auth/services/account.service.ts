@@ -24,6 +24,7 @@ import { MessagingService } from "../../platform/abstractions/messaging.service"
 import { Utils } from "../../platform/misc/utils";
 import {
   ACCOUNT_DISK,
+  ACCOUNT_MEMORY,
   GlobalState,
   GlobalStateProvider,
   KeyDefinition,
@@ -44,7 +45,7 @@ export const ACCOUNT_ACTIVE_ACCOUNT_ID = new KeyDefinition(ACCOUNT_DISK, "active
   deserializer: (id: UserId) => id,
 });
 
-export const ACCOUNT_ACTIVITY = KeyDefinition.record<Date, UserId>(ACCOUNT_DISK, "activity", {
+export const ACCOUNT_ACTIVITY = KeyDefinition.record<Date, UserId>(ACCOUNT_MEMORY, "activity", {
   deserializer: (activity) => new Date(activity),
 });
 
