@@ -162,14 +162,15 @@
                     <input
                       id="enableFavicons"
                       type="checkbox"
-                      aria-describedby="enableFaviconsHelp"
                       formControlName="enableFavicons"
                       (change)="saveFavicons()"
                     />
-                    {{ "enableFavicon" | i18n }}
+                    {{ "showIconsChangePasswordUrls" | i18n }}
                   </label>
+                  <div class="tw-inline-block tw-ml-2">
+                    <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
+                  </div>
                 </div>
-                <small id="enableFaviconsHelp" class="help-block">{{ "faviconDesc" | i18n }}</small>
               </div>
             </ng-container>
           </div>
