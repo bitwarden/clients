@@ -72,6 +72,10 @@ export class AutofillOptionsComponent implements OnInit {
     return this.autofillOptionsForm.controls.uris.controls;
   }
 
+  protected get isPartialEdit() {
+    return this.cipherFormContainer.config.mode === "partial-edit";
+  }
+
   protected defaultMatchDetection$ = this.domainSettingsService.defaultUriMatchStrategy$.pipe(
     // The default match detection should only be shown when used on the browser
     filter(() => this.platformUtilsService.getClientType() == ClientType.Browser),
@@ -102,7 +106,7 @@ export class AutofillOptionsComponent implements OnInit {
 
     this.autofillOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.cipherFormContainer.patchCipher((cipher) => {
-        cipher.login.uris = value.uris.map((uri: UriField) =>
+        cipher.login.uris = value.uris?.map((uri: UriField) =>
           Object.assign(new LoginUriView(), {
             uri: uri.uri,
             match: uri.matchDetection,
@@ -126,6 +130,15 @@ export class AutofillOptionsComponent implements OnInit {
       .subscribe(() => {
         this.uriOptions?.last?.focusInput();
       });
+
+    this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
+      // Disable adding new URIs when the cipher form is disabled
+      if (status === "disabled") {
+        this.autofillOptionsForm.disable();
+      } else if (!this.isPartialEdit) {
+        this.autofillOptionsForm.enable();
+      }
+    });
   }
 
   ngOnInit() {
@@ -136,7 +149,7 @@ export class AutofillOptionsComponent implements OnInit {
       this.initNewCipher();
     }
 
-    if (this.cipherFormContainer.config.mode === "partial-edit") {
+    if (this.isPartialEdit) {
       this.autofillOptionsForm.disable();
     }
   }

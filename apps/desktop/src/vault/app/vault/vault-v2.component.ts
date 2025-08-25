@@ -163,6 +163,9 @@ export class VaultV2Component<C extends CipherViewLike>
   config: CipherFormConfig | null = null;
   isSubmitting = false;
 
+  /** Tracks the disabled status of the edit cipher form */
+  protected formDisabled: boolean = false;
+
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
     switchMap((id) => this.organizationService.organizations$(id)),
@@ -445,6 +448,10 @@ export class VaultV2Component<C extends CipherViewLike>
       false,
       cipher.organizationId,
     );
+  }
+
+  formStatusChanged(status: "disabled" | "enabled") {
+    this.formDisabled = status === "disabled";
   }
 
   async openAttachmentsDialog() {
