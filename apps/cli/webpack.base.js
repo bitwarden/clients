@@ -16,10 +16,17 @@ module.exports.getEnv = function getEnv() {
  *  configName: string;
  *  entry: string;
  *  tsConfig: string;
+ *  outputPath?: string;
+ *  mode?: string;
+ *  env?: string;
+ *  modulesPath?: string[];
+ *  localesPath?: string;
+ *  externalsModulesDir?: string;
+ *  watch?: boolean;
  * }} params
  */
 module.exports.buildConfig = function buildConfig(params) {
-  const { ENV } = module.exports.getEnv();
+  const ENV = params.env || module.exports.getEnv().ENV;
 
   const envConfig = config.load(ENV);
   config.log(`Building CLI - ${params.configName} version`);
@@ -35,7 +42,7 @@ module.exports.buildConfig = function buildConfig(params) {
 
   const plugins = [
     new CopyWebpackPlugin({
-      patterns: [{ from: "./src/locales", to: "locales" }],
+      patterns: [{ from: params.localesPath || "./src/locales", to: "locales" }],
     }),
     new webpack.DefinePlugin({
       "process.env.BWCLI_ENV": JSON.stringify(ENV),
@@ -61,7 +68,7 @@ module.exports.buildConfig = function buildConfig(params) {
   ];
 
   const webpackConfig = {
-    mode: ENV,
+    mode: params.mode || ENV,
     target: "node",
     devtool: ENV === "development" ? "eval-source-map" : "source-map",
     node: {
@@ -77,19 +84,19 @@ module.exports.buildConfig = function buildConfig(params) {
     resolve: {
       extensions: [".ts", ".js"],
       symlinks: false,
-      modules: [path.resolve("../../node_modules")],
+      modules: params.modulesPath || [path.resolve("../../node_modules")],
       plugins: [new TsconfigPathsPlugin({ configFile: params.tsConfig })],
     },
     output: {
       filename: "[name].js",
-      path: path.resolve(__dirname, "build"),
+      path: params.outputPath ? path.resolve(params.outputPath) : path.resolve(__dirname, "build"),
       clean: true,
     },
     module: { rules: moduleRules },
     plugins: plugins,
     externals: [
       nodeExternals({
-        modulesDir: "../../node_modules",
+        modulesDir: params.externalsModulesDir || "../../node_modules",
         allowlist: [/@bitwarden/],
       }),
     ],
@@ -97,6 +104,12 @@ module.exports.buildConfig = function buildConfig(params) {
       asyncWebAssembly: true,
     },
   };
-
+  if (params.watch) {
+    webpackConfig.watch = true;
+    webpackConfig.watchOptions = {
+      ignored: /node_modules/,
+      poll: 1000,
+    };
+  }
   return webpackConfig;
 };
