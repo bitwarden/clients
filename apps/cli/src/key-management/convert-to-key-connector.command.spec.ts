@@ -1,4 +1,4 @@
-import { createPromptModule } from "inquirer";
+import * as inquirer from "@inquirer/prompts";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -19,9 +19,9 @@ import { I18nService } from "../platform/services/i18n.service";
 
 import { ConvertToKeyConnectorCommand } from "./convert-to-key-connector.command";
 
-jest.mock("inquirer", () => {
+jest.mock("@inquirer/prompts", () => {
   return {
-    createPromptModule: jest.fn(() => jest.fn(() => Promise.resolve({ convert: "" }))),
+    select: jest.fn(() => Promise.resolve("")),
   };
 });
 
@@ -94,12 +94,10 @@ describe("ConvertToKeyConnectorCommand", () => {
       process.env.BW_NOINTERACTION = "false";
       keyConnectorService.getManagingOrganization.mockResolvedValue(organization);
 
-      (createPromptModule as jest.Mock).mockImplementation(() =>
-        jest.fn((prompt) => {
-          assertPrompt(prompt);
-          return Promise.resolve({ convert: "exit" });
-        }),
-      );
+      (inquirer.select as jest.Mock).mockImplementation((prompt) => {
+        assertPrompt(prompt);
+        return Promise.resolve("exit");
+      });
 
       const response = await command.run();
 
@@ -119,12 +117,10 @@ describe("ConvertToKeyConnectorCommand", () => {
           }) as Urls,
       } as Environment);
 
-      (createPromptModule as jest.Mock).mockImplementation(() =>
-        jest.fn((prompt) => {
-          assertPrompt(prompt);
-          return Promise.resolve({ convert: "remove" });
-        }),
-      );
+      (inquirer.select as jest.Mock).mockImplementation((prompt) => {
+        assertPrompt(prompt);
+        return Promise.resolve("remove");
+      });
 
       const response = await command.run();
 
@@ -143,12 +139,10 @@ describe("ConvertToKeyConnectorCommand", () => {
       process.env.BW_NOINTERACTION = "false";
       keyConnectorService.getManagingOrganization.mockResolvedValue(organization);
 
-      (createPromptModule as jest.Mock).mockImplementation(() =>
-        jest.fn((prompt) => {
-          assertPrompt(prompt);
-          return Promise.resolve({ convert: "remove" });
-        }),
-      );
+      (inquirer.select as jest.Mock).mockImplementation((prompt) => {
+        assertPrompt(prompt);
+        return Promise.resolve("remove");
+      });
 
       keyConnectorService.migrateUser.mockRejectedValue(new Error("Migration failed"));
 
@@ -160,12 +154,10 @@ describe("ConvertToKeyConnectorCommand", () => {
       process.env.BW_NOINTERACTION = "false";
       keyConnectorService.getManagingOrganization.mockResolvedValue(organization);
 
-      (createPromptModule as jest.Mock).mockImplementation(() =>
-        jest.fn((prompt) => {
-          assertPrompt(prompt);
-          return Promise.resolve({ convert: "leave" });
-        }),
-      );
+      (inquirer.select as jest.Mock).mockImplementation((prompt) => {
+        assertPrompt(prompt);
+        return Promise.resolve("leave");
+      });
 
       const response = await command.run();
 
@@ -176,13 +168,9 @@ describe("ConvertToKeyConnectorCommand", () => {
 
     function assertPrompt(prompt: unknown) {
       expect(typeof prompt).toEqual("object");
-      expect(prompt).toHaveProperty("type");
-      expect(prompt).toHaveProperty("name");
       expect(prompt).toHaveProperty("message");
       expect(prompt).toHaveProperty("choices");
       const promptObj = prompt as Record<string, unknown>;
-      expect(promptObj["type"]).toEqual("list");
-      expect(promptObj["name"]).toEqual("convert");
       expect(promptObj["message"]).toEqual(
         `A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator. Organization name: ${organization.name}. Key Connector domain: ${organization.keyConnectorUrl}`,
       );
