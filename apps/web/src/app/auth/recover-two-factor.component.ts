@@ -101,6 +101,12 @@ export class RecoverTwoFactorComponent implements OnInit {
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error) {
       this.logService.error("Error logging in automatically: ", (error as Error).message);
+
+      if (error.message.includes("Two-step token is invalid")) {
+        this.formGroup.get("recoveryCode").setErrors({
+          invalidRecoveryCode: { message: this.i18nService.t("invalidRecoveryCode") },
+        });
+      }
     }
   }
 }
