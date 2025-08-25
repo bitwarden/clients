@@ -81,9 +81,9 @@ export class CipherExport {
       view.passwordHistory = req.passwordHistory.map((ph) => PasswordHistoryExport.toView(ph));
     }
 
-    view.creationDate = req.creationDate ? new Date(req.creationDate) : null;
-    view.revisionDate = req.revisionDate ? new Date(req.revisionDate) : null;
-    view.deletedDate = req.deletedDate ? new Date(req.deletedDate) : null;
+    view.creationDate = req.creationDate ? new Date(req.creationDate) : view.creationDate;
+    view.revisionDate = req.revisionDate ? new Date(req.revisionDate) : view.revisionDate;
+    view.deletedDate = req.deletedDate ? new Date(req.deletedDate) : view.deletedDate;
     return view;
   }
 
