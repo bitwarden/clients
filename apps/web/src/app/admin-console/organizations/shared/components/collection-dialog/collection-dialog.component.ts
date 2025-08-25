@@ -421,6 +421,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     collectionView.users = this.formGroup.controls.access.value
       .filter((v) => v.type === AccessItemType.Member)
       .map(convertToSelectionView);
+    collectionView.defaultUserCollectionEmail = this.collection.defaultUserCollectionEmail;
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
