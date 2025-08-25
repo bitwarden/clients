@@ -143,23 +143,6 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
-import {
-  ActiveUserStateProvider,
-  DefaultStateService,
-  DerivedStateProvider,
-  GlobalStateProvider,
-  SingleUserStateProvider,
-  StateEventRunnerService,
-  StateProvider,
-} from "@bitwarden/common/platform/state";
-/* eslint-disable import/no-restricted-paths -- We need the implementation to inject, but generally these should not be accessed */
-import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
-import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
-import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
-import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
-import { InlineDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/inline-derived-state";
-import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
-/* eslint-enable import/no-restricted-paths */
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -235,6 +218,24 @@ import {
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
+import {
+  ActiveUserStateProvider,
+  DerivedStateProvider,
+  GlobalStateProvider,
+  SingleUserStateProvider,
+  StateEventRunnerService,
+  StateProvider,
+} from "@bitwarden/state";
+import {
+  DefaultActiveUserStateProvider,
+  DefaultGlobalStateProvider,
+  DefaultSingleUserStateProvider,
+  DefaultStateEventRegistrarService,
+  DefaultStateEventRunnerService,
+  DefaultStateProvider,
+  DefaultStateService,
+  InlineDerivedStateProvider,
+} from "@bitwarden/state-internal";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -572,12 +573,12 @@ export default class MainBackground {
       this.logService,
     );
 
-    const stateEventRegistrarService = new StateEventRegistrarService(
+    const stateEventRegistrarService = new DefaultStateEventRegistrarService(
       this.globalStateProvider,
       storageServiceProvider,
     );
 
-    this.stateEventRunnerService = new StateEventRunnerService(
+    this.stateEventRunnerService = new DefaultStateEventRunnerService(
       this.globalStateProvider,
       storageServiceProvider,
     );
@@ -782,6 +783,7 @@ export default class MainBackground {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
+      this.stateProvider,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();

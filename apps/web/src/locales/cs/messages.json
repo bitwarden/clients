@@ -2050,15 +2050,11 @@
   "selectImportCollection": {
     "message": "Zvolte sbírku"
   },
-  "importTargetHint": {
-    "message": "Pokud chcete obsah importovaného souboru přesunout do složky $DESTINATION$, vyberte tuto volbu",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
+  },
+  "importTargetHintFolder": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do složky, vyberte tuto volbu"
   },
   "importUnassignedItemsError": {
     "message": "Soubor obsahuje nepřiřazené položky."
@@ -2451,9 +2447,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Při čtení bezpečnostního klíče došlo k potížím. Zkuste to znovu."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Z důvodu omezení platformy nelze WebAuthn použít ve všech aplikacích Bitwarden. Měli byste využít i jiného poskytovatele dvoufaktorového přihlášení, abyste měli přístup ke svému účtu, když nelze použít WebAuthn."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Váš kód pro obnovení dvoufázového přihlášení"
   },
@@ -2823,6 +2816,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Zobrazit přehled cen"
+  },
+  "hidePricingSummary": {
+    "message": "Skrýt přehled cen"
   },
   "summary": {
     "message": "Souhrn"
@@ -7029,6 +7028,12 @@
   "unknownCipher": {
     "message": "Neznámá položka, možná budete muset požádat o oprávnění pro přístup k této položce."
   },
+  "unknownSecret": {
+    "message": "Neznámý tajný klíč. Možná budete muset požádat o oprávnění pro přístup k tomuto tajnému klíči."
+  },
+  "unknownProject": {
+    "message": "Neznámý projekt. Možná budete muset požádat o oprávnění pro přístup k tomuto projektu."
+  },
   "cannotSponsorSelf": {
     "message": "Nemůžete uplatnit pro aktivní účet. Zadejte jiný e-mail."
   },
@@ -8317,7 +8322,7 @@
     "message": "V průběhu pokusu o přečtení souboru s importem se vyskytla chyba"
   },
   "accessedSecretWithId": {
-    "message": "Přístup k tajnému klíči s identifikátorem: $SECRET_ID$",
+    "message": "Přístup k tajnému klíči s ID: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8335,7 +8340,7 @@
     }
   },
   "editedSecretWithId": {
-    "message": "Úprava tajného klíče s identifikátorem: $SECRET_ID$",
+    "message": "Úprava tajného klíče s ID: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8344,7 +8349,25 @@
     }
   },
   "deletedSecretWithId": {
-    "message": "Smazání tajného klíče s identifikátorem: $SECRET_ID$",
+    "message": "Smazání tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Trvalé smazání tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Obnovení tajného klíče s ID: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8353,9 +8376,63 @@
     }
   },
   "createdSecretWithId": {
-    "message": "Vytvoření nového tajného klíče s identifikátorem: $SECRET_ID$",
+    "message": "Vytvoření nového tajného klíče s ID: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Přístup k projektu s ID: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Smazání projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Smazání tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Úprava projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Smazání projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Vytvoření nového projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -10745,6 +10822,9 @@
   "upgradeEventLogMessage": {
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
   },
+  "viewEvents": {
+    "message": "Zobrazit události"
+  },
   "cannotCreateCollection": {
     "message": "Bezplatné organizace mohou mít až 2 sbírky. Chcete-li přidat více sbírek, přejděte na placený tarif."
   },
@@ -11012,5 +11092,56 @@
   },
   "showLess": {
     "message": "Zobrazit méně"
+  },
+  "missingTaxId": {
+    "message": "Chybí DIČ"
+  },
+  "missingTaxIdWarning": {
+    "message": "Požadovaná akce: V platebních údajích chybí DIČ. Pokud DIČ není uvedeno, mohou být Vaše faktury zatíženy dodatečnou daní."
+  },
+  "moreBreadcrumbs": {
+    "message": "Více...",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Přidat DIČ"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Požadovaná akce: Chybí DIČ"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Pokud není přidáno DIČ, Vaše faktury mohou obsahovat další daň."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Požadovaná akce: Vaše DIČ není ověřeno. Pokud není DIČ ověřeno, Vaše faktury mohou obsahovat další daň."
+  },
+  "editTaxId": {
+    "message": "Upravit Vaše DIČ"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "DIČ neověřeno"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Zkontrolujte své DIČ pro ověření správného formátu a zda neexistují žádné překlepy."
+  },
+  "pendingVerification": {
+    "message": "Čeká se na ověření"
+  },
+  "checkInputFormat": {
+    "message": "Zkontrolujte vstupní formát, zda neobsahuje překlepy."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Příklad formátu $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+
