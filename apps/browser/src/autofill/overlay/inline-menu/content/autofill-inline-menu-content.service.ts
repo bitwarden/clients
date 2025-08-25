@@ -389,7 +389,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * This method will ensure that the inline menu elements are always present at the
    * bottom of the container.
    */
-  private handleContainerElementMutationObserverUpdate = (mutations: MutationRecord[]) => {
+  private handleContainerElementMutationObserverUpdate = async (mutations: MutationRecord[]) => {
     if (
       (!this.buttonElement && !this.listElement) ||
       this.isTriggeringExcessiveMutationObserverIterations()
@@ -398,9 +398,12 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     const containerElement = mutations[0].target as HTMLElement;
-    requestIdleCallbackPolyfill(() => this.processContainerElementMutation(containerElement), {
-      timeout: 500,
-    });
+    await requestIdleCallbackPolyfill(
+      () => this.processContainerElementMutation(containerElement),
+      {
+        timeout: 500,
+      },
+    );
   };
 
   private checkPageRisks = async () => {
