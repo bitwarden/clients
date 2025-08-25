@@ -40,6 +40,7 @@ export enum FeatureFlag {
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
+  UseChromiumImporter = "pm-23982-chromium-importer",
 
   /* DIRT */
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
@@ -82,6 +83,7 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
+  [FeatureFlag.UseChromiumImporter]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
