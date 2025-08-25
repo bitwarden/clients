@@ -50,7 +50,9 @@ export class PhishingDetectionService {
 
     logService.info("[PhishingDetectionService] Initialize called");
 
-    configService.serverConfig$.subscribe();
+    // configService.serverConfig$
+    //   .pipe(tap((config) => console.log("[PhishingDetectionService] config", config)))
+    //   .subscribe();
 
     configService
       .getFeatureFlag$(FeatureFlag.PhishingDetection)
@@ -159,11 +161,11 @@ export class PhishingDetectionService {
    */
   private static _setupListeners(): void {
     // Setup listeners from web page/content script
-    chrome.runtime.onMessage.addListener(async (message, sender) => {
+    browser.runtime.onMessage.addListener(async (message, sender) => {
       const isValidSender = sender && sender.tab && sender.tab.id;
       const senderTabId = isValidSender ? sender.tab.id : null;
 
-      if (!senderTabId) {
+      if (senderTabId == null) {
         this._logService.error(
           "[PhishingDetectionService] Invalid sender for phishing detection message",
           sender,
