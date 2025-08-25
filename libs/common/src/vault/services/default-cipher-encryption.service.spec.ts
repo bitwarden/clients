@@ -124,15 +124,15 @@ describe("DefaultCipherEncryptionService", () => {
     cipherViewObj = new CipherView(cipherObj);
 
     jest.spyOn(cipherObj, "toSdkCipher").mockImplementation(() => {
-      return { id: cipherData.id } as SdkCipher;
+      return { id: cipherData.id as any } as SdkCipher;
     });
 
     jest.spyOn(cipherViewObj, "toSdkCipherView").mockImplementation(() => {
-      return { id: cipherData.id } as SdkCipherView;
+      return { id: cipherData.id as any } as SdkCipherView;
     });
 
     sdkCipherView = {
-      id: cipherId as string,
+      id: cipherId as any,
       type: SdkCipherType.Login,
       name: "test-name",
       login: {
@@ -334,7 +334,7 @@ describe("DefaultCipherEncryptionService", () => {
         .vault()
         .ciphers()
         .set_fido2_credentials.mockReturnValue({
-          id: cipherId as string,
+          id: cipherId as any,
           login: {
             fido2Credentials: [mockSdkCredentialView],
           },
@@ -519,8 +519,8 @@ describe("DefaultCipherEncryptionService", () => {
       const ciphers = [new Cipher(cipherData), new Cipher(cipherData)];
 
       const expectedListViews = [
-        { id: "list1", name: "List 1" } as CipherListView,
-        { id: "list2", name: "List 2" } as CipherListView,
+        { id: "list1" as any, name: "List 1" } as CipherListView,
+        { id: "list2" as any, name: "List 2" } as CipherListView,
       ];
 
       mockSdkClient.vault().ciphers().decrypt_list.mockReturnValue(expectedListViews);
@@ -554,7 +554,7 @@ describe("DefaultCipherEncryptionService", () => {
       const encryptedContent = new Uint8Array([1, 2, 3, 4]);
       const expectedDecryptedContent = new Uint8Array([5, 6, 7, 8]);
 
-      jest.spyOn(cipher, "toSdkCipher").mockReturnValue({ id: "id" } as SdkCipher);
+      jest.spyOn(cipher, "toSdkCipher").mockReturnValue({ id: "id" as any } as SdkCipher);
       jest
         .spyOn(attachment, "toSdkAttachmentView")
         .mockReturnValue({ id: "a1" } as SdkAttachmentView);

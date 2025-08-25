@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -100,7 +101,10 @@ export class CopyCipherFieldDirective implements OnChanges {
       const activeAccountId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(getUserId),
       );
-      const encryptedCipher = await this.cipherService.get(this.cipher.id!, activeAccountId);
+      const encryptedCipher = await this.cipherService.get(
+        uuidAsString(this.cipher.id!),
+        activeAccountId,
+      );
       _cipher = await this.cipherService.decrypt(encryptedCipher, activeAccountId);
     } else {
       _cipher = this.cipher;

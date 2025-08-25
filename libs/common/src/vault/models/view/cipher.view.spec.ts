@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { mockFromJson, mockFromSdk } from "../../../../spec";
+import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { CipherRepromptType } from "../../enums";
 import { CipherType } from "../../enums/cipher-type";
 
@@ -123,10 +124,10 @@ describe("CipherView", () => {
       jest.spyOn(FieldView, "fromSdkFieldView").mockImplementation(mockFromSdk);
 
       sdkCipherView = {
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
-        collectionIds: ["collectionId"],
+        id: "id" as any,
+        organizationId: "orgId" as any,
+        folderId: "folderId" as any,
+        collectionIds: ["collectionId" as any],
         key: undefined,
         name: "name",
         notes: undefined,
@@ -260,11 +261,11 @@ describe("CipherView", () => {
       const sdkCipherView = cipherView.toSdkCipherView();
 
       expect(sdkCipherView).toMatchObject({
-        id: "0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602",
-        organizationId: "000f2a6e-da5e-4726-87ed-1c5c77322c3c",
-        folderId: "41b22db4-8e2a-4ed2-b568-f1186c72922f",
-        collectionIds: ["b0473506-3c3c-4260-a734-dfaaf833ab6f"],
-        key: "some-key",
+        id: asUuid("0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602"),
+        organizationId: asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"),
+        folderId: asUuid("41b22db4-8e2a-4ed2-b568-f1186c72922f"),
+        collectionIds: [asUuid("b0473506-3c3c-4260-a734-dfaaf833ab6f")],
+        key: "some-key" as any,
         name: "name",
         notes: "notes",
         type: SdkCipherType.Login,

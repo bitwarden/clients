@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -514,8 +515,17 @@ describe("VaultPopupListFiltersService", () => {
   describe("filterFunction$", () => {
     const ciphers = [
       { type: CipherType.Login, collectionIds: [], organizationId: null },
-      { type: CipherType.Card, collectionIds: ["1234"], organizationId: "8978" },
-      { type: CipherType.Identity, collectionIds: [], folderId: "5432", organizationId: null },
+      {
+        type: CipherType.Card,
+        collectionIds: [asUuid("cbcae898-9f9a-48eb-863e-edf92e3ad7e0")],
+        organizationId: "8978" as any,
+      },
+      {
+        type: CipherType.Identity,
+        collectionIds: [],
+        folderId: "5432" as any,
+        organizationId: null,
+      },
       { type: CipherType.SecureNote, collectionIds: [], organizationId: null },
     ] as CipherView[];
 
@@ -529,7 +539,7 @@ describe("VaultPopupListFiltersService", () => {
     });
 
     it("filters by collection", (done) => {
-      const collection = { id: "1234" } as CollectionView;
+      const collection = { id: "cbcae898-9f9a-48eb-863e-edf92e3ad7e0" } as CollectionView;
 
       service.filterFunction$.subscribe((filterFunction) => {
         expect(filterFunction(ciphers)).toEqual([ciphers[1]]);

@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
@@ -65,7 +66,8 @@ export class VaultFilter {
       }
       if (this.selectedCollection && this.selectedCollectionId != null && cipherPassesFilter) {
         cipherPassesFilter =
-          cipher.collectionIds != null && cipher.collectionIds.includes(this.selectedCollectionId);
+          cipher.collectionIds != null &&
+          cipher.collectionIds.includes(asUuid(this.selectedCollectionId));
       }
       if (this.selectedOrganizationId != null && cipherPassesFilter) {
         cipherPassesFilter = cipher.organizationId === this.selectedOrganizationId;

@@ -3,6 +3,8 @@
 import { Component, Input } from "@angular/core";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CollectionId } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared/shared.module";
 import { GetCollectionNameFromIdPipe } from "../pipes";
@@ -13,11 +15,11 @@ import { GetCollectionNameFromIdPipe } from "../pipes";
   imports: [SharedModule, GetCollectionNameFromIdPipe],
 })
 export class CollectionNameBadgeComponent {
-  @Input() collectionIds: string[];
+  @Input() collectionIds: CollectionId[] | string[];
   @Input() collections: CollectionView[];
 
   get shownCollections(): string[] {
-    return this.showXMore ? this.collectionIds.slice(0, 2) : this.collectionIds;
+    return (this.showXMore ? this.collectionIds.slice(0, 2) : this.collectionIds).map(uuidAsString);
   }
 
   get showXMore(): boolean {
