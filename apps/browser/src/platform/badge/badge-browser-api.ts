@@ -78,11 +78,11 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
           return toReturn;
         }),
       ),
-    ),
-  ).pipe(
-    filter((tabs) => tabs.length > 0),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+      // NOTE: We're only sharing the active tab changes, not the full list of active tabs.
+      // This is so that any new subscriber will get the latest active tabs immediately, but
+      // doesn't re-subscribe to chrome events.
+    ).pipe(shareReplay({ bufferSize: 1, refCount: true })),
+  ).pipe(filter((tabs) => tabs.length > 0));
 
   getActiveTabs(): Promise<chrome.tabs.Tab[]> {
     return BrowserApi.getActiveTabs();
