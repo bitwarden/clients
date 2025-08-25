@@ -132,7 +132,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   pinEnabled$: Observable<boolean> = of(true);
 
-  hasPremium: boolean;
+  hasPremium: boolean = false;
 
   form = this.formBuilder.group({
     // Security
