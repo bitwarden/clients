@@ -9,6 +9,7 @@ import {
 } from "@bitwarden/auth/common";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
@@ -100,7 +101,7 @@ export class RecoverTwoFactorComponent implements OnInit {
 
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error: unknown) {
-      if (error instanceof Error) {
+      if (error instanceof ErrorResponse) {
         this.logService.error("Error logging in automatically: ", error.message);
 
         if (error.message.includes("Two-step token is invalid")) {
@@ -109,7 +110,7 @@ export class RecoverTwoFactorComponent implements OnInit {
           });
         }
       } else {
-        this.logService.error("Error logging in automatically: ", String(error));
+        this.logService.error("Error logging in automatically: ", error);
       }
     }
   }
