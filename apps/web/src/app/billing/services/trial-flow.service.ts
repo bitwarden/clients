@@ -11,8 +11,6 @@ import { BillingSourceResponse } from "@bitwarden/common/billing/models/response
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -30,7 +28,6 @@ export class TrialFlowService {
     private router: Router,
     protected billingApiService: BillingApiServiceAbstraction,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private configService: ConfigService,
   ) {}
   checkForOrgsWithUpcomingPaymentIssues(
     organization: Organization,
@@ -134,11 +131,7 @@ export class TrialFlowService {
   }
 
   private async navigateToPaymentMethod(orgId: string) {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-    );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
-    await this.router.navigate(["organizations", `${orgId}`, "billing", route], {
+    await this.router.navigate(["organizations", `${orgId}`, "billing", "payment-details"], {
       state: { launchPaymentModalAutomatically: true },
       queryParams: { launchPaymentModalAutomatically: true },
     });

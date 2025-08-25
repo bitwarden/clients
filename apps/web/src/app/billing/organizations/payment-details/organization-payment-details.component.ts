@@ -1,15 +1,11 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
-  catchError,
   combineLatest,
-  EMPTY,
   filter,
   firstValueFrom,
-  from,
   lastValueFrom,
-  map,
   merge,
   Observable,
   of,
@@ -52,13 +48,6 @@ import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/type
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-class RedirectError {
-  constructor(
-    public path: string[],
-    public relativeTo: ActivatedRoute,
-  ) {}
-}
-
 type View = {
   organization: BitwardenSubscriber;
   paymentMethod: MaskedPaymentMethod | null;
@@ -93,18 +82,6 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
   );
 
   private load$: Observable<View> = this.organization$.pipe(
-    switchMap((organization) =>
-      this.configService
-        .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
-        .pipe(
-          map((managePaymentDetailsOutsideCheckout) => {
-            if (!managePaymentDetailsOutsideCheckout) {
-              throw new RedirectError(["../payment-method"], this.activatedRoute);
-            }
-            return organization;
-          }),
-        ),
-    ),
     mapOrganizationToSubscriber,
     switchMap(async (organization) => {
       const getTaxIdWarning = firstValueFrom(
@@ -126,14 +103,6 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
         taxIdWarning,
       };
     }),
-    catchError((error: unknown) => {
-      if (error instanceof RedirectError) {
-        return from(this.router.navigate(error.path, { relativeTo: error.relativeTo })).pipe(
-          switchMap(() => EMPTY),
-        );
-      }
-      throw error;
-    }),
   );
 
   view$: Observable<View> = merge(
@@ -152,7 +121,6 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private organizationService: OrganizationService,
     private organizationWarningsService: OrganizationWarningsService,
-    private router: Router,
     private subscriberBillingClient: SubscriberBillingClient,
   ) {}
 

@@ -3,8 +3,6 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing/individual/payment-details/account-payment-details.component";
 
-import { PaymentMethodComponent } from "../shared";
-
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
 import { PremiumComponent } from "./premium/premium.component";
 import { SubscriptionComponent } from "./subscription.component";
@@ -26,11 +24,6 @@ const routes: Routes = [
         path: "premium",
         component: PremiumComponent,
         data: { titleId: "goPremium" },
-      },
-      {
-        path: "payment-method",
-        component: PaymentMethodComponent,
-        data: { titleId: "paymentMethod" },
       },
       {
         path: "payment-details",
