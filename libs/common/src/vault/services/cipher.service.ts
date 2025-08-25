@@ -31,7 +31,6 @@ import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -110,7 +109,6 @@ export class CipherService implements CipherServiceAbstraction {
     private apiService: ApiService,
     private i18nService: I18nService,
     private searchService: SearchService,
-    private stateService: StateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private encryptService: EncryptService,
     private cipherFileUploadService: CipherFileUploadService,
@@ -185,8 +183,7 @@ export class CipherService implements CipherServiceAbstraction {
     ]).pipe(
       filter(([ciphers, _, keys]) => ciphers != null && keys != null), // Skip if ciphers haven't been loaded yor synced yet
       switchMap(() => this.getAllDecrypted(userId)),
-      tap(async (decrypted) => {
-        await this.searchService.indexCiphers(userId, decrypted);
+      tap(() => {
         this.messageSender.send("updateOverlayCiphers");
       }),
     );
@@ -218,7 +215,7 @@ export class CipherService implements CipherServiceAbstraction {
       if (value == null) {
         await this.searchService.clearIndex(userId);
       } else {
-        await this.searchService.indexCiphers(userId, value);
+        void this.searchService.indexCiphers(userId, value);
       }
     }
   }
@@ -672,13 +669,14 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getManyFromApiForOrganization(organizationId: string): Promise<CipherView[]> {
-    const response = await this.apiService.send(
+    const r = await this.apiService.send(
       "GET",
       "/ciphers/organization-details/assigned?organizationId=" + organizationId,
       null,
       true,
       true,
     );
+    const response = new ListResponse(r, CipherResponse);
     return this.decryptOrganizationCiphersResponse(response, organizationId);
   }
 

@@ -4131,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Gyűjtemény kiválasztása"
   },
-  "importTargetHint": {
-    "message": "Válasszuk ezt a lehetőséget, ha azt akarjuk, hogy az importált fájl tartalma $DESTINATION$ helyre kerüljön",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
+  },
+  "importTargetHintFolder": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -5579,5 +5575,9 @@
   },
   "showLess": {
     "message": "Kevesebb megjelenítése"
+  },
+  "moreBreadcrumbs": {
+    "message": "További morzsamenük",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

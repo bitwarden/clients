@@ -211,7 +211,9 @@ export class ListCommand {
       }
       const collections = response.data
         .filter((c) => c.organizationId === options.organizationId)
-        .map((r) => new Collection(new CollectionData(r as ApiCollectionDetailsResponse)));
+        .map((r) =>
+          Collection.fromCollectionData(new CollectionData(r as ApiCollectionDetailsResponse)),
+        );
       const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
       if (orgKeys == null) {
         throw new Error("Organization keys not found.");

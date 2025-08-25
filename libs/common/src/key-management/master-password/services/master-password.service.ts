@@ -11,7 +11,6 @@ import { KdfConfig } from "@bitwarden/key-management";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EncryptionType } from "../../../platform/enums";
@@ -24,6 +23,7 @@ import {
 } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
+import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../crypto/models/enc-string";
@@ -149,14 +149,18 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     if (userId == null) {
       throw new Error("User ID is required.");
     }
-    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => masterKeyHash);
+    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => masterKeyHash, {
+      shouldUpdate: (previousValue) => previousValue !== masterKeyHash,
+    });
   }
 
   async clearMasterKeyHash(userId: UserId): Promise<void> {
     if (userId == null) {
       throw new Error("User ID is required.");
     }
-    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => null);
+    await this.stateProvider.getUser(userId, MASTER_KEY_HASH).update((_) => null, {
+      shouldUpdate: (previousValue) => previousValue !== null,
+    });
   }
 
   async setMasterKeyEncryptedUserKey(encryptedKey: EncString, userId: UserId): Promise<void> {
