@@ -8,7 +8,6 @@ import {
   EventEmitter,
   Inject,
   Input,
-  NgZone,
   OnDestroy,
   OnInit,
   Optional,
@@ -231,7 +230,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private destroyRef: DestroyRef,
-    private ngZone: NgZone,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -258,6 +256,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe({
         next: (importer) => {
           this.importer$.next(importer);
+
+          // when an importer is defined, the loader needs to be set to a value from
+          // its list.
+          const loader = importer.loaders.includes(Loader.chromium)
+            ? Loader.chromium
+            : importer.loaders?.[0];
+          this.formGroup.controls.chromiumLoader.setValue(loader ?? Loader.file);
         },
         error: (err: unknown) => this.logService.error("an error occurred", err),
       });
