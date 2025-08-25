@@ -19,7 +19,6 @@ export enum FeatureFlag {
   /* Autofill */
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
   NotificationRefresh = "notification-refresh",
-  UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
 
@@ -75,7 +74,6 @@ export const DefaultFeatureFlagValue = {
   /* Autofill */
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
-  [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
