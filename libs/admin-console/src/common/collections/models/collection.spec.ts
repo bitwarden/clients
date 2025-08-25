@@ -25,6 +25,7 @@ describe("Collection", () => {
         manage: true,
         hidePasswords: true,
         type: CollectionTypes.DefaultUserCollection,
+        defaultUserCollectionEmail: "defaultCollectionEmail",
       }),
     );
     encService = mock<EncryptService>();
@@ -61,6 +62,7 @@ describe("Collection", () => {
       manage: true,
       hidePasswords: true,
       type: CollectionTypes.DefaultUserCollection,
+      defaultUserCollectionEmail: "defaultCollectionEmail",
     });
   });
 
@@ -75,6 +77,7 @@ describe("Collection", () => {
     collection.hidePasswords = false;
     collection.manage = true;
     collection.type = CollectionTypes.DefaultUserCollection;
+    collection.defaultUserCollectionEmail = "defaultCollectionEmail";
 
     const key = makeSymmetricCryptoKey<OrgKey>();
 
@@ -84,12 +87,13 @@ describe("Collection", () => {
       externalId: "extId",
       hidePasswords: false,
       id: "id",
-      name: "encName",
+      _name: "encName",
       organizationId: "orgId",
       readOnly: false,
       manage: true,
       assigned: true,
       type: CollectionTypes.DefaultUserCollection,
+      defaultUserCollectionEmail: "defaultCollectionEmail",
     });
   });
 });

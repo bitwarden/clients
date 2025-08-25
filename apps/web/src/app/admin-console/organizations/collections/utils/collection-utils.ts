@@ -45,9 +45,15 @@ export function cloneCollection(
   let cloned;
 
   if (collection instanceof CollectionAdminView) {
-    cloned = Object.assign(new CollectionAdminView({ ...collection }), collection);
+    cloned = Object.assign(
+      new CollectionAdminView({ ...collection, name: collection.name }),
+      collection,
+    );
   } else {
-    cloned = Object.assign(new CollectionView({ ...collection }), collection);
+    cloned = Object.assign(
+      new CollectionView({ ...collection, name: collection.name }),
+      collection,
+    );
   }
   return cloned;
 }

@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, switchMap } from "rxjs";
 
-import { CollectionRequest } from "@bitwarden/admin-console/common";
+import { UpdateCollectionRequest } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -225,7 +225,7 @@ export class EditCommand {
           : req.users.map(
               (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
             );
-      const request = new CollectionRequest({
+      const request = new UpdateCollectionRequest({
         name: await this.encryptService.encryptString(req.name, orgKey),
         externalId: req.externalId,
         users,
