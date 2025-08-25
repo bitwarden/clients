@@ -153,7 +153,8 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy, OnChang
 
   ngOnChanges(changes: SimpleChanges): void {
     // Clear the value of the tax-id if states have been changed in the parent component
-    if (!changes.showTaxIdField.currentValue) {
+    const showTaxIdField = changes["showTaxIdField"];
+    if (showTaxIdField && !showTaxIdField.currentValue) {
       this.formGroup.controls.taxId.setValue(null);
     }
   }

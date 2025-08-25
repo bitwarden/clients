@@ -35,6 +35,7 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import { Search } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -68,12 +69,13 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
@@ -139,7 +141,6 @@ import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
-const SearchTextDebounceInterval = 200;
 
 @Component({
   selector: "app-vault",
@@ -171,7 +172,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   activeFilter: VaultFilter = new VaultFilter();
   archiveItemEnabled$: Observable<boolean>;
 
-  protected noItemIcon = Icons.Search;
+  protected noItemIcon = Search;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -582,7 +583,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.refreshing = false;
 
           // Explicitly mark for check to ensure the view is updated
-          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS notifications)
+          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)
           this.changeDetectorRef.markForCheck();
         },
       );

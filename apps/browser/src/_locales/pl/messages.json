@@ -270,7 +270,7 @@
     "message": "Uzyskaj podpowiedź do hasła głównego"
   },
   "continue": {
-    "message": "Kontynuuj"
+    "message": "Przejdź"
   },
   "sendVerificationCode": {
     "message": "Wyślij kod weryfikacyjny na adres e-mail"
@@ -1022,10 +1022,10 @@
     "message": "Opcje zapisywania w sejfie"
   },
   "addLoginNotificationDesc": {
-    "message": "Proponuj dodanie elementu, jeśli nie ma go w sejfie."
+    "message": "Proponuj zapisywanie danych logowania, jeśli nie ma ich w sejfie."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Proponuj dodanie elementu, jeśli nie ma go w sejfie. Dotyczy wszystkich zalogowanych kont."
+    "message": "Proponuj zapisywanie danych logowania, jeśli nie ma ich w sejfie. Dotyczy wszystkich zalogowanych kont."
   },
   "showCardsInVaultViewV2": {
     "message": "Zawsze pokazuj karty w sugestiach autouzupełniania"
@@ -1153,7 +1153,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Dziękujemy za dbanie o bezpieczeństwo $ORGANIZATION$. Pozostało $TASK_COUNT$ haseł do zaktualizowania.",
+    "message": "Dziękujemy za zwiększenie bezpieczeństwa organizacji $ORGANIZATION$. Zaktualizuj hasła dla jeszcze $TASK_COUNT$ danych logowania.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1405,7 +1405,7 @@
     "message": "Specjalne opcje logowania dwustopniowego, takie jak YubiKey i Duo."
   },
   "ppremiumSignUpReports": {
-    "message": "Raporty bezpieczeństwa haseł, stanu konta i raporty wycieków danych, aby Twoje dane były bezpieczne."
+    "message": "Raporty bezpieczeństwa haseł, konta i wycieków danych, aby Twoje dane były bezpieczne."
   },
   "ppremiumSignUpTotp": {
     "message": "Generator kodów weryfikacyjnych TOTP dla danych logowania w sejfie."
@@ -1684,7 +1684,7 @@
     "message": "Możesz wyłączyć autouzupełnianie po załadowaniu strony dla poszczególnych elementów w opcjach konkretnych elementów."
   },
   "itemAutoFillOnPageLoad": {
-    "message": "Automatycznie uzupełniaj po załadowaniu strony (jeśli włączono w opcjach)"
+    "message": "Uzupełniaj po załadowaniu strony (jeśli włączono w opcjach)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Użyj domyślnego ustawienia"
@@ -1758,7 +1758,7 @@
     "message": "Kliknięcie poza okno, w celu sprawdzenia wiadomość z kodem weryfikacyjnym spowoduje, że zostanie ono zamknięte. Czy chcesz otworzyć nowe okno tak, aby się nie zamknęło?"
   },
   "popupU2fCloseMessage": {
-    "message": "Ta przeglądarka nie może przetworzyć żądania U2F w wyskakującym oknie. Czy chcesz otworzyć nowe okno przeglądarki, aby zalogować się przy pomocy klucza U2F?"
+    "message": "Przeglądarka nie może przetworzyć żądań U2F. Czy chcesz otworzyć nowe okno, aby zalogować się za pomocą U2F?"
   },
   "enableFavicon": {
     "message": "Pokaż ikony stron internetowych"
@@ -1773,7 +1773,7 @@
     "message": "Pokaż licznik na ikonie"
   },
   "badgeCounterDesc": {
-    "message": "Wskaż, ile masz danych logowania do bieżącej strony internetowej."
+    "message": "Pokazuje liczbę danych logowania dla obecnej strony internetowej."
   },
   "cardholderName": {
     "message": "Właściciel karty"
@@ -2482,7 +2482,7 @@
     "message": "Uprawnienie nie zostało przyznane"
   },
   "nativeMessaginPermissionErrorDesc": {
-    "message": "Bez uprawnienia do komunikowania się z aplikacją desktopową Bitwarden nie możemy dostarczyć obsługi danych biometrycznych w rozszerzeniu przeglądarki. Spróbuj ponownie."
+    "message": "Odblokowanie biometrią jest dostępne dopiero po połączeniu rozszerzenia przeglądarki z aplikacją desktopową Bitwarden. Spróbuj ponownie."
   },
   "nativeMessaginPermissionSidebarTitle": {
     "message": "Wystąpił błąd żądania uprawnienia"
@@ -2610,7 +2610,7 @@
     "message": "Sprawdź i zmień 1 zagrożone hasło"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Przejrzyj i zmień $COUNT$ zagrożonych haseł  ",
+    "message": "Sprawdź i zmień zagrożone hasła ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3380,7 +3380,7 @@
     "message": "Nie można uzyskać dostępu do elementów w zawieszonych organizacjach. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
   },
   "loggingInTo": {
-    "message": "Logowanie na $DOMAIN$",
+    "message": "Serwer: $DOMAIN$",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -3467,7 +3467,7 @@
     "message": "Prośba została wysłana"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Logowanie potwierdzone dla $EMAIL$ na $DEVICE$",
+    "message": "Potwierdzono logowanie $EMAIL$ ($DEVICE$)",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3480,7 +3480,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
+    "message": "Odrzucono próbę logowania z innego urządzenia. Zaloguj się ponownie z tego urządzenia."
   },
   "device": {
     "message": "Urządzenie"
@@ -3773,7 +3773,7 @@
     "message": "Organizacja nie jest zaufana"
   },
   "emergencyAccessTrustWarning": {
-    "message": "Dla bezpieczeństwa Twojego konta potwierdź tylko, jeśli przyznano temu użytkownikowi dostęp awaryjny i jego odcisk palca pasuje do tego, co widnieje na jego koncie"
+    "message": "Potwierdź tylko wtedy, gdy chcesz przyznać użytkownikowi dostęp awaryjny i jego unikalny identyfikator konta jest prawidłowy."
   },
   "orgTrustWarning": {
     "message": "Kontynuuj tylko wtedy, gdy jesteś członkiem organizacji, masz włączone odzyskiwanie konta, a unikalny identyfikator pasuje do organizacji."
@@ -4131,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Wybierz kolekcję"
   },
-  "importTargetHint": {
-    "message": "Wybierz tę opcję, jeśli chcesz przenieść dane do $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Wybierz tę opcję, jeśli chcesz przenieść dane do kolekcji"
+  },
+  "importTargetHintFolder": {
+    "message": "Wybierz tę opcję, jeśli chcesz przenieść dane do folderu"
   },
   "importUnassignedItemsError": {
     "message": "Plik zawiera nieprzypisane elementy."
@@ -4185,7 +4181,7 @@
     "message": "Klucz dostępu"
   },
   "accessing": {
-    "message": "Logowanie na"
+    "message": "Serwer"
   },
   "loggedInExclamation": {
     "message": "Zalogowano!"
@@ -4197,7 +4193,7 @@
     "message": "Klucz dostępu nie zostanie skopiowany do sklonowanego elementu. Czy chcesz kontynuować klonowanie elementu?"
   },
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Weryfikacja jest wymagana przez stronę inicjującą. Ta funkcja nie jest jeszcze zaimplementowana dla kont bez hasła głównego."
+    "message": "Weryfikacja jest wymagana przez stronę inicjującą. Ta funkcja nie jest jeszcze dostępna dla kont bez hasła głównego."
   },
   "logInWithPasskeyQuestion": {
     "message": "Zalogować się kluczem dostępu?"
@@ -4354,7 +4350,7 @@
     "message": "serwer"
   },
   "hostedAt": {
-    "message": "hostowany w"
+    "message": "serwer"
   },
   "useDeviceOrHardwareKey": {
     "message": "Użyj urządzenia lub klucza sprzętowego"
@@ -4439,7 +4435,7 @@
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "privacyPermissionAdditionNotGrantedDescription": {
-    "message": "Musisz przyznać Bitwarden uprawnienia do prywatności przeglądarki, aby ustawić go jako domyślnego menedżera haseł.",
+    "message": "Aby ustawić Bitwarden jako domyślny menedżer haseł, przyznaj rozszerzeniu uprawnienie do zmiany ustawień prywatności.",
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
@@ -4990,7 +4986,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Zmień kolejność pola $LABEL$. Użyj klawiszy ze strzałkami, aby przenieść element w górę lub w dół.",
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4999,7 +4995,7 @@
     }
   },
   "reorderWebsiteUriButton": {
-    "message": "Zmień kolejność URI stron internetowych. Użyj klawiszy ze strzałkami, aby przenieść element w górę lub w dół."
+    "message": "Zmień kolejność stron internetowych. Użyj klawiszy ze strzałkami, aby przenieść element w górę lub w dół."
   },
   "reorderFieldUp": {
     "message": "Pole $LABEL$ zostało przeniesione w górę. Pozycja $INDEX$ z $LENGTH$",
@@ -5025,7 +5021,7 @@
     "message": "Element zostanie przeniesiony do organizacji. Nie będziesz już właścicielem elementu."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ elementów zostanie trwale przeniesionych do wybranej organizacji. Nie będziesz już posiadać tych elementów.",
+    "message": "Nie będziesz już właścicielem $PERSONAL_ITEMS_COUNT$ elementów przeniesionych do organizacji.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5043,7 +5039,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ elementy zostaną trwale przeniesione do $ORG$. Nie będziesz już posiadać tych elementów.",
+    "message": "Nie będziesz już właścicielem $PERSONAL_ITEMS_COUNT$ elementów przeniesionych do organizacji $ORG$.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5427,7 +5423,7 @@
     "message": "Klucz SSH został zaimportowany"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "Nie można usunąć kolekcji z uprawnieniami tylko do przeglądania: $COLLECTIONS$",
+    "message": "Nie możesz usunąć następujących kolekcji z uprawnieniami tylko do odczytu: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -5579,5 +5575,9 @@
   },
   "showLess": {
     "message": "Pokaż mniej"
+  },
+  "moreBreadcrumbs": {
+    "message": "Więcej nawigacji",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

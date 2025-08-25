@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Bilaga sparad"
   },
+  "addAttachment": {
+    "message": "Lägg till bilaga"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximal filstorlek är 500 MB"
+  },
   "file": {
     "message": "Fil"
   },
@@ -1840,12 +1846,6 @@
   "autoPromptTouchId": {
     "message": "Be om Touch ID vid appstart"
   },
-  "requirePasswordOnStart": {
-    "message": "Kräv lösenord eller PIN-kod vid appstart"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Kräv lösenord vid appstart"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Lås med huvudlösenord vid omstart"
   },
@@ -2518,10 +2518,10 @@
     "message": "Ditt valvs tid för timeout överskrider de begränsningar som fastställts av din organisation."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "Företagets policykrav har tillämpats på dina tidsgränsalternativ"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Din organisations policy har fastställt den maximalt tillåtna tidsgränsen för valvet till $HOURS$ timmar och $MINUTES$ minuter.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2534,7 +2534,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "Tidsgränsen överskrider den begränsning som din organisation har ställt in: $HOURS$ timmar och $MINUTES$ minut(er) maximalt",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3491,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Välj en samling"
   },
-  "importTargetHint": {
-    "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en samling"
+  },
+  "importTargetHintFolder": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."
@@ -4077,5 +4073,9 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden validerar inte inmatningsplatser, så se till att du är i rätt fönster och fält innan du använder genvägen."
+  },
+  "moreBreadcrumbs": {
+    "message": "Fler länkstigar",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

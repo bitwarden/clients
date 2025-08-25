@@ -34,6 +34,7 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import { Search } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -66,7 +67,6 @@ import {
   BannerModule,
   DialogRef,
   DialogService,
-  Icons,
   NoItemsModule,
   ToastService,
 } from "@bitwarden/components";
@@ -79,8 +79,11 @@ import {
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";
-import { OrganizationResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components/organization-reseller-renewal-warning.component";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/warnings/services/organization-warnings.service";
+import {
+  OrganizationFreeTrialWarningComponent,
+  OrganizationResellerRenewalWarningComponent,
+} from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
 import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
@@ -90,7 +93,6 @@ import {
 } from "../../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../../billing/types/free-trial";
-import { OrganizationFreeTrialWarningComponent } from "../../../billing/warnings/components/organization-free-trial-warning.component";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
@@ -168,7 +170,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   activeFilter: VaultFilter = new VaultFilter();
 
   protected showAddAccessToggle = false;
-  protected noItemIcon = Icons.Search;
+  protected noItemIcon = Search;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -391,11 +393,13 @@ export class VaultComponent implements OnInit, OnDestroy {
         // FIXME: We should not assert that the Unassigned type is a CollectionId.
         // Instead we should consider representing the Unassigned collection as a different object, given that
         // it is not actually a collection.
-        const noneCollection = new CollectionAdminView();
-        noneCollection.name = this.i18nService.t("unassigned");
-        noneCollection.id = Unassigned as CollectionId;
-        noneCollection.organizationId = organizationId;
-        return allCollections.concat(noneCollection);
+        return allCollections.concat(
+          new CollectionAdminView({
+            name: this.i18nService.t("unassigned"),
+            id: Unassigned as CollectionId,
+            organizationId,
+          }),
+        );
       }),
     );
 
@@ -667,6 +671,15 @@ export class VaultComponent implements OnInit, OnDestroy {
           enabled
             ? this.organizationWarningsService.showInactiveSubscriptionDialog$(this.organization)
             : this.unpaidSubscriptionDialog$,
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    organization$
+      .pipe(
+        switchMap((organization) =>
+          this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
         ),
         takeUntil(this.destroy$),
       )

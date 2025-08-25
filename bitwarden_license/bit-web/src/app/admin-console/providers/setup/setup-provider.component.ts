@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { Params } from "@angular/router";
 
-import { Icons } from "@bitwarden/components";
+import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
 @Component({
@@ -10,7 +10,7 @@ import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept
   standalone: false,
 })
 export class SetupProviderComponent extends BaseAcceptComponent {
-  protected logo = Icons.BitwardenLogo;
+  protected logo = BitwardenLogo;
   failedShortMessage = "inviteAcceptFailedShort";
   failedMessage = "inviteAcceptFailed";
 
