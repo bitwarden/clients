@@ -40,10 +40,10 @@ export class BadgeService {
    */
   startListening(): Subscription {
     // React to tab changes
-    return this.badgeApi.activeTab$
+    return this.badgeApi.tabUpdated$
       .pipe(
         withLatestFrom(this.serviceState.state$),
-        filter(([activeTab]) => activeTab != undefined),
+        filter(([updatedTab]) => updatedTab != undefined),
         concatMap(async ([activeTab, serviceState]) => {
           await this.updateBadge(serviceState, activeTab!.tabId);
         }),
