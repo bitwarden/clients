@@ -156,6 +156,7 @@ apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bit
 ## UI Foundation ##
 .storybook @bitwarden/team-ui-foundation
 libs/components @bitwarden/team-ui-foundation
+libs/assets @bitwarden/team-ui-foundation
 libs/ui @bitwarden/team-ui-foundation
 apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation
