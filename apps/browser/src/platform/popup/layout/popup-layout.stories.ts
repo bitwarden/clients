@@ -4,6 +4,16 @@ import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
+import {
+  GeneratorActive,
+  GeneratorInactive,
+  SendActive,
+  SendInactive,
+  SettingsActive,
+  SettingsInactive,
+  VaultActive,
+  VaultInactive,
+} from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -13,7 +23,6 @@ import {
   BannerModule,
   ButtonModule,
   I18nMockService,
-  Icons,
   IconButtonModule,
   ItemModule,
   NoItemsModule,
@@ -67,14 +76,10 @@ class ExtensionPoppedContainerComponent {}
               <button type="button" bitBadge variant="primary">Fill</button>
             </bit-item-action>
             <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone" aria-label="Copy item"></button>
+              <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
             </bit-item-action>
             <bit-item-action>
-              <button
-                type="button"
-                bitIconButton="bwi-ellipsis-v"
-                aria-label="More options"
-              ></button>
+              <button type="button" bitIconButton="bwi-ellipsis-v" label="More options"></button>
             </bit-item-action>
           </ng-container>
         </bit-item>
@@ -102,13 +107,7 @@ class MockAddButtonComponent {}
 @Component({
   selector: "mock-popout-button",
   template: `
-    <button
-      bitIconButton="bwi-popout"
-      size="small"
-      type="button"
-      title="Pop out"
-      aria-label="Pop out"
-    ></button>
+    <button bitIconButton="bwi-popout" size="small" type="button" label="Pop out"></button>
   `,
   imports: [IconButtonModule],
 })
@@ -278,7 +277,13 @@ class MockSettingsPageComponent {}
       <popup-footer slot="footer">
         <button type="button" bitButton buttonType="primary">Save</button>
         <button type="button" bitButton buttonType="secondary">Cancel</button>
-        <button slot="end" type="button" buttonType="danger" bitIconButton="bwi-trash"></button>
+        <button
+          slot="end"
+          type="button"
+          buttonType="danger"
+          bitIconButton="bwi-trash"
+          label="Delete"
+        ></button>
       </popup-footer>
     </popup-page>
   `,
@@ -343,7 +348,7 @@ export default {
               generator: "Generator",
               send: "Send",
               settings: "Settings",
-              labelWithNotification: (label: string) => `${label}: New Notification`,
+              labelWithNotification: (label: string | undefined) => `${label}: New Notification`,
             });
           },
         },
@@ -408,26 +413,26 @@ const navButtons = (showBerry = false) => [
   {
     label: "vault",
     page: "/tabs/vault",
-    icon: Icons.VaultInactive,
-    iconActive: Icons.VaultActive,
+    icon: VaultInactive,
+    iconActive: VaultActive,
   },
   {
     label: "generator",
     page: "/tabs/generator",
-    icon: Icons.GeneratorInactive,
-    iconActive: Icons.GeneratorActive,
+    icon: GeneratorInactive,
+    iconActive: GeneratorActive,
   },
   {
     label: "send",
     page: "/tabs/send",
-    icon: Icons.SendInactive,
-    iconActive: Icons.SendActive,
+    icon: SendInactive,
+    iconActive: SendActive,
   },
   {
     label: "settings",
     page: "/tabs/settings",
-    icon: Icons.SettingsInactive,
-    iconActive: Icons.SettingsActive,
+    icon: SettingsInactive,
+    iconActive: SettingsActive,
     showBerry: showBerry,
   },
 ];
@@ -671,17 +676,13 @@ export const WithVirtualScrollChild: Story = {
                       <button type="button" bitBadge variant="primary">Fill</button>
                     </bit-item-action>
                     <bit-item-action>
-                      <button
-                        type="button"
-                        bitIconButton="bwi-clone"
-                        aria-label="Copy item"
-                      ></button>
+                      <button type="button" bitIconButton="bwi-clone" label="Copy item"></button>
                     </bit-item-action>
                     <bit-item-action>
                       <button
                         type="button"
                         bitIconButton="bwi-ellipsis-v"
-                        aria-label="More options"
+                        label="More options"
                       ></button>
                     </bit-item-action>
                   </ng-container>

@@ -3789,7 +3789,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Bagikan berkas-berkas dan data secara aman dengan siapa saja, pada platform apapun. Informasi Anda akan tetap terenkripsi dari ujung-ke-ujung sembari membatasi paparan.",
+    "message": "Bagikan berkas-berkas dan data secara aman dengan siapa saja, pada platform apa pun. Informasi Anda akan tetap terenkripsi dari ujung ke ujung sembari membatasi paparan.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4131,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Pilih koleksi"
   },
-  "importTargetHint": {
-    "message": "Pilih pilihan ini jika Anda ingin isi dari berkas yang diimpor dipindah ke $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Berkas berisi benda-benda yang belum ditetapkan."
@@ -5575,9 +5571,13 @@
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Tampilkan lebih banyak"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Tampilkan lebih sedikit"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

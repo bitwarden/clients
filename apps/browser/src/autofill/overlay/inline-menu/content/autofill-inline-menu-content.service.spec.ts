@@ -29,7 +29,7 @@ describe("AutofillInlineMenuContentService", () => {
     autofillInit = new AutofillInit(
       domQueryService,
       domElementVisibilityService,
-      null,
+      undefined,
       autofillInlineMenuContentService,
     );
     autofillInit.init();
@@ -41,6 +41,10 @@ describe("AutofillInlineMenuContentService", () => {
       autofillInlineMenuContentService as any,
       "sendExtensionMessage",
     );
+    jest.spyOn(autofillInlineMenuContentService as any, "getPageIsOpaque");
+    jest
+      .spyOn(autofillInlineMenuContentService as any, "getPageTopLayerInUse")
+      .mockResolvedValue(false);
   });
 
   afterEach(() => {
@@ -319,6 +323,8 @@ describe("AutofillInlineMenuContentService", () => {
 
   describe("handleContainerElementMutationObserverUpdate", () => {
     let mockMutationRecord: MockProxy<MutationRecord>;
+    let mockBodyMutationRecord: MockProxy<MutationRecord>;
+    let mockHTMLMutationRecord: MockProxy<MutationRecord>;
     let buttonElement: HTMLElement;
     let listElement: HTMLElement;
     let isInlineMenuListVisibleSpy: jest.SpyInstance;
@@ -329,6 +335,16 @@ describe("AutofillInlineMenuContentService", () => {
       <div class="overlay-list"></div>
       `;
       mockMutationRecord = mock<MutationRecord>({ target: globalThis.document.body } as any);
+      mockHTMLMutationRecord = mock<MutationRecord>({
+        target: globalThis.document.body.parentElement,
+        attributeName: "style",
+        type: "attributes",
+      } as any);
+      mockBodyMutationRecord = mock<MutationRecord>({
+        target: globalThis.document.body,
+        attributeName: "style",
+        type: "attributes",
+      } as any);
       buttonElement = document.querySelector(".overlay-button") as HTMLElement;
       listElement = document.querySelector(".overlay-list") as HTMLElement;
       autofillInlineMenuContentService["buttonElement"] = buttonElement;
@@ -343,6 +359,7 @@ describe("AutofillInlineMenuContentService", () => {
           "isTriggeringExcessiveMutationObserverIterations",
         )
         .mockReturnValue(false);
+      jest.spyOn(autofillInlineMenuContentService as any, "closeInlineMenu");
     });
 
     it("skips handling the mutation if the overlay elements are not present in the DOM", async () => {
@@ -371,6 +388,48 @@ describe("AutofillInlineMenuContentService", () => {
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+    });
+
+    it("closes the inline menu if the page has content in the top layer", async () => {
+      document.querySelector("html").style.opacity = "1";
+      document.body.style.opacity = "1";
+
+      jest
+        .spyOn(autofillInlineMenuContentService as any, "getPageTopLayerInUse")
+        .mockResolvedValue(true);
+
+      await autofillInlineMenuContentService["handlePageMutations"]([mockBodyMutationRecord]);
+
+      expect(autofillInlineMenuContentService["getPageIsOpaque"]).toHaveReturnedWith(true);
+      expect(autofillInlineMenuContentService["closeInlineMenu"]).toHaveBeenCalled();
+    });
+
+    it("closes the inline menu if the page body is not sufficiently opaque", async () => {
+      document.querySelector("html").style.opacity = "0.9";
+      document.body.style.opacity = "0";
+      await autofillInlineMenuContentService["handlePageMutations"]([mockBodyMutationRecord]);
+
+      expect(autofillInlineMenuContentService["getPageIsOpaque"]).toHaveReturnedWith(false);
+      expect(autofillInlineMenuContentService["closeInlineMenu"]).toHaveBeenCalled();
+    });
+
+    it("closes the inline menu if the page html is not sufficiently opaque", async () => {
+      document.querySelector("html").style.opacity = "0.3";
+      document.body.style.opacity = "0.7";
+      await autofillInlineMenuContentService["handlePageMutations"]([mockHTMLMutationRecord]);
+
+      expect(autofillInlineMenuContentService["getPageIsOpaque"]).toHaveReturnedWith(false);
+      expect(autofillInlineMenuContentService["closeInlineMenu"]).toHaveBeenCalled();
+    });
+
+    it("does not close the inline menu if the page html and body is sufficiently opaque", async () => {
+      document.querySelector("html").style.opacity = "0.9";
+      document.body.style.opacity = "1";
+      await autofillInlineMenuContentService["handlePageMutations"]([mockBodyMutationRecord]);
+      await waitForIdleCallback();
+
+      expect(autofillInlineMenuContentService["getPageIsOpaque"]).toHaveReturnedWith(true);
+      expect(autofillInlineMenuContentService["closeInlineMenu"]).not.toHaveBeenCalled();
     });
 
     it("skips re-arranging the DOM elements if the last child of the body is non-existent", async () => {
