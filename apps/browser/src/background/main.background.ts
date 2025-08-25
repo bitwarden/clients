@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import "core-js/proposals/explicit-resource-management";
 
-import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
+import { filter, firstValueFrom, map, merge, Subject, switchMap, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -29,6 +29,7 @@ import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/p
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
@@ -39,6 +40,7 @@ import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/ab
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -149,6 +151,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications/";
+import { SystemNotificationPrefixes } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
@@ -346,6 +349,7 @@ export default class MainBackground {
   serverNotificationsService: ServerNotificationsService;
   systemNotificationService: SystemNotificationsService;
   actionsService: ActionsService;
+  authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -1121,12 +1125,21 @@ export default class MainBackground {
 
     if ("notifications" in chrome) {
       this.systemNotificationService = new BrowserSystemNotificationService(
-        this.logService,
         this.platformUtilsService,
       );
     } else {
       this.systemNotificationService = new UnsupportedSystemNotificationsService();
     }
+
+    this.authRequestAnsweringService = new AuthRequestAnsweringService(
+      this.accountService,
+      this.actionsService,
+      this.authService,
+      this.i18nService,
+      this.masterPasswordService,
+      this.platformUtilsService,
+      this.systemNotificationService,
+    );
 
     this.serverNotificationsService = new DefaultServerNotificationsService(
       this.logService,
@@ -1139,6 +1152,8 @@ export default class MainBackground {
       new SignalRConnectionService(this.apiService, this.logService),
       this.authService,
       this.webPushConnectionService,
+      this.authRequestAnsweringService,
+      this.configService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -1384,6 +1399,10 @@ export default class MainBackground {
       this.accountService,
       this.authService,
     );
+
+    // Putting this here so that all other services are initialized prior to trying to hook up
+    // subscriptions to the notification chrome events.
+    this.initNotificationSubscriptions();
   }
 
   async bootstrap() {
@@ -1771,6 +1790,23 @@ export default class MainBackground {
     if (override || lastSyncAgo >= syncInternal) {
       await this.syncService.fullSync(override);
     }
+  }
+
+  /**
+   * This function is for creating any subscriptions for the background service worker. We do this
+   * here because it's important to run this during the evaluation period of the browser extension
+   * service worker.
+   */
+  initNotificationSubscriptions() {
+    this.systemNotificationService.notificationClicked$
+      .pipe(
+        filter((n) => n.id.startsWith(SystemNotificationPrefixes.AuthRequest + "_")),
+        map((n) => ({ event: n, authRequestId: n.id.split("_")[1] })),
+        switchMap(({ event }) =>
+          this.authRequestAnsweringService.handleAuthRequestNotificationClicked(event),
+        ),
+      )
+      .subscribe();
   }
 
   /**
