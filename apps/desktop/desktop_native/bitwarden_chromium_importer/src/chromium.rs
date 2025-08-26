@@ -79,11 +79,11 @@ pub async fn import_logins(
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
         .map_err(|e| anyhow!("Failed to get crypto service: {}", e))?;
 
-    let local_logins = get_logins(&data_dir, &profile_id, "Login Data")
+    let local_logins = get_logins(&data_dir, profile_id, "Login Data")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
     // This is not available in all browsers, but there's no harm in trying. If the file doesn't exist we just get an empty vector.
-    let account_logins = get_logins(&data_dir, &profile_id, "Login Data For Account")
+    let account_logins = get_logins(&data_dir, profile_id, "Login Data For Account")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
     // TODO: Do we need a better merge strategy? Maybe ignore duplicates at least?
@@ -218,7 +218,7 @@ fn get_logins(
     profile_id: &String,
     filename: &str,
 ) -> Result<Vec<EncryptedLogin>> {
-    let login_data_path = browser_dir.join(&profile_id).join(filename);
+    let login_data_path = browser_dir.join(profile_id).join(filename);
 
     // Sometimes database files are not present, so nothing to import
     if !login_data_path.exists() {

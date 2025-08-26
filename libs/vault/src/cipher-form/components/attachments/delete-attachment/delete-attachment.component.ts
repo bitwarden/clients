@@ -29,7 +29,7 @@ export class DeleteAttachmentComponent {
   /** The attachment that is can be deleted */
   @Input({ required: true }) attachment!: AttachmentView;
 
-  /** Whether the attachemnt is being accessed from the admin console */
+  /** Whether the attachment is being accessed from the admin console */
   @Input() admin: boolean = false;
 
   /** Emits when the attachment is successfully deleted */

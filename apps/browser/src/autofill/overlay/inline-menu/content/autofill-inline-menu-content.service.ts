@@ -29,8 +29,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private isFirefoxBrowser =
     globalThis.navigator.userAgent.indexOf(" Firefox/") !== -1 ||
     globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
-  private buttonElement: HTMLElement;
-  private listElement: HTMLElement;
+  private buttonElement?: HTMLElement;
+  private listElement?: HTMLElement;
+  private htmlMutationObserver: MutationObserver;
+  private bodyMutationObserver: MutationObserver;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private containerElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
@@ -281,6 +283,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * that the inline menu elements are always present at the bottom of the menu container.
    */
   private setupMutationObserver = () => {
+    this.htmlMutationObserver = new MutationObserver(this.handlePageMutations);
+    this.bodyMutationObserver = new MutationObserver(this.handlePageMutations);
+
     this.inlineMenuElementsMutationObserver = new MutationObserver(
       this.handleInlineMenuElementMutationObserverUpdate,
     );
@@ -295,6 +300,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * elements are not modified by the website.
    */
   private observeCustomElements() {
+    this.htmlMutationObserver?.observe(document.querySelector("html"), { attributes: true });
+    this.bodyMutationObserver?.observe(document.body, { attributes: true });
+
     if (this.buttonElement) {
       this.inlineMenuElementsMutationObserver?.observe(this.buttonElement, {
         attributes: true,
@@ -395,11 +403,70 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     });
   };
 
+  private checkPageRisks = async () => {
+    const pageIsOpaque = await this.getPageIsOpaque();
+    const pageTopLayerInUse = await this.getPageTopLayerInUse();
+
+    const risksFound = !pageIsOpaque || pageTopLayerInUse;
+
+    if (risksFound) {
+      this.closeInlineMenu();
+    }
+
+    return risksFound;
+  };
+
+  /*
+   * Checks for known risks at the page level
+   */
+  private handlePageMutations = async (mutations: MutationRecord[]) => {
+    if (mutations.some(({ type }) => type === "attributes")) {
+      await this.checkPageRisks();
+    }
+  };
+
+  /**
+   * Checks if the page top layer has content (will obscure/overlap the inline menu)
+   */
+  private getPageTopLayerInUse = () => {
+    const pageHasOpenPopover = !!globalThis.document.querySelector(":popover-open");
+
+    return pageHasOpenPopover;
+  };
+
+  /**
+   * Checks the opacity of the page body and body parent, since the inline menu experience
+   * will inherit the opacity, despite being otherwise encapsulated from styling changes
+   * of parents below the body. Assumes the target element will be a direct child of the page
+   * `body` (enforced elsewhere).
+   */
+  private getPageIsOpaque = () => {
+    // These are computed style values, so we don't need to worry about non-float values
+    // for `opacity`, here
+    const htmlOpacity = globalThis.window.getComputedStyle(
+      globalThis.document.querySelector("html"),
+    ).opacity;
+    const bodyOpacity = globalThis.window.getComputedStyle(
+      globalThis.document.querySelector("body"),
+    ).opacity;
+
+    // Any value above this is considered "opaque" for our purposes
+    const opacityThreshold = 0.6;
+
+    return parseFloat(htmlOpacity) > opacityThreshold && parseFloat(bodyOpacity) > opacityThreshold;
+  };
+
   /**
    * Processes the mutation of the element that contains the inline menu. Will trigger when an
    * idle moment in the execution of the main thread is detected.
    */
   private processContainerElementMutation = async (containerElement: HTMLElement) => {
+    // If the page contains risks, tear down and prevent building the inline menu experience.
+    const pageRisksFound = await this.checkPageRisks();
+    if (pageRisksFound) {
+      return;
+    }
+
     const lastChild = containerElement.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;

@@ -27,7 +27,6 @@ import {
 
 import { ImportType } from "../../models";
 
-
 @Component({
   selector: "import-chrome",
   templateUrl: "import-chrome.component.html",

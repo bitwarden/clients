@@ -44,9 +44,9 @@ import {
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
   DialogRef,
@@ -149,7 +149,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     public messagingService: MessagingService,
     private environmentService: EnvironmentService,
     private keyService: KeyService,
-    private stateService: StateService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -159,6 +158,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private vaultNudgesService: NudgesService,
     private validationService: ValidationService,
     private configService: ConfigService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -683,10 +683,16 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async openAcctFingerprintDialog() {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const publicKey = await firstValueFrom(this.keyService.userPublicKey$(activeUserId));
+    if (publicKey == null) {
+      this.logService.error(
+        "[AccountSecurityComponent] No public key available for the user: " +
+          activeUserId +
+          " fingerprint can't be displayed.",
+      );
+      return;
+    }
     const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
 
     const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
