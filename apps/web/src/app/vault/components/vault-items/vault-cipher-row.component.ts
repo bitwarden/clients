@@ -296,7 +296,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected toggleFavorite() {
-    this.cipher.favorite = !this.cipher.favorite;
     this.onEvent.emit({
       type: "toggleFavorite",
       item: this.cipher,

@@ -1282,6 +1282,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async handleFavoriteEvent(cipher: C) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipherFullView = await this.cipherService.getFullCipherView(cipher);
+    cipherFullView.favorite = !cipherFullView.favorite;
     const encryptedCipher = await this.cipherService.encrypt(cipherFullView, activeUserId);
     await this.cipherService.updateWithServer(encryptedCipher);
 
