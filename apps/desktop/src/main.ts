@@ -21,18 +21,17 @@ import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/d
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-/* eslint-disable import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed */
-import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
-import { DefaultDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/default-derived-state.provider";
-import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
-import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
-import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
-import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
-import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
-/* eslint-enable import/no-restricted-paths */
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
+import {
+  DefaultActiveUserStateProvider,
+  DefaultDerivedStateProvider,
+  DefaultGlobalStateProvider,
+  DefaultSingleUserStateProvider,
+  DefaultStateEventRegistrarService,
+  DefaultStateProvider,
+} from "@bitwarden/state-internal";
+import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
@@ -66,7 +65,7 @@ export class Main {
   i18nService: I18nMainService;
   storageService: ElectronStorageService;
   memoryStorageService: MemoryStorageService;
-  memoryStorageForStateProviders: MemoryStorageServiceForStateProviders;
+  memoryStorageForStateProviders: SerializedMemoryStorageService;
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
@@ -134,7 +133,7 @@ export class Main {
     const storageDefaults: any = {};
     this.storageService = new ElectronStorageService(app.getPath("userData"), storageDefaults);
     this.memoryStorageService = new MemoryStorageService();
-    this.memoryStorageForStateProviders = new MemoryStorageServiceForStateProviders();
+    this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(
       this.storageService,
       this.memoryStorageForStateProviders,
@@ -150,7 +149,7 @@ export class Main {
 
     this.mainCryptoFunctionService = new NodeCryptoFunctionService();
 
-    const stateEventRegistrarService = new StateEventRegistrarService(
+    const stateEventRegistrarService = new DefaultStateEventRegistrarService(
       globalStateProvider,
       storageServiceProvider,
     );

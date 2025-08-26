@@ -9,6 +9,7 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { LockIcon, RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -22,12 +23,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import {
-  AnonLayoutWrapperDataService,
-  ButtonModule,
-  Icons,
-  I18nMockService,
-} from "@bitwarden/components";
+import { AnonLayoutWrapperDataService, ButtonModule, I18nMockService } from "@bitwarden/components";
 
 import { AccountSwitcherService } from "../../../auth/popup/account-switching/services/account-switcher.service";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
@@ -244,7 +240,7 @@ const initialData: ExtensionAnonLayoutWrapperData = {
   pageSubtitle: {
     key: "finishCreatingYourAccountBySettingAPassword",
   },
-  pageIcon: Icons.LockIcon,
+  pageIcon: LockIcon,
   showAcctSwitcher: true,
   showBackButton: true,
   showLogo: true,
@@ -258,7 +254,7 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   pageSubtitle: {
     key: "checkYourEmail",
   },
-  pageIcon: Icons.RegistrationCheckEmailIcon,
+  pageIcon: RegistrationCheckEmailIcon,
   showAcctSwitcher: false,
   showBackButton: false,
   showLogo: false,

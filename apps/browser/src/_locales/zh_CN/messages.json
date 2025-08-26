@@ -4131,15 +4131,11 @@
   "selectImportCollection": {
     "message": "选择一个集合"
   },
-  "importTargetHint": {
-    "message": "如果您希望将导入的文件内容移动到某个 $DESTINATION$，请选择此选项",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
+  },
+  "importTargetHintFolder": {
+    "message": "如果希望将导入的文件内容移动到文件夹中，请选择此选项"
   },
   "importUnassignedItemsError": {
     "message": "文件包含未分配项目。"
@@ -5579,5 +5575,9 @@
   },
   "showLess": {
     "message": "显示更少"
+  },
+  "moreBreadcrumbs": {
+    "message": "进一步的指引",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }
