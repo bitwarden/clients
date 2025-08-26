@@ -33,23 +33,24 @@ const createMockCollection = (
   readOnly = false,
   canEdit = true,
 ): CollectionView => {
-  return {
-    id: id as CollectionId,
+  const cv = new CollectionView({
     name,
     organizationId: organizationId as OrganizationId,
-    externalId: "",
-    readOnly,
-    hidePasswords: false,
-    manage: true,
-    assigned: true,
-    type: CollectionTypes.DefaultUserCollection,
-    isDefaultCollection: true,
-    canEditItems: jest.fn().mockReturnValue(canEdit),
-    canEdit: jest.fn(),
-    canDelete: jest.fn(),
-    canViewCollectionInfo: jest.fn(),
-    encrypt: jest.fn(),
-  };
+    id: id as CollectionId,
+  });
+  cv.readOnly = readOnly;
+  cv.manage = true;
+  cv.type = CollectionTypes.DefaultUserCollection;
+  cv.externalId = "";
+  cv.hidePasswords = false;
+  cv.assigned = true;
+  cv.canEditName = jest.fn().mockReturnValue(true);
+  cv.canEditItems = jest.fn().mockReturnValue(canEdit);
+  cv.canEdit = jest.fn();
+  cv.canDelete = jest.fn();
+  cv.canViewCollectionInfo = jest.fn();
+
+  return cv;
 };
 
 describe("ItemDetailsSectionComponent", () => {

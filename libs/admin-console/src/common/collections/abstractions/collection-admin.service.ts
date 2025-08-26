@@ -10,7 +10,11 @@ export abstract class CollectionAdminService {
     organizationId: string,
     userId: UserId,
   ): Observable<CollectionAdminView[]>;
-  abstract save(
+  abstract update(
+    collection: CollectionAdminView,
+    userId: UserId,
+  ): Promise<CollectionDetailsResponse>;
+  abstract create(
     collection: CollectionAdminView,
     userId: UserId,
   ): Promise<CollectionDetailsResponse>;
