@@ -8,7 +8,7 @@ import {
   StateProvider,
 } from "@bitwarden/common/platform/state";
 
-import { BadgeBrowserApi, RawBadgeState } from "./badge-browser-api";
+import { BadgeBrowserApi, RawBadgeState, Tab } from "./badge-browser-api";
 import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
@@ -33,11 +33,17 @@ export class BadgeService {
    */
   activeTabsUpdated$ = this.badgeApi.activeTabsUpdated$;
 
+  getActiveTabs(): Promise<Tab[]> {
+    return this.badgeApi.getActiveTabs();
+  }
+
   constructor(
     private stateProvider: StateProvider,
     private badgeApi: BadgeBrowserApi,
     private logService: LogService,
   ) {
+    (global as any).badgeService = this; // For easier debugging
+
     this.serviceState = this.stateProvider.getGlobal(BADGE_STATES);
   }
 
@@ -163,11 +169,11 @@ export class BadgeService {
     tabId: number | undefined,
   ) {
     const activeTabs = await this.badgeApi.getActiveTabs();
-    if (tabId !== undefined && !activeTabs.some((tab) => tab.id === tabId)) {
+    if (tabId !== undefined && !activeTabs.some((tab) => tab.tabId === tabId)) {
       return; // No need to update the badge if the state is not for the active tab.
     }
 
-    const tabIdsToUpdate = tabId ? [tabId] : activeTabs.map((tab) => tab.id);
+    const tabIdsToUpdate = tabId ? [tabId] : activeTabs.map((tab) => tab.tabId);
 
     for (const tabId of tabIdsToUpdate) {
       if (tabId === undefined) {

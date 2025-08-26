@@ -32,7 +32,7 @@ export interface BadgeBrowserApi {
 
   setState(state: RawBadgeState, tabId?: number): Promise<void>;
   getTabs(): Promise<number[]>;
-  getActiveTabs(): Promise<chrome.tabs.Tab[]>;
+  getActiveTabs(): Promise<Tab[]>;
 }
 
 export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
@@ -45,12 +45,7 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
   );
 
   activeTabsUpdated$ = concat(
-    defer(async () => {
-      const tabs = await this.getActiveTabs();
-      return tabs
-        .filter((tab) => tab.id != undefined && tab.url != undefined)
-        .map((tab) => tabFromChromeTab(tab));
-    }),
+    defer(async () => await this.getActiveTabs()),
     merge(
       this.onTabActivated$.pipe(
         switchMap(async (activeInfo) => {
@@ -84,8 +79,9 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
     ).pipe(shareReplay({ bufferSize: 1, refCount: true })),
   ).pipe(filter((tabs) => tabs.length > 0));
 
-  getActiveTabs(): Promise<chrome.tabs.Tab[]> {
-    return BrowserApi.getActiveTabs();
+  async getActiveTabs(): Promise<Tab[]> {
+    const tabs = await BrowserApi.getActiveTabs();
+    return tabs.filter((tab) => tab.id != undefined && tab.url != undefined).map(tabFromChromeTab);
   }
 
   constructor(private platformUtilsService: PlatformUtilsService) {}

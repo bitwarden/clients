@@ -11,15 +11,14 @@ export class MockBadgeBrowserApi implements BadgeBrowserApi {
   tabs: number[] = [];
   activeTabs: number[] = [];
 
-  getActiveTabs(): Promise<chrome.tabs.Tab[]> {
+  getActiveTabs(): Promise<Tab[]> {
     return Promise.resolve(
       this.activeTabs.map(
         (tabId) =>
           ({
-            id: tabId,
-            windowId: 1,
-            active: true,
-          }) as chrome.tabs.Tab,
+            tabId,
+            url: `https://example.com/${tabId}`,
+          }) satisfies Tab,
       ),
     );
   }
