@@ -1,4 +1,5 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, DestroyRef, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
@@ -33,6 +34,7 @@ export class RecoverTwoFactorComponent implements OnInit {
   recoveryCodeMessage = "";
 
   constructor(
+    private destroyRef: DestroyRef,
     private router: Router,
     private i18nService: I18nService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
@@ -44,6 +46,11 @@ export class RecoverTwoFactorComponent implements OnInit {
 
   async ngOnInit() {
     this.recoveryCodeMessage = this.i18nService.t("logInBelowUsingYourSingleUseRecoveryCode");
+
+    // Clear any existing recovery code inline error when user updates the form
+    this.formGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.formGroup.get("recoveryCode").setErrors(null);
+    });
   }
 
   get email(): string {
