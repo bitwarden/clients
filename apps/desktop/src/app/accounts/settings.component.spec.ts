@@ -180,7 +180,7 @@ describe("SettingsComponent", () => {
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     policyService.policiesByType$.mockReturnValue(of([null]));
-    desktopAutotypeService.autotypeEnabled$ = of(false);
+    desktopAutotypeService.resolvedAutotypeEnabled$ = of(false);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
   });
 
