@@ -69,7 +69,7 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
       fromChromeEvent(chrome.webNavigation.onCommitted).pipe(
         map(([details]) => {
           const toReturn: Tab[] =
-            details.transitionType === "reload" ? [] : [{ tabId: details.tabId, url: details.url }];
+            details.transitionType === "reload" ? [{ tabId: details.tabId, url: details.url }] : [];
           return toReturn;
         }),
       ),
