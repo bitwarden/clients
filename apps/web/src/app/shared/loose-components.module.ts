@@ -7,7 +7,6 @@ import {
 } from "@bitwarden/auth/angular";
 import { LayoutComponent, NavigationModule } from "@bitwarden/components";
 
-import { OrganizationLayoutComponent } from "../admin-console/organizations/layouts/organization-layout.component";
 import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/manage/verify-recover-delete-org.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
@@ -52,7 +51,6 @@ import { SharedModule } from "./shared.module";
     LayoutComponent,
     NavigationModule,
     HeaderModule,
-    OrganizationLayoutComponent,
     VerifyRecoverDeleteOrgComponent,
     VaultTimeoutInputComponent,
     PremiumBadgeComponent,
@@ -75,7 +73,6 @@ import { SharedModule } from "./shared.module";
   exports: [
     UserVerificationModule,
     PremiumBadgeComponent,
-    OrganizationLayoutComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
     OrgReusedPasswordsReportComponent,
