@@ -1,17 +1,13 @@
 import { Observable, defer, firstValueFrom, from } from "rxjs";
-import { Jsonify } from "type-fest";
 
 import {
+  BitwardenClient,
+  SendAccessCredentials,
   SendAccessTokenError,
   SendAccessTokenRequest,
   SendAccessTokenResponse,
 } from "@bitwarden/sdk-internal";
-import {
-  GlobalState,
-  GlobalStateProvider,
-  KeyDefinition,
-  SEND_ACCESS_DISK,
-} from "@bitwarden/state";
+import { GlobalState, GlobalStateProvider } from "@bitwarden/state";
 
 import { SendPasswordService } from "../../../key-management/sends/abstractions/send-password.service";
 import {
@@ -22,20 +18,11 @@ import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SendTokenService as SendTokenServiceAbstraction } from "../abstractions/send-token.service";
 import { SendAccessToken } from "../models/send-access-token";
+import { GetSendAccessTokenError } from "../types/get-send-access-token-error.type";
 import { SendHashedPasswordB64 } from "../types/send-hashed-password-b64.type";
-import { TryGetSendAccessTokenError } from "../types/try-get-send-access-token-error";
+import { TryGetSendAccessTokenError } from "../types/try-get-send-access-token-error.type";
 
-// TODO: add JSDocs
-// TODO: add tests for this service.
-export const SEND_ACCESS_TOKEN_DICT = KeyDefinition.record<SendAccessToken, string>(
-  SEND_ACCESS_DISK,
-  "accessTokenDict",
-  {
-    deserializer: (sendAccessTokenJson: Jsonify<SendAccessToken>) => {
-      return SendAccessToken.fromJson(sendAccessTokenJson);
-    },
-  },
-);
+import { SEND_ACCESS_TOKEN_DICT } from "./send-access-token-dict.state";
 
 export class DefaultSendTokenService implements SendTokenServiceAbstraction {
   private sendAccessTokenDictGlobalState: GlobalState<Record<string, SendAccessToken>> | undefined;
@@ -81,11 +68,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
       sendId: sendId,
     };
 
-    const anonSdkClient = await firstValueFrom(this.sdkService.client$);
-
-    if (anonSdkClient === undefined) {
-      throw new Error("SDK client is undefined");
-    }
+    const anonSdkClient: BitwardenClient = await firstValueFrom(this.sdkService.client$);
 
     try {
       const result: SendAccessTokenResponse = await anonSdkClient
@@ -101,49 +84,50 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
 
       return sendAccessToken;
     } catch (error: unknown) {
-      return this.normalizeTryGetSendAccessError(error);
+      return this.normalizeSendAccessTokenError(error);
     }
   }
 
-  // getSendAccessToken$(
-  //   sendId: string,
-  //   sendCredentials: SendAccessCredentials,
-  // ): Observable<SendAccessToken | GetSendAcccessTokenError> {
-  //   // Defer the execution to ensure that a cold observable is returned.
-  //   return defer(() => from(this._getSendAccessToken(sendId, sendCredentials)));
-  // }
+  getSendAccessToken$(
+    sendId: string,
+    sendCredentials: SendAccessCredentials,
+  ): Observable<SendAccessToken | GetSendAccessTokenError> {
+    // Defer the execution to ensure that a cold observable is returned.
+    return defer(() => from(this._getSendAccessToken(sendId, sendCredentials)));
+  }
 
-  // private async _getSendAccessToken(
-  //   sendId: string,
-  //   sendCredentials: SendAccessCredentials,
-  // ): Promise<SendAccessToken | GetSendAcccessTokenError> {
-  //   // Validate the sendId
-  //   this.validateSendId(sendId);
+  private async _getSendAccessToken(
+    sendId: string,
+    sendAccessCredentials: SendAccessCredentials,
+  ): Promise<SendAccessToken | GetSendAccessTokenError> {
+    // Validate inputs to account for non-strict TS call sites.
+    this.validateCredentialsRequest(sendId, sendAccessCredentials);
 
-  //   // Validate the credentials
-  //   if (sendCredentials == null) {
-  //     throw new Error("sendCredentials must be provided.");
-  //   }
+    // Convert inputs to SDK request shape
+    const request: SendAccessTokenRequest = {
+      sendId: sendId,
+      sendAccessCredentials: sendAccessCredentials,
+    };
 
-  //   // Request the access token from the server using the provided credentials.
-  //   const request = new SendAccessTokenRequest(sendId, sendCredentials);
-  //   const result = await this.sendTokenApiService.requestSendAccessToken(request);
+    const anonSdkClient: BitwardenClient = await firstValueFrom(this.sdkService.client$);
 
-  //   if (result instanceof SendAccessToken) {
-  //     // If we get a token back, we need to store it in the global state.
-  //     await this.setSendAccessTokenInStorage(sendId, result);
-  //     return result;
-  //   }
+    try {
+      const result: SendAccessTokenResponse = await anonSdkClient
+        .auth()
+        .send_access()
+        .request_send_access_token(request);
 
-  //   if (isGetSendAccessTokenError(result)) {
-  //     // If we get an expected API error, we return it.
-  //     // Typically, this will be due to an invalid credentials error
-  //     return result;
-  //   }
+      // Convert from SDK interface to SendAccessToken class so it can be serialized into & out of state provider
+      const sendAccessToken = SendAccessToken.fromSendAccessTokenResponse(result);
 
-  //   // If we get an unexpected error, we throw.
-  //   throw new Error(`Unexpected and unhandled API error retrieving send access token: ${result}`);
-  // }
+      // Any time we get a token from the server, we need to store it in the global state.
+      await this.setSendAccessTokenInStorage(sendId, sendAccessToken);
+
+      return sendAccessToken;
+    } catch (error: unknown) {
+      return this.normalizeSendAccessTokenError(error);
+    }
+  }
 
   async hashSendPassword(
     password: string,
@@ -200,7 +184,12 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     }
   }
 
-  private normalizeTryGetSendAccessError(e: unknown): TryGetSendAccessTokenError {
+  /**
+   * Normalizes an error from the SDK send access token request process.
+   * @param e The error to normalize.
+   * @returns A normalized GetSendAccessTokenError.
+   */
+  private normalizeSendAccessTokenError(e: unknown): GetSendAccessTokenError {
     if (this.isSendAccessTokenError(e)) {
       if (e.kind === "unexpected") {
         return { kind: "unexpected_server", error: e.data };
@@ -231,6 +220,16 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
   private validateSendId(sendId: string): void {
     if (sendId == null || sendId.trim() === "") {
       throw new Error("sendId must be provided.");
+    }
+  }
+
+  private validateCredentialsRequest(
+    sendId: string,
+    sendAccessCredentials: SendAccessCredentials,
+  ): void {
+    this.validateSendId(sendId);
+    if (sendAccessCredentials == null) {
+      throw new Error("sendAccessCredentials must be provided.");
     }
   }
 }

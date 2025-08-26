@@ -1,5 +1,3 @@
-// --------------------------------------------------------------------------
-
 import { SendAccessTokenApiErrorResponse } from "@bitwarden/sdk-internal";
 
 export type InvalidGrant = Extract<SendAccessTokenApiErrorResponse, { error: "invalid_grant" }>;
