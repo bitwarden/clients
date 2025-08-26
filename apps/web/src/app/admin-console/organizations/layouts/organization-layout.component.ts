@@ -68,7 +68,6 @@ export class OrganizationLayoutComponent implements OnInit {
   hideNewOrgButton$: Observable<boolean>;
   organizationIsUnmanaged$: Observable<boolean>;
 
-  protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
   protected canShowPoliciesTab$: Observable<boolean>;
 
@@ -94,9 +93,6 @@ export class OrganizationLayoutComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM12276_BreadcrumbEventLogs,
-    );
     document.body.classList.remove("layout_frontend");
 
     this.organization$ = this.route.params.pipe(
