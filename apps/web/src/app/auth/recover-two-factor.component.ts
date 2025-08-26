@@ -49,7 +49,7 @@ export class RecoverTwoFactorComponent implements OnInit {
 
     // Clear any existing recovery code inline error when user updates the form
     this.formGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.formGroup.get("recoveryCode").setErrors(null);
+      this.formGroup.get("recoveryCode")?.setErrors(null);
     });
   }
 
