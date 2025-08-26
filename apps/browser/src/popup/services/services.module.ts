@@ -39,7 +39,6 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import {
   AccountService,
   AccountService as AccountServiceAbstraction,
@@ -112,10 +111,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
-import {
-  FolderService as FolderServiceAbstraction,
-  InternalFolderService,
-} from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
@@ -186,8 +182,6 @@ import { BrowserSystemNotificationService } from "../../platform/system-notifica
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
-import { VaultBrowserStateService } from "../../vault/services/vault-browser-state.service";
-import { VaultFilterService } from "../../vault/services/vault-filter.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
@@ -403,21 +397,6 @@ const safeProviders: SafeProvider[] = [
     deps: [MessagingServiceAbstraction],
   }),
   safeProvider({
-    provide: VaultFilterService,
-    useClass: VaultFilterService,
-    deps: [
-      DefaultOrganizationService,
-      FolderServiceAbstraction,
-      CipherService,
-      CollectionService,
-      PolicyService,
-      StateProvider,
-      AccountServiceAbstraction,
-      ConfigService,
-      I18nServiceAbstraction,
-    ],
-  }),
-  safeProvider({
     provide: SECURE_STORAGE,
     useExisting: AbstractStorageService, // Secure storage is not available in the browser, so we use normal storage instead and warn users when it is used.
   }),
@@ -453,13 +432,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OBSERVABLE_DISK_STORAGE,
     useExisting: AbstractStorageService,
-  }),
-  safeProvider({
-    provide: VaultBrowserStateService,
-    useFactory: (stateProvider: StateProvider) => {
-      return new VaultBrowserStateService(stateProvider);
-    },
-    deps: [StateProvider],
   }),
   safeProvider({
     provide: FileDownloadService,
