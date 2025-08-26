@@ -72,6 +72,7 @@ describe("SettingsComponent", () => {
   const dialogService = mock<DialogService>();
   const desktopAutotypeService = mock<DesktopAutotypeService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -101,7 +102,7 @@ describe("SettingsComponent", () => {
         },
         { provide: AccountService, useValue: accountService },
         { provide: BiometricStateService, useValue: biometricStateService },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ConfigService, useValue: configService },
         {
           provide: DesktopAutofillSettingsService,
           useValue: desktopAutofillSettingsService,
@@ -182,6 +183,7 @@ describe("SettingsComponent", () => {
     policyService.policiesByType$.mockReturnValue(of([null]));
     desktopAutotypeService.resolvedAutotypeEnabled$ = of(false);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+    configService.getFeatureFlag$.mockReturnValue(of(true));
   });
 
   afterEach(() => {
