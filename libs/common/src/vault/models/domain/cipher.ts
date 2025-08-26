@@ -2,8 +2,14 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { uuidToString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
+import { asUuid, uuidToString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import {
+  Cipher as SdkCipher,
+  FolderId as SdkFolderId,
+  OrganizationId as SdkOrganizationId,
+  CipherId as SdkCipherId,
+  CollectionId as SdkCollectionId,
+} from "@bitwarden/sdk-internal";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
@@ -344,10 +350,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    */
   toSdkCipher(): SdkCipher {
     const sdkCipher: SdkCipher = {
-      id: this.id,
-      organizationId: this.organizationId ?? undefined,
-      folderId: this.folderId ?? undefined,
-      collectionIds: this.collectionIds ?? [],
+      id: asUuid<SdkCipherId>(this.id),
+      organizationId: asUuid<SdkOrganizationId>(this.organizationId) ?? undefined,
+      folderId: asUuid<SdkFolderId>(this.folderId) ?? undefined,
+      collectionIds: this.collectionIds.map((cid) => asUuid<SdkCollectionId>(cid)) ?? [],
       key: this.key?.toSdk(),
       name: this.name.toSdk(),
       notes: this.notes?.toSdk(),

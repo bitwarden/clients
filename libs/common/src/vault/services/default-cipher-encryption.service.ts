@@ -39,7 +39,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor as string),
           };
         }),
         catchError((error: unknown) => {

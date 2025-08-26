@@ -140,7 +140,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
         }
 
         return this.collectionService.decryptedCollections$(userId).pipe(
-          getByIds(cipher.collectionIds),
+          getByIds(cipher.collectionIds as string),
           map((allCollections) => allCollections.some((collection) => collection.manage)),
         );
       }),

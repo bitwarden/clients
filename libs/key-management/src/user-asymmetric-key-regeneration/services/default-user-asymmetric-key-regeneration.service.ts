@@ -143,7 +143,7 @@ export class DefaultUserAsymmetricKeysRegenerationService
 
     try {
       await this.userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys(
-        makeKeyPairResponse.userPublicKey,
+        makeKeyPairResponse.userPublicKey as string,
         new EncString(makeKeyPairResponse.userKeyEncryptedPrivateKey),
       );
     } catch (error: any) {

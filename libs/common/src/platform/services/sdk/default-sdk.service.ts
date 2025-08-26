@@ -23,6 +23,8 @@ import {
   DeviceType as SdkDeviceType,
   TokenProvider,
   UnsignedSharedKey,
+  UserId as SdkUserId,
+  OrganizationId as SdkOrganizationId,
 } from "@bitwarden/sdk-internal";
 
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
@@ -35,7 +37,7 @@ import { Environment, EnvironmentService } from "../../abstractions/environment.
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
-import { SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
+import { asUuid, SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
@@ -218,7 +220,7 @@ export class DefaultSdkService implements SdkService {
     orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
   ) {
     await client.crypto().initialize_user_crypto({
-      userId,
+      userId: asUuid<SdkUserId>(userId as string),
       email: account.email,
       method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
       kdfParams:
@@ -242,7 +244,7 @@ export class DefaultSdkService implements SdkService {
       organizationKeys: new Map(
         Object.entries(orgKeys ?? {})
           .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [k, v.key as UnsignedSharedKey]),
+          .map(([k, v]) => [asUuid<SdkOrganizationId>(k as string), v.key as UnsignedSharedKey]),
       ),
     });
 
