@@ -3,6 +3,7 @@ import { combineLatest, filter, firstValueFrom, map, Observable, of, switchMap }
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -34,6 +35,7 @@ export class DesktopAutotypeService {
     private configService: ConfigService,
     private globalStateProvider: GlobalStateProvider,
     private platformUtilsService: PlatformUtilsService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     ipc.autofill.listenAutotypeRequest(async (windowTitle, callback) => {
       const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
@@ -52,15 +54,22 @@ export class DesktopAutotypeService {
         this.autotypeEnabledState.state$,
         this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
         this.accountService.activeAccount$.pipe(
-          map((account) => account?.id),
+          map((activeAccount) => activeAccount?.id),
           switchMap((userId) => this.authService.authStatusFor$(userId)),
+        ),
+        this.accountService.activeAccount$.pipe(
+          map((activeAccount) => activeAccount?.id),
+          switchMap((userId) =>
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+          ),
         ),
       ]).pipe(
         map(
-          ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus]) =>
+          ([autotypeEnabled, windowsDesktopAutotypeFeatureFlag, authStatus, hasPremium]) =>
             autotypeEnabled &&
             windowsDesktopAutotypeFeatureFlag &&
-            authStatus == AuthenticationStatus.Unlocked,
+            authStatus == AuthenticationStatus.Unlocked &&
+            hasPremium,
         ),
       );
 

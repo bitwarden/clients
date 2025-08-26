@@ -276,10 +276,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // Autotype is for Windows initially
     const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
-    const windowsDesktopAutotypeFeatureFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.WindowsDesktopAutotype,
-    );
-    this.showEnableAutotype = isWindows && windowsDesktopAutotypeFeatureFlag;
+    if (isWindows) {
+      this.configService
+        .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((enabled) => {
+          this.showEnableAutotype = enabled;
+        });
+    }
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
@@ -410,11 +414,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.form.controls.vaultTimeoutAction.setValue(action, { emitEvent: false });
       });
 
-    this.hasPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
-    );
-    if (this.hasPremium) {
-      this.form.controls.enableAutotype.enable();
+    if (isWindows) {
+      this.billingAccountProfileStateService
+        .hasPremiumFromAnySource$(activeAccount.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((hasPremium) => {
+          this.hasPremium = hasPremium;
+
+          if (this.hasPremium) {
+            this.form.controls.enableAutotype.enable();
+          }
+        });
     }
 
     // Form events
