@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/pricing",
+  "version": "0.0.1",
+  "description": "Components and services that facilitate the retrieval and display of Bitwarden&#39;s pricing.",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "billing"
+}
