@@ -54,7 +54,7 @@ export default {
         while ((match = COLOR_REGEX.exec(svgString)) !== null) {
           context.report({
             node,
-            loc: context.getSourceCode().getLocFromIndex(node.start + match.index),
+            loc: context.getSourceCode().getLocFromIndex(node.range[0] + match.index),
             messageId: "hardcodedColor",
             data: { color: match[1] },
           });
