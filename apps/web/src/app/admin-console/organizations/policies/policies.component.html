@@ -1,18 +1,4 @@
-<app-header>
-  @let organization = organization$ | async;
-  @if (isBreadcrumbingEnabled$ | async) {
-    <button
-      bitBadge
-      class="!tw-align-middle"
-      (click)="changePlan(organization)"
-      slot="title-suffix"
-      type="button"
-      variant="primary"
-    >
-      {{ "upgrade" | i18n }}
-    </button>
-  }
-</app-header>
+<app-header></app-header>
 
 <bit-container>
   @if (loading) {
