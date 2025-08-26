@@ -11,10 +11,10 @@ import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { UserId } from "../../types/guid";
 import { PinKey, UserKey } from "../../types/key";
+import { KeyGenerationService } from "../crypto";
 import { firstValueFromOrThrow } from "../utils";
 
 import { PinLockType } from "./pin-lock-type";

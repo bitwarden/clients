@@ -548,7 +548,7 @@
     "message": "Пошук"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Скинути пошук"
   },
   "edit": {
     "message": "Змінити"
@@ -1833,7 +1833,7 @@
     "message": "Код безпеки"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "номер картки"
   },
   "ex": {
     "message": "зразок"
@@ -3467,7 +3467,7 @@
     "message": "Запит надіслано"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Запит входу підтверджено для $EMAIL$ на $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3480,13 +3480,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були ви, спробуйте ввійти з пристроєм знову."
   },
   "device": {
-    "message": "Device"
+    "message": "Пристрій"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Стан входу в систему"
   },
   "masterPasswordChanged": {
     "message": "Головний пароль збережено"
@@ -3585,28 +3585,28 @@
     "message": "Запам'ятайте цей пристрій, щоб спростити майбутні входи в систему"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Керувати пристроями"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Поточний сеанс"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Мобільний",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Розширення",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Комп'ютер",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Вебсховище"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Вебпрограма"
   },
   "cli": {
     "message": "CLI"
@@ -3616,22 +3616,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Запит в очікуванні"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Перший вхід"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Надійний"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Потребує підтвердження"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Пристрої"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Спроба доступу з $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3640,50 +3640,31 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Підтвердити доступ"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Заборонити доступ"
   },
   "time": {
-    "message": "Time"
+    "message": "Час"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Тип пристрою"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Запит входу"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Цей запит більше недійсний."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Термін дії запиту на вхід завершився."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Щойно"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Запитано $MINUTES$ хвилин тому",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4150,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Вибрати збірку"
   },
-  "importTargetHint": {
-    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -4601,7 +4578,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Копіювати $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -5592,5 +5569,15 @@
   "wasmNotSupported": {
     "message": "WebAssembly не підтримується або не ввімкнено у вашому браузері. WebAssembly є обов'язковою вимогою для програми Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Розгорнути"
+  },
+  "showLess": {
+    "message": "Згорнути"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

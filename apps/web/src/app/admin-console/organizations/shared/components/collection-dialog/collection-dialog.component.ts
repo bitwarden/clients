@@ -39,6 +39,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -87,8 +88,8 @@ enum ButtonType {
 }
 
 export interface CollectionDialogParams {
-  collectionId?: string;
-  organizationId: string;
+  collectionId?: CollectionId;
+  organizationId: OrganizationId;
   initialTab?: CollectionDialogTabType;
   parentCollectionId?: string;
   showOrgSelector?: boolean;
@@ -136,7 +137,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     externalId: { value: "", disabled: true },
     parent: undefined as string | undefined,
     access: [[] as AccessItemValue[]],
-    selectedOrg: "",
+    selectedOrg: "" as OrganizationId,
   });
   protected PermissionMode = PermissionMode;
   protected showDeleteButton = false;
@@ -239,9 +240,15 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         return this.groupService.getAll(orgId);
       }),
     );
+
+    const collections = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.collectionAdminService.collectionAdminViews$(orgId, userId)),
+    );
+
     combineLatest({
       organization: organization$,
-      collections: this.collectionAdminService.getAll(orgId),
+      collections,
       groups: groups$,
       users: this.organizationUserApiService.getAllMiniUserDetails(orgId),
     })
@@ -392,9 +399,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const collectionView = new CollectionAdminView();
-    collectionView.id = this.params.collectionId;
-    collectionView.organizationId = this.formGroup.controls.selectedOrg.value;
+    const parent = this.formGroup.controls.parent?.value;
+    const collectionView = new CollectionAdminView({
+      id: this.params.collectionId as CollectionId,
+      organizationId: this.formGroup.controls.selectedOrg.value,
+      name: parent
+        ? `${parent}/${this.formGroup.controls.name.value}`
+        : this.formGroup.controls.name.value,
+    });
     collectionView.externalId = this.formGroup.controls.externalId.value;
     collectionView.groups = this.formGroup.controls.access.value
       .filter((v) => v.type === AccessItemType.Group)
@@ -402,13 +414,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     collectionView.users = this.formGroup.controls.access.value
       .filter((v) => v.type === AccessItemType.Member)
       .map(convertToSelectionView);
-
-    const parent = this.formGroup.controls.parent.value;
-    if (parent) {
-      collectionView.name = `${parent}/${this.formGroup.controls.name.value}`;
-    } else {
-      collectionView.name = this.formGroup.controls.name.value;
-    }
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const savedCollection = await this.collectionAdminService.save(collectionView, userId);

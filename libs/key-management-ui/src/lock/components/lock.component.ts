@@ -75,6 +75,7 @@ const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
 /// The minimum amount of time to wait after a process reload for a biometrics auto prompt to be possible
 /// Fixes safari autoprompt behavior
 const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
+
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
@@ -124,7 +125,7 @@ export class LockComponent implements OnInit, OnDestroy {
   formGroup: FormGroup | null = null;
 
   // Browser extension properties:
-  private shouldClosePopout = false;
+  shouldClosePopout = false;
 
   // Desktop properties:
   private deferFocus: boolean | null = null;
@@ -155,13 +156,10 @@ export class LockComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private toastService: ToastService,
     private userAsymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
-
     private biometricService: BiometricsService,
     private logoutService: LogoutService,
-
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
-
     // desktop deps
     private broadcasterService: BroadcasterService,
   ) {}
@@ -212,7 +210,7 @@ export class LockComponent implements OnInit, OnDestroy {
       });
   }
 
-  private buildMasterPasswordForm() {
+  buildMasterPasswordForm() {
     this.formGroup = this.formBuilder.group(
       {
         masterPassword: ["", [Validators.required]],
@@ -513,7 +511,7 @@ export class LockComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private async unlockViaMasterPassword() {
+  async unlockViaMasterPassword() {
     if (!this.validateMasterPassword() || this.formGroup == null || this.activeAccount == null) {
       return;
     }
@@ -627,7 +625,7 @@ export class LockComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Vault can be de-synced since notifications get ignored while locked. Need to check whether sync is required using the sync service.
+    // Vault can be de-synced since server notifications get ignored while locked. Need to check whether sync is required using the sync service.
     const startSync = new Date().getTime();
     // TODO: This should probably not be blocking
     await this.syncService.fullSync(false);

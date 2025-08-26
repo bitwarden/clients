@@ -1428,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Déverrouillez Bitwarden sur votre appareil ou sur le "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Essayez-vous d'accéder à votre compte ?"
-  },
   "accessAttemptBy": {
     "message": "Tentative d'accès par $EMAIL$",
     "placeholders": {
@@ -2053,15 +2050,11 @@
   "selectImportCollection": {
     "message": "Sélectionnez une collection"
   },
-  "importTargetHint": {
-    "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un(e) $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers une collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un dossier"
   },
   "importUnassignedItemsError": {
     "message": "Le fichier contient des éléments non assignés."
@@ -2454,9 +2447,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Un problème est survenu lors de la lecture de la clé de sécurité. Veuillez réessayer."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "En raison des limitations de plate-forme, WebAuthn ne peut pas être utilisé sur toutes les applications Bitwarden. Vous devriez mettre en place un autre fournisseur d'authentification à deux facteurs afin de pouvoir accéder à votre compte lorsque WebAuthn ne peut pas être utilisé."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Votre code de récupération de d'authentification à deux facteurs Bitwarden"
   },
@@ -2826,6 +2816,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Afficher le résumé des prix"
+  },
+  "hidePricingSummary": {
+    "message": "Cacher le résumé des prix"
   },
   "summary": {
     "message": "Récapitulatif"
@@ -3976,22 +3972,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "Cette demande n'est plus valide."
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Connexion confirmée pour $EMAIL$ sur $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vraiment vous, essayez de vous connecter à nouveau avec l'appareil."
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Demande de connexion approuvée pour $EMAIL$ sur $DEVICE$",
@@ -5284,6 +5264,14 @@
   "downloadAttachments": {
     "message": "Télécharger les pièces jointes"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Entrez le mot de passe pour afficher ce Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Afficher le Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Le Send que vous essayez d'accéder n'existe pas ou n'est plus disponible.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5431,37 @@
   },
   "organizationDataOwnership": {
     "message": "Forcer la propriété des données de l'organisation"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Exiger que tous les éléments appartiennent à une organisation, en supprimant la possibilité de sauvegarder des éléments au niveau du compte.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Tous les éléments seront détenus et enregistrés dans l'organisation, ce qui activera les contrôles, la visibilité et les rapports à l'échelle de l'organisation. Quand activé, une collection par défaut est disponible pour chaque membre pour enregistrer des éléments. En savoir plus sur la gestion de ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "cycle de vie des identifiants",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Êtes-vous sûr de vouloir continuer ?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "restera accessible aux membres"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "ne sera pas automatiquement sélectionné lors de la création de nouveaux éléments"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "ne peut pas être géré depuis la Console Admin jusqu'à ce que l'utilisateur soit déconnecté"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "En désactivant cette politique de sécurité, la collection par défaut : "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Apprenez-en plus sur ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Supprimer le coffre individuel"
@@ -7009,6 +7028,12 @@
   "unknownCipher": {
     "message": "Élément inconnu, vous devrez peut-être demander l'autorisation d'accéder à cet élément."
   },
+  "unknownSecret": {
+    "message": "Secret inconnu, vous devrez peut-être demander l'autorisation d'accéder à ce secret."
+  },
+  "unknownProject": {
+    "message": "Projet inconnu, vous devrez peut-être demander l'autorisation d'accéder à ce projet."
+  },
   "cannotSponsorSelf": {
     "message": "Vous ne pouvez pas réclamer pour le compte actif. Saisissez un courriel différent."
   },
@@ -8332,10 +8357,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "A supprimé définitivement un secret avec l'identifiant : $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "A récupéré un secret avec l'identifiant : $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "A créé un secret avec identifiant : $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "A accédé à un projet avec l'identifiant : $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Identifiant du projet supprimé : $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Identifiant secret supprimé : $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "A modifié un projet avec l'identifiant : $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "A supprimé un projet avec l'identifiant : $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "A créé un projet avec l'identifiant : $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9477,6 +9574,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Envoyer les données de l'événement à votre instance Logscale"
   },
+  "failedToSaveIntegration": {
+    "message": "Impossible d'enregistrer l'intégration. Veuillez réessayer plus tard."
+  },
   "deviceIdMissing": {
     "message": "L'identification de l'appareil est manquante"
   },
@@ -9557,6 +9657,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Créez une nouvelle organisation de clients à gérer en tant que Fournisseur. Des sièges supplémentaires seront reflétés lors du prochain cycle de facturation."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Jeton du porteur"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Sélectionnez un plan"
@@ -10713,6 +10822,9 @@
   "upgradeEventLogMessage": {
     "message": "Ces événements sont des exemples et ne reflètent pas les événements réels au sein de votre organisation Bitwarden."
   },
+  "viewEvents": {
+    "message": "Afficher les événements"
+  },
   "cannotCreateCollection": {
     "message": "Les organisations gratuites peuvent avoir jusqu'à 2 collections. Passez à une offre payante pour ajouter plus de collections."
   },
@@ -10918,6 +11030,36 @@
       }
     }
   },
+  "unpaidInvoices": {
+    "message": "Facture impayée"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Votre abonnement n'a pas été payé. Contactez l'administrateur de votre fournisseur pour restaurer le service à vous et à vos clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ est suspendu",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Pour restaurer l'accès à votre portail de fournisseur, contactez l'assistance clientèle de Bitwarden pour renouveler votre abonnement.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Votre abonnement n'a pas été payé. Pour restaurer le service à vous et à vos clients, ajoutez une méthode de paiement d'ici le $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
   "subscribetoEnterprise": {
     "message": "Abonnez-vous au plan $PLAN$",
     "placeholders": {
@@ -10938,5 +11080,68 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Projets et Secrets illimités"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Abonnement annulé"
+  },
+  "providersubCanceledmessage": {
+    "message": "Pour vous réinscrire, contactez l'Assistance Client de Bitwarden."
+  },
+  "showMore": {
+    "message": "Afficher plus"
+  },
+  "showLess": {
+    "message": "Afficher moins"
+  },
+  "missingTaxId": {
+    "message": "ID de Taxes manquant"
+  },
+  "missingTaxIdWarning": {
+    "message": "Action requise : Il vous manque un ID de Taxes dans les détails du paiement. Si un ID de Taxes n'est pas ajouté, vos factures peuvent inclure des taxes supplémentaires."
+  },
+  "moreBreadcrumbs": {
+    "message": "Plus de fil d'Ariane",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Ajouter un ID de Taxes"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Action requise : ID de Taxes manquant"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Si un ID de Taxes n'est pas ajouté, vos factures peuvent inclure des taxes supplémentaires."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Action requise : Votre ID de Taxes n'est pas vérifié. Si votre ID de Taxes n'est pas vérifié, vos factures peuvent inclure des taxes supplémentaires."
+  },
+  "editTaxId": {
+    "message": "Modifier votre ID de Taxes"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "ID de Taxes non vérifié"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Vérifiez votre ID de Taxes pour vérifier que le format est correct et qu'il n'y a pas de fautes de frappe."
+  },
+  "pendingVerification": {
+    "message": "Vérification en attente"
+  },
+  "checkInputFormat": {
+    "message": "Vérifier le format d'entrée pour les fautes de frappe."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Exemple de format $CODE$ : $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

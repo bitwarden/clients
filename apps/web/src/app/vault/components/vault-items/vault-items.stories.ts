@@ -29,6 +29,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -261,9 +262,11 @@ export const OrganizationTrash: Story = {
   },
 };
 
-const unassignedCollection = new CollectionAdminView();
-unassignedCollection.id = Unassigned;
-unassignedCollection.name = "Unassigned";
+const unassignedCollection = new CollectionAdminView({
+  id: Unassigned as CollectionId,
+  name: "Unassigned",
+  organizationId: "org id" as OrganizationId,
+});
 export const OrganizationTopLevelCollection: Story = {
   args: {
     ciphers: [],
@@ -326,11 +329,11 @@ function createCipherView(i: number, deleted = false): CipherView {
 function createCollectionView(i: number): CollectionAdminView {
   const organization = organizations[i % (organizations.length + 1)];
   const group = groups[i % (groups.length + 1)];
-  const view = new CollectionAdminView();
-  view.id = `collection-${i}`;
-  view.name = `Collection ${i}`;
-  view.organizationId = organization?.id;
-  view.manage = true;
+  const view = new CollectionAdminView({
+    id: `collection-${i}` as CollectionId,
+    name: `Collection ${i}`,
+    organizationId: organization?.id ?? ("orgId" as OrganizationId),
+  });
 
   if (group !== undefined) {
     view.groups = [
@@ -343,6 +346,7 @@ function createCollectionView(i: number): CollectionAdminView {
     ];
   }
 
+  view.manage = true;
   return view;
 }
 
@@ -357,7 +361,7 @@ function createGroupView(i: number): GroupView {
 
 function createOrganization(i: number): Organization {
   const organization = new Organization();
-  organization.id = `organization-${i}`;
+  organization.id = `organization-${i}` as OrganizationId;
   organization.name = `Organization ${i}`;
   organization.type = OrganizationUserType.Owner;
   organization.permissions = new PermissionsApi();

@@ -7,12 +7,12 @@ import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key
 import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { PinKey, UserKey } from "../../types/key";
+import { KeyGenerationService } from "../crypto";
 import { EncryptService } from "../crypto/abstractions/encrypt.service";
 import { EncString } from "../crypto/models/enc-string";
 
@@ -232,7 +232,7 @@ describe("PinService", () => {
     const mockPinProtectedUserKeyEnvelope = "mock-envelope" as PasswordProtectedKeyEnvelope;
     const mockUserKeyEncryptedPinFromSdk = "sdk-encrypted-pin";
 
-    beforeEach(() => {});
+    beforeEach(() => { });
 
     it("should throw an error if pin is null", async () => {
       // Act & Assert
