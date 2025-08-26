@@ -763,25 +763,6 @@ export class EventService {
     return a.outerHTML;
   }
 
-  formatProjectId(ev: EventResponse, options: EventOptions): string {
-    const shortId = this.getShortId(ev.projectId);
-    if (options.disableLink) {
-      return shortId;
-    }
-    const a = this.makeAnchor(shortId);
-    a.setAttribute(
-      "href",
-      "#/sm/" +
-        ev.organizationId +
-        "/projects?search=" +
-        shortId +
-        "&viewEvents=" +
-        ev.projectId +
-        "&type=all",
-    );
-    return a.outerHTML;
-  }
-
   formatServiceAccountId(ev: EventResponse, options: EventOptions): string {
     const shortId = this.getShortId(ev.grantedServiceAccountId);
     if (options.disableLink) {
