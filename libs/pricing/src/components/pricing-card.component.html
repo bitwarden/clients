@@ -1,51 +1,55 @@
-<!-- Title -->
-<h3 class="tw-text-xl tw-font-semibold tw-text-main tw-mb-2 tw-m-0">{{ title() }}</h3>
+<div
+  class="tw-box-border tw-block tw-bg-background tw-text-main tw-border tw-border-secondary-300 tw-rounded-lg tw-p-6 tw-shadow-sm"
+>
+  <!-- Title -->
+  <h3 class="tw-text-xl tw-font-semibold tw-text-main tw-mb-2 tw-m-0">{{ title }}</h3>
 
-<!-- Tagline with 2-line text wrapping -->
-<p class="tw-text-sm tw-text-muted tw-mb-4 tw-m-0 tw-leading-relaxed tw-line-clamp-2">
-  {{ tagline() }}
-</p>
+  <!-- Tagline with 2-line text wrapping -->
+  <p class="tw-text-sm tw-text-muted tw-mb-4 tw-m-0 tw-leading-relaxed tw-line-clamp-2">
+    {{ tagline }}
+  </p>
 
-<!-- Price Section (if provided) -->
-<div class="tw-mb-4" *ngIf="price()">
-  <div class="tw-flex tw-items-baseline tw-gap-1">
-    <span class="tw-text-2xl tw-font-bold tw-text-main">${{ price()!.amount }}</span>
-    <span class="tw-text-sm tw-text-muted">/ {{ price()!.cadence }}</span>
+  <!-- Price Section (if provided) -->
+  <div class="tw-mb-4" *ngIf="price">
+    <div class="tw-flex tw-items-baseline tw-gap-1">
+      <span class="tw-text-2xl tw-font-bold tw-text-main">${{ price.amount }}</span>
+      <span class="tw-text-sm tw-text-muted">/ {{ price.cadence }}</span>
+    </div>
   </div>
-</div>
 
-<!-- Features List (if provided) -->
-<div class="tw-mb-6" *ngIf="features() && features()!.length > 0">
-  <ul class="tw-list-none tw-p-0 tw-m-0">
-    <li
-      *ngFor="let feature of features()"
-      class="tw-flex tw-items-start tw-gap-2 tw-mb-2 last:tw-mb-0"
+  <!-- Features List (if provided) -->
+  <div class="tw-mb-6" *ngIf="features && features.length > 0">
+    <ul class="tw-list-none tw-p-0 tw-m-0">
+      <li
+        *ngFor="let feature of features"
+        class="tw-flex tw-items-start tw-gap-2 tw-mb-2 last:tw-mb-0"
+      >
+        <span class="tw-text-success tw-font-semibold tw-mt-1 tw-flex-shrink-0">✓</span>
+        <span class="tw-text-sm tw-text-main tw-leading-relaxed">{{ feature }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Button -->
+  <div class="tw-mt-auto">
+    <button
+      class="tw-w-full tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-text-sm tw-transition-colors tw-border-0 tw-cursor-pointer"
+      [ngClass]="{
+        'tw-bg-primary-600 tw-text-contrast hover:tw-bg-primary-700 focus:tw-bg-primary-700':
+          button.type === 'primary',
+        'tw-bg-secondary-300 tw-text-main hover:tw-bg-secondary-400 focus:tw-bg-secondary-400':
+          button.type === 'secondary',
+        'tw-bg-danger-600 tw-text-contrast hover:tw-bg-danger-700 focus:tw-bg-danger-700':
+          button.type === 'danger',
+        'tw-bg-transparent tw-text-primary-600 hover:tw-text-primary-700 focus:tw-text-primary-700':
+          button.type === 'unstyled',
+        'tw-opacity-50 tw-cursor-not-allowed': button.disabled,
+      }"
+      [disabled]="button.disabled"
+      (click)="onButtonClick()"
+      type="button"
     >
-      <span class="tw-text-success tw-font-semibold tw-mt-1 tw-flex-shrink-0">✓</span>
-      <span class="tw-text-sm tw-text-main tw-leading-relaxed">{{ feature }}</span>
-    </li>
-  </ul>
-</div>
-
-<!-- Button -->
-<div class="tw-mt-auto">
-  <button
-    class="tw-w-full tw-px-4 tw-py-2 tw-rounded tw-font-medium tw-text-sm tw-transition-colors tw-border-0 tw-cursor-pointer"
-    [ngClass]="{
-      'tw-bg-primary-600 tw-text-contrast hover:tw-bg-primary-700 focus:tw-bg-primary-700':
-        button().type === 'primary',
-      'tw-bg-secondary-300 tw-text-main hover:tw-bg-secondary-400 focus:tw-bg-secondary-400':
-        button().type === 'secondary',
-      'tw-bg-danger-600 tw-text-contrast hover:tw-bg-danger-700 focus:tw-bg-danger-700':
-        button().type === 'danger',
-      'tw-bg-transparent tw-text-primary-600 hover:tw-text-primary-700 focus:tw-text-primary-700':
-        button().type === 'unstyled',
-      'tw-opacity-50 tw-cursor-not-allowed': button().disabled,
-    }"
-    [disabled]="button().disabled"
-    (click)="onButtonClick()"
-    type="button"
-  >
-    {{ button().text }}
-  </button>
+      {{ button.text }}
+    </button>
+  </div>
 </div>
