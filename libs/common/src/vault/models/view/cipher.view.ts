@@ -1,11 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { uuidToString, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import {
-  CipherView as SdkCipherView,
-  CollectionId as SdkCollectionId,
-} from "@bitwarden/sdk-internal";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
@@ -259,9 +256,9 @@ export class CipherView implements View, InitializerMetadata {
     }
 
     const cipherView = new CipherView();
-    cipherView.id = uuidToString(obj.id) ?? null;
-    cipherView.organizationId = uuidToString(obj.organizationId) ?? null;
-    cipherView.folderId = uuidToString(obj.folderId) ?? null;
+    cipherView.id = uuidAsString(obj.id) ?? null;
+    cipherView.organizationId = uuidAsString(obj.organizationId) ?? null;
+    cipherView.folderId = uuidAsString(obj.folderId) ?? null;
     cipherView.name = obj.name;
     cipherView.notes = obj.notes ?? null;
     cipherView.type = obj.type;
@@ -276,7 +273,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)) ?? [];
     cipherView.passwordHistory =
       obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)) ?? [];
-    cipherView.collectionIds = obj.collectionIds?.map((i) => uuidToString(i)) ?? [];
+    cipherView.collectionIds = obj.collectionIds?.map((i) => uuidAsString(i)) ?? [];
     cipherView.revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     cipherView.creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
@@ -328,7 +325,7 @@ export class CipherView implements View, InitializerMetadata {
       attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
       fields: this.fields?.map((f) => f.toSdkFieldView()),
       passwordHistory: this.passwordHistory?.map((ph) => ph.toSdkPasswordHistoryView()),
-      collectionIds: this.collectionIds?.map((i) => asUuid<SdkCollectionId>(i)) ?? [],
+      collectionIds: this.collectionIds?.map((i) => asUuid(i)) ?? [],
       // Revision and creation dates are non-nullable in SDKCipherView
       revisionDate: (this.revisionDate ?? new Date()).toISOString(),
       creationDate: (this.creationDate ?? new Date()).toISOString(),

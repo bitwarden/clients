@@ -7,6 +7,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import {
@@ -144,9 +145,9 @@ export class CopyCipherFieldService {
     if (action.event !== undefined) {
       await this.eventCollectionService.collect(
         action.event,
-        cipher.id as string,
+        uuidAsString(cipher.id),
         false,
-        cipher.organizationId as string,
+        uuidAsString(cipher.organizationId),
       );
     }
 

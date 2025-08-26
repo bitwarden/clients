@@ -23,8 +23,6 @@ import {
   DeviceType as SdkDeviceType,
   TokenProvider,
   UnsignedSharedKey,
-  UserId as SdkUserId,
-  OrganizationId as SdkOrganizationId,
 } from "@bitwarden/sdk-internal";
 
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
@@ -220,7 +218,7 @@ export class DefaultSdkService implements SdkService {
     orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
   ) {
     await client.crypto().initialize_user_crypto({
-      userId: asUuid<SdkUserId>(userId as string),
+      userId: asUuid(userId),
       email: account.email,
       method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
       kdfParams:
@@ -244,7 +242,7 @@ export class DefaultSdkService implements SdkService {
       organizationKeys: new Map(
         Object.entries(orgKeys ?? {})
           .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [asUuid<SdkOrganizationId>(k as string), v.key as UnsignedSharedKey]),
+          .map(([k, v]) => [asUuid(k), v.key as UnsignedSharedKey]),
       ),
     });
 

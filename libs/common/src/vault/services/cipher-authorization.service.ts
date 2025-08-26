@@ -8,6 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getByIds } from "@bitwarden/common/platform/misc";
 
 import { getUserId } from "../../auth/services/account.service";
+import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { CipherLike } from "../types/cipher-like";
 
 /**
@@ -140,7 +141,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
         }
 
         return this.collectionService.decryptedCollections$(userId).pipe(
-          getByIds(cipher.collectionIds as string),
+          getByIds(cipher.collectionIds.map(uuidAsString)),
           map((allCollections) => allCollections.some((collection) => collection.manage)),
         );
       }),

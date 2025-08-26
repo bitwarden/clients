@@ -9,7 +9,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
-import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
+import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, OrganizationId } from "../../types/guid";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherType } from "../enums";
@@ -39,7 +39,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor as string),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
@@ -74,7 +74,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
@@ -107,7 +107,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
