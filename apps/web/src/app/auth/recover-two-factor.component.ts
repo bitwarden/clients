@@ -12,6 +12,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 
 @Component({
@@ -38,6 +39,7 @@ export class RecoverTwoFactorComponent implements OnInit {
     private toastService: ToastService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private logService: LogService,
+    private validationService: ValidationService,
   ) {}
 
   async ngOnInit() {
@@ -108,9 +110,12 @@ export class RecoverTwoFactorComponent implements OnInit {
           this.formGroup.get("recoveryCode")?.setErrors({
             invalidRecoveryCode: { message: this.i18nService.t("invalidRecoveryCode") },
           });
+        } else {
+          this.validationService.showError(error.message);
         }
       } else {
         this.logService.error("Error logging in automatically: ", error);
+        this.validationService.showError(error);
       }
     }
   }

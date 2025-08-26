@@ -14,6 +14,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -35,6 +36,7 @@ describe("RecoverTwoFactorComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
   let mockLogService: MockProxy<LogService>;
+  let mockValidationService: MockProxy<ValidationService>;
 
   beforeEach(() => {
     mockRouter = mock<Router>();
@@ -47,6 +49,7 @@ describe("RecoverTwoFactorComponent", () => {
     mockConfigService = mock<ConfigService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
     mockLogService = mock<LogService>();
+    mockValidationService = mock<ValidationService>();
 
     TestBed.configureTestingModule({
       declarations: [RecoverTwoFactorComponent],
@@ -61,6 +64,7 @@ describe("RecoverTwoFactorComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: LoginSuccessHandlerService, useValue: mockLoginSuccessHandlerService },
         { provide: LogService, useValue: mockLogService },
+        { provide: ValidationService, useValue: mockValidationService },
       ],
       imports: [I18nPipe],
       // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
