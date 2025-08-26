@@ -11,6 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
@@ -70,6 +71,7 @@ describe("SettingsComponent", () => {
   const keyService = mock<KeyService>();
   const dialogService = mock<DialogService>();
   const desktopAutotypeService = mock<DesktopAutotypeService>();
+  const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -127,6 +129,7 @@ describe("SettingsComponent", () => {
         { provide: MessagingService, useValue: messagingService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
+        { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
