@@ -45,6 +45,7 @@ import {
 import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -317,7 +318,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CollectionAdminService,
     useClass: DefaultCollectionAdminService,
-    deps: [ApiService, KeyServiceAbstraction, EncryptService, CollectionService],
+    deps: [
+      ApiService,
+      KeyServiceAbstraction,
+      EncryptService,
+      CollectionService,
+      OrganizationService,
+    ],
   }),
   safeProvider({
     provide: SdkLoadService,

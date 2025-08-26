@@ -53,6 +53,7 @@ export enum FeatureFlag {
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
+  PushNotificationsWhenLocked = "pm-19388-push-notifications-when-locked",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -112,6 +113,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
+  [FeatureFlag.PushNotificationsWhenLocked]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
