@@ -52,7 +52,7 @@ pub fn get_crypto_service(
     Ok(Box::new(WindowsCryptoService::new(local_state)))
 }
 
-pub fn configure_windows_crypto_service(admin_exe_path: &String, service_exe_path: &String) {
+pub fn configure_windows_crypto_service(admin_exe_path: &str, service_exe_path: &str) {
     *ADMIN_EXE_PATH.lock().unwrap() = Some(admin_exe_path.clone());
     *SERVICE_EXE_PATH.lock().unwrap() = Some(service_exe_path.clone());
 }
