@@ -24,6 +24,7 @@ import {
   UserLockIcon,
   VaultIcon,
   LockIcon,
+  PhishingLandingIcon,
 } from "@bitwarden/assets/svg";
 import {
   LoginComponent,
@@ -55,7 +56,6 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
-import { PhishingLandingIcon } from "../phishing-detection/images/phishing-landing-icon";
 import { LearnMoreComponent } from "../phishing-detection/pages/learn-more-component";
 import { PhishingWarning } from "../phishing-detection/pages/phishing-warning.component";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
