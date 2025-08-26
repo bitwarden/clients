@@ -54,8 +54,9 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     const sendAccessTokenFromStorage = await this.getSendAccessTokenFromStorage(sendId);
 
     if (sendAccessTokenFromStorage != null) {
-      // If it is expired, we return expired token error.
+      // If it is expired, we clear the token from storage and return the expired error
       if (sendAccessTokenFromStorage.isExpired()) {
+        await this.clearSendAccessTokenFromStorage(sendId);
         return { kind: "expired" };
       } else {
         // If it is not expired, we return it
@@ -179,6 +180,18 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
         sendAccessTokenDict ??= {}; // Initialize if undefined
 
         sendAccessTokenDict[sendId] = sendAccessToken;
+        return sendAccessTokenDict;
+      });
+    }
+  }
+
+  private async clearSendAccessTokenFromStorage(sendId: string): Promise<void> {
+    if (this.sendAccessTokenDictGlobalState != null) {
+      await this.sendAccessTokenDictGlobalState.update((sendAccessTokenDict) => {
+        if (sendAccessTokenDict) {
+          // only delete if dict exists
+          delete sendAccessTokenDict[sendId];
+        }
         return sendAccessTokenDict;
       });
     }
