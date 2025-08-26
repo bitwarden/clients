@@ -299,7 +299,6 @@ import { OffscreenStorageService } from "../platform/storage/offscreen-storage.s
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { BrowserSystemNotificationService } from "../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
-import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
@@ -364,7 +363,6 @@ export default class MainBackground {
   providerService: ProviderServiceAbstraction;
   keyConnectorService: KeyConnectorServiceAbstraction;
   userVerificationService: UserVerificationServiceAbstraction;
-  vaultFilterService: VaultFilterService;
   usernameGenerationService: UsernameGenerationServiceAbstraction;
   encryptService: EncryptService;
   folderApiService: FolderApiServiceAbstraction;
@@ -919,18 +917,6 @@ export default class MainBackground {
       this.biometricsService,
     );
 
-    this.vaultFilterService = new VaultFilterService(
-      this.organizationService,
-      this.folderService,
-      this.cipherService,
-      this.collectionService,
-      this.policyService,
-      this.stateProvider,
-      this.accountService,
-      this.configService,
-      this.i18nService,
-    );
-
     this.vaultSettingsService = new VaultSettingsService(
       this.stateProvider,
       this.restrictedItemTypesService,
@@ -1139,6 +1125,7 @@ export default class MainBackground {
       new SignalRConnectionService(this.apiService, this.logService),
       this.authService,
       this.webPushConnectionService,
+      this.configService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -1384,12 +1371,14 @@ export default class MainBackground {
       this.accountService,
       this.authService,
     );
-  }
 
-  async bootstrap() {
+    // Synchronous startup
     if (this.webPushConnectionService instanceof WorkerWebPushConnectionService) {
       this.webPushConnectionService.start();
     }
+  }
+
+  async bootstrap() {
     this.containerService.attachToGlobal(self);
 
     await this.sdkLoadService.loadAndInit();
@@ -1600,7 +1589,6 @@ export default class MainBackground {
       this.cipherService.clear(userBeingLoggedOut),
       this.folderService.clear(userBeingLoggedOut),
       this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
-      this.vaultFilterService.clear(),
       this.biometricStateService.logout(userBeingLoggedOut),
       this.popupViewCacheBackgroundService.clearState(),
       /* We intentionally do not clear:
