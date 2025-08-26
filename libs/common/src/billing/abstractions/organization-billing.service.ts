@@ -1,7 +1,3 @@
-import { Observable } from "rxjs";
-
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { InitiationPath } from "../../models/request/reference-event.request";
 import { PaymentMethodType, PlanType } from "../enums";
@@ -63,10 +59,4 @@ export abstract class OrganizationBillingServiceAbstraction {
     organizationId: string,
     subscription: SubscriptionInformation,
   ): Promise<void>;
-
-  /**
-   * Determines if breadcrumbing policies is enabled for the organizations meeting certain criteria.
-   * @param organization
-   */
-  abstract isBreadcrumbingPoliciesEnabled$(organization: Organization): Observable<boolean>;
 }
