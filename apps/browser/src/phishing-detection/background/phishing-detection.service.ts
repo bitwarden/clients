@@ -6,7 +6,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { devFlagEnabled, devFlagValue } from "@bitwarden/common/platform/misc/flags";
 import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling/task-scheduler.service";
 
@@ -50,10 +50,6 @@ export class PhishingDetectionService {
 
     logService.info("[PhishingDetectionService] Initialize called");
 
-    // configService.serverConfig$
-    //   .pipe(tap((config) => console.log("[PhishingDetectionService] config", config)))
-    //   .subscribe();
-
     configService
       .getFeatureFlag$(FeatureFlag.PhishingDetection)
       .pipe(
@@ -82,7 +78,7 @@ export class PhishingDetectionService {
   static isPhishingDomain(url: URL): boolean {
     const result = this._knownPhishingDomains.has(url.hostname);
     if (result) {
-      this._logService.debug("[PhishingDetectionService] Caught phishing domain", url);
+      this._logService.debug("[PhishingDetectionService] Caught phishing domain:", url.hostname);
       return true;
     }
     return false;
@@ -165,11 +161,9 @@ export class PhishingDetectionService {
       const isValidSender = sender && sender.tab && sender.tab.id;
       const senderTabId = isValidSender ? sender.tab.id : null;
 
+      // Only process messages from tab navigation
       if (senderTabId == null) {
-        this._logService.error(
-          "[PhishingDetectionService] Invalid sender for phishing detection message",
-          sender,
-        );
+        return;
       }
 
       // Handle Dangerous Continue to Phishing Domain
@@ -262,37 +256,28 @@ export class PhishingDetectionService {
    * @param url URL of the tab to check
    */
   private static _checkTabForPhishing(tabId: PhishingDetectionTabId, url: URL) {
-    this._logService.debug(
-      "[PhishingDetectionService] Checking for phishing url for tab and url:",
-      tabId,
-      url,
-    );
-
-    const isPhishing = this.isPhishingDomain(url);
     // Check if the tab already being tracked
     const caughtTab = this._caughtTabs.get(tabId);
-
-    // Add a new caught tab
-    if (!caughtTab && isPhishing) {
-      this._logService.debug(
-        "[PhishingDetectionService] Caught new tab going to phishing domain:",
-        tabId,
-        url,
-      );
-
-      this._addCaughtTab(tabId, url);
-    }
 
     // Do nothing if the tab is going to the phishing warning page
     if (caughtTab && caughtTab.warningPageUrl.href === url.href) {
       return;
     }
 
+    this._logService.debug("[PhishingDetectionService] Checking for phishing url on tab:", tabId);
+    const isPhishing = this.isPhishingDomain(url);
+
+    // Add a new caught tab
+    if (!caughtTab && isPhishing) {
+      this._addCaughtTab(tabId, url);
+    }
+
     // The tab was caught before but has an updated url
     if (caughtTab && caughtTab.url.href !== url.href) {
-      if (this.isPhishingDomain(caughtTab.url)) {
+      if (isPhishing) {
         this._logService.debug(
-          "[PhishingDetectionService] Caught tab going to a new phishing domain",
+          "[PhishingDetectionService] Caught tab going to a new phishing domain:",
+          caughtTab.url,
         );
         // The tab can be treated as a new tab, clear the old one and reset
         this._removeCaughtTab(tabId);
@@ -345,11 +330,10 @@ export class PhishingDetectionService {
    * @param tabId The ID of the tab to redirect
    */
   private static _redirectToWarningPage(tabId: number) {
-    this._logService.info("[PhishingDetectionService] Redirecting to warning page");
-
     const tabToRedirect = this._caughtTabs.get(tabId);
 
     if (tabToRedirect) {
+      this._logService.info("[PhishingDetectionService] Redirecting to warning page");
       void BrowserApi.navigateTabToUrl(tabId, tabToRedirect.warningPageUrl);
     } else {
       this._logService.warning("[PhishingDetectionService] No caught tab found for redirection");
@@ -411,6 +395,26 @@ export class PhishingDetectionService {
   }
 
   /**
+   * Handles adding test phishing URLs from dev flags for testing purposes
+   */
+  private static _handleTestUrls() {
+    if (devFlagEnabled("testPhishingUrls")) {
+      const testPhishingUrls = devFlagValue("testPhishingUrls");
+      this._logService.debug(
+        "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing domains:",
+        testPhishingUrls,
+      );
+      if (testPhishingUrls && testPhishingUrls instanceof Array) {
+        testPhishingUrls.forEach((domain) => {
+          if (domain && typeof domain === "string") {
+            this._knownPhishingDomains.add(domain);
+          }
+        });
+      }
+    }
+  }
+
+  /**
    * Loads cached phishing domains from storage
    * If no cache exists or it is expired, fetches the latest domains
    */
@@ -422,13 +426,9 @@ export class PhishingDetectionService {
       if (cachedData) {
         this._logService.info("[PhishingDetectionService] Phishing cachedData exists");
         const phishingDomains = cachedData.domains || [];
-        if (devFlagEnabled("testPhishingDetection")) {
-          this._logService.debug(
-            "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing domains",
-          );
-          phishingDomains.push("www.test.com", "www.example.com");
-        }
+
         this._setKnownPhishingDomains(phishingDomains);
+        this._handleTestUrls();
       }
 
       // If cache is empty or expired, trigger an immediate update
@@ -439,16 +439,11 @@ export class PhishingDetectionService {
         await this._fetchKnownPhishingDomains();
       }
     } catch (error) {
-      if (devFlagEnabled("testPhishingDetection")) {
-        this._logService.debug(
-          "[PhishingDetectionService] Dev flag enabled for testing phishing detection. Adding test phishing domains",
-        );
-        this._setKnownPhishingDomains(["www.test.com", "www.example.com"]);
-      }
       this._logService.error(
         "[PhishingDetectionService] Failed to load cached phishing domains:",
         error,
       );
+      this._handleTestUrls();
     }
   }
 
@@ -539,8 +534,7 @@ export class PhishingDetectionService {
    */
   private static _setKnownPhishingDomains(domains: string[]): void {
     this._logService.debug(
-      "[PhishingDetectionService] Adding phishing domains",
-      domains.join(", "),
+      `[PhishingDetectionService] Tracking ${domains.length} phishing domains`,
     );
 
     // Clear old domains to prevent memory leaks

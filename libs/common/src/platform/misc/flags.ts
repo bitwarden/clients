@@ -12,7 +12,7 @@ export type SharedDevFlags = {
   skipWelcomeOnInstall: boolean;
   configRetrievalIntervalMs: number;
   showRiskInsightsDebug: boolean;
-  testPhishingDetection: boolean;
+  testPhishingUrls: string[];
 };
 
 function getFlags<T>(envFlags: string | T): T {
