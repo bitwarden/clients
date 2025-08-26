@@ -181,6 +181,7 @@ describe("SettingsComponent", () => {
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     policyService.policiesByType$.mockReturnValue(of([null]));
     desktopAutotypeService.autotypeEnabled$ = of(false);
+    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
   });
 
   afterEach(() => {
@@ -639,6 +640,29 @@ describe("SettingsComponent", () => {
         null,
         "Number too large test error",
       );
+    });
+  });
+
+  describe("desktop autotype", () => {
+    it("autotype should be hidden on mac os", async () => {
+      // Set OS
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.MacOsDesktop);
+
+      // Recreate component to apply the correct device
+      fixture = TestBed.createComponent(SettingsComponent);
+      component = fixture.componentInstance;
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      // `enableAutotype` label shouldn't be found
+      const showEnableAutotypeLabelElement = fixture.debugElement.query(
+        By.css("label[for='enableAutotype']"),
+      );
+      expect(showEnableAutotypeLabelElement).toBeNull();
+
+      // `showEnableAutotype` should be false
+      expect(component.showEnableAutotype).toBe(false);
     });
   });
 });
