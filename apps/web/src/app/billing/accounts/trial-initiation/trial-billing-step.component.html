@@ -51,6 +51,7 @@
       <h2 class="tw-mb-3 tw-text-base tw-font-semibold">{{ "paymentType" | i18n }}</h2>
       <app-payment [showAccountCredit]="false"></app-payment>
       <app-manage-tax-information
+        [showTaxIdField]="showTaxIdField"
         (taxInformationChanged)="onTaxInformationChanged()"
       ></app-manage-tax-information>
 

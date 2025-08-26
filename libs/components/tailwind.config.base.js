@@ -10,6 +10,7 @@ module.exports = {
   prefix: "tw-",
   content: [
     "./src/**/*.{html,ts}",
+    "../../libs/assets/src/**/*.{html,ts}",
     "../../libs/components/src/**/*.{html,ts}",
     "../../libs/key-management-ui/src/**/*.{html,ts}",
     "../../libs/auth/src/**/*.{html,ts}",

@@ -35,10 +35,11 @@ describe("AutofillOptionsComponent", () => {
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   const getInitialCipherView = jest.fn(() => null);
+  const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
   beforeEach(async () => {
     getInitialCipherView.mockClear();
-    cipherFormContainer = mock<CipherFormContainer>({ getInitialCipherView });
+    cipherFormContainer = mock<CipherFormContainer>({ getInitialCipherView, formStatusChange$ });
     liveAnnouncer = mock<LiveAnnouncer>();
     platformUtilsService = mock<PlatformUtilsService>();
     domainSettingsService = mock<DomainSettingsService>();
