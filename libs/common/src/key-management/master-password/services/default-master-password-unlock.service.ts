@@ -7,7 +7,7 @@ import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig, KeyService } from "@bitwarden/key-management";
 
-import { MasterPasswordUnlockService } from "../abstractions/master-password-unlock.service.abstraction";
+import { MasterPasswordUnlockService } from "../abstractions/master-password-unlock.service";
 
 export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockService {
   constructor(
