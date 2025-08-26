@@ -2050,15 +2050,11 @@
   "selectImportCollection": {
     "message": "Seleziona una raccolta"
   },
-  "importTargetHint": {
-    "message": "Seleziona questa opzione se vuoi che i contenuti del file di importazione siano spostati in una $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una raccolta"
+  },
+  "importTargetHintFolder": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una cartella"
   },
   "importUnassignedItemsError": {
     "message": "Il file contiene elementi non assegnati."
@@ -2451,9 +2447,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Si è verificato un problema durante la lettura della chiave di sicurezza. Riprova."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "A causa delle limitazioni della piattaforma, WebAuthn non può essere usato in tutte le applicazioni Bitwarden. È necessario impostare un altro fornitore d'accesso in due passaggi in modo da poter accedere al tuo account quando WebAuthn non può essere usato."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Il tuo codice di recupero Bitwarden per la verifica in due passaggi"
   },
@@ -2823,6 +2816,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Mostra riepilogo prezzi"
+  },
+  "hidePricingSummary": {
+    "message": "Nascondi riepilogo prezzi"
   },
   "summary": {
     "message": "Riepilogo"
@@ -7029,6 +7028,12 @@
   "unknownCipher": {
     "message": "Elemento sconosciuto, potrebbe essere necessario richiedere autorizzazione per accedere a questo elemento."
   },
+  "unknownSecret": {
+    "message": "Segreto sconosciuto, potrebbe essere necessario richiedere l'autorizzazione per l'accesso."
+  },
+  "unknownProject": {
+    "message": "Progetto sconosciuto, potrebbe essere necessario richiedere l'autorizzazione per l'accesso."
+  },
   "cannotSponsorSelf": {
     "message": "Non puoi riscattare per l'account attivo. Inserisci un'email diversa."
   },
@@ -8352,10 +8357,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Segreto con identificatore $SECRET_ID$ eliminato in modo permanente",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Segreto con identificatore $SECRET_ID$ ripristinato",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Creato un segreto con identificatore $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accesso al progetto con identificatore $PROJECT_ID$ riuscito.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Progetto con identificatore $PROJECT_ID$ eliminato in modo permanente",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "ID segreto $SECRET_ID$ eliminato",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Progetto con identificatore $PROJECT_ID$ modificato",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Progetto con identificatore $PROJECT_ID$ eliminato",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Creato nuovo progetto con identificatore $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -10745,6 +10822,9 @@
   "upgradeEventLogMessage": {
     "message": "Questi eventi sono solo esempi e non riflettono eventi reali all'interno della tua organizzazione Bitwarden."
   },
+  "viewEvents": {
+    "message": "Visualizza eventi"
+  },
   "cannotCreateCollection": {
     "message": "Le organizzazioni gratuite possono avere fino a 2 raccolte. Aggiorna ad un piano a pagamento per crearne di più."
   },
@@ -11012,5 +11092,56 @@
   },
   "showLess": {
     "message": "Mostra di meno"
+  },
+  "missingTaxId": {
+    "message": "Identificatore fiscale mancante"
+  },
+  "missingTaxIdWarning": {
+    "message": "Azione richiesta: i dettagli del pagamento non includono un identificatore fiscale. Se non lo aggiungi, le tue fatture potrebbero includere imposte aggiuntive."
+  },
+  "moreBreadcrumbs": {
+    "message": "Ulteriori segmenti",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Aggiungi identificatore fiscale"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Azione richiesta: identificatore fiscale mancante"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Se non aggiungi un identificatore fiscale, le tue fatture potrebbero includere imposte aggiuntive."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Azione richiesta: il tuo identificatore fiscale non è verificato. Se non lo verifichi, le tue fatture potrebbero includere imposte aggiuntive."
+  },
+  "editTaxId": {
+    "message": "Modifica il tuo identificatore fiscale"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Identificatore fiscale non verificato"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Verifica che il formato del tuo identificatore fiscale sia corretto e che non ci siano errori di battitura."
+  },
+  "pendingVerification": {
+    "message": "In attesa di verifica"
+  },
+  "checkInputFormat": {
+    "message": "Controlla che non ci siano errori di battitura."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Esempio formato $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

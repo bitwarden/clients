@@ -185,7 +185,7 @@ describe("VaultTimeoutService", () => {
       ),
     );
 
-    platformUtilsService.isViewOpen.mockResolvedValue(globalSetups?.isViewOpen ?? false);
+    platformUtilsService.isPopupOpen.mockResolvedValue(globalSetups?.isViewOpen ?? false);
 
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockImplementation((userId) => {
       return new BehaviorSubject<VaultTimeoutAction>(accounts[userId]?.timeoutAction);
@@ -225,7 +225,7 @@ describe("VaultTimeoutService", () => {
     it.each([AuthenticationStatus.Locked, AuthenticationStatus.LoggedOut])(
       "should not try to log out or lock any user that has authStatus === %s.",
       async (authStatus) => {
-        platformUtilsService.isViewOpen.mockResolvedValue(false);
+        platformUtilsService.isPopupOpen.mockResolvedValue(false);
         setupAccounts({
           1: {
             authStatus: authStatus,
