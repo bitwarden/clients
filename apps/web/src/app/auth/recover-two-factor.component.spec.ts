@@ -131,7 +131,7 @@ describe("RecoverTwoFactorComponent", () => {
       });
     });
 
-    it("should log an error but not set an inline error on the recoveryCode form control upon receiving some other ErrorResponse", async () => {
+    it("should log an error and show validation but not set an inline error on the recoveryCode form control upon receiving some other ErrorResponse", async () => {
       // Arrange
       const error = new ErrorResponse("mockError", 400);
       error.message = "Some other error";
@@ -148,10 +148,11 @@ describe("RecoverTwoFactorComponent", () => {
         "Error logging in automatically: ",
         error.message,
       );
+      expect(mockValidationService.showError).toHaveBeenCalledWith(error.message);
       expect(recoveryCodeControl.setErrors).not.toHaveBeenCalled();
     });
 
-    it("should log an error upon receiving a non-ErrorResponse error", async () => {
+    it("should log an error and show validation upon receiving a non-ErrorResponse error", async () => {
       // Arrange
       const error = new Error("Generic error");
       mockLoginStrategyService.logIn.mockRejectedValue(error);
@@ -161,6 +162,7 @@ describe("RecoverTwoFactorComponent", () => {
 
       // Assert
       expect(mockLogService.error).toHaveBeenCalledWith("Error logging in automatically: ", error);
+      expect(mockValidationService.showError).toHaveBeenCalledWith(error);
     });
   });
 });
