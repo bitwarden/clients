@@ -10588,15 +10588,6 @@
   "itemRemovedFromFavorites": {
     "message": "Item removed from favorites"
   },
-  "copyEmail": {
-    "message": "Copy email"
-  },
-  "copyPhone": {
-    "message": "Copy phone"
-  },
-  "copyAddress": {
-    "message": "Copy address"
-  },
   "copyNote": {
     "message": "Copy note"
   },
