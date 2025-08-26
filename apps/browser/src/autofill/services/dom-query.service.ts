@@ -55,7 +55,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   ): T[] {
     const ignoredTreeWalkerNodes = ignoredTreeWalkerNodesOverride || this.ignoredTreeWalkerNodes;
 
-    if (!forceDeepQueryAttempt && this.pageContainsShadowDomElements()) {
+    if (!forceDeepQueryAttempt && this.pageContainsShadowDom) {
       return this.queryAllTreeWalkerNodes<T>(
         root,
         treeWalkerFilter,
@@ -82,13 +82,6 @@ export class DomQueryService implements DomQueryServiceInterface {
   checkPageContainsShadowDom = (): void => {
     this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
   };
-
-  /**
-   * Determines whether to use the treeWalker strategy for querying the DOM.
-   */
-  pageContainsShadowDomElements(): boolean {
-    return this.pageContainsShadowDom;
-  }
 
   /**
    * Initializes the DomQueryService, checking for the presence of shadow DOM elements on the page.

@@ -982,10 +982,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private processMutations = () => {
     const queueLength = this.mutationsQueue.length;
 
-    if (!this.domQueryService.pageContainsShadowDomElements()) {
-      this.checkPageContainsShadowDom();
-    }
-
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
       const mutations = this.mutationsQueue[queueIndex];
       const processMutationRecords = () => {
@@ -1001,17 +997,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     this.mutationsQueue = [];
   };
-
-  /**
-   * Handles checking if the current page contains a ShadowDOM element and
-   * flags that a re-collection of page details is required if it does.
-   */
-  private checkPageContainsShadowDom() {
-    this.domQueryService.checkPageContainsShadowDom();
-    if (this.domQueryService.pageContainsShadowDomElements()) {
-      this.flagPageDetailsUpdateIsRequired();
-    }
-  }
 
   /**
    * Triggers several flags that indicate that a collection of page details should
