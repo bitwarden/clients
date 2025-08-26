@@ -7,7 +7,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -65,9 +64,6 @@ describe("BillingAccountProfileStateService", () => {
 
       const actual = await firstValueFrom(sut.isBreadcrumbingPoliciesEnabled$(org));
       expect(actual).toBe(false);
-      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
-        FeatureFlag.PM12276_BreadcrumbEventLogs,
-      );
     });
 
     it("returns false when organization belongs to a provider", async () => {
@@ -107,9 +103,6 @@ describe("BillingAccountProfileStateService", () => {
 
       const actual = await firstValueFrom(sut.isBreadcrumbingPoliciesEnabled$(org));
       expect(actual).toBe(true);
-      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
-        FeatureFlag.PM12276_BreadcrumbEventLogs,
-      );
     });
 
     it("returns false when product tier is not supported", async () => {
