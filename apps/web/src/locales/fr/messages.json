@@ -2050,15 +2050,11 @@
   "selectImportCollection": {
     "message": "Sélectionnez une collection"
   },
-  "importTargetHint": {
-    "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un(e) $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers une collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Sélectionnez cette option si vous voulez que le contenu du fichier importé soit déplacé vers un dossier"
   },
   "importUnassignedItemsError": {
     "message": "Le fichier contient des éléments non assignés."
@@ -2820,6 +2816,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Afficher le résumé des prix"
+  },
+  "hidePricingSummary": {
+    "message": "Cacher le résumé des prix"
   },
   "summary": {
     "message": "Récapitulatif"
@@ -7026,6 +7028,12 @@
   "unknownCipher": {
     "message": "Élément inconnu, vous devrez peut-être demander l'autorisation d'accéder à cet élément."
   },
+  "unknownSecret": {
+    "message": "Secret inconnu, vous devrez peut-être demander l'autorisation d'accéder à ce secret."
+  },
+  "unknownProject": {
+    "message": "Projet inconnu, vous devrez peut-être demander l'autorisation d'accéder à ce projet."
+  },
   "cannotSponsorSelf": {
     "message": "Vous ne pouvez pas réclamer pour le compte actif. Saisissez un courriel différent."
   },
@@ -8349,10 +8357,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "A supprimé définitivement un secret avec l'identifiant : $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "A récupéré un secret avec l'identifiant : $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "A créé un secret avec identifiant : $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "A accédé à un projet avec l'identifiant : $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Identifiant du projet supprimé : $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Identifiant secret supprimé : $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "A modifié un projet avec l'identifiant : $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "A supprimé un projet avec l'identifiant : $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "A créé un projet avec l'identifiant : $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -10742,6 +10822,9 @@
   "upgradeEventLogMessage": {
     "message": "Ces événements sont des exemples et ne reflètent pas les événements réels au sein de votre organisation Bitwarden."
   },
+  "viewEvents": {
+    "message": "Afficher les événements"
+  },
   "cannotCreateCollection": {
     "message": "Les organisations gratuites peuvent avoir jusqu'à 2 collections. Passez à une offre payante pour ajouter plus de collections."
   },
@@ -11009,5 +11092,56 @@
   },
   "showLess": {
     "message": "Afficher moins"
+  },
+  "missingTaxId": {
+    "message": "ID de Taxes manquant"
+  },
+  "missingTaxIdWarning": {
+    "message": "Action requise : Il vous manque un ID de Taxes dans les détails du paiement. Si un ID de Taxes n'est pas ajouté, vos factures peuvent inclure des taxes supplémentaires."
+  },
+  "moreBreadcrumbs": {
+    "message": "Plus de fil d'Ariane",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Ajouter un ID de Taxes"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Action requise : ID de Taxes manquant"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Si un ID de Taxes n'est pas ajouté, vos factures peuvent inclure des taxes supplémentaires."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Action requise : Votre ID de Taxes n'est pas vérifié. Si votre ID de Taxes n'est pas vérifié, vos factures peuvent inclure des taxes supplémentaires."
+  },
+  "editTaxId": {
+    "message": "Modifier votre ID de Taxes"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "ID de Taxes non vérifié"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Vérifiez votre ID de Taxes pour vérifier que le format est correct et qu'il n'y a pas de fautes de frappe."
+  },
+  "pendingVerification": {
+    "message": "Vérification en attente"
+  },
+  "checkInputFormat": {
+    "message": "Vérifier le format d'entrée pour les fautes de frappe."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Exemple de format $CODE$ : $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

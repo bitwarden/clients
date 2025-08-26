@@ -4,6 +4,7 @@ import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -16,7 +17,12 @@ import {
 } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
-import { DialogRef, BitPasswordInputToggleDirective, DialogService } from "@bitwarden/components";
+import {
+  DialogRef,
+  BitPasswordInputToggleDirective,
+  DialogService,
+  BitIconButtonComponent,
+} from "@bitwarden/components";
 
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -39,6 +45,7 @@ describe("CustomFieldsComponent", () => {
   let announce: jest.Mock;
   let patchCipher: jest.Mock;
   let config: CipherFormConfig;
+  const formStatusChange$ = new BehaviorSubject<"disabled" | "enabled">("enabled");
 
   beforeEach(async () => {
     open = jest.fn();
@@ -65,6 +72,7 @@ describe("CustomFieldsComponent", () => {
             registerChildForm: jest.fn(),
             config,
             getInitialCipherView: jest.fn(() => originalCipherView),
+            formStatusChange$,
           },
         },
         {
@@ -550,6 +558,56 @@ describe("CustomFieldsComponent", () => {
         By.css('button[data-testid="edit-custom-field-button"]'),
       );
       expect(editButtons).toHaveLength(3);
+    });
+  });
+
+  describe("parent form disabled", () => {
+    beforeEach(() => {
+      originalCipherView!.fields = mockFieldViews;
+      formStatusChange$.next("disabled");
+      component.ngOnInit();
+
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      formStatusChange$.next("enabled");
+      fixture.detectChanges();
+    });
+
+    it("disables edit and reorder buttons", () => {
+      const reorderButtonQuery = By.directive(BitIconButtonComponent);
+      const editButtonQuery = By.directive(BitIconButtonComponent);
+
+      let reorderButton = fixture.debugElement.query(reorderButtonQuery);
+      let editButton = fixture.debugElement.query(editButtonQuery);
+
+      expect(reorderButton.componentInstance.disabled()).toBe(true);
+      expect(editButton.componentInstance.disabled()).toBe(true);
+
+      formStatusChange$.next("enabled");
+      fixture.detectChanges();
+
+      reorderButton = fixture.debugElement.query(reorderButtonQuery);
+      editButton = fixture.debugElement.query(editButtonQuery);
+
+      expect(reorderButton.componentInstance.disabled()).toBe(false);
+      expect(editButton.componentInstance.disabled()).toBe(false);
+    });
+
+    it("hides add field button", () => {
+      const query = By.css('button[data-testid="add-field-button"]');
+
+      let addFieldButton = fixture.debugElement.query(query);
+
+      expect(addFieldButton).toBeNull();
+
+      formStatusChange$.next("enabled");
+      fixture.detectChanges();
+
+      addFieldButton = fixture.debugElement.query(query);
+
+      expect(addFieldButton).not.toBeNull();
     });
   });
 });
