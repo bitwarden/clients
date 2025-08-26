@@ -1,13 +1,5 @@
 {
-  "cSpell.words": [
-    "bitwarden",
-    "Csprng",
-    "Decapsulation",
-    "decryptable",
-    "Popout",
-    "Reprompt",
-    "takeuntil"
-  ],
+  "cSpell.words": ["Csprng", "Decapsulation", "decryptable", "Popout", "Reprompt", "takeuntil"],
   "search.exclude": {
     "**/locales/[^e]*/messages.json": true,
     "**/locales/*[^n]/messages.json": true,
