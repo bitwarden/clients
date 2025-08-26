@@ -5,7 +5,7 @@ import * as path from "path";
 
 import { firstValueFrom, map } from "rxjs";
 
-import { CollectionRequest } from "@bitwarden/admin-console/common";
+import { CreateCollectionRequest } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
@@ -29,6 +29,7 @@ import { CliUtils } from "../utils";
 
 import { CipherResponse } from "./models/cipher.response";
 import { FolderResponse } from "./models/folder.response";
+import { CliRestrictedItemTypesService } from "./services/cli-restricted-item-types.service";
 
 export class CreateCommand {
   constructor(
@@ -41,6 +42,7 @@ export class CreateCommand {
     private accountProfileService: BillingAccountProfileStateService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {}
 
   async run(
@@ -90,6 +92,15 @@ export class CreateCommand {
 
   private async createCipher(req: CipherExport) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const cipherView = CipherExport.toView(req);
+    const isCipherTypeRestricted =
+      await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
+
+    if (isCipherTypeRestricted) {
+      return Response.error("Creating this item type is restricted by organizational policy.");
+    }
+
     const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
     try {
       const newCipher = await this.cipherService.createWithServer(cipher);
@@ -169,7 +180,7 @@ export class CreateCommand {
 
   private async createFolder(req: FolderExport) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
+    const userKey = await this.keyService.getUserKey(activeUserId);
     const folder = await this.folderService.encrypt(FolderExport.toView(req), userKey);
     try {
       await this.folderApiService.save(folder, activeUserId);
@@ -222,14 +233,14 @@ export class CreateCommand {
           : req.users.map(
               (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
             );
-      const request = new CollectionRequest();
-      request.name = (await this.encryptService.encryptString(req.name, orgKey)).encryptedString;
-      request.externalId = req.externalId;
-      request.groups = groups;
-      request.users = users;
+      const request = new CreateCollectionRequest({
+        name: await this.encryptService.encryptString(req.name, orgKey),
+        externalId: req.externalId,
+        groups,
+        users,
+      });
       const response = await this.apiService.postCollection(req.organizationId, request);
-      const view = CollectionExport.toView(req);
-      view.id = response.id;
+      const view = CollectionExport.toView(req, response.id);
       const res = new OrganizationCollectionResponse(view, groups, users);
       return Response.success(res);
     } catch (e) {

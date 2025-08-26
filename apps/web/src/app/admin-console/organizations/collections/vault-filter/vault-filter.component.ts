@@ -10,9 +10,10 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
@@ -53,6 +54,7 @@ export class VaultFilterComponent
     protected configService: ConfigService,
     protected accountService: AccountService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
+    protected cipherService: CipherService,
   ) {
     super(
       vaultFilterService,
@@ -65,6 +67,7 @@ export class VaultFilterComponent
       configService,
       accountService,
       restrictedItemTypesService,
+      cipherService,
     );
   }
 
@@ -131,7 +134,7 @@ export class VaultFilterComponent
 
   async buildAllFilters(): Promise<VaultFilterList> {
     const builderFilter = {} as VaultFilterList;
-    builderFilter.typeFilter = await this.addTypeFilter(["favorites"]);
+    builderFilter.typeFilter = await this.addTypeFilter(["favorites"], this._organization?.id);
     builderFilter.collectionFilter = await this.addCollectionFilter();
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;

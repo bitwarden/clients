@@ -2,56 +2,52 @@ import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
-import {
-  EnvironmentSelectorComponent,
-  EnvironmentSelectorRouteData,
-  ExtensionDefaultOverlayPosition,
-} from "@bitwarden/angular/auth/components/environment-selector.component";
+import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/environment-selector/environment-selector.component";
 import {
   activeAuthGuard,
   authGuard,
   lockGuard,
   redirectGuard,
+  redirectToVaultIfUnlockedGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
+import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
-  AnonLayoutWrapperComponent,
-  AnonLayoutWrapperData,
   DevicesIcon,
+  RegistrationLockAltIcon,
+  RegistrationUserAddIcon,
+  TwoFactorTimeoutIcon,
+  DeviceVerificationIcon,
+  UserLockIcon,
+  VaultIcon,
   LockIcon,
+} from "@bitwarden/assets/svg";
+import {
   LoginComponent,
   LoginDecryptionOptionsComponent,
   LoginSecondaryContentComponent,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
-  RegistrationLockAltIcon,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
-  RegistrationUserAddIcon,
-  SetPasswordJitComponent,
   SsoComponent,
-  TwoFactorTimeoutIcon,
   TwoFactorAuthComponent,
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
-  DeviceVerificationIcon,
-  UserLockIcon,
-  VaultIcon,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
-import {
-  ExtensionAnonLayoutWrapperComponent,
-  ExtensionAnonLayoutWrapperData,
-} from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
-import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
-import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
+import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
@@ -59,7 +55,7 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
-import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
@@ -89,6 +85,10 @@ import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
 
 import { RouteElevation } from "./app-routing.animations";
+import {
+  ExtensionAnonLayoutWrapperComponent,
+  ExtensionAnonLayoutWrapperData,
+} from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -177,11 +177,6 @@ const routes: Routes = [
     } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
   },
   {
-    path: "set-password",
-    component: SetPasswordComponent,
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  },
-  {
     path: "remove-password",
     component: RemovePasswordComponent,
     canActivate: [authGuard],
@@ -262,6 +257,12 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
+    path: "device-management",
+    component: ExtensionDeviceManagementComponent,
+    canActivate: [canAccessFeature(FeatureFlag.PM14938_BrowserExtensionLoginApproval), authGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
     path: "notifications",
     component: NotificationsSettingsComponent,
     canActivate: [authGuard],
@@ -328,12 +329,6 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: "update-temp-password",
-    component: UpdateTempPasswordComponent,
-    canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  },
-  {
     path: "",
     component: ExtensionAnonLayoutWrapperComponent,
     children: [
@@ -379,6 +374,14 @@ const routes: Routes = [
         ],
       },
       {
+        path: "set-initial-password",
+        canActivate: [authGuard],
+        component: SetInitialPasswordComponent,
+        data: {
+          elevation: 1,
+        } satisfies RouteDataProperties,
+      },
+      {
         path: "login",
         canActivate: [unauthGuardFn(unauthRouteOverrides), IntroCarouselGuard],
         data: {
@@ -396,9 +399,6 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: ExtensionDefaultOverlayPosition,
-            } satisfies EnvironmentSelectorRouteData,
           },
         ],
       },
@@ -421,14 +421,12 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: ExtensionDefaultOverlayPosition,
-            } satisfies EnvironmentSelectorRouteData,
           },
         ],
       },
       {
         path: "login-with-device",
+        canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -469,14 +467,12 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
-            data: {
-              overlayPosition: ExtensionDefaultOverlayPosition,
-            } satisfies EnvironmentSelectorRouteData,
           },
         ],
       },
       {
         path: "admin-approval-requested",
+        canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -546,24 +542,19 @@ const routes: Routes = [
           showBackButton: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
       },
-    ],
-  },
-  {
-    path: "",
-    component: AnonLayoutWrapperComponent,
-    children: [
       {
-        path: "set-password-jit",
-        component: SetPasswordJitComponent,
+        path: "change-password",
         data: {
-          pageTitle: {
-            key: "joinOrganization",
-          },
-          pageSubtitle: {
-            key: "finishJoiningThisOrganizationBySettingAMasterPassword",
-          },
           elevation: 1,
-        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+          hideFooter: true,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: ChangePasswordComponent,
+          },
+        ],
+        canActivate: [authGuard],
       },
     ],
   },

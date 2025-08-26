@@ -37,9 +37,7 @@ export function requestIdleCallbackPolyfill(
     return globalThis.requestIdleCallback(() => callback(), options);
   }
 
-  const timeoutDelay = options?.timeout || 1;
-
-  return globalThis.setTimeout(() => callback(), timeoutDelay);
+  return globalThis.setTimeout(() => callback(), 1);
 }
 
 /**
@@ -574,23 +572,4 @@ export function areKeyValuesNull<T extends Record<string, any>>(
   const keysToCheck = keys && keys.length > 0 ? keys : (Object.keys(obj) as Array<keyof T>);
 
   return keysToCheck.every((key) => obj[key] == null);
-}
-
-export type AllowedColorScheme = "light dark" | "dark light" | "light" | "dark" | "normal";
-
-/**
- * Ensures string matches allowed color scheme, defaulting/overriding to "normal".
- * https://drafts.csswg.org/css-color-adjust-1/#color-scheme-meta
- */
-export function matchAllowedColorSchemes(content: string): AllowedColorScheme {
-  switch (content) {
-    case "light dark":
-    case "dark light":
-    case "light":
-    case "dark":
-      // content must match one of these types.
-      return content;
-    default:
-      return "normal";
-  }
 }

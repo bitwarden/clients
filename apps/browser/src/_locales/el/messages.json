@@ -84,7 +84,7 @@
     "message": "Υπόδειξη κύριου κωδικού πρόσβασης (προαιρετικό)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Βαθμολογία ισχύς κωδικού πρόσβασης $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -468,13 +468,13 @@
     "message": "Ο κωδικός δημιουργήθηκε"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Το συνθηματικό δημιουργήθηκε"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Το όνομα χρήστη δημιουργήθηκε"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Το email δημιουργήθηκε"
   },
   "regeneratePassword": {
     "message": "Επαναδημιουργία κωδικού πρόσβασης"
@@ -546,6 +546,9 @@
   },
   "searchVault": {
     "message": "Αναζήτηση στο vault"
+  },
+  "resetSearch": {
+    "message": "Επαναφορά αναζήτησης"
   },
   "edit": {
     "message": "Επεξεργασία"
@@ -656,10 +659,10 @@
     "message": "Το πρόγραμμα περιήγησης ιστού δεν υποστηρίζει εύκολη αντιγραφή πρόχειρου. Αντιγράψτε το με το χέρι αντ'αυτού."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Επαλήθευση ταυτότητας"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Δεν αναγνωρίζουμε αυτή τη συσκευή. Εισάγετε τον κωδικό που στάλθηκε στο email σας για να επαληθεύσετε την ταυτότητά σας."
   },
   "continueLoggingIn": {
     "message": "Continue logging in"
@@ -872,22 +875,22 @@
     "message": "Σύνδεση στο Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Εισάγετε τον κωδικό που στάλθηκε στο email σας"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Εισαγάγετε τον κωδικό μιας χρήσης από την εφαρμογή αυθεντικοποίησης"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Πιέστε το YubiKey σας για ταυτοποίηση"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Απαιτείται σύνδεση Duo δύο βημάτων για το λογαριασμό σας. Ακολουθήστε τα παρακάτω βήματα για να ολοκληρώσετε τη σύνδεση."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Ακολουθήστε τα παρακάτω βήματα για να ολοκληρώσετε τη σύνδεση."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Ακολουθήστε τα παρακάτω βήματα για να ολοκληρώσετε τη σύνδεση με το κλειδί ασφαλείας σας."
   },
   "restartRegistration": {
     "message": "Επανεκκίνηση εγγραφής"
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "Oh no! We couldn't save this. Try entering the details manually.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
   },
   "enableChangedPasswordNotification": {
     "message": "Ζητήστε να ενημερώσετε την υπάρχουσα σύνδεση"
@@ -1823,6 +1832,9 @@
   "securityCode": {
     "message": "Κωδικός ασφαλείας"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "ex": {
     "message": "πχ."
   },
@@ -1921,6 +1933,9 @@
   },
   "typeSshKey": {
     "message": "Κλειδί SSH"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "newItemHeader": {
     "message": "Νέα $TYPE$",
@@ -2484,6 +2499,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Μια οργανωτική πολιτική έχει αποτρέψει την εισαγωγή στοιχείων στο προσωπικό θησαυ/κιο σας."
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "Τομείς",
     "description": "A category title describing the concept of web domains"
@@ -2909,6 +2930,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Πρέπει να επαληθεύσετε το email σας για να χρησιμοποιήσετε αυτή τη δυνατότητα. Μπορείτε να επαληθεύσετε το email σας στο web vault."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "Ενημερώθηκε ο κύριος κωδικός πρόσβασης"
@@ -3442,6 +3466,31 @@
   "logInRequestSent": {
     "message": "Request sent"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "Εκτεθειμένος Κύριος Κωδικός Πρόσβασης"
   },
@@ -3535,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Απομνημόνευση αυτής της συσκευής για την αυτόματες συνδέσεις στο μέλλον"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Απαιτείται έγκριση συσκευής. Επιλέξτε μια επιλογή έγκρισης παρακάτω:"
   },
@@ -3555,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "Αίτηση έγκρισης διαχειριστή"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Απαιτείται αναγνωριστικό οργανισμού SSO."
@@ -3988,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Επιλέξτε μια συλλογή"
   },
-  "importTargetHint": {
-    "message": "Επιλέξτε αυτή την επιλογή εάν θέλετε τα περιεχόμενα του εισαγόμενου αρχείου να μετακινηθούν στο $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Το αρχείο περιέχει μη συσχετισμένα στοιχεία."
@@ -4235,6 +4374,26 @@
     "message": "Κοινοί τύποι",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Συνεχίστε στις ρυθμίσεις περιηγητή;",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4418,17 +4577,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copy $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5062,6 +5221,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
   "authenticating": {
     "message": "Ταυτοποίηση"
   },
@@ -5249,16 +5411,16 @@
     "message": "Enter password"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "Το κλειδί SSH δεν είναι έγκυρο"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "Ο τύπος κλειδιού SSH δεν υποστηρίζεται"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Εισαγωγή κλειδιού από το πρόχειρο"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "Επιτυχής εισαγωγή κλειδιού SSH"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Δεν μπορείτε να αφαιρέσετε συλλογές που έχουν μόνο δικαιώματα Προβολής: $COLLECTIONS$",
@@ -5312,10 +5474,10 @@
     "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   },
   "nudgeBadgeAria": {
-    "message": "1 notification"
+    "message": "1 ειδοποίηση"
   },
   "emptyVaultNudgeTitle": {
-    "message": "Import existing passwords"
+    "message": "Εισαγωγή υπαρχόντων κωδικών πρόσβασης"
   },
   "emptyVaultNudgeBody": {
     "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
@@ -5403,5 +5565,19 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

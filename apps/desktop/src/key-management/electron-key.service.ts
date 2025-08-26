@@ -1,16 +1,14 @@
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { CsprngString } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
@@ -53,10 +51,6 @@ export class ElectronKeyService extends DefaultKeyService {
     );
   }
 
-  override async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
-    return super.hasUserKeyStored(keySuffix, userId);
-  }
-
   override async clearStoredUserKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<void> {
     await super.clearStoredUserKey(keySuffix, userId);
   }
@@ -71,16 +65,13 @@ export class ElectronKeyService extends DefaultKeyService {
 
   protected override async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
     return await super.getKeyFromStorage(keySuffix, userId);
   }
 
   private async storeBiometricsProtectedUserKey(userKey: UserKey, userId: UserId): Promise<void> {
-    // May resolve to null, in which case no client key have is required
-    const clientEncKeyHalf = await this.getBiometricEncryptionClientKeyHalf(userKey, userId);
-    await this.biometricService.setClientKeyHalfForUser(userId, clientEncKeyHalf);
-    await this.biometricService.setBiometricProtectedUnlockKeyForUser(userId, userKey.keyB64);
+    await this.biometricService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
   }
 
   protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<boolean> {
@@ -90,35 +81,5 @@ export class ElectronKeyService extends DefaultKeyService {
   protected override async clearAllStoredUserKeys(userId: UserId): Promise<void> {
     await this.biometricService.deleteBiometricUnlockKeyForUser(userId);
     await super.clearAllStoredUserKeys(userId);
-  }
-
-  private async getBiometricEncryptionClientKeyHalf(
-    userKey: UserKey,
-    userId: UserId,
-  ): Promise<CsprngString | null> {
-    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    if (!requireClientKeyHalf) {
-      return null;
-    }
-
-    // Retrieve existing key half if it exists
-    let clientKeyHalf: CsprngString | null = null;
-    const encryptedClientKeyHalf =
-      await this.biometricStateService.getEncryptedClientKeyHalf(userId);
-    if (encryptedClientKeyHalf != null) {
-      clientKeyHalf = (await this.encryptService.decryptString(
-        encryptedClientKeyHalf,
-        userKey,
-      )) as CsprngString;
-    }
-    if (clientKeyHalf == null) {
-      // Set a key half if it doesn't exist
-      const keyBytes = await this.cryptoFunctionService.randomBytes(32);
-      clientKeyHalf = Utils.fromBufferToUtf8(keyBytes) as CsprngString;
-      const encKey = await this.encryptService.encryptString(clientKeyHalf, userKey);
-      await this.biometricStateService.setEncryptedClientKeyHalf(encKey, userId);
-    }
-
-    return clientKeyHalf;
   }
 }

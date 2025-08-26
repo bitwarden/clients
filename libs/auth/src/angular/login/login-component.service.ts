@@ -23,7 +23,7 @@ export abstract class LoginComponentService {
    * Gets the organization policies if there is an organization invite.
    * - Used by: Web
    */
-  getOrgPoliciesFromOrgInvite?: () => Promise<PasswordPolicies | null>;
+  getOrgPoliciesFromOrgInvite?: (email: string) => Promise<PasswordPolicies | null>;
 
   /**
    * Indicates whether login with passkey is supported on the given client

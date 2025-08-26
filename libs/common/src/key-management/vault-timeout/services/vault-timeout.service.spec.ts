@@ -12,22 +12,23 @@ import { LogoutReason } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricsService } from "@bitwarden/key-management";
+import { StateService } from "@bitwarden/state";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
-import { SearchService } from "../../../abstractions/search.service";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
+import { TokenService } from "../../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { MessagingService } from "../../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
-import { StateService } from "../../../platform/abstractions/state.service";
 import { Utils } from "../../../platform/misc/utils";
 import { TaskSchedulerService } from "../../../platform/scheduling";
 import { StateEventRunnerService } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { FolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "../../../vault/abstractions/search.service";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
@@ -45,6 +46,7 @@ describe("VaultTimeoutService", () => {
   let messagingService: MockProxy<MessagingService>;
   let searchService: MockProxy<SearchService>;
   let stateService: MockProxy<StateService>;
+  let tokenService: MockProxy<TokenService>;
   let authService: MockProxy<AuthService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let stateEventRunnerService: MockProxy<StateEventRunnerService>;
@@ -71,6 +73,7 @@ describe("VaultTimeoutService", () => {
     messagingService = mock();
     searchService = mock();
     stateService = mock();
+    tokenService = mock();
     authService = mock();
     vaultTimeoutSettingsService = mock();
     stateEventRunnerService = mock();
@@ -99,6 +102,7 @@ describe("VaultTimeoutService", () => {
       messagingService,
       searchService,
       stateService,
+      tokenService,
       authService,
       vaultTimeoutSettingsService,
       stateEventRunnerService,
@@ -141,9 +145,8 @@ describe("VaultTimeoutService", () => {
     authService.getAuthStatus.mockImplementation((userId) => {
       return Promise.resolve(accounts[userId]?.authStatus);
     });
-    stateService.getIsAuthenticated.mockImplementation((options) => {
-      // Just like actual state service, if no userId is given fallback to active userId
-      return Promise.resolve(accounts[options.userId ?? globalSetups?.userId]?.isAuthenticated);
+    tokenService.hasAccessToken$.mockImplementation((userId) => {
+      return of(accounts[userId]?.isAuthenticated ?? false);
     });
 
     vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockImplementation((userId) => {
@@ -182,7 +185,7 @@ describe("VaultTimeoutService", () => {
       ),
     );
 
-    platformUtilsService.isViewOpen.mockResolvedValue(globalSetups?.isViewOpen ?? false);
+    platformUtilsService.isPopupOpen.mockResolvedValue(globalSetups?.isViewOpen ?? false);
 
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockImplementation((userId) => {
       return new BehaviorSubject<VaultTimeoutAction>(accounts[userId]?.timeoutAction);
@@ -201,7 +204,7 @@ describe("VaultTimeoutService", () => {
 
   const expectUserToHaveLocked = (userId: string) => {
     // This does NOT assert all the things that the lock process does
-    expect(stateService.getIsAuthenticated).toHaveBeenCalledWith({ userId: userId });
+    expect(tokenService.hasAccessToken$).toHaveBeenCalledWith(userId);
     expect(vaultTimeoutSettingsService.availableVaultTimeoutActions$).toHaveBeenCalledWith(userId);
     expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, { userId: userId });
     expect(masterPasswordService.mock.clearMasterKey).toHaveBeenCalledWith(userId);
@@ -222,7 +225,7 @@ describe("VaultTimeoutService", () => {
     it.each([AuthenticationStatus.Locked, AuthenticationStatus.LoggedOut])(
       "should not try to log out or lock any user that has authStatus === %s.",
       async (authStatus) => {
-        platformUtilsService.isViewOpen.mockResolvedValue(false);
+        platformUtilsService.isPopupOpen.mockResolvedValue(false);
         setupAccounts({
           1: {
             authStatus: authStatus,

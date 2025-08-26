@@ -6,9 +6,9 @@
         <input bitInput formControlName="uri" #uriInput />
         <button
           type="button"
-          bitIconButton="bwi-cog"
+          [bitIconButton]="showMatchDetection ? 'bwi-cog-f' : 'bwi-cog'"
           bitSuffix
-          [appA11yTitle]="toggleTitle"
+          [label]="toggleTitle"
           (click)="toggleMatchDetection()"
           data-testid="toggle-match-detection-button"
         ></button>
@@ -17,7 +17,7 @@
           bitIconButton="bwi-minus-circle"
           buttonType="danger"
           bitSuffix
-          [appA11yTitle]="'deleteWebsite' | i18n"
+          [label]="'deleteWebsite' | i18n"
           *ngIf="canRemove"
           (click)="removeUri()"
           data-testid="remove-uri-button"
@@ -29,7 +29,7 @@
           bitIconButton="bwi-drag-and-drop"
           class="!tw-py-0 !tw-px-1"
           cdkDragHandle
-          [appA11yTitle]="'reorderToggleButton' | i18n: uriLabel"
+          [label]="'reorderToggleButton' | i18n: uriLabel"
           (keydown)="handleKeydown($event)"
           data-testid="reorder-toggle-button"
           *ngIf="canReorder"
@@ -43,8 +43,16 @@
           *ngFor="let o of uriMatchOptions"
           [label]="o.label"
           [value]="o.value"
+          [disabled]="o.disabled"
         ></bit-option>
       </bit-select>
+      <bit-hint *ngIf="getMatchHints() as hints">
+        {{ hints[0] | i18n }}
+        <ng-container *ngIf="hints.length > 1">
+          <b>{{ "warningCapitalized" | i18n }}:</b>
+          {{ hints[1] | i18n }}
+        </ng-container>
+      </bit-hint>
     </bit-form-field>
   </div>
 </ng-container>

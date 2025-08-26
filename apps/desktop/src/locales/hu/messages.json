@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Személyazonosság"
   },
+  "typeNote": {
+    "message": "Jegyzet"
+  },
   "typeSecureNote": {
     "message": "Biztonságos jegyzet"
   },
@@ -37,6 +40,9 @@
   },
   "searchVault": {
     "message": "Keresés a széfben"
+  },
+  "resetSearch": {
+    "message": "Keresés visszaállítása"
   },
   "addItem": {
     "message": "Elem hozzáadása"
@@ -569,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Ellenőrző kód másolása (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ másolása",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Hossz"
   },
@@ -681,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "A melléklet mentésre került."
+  },
+  "addAttachment": {
+    "message": "Melléklet hozzáadása"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "A maximális fájlméret 500 MB."
   },
   "file": {
     "message": "Fájl"
@@ -1205,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Kétlépcsős bejelentkezés"
   },
+  "vaultTimeoutHeader": {
+    "message": "Széf időkifutás"
+  },
   "vaultTimeout": {
     "message": "Széf időkifutás"
   },
   "vaultTimeout1": {
     "message": "Időkifutás"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Időkifutási művelet"
   },
   "vaultTimeoutDesc": {
     "message": "Válasszuk ki, hogy a széfnél mikor legyen időkifutás és a kiválasztott művelet végrehajtása."
@@ -1421,6 +1453,9 @@
   "copySecurityCode": {
     "message": "Biztonsági kód másolása",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kártya szám"
   },
   "premiumMembership": {
     "message": "Prémium tagság"
@@ -1713,6 +1748,12 @@
   "accountRestricted": {
     "message": "Korlátozott fiók"
   },
+  "restrictCardTypeImport": {
+    "message": "A kártya elem típusokat nem lehet importálni."
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Egy vagy több szervezet által beállított szabályzat megakadályozza a kártyák importálását a széfekbe."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "A “Fájl jelszó”  és a  “Fájl jelszó megerősítés“ nem egyezik."
   },
@@ -1787,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Feloldás Windows Hello segítségével"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Kiegészítő Windows Hello beállítások"
-  },
   "unlockWithPolkit": {
     "message": "Feloldás rendszer hitelesítéssel"
   },
@@ -1805,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "Bitwarden feloldás"
   },
-  "autoPromptWindowsHello": {
-    "message": "Windows Hello kérése indításkor"
-  },
-  "autoPromptPolkit": {
-    "message": "Rendszer hiteletesítés bekérése indításkor"
-  },
   "autoPromptTouchId": {
     "message": "Érintés AZ kérése indításkor"
-  },
-  "requirePasswordOnStart": {
-    "message": "Jelszó vagy PIN kód szükséges az alkalmazás indításakor"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Jelszó szükséges az alkalmazás indításakor"
-  },
-  "recommendedForSecurity": {
-    "message": "Biztonsági szempontból ajánlott."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lezárás mesterjelszóval újraindításkor"
@@ -2383,6 +2406,9 @@
   "passwordConfirmationDesc": {
     "message": "Ez a művelet védett. A folytatásért ismételten meg kell adni a mesterjelszőt az személyazonosság ellenőrzéséhez."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "A mesterjelszó sikeresen beállításra került."
+  },
   "updatedMasterPassword": {
     "message": "A mesterjelszó frisstésre került."
   },
@@ -2394,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak."
+  },
+  "changePasswordWarning": {
+    "message": "A jelszó megváltoztatása után be kell jelentkezni az új jelszóval. Az aktív munkamenetek más eszközökön egy órán belül kijelentkeznek."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Módosítsuk a mesterjelszót a fiók helyreállításának befejezéséhez."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "A mesterjelszó nem felel meg a szervezet követelményeinek. Módosítsuk a mesterjelszót a folytatáshoz."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "A szervezete letiltotta a megbízható eszközök titkosítását. Állítsunk be egy mesterjelszót a széf eléréséhez."
@@ -2481,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "A széf időkorlátja túllépi a szervezet által beállított korlátozást."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "A vállalkozáspolitikai követelményeket alkalmazra kerültek az időkifutási opciókra.."
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "A szervezeti szabályzata $HOURS$ órára és $MINUTES$ percre állította be a maximálisan megengedett széf időkifutást.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Az időkifutás meghaladja a szervezet által beállított korlátozást: $HOURS$ óra és $MINUTES$ perc maximum.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "A meghívás elfogadásra került."
@@ -2963,9 +3027,6 @@
     "message": "Karakterszámláló váltás",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "A fiókhoz próbálunk hozzáférni?"
-  },
   "accessAttemptBy": {
     "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
     "placeholders": {
@@ -2974,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "A bejelentkezési kérelem jóváhagyásra került: $EMAIL$ - $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
+  },
+  "webApp": {
+    "message": "Webalkalmazás"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Kiterjesztés",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Asztali",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Szerver"
+  },
+  "loginRequest": {
+    "message": "Bejelentkezés kérés"
   },
   "deviceType": {
     "message": "Eszköz típus"
@@ -2989,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Hozzáférés megtagadása"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
   "justNow": {
     "message": "Éppen most"
@@ -3131,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "Adminisztrátori jóváhagyás kérés"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nem lehet befejezni a bejelentkezést."
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Be kell jelentkezni egy megbízható eszközön vagy meg kell kérni az adminisztrátort, hogy rendeljen hozzá egy jelszót."
   },
   "region": {
     "message": "Régió"
@@ -3396,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Gyűjtemény kiválasztása"
   },
-  "importTargetHint": {
-    "message": "Válasszuk ezt a lehetőséget, ha azt akarjuk, hogy az importált fájl tartalma $DESTINATION$ helyre kerüljön",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
+  },
+  "importTargetHintFolder": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -3522,6 +3613,30 @@
   "commonImportFormats": {
     "message": "Általános formátumok",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Az URI egyezés észlelése az, ahogyan a Bitwarden azonosítja az automatikus kitöltési javaslatokat.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "A \"normál kifejezés“ egy fejlett opció, amely a hitelesítő adatok növekvő kiszivárgásának kockázatával.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "A \"Kezdés\" egy fejlett opció, amely a hitelesítő adatok kiszivárgásának növekvő kockázatával.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Bővebben az egyezés felismerésről",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Haladó opciók",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Figyelmeztetés",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Sikeres"
@@ -3812,5 +3927,155 @@
     "message": "Tudjon meg többet az SSH ügynökröl",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Hozzárendelés gyűjteményekhez"
+  },
+  "assignToTheseCollections": {
+    "message": "Hozzárendelés ezen gyűjteményekhez"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemet."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
+  },
+  "noCollectionsAssigned": {
+    "message": "Nem lettek gyűjtemények hozzárendelve."
+  },
+  "assign": {
+    "message": "Hozzárendelés"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "$TOTAL_COUNT$ elem lett kiválasztva. Az elemek közül $READONLY_COUNT$ nem frissíthető, mert nincs szerkesztési jogosultság.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Hozzárendelendő gyűjtemények kiválasztása"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk a tulajdonosa ezeknek az elemeknek.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül $ORG$ szervezeti egységbe. A továbbiakban nem leszünk a tulajdonosa ezeknek az elemeknek.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 elem véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elem tulajdonosa."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 véglegesen átkerül $ORG$ szervezeti egységbe. A továbbiakban nem leszünk a tulajdonosa ennek az elemnek.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "A gyűjtemények sikeresen hozzárendelésre kerültek."
+  },
+  "nothingSelected": {
+    "message": "Nincs kiválasztva semmi."
+  },
+  "itemsMovedToOrg": {
+    "message": "Az elemek áthelyezésre kerültek: $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Az elem áthelyezésre került: $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "A kiválasztott elemek átkerültek $ORGNAME$ szervezethez",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
+  },
+  "showMore": {
+    "message": "Több megjelenítése"
+  },
+  "showLess": {
+    "message": "Kevesebb megjelenítése"
+  },
+  "enableAutotype": {
+    "message": "Autotípus engedélyezése"
+  },
+  "enableAutotypeDescription": {
+    "message": "A Bitwarden nem érvényesíti a beviteli helyeket, győződjünk meg róla, hogy a megfelelő ablakban és mezőben vagyunk, mielőtt a parancsikont használnánk."
+  },
+  "moreBreadcrumbs": {
+    "message": "További morzsamenük",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

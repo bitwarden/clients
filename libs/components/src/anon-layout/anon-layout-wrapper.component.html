@@ -1,0 +1,13 @@
+<auth-anon-layout
+  [title]="pageTitle"
+  [subtitle]="pageSubtitle"
+  [icon]="pageIcon"
+  [showReadonlyHostname]="showReadonlyHostname"
+  [maxWidth]="maxWidth"
+  [hideCardWrapper]="hideCardWrapper"
+  [hideIcon]="hideIcon"
+>
+  <router-outlet></router-outlet>
+  <router-outlet slot="secondary" name="secondary"></router-outlet>
+  <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
+</auth-anon-layout>

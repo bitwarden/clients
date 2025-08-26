@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Cerca nella cassaforte"
   },
+  "resetSearch": {
+    "message": "Svuota ricerca"
+  },
   "edit": {
     "message": "Modifica"
   },
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "Oh no! Il salvataggio non è riuscito. Prova a inserire i dati manualmente.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "Dopo aver cambiato la password, dovrai accedere con quella nuova. Le sessioni attive su altri dispositivi saranno disconnesse entro un'ora."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Cambia la password principale per completare il recupero dell'account."
   },
   "enableChangedPasswordNotification": {
     "message": "Chiedi di aggiornare il login esistente"
@@ -1823,6 +1832,9 @@
   "securityCode": {
     "message": "Codice di sicurezza"
   },
+  "cardNumber": {
+    "message": "numero carta"
+  },
   "ex": {
     "message": "es."
   },
@@ -1921,6 +1933,9 @@
   },
   "typeSshKey": {
     "message": "Chiave SSH"
+  },
+  "typeNote": {
+    "message": "Nota"
   },
   "newItemHeader": {
     "message": "Nuovo $TYPE$",
@@ -2154,7 +2169,7 @@
     "message": "Imposta il tuo codice PIN per sbloccare Bitwarden. Le tue impostazioni PIN saranno resettate se esci completamente dall'app."
   },
   "setPinCode": {
-    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
+    "message": "Puoi usare il PIN per sbloccare Bitwarden. Il PIN sarà disattivato ogni volta che ti scolleghi dall'account."
   },
   "pinRequired": {
     "message": "Codice PIN obbligatorio."
@@ -2484,6 +2499,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Una politica dell'organizzazione ti impedisce di importare elementi nella tua cassaforte individuale."
   },
+  "restrictCardTypeImport": {
+    "message": "Impossibile importare elementi di tipo carta"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Non puoi importare carte nelle tue casseforti a causa di una politica impostata da una o più organizzazioni."
+  },
   "domainsTitle": {
     "message": "Domini",
     "description": "A category title describing the concept of web domains"
@@ -2516,7 +2537,7 @@
     "message": "Cambia"
   },
   "changePassword": {
-    "message": "Change password",
+    "message": "Cambia password",
     "description": "Change password button for browser at risk notification on login."
   },
   "changeButtonTitle": {
@@ -2529,7 +2550,7 @@
     }
   },
   "atRiskPassword": {
-    "message": "At-risk password"
+    "message": "Password a rischio"
   },
   "atRiskPasswords": {
     "message": "Parola d'accesso a rischio"
@@ -2566,7 +2587,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "message": "La tua password per questo sito è a rischio. $ORGANIZATION$ ha richiesto di modificarla.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2576,7 +2597,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "message": "$ORGANIZATION$ ti chiede di cambiare la tua password perché è a rischio. Vai alle impostazioni del tuo account per la modifica.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2909,6 +2930,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Devi verificare la tua email per usare questa funzionalità. Puoi verificare la tua email nella cassaforte web."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Password principale impostata correttamente"
   },
   "updatedMasterPassword": {
     "message": "Password principale aggiornata"
@@ -3442,6 +3466,31 @@
   "logInRequestSent": {
     "message": "Richiesta inviata"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Richiesta di accesso approvata per $EMAIL$ su $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Hai negato un tentativo di accesso da un altro dispositivo. Se eri davvero tu, prova di nuovo ad accedere con il dispositivo."
+  },
+  "device": {
+    "message": "Dispositivo"
+  },
+  "loginStatus": {
+    "message": "Stato login"
+  },
+  "masterPasswordChanged": {
+    "message": "Password principale salvata"
+  },
   "exposedMasterPassword": {
     "message": "Password principale violata"
   },
@@ -3535,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Ricorda questo dispositivo per rendere immediati i futuri accessi"
   },
+  "manageDevices": {
+    "message": "Gestisci dispositivi"
+  },
+  "currentSession": {
+    "message": "Sessione in corso"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Estensione",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Cassaforte Web"
+  },
+  "webApp": {
+    "message": "Bitwarden Web"
+  },
+  "cli": {
+    "message": "Linea di comando"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Richiesta in attesa"
+  },
+  "firstLogin": {
+    "message": "Primo accesso"
+  },
+  "trusted": {
+    "message": "Attendibile"
+  },
+  "needsApproval": {
+    "message": "In attesa di approvazione"
+  },
+  "devices": {
+    "message": "Dispositivi"
+  },
+  "accessAttemptBy": {
+    "message": "Tentativo di accesso da $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Conferma l'accesso"
+  },
+  "denyAccess": {
+    "message": "Nega l'accesso"
+  },
+  "time": {
+    "message": "Ora"
+  },
+  "deviceType": {
+    "message": "Tipo di dispositivo"
+  },
+  "loginRequest": {
+    "message": "Richiesta di accesso"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Questa richiesta non è più valida."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "La richiesta di accesso è scaduta."
+  },
+  "justNow": {
+    "message": "Pochi secondi fa"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Richiesta: $MINUTES$ minuti fa",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Approvazione del dispositivo obbligatoria. Seleziona un'opzione di approvazione:"
   },
@@ -3555,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "Richiedi approvazione dell'amministratore"
+  },
+  "unableToCompleteLogin": {
+    "message": "Impossibile completare l'accesso"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "È necessario accedere da un dispositivo attendibile oppure chiedere all'amministratore l'assegnazione di una password."
   },
   "ssoIdentifierRequired": {
     "message": "Identificatore SSO dell'organizzazione obbligatorio."
@@ -3988,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Seleziona una raccolta"
   },
-  "importTargetHint": {
-    "message": "Seleziona questa opzione se vuoi che i contenuti del file di importazione siano spostati in una $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una raccolta"
+  },
+  "importTargetHintFolder": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una cartella"
   },
   "importUnassignedItemsError": {
     "message": "Il file contiene elementi non assegnati."
@@ -4235,6 +4374,26 @@
     "message": "Formati comuni",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "La corrispondenza URL è il metodo predefinito per identificare i suggerimenti di riempimento automatico.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "'Espressione regolare' è un'opzione avanzata con un maggior rischio di esporre le credenziali.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "'Inizia con' è un'opzione con un maggior rischio di esporre le credenziali.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Ulteriori informazioni sulla corrispondenza degli URL",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Opzioni avanzate",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Continua sulle impostazioni del browser?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4418,17 +4577,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copia $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copia $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5062,6 +5221,9 @@
   "unlockPinSet": {
     "message": "Sblocca PIN impostato"
   },
+  "unlockWithBiometricSet": {
+    "message": "Sblocca con i dati biometrici"
+  },
   "authenticating": {
     "message": "Autenticazione"
   },
@@ -5403,5 +5565,19 @@
   },
   "noPermissionsViewPage": {
     "message": "Non hai i permessi per visualizzare questa pagina. Prova ad accedere con un altro account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly non è supportato dal browser o non è abilitato. WebAssembly è richiesto per utilizzare l'app Bitwarden.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Mostra di più"
+  },
+  "showLess": {
+    "message": "Mostra di meno"
+  },
+  "moreBreadcrumbs": {
+    "message": "Ulteriori segmenti",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

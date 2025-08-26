@@ -21,6 +21,7 @@
         bitSuffix
         data-testid="import-privateKey"
         *ngIf="showImport"
+        label="{{ 'importSshKeyFromClipboard' | i18n }}"
         (click)="importSshKeyFromClipboard()"
       ></button>
     </bit-form-field>

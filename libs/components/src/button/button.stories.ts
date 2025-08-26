@@ -31,7 +31,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
+      <button type="button" bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
     `,
   }),
   args: {
@@ -58,9 +58,9 @@ export const Small: Story = {
     props: args,
     template: /*html*/ `
     <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'primary'" [size]="size" [block]="block">Primary small</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'secondary'" [size]="size" [block]="block">Secondary small</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'danger'" [size]="size" [block]="block">Danger small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'primary'" [size]="size" [block]="block">Primary small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'secondary'" [size]="size" [block]="block">Secondary small</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="'danger'" [size]="size" [block]="block">Danger small</button>
     </div>
     `,
   }),
@@ -86,15 +86,15 @@ export const Disabled: Story = {
 export const DisabledWithAttribute: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       @if (disabled) {
-        <button bitButton disabled [loading]="loading" [block]="block" buttonType="primary" class="tw-me-2">Primary</button>
-        <button bitButton disabled [loading]="loading" [block]="block" buttonType="secondary" class="tw-me-2">Secondary</button>
-        <button bitButton disabled [loading]="loading" [block]="block" buttonType="danger" class="tw-me-2">Danger</button>
+        <button type="button" bitButton disabled [loading]="loading" [block]="block" buttonType="primary" class="tw-me-2">Primary</button>
+        <button type="button" bitButton disabled [loading]="loading" [block]="block" buttonType="secondary" class="tw-me-2">Secondary</button>
+        <button type="button" bitButton disabled [loading]="loading" [block]="block" buttonType="danger" class="tw-me-2">Danger</button>
       } @else {
-        <button bitButton [loading]="loading" [block]="block" buttonType="primary" class="tw-me-2">Primary</button>
-        <button bitButton [loading]="loading" [block]="block" buttonType="secondary" class="tw-me-2">Secondary</button>
-        <button bitButton [loading]="loading" [block]="block" buttonType="danger" class="tw-me-2">Danger</button>
+        <button type="button" bitButton [loading]="loading" [block]="block" buttonType="primary" class="tw-me-2">Primary</button>
+        <button type="button" bitButton [loading]="loading" [block]="block" buttonType="secondary" class="tw-me-2">Secondary</button>
+        <button type="button" bitButton [loading]="loading" [block]="block" buttonType="danger" class="tw-me-2">Danger</button>
       }
     `,
   }),
@@ -107,12 +107,12 @@ export const DisabledWithAttribute: Story = {
 export const Block: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <span class="tw-flex">
-        <button bitButton [buttonType]="buttonType" [block]="block">[block]="true" Button</button>
+        <button type="button" bitButton [buttonType]="buttonType" [block]="block">[block]="true" Button</button>
         <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ms-2">[block]="true" Link</a>
 
-        <button bitButton [buttonType]="buttonType" block class="tw-ms-2">block Button</button>
+        <button type="button" bitButton [buttonType]="buttonType" block class="tw-ms-2">block Button</button>
         <a bitButton [buttonType]="buttonType" block href="#" class="tw-ms-2">block Link</a>
       </span>
     `,
@@ -125,16 +125,16 @@ export const Block: Story = {
 export const WithIcon: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <span class="tw-flex tw-gap-8">
         <div>
-          <button bitButton [buttonType]="buttonType" [block]="block">
+          <button type="button" bitButton [buttonType]="buttonType" [block]="block">
             <i class="bwi bwi-plus tw-me-2"></i>
             Button label
           </button>
         </div>
         <div>
-          <button bitButton [buttonType]="buttonType" [block]="block">
+          <button type="button" bitButton [buttonType]="buttonType" [block]="block">
             Button label
             <i class="bwi bwi-plus tw-ms-2"></i>
           </button>
@@ -149,11 +149,11 @@ export const InteractionStates: Story = {
     props: args,
     template: /*html*/ `
     <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block">Button</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block">Button</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+      <button type="button" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
     </div>
     <div class="tw-flex tw-gap-4 tw-items-center">
       <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block">Anchor</a>

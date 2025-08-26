@@ -8,7 +8,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { NotificationType } from "@bitwarden/common/enums";
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
 import { Message, MessageListener } from "@bitwarden/common/platform/messaging";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
@@ -39,7 +39,9 @@ describe("Default task service", () => {
       { send: mockApiSend } as unknown as ApiService,
       { organizations$: mockGetAllOrgs$ } as unknown as OrganizationService,
       { authStatuses$: mockAuthStatuses$.asObservable() } as unknown as AuthService,
-      { notifications$: mockNotifications$.asObservable() } as unknown as NotificationsService,
+      {
+        notifications$: mockNotifications$.asObservable(),
+      } as unknown as ServerNotificationsService,
       { allMessages$: mockMessages$.asObservable() } as unknown as MessageListener,
     );
   });
@@ -365,7 +367,7 @@ describe("Default task service", () => {
         const subscription = service.listenForTaskNotifications();
 
         const notification = {
-          type: NotificationType.PendingSecurityTasks,
+          type: NotificationType.RefreshSecurityTasks,
         } as NotificationResponse;
         mockNotifications$.next([notification, userId]);
 
@@ -390,7 +392,7 @@ describe("Default task service", () => {
         const subscription = service.listenForTaskNotifications();
 
         const notification = {
-          type: NotificationType.PendingSecurityTasks,
+          type: NotificationType.RefreshSecurityTasks,
         } as NotificationResponse;
         mockNotifications$.next([notification, "other-user-id" as UserId]);
 

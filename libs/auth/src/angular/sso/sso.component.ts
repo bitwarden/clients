@@ -531,7 +531,8 @@ export class SsoComponent implements OnInit {
   }
 
   private async handleChangePasswordRequired(orgIdentifier: string) {
-    await this.router.navigate(["set-password-jit"], {
+    const route = "set-initial-password";
+    await this.router.navigate([route], {
       queryParams: {
         identifier: orgIdentifier,
       },

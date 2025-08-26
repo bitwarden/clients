@@ -10,6 +10,7 @@ import {
   DialogModule,
   FormFieldModule,
   IconButtonModule,
+  SelectModule,
   TableModule,
   TabsModule,
 } from "@bitwarden/components";
@@ -47,6 +48,7 @@ export default {
         TableModule,
         JslibModule,
         IconButtonModule,
+        SelectModule,
       ],
       providers: [],
     }),

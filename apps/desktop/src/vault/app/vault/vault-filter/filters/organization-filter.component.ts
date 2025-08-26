@@ -16,7 +16,9 @@ import { ToastService } from "@bitwarden/components";
 })
 export class OrganizationFilterComponent extends BaseOrganizationFilterComponent {
   get show() {
-    const hiddenDisplayModes: DisplayMode[] = ["singleOrganizationAndPersonalOwnershipPolicies"];
+    const hiddenDisplayModes: DisplayMode[] = [
+      "singleOrganizationAndOrganizatonDataOwnershipPolicies",
+    ];
     return (
       !this.hide &&
       this.organizations.length > 0 &&

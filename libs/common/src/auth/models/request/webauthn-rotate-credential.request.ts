@@ -4,7 +4,7 @@
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { RotateableKeySet } from "../../../../../auth/src/common/models";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 
 export class WebauthnRotateCredentialRequest {
   id: string;

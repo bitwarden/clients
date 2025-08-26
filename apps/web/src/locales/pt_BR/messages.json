@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Cancelar"
   },
+  "later": {
+    "message": "Later"
+  },
   "canceled": {
     "message": "Cancelado"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Buscar grupos"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "allItems": {
     "message": "Todos os Itens"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Nota Segura"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "typeSshKey": {
     "message": "Chave SSH"
@@ -861,8 +870,28 @@
   "copyName": {
     "message": "Copiar nome"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "me": {
     "message": "Eu"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "myVault": {
     "message": "Meu Cofre"
@@ -1399,9 +1428,6 @@
   "notificationSentDevicePart1": {
     "message": "Desbloqueie o Bitwarden no seu dispositivo ou na "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Você está tentando acessar sua conta?"
-  },
   "accessAttemptBy": {
     "message": "Tentativa de acesso por $EMAIL$",
     "placeholders": {
@@ -1781,6 +1807,9 @@
   "loggedOutWarning": {
     "message": "O processo desconectará você da sessão atual, exigindo que você inicie a sessão novamente. As sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
   "emailChanged": {
     "message": "E-mail salvo"
   },
@@ -2021,15 +2050,11 @@
   "selectImportCollection": {
     "message": "Selecione uma coleção"
   },
-  "importTargetHint": {
-    "message": "Selecione esta opção se você quer o conteúdo do arquivo importado movido para $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Arquivo contém itens não atribuídos."
@@ -2153,11 +2178,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "A configuração de login em duas etapas pode bloqueá-lo permanentemente da sua conta no Bitwarden. Um código de recuperação permite que você acesse sua conta no caso de não poder mais usar seu provedor de login em duas etapas normalmente (exemplo: você perde seu dispositivo). O suporte do Bitwarden não será capaz de ajudá-lo se você perder o acesso à sua conta. Recomendamos que você anote ou imprima o código de recuperação e o mantenha em um lugar seguro."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Remove card item type"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Do not allow members to create card item types."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Seu código de recuperação de uso único pode ser usado para desativar o login em duas etapas no caso de você perder acesso ao seu provedor de login em duas etapas. O Bitwarden recomenda que você anote o código de recuperação e o mantenha em um lugar seguro."
@@ -2217,6 +2248,9 @@
   },
   "disable": {
     "message": "Desabilitar"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
   },
   "revokeAccess": {
     "message": "Revogar acesso"
@@ -2412,9 +2446,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Houve um problema ao ler a chave de segurança. Tente novamente."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Devido as limitações da plataforma, o WebAuthn não pode ser usado em todos os aplicativos do Bitwarden. Configure outro provedor de login em duas etapas para poder acessar sua conta quando a WebAuthn não puder ser usada."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Seu código de recuperação de login em duas etapas do Bitwarden"
@@ -2785,6 +2816,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "Resumo"
@@ -3467,6 +3504,9 @@
   "webVault": {
     "message": "Cofre Web"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3933,8 +3973,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Este pedido não é mais válido."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Acesso confirmado para $EMAIL$ no $DEVICE$",
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3942,12 +3982,12 @@
       },
       "device": {
         "content": "$2",
-        "example": "iOS"
+        "example": "Web app - Chrome"
       }
     }
   },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Você negou uma tentativa de acesso de outro dispositivo. Se isso realmente foi você, tente fazer login com o dispositivo novamente."
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "O pedido de login já expirou."
@@ -4092,6 +4132,9 @@
   },
   "reviewLoginRequest": {
     "message": "Revisar solicitação de login"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Seu teste gratuito termina em $COUNT$ dias.",
@@ -4568,6 +4611,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Obtenha conselhos, novidades, e oportunidades de pesquisa do Bitwarden em sua caixa de entrada."
+  },
+  "subscribe": {
+    "message": "Subscribe"
   },
   "unsubscribe": {
     "message": "Cancelar subscrição"
@@ -5218,6 +5264,14 @@
   "downloadAttachments": {
     "message": "Baixar anexos"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Enter the password to view this Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "View Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "O Send que você está tentando acessar não existe ou não está mais disponível.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5363,6 +5417,9 @@
   "emergencyRejected": {
     "message": "Acesso de emergência rejeitado"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Redefinição de senha para $USER$. Agora você pode acessar usando a nova senha.",
     "placeholders": {
@@ -5371,6 +5428,40 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Require all items to be owned by an organization, removing the option to store items at the account level.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "credential lifecycle",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Are you sure you want to proceed?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "will remain accessible to members"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "will not be automatically selected when creating new items"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "cannot be managed from the Admin Console until the user is offboarded"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "By turning this policy off, the default collection: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Learn more about the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Propriedade Pessoal"
@@ -5763,11 +5854,23 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "este usuário"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
     "message": "Uma ou mais políticas da organização exigem que a senha mestra cumpra aos seguintes requisitos:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "resetPasswordSuccess": {
     "message": "Senha redefinida com sucesso!"
@@ -6034,11 +6137,20 @@
   "add": {
     "message": "Adicionar"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "Senha Mestra Atualizada"
   },
   "updateMasterPassword": {
     "message": "Atualizar Senha Mestra"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "updateMasterPasswordWarning": {
     "message": "Sua Senha Mestra foi alterada recentemente por um administrador em sua organização. Para acessar o cofre, você deve atualizar sua Senha Mestra agora. Prosseguir irá desconectá-lo da sessão atual, exigindo que você faça login novamente. As sessões ativas em outros dispositivos podem continuar ativas por até uma hora."
@@ -6916,6 +7028,12 @@
   "unknownCipher": {
     "message": "Item desconhecido, talvez você precise fazer login com outra conta para acessar este item."
   },
+  "unknownSecret": {
+    "message": "Unknown secret, you may need to request permission to access this secret."
+  },
+  "unknownProject": {
+    "message": "Unknown project, you may need to request permission to access this project."
+  },
   "cannotSponsorSelf": {
     "message": "Você não pode resgatar a conta ativa. Digite um e-mail diferente."
   },
@@ -7614,9 +7732,9 @@
     "message": "Conta de serviço atualizada",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Digite ou selecione projetos ou segredos",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Digite para filtrar",
@@ -7701,8 +7819,8 @@
     "message": "Tokens de acesso",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Novo token de acesso",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8203,10 +8321,118 @@
   "errorReadingImportFile": {
     "message": "Ocorreu um erro ao tentar ler o arquivo de importação"
   },
+  "accessedSecretWithId": {
+    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "$SECRET_ID$ secreto acessado.",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Created a new secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accessed a project with Id: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Deleted project Id: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Deleted secret Id: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8383,6 +8609,12 @@
   },
   "requestAdminApproval": {
     "message": "Solicitar aprovação do administrador"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "trustedDeviceEncryption": {
     "message": "Criptografia de dispositivo confiável"
@@ -8837,6 +9069,30 @@
   "commonImportFormats": {
     "message": "Formatos comuns",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Para manter sua assinatura para $ORG$, ",
@@ -9315,6 +9571,12 @@
   "deviceManagementDesc": {
     "message": "Configure o gerenciamento de dispositivos para o Bitwarden usando o guia de implementação da sua plataforma."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Send event data to your Logscale instance"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "ID do dispositivo está faltando"
   },
@@ -9329,6 +9591,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Reabra este link a partir do seu e-mail em um desktop."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Inicie o guia de implementação $INTEGRATION$.",
@@ -9386,6 +9657,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Crie uma nova organização de cliente para gerenciar como um Provedor. Posições adicionais serão refletidas no próximo ciclo de faturamento."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Selecione um plano"
@@ -10135,8 +10415,8 @@
   "organizationUserDeletedDesc": {
     "message": "O usuário foi removido da organização e todos os dados de usuários associados foram excluídos."
   },
-  "deletedUserId": {
-    "message": "Usuário excluído $ID$ - um proprietário / administrador excluiu a conta do usuário",
+  "deletedUserIdEventMessage": {
+    "message": "Deleted user $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10246,8 +10526,8 @@
   "domainStatusUnderVerification": {
     "message": "Em verificação"
   },
-  "claimedDomainsDesc": {
-    "message": "Reivindique um domínio para se apropriar de todas as contas de membros cujo endereço de e-mail corresponde ao domínio. Os membros serão capazes de pular o identificador SSO ao fazer o login. Administradores também serão capazes de excluir contas de membros."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Entrada não é um formato válido. Formato: meudominio.com. Subdomínios requerem entradas separadas para serem reivindicados."
@@ -10542,6 +10822,9 @@
   "upgradeEventLogMessage": {
     "message": "Esses eventos são apenas exemplos e não refletem eventos reais na sua organização do Bitwarden."
   },
+  "viewEvents": {
+    "message": "View Events"
+  },
   "cannotCreateCollection": {
     "message": "Organizações gratuitas podem ter até duas coleções. Faça o upgrade para um plano pago para adicionar mais coleções."
   },
@@ -10628,6 +10911,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Autofill your passwords securely with one click"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Get the Bitwarden browser extension and start autofilling today"
+  },
+  "getTheExtension": {
+    "message": "Get the extension"
+  },
+  "addItLater": {
+    "message": "Add it later"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "You can't autofill passwords without the browser extension"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Are you sure you don't want to add the extension now?"
+  },
+  "skipToWebApp": {
+    "message": "Skip to web app"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden extension installed!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Open the extension to log in and start autofilling."
+  },
+  "openBitwardenExtension": {
+    "message": "Open Bitwarden extension"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "For tips on getting started with Bitwarden visit the",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Learning Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Help Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
+  },
+  "setupExtensionContentAlt": {
+    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+  },
   "restart": {
     "message": "Restart"
   },
@@ -10649,5 +10977,171 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Billing address required to add credit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Billing address"
+  },
+  "addBillingAddress": {
+    "message": "Add billing address"
+  },
+  "editBillingAddress": {
+    "message": "Edit billing address"
+  },
+  "noBillingAddress": {
+    "message": "No address on file."
+  },
+  "billingAddressUpdated": {
+    "message": "Your billing address has been updated."
+  },
+  "paymentDetails": {
+    "message": "Payment details"
+  },
+  "paymentMethodUpdated": {
+    "message": "Your payment method has been updated."
+  },
+  "bankAccountVerified": {
+    "message": "Your bank account has been verified."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+  },
+  "mustBePositiveNumber": {
+    "message": "Must be a positive number"
+  },
+  "cardSecurityCode": {
+    "message": "Card security code"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "taxId": {
+    "message": "Tax ID: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
+  },
+  "unpaidInvoices": {
+    "message": "Unpaid invoices"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Subscription canceled"
+  },
+  "providersubCanceledmessage": {
+    "message": "To resubscribe, contact Bitwarden Customer Support."
+  },
+  "showMore": {
+    "message": "Mostrar mais"
+  },
+  "showLess": {
+    "message": "Mostrar menos"
+  },
+  "missingTaxId": {
+    "message": "Missing Tax ID"
+  },
+  "missingTaxIdWarning": {
+    "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Add a Tax ID"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Action required: Missing Tax ID"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Action required: Your Tax ID number is unverified. If your Tax ID is left unverified, your invoices may include additional tax."
+  },
+  "editTaxId": {
+    "message": "Edit your Tax ID"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Tax ID unverified"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Check your Tax ID to verify the format is correct and there are no typos."
+  },
+  "pendingVerification": {
+    "message": "Pending verification"
+  },
+  "checkInputFormat": {
+    "message": "Check input format for typos."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Example $CODE$ format: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

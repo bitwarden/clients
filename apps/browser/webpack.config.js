@@ -31,7 +31,7 @@ const moduleRules = [
     test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
     exclude: /loading.svg/,
     generator: {
-      filename: "popup/fonts/[name][ext]",
+      filename: "popup/fonts/[name].[contenthash][ext]",
     },
     type: "asset/resource",
   },
@@ -91,11 +91,6 @@ const moduleRules = [
   {
     test: /\.[jt]sx?$/,
     loader: "@ngtools/webpack",
-  },
-  {
-    test: /argon2(-simd)?\.wasm$/,
-    loader: "base64-loader",
-    type: "javascript/auto",
   },
 ];
 
@@ -204,7 +199,6 @@ const mainConfig = {
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
     "overlay/menu":
       "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
-    "encrypt-worker": "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
     "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
   },
@@ -290,7 +284,6 @@ const mainConfig = {
     clean: true,
   },
   module: {
-    noParse: /argon2(-simd)?\.wasm$/,
     rules: moduleRules,
   },
   experiments: {
@@ -365,13 +358,7 @@ if (manifestVersion == 2) {
           test: /\.tsx?$/,
           loader: "ts-loader",
         },
-        {
-          test: /argon2(-simd)?\.wasm$/,
-          loader: "base64-loader",
-          type: "javascript/auto",
-        },
       ],
-      noParse: /argon2(-simd)?\.wasm$/,
     },
     cache:
       ENV !== "development"
@@ -405,7 +392,7 @@ if (manifestVersion == 2) {
       cache: true,
     },
     dependencies: ["main"],
-    plugins: [...requiredPlugins /*new AngularCheckPlugin()*/], // TODO (PM-22630): Re-enable this plugin when angular is removed from the background script.
+    plugins: [...requiredPlugins, new AngularCheckPlugin()],
   };
 
   // Safari's desktop build process requires a background.html and vendor.js file to exist

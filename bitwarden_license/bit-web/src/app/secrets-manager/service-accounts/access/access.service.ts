@@ -1,15 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { filter, firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { AccessTokenRequest } from "../models/requests/access-token.request";
@@ -32,6 +35,7 @@ export class AccessService {
     private apiService: ApiService,
     private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
+    private accountService: AccountService,
   ) {}
 
   async getAccessTokens(
@@ -48,6 +52,19 @@ export class AccessService {
     const results = new ListResponse(r, AccessTokenResponse);
 
     return await this.createAccessTokenViews(organizationId, results.data);
+  }
+
+  private getOrganizationKey$(organizationId: string) {
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      filter((orgKeys) => !!orgKeys),
+      map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
+    );
+  }
+
+  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
+    return await firstValueFrom(this.getOrganizationKey$(organizationId));
   }
 
   async createAccessToken(
@@ -115,10 +132,6 @@ export class AccessService {
     accessTokenRequest.key = key;
     accessTokenRequest.expireAt = accessTokenView.expireAt;
     return accessTokenRequest;
-  }
-
-  private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.keyService.getOrgKey(organizationId);
   }
 
   private async createAccessTokenViews(

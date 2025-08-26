@@ -75,7 +75,7 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
-  isViewOpen() {
+  isPopupOpen() {
     return Promise.resolve(false);
   }
 
@@ -105,6 +105,14 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
   }
 
   supportsDuo(): boolean {
+    return false;
+  }
+
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  supportsFileDownloads(): boolean {
     return false;
   }
 

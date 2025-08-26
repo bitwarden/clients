@@ -1,46 +1,61 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   BehaviorSubject,
   Subject,
   combineLatest,
   filter,
-  from,
+  map,
   of,
+  shareReplay,
   switchMap,
-  takeUntil,
 } from "rxjs";
 
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 @Directive()
-export class VaultItemsComponent implements OnInit, OnDestroy {
+export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy {
   @Input() activeCipherId: string = null;
-  @Output() onCipherClicked = new EventEmitter<CipherView>();
-  @Output() onCipherRightClicked = new EventEmitter<CipherView>();
+  @Output() onCipherClicked = new EventEmitter<C>();
+  @Output() onCipherRightClicked = new EventEmitter<C>();
   @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
   @Output() onAddCipherOptions = new EventEmitter();
 
   loaded = false;
-  ciphers: CipherView[] = [];
+  ciphers: C[] = [];
   deleted = false;
   organization: Organization;
   CipherType = CipherType;
 
-  protected searchPending = false;
+  protected itemTypes$ = this.restrictedItemTypesService.restricted$.pipe(
+    map((restrictedItemTypes) =>
+      // Filter out restricted item types
+      CIPHER_MENU_ITEMS.filter(
+        (itemType) =>
+          !restrictedItemTypes.some(
+            (restrictedType) => restrictedType.cipherType === itemType.type,
+          ),
+      ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   /** Construct filters as an observable so it can be appended to the cipher stream. */
-  private _filter$ = new BehaviorSubject<(cipher: CipherView) => boolean | null>(null);
+  private _filter$ = new BehaviorSubject<(cipher: C) => boolean | null>(null);
   private destroy$ = new Subject<void>();
-  private isSearchable: boolean = false;
   private _searchText$ = new BehaviorSubject<string>("");
 
   get searchText() {
@@ -54,7 +69,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     return this._filter$.value;
   }
 
-  set filter(value: (cipher: CipherView) => boolean | null) {
+  set filter(value: (cipher: C) => boolean | null) {
     this._filter$.next(value);
   }
 
@@ -62,21 +77,9 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     protected searchService: SearchService,
     protected cipherService: CipherService,
     protected accountService: AccountService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.subscribeToCiphers();
-  }
-
-  async ngOnInit() {
-    combineLatest([getUserId(this.accountService.activeAccount$), this._searchText$])
-      .pipe(
-        switchMap(([userId, searchText]) =>
-          from(this.searchService.isSearchable(userId, searchText)),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((isSearchable) => {
-        this.isSearchable = isSearchable;
-      });
   }
 
   ngOnDestroy(): void {
@@ -84,13 +87,13 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async load(filter: (cipher: CipherView) => boolean = null, deleted = false) {
+  async load(filter: (cipher: C) => boolean = null, deleted = false) {
     this.deleted = deleted ?? false;
     await this.applyFilter(filter);
     this.loaded = true;
   }
 
-  async reload(filter: (cipher: CipherView) => boolean = null, deleted = false) {
+  async reload(filter: (cipher: C) => boolean = null, deleted = false) {
     this.loaded = false;
     await this.load(filter, deleted);
   }
@@ -99,15 +102,15 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     await this.reload(this.filter, this.deleted);
   }
 
-  async applyFilter(filter: (cipher: CipherView) => boolean = null) {
+  async applyFilter(filter: (cipher: C) => boolean = null) {
     this.filter = filter;
   }
 
-  selectCipher(cipher: CipherView) {
+  selectCipher(cipher: C) {
     this.onCipherClicked.emit(cipher);
   }
 
-  rightClickCipher(cipher: CipherView) {
+  rightClickCipher(cipher: C) {
     this.onCipherRightClicked.emit(cipher);
   }
 
@@ -119,11 +122,8 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     this.onAddCipherOptions.emit();
   }
 
-  isSearching() {
-    return !this.searchPending && this.isSearchable;
-  }
-
-  protected deletedFilter: (cipher: CipherView) => boolean = (c) => c.isDeleted === this.deleted;
+  protected deletedFilter: (cipher: C) => boolean = (c) =>
+    CipherViewLikeUtils.isDeleted(c) === this.deleted;
 
   /**
    * Creates stream of dependencies that results in the list of ciphers to display
@@ -138,23 +138,27 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((userId) =>
           combineLatest([
-            this.cipherService.cipherViews$(userId).pipe(filter((ciphers) => ciphers != null)),
+            this.cipherService.cipherListViews$(userId).pipe(filter((ciphers) => ciphers != null)),
             this.cipherService.failedToDecryptCiphers$(userId),
             this._searchText$,
             this._filter$,
             of(userId),
+            this.restrictedItemTypesService.restricted$,
           ]),
         ),
-        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId]) => {
-          let allCiphers = indexedCiphers ?? [];
+        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
+          let allCiphers = (indexedCiphers ?? []) as C[];
           const _failedCiphers = failedCiphers ?? [];
 
-          allCiphers = [..._failedCiphers, ...allCiphers];
+          allCiphers = [..._failedCiphers, ...allCiphers] as C[];
+
+          const restrictedTypeFilter = (cipher: CipherViewLike) =>
+            !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
 
           return this.searchService.searchCiphers(
             userId,
             searchText,
-            [filter, this.deletedFilter],
+            [filter, this.deletedFilter, restrictedTypeFilter],
             allCiphers,
           );
         }),

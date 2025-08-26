@@ -118,54 +118,54 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - 免費密碼管理工具</value>
+    <value>Bitwarden 密碼管理工具</value>
   </data>
   <data name="Summary" xml:space="preserve">
     <value>無論在家、在辦公或在途中，Bitwarden 都能輕易的保護你的密碼、登入金鑰和敏感資訊。</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>被 PCMag、WIRED、The Verge、CNET、G2 等認可為最佳的密碼管理器！
+    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
 
-保護您的數位生活
-透過為每個帳戶產生並保存唯一的強密碼，保護您的數位生活並防止資料外洩。將所有內容保存在只有您可以存取的端對端加密密碼庫中。
+SECURE YOUR DIGITAL LIFE
+Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
 
-隨時隨地在任何裝置上存取您的數據
-不受限制地跨裝置輕鬆管理、儲存、保護和分享無限多的密碼。
+ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
+Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
 
-每個人都應該擁有保持上網安全的工具
-免費使用 Bitwarden，沒有廣告或銷售資料。Bitwarden 認為每個人都應該有能力確保上網安全。進階版計劃提供對進階功能的存取。
+EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
+Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
 
-透過 BITWARDEN 強化您的團隊
-團隊和企業計劃具有專業的商業功能。包括 SSO 整合、自架服務、目錄整合和 SCIM 配置、全域政策、API 存取、事件日誌等。
+EMPOWER YOUR TEAMS WITH BITWARDEN
+Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
 
-使用 Bitwarden 來保護您的員工並與同事分享敏感資訊。
+Use Bitwarden to secure your workforce and share sensitive information with colleagues.
 
 
-選擇 Bitwarden 的其他理由：
+More reasons to choose Bitwarden:
 
-世界級的加密
-密碼受到進階端對端加密（AES-256 位元、加鹽標籤和 PBKDF2 SHA-256）的保護，因此您的資料保持安全和私密。
+World-Class Encryption
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
 
-第三方審核
-Bitwarden 定期與知名資安公司進行全面的第三方安全稽核。這些年度稽核包括 Bitwarden IP、伺服器和 Web 應用程式的原始程式碼評估和滲透測試。
+3rd-party Audits
+Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
 
-進階的雙因子驗證
-使用第三方驗證器、透過電子郵件傳送的代碼或 FIDO2 WebAuthn 憑證（例如硬體安全金鑰或密碼）來保護您的登入。
+Advanced 2FA
+Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
 
-Bitwarden 傳送
-直接將資料傳輸給其他人，同時保持端對端加密安全性並限制暴露。
+Bitwarden Send
+Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
 
-內建產生器
-為您造訪的每個網站建立長、複雜且獨特的密碼和唯一的使用者名稱。與電子郵件別名提供者整合以獲得額外的隱私。
+Built-in Generator
+Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
 
-全球翻譯
-Bitwarden 有 60 多種語言翻譯，由全球社群透過 Crowdin 翻譯。
+Global Translations
+Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
 
-跨平台應用程式
-透過任何瀏覽器、行動裝置或桌面作業系統等保護和共用 Bitwarden 密碼庫中的敏感資料。
+Cross-Platform Applications
+Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
 
-Bitwarden 保護的不僅是密碼
-Bitwarden 的端對端加密憑證管理解決方案可讓組織保護一切，包括開發人員機密和金鑰體驗。請造訪 Bitwarden.com 以了解更多有關 Bitwarden 機密管理員和 Bitwarden Passwordless.dev 的資訊！
+Bitwarden secures more than just passwords
+End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">

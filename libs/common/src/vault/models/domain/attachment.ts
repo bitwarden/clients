@@ -4,9 +4,9 @@ import { Jsonify } from "type-fest";
 
 import { Attachment as SdkAttachment } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { AttachmentData } from "../data/attachment.data";
 import { AttachmentView } from "../view/attachment.view";
@@ -56,6 +56,7 @@ export class Attachment extends Domain {
 
     if (this.key != null) {
       view.key = await this.decryptAttachmentKey(orgId, encKey);
+      view.encryptedKey = this.key; // Keep the encrypted key for the view
     }
 
     return view;
@@ -79,9 +80,7 @@ export class Attachment extends Domain {
 
   private async getKeyForDecryption(orgId: string) {
     const keyService = Utils.getContainerService().getKeyService();
-    return orgId != null
-      ? await keyService.getOrgKey(orgId)
-      : await keyService.getUserKeyWithLegacySupport();
+    return orgId != null ? await keyService.getOrgKey(orgId) : await keyService.getUserKey();
   }
 
   toAttachmentData(): AttachmentData {
@@ -127,8 +126,28 @@ export class Attachment extends Domain {
       url: this.url,
       size: this.size,
       sizeName: this.sizeName,
-      fileName: this.fileName?.toJSON(),
-      key: this.key?.toJSON(),
+      fileName: this.fileName?.toSdk(),
+      key: this.key?.toSdk(),
     };
+  }
+
+  /**
+   * Maps an SDK Attachment object to an Attachment
+   * @param obj - The SDK attachment object
+   */
+  static fromSdkAttachment(obj: SdkAttachment): Attachment | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const attachment = new Attachment();
+    attachment.id = obj.id;
+    attachment.url = obj.url;
+    attachment.size = obj.size;
+    attachment.sizeName = obj.sizeName;
+    attachment.fileName = EncString.fromJSON(obj.fileName);
+    attachment.key = EncString.fromJSON(obj.key);
+
+    return attachment;
   }
 }

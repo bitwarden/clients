@@ -1,44 +1,46 @@
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { RestrictedCipherType } from "@bitwarden/vault";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
-export type FilterFunction = (cipher: CipherView) => boolean;
+export type FilterFunction = (cipher: CipherViewLike) => boolean;
 
-export function createFilterFunction(
-  filter: RoutedVaultFilterModel,
-  restrictedTypes?: RestrictedCipherType[],
-): FilterFunction {
+export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunction {
   return (cipher) => {
+    const type = CipherViewLikeUtils.getType(cipher);
+    const isDeleted = CipherViewLikeUtils.isDeleted(cipher);
+
     if (filter.type === "favorites" && !cipher.favorite) {
       return false;
     }
-    if (filter.type === "card" && cipher.type !== CipherType.Card) {
+    if (filter.type === "card" && type !== CipherType.Card) {
       return false;
     }
-    if (filter.type === "identity" && cipher.type !== CipherType.Identity) {
+    if (filter.type === "identity" && type !== CipherType.Identity) {
       return false;
     }
-    if (filter.type === "login" && cipher.type !== CipherType.Login) {
+    if (filter.type === "login" && type !== CipherType.Login) {
       return false;
     }
-    if (filter.type === "note" && cipher.type !== CipherType.SecureNote) {
+    if (filter.type === "note" && type !== CipherType.SecureNote) {
       return false;
     }
-    if (filter.type === "sshKey" && cipher.type !== CipherType.SshKey) {
+    if (filter.type === "sshKey" && type !== CipherType.SshKey) {
       return false;
     }
-    if (filter.type === "trash" && !cipher.isDeleted) {
+    if (filter.type === "trash" && !isDeleted) {
       return false;
     }
     // Hide trash unless explicitly selected
-    if (filter.type !== "trash" && cipher.isDeleted) {
+    if (filter.type !== "trash" && isDeleted) {
       return false;
     }
     // No folder
-    if (filter.folderId === Unassigned && cipher.folderId !== null) {
+    if (filter.folderId === Unassigned && cipher.folderId != null) {
       return false;
     }
     // Folder
@@ -84,24 +86,6 @@ export function createFilterFunction(
       return false;
     }
 
-    // Restricted types
-    if (restrictedTypes && restrictedTypes.length > 0) {
-      // Filter the cipher if that type is restricted unless
-      // - The cipher belongs to an organization and that organization allows viewing the cipher type
-      // OR
-      // - The cipher belongs to the user's personal vault and at least one other organization does not restrict that type
-      if (
-        restrictedTypes.some(
-          (restrictedType) =>
-            restrictedType.cipherType === cipher.type &&
-            (cipher.organizationId
-              ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
-              : restrictedType.allowViewOrgIds.length === 0),
-        )
-      ) {
-        return false;
-      }
-    }
     return true;
   };
 }

@@ -19,8 +19,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { BadgeModule, ItemModule, ToastService, TypographyModule } from "@bitwarden/components";
+import { CipherFormContainer } from "@bitwarden/vault";
 
-import BrowserPopupUtils from "../../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
 
 @Component({
@@ -41,6 +42,9 @@ export class OpenAttachmentsComponent implements OnInit {
   /** True when the cipher is a part of a free organization */
   cipherIsAPartOfFreeOrg: boolean;
 
+  /** Tracks the disabled status of the edit cipher form */
+  parentFormDisabled: boolean;
+
   constructor(
     private router: Router,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
@@ -50,6 +54,7 @@ export class OpenAttachmentsComponent implements OnInit {
     private i18nService: I18nService,
     private filePopoutUtilsService: FilePopoutUtilsService,
     private accountService: AccountService,
+    private cipherFormContainer: CipherFormContainer,
   ) {
     this.accountService.activeAccount$
       .pipe(
@@ -61,6 +66,10 @@ export class OpenAttachmentsComponent implements OnInit {
       .subscribe((canAccessPremium) => {
         this.canAccessAttachments = canAccessPremium;
       });
+
+    this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
+      this.parentFormDisabled = status === "disabled";
+    });
   }
 
   async ngOnInit(): Promise<void> {

@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Посвідчення"
   },
+  "typeNote": {
+    "message": "Нотатка"
+  },
   "typeSecureNote": {
     "message": "Захищена нотатка"
   },
@@ -37,6 +40,9 @@
   },
   "searchVault": {
     "message": "Шукати у сховищі"
+  },
+  "resetSearch": {
+    "message": "Скинути пошук"
   },
   "addItem": {
     "message": "Додати запис"
@@ -569,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Копіювати код підтвердження (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Копіювати $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Довжина"
   },
@@ -681,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Вкладення збережено"
+  },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
   },
   "file": {
     "message": "Файл"
@@ -1205,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Двоетапна перевірка"
   },
+  "vaultTimeoutHeader": {
+    "message": "Час очікування сховища"
+  },
   "vaultTimeout": {
     "message": "Час очікування сховища"
   },
   "vaultTimeout1": {
     "message": "Час очікування"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Дія після часу очікування"
   },
   "vaultTimeoutDesc": {
     "message": "Оберіть дію, яка виконається після завершення часу очікування сховища."
@@ -1422,6 +1454,9 @@
     "message": "Копіювати код безпеки",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "номер картки"
+  },
   "premiumMembership": {
     "message": "Преміум статус"
   },
@@ -1633,7 +1668,7 @@
     "message": "Починається з"
   },
   "regEx": {
-    "message": "Звичайний вираз",
+    "message": "Регулярний вираз",
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
@@ -1713,6 +1748,12 @@
   "accountRestricted": {
     "message": "Обмежено обліковим записом"
   },
+  "restrictCardTypeImport": {
+    "message": "Не вдається імпортувати записи карток"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Політика принаймні однієї організації не дозволяє вам імпортувати записи карток до сховища."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Пароль файлу та підтвердження пароля відрізняються."
   },
@@ -1787,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Розблокувати з Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Додаткові налаштування Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Розблокувати за допомогою системної автентифікації"
   },
@@ -1805,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "розблокувати сховище"
   },
-  "autoPromptWindowsHello": {
-    "message": "Запитувати Windows Hello під час запуску"
-  },
-  "autoPromptPolkit": {
-    "message": "Запитувати системну автентифікацію під час запуску"
-  },
   "autoPromptTouchId": {
     "message": "Запитувати Touch ID під час запуску"
-  },
-  "requirePasswordOnStart": {
-    "message": "Вимагати пароль чи PIN під час запуску"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Вимагати пароль під час запуску"
-  },
-  "recommendedForSecurity": {
-    "message": "Рекомендовано для безпеки."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокувати головним паролем при перезапуску"
@@ -2383,6 +2406,9 @@
   "passwordConfirmationDesc": {
     "message": "Ця дія захищена. Щоб продовжити, повторно введіть головний пароль."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Головний пароль успішно встановлено"
+  },
   "updatedMasterPassword": {
     "message": "Головний пароль оновлено"
   },
@@ -2394,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
+  },
+  "changePasswordWarning": {
+    "message": "Після зміни пароля потрібно буде ввійти в систему з новим паролем. Активні сеанси на інших пристроях буде завершено протягом години."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Змініть свій головний пароль, щоб завершити відновлення облікового запису."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Ваш головний пароль не відповідає вимогам цієї організації. Змініть свій головний пароль, щоб продовжити."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Ваша організація вимкнула шифрування довірених пристроїв. Встановіть головний пароль для доступу до сховища."
@@ -2481,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Час очікування сховища перевищує обмеження, встановлені вашою організацією."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "До налаштувань часу очікування застосовано вимоги політики компанії"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Політикою вашої організації встановлено максимальний дозволений час очікування сховища $HOURS$ годин, $MINUTES$ хвилин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Час очікування перевищує обмеження, встановлене вашою організацією: $HOURS$ год і $MINUTES$ хв максимум",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Запрошення прийнято"
@@ -2963,9 +3027,6 @@
     "message": "Перемкнути лічильник символів",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Ви намагаєтесь отримати доступ до свого облікового запису?"
-  },
   "accessAttemptBy": {
     "message": "Спроба доступу з $EMAIL$",
     "placeholders": {
@@ -2974,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Запит входу підтверджено для $EMAIL$ на $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були ви, спробуйте ввійти з пристроєм знову."
+  },
+  "webApp": {
+    "message": "Вебпрограма"
+  },
+  "mobile": {
+    "message": "Мобільний",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Розширення",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Комп'ютер",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Сервер"
+  },
+  "loginRequest": {
+    "message": "Запит входу"
   },
   "deviceType": {
     "message": "Тип пристрою"
@@ -2989,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Заборонити доступ"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте увійти з пристроєм знову."
   },
   "justNow": {
     "message": "Щойно"
@@ -3131,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "Запит підтвердження адміністратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Не вдалося завершити вхід"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Ви повинні ввійти до системи на довіреному пристрої або попросити адміністратора призначити вам пароль."
   },
   "region": {
     "message": "Регіон"
@@ -3396,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Вибрати збірку"
   },
-  "importTargetHint": {
-    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -3522,6 +3613,30 @@
   "commonImportFormats": {
     "message": "Поширені формати",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Виявлення збігів URI – це спосіб ідентифікації пропозицій автозаповнення Bitwarden.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "Регулярний вираз – це функція, що має підвищений ризик розкриття облікових даних, призначена для досвідчених користувачів.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Починається з\" – це функція, що має підвищений ризик розкриття облікових даних, призначена для досвідчених користувачів.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Докладніше про виявлення збігів",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Додаткові налаштування",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Попередження",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Успішно"
@@ -3812,5 +3927,155 @@
     "message": "Докладніше про SSH-агента",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Призначити до збірок"
+  },
+  "assignToTheseCollections": {
+    "message": "Призначити до цих збірок"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати запис."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
+  },
+  "noCollectionsAssigned": {
+    "message": "Не призначено жодної збірки"
+  },
+  "assign": {
+    "message": "Призначити"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Ви вибрали $TOTAL_COUNT$ записів. Ви не можете оновити $READONLY_COUNT$ записів, тому що у вас немає дозволу на редагування.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Оберіть збірки для призначення"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ буде остаточно перенесено до вибраної організації. Ви більше не будете власником цих елементів.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ буде остаточно перенесено до $ORG$. Ви більше не будете власником цих елементів.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 запис буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього запису."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 запис буде остаточно перенесено до $ORG$. Ви більше не будете власником цього запису.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Збірки успішно призначено"
+  },
+  "nothingSelected": {
+    "message": "Ви нічого не вибрали."
+  },
+  "itemsMovedToOrg": {
+    "message": "Записи переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Запис переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Вибрані записи переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "enableAutotype": {
+    "message": "Увімкнути автовведення"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden не перевіряє місця введення. Переконайтеся, що у вас відкрите правильне вікно і вибрано потрібне поле, перш ніж застосувати комбінацію клавіш."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

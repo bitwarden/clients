@@ -18,6 +18,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -28,15 +29,14 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
   DialogService,
-  Icons,
   NoItemsModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
+import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -136,9 +136,9 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   /** Visual state of the vault */
   protected vaultState: VaultState | null = null;
 
-  protected vaultIcon = VaultIcons.Vault;
-  protected deactivatedIcon = VaultIcons.DeactivatedOrg;
-  protected noResultsIcon = Icons.NoResults;
+  protected vaultIcon = VaultOpen;
+  protected deactivatedIcon = DeactivatedOrg;
+  protected noResultsIcon = NoResults;
 
   protected VaultStateEnum = VaultState;
 

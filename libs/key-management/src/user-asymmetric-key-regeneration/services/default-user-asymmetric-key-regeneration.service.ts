@@ -2,10 +2,11 @@ import { combineLatest, firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -56,6 +57,13 @@ export class DefaultUserAsymmetricKeysRegenerationService
     if (!userKey) {
       this.logService.info(
         "[UserAsymmetricKeyRegeneration] User symmetric key unavailable, skipping regeneration for the user.",
+      );
+      return false;
+    }
+
+    if (userKey.inner().type === EncryptionType.CoseEncrypt0) {
+      this.logService.error(
+        "[UserAsymmetricKeyRegeneration] Cannot regenerate asymmetric keys for accounts on V2 encryption.",
       );
       return false;
     }
@@ -162,17 +170,26 @@ export class DefaultUserAsymmetricKeysRegenerationService
     const ciphers = await this.cipherService.getAll(userId);
     const cipher = ciphers.find((cipher) => cipher.organizationId == null);
 
-    if (cipher != null) {
-      try {
-        await cipher.decrypt(userKey);
-        return true;
-      } catch (error) {
+    if (!cipher) {
+      return false;
+    }
+
+    try {
+      const cipherView = await cipher.decrypt(userKey);
+
+      if (cipherView.decryptionFailure) {
         this.logService.error(
-          "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: " + error,
+          "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: Cipher decryption failed",
         );
         return false;
       }
+
+      return true;
+    } catch (error) {
+      this.logService.error(
+        "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: " + error,
+      );
+      return false;
     }
-    return false;
   }
 }

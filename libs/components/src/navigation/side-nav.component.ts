@@ -1,8 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, ElementRef, input, viewChild } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -19,17 +17,16 @@ export type SideNavVariant = "primary" | "secondary";
   imports: [CommonModule, CdkTrapFocus, NavDividerComponent, BitIconButtonComponent, I18nPipe],
 })
 export class SideNavComponent {
-  @Input() variant: SideNavVariant = "primary";
+  readonly variant = input<SideNavVariant>("primary");
 
-  @ViewChild("toggleButton", { read: ElementRef, static: true })
-  private toggleButton: ElementRef<HTMLButtonElement>;
+  private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
   constructor(protected sideNavService: SideNavService) {}
 
   protected handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
       this.sideNavService.setClose();
-      this.toggleButton?.nativeElement.focus();
+      this.toggleButton()?.nativeElement.focus();
       return false;
     }
 

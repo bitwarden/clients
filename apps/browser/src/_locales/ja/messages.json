@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "保管庫を検索"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "編集"
   },
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "保存できませんでした。詳細を手動で入力してください。",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
   },
   "enableChangedPasswordNotification": {
     "message": "既存のログイン情報の更新を尋ねる"
@@ -1823,6 +1832,9 @@
   "securityCode": {
     "message": "セキュリティコード"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "ex": {
     "message": "例:"
   },
@@ -1921,6 +1933,9 @@
   },
   "typeSshKey": {
     "message": "SSH 鍵"
+  },
+  "typeNote": {
+    "message": "Note"
   },
   "newItemHeader": {
     "message": "$TYPE$ を新規作成",
@@ -2484,6 +2499,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "組織のポリシーにより、個々の保管庫へのアイテムのインポートがブロックされました。"
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "ドメイン",
     "description": "A category title describing the concept of web domains"
@@ -2909,6 +2930,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "この機能を使用するにはメールアドレスを確認する必要があります。ウェブ保管庫でメールアドレスを確認できます。"
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "マスターパスワードを更新しました"
@@ -3442,6 +3466,31 @@
   "logInRequestSent": {
     "message": "リクエストが送信されました"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "流出したマスターパスワード"
   },
@@ -3535,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "このデバイスを記憶して今後のログインをシームレスにする"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "デバイスの承認が必要です。以下から承認オプションを選択してください:"
   },
@@ -3555,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "管理者の承認を要求する"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "組織の SSO ID が必要です。"
@@ -3988,15 +4131,11 @@
   "selectImportCollection": {
     "message": "コレクションを選択"
   },
-  "importTargetHint": {
-    "message": "インポートしたファイルコンテンツを $DESTINATION$ に移動したい場合は、このオプションを選択してください。",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "割り当てられていないアイテムがファイルに含まれています。"
@@ -4235,6 +4374,26 @@
     "message": "一般的な形式",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "ブラウザの設定に進みますか？",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4418,17 +4577,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "$FIELD$ 「$VALUE$」 をコピー",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5062,6 +5221,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
   "authenticating": {
     "message": "認証中"
   },
@@ -5403,5 +5565,19 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Identität"
   },
+  "typeNote": {
+    "message": "Notiz"
+  },
   "typeSecureNote": {
     "message": "Sichere Notiz"
   },
@@ -37,6 +40,9 @@
   },
   "searchVault": {
     "message": "Tresor durchsuchen"
+  },
+  "resetSearch": {
+    "message": "Suche zurücksetzen"
   },
   "addItem": {
     "message": "Eintrag hinzufügen"
@@ -569,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Verifizierungscode (TOTP) kopieren"
   },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopieren",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Länge"
   },
@@ -681,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Anhang gespeichert"
+  },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
   },
   "file": {
     "message": "Datei"
@@ -1205,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Zwei-Faktor-Authentifizierung"
   },
+  "vaultTimeoutHeader": {
+    "message": "Tresor-Timeout"
+  },
   "vaultTimeout": {
     "message": "Tresor-Timeout"
   },
   "vaultTimeout1": {
     "message": "Timeout"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout-Aktion"
   },
   "vaultTimeoutDesc": {
     "message": "Wähle, wann der Timeout deines Tresors aktiviert werden soll und welche Aktion er bewirken soll."
@@ -1421,6 +1453,9 @@
   "copySecurityCode": {
     "message": "Sicherheitscode kopieren",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "Kartennummer"
   },
   "premiumMembership": {
     "message": "Premium-Mitgliedschaft"
@@ -1713,6 +1748,12 @@
   "accountRestricted": {
     "message": "Konto eingeschränkt"
   },
+  "restrictCardTypeImport": {
+    "message": "Karten-Eintragstypen können nicht importiert werden"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Eine von einer oder mehreren Organisationen festgelegte Richtlinie verhindert, dass du Karten in deinen Tresor importieren kannst."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "„Dateipasswort“ und „Dateipasswort bestätigen“ stimmen nicht überein."
   },
@@ -1787,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Mit Windows Hello entsperren"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Zusätzliche Einstellungen für Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Mit Systemauthentifizierung entsperren"
   },
@@ -1805,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "Deinen Tresor entsperren"
   },
-  "autoPromptWindowsHello": {
-    "message": "Beim Start nach Windows Hello fragen"
-  },
-  "autoPromptPolkit": {
-    "message": "Beim Start nach Systemauthentifizierung fragen"
-  },
   "autoPromptTouchId": {
     "message": "Beim Start nach Touch ID fragen"
-  },
-  "requirePasswordOnStart": {
-    "message": "Passwort oder PIN beim Start der App verlangen"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Ein Passwort beim Starten der App verlangen"
-  },
-  "recommendedForSecurity": {
-    "message": "Aus Sicherheitsgründen empfohlen."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Beim Neustart mit Master-Passwort sperren"
@@ -2383,6 +2406,9 @@
   "passwordConfirmationDesc": {
     "message": "Diese Aktion ist geschützt. Um fortzufahren, gib bitte dein Master-Passwort erneut ein, um deine Identität zu bestätigen."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master-Passwort erfolgreich eingerichtet"
+  },
   "updatedMasterPassword": {
     "message": "Master-Passwort aktualisiert"
   },
@@ -2394,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Dein Master-Passwort entspricht nicht einer oder mehreren Richtlinien deiner Organisation. Um auf den Tresor zugreifen zu können, musst du dein Master-Passwort jetzt aktualisieren. Wenn du fortfährst, wirst du von deiner aktuellen Sitzung abgemeldet und musst dich erneut anmelden. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben."
+  },
+  "changePasswordWarning": {
+    "message": "Nachdem du dein Passwort geändert hast, musst du dich mit deinem neuen Passwort anmelden. Aktive Sitzungen auf anderen Geräten werden innerhalb einer Stunde abgemeldet."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Ändere dein Master-Passwort, um die Kontowiederherstellung abzuschließen."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Dein Master-Passwort entspricht nicht den Anforderungen dieser Organisation. Ändere dein Master-Passwort, um fortzufahren."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Deine Organisation hat die vertrauenswürdige Geräteverschlüsselung deaktiviert. Bitte lege ein Master-Passwort fest, um auf deinen Tresor zuzugreifen."
@@ -2481,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Das Timeout überschreitet die von deiner Organisation festgelegte Beschränkung: Maximal $HOURS$ Stunde(n) und $MINUTES$ Minute(n)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Einladung angenommen"
@@ -2963,9 +3027,6 @@
     "message": "Zeichenanzahl ein-/ausschalten",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Versuchst du auf dein Konto zuzugreifen?"
-  },
   "accessAttemptBy": {
     "message": "Zugriffsversuch von $EMAIL$",
     "placeholders": {
@@ -2974,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Anmeldeanfrage für $EMAIL$ auf $DEVICE$ genehmigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+  },
+  "webApp": {
+    "message": "Web-App"
+  },
+  "mobile": {
+    "message": "Mobile App",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Erweiterung",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Anmeldungsanfrage"
   },
   "deviceType": {
     "message": "Gerätetyp"
@@ -2989,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Zugriff ablehnen"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Anmeldung von $EMAIL$ auf $DEVICE$ bestätigt",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
   },
   "justNow": {
     "message": "Gerade eben"
@@ -3131,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "Admin-Genehmigung anfragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Anmeldung kann nicht abgeschlossen werden"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Du musst dich auf einem vertrauenswürdigen Gerät anmelden oder deinem Administrator bitten, dir ein Passwort zuzuweisen."
   },
   "region": {
     "message": "Region"
@@ -3396,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Sammlung auswählen"
   },
-  "importTargetHint": {
-    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine(n) $DESTINATION$ verschoben werden soll",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -3522,6 +3613,30 @@
   "commonImportFormats": {
     "message": "Gängigste Formate",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Auto-Ausfüllen-Vorschläge erkennt.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulärer Ausdruck\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Beginnt mit\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Mehr über die Übereinstimmungs-Erkennung",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Erweiterte Optionen",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warnung",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Erfolg"
@@ -3812,5 +3927,155 @@
     "message": "Erfahre mehr über den SSH-Agenten",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Sammlungen zuweisen"
+  },
+  "assignToTheseCollections": {
+    "message": "Diesen Sammlungen zuweisen"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können diesen Eintrag sehen."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können die Einträge sehen."
+  },
+  "noCollectionsAssigned": {
+    "message": "Es wurden keine Sammlungen zugewiesen"
+  },
+  "assign": {
+    "message": "Zuweisen"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können die Einträge sehen."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Du hast $TOTAL_COUNT$ Einträge ausgewählt. Du kannst $READONLY_COUNT$ der Einträge nicht aktualisieren, da du keine Bearbeitungsrechte hast.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Zu zuweisende Sammlungen auswählen"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an die ausgewählte Organisation übertragen. Du wirst diese Einträge nicht mehr besitzen.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an $ORG$ übertragen. Du wirst diese Einträge nicht mehr besitzen.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 Eintrag wird dauerhaft an die ausgewählte Organisation übertragen. Du wirst diesen Eintrag nicht mehr besitzen."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 Eintrag wird dauerhaft an $ORG$ übertragen. Du wirst diesen Eintrag nicht mehr besitzen.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Sammlungen erfolgreich zugewiesen"
+  },
+  "nothingSelected": {
+    "message": "Du hast nichts ausgewählt."
+  },
+  "itemsMovedToOrg": {
+    "message": "Einträge verschoben nach $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Eintrag verschoben nach $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Ausgewählte Einträge in $ORGNAME$ verschoben",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
+  },
+  "showMore": {
+    "message": "Mehr anzeigen"
+  },
+  "showLess": {
+    "message": "Weniger anzeigen"
+  },
+  "enableAutotype": {
+    "message": "Autotype aktivieren"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden überprüft die Eingabestellen nicht. Vergewissere dich, dass du dich im richtigen Fenster und Feld befindest, bevor du die Tastenkombination verwendest."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

@@ -300,7 +300,7 @@
     "message": "前往帮助中心吗？"
   },
   "continueToHelpCenterDesc": {
-    "message": "在帮助中心进一步了解如何使用 Bitwarden。"
+    "message": "访问帮助中心进一步了解如何使用 Bitwarden。"
   },
   "continueToBrowserExtensionStore": {
     "message": "前往浏览器扩展商店吗？"
@@ -546,6 +546,9 @@
   },
   "searchVault": {
     "message": "搜索密码库"
+  },
+  "resetSearch": {
+    "message": "重置搜索"
   },
   "edit": {
     "message": "编辑"
@@ -1172,6 +1175,12 @@
   "saveFailureDetails": {
     "message": "哦不！我们无法保存它。请尝试手动输入详细信息。",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "更改密码后，您需要使用新密码登录。 在其他设备上的活动会话将在一小时内注销。"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "更改您的主密码以完成账户恢复。"
   },
   "enableChangedPasswordNotification": {
     "message": "询问更新现有的登录"
@@ -1823,6 +1832,9 @@
   "securityCode": {
     "message": "安全码"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "ex": {
     "message": "例如"
   },
@@ -1921,6 +1933,9 @@
   },
   "typeSshKey": {
     "message": "SSH 密钥"
+  },
+  "typeNote": {
+    "message": "笔记"
   },
   "newItemHeader": {
     "message": "新增 $TYPE$",
@@ -2157,7 +2172,7 @@
     "message": "您可以使用此 PIN 码解锁 Bitwarden。您的 PIN 码将在您完全注销此应用程序时被重置。"
   },
   "pinRequired": {
-    "message": "需要 PIN 码。"
+    "message": "必须填写 PIN 码。"
   },
   "invalidPin": {
     "message": "无效 PIN 码。"
@@ -2483,6 +2498,12 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "某个组织策略已阻止将项目导入您的个人密码库。"
+  },
+  "restrictCardTypeImport": {
+    "message": "无法导入支付卡项目类型"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入密码库。"
   },
   "domainsTitle": {
     "message": "域名",
@@ -2909,6 +2930,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "您必须验证电子邮箱才能使用此功能。您可以在网页密码库中验证您的电子邮箱。"
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "主密码设置成功"
   },
   "updatedMasterPassword": {
     "message": "已更新主密码"
@@ -3442,6 +3466,31 @@
   "logInRequestSent": {
     "message": "请求已发送"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
+  },
+  "device": {
+    "message": "设备"
+  },
+  "loginStatus": {
+    "message": "登录状态"
+  },
+  "masterPasswordChanged": {
+    "message": "主密码已保存"
+  },
   "exposedMasterPassword": {
     "message": "已暴露的主密码"
   },
@@ -3535,6 +3584,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "记住此设备以便将来无缝登录"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "当前会话"
+  },
+  "mobile": {
+    "message": "移动端",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "扩展",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "桌面端",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "网页密码库"
+  },
+  "webApp": {
+    "message": "网页 App"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "请求待处理"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "此请求已失效。"
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "登录请求已过期。"
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "请求于 $MINUTES$ 分钟前",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "需要设备批准。请在下面选择一个批准选项："
   },
@@ -3555,6 +3692,12 @@
   },
   "requestAdminApproval": {
     "message": "请求管理员批准"
+  },
+  "unableToCompleteLogin": {
+    "message": "无法完成登录"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "必须填写组织 SSO 标识符。"
@@ -3988,15 +4131,11 @@
   "selectImportCollection": {
     "message": "选择一个集合"
   },
-  "importTargetHint": {
-    "message": "如果您希望将导入的文件内容移动到某个 $DESTINATION$，请选择此选项",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
+  },
+  "importTargetHintFolder": {
+    "message": "如果希望将导入的文件内容移动到文件夹中，请选择此选项"
   },
   "importUnassignedItemsError": {
     "message": "文件包含未分配项目。"
@@ -4235,6 +4374,26 @@
     "message": "常规格式",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "更多关于匹配检测",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "高级选项",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "前往浏览器设置吗？",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4418,17 +4577,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "复制 $FIELD$，$VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4896,7 +5055,7 @@
     "message": "成功分配了集合"
   },
   "nothingSelected": {
-    "message": "您尚未选择任何内容。"
+    "message": "您没有选择任何内容。"
   },
   "itemsMovedToOrg": {
     "message": "项目已移动到 $ORGNAME$",
@@ -5061,6 +5220,9 @@
   },
   "unlockPinSet": {
     "message": "解锁 PIN 设置"
+  },
+  "unlockWithBiometricSet": {
+    "message": "生物识别解锁设置"
   },
   "authenticating": {
     "message": "正在验证"
@@ -5403,5 +5565,19 @@
   },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
+  },
+  "wasmNotSupported": {
+    "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。使用 Bitwarden App 需要 WebAssembly。",
+    "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "显示更多"
+  },
+  "showLess": {
+    "message": "显示更少"
+  },
+  "moreBreadcrumbs": {
+    "message": "进一步的指引",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

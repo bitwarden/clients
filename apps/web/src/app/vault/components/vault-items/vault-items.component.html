@@ -1,4 +1,4 @@
-<cdk-virtual-scroll-viewport [itemSize]="RowHeight" scrollWindow class="tw-pb-8">
+<cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout class="tw-pb-8">
   <bit-table [dataSource]="dataSource" layout="fixed">
     <ng-container header>
       <tr>
@@ -22,16 +22,12 @@
           bitCell
           bitSortable="name"
           [fn]="sortByName"
-          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
+          [class]="showExtraColumn ? 'tw-w-3/5' : 'tw-w-full'"
         >
           {{ "name" | i18n }}
         </th>
         <!-- Individual vault -->
-        <th
-          *ngIf="!showAdminActions"
-          bitCell
-          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
-        >
+        <th *ngIf="!showAdminActions" bitCell [class]="showExtraColumn ? 'tw-w-3/5' : 'tw-w-full'">
           {{ "name" | i18n }}
         </th>
         <th bitCell *ngIf="showOwner" class="tw-hidden tw-w-2/5 lg:tw-table-cell">
@@ -60,7 +56,7 @@
             bitIconButton="bwi-ellipsis-v"
             size="small"
             type="button"
-            appA11yTitle="{{ 'options' | i18n }}"
+            label="{{ 'options' | i18n }}"
           ></button>
           <bit-menu #headerMenu>
             <button *ngIf="bulkMoveAllowed" type="button" bitMenuItem (click)="bulkMoveToFolder()">

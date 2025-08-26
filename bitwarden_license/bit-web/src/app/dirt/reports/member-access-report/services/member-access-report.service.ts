@@ -3,15 +3,15 @@
 import { Injectable } from "@angular/core";
 
 import { CollectionAccessSelectionView } from "@bitwarden/admin-console/common";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   getPermissionList,
   convertToPermission,
 } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/access-selector";
 
-import { MemberAccessDetails } from "../response/member-access-report.response";
+import { MemberAccessResponse } from "../response/member-access-report.response";
 import { MemberAccessExportItem } from "../view/member-access-export.view";
 import { MemberAccessReportView } from "../view/member-access-report.view";
 
@@ -34,15 +34,44 @@ export class MemberAccessReportService {
     organizationId: OrganizationId,
   ): Promise<MemberAccessReportView[]> {
     const memberAccessData = await this.reportApiService.getMemberAccessData(organizationId);
-    const memberAccessReportViewCollection = memberAccessData.map((userData) => ({
-      name: userData.userName,
-      email: userData.email,
-      collectionsCount: userData.collectionsCount,
-      groupsCount: userData.groupsCount,
-      itemsCount: userData.totalItemCount,
-      userGuid: userData.userGuid,
-      usesKeyConnector: userData.usesKeyConnector,
-    }));
+
+    // group member access data by userGuid
+    const userMap = new Map<Guid, MemberAccessResponse[]>();
+    memberAccessData.forEach((userData) => {
+      const userGuid = userData.userGuid;
+      if (!userMap.has(userGuid)) {
+        userMap.set(userGuid, []);
+      }
+      userMap.get(userGuid)?.push(userData);
+    });
+
+    // aggregate user data
+    const memberAccessReportViewCollection: MemberAccessReportView[] = [];
+    userMap.forEach((userDataArray, userGuid) => {
+      const collectionCount = this.getDistinctCount<string>(
+        userDataArray.map((data) => data.collectionId).filter((id) => !!id),
+      );
+      const groupCount = this.getDistinctCount<string>(
+        userDataArray.map((data) => data.groupId).filter((id) => !!id),
+      );
+      const itemsCount = this.getDistinctCount<Guid>(
+        userDataArray
+          .flatMap((data) => data.cipherIds)
+          .filter((id) => id !== "00000000-0000-0000-0000-000000000000"),
+      );
+      const aggregatedData = {
+        userGuid: userGuid,
+        name: userDataArray[0].userName,
+        email: userDataArray[0].email,
+        collectionsCount: collectionCount,
+        groupsCount: groupCount,
+        itemsCount: itemsCount,
+        usesKeyConnector: userDataArray.some((data) => data.usesKeyConnector),
+      };
+
+      memberAccessReportViewCollection.push(aggregatedData);
+    });
+
     return memberAccessReportViewCollection;
   }
 
@@ -50,13 +79,8 @@ export class MemberAccessReportService {
     organizationId: OrganizationId,
   ): Promise<MemberAccessExportItem[]> {
     const memberAccessReports = await this.reportApiService.getMemberAccessData(organizationId);
-    const collectionNames = memberAccessReports.flatMap((item) =>
-      item.accessDetails.map((dtl) => {
-        if (dtl.collectionName) {
-          return dtl.collectionName.encryptedString;
-        }
-      }),
-    );
+    const collectionNames = memberAccessReports.map((item) => item.collectionName.encryptedString);
+
     const collectionNameMap = new Map(collectionNames.map((col) => [col, ""]));
     for await (const key of collectionNameMap.keys()) {
       const decrypted = new EncString(key);
@@ -64,56 +88,35 @@ export class MemberAccessReportService {
       collectionNameMap.set(key, decrypted.decryptedValue);
     }
 
-    const exportItems = memberAccessReports.flatMap((report) => {
-      // to include users without access details
-      // which means a user has no groups, collections or items
-      if (report.accessDetails.length === 0) {
-        return [
-          {
-            email: report.email,
-            name: report.userName,
-            twoStepLogin: report.twoFactorEnabled
-              ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
-              : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
-            accountRecovery: report.accountRecoveryEnabled
-              ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
-              : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
-            group: this.i18nService.t("memberAccessReportNoGroup"),
-            collection: this.i18nService.t("memberAccessReportNoCollection"),
-            collectionPermission: this.i18nService.t("memberAccessReportNoCollectionPermission"),
-            totalItems: "0",
-          },
-        ];
-      }
-      const userDetails = report.accessDetails.map((detail) => {
-        const collectionName = collectionNameMap.get(detail.collectionName.encryptedString);
-        return {
-          email: report.email,
-          name: report.userName,
-          twoStepLogin: report.twoFactorEnabled
-            ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
-            : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
-          accountRecovery: report.accountRecoveryEnabled
-            ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
-            : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
-          group: detail.groupName
-            ? detail.groupName
-            : this.i18nService.t("memberAccessReportNoGroup"),
-          collection: collectionName
-            ? collectionName
-            : this.i18nService.t("memberAccessReportNoCollection"),
-          collectionPermission: detail.collectionId
-            ? this.getPermissionText(detail)
-            : this.i18nService.t("memberAccessReportNoCollectionPermission"),
-          totalItems: detail.itemCount.toString(),
-        };
-      });
-      return userDetails;
+    const exportItems = memberAccessReports.map((report) => {
+      const collectionName = collectionNameMap.get(report.collectionName.encryptedString);
+      return {
+        email: report.email,
+        name: report.userName,
+        twoStepLogin: report.twoFactorEnabled
+          ? this.i18nService.t("memberAccessReportTwoFactorEnabledTrue")
+          : this.i18nService.t("memberAccessReportTwoFactorEnabledFalse"),
+        accountRecovery: report.accountRecoveryEnabled
+          ? this.i18nService.t("memberAccessReportAuthenticationEnabledTrue")
+          : this.i18nService.t("memberAccessReportAuthenticationEnabledFalse"),
+        group: report.groupName
+          ? report.groupName
+          : this.i18nService.t("memberAccessReportNoGroup"),
+        collection: collectionName
+          ? collectionName
+          : this.i18nService.t("memberAccessReportNoCollection"),
+        collectionPermission: report.collectionId
+          ? this.getPermissionText(report)
+          : this.i18nService.t("memberAccessReportNoCollectionPermission"),
+        totalItems: report.cipherIds
+          .filter((_) => _ != "00000000-0000-0000-0000-000000000000")
+          .length.toString(),
+      };
     });
     return exportItems.flat();
   }
 
-  private getPermissionText(accessDetails: MemberAccessDetails): string {
+  private getPermissionText(accessDetails: MemberAccessResponse): string {
     const permissionList = getPermissionList();
     const collectionSelectionView = new CollectionAccessSelectionView({
       id: accessDetails.groupId ?? accessDetails.collectionId,
@@ -124,5 +127,10 @@ export class MemberAccessReportService {
     return this.i18nService.t(
       permissionList.find((p) => p.perm === convertToPermission(collectionSelectionView))?.labelId,
     );
+  }
+
+  private getDistinctCount<T>(items: T[]): number {
+    const uniqueItems = new Set(items);
+    return uniqueItems.size;
   }
 }
