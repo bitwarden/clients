@@ -230,24 +230,6 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
-import {
-  ActiveUserAccessor,
-  ActiveUserStateProvider,
-  DefaultStateService,
-  DerivedStateProvider,
-  GlobalStateProvider,
-  SingleUserStateProvider,
-  StateProvider,
-} from "@bitwarden/common/platform/state";
-/* eslint-disable import/no-restricted-paths -- We need the implementations to inject, but generally these should not be accessed */
-import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
-import { DefaultDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/default-derived-state.provider";
-import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
-import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
-import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
-import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
-import { StateEventRunnerService } from "@bitwarden/common/platform/state/state-event-runner.service";
-/* eslint-enable import/no-restricted-paths */
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
@@ -329,6 +311,26 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import {
+  ActiveUserStateProvider,
+  DerivedStateProvider,
+  GlobalStateProvider,
+  SingleUserStateProvider,
+  StateEventRegistrarService,
+  StateEventRunnerService,
+  StateProvider,
+} from "@bitwarden/state";
+import {
+  ActiveUserAccessor,
+  DefaultActiveUserStateProvider,
+  DefaultDerivedStateProvider,
+  DefaultGlobalStateProvider,
+  DefaultSingleUserStateProvider,
+  DefaultStateEventRegistrarService,
+  DefaultStateEventRunnerService,
+  DefaultStateProvider,
+  DefaultStateService,
+} from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -941,6 +943,7 @@ const safeProviders: SafeProvider[] = [
       SignalRConnectionService,
       AuthServiceAbstraction,
       WebPushConnectionService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1246,12 +1249,12 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: StateEventRegistrarService,
-    useClass: StateEventRegistrarService,
+    useClass: DefaultStateEventRegistrarService,
     deps: [GlobalStateProvider, StorageServiceProvider],
   }),
   safeProvider({
     provide: StateEventRunnerService,
-    useClass: StateEventRunnerService,
+    useClass: DefaultStateEventRunnerService,
     deps: [GlobalStateProvider, StorageServiceProvider],
   }),
   safeProvider({
@@ -1467,6 +1470,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       KdfConfigService,
       KeyService,
+      StateProvider,
     ],
   }),
   safeProvider({

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe, NgIf } from "@angular/common";
-import { Component, inject, OnInit, Optional } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit, Optional } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map } from "rxjs";
@@ -81,6 +81,8 @@ export class LoginDetailsSectionComponent implements OnInit {
    */
   private existingFido2Credentials?: Fido2CredentialView[];
 
+  private destroyRef = inject(DestroyRef);
+
   get hasPasskey(): boolean {
     return this.existingFido2Credentials != null && this.existingFido2Credentials.length > 0;
   }
@@ -148,6 +150,19 @@ export class LoginDetailsSectionComponent implements OnInit {
     if (this.cipherFormContainer.config.mode === "partial-edit") {
       this.loginDetailsForm.disable();
     }
+
+    // If the form is enabled, ensure to disable password or TOTP
+    // for hidden password users
+    this.cipherFormContainer.formStatusChange$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => {
+        if (status === "enabled") {
+          if (!this.viewHiddenFields) {
+            this.loginDetailsForm.controls.password.disable();
+            this.loginDetailsForm.controls.totp.disable();
+          }
+        }
+      });
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
