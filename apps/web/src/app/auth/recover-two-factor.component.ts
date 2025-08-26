@@ -20,7 +20,7 @@ import { ToastService } from "@bitwarden/components";
   standalone: false,
 })
 export class RecoverTwoFactorComponent implements OnInit {
-  protected formGroup = new FormGroup({
+  formGroup = new FormGroup({
     email: new FormControl("", [Validators.required]),
     masterPassword: new FormControl("", [Validators.required]),
     recoveryCode: new FormControl("", [Validators.required]),
