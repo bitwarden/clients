@@ -26,7 +26,7 @@ export const AUTOTYPE_ENABLED = new KeyDefinition<boolean>(
 export class DesktopAutotypeService {
   private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
 
-  autotypeEnabled$: Observable<boolean> = of(false);
+  resolvedAutotypeEnabled$: Observable<boolean> = of(false);
 
   constructor(
     private accountService: AccountService,
@@ -50,7 +50,7 @@ export class DesktopAutotypeService {
 
   async init() {
     if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
-      this.autotypeEnabled$ = combineLatest([
+      this.resolvedAutotypeEnabled$ = combineLatest([
         this.autotypeEnabledState.state$,
         this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
         this.accountService.activeAccount$.pipe(
@@ -73,7 +73,7 @@ export class DesktopAutotypeService {
         ),
       );
 
-      this.autotypeEnabled$.subscribe((enabled) => {
+      this.resolvedAutotypeEnabled$.subscribe((enabled) => {
         ipc.autofill.configureAutotype(enabled);
       });
     }
