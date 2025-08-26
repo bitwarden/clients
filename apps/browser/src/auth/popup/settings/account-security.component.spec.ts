@@ -24,7 +24,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -79,7 +78,6 @@ describe("AccountSecurityComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: PolicyService, useValue: policyService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
-        { provide: StateService, useValue: mock<StateService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
         { provide: VaultTimeoutService, useValue: mock<VaultTimeoutService>() },

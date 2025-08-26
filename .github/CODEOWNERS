@@ -101,6 +101,7 @@ libs/guid @bitwarden/team-platform-dev
 libs/client-type @bitwarden/team-platform-dev
 libs/core-test-utils @bitwarden/team-platform-dev
 libs/state @bitwarden/team-platform-dev
+libs/state-internal @bitwarden/team-platform-dev
 libs/state-test-utils @bitwarden/team-platform-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
@@ -156,6 +157,7 @@ apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bit
 ## UI Foundation ##
 .storybook @bitwarden/team-ui-foundation
 libs/components @bitwarden/team-ui-foundation
+libs/assets @bitwarden/team-ui-foundation
 libs/ui @bitwarden/team-ui-foundation
 apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation

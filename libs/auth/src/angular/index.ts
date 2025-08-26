@@ -5,9 +5,6 @@
 // fingerprint dialog
 export * from "./fingerprint-dialog/fingerprint-dialog.component";
 
-// icons
-export * from "./icons";
-
 // input password
 export * from "./input-password/input-password.component";
 export * from "./input-password/password-input-result";
