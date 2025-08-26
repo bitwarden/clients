@@ -2050,15 +2050,11 @@
   "selectImportCollection": {
     "message": "Bir kolleksiya seçin"
   },
-  "importTargetHint": {
-    "message": "Daxilə köçürülən fayl məzmununun $DESTINATION$ yerinə daşınmasını istəyirsinizsə bu variantı seçin",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu variantı seçin"
+  },
+  "importTargetHintFolder": {
+    "message": "Daxilə köçürülən fayl məzmunlarının bir qovluğa daşınmasını istəyirsinizsə bu variantı seçin"
   },
   "importUnassignedItemsError": {
     "message": "Faylda təyin edilməmiş elementlər var."
@@ -2820,6 +2816,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Qiymət icmalını göstər"
+  },
+  "hidePricingSummary": {
+    "message": "Qiymət icmalını gizlət"
   },
   "summary": {
     "message": "İcmal"
@@ -7026,6 +7028,12 @@
   "unknownCipher": {
     "message": "Bilinməyən element, bu elementə erişmək üçün başqa bir hesabla giriş etməlisiniz."
   },
+  "unknownSecret": {
+    "message": "Bilinməyən sirr, bu sirrə erişmək üçün icazə istəməli ola bilərsiniz."
+  },
+  "unknownProject": {
+    "message": "Bilinməyən layihə, bu layihəyə erişmək üçün icazə istəməli ola bilərsiniz."
+  },
   "cannotSponsorSelf": {
     "message": "Aktiv hesab üçün istifadə edə bilməzsiniz. Fərqli bir e-poçt daxil edin."
   },
@@ -8349,10 +8357,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "$SECRET_ID$ identifikatoruna sahib bir sirr həmişəlik silindi",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "$SECRET_ID$ identifikatoruna sahib bir sirr bərpa edildi.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "$SECRET_ID$ identifikatoruna sahib yeni bir sirr yaradıldı.",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "$PROJECT_ID$ kimliyinə sahib bir layihəyə erişildi.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "$PROJECT_ID$ kimliyinə sahib layihə silindi",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "$SECRET_ID$ kimliyinə sahib sirr silindi",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "$SECRET_ID$ identifikatoruna sahib bir layihəyə düzəliş edildi.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "$PROJECT_ID$ identifikatoruna sahib bir layihə silindi.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "$PROJECT_ID$ identifikatoruna sahib yeni bir layihə yaradıldı.",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -10742,6 +10822,9 @@
   "upgradeEventLogMessage": {
     "message": "Bu event-lər sadəcə nümunədir və Bitwarden təşkilatınızdakı real event-ləri əks etdirmir."
   },
+  "viewEvents": {
+    "message": "Tədbirlərə bax"
+  },
   "cannotCreateCollection": {
     "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
   },
@@ -11009,5 +11092,56 @@
   },
   "showLess": {
     "message": "Daha az göstər"
+  },
+  "missingTaxId": {
+    "message": "Əskik vergi kimliyi"
+  },
+  "missingTaxIdWarning": {
+    "message": "Əməliyyat tələb olunur: Ödəniş detallarında Vergi kimlik nömrəsini buraxmısınız. Əgər əlavə edilməyəcəksə, fakturalarınıza əlavə vergi daxil ola bilər."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Vergi kimlik nömrəsini əlavə et"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Əməliyyat tələb olunur: Əskik vergi kimliyi"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Əgər əlavə edilməyəcəksə, fakturalarınıza əlavə vergi daxil ola bilər"
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Əməliyyat tələb olunur: Vergi kimlik nömrəniz doğrulanmayıb. Əgər doğrulanmasa, fakturalarınıza əlavə vergi daxil ola bilər."
+  },
+  "editTaxId": {
+    "message": "Vergi kimlik nömrəsinə düzəliş et"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Vergi kimlik nömrəsi doğrulanmayıb"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Doğru formatda yazıldığına və yazıda xəta olmadığına əmin olmaq üçün Vergi kimlik nömrənizi yoxlayın"
+  },
+  "pendingVerification": {
+    "message": "Doğrulama gözlənilir"
+  },
+  "checkInputFormat": {
+    "message": "Xəta üçün giriş formatını yoxlayın."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Nümunə $CODE$ formatı: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+
