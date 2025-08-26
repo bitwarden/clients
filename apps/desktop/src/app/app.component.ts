@@ -62,7 +62,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -155,7 +155,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private messagingService: MessagingService,
     private collectionService: CollectionService,
     private searchService: SearchService,
-    private notificationsService: NotificationsService,
+    private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsService,
     private systemService: SystemService,
     private processReloadService: ProcessReloadServiceAbstraction,
@@ -299,12 +299,22 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
-              this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+              getUserId(this.accountService.activeAccount$),
             );
             const publicKey = await firstValueFrom(this.keyService.userPublicKey$(activeUserId));
-            const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
-            const dialogRef = FingerprintDialogComponent.open(this.dialogService, { fingerprint });
-            await firstValueFrom(dialogRef.closed);
+            if (publicKey == null) {
+              this.logService.error(
+                "[AppComponent] No public key available for the user: " +
+                  activeUserId +
+                  " fingerprint can't be displayed.",
+              );
+            } else {
+              const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+              const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
+                fingerprint,
+              });
+              await firstValueFrom(dialogRef.closed);
+            }
             break;
           }
           case "deleteAccount":

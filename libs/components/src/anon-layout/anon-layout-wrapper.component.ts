@@ -3,10 +3,10 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { Subject, filter, of, switchMap, tap } from "rxjs";
 
+import { Icon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { Translation } from "../dialog";
-import { Icon } from "../icon";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
 import { AnonLayoutComponent, AnonLayoutMaxWidth } from "./anon-layout.component";

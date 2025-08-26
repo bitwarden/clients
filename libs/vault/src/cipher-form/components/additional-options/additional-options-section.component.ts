@@ -58,6 +58,11 @@ export class AdditionalOptionsSectionComponent implements OnInit {
 
   @Input() disableSectionMargin: boolean;
 
+  /** True when the form allows new fields to be added */
+  get allowNewField(): boolean {
+    return this.additionalOptionsForm.enabled;
+  }
+
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,

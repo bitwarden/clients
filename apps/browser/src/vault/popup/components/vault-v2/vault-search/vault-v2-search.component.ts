@@ -5,11 +5,10 @@ import { FormsModule } from "@angular/forms";
 import { Subject, Subscription, debounceTime, distinctUntilChanged, filter } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import { SearchModule } from "@bitwarden/components";
 
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
-
-const SearchTextDebounceInterval = 200;
 
 @Component({
   imports: [CommonModule, SearchModule, JslibModule, FormsModule],
