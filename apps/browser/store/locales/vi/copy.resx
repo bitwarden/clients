@@ -144,7 +144,7 @@ Sử dụng Bitwarden để bảo vệ nhân viên của bạn và chia sẻ th�
 Thêm những lý do để chọn Bitwarden:
 
 Mã hóa hàng đầu thế giới
-Mật khẩu được bảo vệ bằng mã hóa end-to-end tiên tiến (AES-256 bit, salted hashtag và PBKDF2 SHA-256) để dữ liệu của bạn luôn an toàn và riêng tư.
+Mật khẩu được bảo vệ bằng mã hóa end-to-end tiên tiến (AES-256 bit, salted hashing và PBKDF2 SHA-256) để dữ liệu của bạn luôn an toàn và riêng tư.
 
 Kiểm toán bảo mật bởi bên thứ ba
 Bitwarden thường xuyên thực hiện các cuộc kiểm toán bảo mật toàn diện bởi các công ty bảo mật uy tín. Các cuộc kiểm toán hàng năm này bao gồm đánh giá mã nguồn và thử nghiệm xâm nhập trên các tài sản trí tuệ (IP), máy chủ và ứng dụng web của Bitwarden.
