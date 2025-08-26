@@ -69,7 +69,6 @@ export class OrganizationLayoutComponent implements OnInit {
   organizationIsUnmanaged$: Observable<boolean>;
 
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
-  protected canShowPoliciesTab$: Observable<boolean>;
 
   protected paymentDetailsPageData$: Observable<{
     route: string;
@@ -136,18 +135,6 @@ export class OrganizationLayoutComponent implements OnInit {
     );
 
     this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
-
-    this.canShowPoliciesTab$ = this.organization$.pipe(
-      switchMap((organization) =>
-        this.organizationBillingService
-          .isBreadcrumbingPoliciesEnabled$(organization)
-          .pipe(
-            map(
-              (isBreadcrumbingEnabled) => isBreadcrumbingEnabled || organization.canManagePolicies,
-            ),
-          ),
-      ),
-    );
 
     this.paymentDetailsPageData$ = this.configService
       .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
