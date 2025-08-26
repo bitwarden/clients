@@ -159,7 +159,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private configService: ConfigService,
     private logService: LogService,
-  ) { }
+  ) {}
 
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
@@ -488,7 +488,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       }
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.vaultTimeoutSettingsService.clear(userId);
+      await this.pinService.unsetPin(userId);
     }
   }
 
@@ -684,8 +684,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     if (publicKey == null) {
       this.logService.error(
         "[AccountSecurityComponent] No public key available for the user: " +
-        activeUserId +
-        " fingerprint can't be displayed.",
+          activeUserId +
+          " fingerprint can't be displayed.",
       );
       return;
     }
