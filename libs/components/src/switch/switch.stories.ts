@@ -28,10 +28,19 @@ export default {
       ],
     }),
   ],
+  argTypes: {
+    disabled: {
+      control: "boolean",
+      description: "Model signal manual disabled binding when used outside of a form",
+    },
+  },
+  args: {
+    disabled: false, // Initial value for the control
+  },
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-35836&t=b5tDKylm5sWm2yKo-4",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/branch/8UUiry70QWI1VjILxo75GS/Tailwind-Component-Library?m=auto&node-id=30341-13313&t=83S7fjfIUxQJsM2r-1",
     },
   },
 } as Meta<SwitchComponent>;
@@ -39,6 +48,22 @@ export default {
 type Story = StoryObj<SwitchComponent>;
 
 export const Default: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        switch: new FormControl(0),
+      }),
+    },
+    template: /* HTML */ `
+      <bit-switch>
+        <bit-label>Example switch</bit-label>
+        <bit-hint>This is a hint for the switch</bit-hint>
+      </bit-switch>
+    `,
+  }),
+};
+
+export const WithForm: Story = {
   render: () => ({
     props: {
       formObj: new FormGroup({
@@ -57,7 +82,8 @@ export const Default: Story = {
 };
 
 export const Disabled: Story = {
-  render: () => ({
+  render: (args) => ({
+    props: args,
     template: /* HTML */ `
       <bit-switch [disabled]="true">
         <bit-label>Example switch</bit-label>
