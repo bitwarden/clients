@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Qoşma saxlanıldı."
   },
+  "addAttachment": {
+    "message": "Qoşma əlavə et"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maksimal fayl həcmi 500 MB-dır"
+  },
   "file": {
     "message": "Fayl"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Açılışda Touch ID-ni soruşun"
-  },
-  "requirePasswordOnStart": {
-    "message": "Tətbiq başladılanda parolu və ya PIN-i tələb et"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Tətbiq başladılanda parolu tələb et"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Yenidən başladılanda ana parol ilə kilidlə"
@@ -3492,10 +3492,10 @@
     "message": "Bir kolleksiya seçin"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu variantı seçin"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Daxilə köçürülən fayl məzmunlarının bir qovluğa daşınmasını istəyirsinizsə bu variantı seçin"
   },
   "importUnassignedItemsError": {
     "message": "Faylda təyin edilməmiş elementlər var."

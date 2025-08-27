@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Vedhæftning gemt"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Fil"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Anmod om Touch ID ved app-start"
-  },
-  "requirePasswordOnStart": {
-    "message": "Kræv adgangskode eller PIN-kode ved app-start"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lås med hovedadgangskode ved genstart"

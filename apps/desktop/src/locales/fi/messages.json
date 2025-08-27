@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Tiedostoliite tallennettiin"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Tiedosto"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Pyydä Touch ID -todennusta käynnistettäessä"
-  },
-  "requirePasswordOnStart": {
-    "message": "Pyydä salasana tai PIN-koodi sovelluksen käynnistyessä"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Vaadi salasana sovelluksen käynnistyessä"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lukitse pääsalasanalla uudelleenkäynnistyksen yhteydessä"

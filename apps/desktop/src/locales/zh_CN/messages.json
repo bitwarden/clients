@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "附件已保存"
   },
+  "addAttachment": {
+    "message": "添加附件"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "文件最大为 500 MB"
+  },
   "file": {
     "message": "文件"
   },
@@ -1226,7 +1232,7 @@
     "message": "两步登录"
   },
   "vaultTimeoutHeader": {
-    "message": "密码库超时"
+    "message": "密码库超时时间"
   },
   "vaultTimeout": {
     "message": "密码库超时时间"
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "应用程序启动时提示触控 ID"
-  },
-  "requirePasswordOnStart": {
-    "message": "应用程序启动时要求密码或 PIN 码"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "应用程序启动时要求密码"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "重启后使用主密码锁定"
@@ -4069,7 +4069,7 @@
     "message": "显示更少"
   },
   "enableAutotype": {
-    "message": "启用自动类型"
+    "message": "启用自动填写"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden 不会验证输入位置，在使用快捷键之前，请确保您位于正确的窗口和字段中。"

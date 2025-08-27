@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "تم حفظ المرفق."
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "ملف"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "اطلب معرف اللمس عند التشغيل"
-  },
-  "requirePasswordOnStart": {
-    "message": "يتطلب كلمة مرور أو رقم التعريف الشخصي عند بدء التطبيق"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "قفل مع كلمة المرور الرئيسية عند إعادة تشغيل"

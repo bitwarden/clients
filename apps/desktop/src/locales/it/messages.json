@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Allegato salvato"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "File"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Richiedi Touch ID all'avvio"
-  },
-  "requirePasswordOnStart": {
-    "message": "Richiedi password o PIN all'avvio dell'app"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Richiedi parola d'accesso all'avvio dell'app"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Blocca con password principale al riavvio"
@@ -3492,10 +3492,10 @@
     "message": "Seleziona una raccolta"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una raccolta"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una raccolta"
   },
   "importUnassignedItemsError": {
     "message": "Il file contiene elementi non assegnati."
@@ -4075,7 +4075,7 @@
     "message": "Bitwarden non convalida i campi di input: assicurati di essere nella finestra e nel campo di testo corretti prima di usare la scorciatoia."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Ulteriori segmenti",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

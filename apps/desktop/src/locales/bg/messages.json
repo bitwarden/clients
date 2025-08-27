@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Прикаченият файл е запазен."
   },
+  "addAttachment": {
+    "message": "Добавяне на прикачен файл"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Максималният размер на файла е 500 MB"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Питане за Touch ID при пускане"
-  },
-  "requirePasswordOnStart": {
-    "message": "Изискване на парола или ПИН при стартиране на приложението"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Изискване на парола при стартиране на приложението"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"

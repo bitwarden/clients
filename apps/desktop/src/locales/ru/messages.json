@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Вложение сохранено."
   },
+  "addAttachment": {
+    "message": "Добавить вложение"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Максимальный размер файла 500 МБ"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Запрашивать Touch ID при запуске приложения"
-  },
-  "requirePasswordOnStart": {
-    "message": "Требовать пароль или PIN-код при запуске приложения"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Требовать пароль при запуске приложения"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокировать мастер-паролем при перезапуске"

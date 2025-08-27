@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Príloha bola uložená."
   },
+  "addAttachment": {
+    "message": "Priložiť prílohu"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximálna veľkosť súboru je 500 MB"
+  },
   "file": {
     "message": "Súbor"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Pri spustení požiadať o Touch ID"
-  },
-  "requirePasswordOnStart": {
-    "message": "Pri spustení aplikácie vyžadovať heslo alebo PIN"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Pri spustení aplikácie vyžadovať heslo"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Pri reštarte zamknúť hlavným heslom"

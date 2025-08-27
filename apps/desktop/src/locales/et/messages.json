@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Manus on salvestatud."
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Fail"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Küsi avamisel Touch ID tuvastust"
-  },
-  "requirePasswordOnStart": {
-    "message": "Nõua parooli või PINi rakenduse kävitumisel"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Nõua parooli rakenduse käivitamisel"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lukusta ülemparooliga, kui rakendus taaskäivitatakse"

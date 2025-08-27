@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Прилог је сачуван"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Датотека"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Захтевај Touch ID при покретању"
-  },
-  "requirePasswordOnStart": {
-    "message": "Захтевај лозинку или ПИН при покретању"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Захтевај лозинку при покретању"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Закључајте са главном лозинком при поновном покретању"

@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Anexo guardado"
   },
+  "addAttachment": {
+    "message": "Adicionar anexo"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "O tamanho máximo do ficheiro é de 500 MB"
+  },
   "file": {
     "message": "Ficheiro"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Pedir o Touch ID ao iniciar a app"
-  },
-  "requirePasswordOnStart": {
-    "message": "Exigir palavra-passe ou PIN ao iniciar a app"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Exigir palavra-passe ao iniciar a app"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com a palavra-passe mestra ao reiniciar"
