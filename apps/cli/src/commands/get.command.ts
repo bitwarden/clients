@@ -606,6 +606,9 @@ export class GetCommand extends DownloadCommand {
     if (id === "me") {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const publicKey = await firstValueFrom(this.keyService.userPublicKey$(activeUserId));
+      if (publicKey == null) {
+        return Response.error("No public key available for the active user.");
+      }
       fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
     } else if (Utils.isGuid(id)) {
       try {

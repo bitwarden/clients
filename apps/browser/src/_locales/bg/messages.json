@@ -4131,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
-  "importTargetHint": {
-    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
+  },
+  "importTargetHintFolder": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -5579,5 +5575,9 @@
   },
   "showLess": {
     "message": "Показване на по-малко"
+  },
+  "moreBreadcrumbs": {
+    "message": "Още елементи в пътечката",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }
