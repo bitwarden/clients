@@ -16,7 +16,6 @@ export const NestingDelimiter = "/";
 export class CollectionView implements View, ITreeNodeObject {
   id: CollectionId;
   organizationId: OrganizationId;
-  name: string;
   externalId: string | undefined;
   // readOnly applies to the items within a collection
   readOnly: boolean = false;
@@ -24,11 +23,22 @@ export class CollectionView implements View, ITreeNodeObject {
   manage: boolean = false;
   assigned: boolean = false;
   type: CollectionType = CollectionTypes.SharedCollection;
+  defaultUserCollectionEmail: string | undefined;
+
+  private _name: string;
 
   constructor(c: { id: CollectionId; organizationId: OrganizationId; name: string }) {
     this.id = c.id;
     this.organizationId = c.organizationId;
-    this.name = c.name;
+    this._name = c.name;
+  }
+
+  set name(name: string) {
+    this._name = name;
+  }
+
+  get name(): string {
+    return this.defaultUserCollectionEmail ?? this._name;
   }
 
   canEditItems(org: Organization): boolean {
@@ -83,6 +93,18 @@ export class CollectionView implements View, ITreeNodeObject {
     return false;
   }
 
+  /**
+   * Returns true if the collection name can be edited. Editing the collection name is restricted for collections
+   * that were DefaultUserCollections but where the relevant user has been offboarded.
+   * When this occurs, the offboarded user's email is treated as the collection name, and cannot be edited.
+   * This is important for security so that the server cannot ask the client to encrypt arbitrary data.
+   * WARNING! This is an IMPORTANT restriction that MUST be maintained for security purposes.
+   * Do not edit or remove this unless you understand why.
+   */
+  canEditName(org: Organization): boolean {
+    return this.canEdit(org) && !this.defaultUserCollectionEmail;
+  }
+
   get isDefaultCollection() {
     return this.type == CollectionTypes.DefaultUserCollection;
   }
@@ -111,6 +133,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.hidePasswords = collection.hidePasswords;
     view.manage = collection.manage;
     view.type = collection.type;
+    view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
     return view;
   }
 
@@ -125,6 +148,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.externalId = collection.externalId;
     view.type = collection.type;
     view.assigned = collection.assigned;
+    view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
     return view;
   }
 
