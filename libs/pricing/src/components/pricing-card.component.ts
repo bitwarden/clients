@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
+import { ButtonModule } from "@bitwarden/components";
+
 import { PricingCardButton, PricingCardPrice } from "../types/pricing-card.types";
 
 /**
@@ -11,7 +13,7 @@ import { PricingCardButton, PricingCardPrice } from "../types/pricing-card.types
 @Component({
   selector: "bit-pricing-card",
   templateUrl: "./pricing-card.component.html",
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonModule],
 })
 export class PricingCardComponent {
   @Input() title: string;
