@@ -10,12 +10,14 @@
   </p>
 
   <!-- Price Section (if provided) -->
-  <div class="tw-mb-4" *ngIf="price">
-    <div class="tw-flex tw-items-baseline tw-gap-1">
-      <span class="tw-text-2xl tw-font-bold tw-text-main">${{ price.amount }}</span>
-      <span class="tw-text-sm tw-text-muted">/ {{ price.cadence }}</span>
+  @if (price) {
+    <div class="tw-mb-4">
+      <div class="tw-flex tw-items-baseline tw-gap-1">
+        <span class="tw-text-2xl tw-font-bold tw-text-main">${{ price.amount }}</span>
+        <span class="tw-text-sm tw-text-muted">/ {{ price.cadence }}</span>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Button (positioned after price, before features) -->
   <div class="tw-mb-4">
@@ -32,15 +34,16 @@
   </div>
 
   <!-- Features List (if provided) -->
-  <div *ngIf="features && features.length > 0">
-    <ul class="tw-list-none tw-p-0 tw-m-0">
-      <li
-        *ngFor="let feature of features"
-        class="tw-flex tw-items-start tw-gap-2 tw-mb-2 last:tw-mb-0"
-      >
-        <span class="tw-text-success tw-font-semibold tw-mt-1 tw-flex-shrink-0">✓</span>
-        <span class="tw-text-sm tw-text-main tw-leading-relaxed">{{ feature }}</span>
-      </li>
-    </ul>
-  </div>
+  @if (features && features.length > 0) {
+    <div>
+      <ul class="tw-list-none tw-p-0 tw-m-0">
+        @for (feature of features; track feature) {
+          <li class="tw-flex tw-items-start tw-gap-2 tw-mb-2 last:tw-mb-0">
+            <span class="tw-text-success tw-font-semibold tw-mt-1 tw-flex-shrink-0">✓</span>
+            <span class="tw-text-sm tw-text-main tw-leading-relaxed">{{ feature }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
 </div>

@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { PricingCardButton, PricingCardPrice } from "../types/pricing-card.types";
+import { ButtonType } from "@bitwarden/components";
 
 import { PricingCardComponent } from "./pricing-card.component";
 
@@ -21,8 +21,11 @@ import { PricingCardComponent } from "./pricing-card.component";
 class TestHostComponent {
   title = "Test Plan";
   tagline = "A great plan for testing";
-  price: PricingCardPrice = { amount: 10, cadence: "monthly" };
-  button: PricingCardButton = { text: "Select Plan", type: "primary" };
+  price: { amount: number; cadence: "monthly" | "annually" } = { amount: 10, cadence: "monthly" };
+  button: { type: ButtonType; text: string; disabled?: boolean } = {
+    text: "Select Plan",
+    type: "primary",
+  };
   features = ["Feature 1", "Feature 2", "Feature 3"];
 
   onButtonClick() {
