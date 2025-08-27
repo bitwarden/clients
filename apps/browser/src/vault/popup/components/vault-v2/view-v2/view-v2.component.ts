@@ -194,18 +194,14 @@ export class ViewV2Component {
   }
 
   setHeader(type: CipherType) {
-    switch (type) {
-      case CipherType.Login:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeLogin"));
-      case CipherType.Card:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeCard"));
-      case CipherType.Identity:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeIdentity"));
-      case CipherType.SecureNote:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("note"));
-      case CipherType.SshKey:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeSshkey"));
-    }
+    const translation = {
+      [CipherType.Login]: "viewItemHeaderLogin",
+      [CipherType.Card]: "viewItemHeaderCard",
+      [CipherType.Identity]: "viewItemHeaderIdentity",
+      [CipherType.SecureNote]: "viewItemHeaderNote",
+      [CipherType.SshKey]: "viewItemHeaderSshKey",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   async getCipherData(id: string, userId: UserId) {
