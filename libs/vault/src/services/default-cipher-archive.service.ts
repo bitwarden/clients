@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -26,9 +25,6 @@ import { DecryptionFailureDialogComponent } from "../components/decryption-failu
 
 import { PasswordRepromptService } from "./password-reprompt.service";
 
-@Injectable({
-  providedIn: "root",
-})
 export class DefaultCipherArchiveService implements CipherArchiveService {
   constructor(
     private cipherService: CipherService,
