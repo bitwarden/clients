@@ -77,20 +77,20 @@ export class LocalBackedSessionStorageService
       // Cache is still empty and we just got a value from local/session storage, cache it.
       this.cache[key] = value;
       return value as T;
-    } else if (this.cache[key] === undefined && this.cache[key] === undefined) {
+    } else if (this.cache[key] === undefined && value === undefined) {
       // Cache is still empty and we got nothing from local/session storage, no need to modify cache.
       return value as T;
-    } else if (this.cache[key] !== undefined && value === undefined) {
-      // Cache was filled after the local/session storage read completed. We got null
-      // from the storage read, but we have a value from the cache, use that.
-      this.logService.warning(
-        `Conflict while reading from local session storage. Key: ${key}. Using cached value.`,
-      );
-      return this.cache[key] as T;
     } else if (this.cache[key] !== undefined && value !== undefined) {
       // Conflict, somebody wrote to the cache while we were reading from storage
       // but we also got a value from storage. We assume the cache is more up to date
       // and use that value.
+      this.logService.warning(
+        `Conflict while reading from local session storage. Key: ${key}. Using cached value.`,
+      );
+      return this.cache[key] as T;
+    } else if (this.cache[key] !== undefined && value === undefined) {
+      // Cache was filled after the local/session storage read completed. We got null
+      // from the storage read, but we have a value from the cache, use that.
       this.logService.warning(
         `Conflict while reading from local session storage. Key: ${key}. Using cached value.`,
       );
