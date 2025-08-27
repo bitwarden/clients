@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, debounceTime, map, switchMap } from "rxjs";
+import { combineLatest, debounceTime, firstValueFrom, map, switchMap } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -16,6 +16,8 @@ import {
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -66,7 +68,8 @@ export class CriticalApplicationsComponent implements OnInit {
 
   async ngOnInit() {
     this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
-
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
     combineLatest([
       this.dataService.applications$,
       this.criticalAppsService.getAppsListForOrg(this.organizationId as OrganizationId),
@@ -173,6 +176,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected i18nService: I18nService,
     private configService: ConfigService,
     private adminTaskService: DefaultAdminTaskService,
+    private accountService: AccountService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
