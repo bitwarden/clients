@@ -6,7 +6,7 @@ import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
 import { ScrollLayoutDirective } from "@bitwarden/components";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
-import { LooseComponentsModule } from "../../../shared";
+import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedOrganizationModule } from "../shared";
 
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
@@ -22,10 +22,10 @@ import { MembersComponent } from "./members.component";
 @NgModule({
   imports: [
     SharedOrganizationModule,
-    LooseComponentsModule,
     MembersRoutingModule,
     UserDialogModule,
     PasswordCalloutComponent,
+    HeaderModule,
     ScrollingModule,
     PasswordStrengthV2Component,
     ScrollLayoutDirective,

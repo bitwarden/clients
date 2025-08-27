@@ -1,14 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage specifically for browser backgrounds
-import { MemoryStorageService } from "@bitwarden/common/platform/state/storage/memory-storage.service";
+
+import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 
 import { BrowserApi } from "../browser/browser-api";
 
 import { MemoryStoragePortMessage } from "./port-messages";
 import { portName } from "./port-name";
 
-export class BackgroundMemoryStorageService extends MemoryStorageService {
+export class BackgroundMemoryStorageService extends SerializedMemoryStorageService {
   private _ports: chrome.runtime.Port[] = [];
 
   constructor() {
