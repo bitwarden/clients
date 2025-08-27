@@ -238,22 +238,25 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   /**
-   * When the cipher does not belong to an organization but the user's organization
-   * requires all ciphers to be owned by an organization, disable the entire form
-   * until the user selects an organization.
+   * Updates the global form and organizationId control states.
    */
   private setFormState() {
-    if (this.config.originalCipher && !this.allowOwnershipChange) {
+    if (this.config.originalCipher && !this.allowPersonalOwnership) {
+      // When editing a cipher and the user cannot have personal ownership
+      // and the cipher is is not within the organization - force the user to
+      // move the cipher within the organization first before editing any other field
       if (this.itemDetailsForm.controls.organizationId.value === null) {
         this.cipherFormContainer.disableFormFields();
         this.itemDetailsForm.controls.organizationId.enable();
       } else {
+        // The "after" from the above: When editing a cipher and the user cannot have personal ownership
+        // and the organization is populated - re-enable the global form but restrict them from editing the organizationId.
         this.cipherFormContainer.enableFormFields();
         this.itemDetailsForm.controls.organizationId.disable({ emitEvent: false });
       }
     } else if (!this.allowOwnershipChange) {
-      // When there isn't an originalCipher, the user is adding a new cipher.
-      // The organizationId control should still be disabled when the user is not allowed to change ownership.
+      // When the user cannot change the organization field, disable the organizationId control.
+      // This could be because they aren't a part of an organization
       this.itemDetailsForm.controls.organizationId.disable({ emitEvent: false });
     }
   }
