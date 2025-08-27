@@ -98,6 +98,7 @@ describe("DefaultCipherEncryptionService", () => {
         set_fido2_credentials: jest.fn(),
         decrypt: jest.fn(),
         decrypt_list: jest.fn(),
+        decrypt_list_with_failures: jest.fn(),
         decrypt_fido2_credentials: jest.fn(),
         move_to_organization: jest.fn(),
       }),
@@ -544,6 +545,38 @@ describe("DefaultCipherEncryptionService", () => {
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to decrypt cipher list"),
       );
+    });
+  });
+
+  describe("decryptManyWithFailures", () => {
+    it("should decrypt multiple ciphers and return successes and failures", async () => {
+      const ciphers = [
+        new Cipher({ ...cipherData, id: "cipher1" as CipherId }),
+        new Cipher({ ...cipherData, id: "cipher2" as CipherId }),
+      ];
+
+      const successCipherList = { id: "cipher1", name: "Decrypted Cipher 1" } as CipherListView;
+      const failedCipher = { id: "cipher2", name: "Failed Cipher" } as SdkCipher;
+
+      const expectedFailedCiphers = [Cipher.fromSdkCipher(failedCipher)];
+
+      const mockResult = {
+        successes: [successCipherList],
+        failures: [failedCipher],
+      };
+
+      mockSdkClient.vault().ciphers().decrypt_list_with_failures.mockReturnValue(mockResult);
+
+      const result = await cipherEncryptionService.decryptManyWithFailures(ciphers, userId);
+
+      expect(result).toEqual([[successCipherList], expectedFailedCiphers]);
+      expect(mockSdkClient.vault().ciphers().decrypt_list_with_failures).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ id: "cipher1" }),
+          expect.objectContaining({ id: "cipher2" }),
+        ]),
+      );
+      expect(Cipher.fromSdkCipher).toHaveBeenCalledWith(failedCipher);
     });
   });
 
