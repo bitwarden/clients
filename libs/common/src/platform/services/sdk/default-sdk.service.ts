@@ -239,7 +239,7 @@ export class DefaultSdkService implements SdkService {
     // null to make sure any existing org keys are cleared.
     await client.crypto().initialize_org_crypto({
       organizationKeys: new Map(
-        Object.entries(orgKeys ?? {}).map(([k, v]) => [k, v.toJSON() as UnsignedSharedKey]),
+        Object.entries(orgKeys).map(([k, v]) => [k, v.toJSON() as UnsignedSharedKey]),
       ),
     });
 
