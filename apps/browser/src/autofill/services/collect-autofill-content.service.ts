@@ -49,6 +49,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private mutationObserver: MutationObserver;
   private mutationsQueue: MutationRecord[][] = [];
   private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
+  private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
@@ -999,6 +1000,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       requestIdleCallbackPolyfill(processMutationRecords, { timeout: 500 });
     }
 
+    // Add a slight delay (but faster than a user's reaction), to ensure the layer
+    // positioning happens after any triggered toggle has completed.
+    setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
+
     this.mutationsQueue = [];
   };
 
@@ -1044,6 +1049,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private processMutationRecord(mutation: MutationRecord) {
+    this.handleTopLayerChanges(mutation);
+
     if (
       mutation.type === "childList" &&
       (this.isAutofillElementNodeMutated(mutation.removedNodes, true) ||
@@ -1056,6 +1063,58 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (mutation.type === "attributes") {
       this.handleAutofillElementAttributeMutation(mutation);
     }
+  }
+
+  private setupTopLayerCandidateListener(element: Element) {
+    const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
+    this.ownedExperienceTagNames = ownedTags;
+
+    if (!ownedTags.includes(element.tagName)) {
+      element.addEventListener("toggle", ({ newState }: ToggleEvent) => {
+        if (newState === "open") {
+          this.autofillOverlayContentService.refreshMenuLayerPosition();
+        }
+      });
+    }
+  }
+
+  private isPopoverAttribute = (attr: string | null) => {
+    const popoverAttributes = new Set(["popover", "popovertarget", "popovertargetaction"]);
+
+    return attr && popoverAttributes.has(attr.toLowerCase());
+  };
+
+  /**
+   * Checks if a mutation record is related features that utilize the top layer.
+   * If so, it then calls `setupTopLayerElementListener` for future event
+   * listening on the relevant element.
+   *
+   * @param mutation - The MutationRecord to check
+   */
+  private handleTopLayerChanges(mutation: MutationRecord) {
+    // Check attribute mutations
+    if (mutation.type === "attributes" && this.isPopoverAttribute(mutation.attributeName)) {
+      this.setupTopLayerCandidateListener(mutation.target as Element);
+    }
+
+    // Check added nodes for dialog or popover attributes
+    if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+      for (const node of mutation.addedNodes) {
+        const mutationElement = node as Element;
+
+        if (
+          !this.ownedExperienceTagNames.includes(mutationElement.tagName) &&
+          (mutationElement.tagName === "DIALOG" ||
+            Array.from(mutationElement.attributes).some(({ name }) =>
+              this.isPopoverAttribute(name),
+            ))
+        ) {
+          this.setupTopLayerCandidateListener(mutationElement);
+        }
+      }
+    }
+
+    return;
   }
 
   /**
