@@ -124,6 +124,51 @@ platform :mac do
       force: true
     )
 
-    UI.success("🎉 Successfully submitted Bitwarden Desktop #{app_version} #{build_number} for App Store review!")
+    # Verify submission in App Store Connect (skip in dry run mode)
+    unless is_dry_run
+      UI.message("⏳ Waiting 60 seconds for App Store Connect to process submission...")
+      sleep(60)
+
+      UI.message("🔍 Verifying submission in App Store Connect...")
+
+      # Find the app
+      app = Spaceship::ConnectAPI::App.find(APP_CONFIG[:app_identifier])
+      UI.user_error!("❌ App not found in App Store Connect") if app.nil?
+
+      # Find the version we just submitted
+      versions = app.get_app_store_versions
+      target_version = nil
+
+      versions.each do |v|
+        if v.version_string == app_version
+          target_version = v
+          break
+        end
+      end
+
+      UI.user_error!("❌ Version #{app_version} not found in App Store Connect after submission") if target_version.nil?
+
+      UI.success("✅ Version #{app_version} found in App Store Connect")
+      UI.message("📊 Current status: #{target_version.app_store_state}")
+
+      # Validate build attachment
+      if target_version.build.nil?
+        UI.user_error!("❌ No build attached to version #{app_version}")
+      elsif target_version.build.version != build_number
+        UI.user_error!("❌ Wrong build attached: found #{target_version.build.version}, expected #{build_number}")
+      else
+        UI.success("✅ Build #{build_number} correctly attached to version #{app_version}")
+      end
+
+      # Check submission status
+      valid_states = ["WAITING_FOR_REVIEW", "IN_REVIEW"]
+      unless valid_states.include?(target_version.app_store_state)
+        UI.user_error!("❌ Unexpected submission state: #{target_version.app_store_state}. Expected one of: #{valid_states.join(', ')}")
+      end
+
+      UI.success("🎉 Verification complete: Version #{app_version} with build #{build_number} successfully submitted!")
+    else
+      UI.success("🧪 DRY RUN: Skipping App Store Connect verification")
+    end
   end
 end
