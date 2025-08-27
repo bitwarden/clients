@@ -308,9 +308,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * elements are not modified by the website.
    */
   private observeCustomElements() {
-    this.htmlMutationObserver?.observe(document.querySelector("html"), { attributes: true });
-    this.bodyMutationObserver?.observe(document.body, { attributes: true });
-
     if (this.buttonElement) {
       this.inlineMenuElementsMutationObserver?.observe(this.buttonElement, {
         attributes: true,
@@ -327,8 +324,13 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * are not altered in a way that would impact safe display of the inline menu.
    */
   private observePageAttributes() {
-    this.htmlMutationObserver?.observe(document.querySelector("html"), { attributes: true });
-    this.bodyMutationObserver?.observe(document.body, { attributes: true });
+    if (document.documentElement) {
+      this.htmlMutationObserver?.observe(document.documentElement, { attributes: true });
+    }
+
+    if (document.body) {
+      this.bodyMutationObserver?.observe(document.body, { attributes: true });
+    }
   }
 
   private unobservePageAttributes() {
