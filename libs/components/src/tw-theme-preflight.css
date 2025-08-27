@@ -65,4 +65,9 @@
   select {
     appearance: none;
   }
+
+  /* overriding preflight since the apps were built assuming svgs are inline */
+  svg {
+    display: inline;
+  }
 }
