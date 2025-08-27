@@ -60,7 +60,7 @@ export class MasterPasswordLockComponent {
   successfulUnlock = output<UserKey>();
   logOut = output<void>();
 
-  protected formGroup = new FormGroup({
+  formGroup = new FormGroup({
     masterPassword: new FormControl("", {
       validators: [Validators.required],
       updateOn: "submit",

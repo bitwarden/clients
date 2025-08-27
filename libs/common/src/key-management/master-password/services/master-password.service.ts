@@ -50,7 +50,7 @@ const MASTER_KEY_HASH = new UserKeyDefinition<string>(MASTER_PASSWORD_DISK, "mas
 });
 
 /** Disk to persist through lock */
-const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
+export const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
   MASTER_PASSWORD_DISK,
   "masterKeyEncryptedUserKey",
   {
@@ -60,7 +60,7 @@ const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
 );
 
 /** Disk to persist through lock and account switches */
-const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
+export const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordReason>(
   MASTER_PASSWORD_DISK,
   "forceSetPasswordReason",
   {

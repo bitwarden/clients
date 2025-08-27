@@ -23,9 +23,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
     );
 
     if (masterPasswordUnlockData == null) {
-      throw new Error(
-        "Master password unlock data was not found in state for the user " + activeAccount.id,
-      );
+      throw new Error("Master password unlock data was not found for the user " + activeAccount.id);
     }
 
     const userKey = await this.masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData(
