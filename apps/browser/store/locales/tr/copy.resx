@@ -143,7 +143,7 @@ Bitwarden'ı kullanarak çalışanlarınızı güvence altına alın ve hassas b
 Bitwarden'ı seçmek için daha fazla neden:
 
 Dünya Standartlarında Şifreleme
-Şifreler, gelişmiş uçtan uca şifreleme (AES-256 bit, tuzlu hashtag ve PBKDF2 SHA-256) ile korunur, böylece verileriniz güvenli ve gizli kalır.
+Şifreler, gelişmiş uçtan uca şifreleme (AES-256 bit, tuzlu hashing ve PBKDF2 SHA-256) ile korunur, böylece verileriniz güvenli ve gizli kalır.
 
 Üçüncü Taraf Denetimleri
 Bitwarden, tanınmış güvenlik firmalarıyla düzenli olarak kapsamlı üçüncü taraf güvenlik denetimleri gerçekleştirir. Bu yıllık denetimler, Bitwarden IP'leri, sunucuları ve web uygulamaları genelinde kaynak kodu değerlendirmeleri ve sızma testlerini içerir.
@@ -164,7 +164,8 @@ Bitwarden çevirileri, Crowdin aracılığıyla küresel topluluk tarafından 60
 Bitwarden Vault'unuzdaki hassas verileri herhangi bir tarayıcı, mobil cihaz, masaüstü işletim sistemi ve daha fazlasından güvenli bir şekilde paylaşın.
 
 Bitwarden, şifrelerden daha fazlasını güvence altına alır
-Bitwarden'ın uçtan uca şifrelenmiş kimlik bilgisi yönetimi çözümleri, kuruluşların geliştirici sırları ve anahtar deneyimleri dahil her şeyi güvence altına almasını sağlar. Bitwarden Secrets Manager ve Bitwarden Passwordless.dev hakkında daha fazla bilgi edinmek için Bitwarden.com adresini ziyaret edin!</value>
+Bitwarden'ın uçtan uca şifrelenmiş kimlik bilgisi yönetimi çözümleri, kuruluşların geliştirici sırları ve anahtar deneyimleri dahil her şeyi güvence altına almasını sağlar. Bitwarden Secrets Manager ve Bitwarden Passwordless.dev hakkında daha fazla bilgi edinmek için Bitwarden.com adresini ziyaret edin!
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
     <value>İster evde ister işte veya yolda olun; Bitwarden tüm parolalarınızı, geçiş anahtarlarınızı ve hassas bilgilerinizi güvenle saklar.</value>

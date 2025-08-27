@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Вкладення збережено"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Файл"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Запитувати Touch ID під час запуску"
-  },
-  "requirePasswordOnStart": {
-    "message": "Вимагати пароль чи PIN під час запуску"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Вимагати пароль під час запуску"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Блокувати головним паролем при перезапуску"
@@ -3491,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Вибрати збірку"
   },
-  "importTargetHint": {
-    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -4077,5 +4073,9 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden не перевіряє місця введення. Переконайтеся, що у вас відкрите правильне вікно і вибрано потрібне поле, перш ніж застосувати комбінацію клавіш."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

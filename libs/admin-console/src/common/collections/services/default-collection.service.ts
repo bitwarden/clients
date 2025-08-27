@@ -216,7 +216,7 @@ export class DefaultCollectionService implements CollectionService {
   getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[] {
     const nodes: TreeNode<CollectionView>[] = [];
     collections.forEach((c) => {
-      const collectionCopy = Object.assign(new CollectionView({ ...c }), c);
+      const collectionCopy = Object.assign(new CollectionView({ ...c, name: c.name }), c);
 
       const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
       ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
