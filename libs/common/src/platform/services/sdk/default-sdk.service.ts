@@ -25,10 +25,9 @@ import {
   UnsignedSharedKey,
 } from "@bitwarden/sdk-internal";
 
-import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
-import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
+import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -215,7 +214,7 @@ export class DefaultSdkService implements SdkService {
     kdfParams: KdfConfig,
     privateKey: EncryptedString,
     userKey: UserKey,
-    orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
+    orgKeys: Record<OrganizationId, EncString>,
   ) {
     await client.crypto().initialize_user_crypto({
       userId,
@@ -240,9 +239,7 @@ export class DefaultSdkService implements SdkService {
     // null to make sure any existing org keys are cleared.
     await client.crypto().initialize_org_crypto({
       organizationKeys: new Map(
-        Object.entries(orgKeys ?? {})
-          .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [k, v.key as UnsignedSharedKey]),
+        Object.entries(orgKeys ?? {}).map(([k, v]) => [k, v.toJSON() as UnsignedSharedKey]),
       ),
     });
 
