@@ -16,10 +16,10 @@ import { PricingCardButton, PricingCardPrice } from "../types/pricing-card.types
   imports: [CommonModule, ButtonModule],
 })
 export class PricingCardComponent {
-  @Input() title: string;
-  @Input() tagline: string;
+  @Input() title!: string;
+  @Input() tagline!: string;
   @Input() price?: PricingCardPrice;
-  @Input() button: PricingCardButton;
+  @Input() button!: PricingCardButton;
   @Input() features?: string[];
 
   @Output() buttonClick = new EventEmitter<void>();
