@@ -46,7 +46,6 @@ on:
         description: 'Release Notes'
         required: false
         type: string
-        default: 'Bug fixes and improvements'
 
 jobs:
   setup:
@@ -323,6 +322,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: Validate release notes for MAS
+        if: inputs.mas_publish && (inputs.release_notes == '' || inputs.release_notes == null)
+        run: |
+          echo "❌ Release notes are required when publishing to Mac App Store"
+          echo "Please provide release notes using the 'Release Notes' input field"
+          exit 1
+
       - name: Download MacOS App Store build number
         working-directory: apps/desktop
         run: wget https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/macos-build-number.json
@@ -336,8 +342,7 @@ jobs:
         
       - name: Install Fastlane
         working-directory: apps/desktop
-        run: |
-          gem install fastlane
+        run: gem install fastlane
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
