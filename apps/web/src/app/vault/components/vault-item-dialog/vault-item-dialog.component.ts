@@ -273,6 +273,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected canDelete = false;
 
+  protected attachmentsButtonDisabled = false;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -339,6 +341,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     if (this._cipherModified) {
       this.dialogRef.close(VaultItemDialogResult.Saved);
     }
+  }
+
+  formStatusChanged(status: "disabled" | "enabled") {
+    this.attachmentsButtonDisabled = status === "disabled";
   }
 
   /**
