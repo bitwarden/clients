@@ -1,0 +1,37 @@
+<div class="focus-within:tw-ring-2 focus-within:tw-ring-offset-2 focus-within:tw-ring-primary-600">
+  <label
+    [attr.for]="inputId"
+    class="tw-flex tw-gap-2 tw-items-center tw-rounded-md tw-cursor-pointer"
+  >
+    <span
+      class="tw-w-9 tw-h-[1.375rem] tw-rounded-full tw-relative tw-transition-[background-color]"
+      [ngClass]="{
+        'tw-bg-secondary-100': disabled(),
+        'tw-bg-primary-600': selected() && !disabled(),
+        'tw-bg-secondary-300': !selected() && !disabled(),
+      }"
+    >
+      <input
+        type="checkbox"
+        [id]="inputId"
+        [checked]="selected()"
+        [disabled]="disabled()"
+        (change)="onInputChange($event)"
+        class="tw-sr-only"
+        [attr.aria-describedby]="hintComponent().id"
+      />
+      <span
+        class="tw-absolute tw-block tw-size-[1.125rem] tw-top-[2px] tw-start-[2px] tw-bg-background tw-rounded-full tw-shadow-md tw-transform tw-transition-transform"
+        [ngClass]="{ 'tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))]': selected() }"
+      ></span>
+    </span>
+    <div>
+      <span bitTypography="body2" class="tw-block" [ngClass]="{ 'tw-text-muted': disabled() }">
+        <ng-content select="bit-label"></ng-content>
+      </span>
+    </div>
+  </label>
+  <div class="tw-ps-[calc(theme(spacing.9)_+_theme(spacing.2))]">
+    <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
+  </div>
+</div>
