@@ -9,5 +9,7 @@ export type InlineMenuExtensionMessageHandlers = {
 export interface AutofillInlineMenuContentService {
   messageHandlers: InlineMenuExtensionMessageHandlers;
   isElementInlineMenu(element: HTMLElement): boolean;
+  refreshTopLayerPosition: () => void;
+  getOwnedTagNames: () => string[];
   destroy(): void;
 }

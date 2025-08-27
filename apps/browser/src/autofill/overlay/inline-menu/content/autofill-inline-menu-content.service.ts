@@ -447,6 +447,58 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   /**
+   * Returns the name of the generated container tags for usage internally to avoid
+   * unintentional targeting of the owned experience.
+   */
+  getOwnedTagNames = (): string[] => {
+    return [
+      ...(this.buttonElement?.tagName ? [this.buttonElement.tagName] : []),
+      ...(this.listElement?.tagName ? [this.listElement.tagName] : []),
+    ];
+  };
+
+  /**
+   * Queries and return elements (excluding those of the inline menu) that exist in the
+   * top-layer via popover or dialog
+   */
+  private getPageOtherTopLayerItems = () => {
+    const inlineMenuTagExclusions = [
+      ...(this.buttonElement?.tagName ? [`:not(${this.buttonElement.tagName})`] : []),
+      ...(this.listElement?.tagName ? [`:not(${this.listElement.tagName})`] : []),
+      ":popover-open",
+    ].join("");
+    const selector = [":modal", inlineMenuTagExclusions].join(",");
+    const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
+
+    return otherTopLayeritems;
+  };
+
+  refreshTopLayerPosition = () => {
+    const otherTopLayerItems = this.getPageOtherTopLayerItems();
+
+    // No need to refresh if there are no other top-layer items
+    if (!otherTopLayerItems.length) {
+      return;
+    }
+
+    const buttonInDocument =
+      this.buttonElement &&
+      (globalThis.document.getElementsByTagName(this.buttonElement.tagName)[0] as HTMLElement);
+    const listInDocument =
+      this.listElement &&
+      (globalThis.document.getElementsByTagName(this.listElement.tagName)[0] as HTMLElement);
+    if (buttonInDocument) {
+      buttonInDocument.hidePopover();
+      buttonInDocument.showPopover();
+    }
+
+    if (listInDocument) {
+      listInDocument.hidePopover();
+      listInDocument.showPopover();
+    }
+  };
+
+  /**
    * Checks the opacity of the page body and body parent, since the inline menu experience
    * will inherit the opacity, despite being otherwise encapsulated from styling changes
    * of parents below the body. Assumes the target element will be a direct child of the page
