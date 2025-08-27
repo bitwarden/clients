@@ -117,7 +117,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   private closeInlineMenuButton() {
     if (this.buttonElement) {
-      this.buttonElement.hidePopover();
       this.buttonElement.remove();
       void this.sendExtensionMessage("autofillOverlayElementClosed", {
         overlayElement: AutofillOverlayElement.Button,
@@ -130,7 +129,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   private closeInlineMenuList() {
     if (this.listElement) {
-      this.listElement.hidePopover();
       this.listElement.remove();
       void this.sendExtensionMessage("autofillOverlayElementClosed", {
         overlayElement: AutofillOverlayElement.List,
