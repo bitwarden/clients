@@ -2,6 +2,8 @@ import { CommonModule } from "@angular/common";
 import { Component, ContentChildren, QueryList, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { MenuModule } from "../menu";
@@ -16,7 +18,7 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
 @Component({
   selector: "bit-breadcrumbs",
   templateUrl: "./breadcrumbs.component.html",
-  imports: [CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
+  imports: [I18nPipe, CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
 })
 export class BreadcrumbsComponent {
   readonly show = input(3);

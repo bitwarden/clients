@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Príloha bola uložená."
   },
+  "addAttachment": {
+    "message": "Priložiť prílohu"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximálna veľkosť súboru je 500 MB"
+  },
   "file": {
     "message": "Súbor"
   },
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Pri spustení požiadať o Touch ID"
-  },
-  "requirePasswordOnStart": {
-    "message": "Pri spustení aplikácie vyžadovať heslo alebo PIN"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Pri spustení aplikácie vyžadovať heslo"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Pri reštarte zamknúť hlavným heslom"
@@ -3491,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Vyberte zbierku"
   },
-  "importTargetHint": {
-    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
+  },
+  "importTargetHintFolder": {
+    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."
@@ -4077,5 +4073,9 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden neoveruje miesto stupu, pred použitím skratky sa uistite, že ste v správnom okne a poli."
+  },
+  "moreBreadcrumbs": {
+    "message": "Viac",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

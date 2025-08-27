@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, HostBinding, HostListener, input } from "@angular/core";
 
 import { DisclosureComponent } from "./disclosure.component";
@@ -12,7 +10,7 @@ export class DisclosureTriggerForDirective {
   /**
    * Accepts template reference for a bit-disclosure component instance
    */
-  readonly disclosure = input<DisclosureComponent>(undefined, { alias: "bitDisclosureTriggerFor" });
+  readonly disclosure = input.required<DisclosureComponent>({ alias: "bitDisclosureTriggerFor" });
 
   @HostBinding("attr.aria-expanded") get ariaExpanded() {
     return this.disclosure().open;

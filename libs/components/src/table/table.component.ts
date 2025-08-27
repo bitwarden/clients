@@ -1,15 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { isDataSource } from "@angular/cdk/collections";
 import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   Component,
-  ContentChild,
   Directive,
   OnDestroy,
   TemplateRef,
   input,
+  contentChild,
 } from "@angular/core";
 import { Observable } from "rxjs";
 
@@ -32,9 +30,9 @@ export class TableComponent implements OnDestroy, AfterContentChecked {
   readonly dataSource = input<TableDataSource<any>>();
   readonly layout = input<"auto" | "fixed">("auto");
 
-  @ContentChild(TableBodyDirective) templateVariable: TableBodyDirective;
+  readonly templateVariable = contentChild(TableBodyDirective);
 
-  protected rows$: Observable<any[]>;
+  protected rows$?: Observable<any[]>;
 
   private _initialized = false;
 

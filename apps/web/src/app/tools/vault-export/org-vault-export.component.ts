@@ -5,11 +5,12 @@ import { ActivatedRoute } from "@angular/router";
 
 import { ExportComponent } from "@bitwarden/vault-export-ui";
 
-import { LooseComponentsModule, SharedModule } from "../../shared";
+import { HeaderModule } from "../../layouts/header/header.module";
+import { SharedModule } from "../../shared";
 
 @Component({
   templateUrl: "org-vault-export.component.html",
-  imports: [SharedModule, ExportComponent, LooseComponentsModule],
+  imports: [SharedModule, ExportComponent, HeaderModule],
 })
 export class OrganizationVaultExportComponent implements OnInit {
   protected routeOrgId: string = null;

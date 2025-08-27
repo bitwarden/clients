@@ -19,20 +19,6 @@ export const BIOMETRIC_UNLOCK_ENABLED = new UserKeyDefinition<boolean>(
 );
 
 /**
- * Boolean indicating the user has elected to require a password to use their biometric key upon starting the application.
- *
- * A true setting controls whether {@link ENCRYPTED_CLIENT_KEY_HALF} is set.
- */
-export const REQUIRE_PASSWORD_ON_START = new UserKeyDefinition<boolean>(
-  BIOMETRIC_SETTINGS_DISK,
-  "requirePasswordOnStart",
-  {
-    deserializer: (value: any) => value,
-    clearOn: [],
-  },
-);
-
-/**
  * If the user has elected to require a password on first unlock of an application instance, this key will store the
  * encrypted client key half used to unlock the vault.
  *
@@ -45,19 +31,6 @@ export const ENCRYPTED_CLIENT_KEY_HALF = new UserKeyDefinition<EncryptedString>(
   {
     deserializer: (obj) => obj,
     clearOn: ["logout"],
-  },
-);
-
-/**
- * Indicates the user has been warned about the security implications of using biometrics and, depending on the OS,
- * recommended to require a password on first unlock of an application instance.
- */
-export const DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT = new UserKeyDefinition<boolean>(
-  BIOMETRIC_SETTINGS_DISK,
-  "dismissedBiometricRequirePasswordOnStartCallout",
-  {
-    deserializer: (obj) => obj,
-    clearOn: [],
   },
 );
 

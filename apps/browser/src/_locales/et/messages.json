@@ -111,13 +111,13 @@
     "message": "Kaart"
   },
   "vault": {
-    "message": "Seif"
+    "message": "Hoidla"
   },
   "myVault": {
-    "message": "Minu seif"
+    "message": "Minu hoidla"
   },
   "allVaults": {
-    "message": "Kõik seifid"
+    "message": "Kõik hoidlad"
   },
   "tools": {
     "message": "Tööriistad"
@@ -671,7 +671,7 @@
     "message": "Hoidla on lukus. Jätkamiseks sisesta ülemparool."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Sinu hoidla on lukus"
   },
   "yourAccountIsLocked": {
     "message": "Your account is locked"
@@ -4131,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -4476,13 +4472,13 @@
     "message": "Pääsuvõti on eemaldatud"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Automaatse täitmise soovitused"
   },
   "itemSuggestions": {
     "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
-    "message": "Save a login item for this site to autofill"
+    "message": "Automaatseks täitmiseks salvesta kirje selle saidi jaoks"
   },
   "yourVaultIsEmpty": {
     "message": "Your vault is empty"
@@ -4649,7 +4645,7 @@
     }
   },
   "new": {
-    "message": "New"
+    "message": "Uus"
   },
   "removeItem": {
     "message": "Remove $NAME$",
@@ -4690,7 +4686,7 @@
     "message": "Item history"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Viimati muudetud"
   },
   "ownerYou": {
     "message": "Owner: You"
@@ -5490,7 +5486,7 @@
     "message": "Import now"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Welcome to your vault!"
+    "message": "Tere tulemast sinu hoidlasse!"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5579,5 +5575,9 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }
