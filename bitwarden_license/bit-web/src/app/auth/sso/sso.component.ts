@@ -16,7 +16,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  OrganizationService,
+  InternalOrganizationServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -196,7 +196,7 @@ export class SsoComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private organizationService: OrganizationService,
+    private organizationService: InternalOrganizationServiceAbstraction,
     private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private toastService: ToastService,
@@ -298,6 +298,8 @@ export class SsoComponent implements OnInit, OnDestroy {
     const response = await this.organizationApiService.updateSso(this.organizationId, request);
     this.populateForm(response);
 
+    await this.upsertOrganizationWithSsoChanges(request.enabled, request.data.memberDecryptionType);
+
     this.toastService.showToast({
       variant: "success",
       title: null,
@@ -398,5 +400,27 @@ export class SsoComponent implements OnInit, OnDestroy {
     }
 
     document.body.append(div);
+  }
+
+  private async upsertOrganizationWithSsoChanges(
+    ssoEnabled: boolean,
+    ssoMemberDecryptionType: MemberDecryptionType,
+  ): Promise<void> {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const currentOrganization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
+
+    if (currentOrganization) {
+      const updatedOrganization = {
+        ...currentOrganization,
+        ssoEnabled: ssoEnabled,
+        ssoMemberDecryptionType: ssoMemberDecryptionType,
+      };
+
+      await this.organizationService.upsert(updatedOrganization, userId);
+    }
   }
 }
