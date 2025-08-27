@@ -106,7 +106,7 @@ export class CriticalApplicationsComponent implements OnInit {
     );
   };
 
-  unmarkAsCriticalApp = async (hostname: string) => {
+  unmarkAsCritical = async (hostname: string) => {
     try {
       await this.criticalAppsService.dropCriticalApp(
         this.organizationId as OrganizationId,
