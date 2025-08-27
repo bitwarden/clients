@@ -158,7 +158,7 @@ describe("ItemDetailsSectionComponent", () => {
         folderId: "folder1",
         collectionIds: ["col1"],
         favorite: true,
-      });
+      } as CipherView);
 
       await component.ngOnInit();
       tick();
@@ -427,7 +427,7 @@ describe("ItemDetailsSectionComponent", () => {
         folderId: "folder1",
         collectionIds: ["col1", "col2"],
         favorite: true,
-      });
+      } as CipherView);
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
         createMockCollection("col1", "Collection 1", "org1") as CollectionView,
@@ -474,7 +474,7 @@ describe("ItemDetailsSectionComponent", () => {
         folderId: "folder1",
         collectionIds: ["col1", "col2", "col3"],
         favorite: true,
-      });
+      } as CipherView);
       component.originalCipherView = {
         name: "cipher1",
         organizationId: "org1",
