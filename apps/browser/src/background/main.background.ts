@@ -2,7 +2,17 @@
 // @ts-strict-ignore
 import "core-js/proposals/explicit-resource-management";
 
-import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
+import {
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  merge,
+  Observable,
+  of,
+  Subject,
+  timeout,
+} from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -193,6 +203,8 @@ import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
+import { GenerateRequest, Type } from "@bitwarden/generator-core";
+import { GeneratedCredential } from "@bitwarden/generator-history";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
@@ -1791,8 +1803,8 @@ export default class MainBackground {
       this.themeStateService,
       this.totpService,
       this.accountService,
-      () => this.generatePassword(),
-      (password) => this.addPasswordToHistory(password),
+      this.yieldGeneratedPassword,
+      this.addPasswordToHistory,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(
@@ -1814,15 +1826,27 @@ export default class MainBackground {
     await this.autofillBadgeUpdaterService.init();
   }
 
-  generatePassword = async (): Promise<string> => {
-    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-    return await this.passwordGenerationService.generatePassword(options);
+  yieldGeneratedPassword = ($on: Observable<GenerateRequest>): Observable<GeneratedCredential> => {
+    return $on.pipe(
+      concatMap(async () => {
+        const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
+        const password = await this.passwordGenerationService.generatePassword(options);
+        const credential = new GeneratedCredential(password, "password", new Date());
+
+        return credential;
+      }),
+    );
   };
 
-  generatePasswordToClipboard = async () => {
-    const password = await this.generatePassword();
-    this.platformUtilsService.copyToClipboard(password);
-    await this.addPasswordToHistory(password);
+  generatePasswordToClipboard = () => {
+    return this.yieldGeneratedPassword(of({ source: "clipboard", type: Type.password })).pipe(
+      concatMap(async (generated) => {
+        this.platformUtilsService.copyToClipboard(generated.credential);
+        await this.addPasswordToHistory(generated.credential);
+
+        return generated.credential;
+      }),
+    );
   };
 
   addPasswordToHistory = async (password: string) => {
