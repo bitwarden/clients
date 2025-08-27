@@ -944,7 +944,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
                 }
                 orgKey = await this.encryptService.encapsulateKeyUnsigned(
                   await encrypted.decrypt(this.encryptService, providerKeys!),
-                  userPubKey,
+                  userPubKey!,
                 );
               } else {
                 orgKey = encrypted.encryptedOrganizationKey;
