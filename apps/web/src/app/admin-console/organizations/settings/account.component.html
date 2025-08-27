@@ -71,7 +71,11 @@
       <input type="checkbox" bitCheckbox formControlName="limitCollectionDeletion" />
     </bit-form-control>
     <bit-form-control>
-      <bit-label>{{ "restrictItemDeletionDescription" | i18n }}</bit-label>
+      <bit-label>
+        {{ "restrictItemDeletionDescriptionStart" | i18n }}
+        <span class="tw-italic">{{ "manageCollection" | i18n }}</span>
+        {{ "restrictItemDeletionDescriptionEnd" | i18n }}
+      </bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitItemDeletion" />
     </bit-form-control>
     <button

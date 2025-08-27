@@ -8939,11 +8939,16 @@
   "restrictCollectionCreationDescription": {
     "message": "Restrict collection creation to owners and admins"
   },
-   "restrictCollectionDeletionDescription": {
+  "restrictCollectionDeletionDescription": {
     "message": "Restrict collection deletion to owners and admins"
   },
-   "restrictItemDeletionDescription": {
-    "message": "Restrict item deletion to members with the <i>Manage collection</i> permission"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Updated collection management setting"
