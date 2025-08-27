@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
 use anyhow::{anyhow, Result};
@@ -100,7 +100,7 @@ pub async fn import_logins(
     Ok(results)
 }
 
-pub fn configure_windows_crypto_service(admin_exe_path: &String, service_exe_path: &String) {
+pub fn configure_windows_crypto_service(admin_exe_path: &str, service_exe_path: &str) {
     platform::configure_windows_crypto_service(admin_exe_path, service_exe_path);
 }
 
@@ -185,7 +185,7 @@ fn load_local_state_for_browser(browser_name: &String) -> Result<(PathBuf, Local
     Ok((data_dir, local_state))
 }
 
-fn load_local_state(browser_dir: &PathBuf) -> Result<LocalState> {
+fn load_local_state(browser_dir: &Path) -> Result<LocalState> {
     let local_state = std::fs::read_to_string(browser_dir.join("Local State"))
         .map_err(|e| anyhow!("Failed to read local state file: {}", e))?;
 
@@ -214,7 +214,7 @@ struct EncryptedLogin {
 }
 
 fn get_logins(
-    browser_dir: &PathBuf,
+    browser_dir: &Path,
     profile_id: &String,
     filename: &str,
 ) -> Result<Vec<EncryptedLogin>> {
