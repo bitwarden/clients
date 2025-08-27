@@ -19,6 +19,7 @@ import { Utils } from "../../../platform/misc/utils";
 import { SendTokenService as SendTokenServiceAbstraction } from "../abstractions/send-token.service";
 import { SendAccessToken } from "../models/send-access-token";
 import { GetSendAccessTokenError } from "../types/get-send-access-token-error.type";
+import { SendAccessDomainCredentials } from "../types/send-access-domain-credentials.type";
 import { SendHashedPasswordB64 } from "../types/send-hashed-password-b64.type";
 import { TryGetSendAccessTokenError } from "../types/try-get-send-access-token-error.type";
 
@@ -91,7 +92,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
 
   getSendAccessToken$(
     sendId: string,
-    sendCredentials: SendAccessCredentials,
+    sendCredentials: SendAccessDomainCredentials,
   ): Observable<SendAccessToken | GetSendAccessTokenError> {
     // Defer the execution to ensure that a cold observable is returned.
     return defer(() => from(this._getSendAccessToken(sendId, sendCredentials)));
@@ -99,7 +100,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
 
   private async _getSendAccessToken(
     sendId: string,
-    sendAccessCredentials: SendAccessCredentials,
+    sendAccessCredentials: SendAccessDomainCredentials,
   ): Promise<SendAccessToken | GetSendAccessTokenError> {
     // Validate inputs to account for non-strict TS call sites.
     this.validateCredentialsRequest(sendId, sendAccessCredentials);
@@ -107,7 +108,7 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     // Convert inputs to SDK request shape
     const request: SendAccessTokenRequest = {
       sendId: sendId,
-      sendAccessCredentials: sendAccessCredentials,
+      sendAccessCredentials: this.convertDomainCredentialsToSdkCredentials(sendAccessCredentials),
     };
 
     const anonSdkClient: BitwardenClient = await firstValueFrom(this.sdkService.client$);
@@ -238,11 +239,31 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
 
   private validateCredentialsRequest(
     sendId: string,
-    sendAccessCredentials: SendAccessCredentials,
+    sendAccessCredentials: SendAccessDomainCredentials,
   ): void {
     this.validateSendId(sendId);
     if (sendAccessCredentials == null) {
       throw new Error("sendAccessCredentials must be provided.");
+    }
+  }
+
+  private convertDomainCredentialsToSdkCredentials(
+    sendAccessCredentials: SendAccessDomainCredentials,
+  ): SendAccessCredentials {
+    switch (sendAccessCredentials.kind) {
+      case "password":
+        return {
+          passwordHashB64: sendAccessCredentials.passwordHashB64,
+        };
+      case "email":
+        return {
+          email: sendAccessCredentials.email,
+        };
+      case "email_otp":
+        return {
+          email: sendAccessCredentials.email,
+          otp: sendAccessCredentials.otp,
+        };
     }
   }
 }

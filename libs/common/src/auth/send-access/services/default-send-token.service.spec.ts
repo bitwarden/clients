@@ -7,8 +7,6 @@ import {
   SendAccessTokenInvalidGrantError,
   SendAccessTokenInvalidRequestError,
   SendAccessTokenResponse,
-  SendEmailOtpCredentials,
-  SendPasswordCredentials,
   UnexpectedIdentityError,
 } from "@bitwarden/sdk-internal";
 import { FakeGlobalState, FakeGlobalStateProvider } from "@bitwarden/state-test-utils";
@@ -22,7 +20,9 @@ import { Utils } from "../../../platform/misc/utils";
 import { MockSdkService } from "../../../platform/spec/mock-sdk.service";
 import { SendAccessToken } from "../models/send-access-token";
 import { GetSendAccessTokenError } from "../types/get-send-access-token-error.type";
+import { SendAccessDomainCredentials } from "../types/send-access-domain-credentials.type";
 import { SendHashedPasswordB64 } from "../types/send-hashed-password-b64.type";
+import { SendOtp } from "../types/send-otp.type";
 
 import { DefaultSendTokenService } from "./default-send-token.service";
 import { SEND_ACCESS_TOKEN_DICT } from "./send-access-token-dict.state";
@@ -231,8 +231,9 @@ describe("SendTokenService", () => {
     describe("getSendAccessToken$", () => {
       it("returns a send access token for a password protected send when given valid password credentials", async () => {
         // Arrange
-        const sendPasswordCredentials: SendPasswordCredentials = {
-          passwordHashB64: "testPassword",
+        const sendPasswordCredentials: SendAccessDomainCredentials = {
+          kind: "password",
+          passwordHashB64: "testPassword" as SendHashedPasswordB64,
         };
 
         sdkService.client.auth
@@ -257,9 +258,10 @@ describe("SendTokenService", () => {
 
       it("returns a send access token for a email + otp protected send when given valid email and otp", async () => {
         // Arrange
-        const sendEmailOtpCredentials: SendEmailOtpCredentials = {
+        const sendEmailOtpCredentials: SendAccessDomainCredentials = {
+          kind: "email_otp",
           email: "test@example.com",
-          otp: "123456",
+          otp: "123456" as SendOtp,
         };
 
         sdkService.client.auth
