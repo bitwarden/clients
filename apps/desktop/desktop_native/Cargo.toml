@@ -64,3 +64,8 @@ windows-registry = "=0.5.3"
 zbus = "=5.5.0"
 zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
+
+[workspace.lints.clippy]
+unused_async = "deny"
+unwrap_used = "deny"
+string_slice = "warn"
