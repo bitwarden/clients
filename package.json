@@ -25,9 +25,9 @@
     "test:locales": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/test-locales.js",
     "lint:dep-ownership": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/dep-ownership.js",
     "docs:json": "compodoc -p ./tsconfig.json -e json -d . --disableRoutesGraph",
-    "storybook": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" ng run components:storybook",
-    "build-storybook": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" ng run components:build-storybook",
-    "build-storybook:ci": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" ng run components:build-storybook --webpack-stats-json",
+    "storybook": "ng run components:storybook",
+    "build-storybook": "ng run components:build-storybook",
+    "build-storybook:ci": "ng run components:build-storybook --webpack-stats-json",
     "test-stories": "test-storybook --url http://localhost:6006",
     "test-stories:watch": "test-stories --watch"
   },
