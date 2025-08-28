@@ -30,7 +30,7 @@ export abstract class SendTokenService {
    * If the access token is successfully retrieved from the server, it stores the token in session storage and returns it.
    * If the access token cannot be granted due to invalid credentials, it returns a {@link GetSendAccessTokenError}.
    * @param sendId The ID of the send to retrieve the access token for.
-   * @param SendAccessDomainCredentials The credentials to use for accessing the send.
+   * @param sendAccessCredentials The credentials to use for accessing the send.
    * @returns An observable that emits a SendAccessToken if successful, or a GetSendAccessTokenError if not.
    */
   abstract getSendAccessToken$: (
@@ -40,7 +40,7 @@ export abstract class SendTokenService {
 
   /**
    * Hashes a password for send access which is required to create a {@link SendAccessTokenRequest}
-   * (more specifically, to create a {@link SendAccessDomainCredentials} of type {@link SendAccessDomainCredentials})
+   * (more specifically, to create a {@link SendAccessDomainCredentials} for sends that require a password)
    * @param password The raw password string to hash.
    * @param keyMaterialUrlB64 The base64 URL encoded key material string.
    * @returns A promise that resolves to the hashed password as a SendHashedPasswordB64.
@@ -49,4 +49,9 @@ export abstract class SendTokenService {
     password: string,
     keyMaterialUrlB64: string,
   ) => Promise<SendHashedPasswordB64>;
+
+  /**
+   * Clears a send access token from storage.
+   */
+  abstract invalidateSendAccessToken: (sendId: string) => Promise<void>;
 }

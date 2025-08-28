@@ -131,6 +131,10 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     }
   }
 
+  async invalidateSendAccessToken(sendId: string): Promise<void> {
+    await this.clearSendAccessTokenFromStorage(sendId);
+  }
+
   async hashSendPassword(
     password: string,
     keyMaterialUrlB64: string,
