@@ -34,3 +34,6 @@ windows_plugin_authenticator = { path = "../windows_plugin_authenticator" }
 
 [build-dependencies]
 napi-build = { workspace = true }
+
+[lints]
+workspace = true

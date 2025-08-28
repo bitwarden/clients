@@ -20,9 +20,7 @@ manual_test = []
 [dependencies]
 aes = { workspace = true }
 anyhow = { workspace = true }
-arboard = { workspace = true, features = [
-    "wayland-data-control",
-] }
+arboard = { workspace = true, features = ["wayland-data-control"] }
 base64 = { workspace = true }
 bitwarden-russh = { workspace = true }
 byteorder = { workspace = true }
@@ -88,3 +86,6 @@ ashpd = { workspace = true }
 
 zbus = { workspace = true, optional = true }
 zbus_polkit = { workspace = true, optional = true }
+
+[lints]
+workspace = true
