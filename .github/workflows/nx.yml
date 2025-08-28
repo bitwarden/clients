@@ -1,0 +1,21 @@
+name: Experimental Nx CI
+on:
+  pull_request:
+    paths:
+      - 'apps/cli/**'
+      - 'libs/**'
+  
+jobs:
+  nx-experiment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - uses: nrwl/nx-set-shas@v4
+      - run: npx nx affected -t build lint test
