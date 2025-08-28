@@ -85,14 +85,14 @@ export class LocalBackedSessionStorageService
       // but we also got a value from storage. We assume the cache is more up to date
       // and use that value.
       this.logService.warning(
-        `Conflict while reading from local session storage. Key: ${key}. Using cached value.`,
+        `Conflict while reading from local session storage, both cache and storage have values. Key: ${key}. Using cached value.`,
       );
       return this.cache[key] as T;
     } else if (this.cache[key] !== undefined && value === undefined) {
       // Cache was filled after the local/session storage read completed. We got null
       // from the storage read, but we have a value from the cache, use that.
       this.logService.warning(
-        `Conflict while reading from local session storage. Key: ${key}. Using cached value.`,
+        `Conflict while reading from local session storage, cache has value but storage does not. Key: ${key}. Using cached value.`,
       );
       return this.cache[key] as T;
     }
