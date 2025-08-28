@@ -256,7 +256,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
     // PM19148: Innovation Archive
-    if (await this.cipherArchiveService.userCanArchive(userId)) {
+    if (
+      (await this.cipherArchiveService.userCanArchive(userId)) ||
+      (await this.cipherArchiveService.showArchiveVault(userId))
+    ) {
       builderFilter.archiveFilter = await this.addArchiveFilter();
     }
     builderFilter.trashFilter = await this.addTrashFilter();

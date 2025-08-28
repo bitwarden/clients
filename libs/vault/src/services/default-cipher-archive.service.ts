@@ -59,13 +59,37 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     ),
   );
 
-  // Check if the user has premium from any source (personal or organization)
-  // Check if feature flag is enabled
-  // If the user is NOT a premium user, but there are items with an archiveDate return true.
+  /**
+   * User can archive items if:
+   * Feature Flag must be enabled
+   * Check if user has premium from any source (personal or organization)
+   */
   async userCanArchive(userId: UserId): Promise<boolean> {
-    await firstValueFrom(this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId));
+    const hasPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+    );
+    const archiveFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
 
-    return await this.configService.getFeatureFlag(FeatureFlag.PM19148_InnovationArchive);
+    return hasPremium && archiveFlagEnabled;
+  }
+
+  /**
+   * User can access the archive vault if:
+   * Feature Flag is enabled
+   * There is at least one archived item
+   * ///////////// NOTE /////////////
+   * This is separated from userCanArchive because a user that loses premium status, but has archived items,
+   * should still be able to access their archive vault. The items will be read-only, and can be restored.
+   */
+  async showArchiveVault(userId: UserId): Promise<boolean> {
+    const archiveFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19148_InnovationArchive,
+    );
+    const hasArchivedItems = await firstValueFrom(this.archivedCiphers$);
+
+    return archiveFlagEnabled && hasArchivedItems.length > 0;
   }
 
   async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {

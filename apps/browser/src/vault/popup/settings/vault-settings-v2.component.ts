@@ -34,8 +34,11 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 export class VaultSettingsV2Component implements OnInit, OnDestroy {
   lastSync = "--";
 
-  // Check if user is premium and/or has access to archive feature
+  // Check if user is premium user, they will be able to archive items
   protected userCanArchive = signal<boolean>(false);
+
+  // Check if user has archived items (does not check if user is premium)
+  protected showArchiveFilter = signal<boolean>(false);
 
   protected emptyVaultImportBadge$ = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -68,7 +71,9 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
   private async checkCanArchiveStatus() {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const userArchiveStatus = await this.cipherArchiveService.userCanArchive(userId);
+    const showArchiveFilter = await this.cipherArchiveService.showArchiveVault(userId);
     this.userCanArchive.set(userArchiveStatus);
+    this.showArchiveFilter.set(showArchiveFilter);
   }
 
   async import() {
