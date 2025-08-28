@@ -8,6 +8,8 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SwitchComponent } from "./switch.component";
 
+import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
+
 export default {
   title: "Component Library/Form/Switch",
   component: SwitchComponent,
@@ -31,11 +33,12 @@ export default {
   argTypes: {
     disabled: {
       control: "boolean",
-      description: "Model signal manual disabled binding when used outside of a form",
+      description: "Model signal for disabled binding when used outside of a form",
     },
-  },
-  args: {
-    disabled: false, // Initial value for the control
+    selected: {
+      control: "boolean",
+      description: "Model signal for selected state binding when used outside of a form",
+    },
   },
   parameters: {
     design: {
@@ -45,26 +48,30 @@ export default {
   },
 } as Meta<SwitchComponent>;
 
-type Story = StoryObj<SwitchComponent>;
+type Story = StoryObj<SwitchComponent & { disabled?: boolean; selected?: boolean }>;
 
 export const Default: Story = {
-  render: () => ({
+  render: (args) => ({
     props: {
       formObj: new FormGroup({
         switch: new FormControl(0),
       }),
     },
     template: /* HTML */ `
-      <bit-switch>
+      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
         <bit-label>Example switch</bit-label>
         <bit-hint>This is a hint for the switch</bit-hint>
       </bit-switch>
     `,
   }),
+  args: {
+    disabled: false,
+    selected: true,
+  },
 };
 
 export const WithForm: Story = {
-  render: () => ({
+  render: (args) => ({
     props: {
       formObj: new FormGroup({
         switch: new FormControl(0),
@@ -72,7 +79,7 @@ export const WithForm: Story = {
     },
     template: /* HTML */ `
       <form [formGroup]="formObj">
-        <bit-switch formControlName="switch">
+        <bit-switch formControlName="switch" ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
           <bit-label>Example switch</bit-label>
           <bit-hint>This is a hint for the switch</bit-hint>
         </bit-switch>
@@ -85,10 +92,14 @@ export const Disabled: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <bit-switch [disabled]="true">
+      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
         <bit-label>Example switch</bit-label>
         <bit-hint>This is a hint for the switch</bit-hint>
       </bit-switch>
     `,
   }),
+  args: {
+    disabled: true,
+    selected: true,
+  },
 };
