@@ -1,5 +1,6 @@
 import { contextBridge } from "electron";
 
+import tools from "./app/tools/preload";
 import auth from "./auth/preload";
 import autofill from "./autofill/preload";
 import keyManagement from "./key-management/preload";
@@ -21,6 +22,7 @@ export const ipc = {
   autofill,
   platform,
   keyManagement,
+  tools,
 };
 
 contextBridge.exposeInMainWorld("ipc", ipc);

@@ -124,50 +124,48 @@
     <value>في المنزل، في العمل، أو في أثناء التنقل، يقوم بتواردن بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>مُعترف به كأفضل مدير كلمات مرور من قِبل PCMag وWIRED وThe Verge وCNET وG2 وغيرها!
+    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
 
-أمّن حياتك الرقمية
+SECURE YOUR DIGITAL LIFE
+Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
 
-أمّن حياتك الرقمية واحمِ بياناتك من الاختراقات بإنشاء كلمات مرور فريدة وقوية وحفظها لكل حساب. احفظ كل شيء في مخزن كلمات مرور مشفّر من البداية إلى النهاية، لا يمكن لأحد الوصول إليه سواك.
+ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
+Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
 
-الوصول إلى بياناتك، من أي مكان، وفي أي وقت، وعلى أي جهاز
+EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
+Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
 
-يمكنك بسهولة إدارة كلمات مرور غير محدودة وتخزينها وتأمينها ومشاركتها عبر عدد غير محدود من الأجهزة دون قيود.
+EMPOWER YOUR TEAMS WITH BITWARDEN
+Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
 
-يجب أن يمتلك الجميع الأدوات اللازمة للبقاء آمنًا على الإنترنت
+Use Bitwarden to secure your workforce and share sensitive information with colleagues.
 
-استخدم بيتواردن مجانًا دون إعلانات أو بيع بيانات. تؤمن بيتواردن بحق الجميع في البقاء آمنًا على الإنترنت. توفر الباقات المميزة إمكانية الوصول إلى ميزات متقدمة.
 
-عزز قدرات فرقك مع بتواردن
-تأتي باقاتنا للفرق والمؤسسات مزودة بميزات احترافية للأعمال. من الأمثلة على ذلك تكامل SSO، والاستضافة الذاتية، وتكامل الدليل، وتوفير SCIM، والسياسات العالمية، والوصول إلى واجهة برمجة التطبيقات، وسجلات الأحداث، والمزيد.
+More reasons to choose Bitwarden:
 
-استخدم بيتواردن لتأمين فريق عملك ومشاركة المعلومات الحساسة مع زملائك.
+World-Class Encryption
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
 
-أسباب إضافية لاختيار بتواردن:
+3rd-party Audits
+Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
 
-تشفير عالمي المستوى
-كلمات المرور محمية بتشفير متقدم من البداية إلى النهاية (AES-256 بت، وهاشتاج مُملح، وPBKDF2 SHA-256) لضمان أمان بياناتك وخصوصيتها.
+Advanced 2FA
+Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
 
-عمليات تدقيق خارجية
-تُجري بيتواردن بانتظام عمليات تدقيق أمنية شاملة من جهات خارجية بالتعاون مع شركات أمنية مرموقة. تشمل هذه العمليات السنوية تقييمات لشفرة المصدر واختبارات اختراق عبر عناوين IP وخوادم وتطبيقات الويب الخاصة بـبتواردن.
+Bitwarden Send
+Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
 
-مصادقة ثنائية متقدمة
-أمّن تسجيل دخولك باستخدام مُصادق خارجي، أو رموز مُرسلة عبر البريد الإلكتروني، أو بيانات اعتماد FIDO2 WebAuthn مثل مفتاح أمان الأجهزة أو كلمة المرور.
+Built-in Generator
+Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
 
-إرسال بتواردن
-انقل البيانات مباشرةً إلى الآخرين مع الحفاظ على أمان مشفّر من البداية إلى النهاية والحد من التعرض.
+Global Translations
+Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
 
-مولد مدمج
-أنشئ كلمات مرور طويلة ومعقدة ومميزة وأسماء مستخدمين فريدة لكل موقع تزوره. تكامل مع مزودي أسماء البريد الإلكتروني المستعارة لمزيد من الخصوصية.
+Cross-Platform Applications
+Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
 
-ترجمات عالمية
-تتوفر ترجمات بتواردن لأكثر من 60 لغة، مترجمة من قِبل المجتمع العالمي عبر Crowdin.
-
-تطبيقات متعددة المنصات
-أمّن بياناتك الحساسة وشاركها داخل مخزن بتواردن من أي متصفح أو جهاز محمول أو نظام تشغيل سطح مكتب، وغير ذلك الكثير.
-
-يؤمن بتواردن أكثر من مجرد كلمات مرور
-تُمكّن حلول إدارة بيانات الاعتماد المشفرة من البداية إلى النهاية من بتواردن المؤسسات من تأمين كل شيء، بما في ذلك أسرار المطورين وتجارب مفاتيح المرور. تفضل بزيارة Bitwarden.com لمعرفة المزيد عن المدير السري لبتواردن وBitwarden Passwordless.dev!
+Bitwarden secures more than just passwords
+End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">

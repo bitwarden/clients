@@ -599,7 +599,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private async setImportContents(): Promise<string> {
     const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
-    const files = fileEl.files;
+    const files = fileEl?.files;
     let fileContents = this.formGroup.controls.fileContents.value;
 
     if (files != null && files.length > 0) {
