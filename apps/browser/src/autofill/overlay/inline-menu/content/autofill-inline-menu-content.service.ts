@@ -22,6 +22,8 @@ import {
 import { AutofillInlineMenuButtonIframe } from "../iframe-content/autofill-inline-menu-button-iframe";
 import { AutofillInlineMenuListIframe } from "../iframe-content/autofill-inline-menu-list-iframe";
 
+const TopLayerRefreshBackoffThresholds = { countLimit: 5, timeSpanLimit: 3000 };
+
 export class AutofillInlineMenuContentService implements AutofillInlineMenuContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly generateRandomCustomElementName = generateRandomCustomElementName;
@@ -35,6 +37,11 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private bodyMutationObserver: MutationObserver;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private containerElementMutationObserver: MutationObserver;
+  private topLayerRefreshCountWithinTimeThreshold: number = 0;
+  private lastTrackedTopLayerRefreshTimestamp = Date.now();
+  // Distinct from preventing inline menu script injection, this is for cases where the page
+  // is subsequently determined to be risky.
+  private inlineMenuEnabled = true;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private handlePersistentLastChildOverrideTimeout: number | NodeJS.Timeout;
@@ -458,7 +465,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private checkPageRisks = async () => {
     const pageIsOpaque = await this.getPageIsOpaque();
 
-    const risksFound = !pageIsOpaque;
+    const risksFound = !pageIsOpaque || !this.inlineMenuEnabled;
 
     if (risksFound) {
       this.closeInlineMenu();
@@ -509,7 +516,32 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     return otherTopLayeritems;
   };
 
+  checkAndUpdateTopLayerRefreshCount = () => {
+    const { countLimit, timeSpanLimit } = TopLayerRefreshBackoffThresholds;
+    const now = Date.now();
+    const timeSinceLastTrackedRefresh = now - this.lastTrackedTopLayerRefreshTimestamp;
+    const currentlyWithinTimeThreshold = timeSinceLastTrackedRefresh <= timeSpanLimit;
+    const withinCountThreshold = this.topLayerRefreshCountWithinTimeThreshold <= countLimit;
+
+    if (currentlyWithinTimeThreshold) {
+      if (withinCountThreshold) {
+        this.topLayerRefreshCountWithinTimeThreshold++;
+      } else {
+        // Set inline menu to be off; page is aggressively trying to take top position of top layer
+        this.inlineMenuEnabled = false;
+        void this.checkPageRisks();
+      }
+    } else {
+      this.lastTrackedTopLayerRefreshTimestamp = now;
+      this.topLayerRefreshCountWithinTimeThreshold = 0;
+    }
+  };
+
   refreshTopLayerPosition = () => {
+    if (!this.inlineMenuEnabled) {
+      return;
+    }
+
     const otherTopLayerItems = this.getUnownedTopLayerItems();
 
     // No need to refresh if there are no other top-layer items
@@ -523,6 +555,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     const listInDocument =
       this.listElement &&
       (globalThis.document.getElementsByTagName(this.listElement.tagName)[0] as HTMLElement);
+
     if (buttonInDocument) {
       buttonInDocument.hidePopover();
       buttonInDocument.showPopover();
@@ -531,6 +564,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (listInDocument) {
       listInDocument.hidePopover();
       listInDocument.showPopover();
+    }
+
+    if (buttonInDocument || listInDocument) {
+      this.checkAndUpdateTopLayerRefreshCount();
     }
   };
 
