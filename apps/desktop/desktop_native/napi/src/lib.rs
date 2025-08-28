@@ -204,8 +204,9 @@ pub mod sshagent {
         pub namespace: Option<String>,
     }
 
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
-    pub fn serve(
+    pub async fn serve(
         callback: ThreadsafeFunction<SshUIRequest, CalleeHandled>,
     ) -> napi::Result<SshAgentState> {
         let (auth_request_tx, mut auth_request_rx) =
