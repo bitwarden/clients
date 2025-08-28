@@ -102,3 +102,9 @@ jobs:
         run: cargo clippy --all-features --tests
         env:
           RUSTFLAGS: "-D warnings"
+
+      - name: Install cargo-sort
+        run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev f5047967021cbb1f822faddc355b3b07674305a1
+
+      - name: Cargo sort
+        run: cargo sort --workspace --check
