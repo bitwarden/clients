@@ -1037,7 +1037,7 @@
     "message": "Exibir itens de cartão em páginas com abas para simplificar o preenchimento automático"
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Sempre mostrar identidades como sugestões de preenchimento automático na Tela do Cofre"
+    "message": "Sempre mostrar identidades como sugestões de preenchimento automático na tela do Cofre"
   },
   "showIdentitiesCurrentTab": {
     "message": "Exibir Identidades na Aba Atual"
@@ -3785,11 +3785,11 @@
     "message": "Trust user"
   },
   "sendsTitleNoItems": {
-    "message": "Envie informações sensíveis com segurança",
+    "message": "Envie informações confidencias, com segurança",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Compartilhe arquivos e dados com segurança, com qualquer pessoa e em qualquer plataforma. Suas informações ficarão sempre criptografadas de ponta a ponta, garantindo exposição mínima.",
+    "message": "Compartilhe arquivos e dados de forma segura com qualquer pessoa, em qualquer plataforma. Suas informações permanecerão criptografadas de ponta a ponta enquanto limitam a exposição.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4131,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Selecione uma coleção"
   },
-  "importTargetHint": {
-    "message": "Selecione esta opção se você quer o conteúdo do arquivo importado movido para $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Arquivo contém itens não atribuídos."
@@ -5579,5 +5575,9 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

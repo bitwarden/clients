@@ -37,9 +37,7 @@ export function requestIdleCallbackPolyfill(
     return globalThis.requestIdleCallback(() => callback(), options);
   }
 
-  const timeoutDelay = options?.timeout || 1;
-
-  return globalThis.setTimeout(() => callback(), timeoutDelay);
+  return globalThis.setTimeout(() => callback(), 1);
 }
 
 /**
