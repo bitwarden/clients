@@ -1,12 +1,4 @@
-import {
-  concatMap,
-  filter,
-  firstValueFrom,
-  skip,
-  startWith,
-  Subscription,
-  withLatestFrom,
-} from "rxjs";
+import { concatMap, filter, Subscription, withLatestFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -54,12 +46,6 @@ export class BadgeService {
     (global as any).badgeService = this; // For easier debugging
 
     this.serviceState = this.stateProvider.getGlobal(BADGE_STATES);
-
-    console.log("[Badge] Constructor function called");
-    this.serviceState.state$.subscribe((state) =>
-      console.log("[Badge] Emission from subscriber in constructor", state),
-    );
-    console.log("[Badge] Constructor subscribed");
   }
 
   /**
@@ -67,12 +53,6 @@ export class BadgeService {
    * Without this the service will not be able to update the badge state.
    */
   startListening(): Subscription {
-    console.log("[Badge] Init function called");
-    this.serviceState.state$.subscribe((state) =>
-      console.log("[Badge] Emission from subscriber in init function", state),
-    );
-    console.log("[Badge] Init function subscribed");
-
     // React to tab changes
     return this.badgeApi.activeTabsUpdated$
       .pipe(
@@ -109,13 +89,10 @@ export class BadgeService {
    * @param tabId Limit this badge state to a specific tab. If this is not set, the state will be applied to all tabs.
    */
   async setState(name: string, priority: BadgeStatePriority, state: BadgeState, tabId?: number) {
-    console.log("[Badge] updating state with key:", name);
     const newServiceState = await this.serviceState.update((s) => ({
       ...s,
       [name]: { priority, state, tabId },
     }));
-    console.log("[Badge] state updated, this should be the state now:", newServiceState);
-
     await this.updateBadge(newServiceState, tabId);
   }
 
