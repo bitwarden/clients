@@ -14,9 +14,12 @@ export class SendAccessToken {
     readonly expiresAt: number,
   ) {}
 
-  /** Returns whether the send access token is expired or not */
-  isExpired(): boolean {
-    return Date.now() >= this.expiresAt;
+  /** Returns whether the send access token is expired or not
+   * Has a 5 second threshold to avoid race conditions with the token
+   * expiring in flight
+   */
+  isExpired(threshold: number = 5_000): boolean {
+    return Date.now() >= this.expiresAt - threshold;
   }
 
   /** Returns how many full seconds remain until expiry. Returns 0 if expired. */
