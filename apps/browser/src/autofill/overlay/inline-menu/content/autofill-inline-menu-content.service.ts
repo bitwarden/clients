@@ -158,8 +158,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     if (!(await this.isInlineMenuButtonVisible())) {
       this.appendInlineMenuElementToDom(this.buttonElement);
-      this.buttonElement.showPopover();
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.Button, true);
+      this.buttonElement.showPopover();
     }
   }
 
@@ -174,8 +174,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     if (!(await this.isInlineMenuListVisible())) {
       this.appendInlineMenuElementToDom(this.listElement);
-      this.listElement.showPopover();
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.List, true);
+      this.listElement.showPopover();
     }
   }
 
