@@ -40,7 +40,7 @@ export interface AutofillOverlayContentService {
   ): Promise<void>;
   blurMostRecentlyFocusedField(isClosingInlineMenu?: boolean): void;
   getOwnedInlineMenuTagNames(): string[];
-  getUnownedTopLayerItems(includeCandidates?: boolean): NodeListOf<Element>;
+  getUnownedTopLayerItems(includeCandidates?: boolean): NodeListOf<Element> | undefined;
   refreshMenuLayerPosition(): void;
   clearUserFilledFields(): void;
   destroy(): void;
