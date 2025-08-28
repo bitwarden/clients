@@ -10,13 +10,14 @@ import {
   booleanAttribute,
   AfterViewInit,
   ElementRef,
-  OnDestroy,
+  DestroyRef,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
 import { TypographyDirective } from "../../typography/typography.directive";
+import { hasScrollableContent } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { fadeIn } from "../animations";
 import { DialogRef } from "../dialog.service";
@@ -41,10 +42,10 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
     CdkScrollable,
   ],
 })
-export class DialogComponent implements AfterViewInit, OnDestroy {
+export class DialogComponent implements AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
   private scrollableBody = viewChild.required(CdkScrollable);
   private scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
-  private observer?: IntersectionObserver;
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
@@ -112,21 +113,14 @@ export class DialogComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    if (this.scrollBottom()) {
-      this.observer = new IntersectionObserver(
-        ([entry]) => {
-          this.isScrollable = !entry.isIntersecting;
-        },
-        {
-          root: this.scrollableBody().getElementRef().nativeElement,
-          threshold: 0.01,
-        },
-      );
-      this.observer.observe(this.scrollBottom().nativeElement);
-    }
-  }
+    const scrollableEl = this.scrollableBody().getElementRef().nativeElement;
+    const sentinelEl = this.scrollBottom().nativeElement;
 
-  ngOnDestroy() {
-    this.observer?.disconnect();
+    hasScrollableContent({
+      root: scrollableEl,
+      target: sentinelEl,
+      boundValue: (isScrollable: boolean) => (this.isScrollable = isScrollable),
+      options: { destroyRef: this.destroyRef },
+    });
   }
 }
