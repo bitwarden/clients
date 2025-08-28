@@ -14,7 +14,7 @@ use tokio_util::sync::CancellationToken;
 use super::{BitwardenDesktopAgent, BitwardenSshKey, SshAgentUIRequest};
 
 impl BitwardenDesktopAgent<BitwardenSshKey> {
-    pub async fn start_server(
+    pub fn start_server(
         auth_request_tx: tokio::sync::mpsc::Sender<SshAgentUIRequest>,
         auth_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
     ) -> Result<Self, anyhow::Error> {
@@ -42,8 +42,7 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
                 cloned_agent_state.clone(),
                 cloned_agent_state.keystore.clone(),
                 cloned_agent_state.cancellation_token.clone(),
-            )
-            .await;
+            );
             cloned_agent_state
                 .is_running
                 .store(false, std::sync::atomic::Ordering::Relaxed);
