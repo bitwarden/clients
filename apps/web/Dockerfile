@@ -4,6 +4,8 @@
 ARG NODE_VERSION=20
 FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine AS node-build
 
+# comment for testing
+
 WORKDIR /source
 COPY package*.json ./
 COPY . .
