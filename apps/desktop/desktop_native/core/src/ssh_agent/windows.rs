@@ -42,7 +42,8 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
                 cloned_agent_state.clone(),
                 cloned_agent_state.keystore.clone(),
                 cloned_agent_state.cancellation_token.clone(),
-            );
+            )
+            .await;
             cloned_agent_state
                 .is_running
                 .store(false, std::sync::atomic::Ordering::Relaxed);
