@@ -21,7 +21,26 @@ export abstract class PlatformUtilsService {
   abstract isOpera(): boolean;
   abstract isVivaldi(): boolean;
   abstract isSafari(): boolean;
+  /**
+   * Returns true if the app is running as a Mac App Store app
+   */
   abstract isMacAppStore(): boolean;
+  /**
+   * Returns true if the app is running as a Windows Store app
+   */
+  abstract isWindowsStore(): boolean;
+  /**
+   * Returns true if the app is running as a Flatpak app
+   */
+  abstract isFlatpak(): boolean;
+  /**
+   * Returns true if the app is running as a Snap Store app
+   */
+  abstract isSnapStore(): boolean;
+  /**
+   * Returns true if the app is running as an AppImage
+   */
+  abstract isAppImage(): boolean;
   abstract isPopupOpen(): Promise<boolean>;
   abstract launchUri(uri: string, options?: any): void;
   abstract getApplicationVersion(): Promise<string>;

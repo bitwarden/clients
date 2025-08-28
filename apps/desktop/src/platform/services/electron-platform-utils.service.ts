@@ -59,6 +59,22 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return ipc.platform.isMacAppStore;
   }
 
+  isWindowsStore(): boolean {
+    return ipc.platform.isWindowsStore;
+  }
+
+  isFlatpak(): boolean {
+    return ipc.platform.isFlatpak;
+  }
+
+  isSnapStore(): boolean {
+    return ipc.platform.isSnapStore;
+  }
+
+  isAppImage(): boolean {
+    return ipc.platform.isAppImage;
+  }
+
   isPopupOpen(): Promise<boolean> {
     return Promise.resolve(false);
   }

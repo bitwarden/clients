@@ -75,6 +75,22 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  isWindowsStore(): boolean {
+    return false;
+  }
+
+  isFlatpak(): boolean {
+    return false;
+  }
+
+  isSnapStore(): boolean {
+    return false;
+  }
+
+  isAppImage(): boolean {
+    return false;
+  }
+
   isPopupOpen() {
     return Promise.resolve(false);
   }
