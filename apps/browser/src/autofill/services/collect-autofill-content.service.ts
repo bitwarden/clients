@@ -926,9 +926,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupInitialTopLayerListeners = () => {
     const unownedTopLayerItems = this.autofillOverlayContentService?.getUnownedTopLayerItems(true);
 
-    for (const unownedElement of unownedTopLayerItems) {
-      if (this.shouldListenToTopLayerCandidate(unownedElement)) {
-        this.setupTopLayerCandidateListener(unownedElement);
+    if (unownedTopLayerItems?.length) {
+      for (const unownedElement of unownedTopLayerItems) {
+        if (this.shouldListenToTopLayerCandidate(unownedElement)) {
+          this.setupTopLayerCandidateListener(unownedElement);
+        }
       }
     }
   };
@@ -1099,7 +1101,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return (
       !this.ownedExperienceTagNames.includes(element.tagName) &&
       (element.tagName === "DIALOG" ||
-        Array.from(element.attributes).some((attribute) => this.isPopoverAttribute(attribute.name)))
+        Array.from(element.attributes || []).some((attribute) =>
+          this.isPopoverAttribute(attribute.name),
+        ))
     );
   };
 
@@ -1117,7 +1121,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     // Check added nodes for dialog or popover attributes
-    if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+    if (mutation.type === "childList" && mutation.addedNodes?.length > 0) {
       for (const node of mutation.addedNodes) {
         const mutationElement = node as Element;
 
