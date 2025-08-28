@@ -27,8 +27,8 @@ export class SendAccessToken {
     return Math.max(0, Math.floor((this.expiresAt - Date.now()) / 1_000));
   }
 
-  static fromJson(json: Jsonify<SendAccessToken>): SendAccessToken {
-    return new SendAccessToken(json.token, json.expiresAt);
+  static fromJson(parsedJson: Jsonify<SendAccessToken>): SendAccessToken {
+    return new SendAccessToken(parsedJson.token, parsedJson.expiresAt);
   }
 
   /**
