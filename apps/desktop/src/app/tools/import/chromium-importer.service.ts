@@ -18,12 +18,5 @@ export class ChromiumImporterService {
         return await chromium_importer.importLogins(browser, profileId);
       },
     );
-
-    ipcMain.handle(
-      "chromium_importer.configureWindowsCryptoService",
-      async (event, adminExePath: string, serviceExePath: string) => {
-        return await chromium_importer.configureWindowsCryptoService(adminExePath, serviceExePath);
-      },
-    );
   }
 }

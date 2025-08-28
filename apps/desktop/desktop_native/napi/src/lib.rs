@@ -954,17 +954,6 @@ pub mod chromium_importer {
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
-
-    #[napi]
-    pub async fn configure_windows_crypto_service(
-        admin_exe_path: String,
-        service_exe_path: String,
-    ) {
-        bitwarden_chromium_importer::chromium::configure_windows_crypto_service(
-            &admin_exe_path,
-            &service_exe_path,
-        )
-    }
 }
 
 #[napi]
