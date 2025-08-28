@@ -86,6 +86,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @public
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
+    // Set up listeners on top-layer candidates that predate Mutation Observer setup
+    this.setupInitialTopLayerListeners();
+
     if (!this.mutationObserver) {
       this.setupMutationObserver();
     }
@@ -920,6 +923,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return this.nonInputFormFieldTags.has(nodeTagName) && !nodeHasBwIgnoreAttribute;
   }
 
+  private setupInitialTopLayerListeners = () => {
+    const unownedTopLayerItems = this.autofillOverlayContentService?.getUnownedTopLayerItems(true);
+
+    for (const unownedElement of unownedTopLayerItems) {
+      if (this.shouldListenToTopLayerCandidate(unownedElement)) {
+        this.setupTopLayerCandidateListener(unownedElement);
+      }
+    }
+  };
+
   /**
    * Sets up a mutation observer on the body of the document. Observes changes to
    * DOM elements to ensure we have an updated set of autofill field data.
@@ -1000,10 +1013,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       requestIdleCallbackPolyfill(processMutationRecords, { timeout: 500 });
     }
 
-    // Add a slight delay (but faster than a user's reaction), to ensure the layer
-    // positioning happens after any triggered toggle has completed.
-    setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
-
     this.mutationsQueue = [];
   };
 
@@ -1065,23 +1074,33 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
-  private setupTopLayerCandidateListener(element: Element) {
+  private setupTopLayerCandidateListener = (element: Element) => {
     const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
     this.ownedExperienceTagNames = ownedTags;
 
     if (!ownedTags.includes(element.tagName)) {
-      element.addEventListener("toggle", ({ newState }: ToggleEvent) => {
-        if (newState === "open") {
-          this.autofillOverlayContentService.refreshMenuLayerPosition();
+      element.addEventListener("toggle", (event: ToggleEvent) => {
+        if (event.newState === "open") {
+          // Add a slight delay (but faster than a user's reaction), to ensure the layer
+          // positioning happens after any triggered toggle has completed.
+          setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
         }
       });
     }
-  }
+  };
 
   private isPopoverAttribute = (attr: string | null) => {
     const popoverAttributes = new Set(["popover", "popovertarget", "popovertargetaction"]);
 
     return attr && popoverAttributes.has(attr.toLowerCase());
+  };
+
+  private shouldListenToTopLayerCandidate = (element: Element) => {
+    return (
+      !this.ownedExperienceTagNames.includes(element.tagName) &&
+      (element.tagName === "DIALOG" ||
+        Array.from(element.attributes).some((attribute) => this.isPopoverAttribute(attribute.name)))
+    );
   };
 
   /**
@@ -1091,7 +1110,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    *
    * @param mutation - The MutationRecord to check
    */
-  private handleTopLayerChanges(mutation: MutationRecord) {
+  private handleTopLayerChanges = (mutation: MutationRecord) => {
     // Check attribute mutations
     if (mutation.type === "attributes" && this.isPopoverAttribute(mutation.attributeName)) {
       this.setupTopLayerCandidateListener(mutation.target as Element);
@@ -1102,20 +1121,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       for (const node of mutation.addedNodes) {
         const mutationElement = node as Element;
 
-        if (
-          !this.ownedExperienceTagNames.includes(mutationElement.tagName) &&
-          (mutationElement.tagName === "DIALOG" ||
-            Array.from(mutationElement.attributes).some(({ name }) =>
-              this.isPopoverAttribute(name),
-            ))
-        ) {
+        if (this.shouldListenToTopLayerCandidate(mutationElement)) {
           this.setupTopLayerCandidateListener(mutationElement);
         }
       }
     }
 
     return;
-  }
+  };
 
   /**
    * Checks if the passed nodes either contain or are autofill elements.

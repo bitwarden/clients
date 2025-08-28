@@ -462,21 +462,27 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   /**
    * Queries and return elements (excluding those of the inline menu) that exist in the
    * top-layer via popover or dialog
+   * @param {boolean} [includeCandidates=false] indicate whether top-layer candidate (which
+   * may or may not be active) should be included in the query
    */
-  private getPageOtherTopLayerItems = () => {
+  getUnownedTopLayerItems = (includeCandidates = false) => {
     const inlineMenuTagExclusions = [
       ...(this.buttonElement?.tagName ? [`:not(${this.buttonElement.tagName})`] : []),
       ...(this.listElement?.tagName ? [`:not(${this.listElement.tagName})`] : []),
       ":popover-open",
     ].join("");
-    const selector = [":modal", inlineMenuTagExclusions].join(",");
+    const selector = [
+      ":modal",
+      inlineMenuTagExclusions,
+      ...(includeCandidates ? ["[popover]"] : []),
+    ].join(",");
     const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
 
     return otherTopLayeritems;
   };
 
   refreshTopLayerPosition = () => {
-    const otherTopLayerItems = this.getPageOtherTopLayerItems();
+    const otherTopLayerItems = this.getUnownedTopLayerItems();
 
     // No need to refresh if there are no other top-layer items
     if (!otherTopLayerItems.length) {
