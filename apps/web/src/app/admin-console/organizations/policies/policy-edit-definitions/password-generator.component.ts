@@ -9,9 +9,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BuiltIn, Profile } from "@bitwarden/generator-core";
 
-import { SharedModule } from "../../../shared";
-
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { SharedModule } from "../../../../shared";
+import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
 
 export class PasswordGeneratorPolicy extends BasePolicy {
   name = "passwordGenerator";

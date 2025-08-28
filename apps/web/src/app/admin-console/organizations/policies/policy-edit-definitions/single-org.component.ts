@@ -2,9 +2,8 @@ import { Component, OnInit } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
-import { SharedModule } from "../../../shared";
-
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { SharedModule } from "../../../../shared";
+import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
 
 export class SingleOrgPolicy extends BasePolicy {
   name = "singleOrg";

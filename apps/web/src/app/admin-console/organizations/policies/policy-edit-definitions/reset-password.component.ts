@@ -12,8 +12,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
-import { SharedModule } from "../../../shared";
+import { SharedModule } from "../../../../shared";
+import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
 
 export class ResetPasswordPolicy extends BasePolicy {
   name = "accountRecoveryPolicy";

@@ -5,8 +5,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
-import { SharedModule } from "../../../shared";
+import { SharedModule } from "../../../../shared";
+import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
 
 export class RequireSsoPolicy extends BasePolicy {
   name = "requireSso";
