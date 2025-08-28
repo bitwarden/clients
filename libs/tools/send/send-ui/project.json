@@ -1,0 +1,29 @@
+{
+  "name": "@bitwarden/send-ui",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/tools/send/send-ui/src",
+  "projectType": "library",
+  "tags": ["scope:send-ui", "type:lib"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "dependsOn": [],
+      "options": {
+        "script": "build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/tools/send/send-ui/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "test"
+      }
+    }
+  }
+}
