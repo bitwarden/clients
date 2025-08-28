@@ -98,37 +98,37 @@ export const AllButtonTypes: Story = {
   render: () => ({
     template: `
       <div class="tw-flex tw-flex-wrap tw-gap-4 tw-justify-center">
-        <bit-pricing-card
+        <billing-pricing-card
           title="Primary Button"
           tagline="Example with primary button styling"
           [price]="{ amount: 10, cadence: 'monthly' }"
           [button]="{ text: 'Primary Action', type: 'primary' }"
           [features]="['Feature 1', 'Feature 2']">
-        </bit-pricing-card>
+        </billing-pricing-card>
         
-        <bit-pricing-card
+        <billing-pricing-card
           title="Secondary Button"
           tagline="Example with secondary button styling"
           [price]="{ amount: 5, cadence: 'monthly' }"
           [button]="{ text: 'Secondary Action', type: 'secondary' }"
           [features]="['Feature 1', 'Feature 2']">
-        </bit-pricing-card>
+        </billing-pricing-card>
         
-        <bit-pricing-card
+        <billing-pricing-card
           title="Danger Button"
           tagline="Example with danger button styling"
           [price]="{ amount: 15, cadence: 'monthly' }"
           [button]="{ text: 'Delete Plan', type: 'danger' }"
           [features]="['Feature 1', 'Feature 2']">
-        </bit-pricing-card>
+        </billing-pricing-card>
         
-        <bit-pricing-card
+        <billing-pricing-card
           title="Unstyled Button"
           tagline="Example with unstyled button"
           [price]="{ amount: 0, cadence: 'monthly' }"
           [button]="{ text: 'Learn More', type: 'unstyled' }"
           [features]="['Feature 1', 'Feature 2']">
-        </bit-pricing-card>
+        </billing-pricing-card>
       </div>
     `,
     props: {},
@@ -139,28 +139,28 @@ export const PricingGrid: Story = {
   render: () => ({
     template: `
       <div class="tw-flex tw-flex-wrap tw-gap-6 tw-justify-center tw-p-4">
-        <bit-pricing-card
+        <billing-pricing-card
           title="Free"
           tagline="For personal use with essential features"
           [button]="{ text: 'Get Started', type: 'secondary' }"
           [features]="['Store unlimited passwords', 'Access from any device', 'Secure password generator']">
-        </bit-pricing-card>
+        </billing-pricing-card>
         
-        <bit-pricing-card
+        <billing-pricing-card
           title="Premium"
           tagline="Everything you need for secure password management"
           [price]="{ amount: 10, cadence: 'monthly' }"
           [button]="{ text: 'Choose Premium', type: 'primary' }"
           [features]="['Unlimited passwords and passkeys', 'Secure password sharing', 'Integrated 2FA authenticator', 'Advanced 2FA options', 'Priority customer support']">
-        </bit-pricing-card>
+        </billing-pricing-card>
         
-        <bit-pricing-card
+        <billing-pricing-card
           title="Business"
           tagline="Advanced security and management for teams"
           [price]="{ amount: 5, cadence: 'monthly' }"
           [button]="{ text: 'Start Business Trial', type: 'primary' }"
           [features]="['Everything in Premium', 'Admin dashboard', 'Team reporting', 'Advanced permissions', 'SSO integration']">
-        </bit-pricing-card>
+        </billing-pricing-card>
       </div>
     `,
     props: {},

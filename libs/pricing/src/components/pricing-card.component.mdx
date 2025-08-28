@@ -20,7 +20,7 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 ```
 
 ```html
-<bit-pricing-card
+<billing-pricing-card
   title="Premium Plan"
   tagline="Everything you need for secure password management"
   [price]="{ amount: 10, cadence: 'monthly' }"
@@ -28,7 +28,7 @@ import { PricingCardComponent } from "@bitwarden/pricing";
   [features]="features"
   (buttonClick)="onPlanSelected()"
 >
-</bit-pricing-card>
+</billing-pricing-card>
 ```
 
 ## Inputs
@@ -52,8 +52,10 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 The component follows the Bitwarden design system with:
 
 - **Fixed width**: 449px for consistent layout
-- **Modern Angular**: Uses `@if` and `@for` control flow
+- **Modern Angular**: Uses `@if` and `@for` control flow and signal inputs
+- **Signal inputs**: Type-safe inputs using Angular's signal-based input API
 - **Official buttons**: Uses `bitButton` directive from Component Library
+- **Typography**: Uses `bitTypography` directive for consistent text styling
 - **Accessibility**: Proper heading hierarchy and button semantics
 
 ## Examples
@@ -65,13 +67,13 @@ For free or contact-based plans, omit the `price` input:
 <Canvas of={PricingCardStories.WithoutPrice} />
 
 ```html
-<bit-pricing-card
+<billing-pricing-card
   title="Free Plan"
   tagline="Get started with essential features"
   [button]="{ text: 'Get Started', type: 'secondary' }"
   [features]="freeFeatures"
 >
-</bit-pricing-card>
+</billing-pricing-card>
 ```
 
 ### Annual Pricing
@@ -81,14 +83,14 @@ Show annual pricing with different cadence:
 <Canvas of={PricingCardStories.Annual} />
 
 ```html
-<bit-pricing-card
+<billing-pricing-card
   title="Premium Plan"
   tagline="Save with annual billing"
   [price]="{ amount: 120, cadence: 'annually' }"
   [button]="{ text: 'Choose Annual', type: 'primary' }"
   [features]="premiumFeatures"
 >
-</bit-pricing-card>
+</billing-pricing-card>
 ```
 
 ### Disabled State
@@ -98,14 +100,14 @@ For coming soon or unavailable plans:
 <Canvas of={PricingCardStories.Disabled} />
 
 ```html
-<bit-pricing-card
+<billing-pricing-card
   title="Enterprise Plan"
   tagline="Advanced features coming soon"
   [price]="{ amount: 50, cadence: 'monthly' }"
   [button]="{ text: 'Coming Soon', type: 'secondary', disabled: true }"
   [features]="enterpriseFeatures"
 >
-</bit-pricing-card>
+</billing-pricing-card>
 ```
 
 ### Pricing Grid Layout

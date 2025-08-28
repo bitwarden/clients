@@ -1,20 +1,20 @@
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { ButtonType } from "@bitwarden/components";
+import { ButtonType, TypographyModule } from "@bitwarden/components";
 
 import { PricingCardComponent } from "./pricing-card.component";
 
 @Component({
   template: `
-    <bit-pricing-card
+    <billing-pricing-card
       [title]="title"
       [tagline]="tagline"
       [price]="price"
       [button]="button"
       [features]="features"
       (buttonClick)="onButtonClick()"
-    ></bit-pricing-card>
+    ></billing-pricing-card>
   `,
   imports: [PricingCardComponent],
 })
@@ -41,14 +41,15 @@ describe("PricingCardComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PricingCardComponent, TestHostComponent],
+      imports: [PricingCardComponent, TestHostComponent, TypographyModule],
     }).compileComponents();
+
+    // For signal inputs, we need to set required inputs through the host component
+    hostFixture = TestBed.createComponent(TestHostComponent);
+    hostComponent = hostFixture.componentInstance;
 
     fixture = TestBed.createComponent(PricingCardComponent);
     component = fixture.componentInstance;
-
-    hostFixture = TestBed.createComponent(TestHostComponent);
-    hostComponent = hostFixture.componentInstance;
   });
 
   it("should create", () => {

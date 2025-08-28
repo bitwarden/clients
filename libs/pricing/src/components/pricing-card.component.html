@@ -2,19 +2,19 @@
   class="tw-box-border tw-block tw-bg-background tw-text-main tw-border tw-border-secondary-300 tw-rounded-lg tw-p-6 tw-shadow-sm tw-w-[449px]"
 >
   <!-- Title -->
-  <h3 class="tw-text-xl tw-font-semibold tw-text-main tw-mb-2 tw-m-0">{{ title }}</h3>
+  <h3 bitTypography="h3" class="tw-m-0">{{ title() }}</h3>
 
   <!-- Tagline with 2-line text wrapping -->
-  <p class="tw-text-sm tw-text-muted tw-mb-4 tw-m-0 tw-leading-relaxed tw-line-clamp-2">
-    {{ tagline }}
+  <p bitTypography="body2" class="tw-text-muted tw-mb-4 tw-m-0 tw-leading-relaxed tw-line-clamp-2">
+    {{ tagline() }}
   </p>
 
   <!-- Price Section (if provided) -->
-  @if (price) {
+  @if (price(); as priceValue) {
     <div class="tw-mb-4">
       <div class="tw-flex tw-items-baseline tw-gap-1">
-        <span class="tw-text-2xl tw-font-bold tw-text-main">${{ price.amount }}</span>
-        <span class="tw-text-sm tw-text-muted">/ {{ price.cadence }}</span>
+        <span bitTypography="h2" class="tw-m-0">${{ priceValue.amount }}</span>
+        <span bitTypography="body2" class="tw-text-muted">/ {{ priceValue.cadence }}</span>
       </div>
     </div>
   }
@@ -23,27 +23,29 @@
   <div class="tw-mb-4">
     <button
       bitButton
-      [buttonType]="button.type"
+      [buttonType]="button().type"
       [block]="true"
-      [disabled]="button.disabled"
+      [disabled]="button().disabled"
       (click)="onButtonClick()"
       type="button"
     >
-      {{ button.text }}
+      {{ button().text }}
     </button>
   </div>
 
   <!-- Features List (if provided) -->
-  @if (features && features.length > 0) {
-    <div>
-      <ul class="tw-list-none tw-p-0 tw-m-0">
-        @for (feature of features; track feature) {
-          <li class="tw-flex tw-items-start tw-gap-2 tw-mb-2 last:tw-mb-0">
-            <span class="tw-text-success tw-font-semibold tw-mt-1 tw-flex-shrink-0">✓</span>
-            <span class="tw-text-sm tw-text-main tw-leading-relaxed">{{ feature }}</span>
-          </li>
-        }
-      </ul>
-    </div>
+  @if (features(); as featureList) {
+    @if (featureList.length > 0) {
+      <div>
+        <ul class="tw-list-none tw-p-0 tw-m-0">
+          @for (feature of featureList; track feature) {
+            <li class="tw-flex tw-items-start tw-gap-2 tw-mb-2 last:tw-mb-0">
+              <span class="tw-text-success tw-font-semibold tw-mt-1 tw-flex-shrink-0">✓</span>
+              <span bitTypography="body2" class="tw-leading-relaxed">{{ feature }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
   }
 </div>

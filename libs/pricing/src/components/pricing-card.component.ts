@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, input, Output } from "@angular/core";
 
-import { ButtonModule, ButtonType } from "@bitwarden/components";
+import { ButtonModule, ButtonType, TypographyModule } from "@bitwarden/components";
 
 /**
  * A reusable UI-only component that displays pricing information in a card format.
@@ -8,16 +8,17 @@ import { ButtonModule, ButtonType } from "@bitwarden/components";
  * and emits events when the button is clicked.
  */
 @Component({
-  selector: "bit-pricing-card",
+  selector: "billing-pricing-card",
   templateUrl: "./pricing-card.component.html",
-  imports: [ButtonModule],
+  imports: [ButtonModule, TypographyModule],
 })
 export class PricingCardComponent {
-  @Input() title!: string;
-  @Input() tagline!: string;
-  @Input() price?: { amount: number; cadence: "monthly" | "annually" };
-  @Input() button!: { type: ButtonType; text: string; disabled?: boolean };
-  @Input() features?: string[];
+  title = input.required<string>();
+  tagline = input.required<string>();
+  price = input<{ amount: number; cadence: "monthly" | "annually" }>();
+  button = input.required<{ type: ButtonType; text: string; disabled?: boolean }>();
+
+  features = input<string[]>();
 
   @Output() buttonClick = new EventEmitter<void>();
 
