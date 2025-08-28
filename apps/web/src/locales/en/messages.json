@@ -8392,7 +8392,7 @@
     }
   },
   "accessedProjectWithId": {
-  "message": "Accessed a project with Id: $PROJECT_ID$.",
+  "message": "Accessed a project with identifier: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
