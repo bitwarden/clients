@@ -60,6 +60,44 @@ describe("SendTokenService", () => {
     const EXPECTED_SERVER_KIND: GetSendAccessTokenError["kind"] = "expected_server";
     const UNEXPECTED_SERVER_KIND: GetSendAccessTokenError["kind"] = "unexpected_server";
 
+    const INVALID_REQUEST_CODES: SendAccessTokenInvalidRequestError[] = [
+      "send_id_required",
+      "password_hash_b64_required",
+      "email_required",
+      "email_and_otp_required_otp_sent",
+      "unknown",
+    ];
+
+    const INVALID_GRANT_CODES: SendAccessTokenInvalidGrantError[] = [
+      "send_id_invalid",
+      "password_hash_b64_invalid",
+      "email_invalid",
+      "otp_invalid",
+      "unknown",
+    ];
+
+    const CREDS = [
+      { kind: "password", passwordHashB64: "h4sh" as SendHashedPasswordB64 },
+      { kind: "email", email: "u@example.com" },
+      { kind: "email_otp", email: "u@example.com", otp: "123456" as SendOtp },
+    ] as const satisfies readonly SendAccessDomainCredentials[];
+
+    type SendAccessTokenApiErrorResponseErrorCode = SendAccessTokenApiErrorResponse["error"];
+
+    type SimpleErrorType = Exclude<
+      SendAccessTokenApiErrorResponseErrorCode,
+      "invalid_request" | "invalid_grant"
+    >;
+
+    // Extract out simple error types which don't have complex send_access_error_types to handle.
+    const SIMPLE_ERROR_TYPES = [
+      "invalid_client",
+      "unauthorized_client",
+      "unsupported_grant_type",
+      "invalid_scope",
+      "invalid_target",
+    ] as const satisfies readonly SimpleErrorType[];
+
     beforeEach(() => {
       sendId = "sendId";
       token = "sendAccessToken";
@@ -126,20 +164,34 @@ describe("SendTokenService", () => {
       });
 
       describe("handles expected invalid_request scenarios appropriately", () => {
-        const cases: SendAccessTokenInvalidRequestError[] = [
-          "send_id_required",
-          "password_hash_b64_required",
-          "email_required",
-          "email_and_otp_required_otp_sent",
-          "unknown",
-        ];
+        it.each(INVALID_REQUEST_CODES)(
+          "surfaces %s as an expected invalid_request error",
+          async (code) => {
+            // Arrange
+            const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
+              error: "invalid_request",
+              error_description: code,
+              send_access_error_type: code,
+            };
+            mockSdkRejectWith({
+              kind: "expected",
+              data: sendAccessTokenApiErrorResponse,
+            });
 
-        it.each(cases)("surfaces %s as an expected invalid_request error", async (code) => {
-          // Arrange
+            // Act
+            const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+
+            // Assert
+            expect(result).toEqual({
+              kind: EXPECTED_SERVER_KIND,
+              error: sendAccessTokenApiErrorResponse,
+            });
+          },
+        );
+
+        it("handles bare expected invalid_request scenario appropriately", async () => {
           const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
             error: "invalid_request",
-            error_description: code,
-            send_access_error_type: code,
           };
           mockSdkRejectWith({
             kind: "expected",
@@ -157,21 +209,59 @@ describe("SendTokenService", () => {
         });
       });
 
-      describe("handles expected invalid_grant scenarios appropriately", () => {
-        const cases: SendAccessTokenInvalidGrantError[] = [
-          "send_id_invalid",
-          "password_hash_b64_invalid",
-          "email_invalid",
-          "otp_invalid",
-          "unknown",
-        ];
+      it.each(SIMPLE_ERROR_TYPES)("handles expected %s error appropriately", async (errorType) => {
+        const api: SendAccessTokenApiErrorResponse = {
+          error: errorType,
+          error_description: `The ${errorType} error occurred`,
+        };
+        mockSdkRejectWith({ kind: "expected", data: api });
 
-        it.each(cases)("surfaces %s as an expected invalid_grant error", async (code) => {
-          // Arrange
+        const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+
+        expect(result).toEqual({ kind: EXPECTED_SERVER_KIND, error: api });
+      });
+
+      it.each(SIMPLE_ERROR_TYPES)(
+        "handles expected %s bare error appropriately",
+        async (errorType) => {
+          const api: SendAccessTokenApiErrorResponse = { error: errorType };
+          mockSdkRejectWith({ kind: "expected", data: api });
+
+          const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+
+          expect(result).toEqual({ kind: EXPECTED_SERVER_KIND, error: api });
+        },
+      );
+
+      describe("handles expected invalid_grant scenarios appropriately", () => {
+        it.each(INVALID_GRANT_CODES)(
+          "surfaces %s as an expected invalid_grant error",
+          async (code) => {
+            // Arrange
+            const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
+              error: "invalid_grant",
+              error_description: code,
+              send_access_error_type: code,
+            };
+            mockSdkRejectWith({
+              kind: "expected",
+              data: sendAccessTokenApiErrorResponse,
+            });
+
+            // Act
+            const result = await firstValueFrom(service.tryGetSendAccessToken$(sendId));
+
+            // Assert
+            expect(result).toEqual({
+              kind: EXPECTED_SERVER_KIND,
+              error: sendAccessTokenApiErrorResponse,
+            });
+          },
+        );
+
+        it("handles bare expected invalid_grant scenario appropriately", async () => {
           const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
             error: "invalid_grant",
-            error_description: code,
-            send_access_error_type: code,
           };
           mockSdkRejectWith({
             kind: "expected",
@@ -280,108 +370,159 @@ describe("SendTokenService", () => {
         expect(sendAccessTokenDict).toHaveProperty(sendId, sendAccessToken);
       });
 
-      // TODO: update cases to include both error codes + credentials?
-      // describe("handles expected invalid_request scenarios appropriately", () => {
-      //   const cases: SendAccessTokenInvalidRequestError[] = [
-      //     "send_id_required",
-      //     "password_hash_b64_required",
-      //     "email_required",
-      //     "email_and_otp_required_otp_sent",
-      //     "unknown",
-      //   ];
+      describe.each(CREDS.map((c) => [c.kind, c] as const))(
+        "scenarios with %s credentials",
+        (_label, creds) => {
+          it.each(INVALID_REQUEST_CODES)(
+            "handles expected invalid_request.%s scenario appropriately",
+            async (code) => {
+              const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
+                error: "invalid_request",
+                error_description: code,
+                send_access_error_type: code,
+              };
 
-      //   it.each(cases)("surfaces %s as an expected invalid_request error", async (code) => {
-      //     // Arrange
-      //     const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
-      //       error: "invalid_request",
-      //       error_description: code,
-      //       send_access_error_type: code,
-      //     };
-      //     mockSdkRejectWith({
-      //       kind: "expected",
-      //       data: sendAccessTokenApiErrorResponse,
-      //     });
+              mockSdkRejectWith({
+                kind: "expected",
+                data: sendAccessTokenApiErrorResponse,
+              });
 
-      //     // Act
-      //     const result = await firstValueFrom(service.getSendAccessToken$(sendId));
+              const result = await firstValueFrom(service.getSendAccessToken$("abc123", creds));
 
-      //     // Assert
-      //     expect(result).toEqual({
-      //       kind: EXPECTED_SERVER_KIND,
-      //       error: sendAccessTokenApiErrorResponse,
-      //     });
-      //   });
-      // });
+              expect(result).toEqual({
+                kind: "expected_server",
+                error: sendAccessTokenApiErrorResponse,
+              });
+            },
+          );
 
-      // describe("handles expected invalid_grant scenarios appropriately", () => {
-      //   const cases: SendAccessTokenInvalidGrantError[] = [
-      //     "send_id_invalid",
-      //     "password_hash_b64_invalid",
-      //     "email_invalid",
-      //     "otp_invalid",
-      //     "unknown",
-      //   ];
+          it("handles expected invalid_request scenario appropriately", async () => {
+            const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
+              error: "invalid_request",
+            };
+            mockSdkRejectWith({
+              kind: "expected",
+              data: sendAccessTokenApiErrorResponse,
+            });
 
-      //   it.each(cases)("surfaces %s as an expected invalid_grant error", async (code) => {
-      //     // Arrange
-      //     const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
-      //       error: "invalid_grant",
-      //       error_description: code,
-      //       send_access_error_type: code,
-      //     };
-      //     mockSdkRejectWith({
-      //       kind: "expected",
-      //       data: sendAccessTokenApiErrorResponse,
-      //     });
+            // Act
+            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
 
-      //     // Act
-      //     const result = await firstValueFrom(service.getSendAccessToken$(sendId));
+            // Assert
+            expect(result).toEqual({
+              kind: "expected_server",
+              error: sendAccessTokenApiErrorResponse,
+            });
+          });
 
-      //     // Assert
-      //     expect(result).toEqual({
-      //       kind: EXPECTED_SERVER_KIND,
-      //       error: sendAccessTokenApiErrorResponse,
-      //     });
-      //   });
-      // });
+          it.each(INVALID_GRANT_CODES)(
+            "handles expected invalid_grant.%s scenario appropriately",
+            async (code) => {
+              const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
+                error: "invalid_grant",
+                error_description: code,
+                send_access_error_type: code,
+              };
 
-      // it("surfaces unexpected errors as unexpected_server error", async () => {
-      //   // Arrange
-      //   const unexpectedIdentityError: UnexpectedIdentityError = "unexpected error occurred";
+              mockSdkRejectWith({
+                kind: "expected",
+                data: sendAccessTokenApiErrorResponse,
+              });
 
-      //   mockSdkRejectWith({
-      //     kind: "unexpected",
-      //     data: unexpectedIdentityError,
-      //   });
+              const result = await firstValueFrom(service.getSendAccessToken$("abc123", creds));
 
-      //   // Act
-      //   const result = await firstValueFrom(service.getSendAccessToken$(sendId));
+              expect(result).toEqual({
+                kind: "expected_server",
+                error: sendAccessTokenApiErrorResponse,
+              });
+            },
+          );
 
-      //   // Assert
-      //   expect(result).toEqual({
-      //     kind: UNEXPECTED_SERVER_KIND,
-      //     error: unexpectedIdentityError,
-      //   });
-      // });
+          it("handles expected invalid_grant scenario appropriately", async () => {
+            const sendAccessTokenApiErrorResponse: SendAccessTokenApiErrorResponse = {
+              error: "invalid_grant",
+            };
+            mockSdkRejectWith({
+              kind: "expected",
+              data: sendAccessTokenApiErrorResponse,
+            });
 
-      // it("surfaces an unknown error as an unknown error", async () => {
-      //   // Arrange
-      //   const unknownError = "unknown error occurred";
+            // Act
+            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
 
-      //   sdkService.client.auth
-      //     .mockDeep()
-      //     .send_access.mockDeep()
-      //     .request_send_access_token.mockRejectedValue(new Error(unknownError));
+            // Assert
+            expect(result).toEqual({
+              kind: "expected_server",
+              error: sendAccessTokenApiErrorResponse,
+            });
+          });
 
-      //   // Act
-      //   const result = await firstValueFrom(service.getSendAccessToken$(sendId));
+          it.each(SIMPLE_ERROR_TYPES)(
+            "handles expected %s error appropriately",
+            async (errorType) => {
+              const api: SendAccessTokenApiErrorResponse = {
+                error: errorType,
+                error_description: `The ${errorType} error occurred`,
+              };
+              mockSdkRejectWith({ kind: "expected", data: api });
 
-      //   // Assert
-      //   expect(result).toEqual({
-      //     kind: "unknown",
-      //     error: unknownError,
-      //   });
-      // });
+              const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+
+              expect(result).toEqual({ kind: EXPECTED_SERVER_KIND, error: api });
+            },
+          );
+
+          it.each(SIMPLE_ERROR_TYPES)(
+            "handles expected %s bare error appropriately",
+            async (errorType) => {
+              const api: SendAccessTokenApiErrorResponse = { error: errorType };
+              mockSdkRejectWith({ kind: "expected", data: api });
+
+              const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+
+              expect(result).toEqual({ kind: EXPECTED_SERVER_KIND, error: api });
+            },
+          );
+
+          it("surfaces unexpected errors as unexpected_server error", async () => {
+            // Arrange
+            const unexpectedIdentityError: UnexpectedIdentityError = "unexpected error occurred";
+
+            mockSdkRejectWith({
+              kind: "unexpected",
+              data: unexpectedIdentityError,
+            });
+
+            // Act
+            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+
+            // Assert
+            expect(result).toEqual({
+              kind: UNEXPECTED_SERVER_KIND,
+              error: unexpectedIdentityError,
+            });
+          });
+
+          it("surfaces an unknown error as an unknown error", async () => {
+            // Arrange
+            const unknownError = "unknown error occurred";
+
+            sdkService.client.auth
+              .mockDeep()
+              .send_access.mockDeep()
+              .request_send_access_token.mockRejectedValue(new Error(unknownError));
+
+            // Act
+            const result = await firstValueFrom(service.getSendAccessToken$(sendId, creds));
+
+            // Assert
+            expect(result).toEqual({
+              kind: "unknown",
+              error: unknownError,
+            });
+          });
+        },
+      );
     });
   });
 
