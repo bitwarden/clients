@@ -7,7 +7,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { UnlockCommand } from "./auth/commands/unlock.command";
+import { UnlockCommand } from "./key-management/commands/unlock.command";
 import { Response } from "./models/response";
 import { ListResponse } from "./models/response/list.response";
 import { MessageResponse } from "./models/response/message.response";

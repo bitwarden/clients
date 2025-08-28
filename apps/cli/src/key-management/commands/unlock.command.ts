@@ -19,11 +19,11 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
-import { ConvertToKeyConnectorCommand } from "../../key-management/convert-to-key-connector.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
 import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
+import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
 
 export class UnlockCommand {
   constructor(
@@ -54,7 +54,7 @@ export class UnlockCommand {
 
     await this.setNewSessionKey();
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    if (activeAccount === null) {
+    if (activeAccount == null) {
       return Response.error("No active account found");
     }
     const [userId, email] = [activeAccount.id, activeAccount.email];
