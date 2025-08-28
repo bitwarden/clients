@@ -474,7 +474,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     const selector = [
       ":modal",
       inlineMenuTagExclusions,
-      ...(includeCandidates ? ["[popover]"] : []),
+      ...(includeCandidates ? ["[popover], dialog"] : []),
     ].join(",");
     const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
 
