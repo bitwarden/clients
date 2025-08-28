@@ -249,6 +249,21 @@ export class DefaultSendTokenService implements SendTokenServiceAbstraction {
     if (sendAccessCredentials == null) {
       throw new Error("sendAccessCredentials must be provided.");
     }
+
+    if (sendAccessCredentials.kind === "password" && !sendAccessCredentials.passwordHashB64) {
+      throw new Error("passwordHashB64 must be provided for password credentials.");
+    }
+
+    if (sendAccessCredentials.kind === "email" && !sendAccessCredentials.email) {
+      throw new Error("email must be provided for email credentials.");
+    }
+
+    if (
+      sendAccessCredentials.kind === "email_otp" &&
+      (!sendAccessCredentials.email || !sendAccessCredentials.otp)
+    ) {
+      throw new Error("email and otp must be provided for email_otp credentials.");
+    }
   }
 
   private convertDomainCredentialsToSdkCredentials(

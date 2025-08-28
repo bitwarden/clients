@@ -523,6 +523,37 @@ describe("SendTokenService", () => {
           });
         },
       );
+
+      it("errors if passwordHashB64 is missing for password credentials", async () => {
+        const creds: SendAccessDomainCredentials = {
+          kind: "password",
+          passwordHashB64: "" as SendHashedPasswordB64,
+        };
+        await expect(firstValueFrom(service.getSendAccessToken$(sendId, creds))).rejects.toThrow(
+          "passwordHashB64 must be provided for password credentials.",
+        );
+      });
+
+      it("errors if email is missing for email credentials", async () => {
+        const creds: SendAccessDomainCredentials = {
+          kind: "email",
+          email: "",
+        };
+        await expect(firstValueFrom(service.getSendAccessToken$(sendId, creds))).rejects.toThrow(
+          "email must be provided for email credentials.",
+        );
+      });
+
+      it("errors if email or otp is missing for email_otp credentials", async () => {
+        const creds: SendAccessDomainCredentials = {
+          kind: "email_otp",
+          email: "",
+          otp: "" as SendOtp,
+        };
+        await expect(firstValueFrom(service.getSendAccessToken$(sendId, creds))).rejects.toThrow(
+          "email and otp must be provided for email_otp credentials.",
+        );
+      });
     });
   });
 
