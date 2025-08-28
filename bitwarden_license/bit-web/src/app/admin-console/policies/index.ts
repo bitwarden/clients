@@ -1,1 +1,1 @@
-export { policyEditRegister } from "./policy-edit-register";
+export { bitPolicyEditRegister as policyEditRegister } from "./policy-edit-register";

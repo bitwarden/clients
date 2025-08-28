@@ -18,7 +18,7 @@ import {
  * The policy register for OSS policies.
  * Add your policy definition here if it is under the OSS license.
  */
-export const policyEditRegister: BasePolicyEditDefinition[] = [
+export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new TwoFactorAuthenticationPolicy(),
   new MasterPasswordPolicy(),
   new RemoveUnlockWithPinPolicy(),

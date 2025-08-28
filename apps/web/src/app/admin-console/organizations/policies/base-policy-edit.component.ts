@@ -11,7 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 /**
  * A metadata class that defines how a policy is displayed in the Admin Console Policies page for editing.
- * Add this to the `policy-register.ts` file (in OSS or Bitwarden Licensed code) to register it in the application.
+ * Add this to the `ossPolicyRegister` or `bitPolicyRegister` file to register it in the application.
  */
 export abstract class BasePolicyEditDefinition {
   /**
