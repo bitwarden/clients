@@ -32,8 +32,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 import { SharedModule } from "../../../shared";
+
+import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
 export type PolicyEditDialogData = {
   /** Returns policy abstracts. */
