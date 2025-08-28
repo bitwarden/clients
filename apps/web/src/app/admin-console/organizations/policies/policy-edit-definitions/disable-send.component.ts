@@ -3,9 +3,9 @@ import { Component } from "@angular/core";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
 import { SharedModule } from "../../../../shared";
-import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class DisableSendPolicy extends BasePolicy {
+export class DisableSendPolicy extends BasePolicyEditDefinition {
   name = "disableSend";
   description = "disableSendPolicyDesc";
   type = PolicyType.DisableSend;
@@ -16,4 +16,4 @@ export class DisableSendPolicy extends BasePolicy {
   templateUrl: "disable-send.component.html",
   imports: [SharedModule],
 })
-export class DisableSendPolicyComponent extends BasePolicyComponent {}
+export class DisableSendPolicyComponent extends BasePolicyEditComponent {}

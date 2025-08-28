@@ -10,9 +10,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { BuiltIn, Profile } from "@bitwarden/generator-core";
 
 import { SharedModule } from "../../../../shared";
-import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class PasswordGeneratorPolicy extends BasePolicy {
+export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   name = "passwordGenerator";
   description = "passwordGeneratorPolicyDesc";
   type = PolicyType.PasswordGenerator;
@@ -23,7 +23,7 @@ export class PasswordGeneratorPolicy extends BasePolicy {
   templateUrl: "password-generator.component.html",
   imports: [SharedModule],
 })
-export class PasswordGeneratorPolicyComponent extends BasePolicyComponent {
+export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   // these properties forward the application default settings to the UI
   // for HTML attribute bindings
   protected readonly minLengthMin =

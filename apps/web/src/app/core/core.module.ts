@@ -113,7 +113,7 @@ import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarde
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 
 import { flagEnabled } from "../../utils/flags";
-import { POLICY_REGISTER_TOKEN, policyRegister } from "../admin-console/organizations/policies";
+import { POLICY_REGISTER_TOKEN, policyEditRegister } from "../admin-console/organizations/policies";
 import {
   WebChangePasswordService,
   WebRegistrationFinishService,
@@ -154,7 +154,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider(EventService),
   safeProvider({
     provide: POLICY_REGISTER_TOKEN,
-    useValue: policyRegister,
+    useValue: policyEditRegister,
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,

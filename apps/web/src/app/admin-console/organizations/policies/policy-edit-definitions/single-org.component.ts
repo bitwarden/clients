@@ -3,9 +3,9 @@ import { Component, OnInit } from "@angular/core";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
 import { SharedModule } from "../../../../shared";
-import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class SingleOrgPolicy extends BasePolicy {
+export class SingleOrgPolicy extends BasePolicyEditDefinition {
   name = "singleOrg";
   description = "singleOrgPolicyDesc";
   type = PolicyType.SingleOrg;
@@ -16,7 +16,7 @@ export class SingleOrgPolicy extends BasePolicy {
   templateUrl: "single-org.component.html",
   imports: [SharedModule],
 })
-export class SingleOrgPolicyComponent extends BasePolicyComponent implements OnInit {
+export class SingleOrgPolicyComponent extends BasePolicyEditComponent implements OnInit {
   async ngOnInit() {
     super.ngOnInit();
 

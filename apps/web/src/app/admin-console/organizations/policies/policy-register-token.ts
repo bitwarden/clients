@@ -1,5 +1,7 @@
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
-import { BasePolicy } from "./base-policy.component";
+import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 
-export const POLICY_REGISTER_TOKEN = new SafeInjectionToken<BasePolicy[]>("POLICY_REGISTER_TOKEN");
+export const POLICY_REGISTER_TOKEN = new SafeInjectionToken<BasePolicyEditDefinition[]>(
+  "POLICY_REGISTER_TOKEN",
+);

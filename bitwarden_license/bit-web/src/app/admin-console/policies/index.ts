@@ -1,1 +1,1 @@
-export { policyRegister } from "./policy-register";
+export { policyEditRegister } from "./policy-edit-register";

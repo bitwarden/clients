@@ -1,9 +1,9 @@
-import { BasePolicy } from "./base-policy.component";
+import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 
 export class PolicyListService {
-  private policies: readonly BasePolicy[];
+  private policies: readonly BasePolicyEditDefinition[];
 
-  constructor(policies: BasePolicy[]) {
+  constructor(policies: BasePolicyEditDefinition[]) {
     this.policies = Object.freeze([...policies]);
   }
 

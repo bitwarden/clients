@@ -8,9 +8,9 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { DialogService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
-import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class vNextOrganizationDataOwnershipPolicy extends BasePolicy {
+export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "organizationDataOwnership";
   description = "organizationDataOwnershipDesc";
   type = PolicyType.OrganizationDataOwnership;
@@ -27,7 +27,7 @@ export class vNextOrganizationDataOwnershipPolicy extends BasePolicy {
   imports: [SharedModule],
 })
 export class vNextOrganizationDataOwnershipPolicyComponent
-  extends BasePolicyComponent
+  extends BasePolicyEditComponent
   implements OnInit
 {
   constructor(private dialogService: DialogService) {

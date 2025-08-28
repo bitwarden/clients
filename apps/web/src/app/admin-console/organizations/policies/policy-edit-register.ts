@@ -1,4 +1,4 @@
-import { BasePolicy } from "./base-policy.component";
+import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import {
   DisableSendPolicy,
   MasterPasswordPolicy,
@@ -12,13 +12,13 @@ import {
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
   vNextOrganizationDataOwnershipPolicy,
-} from "./policy-edit-metadata";
+} from "./policy-edit-definitions";
 
 /**
  * The policy register for OSS policies.
  * Add your policy definition here if it is under the OSS license.
  */
-export const policyRegister: BasePolicy[] = [
+export const policyEditRegister: BasePolicyEditDefinition[] = [
   new TwoFactorAuthenticationPolicy(),
   new MasterPasswordPolicy(),
   new RemoveUnlockWithPinPolicy(),

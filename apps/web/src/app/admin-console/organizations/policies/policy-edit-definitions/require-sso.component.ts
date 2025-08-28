@@ -6,9 +6,9 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { SharedModule } from "../../../../shared";
-import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class RequireSsoPolicy extends BasePolicy {
+export class RequireSsoPolicy extends BasePolicyEditDefinition {
   name = "requireSso";
   description = "requireSsoPolicyDesc";
   type = PolicyType.RequireSso;
@@ -23,4 +23,4 @@ export class RequireSsoPolicy extends BasePolicy {
   templateUrl: "require-sso.component.html",
   imports: [SharedModule],
 })
-export class RequireSsoPolicyComponent extends BasePolicyComponent {}
+export class RequireSsoPolicyComponent extends BasePolicyEditComponent {}

@@ -17,9 +17,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { SharedModule } from "../../../../shared";
-import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class MasterPasswordPolicy extends BasePolicy {
+export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   name = "masterPassPolicyTitle";
   description = "masterPassPolicyDesc";
   type = PolicyType.MasterPassword;
@@ -30,7 +30,7 @@ export class MasterPasswordPolicy extends BasePolicy {
   templateUrl: "master-password.component.html",
   imports: [SharedModule],
 })
-export class MasterPasswordPolicyComponent extends BasePolicyComponent implements OnInit {
+export class MasterPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
   MinPasswordLength = Utils.minimumPasswordLength;
 
   data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({

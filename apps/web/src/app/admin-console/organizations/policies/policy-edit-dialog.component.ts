@@ -30,13 +30,13 @@ import {
 
 import { SharedModule } from "../../../shared";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
 
 export type PolicyEditDialogData = {
   /**
    * The metadata containing information about how to display and edit the policy.
    */
-  policy: BasePolicy;
+  policy: BasePolicyEditDefinition;
   /**
    * The organization ID for the policy.
    */
@@ -57,7 +57,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   loading = true;
   enabled = false;
   saveDisabled$: Observable<boolean> = of(false);
-  policyComponent: BasePolicyComponent | undefined;
+  policyComponent: BasePolicyEditComponent | undefined;
 
   formGroup = this.formBuilder.group({
     enabled: [this.enabled],
@@ -90,7 +90,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     );
   }
 
-  get policy(): BasePolicy {
+  get policy(): BasePolicyEditDefinition {
     return this.data.policy;
   }
 

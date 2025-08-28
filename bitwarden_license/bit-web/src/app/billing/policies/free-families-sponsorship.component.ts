@@ -2,12 +2,12 @@ import { Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
-  BasePolicy,
-  BasePolicyComponent,
-} from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+  BasePolicyEditDefinition,
+  BasePolicyEditComponent,
+} from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-export class FreeFamiliesSponsorshipPolicy extends BasePolicy {
+export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   name = "freeFamiliesSponsorship";
   description = "freeFamiliesSponsorshipPolicyDesc";
   type = PolicyType.FreeFamiliesSponsorshipPolicy;
@@ -18,4 +18,4 @@ export class FreeFamiliesSponsorshipPolicy extends BasePolicy {
   templateUrl: "free-families-sponsorship.component.html",
   imports: [SharedModule],
 })
-export class FreeFamiliesSponsorshipPolicyComponent extends BasePolicyComponent {}
+export class FreeFamiliesSponsorshipPolicyComponent extends BasePolicyEditComponent {}

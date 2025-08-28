@@ -28,7 +28,7 @@ import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
-import { BasePolicy } from "./base-policy.component";
+import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { PolicyListService } from "./policy-list.service";
 import { POLICY_REGISTER_TOKEN } from "./policy-register-token";
@@ -46,7 +46,7 @@ import { POLICY_REGISTER_TOKEN } from "./policy-register-token";
 export class PoliciesComponent implements OnInit {
   loading = true;
   organizationId: string;
-  policies: readonly BasePolicy[];
+  policies: readonly BasePolicyEditDefinition[];
   protected organization$: Observable<Organization>;
 
   private orgPolicies: PolicyResponse[];
@@ -117,7 +117,7 @@ export class PoliciesComponent implements OnInit {
     this.loading = false;
   }
 
-  async edit(policy: BasePolicy) {
+  async edit(policy: BasePolicyEditDefinition) {
     const dialogRef = PolicyEditDialogComponent.open(this.dialogService, {
       data: {
         policy: policy,

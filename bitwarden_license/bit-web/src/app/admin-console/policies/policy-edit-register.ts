@@ -1,5 +1,4 @@
-import { policyRegister as ossPolicyRegister } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
-import { BasePolicy } from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+import { policyEditRegister as ossPolicyEditRegister , BasePolicyEditDefinition } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 
 import { FreeFamiliesSponsorshipPolicy } from "../../billing/policies/free-families-sponsorship.component";
 
@@ -13,7 +12,7 @@ import { MaximumVaultTimeoutPolicy } from "./maximum-vault-timeout.component";
  * Add your policy definition here if it is under the Bitwarden License.
  * It will not appear in the web vault when running in OSS mode.
  */
-const bitPolicyRegister: BasePolicy[] = [
+const bitPolicyEditRegister: BasePolicyEditDefinition[] = [
   new MaximumVaultTimeoutPolicy(),
   new DisablePersonalVaultExportPolicy(),
   new FreeFamiliesSponsorshipPolicy(),
@@ -21,4 +20,4 @@ const bitPolicyRegister: BasePolicy[] = [
   new AutomaticAppLoginPolicy(),
 ];
 
-export const policyRegister = ossPolicyRegister.concat(bitPolicyRegister);
+export const policyEditRegister = ossPolicyEditRegister.concat(bitPolicyEditRegister);

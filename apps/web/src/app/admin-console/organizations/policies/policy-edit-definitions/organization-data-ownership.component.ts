@@ -7,9 +7,9 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { SharedModule } from "../../../../shared";
-import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class OrganizationDataOwnershipPolicy extends BasePolicy {
+export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "organizationDataOwnership";
   description = "personalOwnershipPolicyDesc";
   type = PolicyType.OrganizationDataOwnership;
@@ -26,4 +26,4 @@ export class OrganizationDataOwnershipPolicy extends BasePolicy {
   templateUrl: "organization-data-ownership.component.html",
   imports: [SharedModule],
 })
-export class OrganizationDataOwnershipPolicyComponent extends BasePolicyComponent {}
+export class OrganizationDataOwnershipPolicyComponent extends BasePolicyEditComponent {}

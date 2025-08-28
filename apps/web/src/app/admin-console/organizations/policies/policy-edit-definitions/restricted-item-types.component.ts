@@ -7,9 +7,9 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { SharedModule } from "../../../../shared";
-import { BasePolicy, BasePolicyComponent } from "../base-policy.component";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class RestrictedItemTypesPolicy extends BasePolicy {
+export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   name = "restrictedItemTypePolicy";
   description = "restrictedItemTypePolicyDesc";
   type = PolicyType.RestrictedItemTypes;
@@ -24,7 +24,7 @@ export class RestrictedItemTypesPolicy extends BasePolicy {
   templateUrl: "restricted-item-types.component.html",
   imports: [SharedModule],
 })
-export class RestrictedItemTypesPolicyComponent extends BasePolicyComponent {
+export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent {
   constructor() {
     super();
   }

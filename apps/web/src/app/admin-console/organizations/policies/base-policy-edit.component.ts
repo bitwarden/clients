@@ -13,7 +13,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
  * A metadata class that defines how a policy is displayed in the Admin Console Policies page for editing.
  * Add this to the `policy-register.ts` file (in OSS or Bitwarden Licensed code) to register it in the application.
  */
-export abstract class BasePolicy {
+export abstract class BasePolicyEditDefinition {
   /**
    * i18n string for the policy name.
    */
@@ -28,9 +28,9 @@ export abstract class BasePolicy {
    */
   abstract type: PolicyType;
   /**
-   * The component used to edit this policy. See {@link BasePolicyComponent}.
+   * The component used to edit this policy. See {@link BasePolicyEditComponent}.
    */
-  abstract component: Constructor<BasePolicyComponent>;
+  abstract component: Constructor<BasePolicyEditComponent>;
 
   /**
    * If true, the {@link description} will be reused in the policy edit modal. Set this to false if you
@@ -56,9 +56,9 @@ export abstract class BasePolicy {
  * See existing implementations as a guide.
  */
 @Directive()
-export abstract class BasePolicyComponent implements OnInit {
+export abstract class BasePolicyEditComponent implements OnInit {
   @Input() policyResponse: PolicyResponse | undefined;
-  @Input() policy: BasePolicy | undefined;
+  @Input() policy: BasePolicyEditDefinition | undefined;
 
   /**
    * Whether the policy is enabled.

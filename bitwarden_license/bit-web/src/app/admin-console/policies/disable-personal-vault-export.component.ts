@@ -1,14 +1,13 @@
 import { Component } from "@angular/core";
 
-
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
-  BasePolicy,
-  BasePolicyComponent,
-} from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+  BasePolicyEditDefinition,
+  BasePolicyEditComponent,
+} from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-export class DisablePersonalVaultExportPolicy extends BasePolicy {
+export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   name = "disablePersonalVaultExport";
   description = "disablePersonalVaultExportDescription";
   type = PolicyType.DisablePersonalVaultExport;
@@ -19,4 +18,4 @@ export class DisablePersonalVaultExportPolicy extends BasePolicy {
   templateUrl: "disable-personal-vault-export.component.html",
   imports: [SharedModule],
 })
-export class DisablePersonalVaultExportPolicyComponent extends BasePolicyComponent {}
+export class DisablePersonalVaultExportPolicyComponent extends BasePolicyEditComponent {}
