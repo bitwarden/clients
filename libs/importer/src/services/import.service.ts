@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -136,15 +136,26 @@ export class ImportService implements ImportServiceAbstraction {
     return this.featuredImportOptions.concat(this.regularImportOptions);
   }
 
+  //FIXME: Ideally this information about the install type/environment gets passed into `availableLoaders`
+  private isSandboxedEnvironment$: Observable<boolean> = of(
+    this.system.environment.isMacAppStore() ||
+      this.system.environment.isFlatpak() ||
+      this.system.environment.isSnapStore(),
+  );
+
   metadata$(type$: Observable<ImportType>): Observable<ImporterMetadata> {
     const browserEnabled$ = this.system.configService.getFeatureFlag$(
       FeatureFlag.UseChromiumImporter,
     );
     const client = this.system.environment.getClientType();
-    const capabilities$ = combineLatest([type$, browserEnabled$]).pipe(
-      map(([type, enabled]) => {
+    const capabilities$ = combineLatest([
+      type$,
+      browserEnabled$,
+      this.isSandboxedEnvironment$,
+    ]).pipe(
+      map(([type, enabled, sandboxed]) => {
         let loaders = availableLoaders(type, client);
-        if (!enabled) {
+        if (!enabled || sandboxed) {
           loaders = loaders?.filter((loader) => loader !== Loader.chromium);
         }
 
