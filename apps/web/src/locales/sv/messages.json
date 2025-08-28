@@ -7029,10 +7029,10 @@
     "message": "Okänt objekt, du kan behöva begära tillstånd för att få tillgång till detta objekt."
   },
   "unknownSecret": {
-    "message": "Unknown secret, you may need to request permission to access this secret."
+    "message": "Okänd hemlighet, du kan behöver begära behörighet för att komma åt denna hemlighet."
   },
   "unknownProject": {
-    "message": "Unknown project, you may need to request permission to access this project."
+    "message": "Okänt projekt, du kan behöver begära behörighet för att komma åt detta projekt."
   },
   "cannotSponsorSelf": {
     "message": "Du kan inte lösa in för det aktiva kontot. Ange en annan e-postadress."
@@ -10823,7 +10823,7 @@
     "message": "Dessa händelser är endast exempel och återspeglar inte verkliga händelser inom din Bitwarden-organisation."
   },
   "viewEvents": {
-    "message": "View Events"
+    "message": "Visa händelser"
   },
   "cannotCreateCollection": {
     "message": "Gratisorganisationer kan ha upp till 2 samlingar. Uppgradera till en betald plan för att lägga till fler samlingar."
@@ -11125,13 +11125,13 @@
     "message": "Check your Tax ID to verify the format is correct and there are no typos."
   },
   "pendingVerification": {
-    "message": "Pending verification"
+    "message": "Väntande verifiering"
   },
   "checkInputFormat": {
     "message": "Check input format for typos."
   },
   "exampleTaxIdFormat": {
-    "message": "Example $CODE$ format: $EXAMPLE$",
+    "message": "Exempel $CODE$ format: $EXAMPLE$",
     "placeholders": {
       "code": {
         "content": "$1",
