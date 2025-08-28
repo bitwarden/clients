@@ -30,10 +30,10 @@ export class ImportDesktopComponent {
   }
 
   protected onLoadProfilesFromBrowser(browser: string): Promise<any[]> {
-    return ipc.platform.chromiumImporter.getAvailableProfiles(browser);
+    return ipc.tools.chromiumImporter.getAvailableProfiles(browser);
   }
 
   protected onImportFromBrowser(browser: string, profile: string): Promise<any[]> {
-    return ipc.platform.chromiumImporter.importLogins(browser, profile);
+    return ipc.tools.chromiumImporter.importLogins(browser, profile);
   }
 }

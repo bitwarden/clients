@@ -1,6 +1,6 @@
 import { ipcRenderer } from "electron";
 
-export default {
+const chromiumImporter = {
   getInstalledBrowsers: (): Promise<string[]> =>
     ipcRenderer.invoke("chromium_importer.getInstalledBrowsers"),
   getAvailableProfiles: (browser: string): Promise<any[]> =>
@@ -13,4 +13,8 @@ export default {
       adminExePath,
       serviceExePath,
     ),
+};
+
+export default {
+  chromiumImporter,
 };
