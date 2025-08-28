@@ -9,7 +9,7 @@
     "message": "Kritik uygulamalar"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Risk altında olan kritik uygulama yok"
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
@@ -54,10 +54,10 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Yeni giriş öğesi oluşturun"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "Kritik uygulamalar ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -75,7 +75,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "$ORG NAME$'de hiçbir uygulama bulunmadı",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -84,7 +84,7 @@
     }
   },
   "noAppsInOrgDescription": {
-    "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
+    "message": "Kullanıcılar oturum açma bilgilerini kaydettikçe, uygulamalar burada görünür ve risk altındaki parolaları gösterir. Kritik uygulamaları işaretleyin ve kullanıcıları parolalarını güncellemeleri için bilgilendirin."
   },
   "noCriticalAppsTitle": {
     "message": "You haven't marked any applications as a Critical"
@@ -114,7 +114,7 @@
     "message": "Toplam parola"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "Uygulamaları ara"
   },
   "atRiskMembers": {
     "message": "Riskli üyeler"
@@ -568,6 +568,9 @@
   "cancel": {
     "message": "İptal"
   },
+  "later": {
+    "message": "Daha sonra"
+  },
   "canceled": {
     "message": "İptal edildi"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Gruplarda ara"
   },
+  "resetSearch": {
+    "message": "Aramayı sıfırla"
+  },
   "allItems": {
     "message": "Tüm kayıtlar"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Güvenli not"
+  },
+  "typeNote": {
+    "message": "Not"
   },
   "typeSshKey": {
     "message": "SSH key"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "Adı kopyala"
+  },
+  "cardNumber": {
+    "message": "kart numarası"
+  },
+  "copyFieldCipherName": {
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Ben"
@@ -1401,9 +1427,6 @@
   },
   "notificationSentDevicePart1": {
     "message": "Unlock Bitwarden on your device or on the "
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Hesabınıza erişmeye mi çalışıyorsunuz?"
   },
   "accessAttemptBy": {
     "message": "$EMAIL$ erişim denemesi",
@@ -2027,15 +2050,11 @@
   "selectImportCollection": {
     "message": "Bir koleksiyon seçin"
   },
-  "importTargetHint": {
-    "message": "İçe aktarılan dosya içeriğinin $DESTINATION$ konumuna taşınmasını istiyorsanız bu seçeneği seçin",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "İçe aktarılan dosya içeriklerinin bir koleksiyona taşınmasını istiyorsanız bu seçeneği seçin"
+  },
+  "importTargetHintFolder": {
+    "message": "İçe aktarılan dosya içeriklerinin bir klasöre taşınmasını istiyorsanız bu seçeneği seçin"
   },
   "importUnassignedItemsError": {
     "message": "Dosya atanmamış öğeler içeriyor."
@@ -2428,9 +2447,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Güvenlik anahtarını okurken bir sorun oluştu. Tekrar deneyin."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Platform sınırlamaları nedeniyle WebAuthn tüm Bitwarden uygulamalarında kullanılamaz. WebAuthn kullanılamadığında hesabınıza erişebilmek için başka bir iki aşamalı doğrulama yöntemi ayarlamanız gerekir."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden iki aşamalı giriş kurtarma kodunuz"
   },
@@ -2800,6 +2816,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "Özet"
@@ -3482,6 +3504,9 @@
   "webVault": {
     "message": "Web kasası"
   },
+  "webApp": {
+    "message": "Web uygulaması"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3948,7 +3973,7 @@
   "thisRequestIsNoLongerValid": {
     "message": "Bu istek artık geçerli değil."
   },
-  "logInConfirmedForEmailOnDevice": {
+  "loginRequestApprovedForEmailOnDevice": {
     "message": "$DEVICE$ cihazında $EMAIL$ girişi onaylandı",
     "placeholders": {
       "email": {
@@ -3957,11 +3982,11 @@
       },
       "device": {
         "content": "$2",
-        "example": "iOS"
+        "example": "Web app - Chrome"
       }
     }
   },
-  "youDeniedALogInAttemptFromAnotherDevice": {
+  "youDeniedLoginAttemptFromAnotherDevice": {
     "message": "Başka bir cihazdan giriş isteğini reddettiniz. Yanlışlıkla yaptıysanız aynı cihazdan yeniden giriş yapmayı deneyin."
   },
   "loginRequestHasAlreadyExpired": {
@@ -4107,6 +4132,9 @@
   },
   "reviewLoginRequest": {
     "message": "Review login request"
+  },
+  "loginRequest": {
+    "message": "Giriş isteği"
   },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
@@ -4583,6 +4611,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Bitwarden'dan öneriler, duyurular ve araştırma fırsatları e-posta adresinize gelsin."
+  },
+  "subscribe": {
+    "message": "Abone ol"
   },
   "unsubscribe": {
     "message": "İstediğiniz zaman"
@@ -5233,6 +5264,14 @@
   "downloadAttachments": {
     "message": "Ekleri indir"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Bu Send'i görüntülemek için parolasını girin",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Send'i görüntüle",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Erişmeye çalıştığınız Send yok veya artık mevcut değil.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5392,6 +5431,37 @@
   },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Require all items to be owned by an organization, removing the option to store items at the account level.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "credential lifecycle",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Are you sure you want to proceed?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "will remain accessible to members"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "will not be automatically selected when creating new items"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "kullanıcı kapalı oluncaya kadar yönetici arayüzünden yönetilemez"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "By turning this policy off, the default collection: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Learn more about the ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Kişisel kasayı kaldır"
@@ -6958,6 +7028,12 @@
   "unknownCipher": {
     "message": "Bilinmeyen Öğe, bu öğeye erişmek için izin istemeniz gerekebilir."
   },
+  "unknownSecret": {
+    "message": "Unknown secret, you may need to request permission to access this secret."
+  },
+  "unknownProject": {
+    "message": "Unknown project, you may need to request permission to access this project."
+  },
   "cannotSponsorSelf": {
     "message": "Aktif hesap için kullanamazsınız. Farklı bir e-posta girin."
   },
@@ -8281,10 +8357,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Created a new secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accessed a project with Id: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Deleted project Id: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Deleted secret Id: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9423,6 +9571,12 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Etkinlik verilerini Logscale'e gönderin"
+  },
+  "failedToSaveIntegration": {
+    "message": "Failed to save integration. Please try again later."
+  },
   "deviceIdMissing": {
     "message": "Device ID is missing"
   },
@@ -9437,6 +9591,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Reopen this link from your email on a desktop."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Connect $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
@@ -9495,6 +9658,15 @@
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
   },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bearer Token"
+  },
+  "index": {
+    "message": "Index"
+  },
   "selectAPlan": {
     "message": "Bir plan seçin"
   },
@@ -9520,7 +9692,7 @@
     "message": "Erişim yok"
   },
   "collectionAdminConsoleManaged": {
-    "message": "This collection is only accessible from the admin console"
+    "message": "Bu derlem yalnızca yönetici arayüzünden erişilebilir"
   },
   "organizationOptionsMenu": {
     "message": "Toggle Organization Menu"
@@ -10243,8 +10415,8 @@
   "organizationUserDeletedDesc": {
     "message": "The user was removed from the organization and all associated user data has been deleted."
   },
-  "deletedUserId": {
-    "message": "Deleted user $ID$ - an owner / admin deleted the user account",
+  "deletedUserIdEventMessage": {
+    "message": "Kullanıcı silindi: $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10526,8 @@
   "domainStatusUnderVerification": {
     "message": "Under verification"
   },
-  "claimedDomainsDesc": {
-    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  "claimedDomainsDescription": {
+    "message": "Claim a domain to own member accounts. The SSO identifier page will be skipped during login for members with claimed domains and administrators will be able to delete claimed accounts."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
@@ -10650,6 +10822,9 @@
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   },
+  "viewEvents": {
+    "message": "View Events"
+  },
   "cannotCreateCollection": {
     "message": "Ücretsiz kuruluşların en fazla 2 koleksiyonu olabilir. Daha fazla koleksiyon eklemek için ücretli bir plana geçin."
   },
@@ -10854,5 +11029,119 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Ödenmemiş faturalar"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Your subscription has not been paid. Contact your provider administrator to restore service to you and your clients.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ is suspended",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "To restore access to your provider portal, contact Bitwarden Customer Support to renew your subscription.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Your subscription has not been paid. To restore service to you and your clients, add a payment method by $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Subscribe to $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Unlimited secrets and projects"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Abonelik iptal edildi"
+  },
+  "providersubCanceledmessage": {
+    "message": "To resubscribe, contact Bitwarden Customer Support."
+  },
+  "showMore": {
+    "message": "Daha fazla göster"
+  },
+  "showLess": {
+    "message": "Daha az göster"
+  },
+  "missingTaxId": {
+    "message": "Missing Tax ID"
+  },
+  "missingTaxIdWarning": {
+    "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Add a Tax ID"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Action required: Missing Tax ID"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Action required: Your Tax ID number is unverified. If your Tax ID is left unverified, your invoices may include additional tax."
+  },
+  "editTaxId": {
+    "message": "Edit your Tax ID"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Tax ID unverified"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Check your Tax ID to verify the format is correct and there are no typos."
+  },
+  "pendingVerification": {
+    "message": "Pending verification"
+  },
+  "checkInputFormat": {
+    "message": "Check input format for typos."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Example $CODE$ format: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

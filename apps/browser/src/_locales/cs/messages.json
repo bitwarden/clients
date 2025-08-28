@@ -338,7 +338,7 @@
     "message": "Pokračovat na bitwarden.com?"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden pro byznys"
+    "message": "Bitwarden pro podnikání"
   },
   "bitwardenAuthenticator": {
     "message": "Autentifikátor Bitwarden"
@@ -398,7 +398,7 @@
     "message": "Název složky"
   },
   "folderHintText": {
-    "message": "Vnořit složku přidáním názvu nadřazené složky následovaného znakem \"/\". Příklad: Sociální/Fóra"
+    "message": "Složku vnoříte přidáním názvu nadřazené složky následovaného znakem \"/\". Příklad: Sociální/Fóra"
   },
   "noFoldersAdded": {
     "message": "Nebyly přidány žádné složky"
@@ -407,7 +407,7 @@
     "message": "Vytvořte složky pro organizaci Vašich položek trezoru"
   },
   "deleteFolderPermanently": {
-    "message": "Opravdu chcete trvale smazat tuto složku?"
+    "message": "Opravdu chcete tuto složku trvale smazat?"
   },
   "deleteFolder": {
     "message": "Smazat složku"
@@ -531,10 +531,10 @@
     "message": "Zahrnout číslice"
   },
   "minNumbers": {
-    "message": "Minimální počet číslic"
+    "message": "Minimálně číslic"
   },
   "minSpecial": {
-    "message": "Minimální počet speciálních znaků"
+    "message": "Minimálně speciálních znaků"
   },
   "avoidAmbiguous": {
     "message": "Nepoužívat zaměnitelné znaky",
@@ -546,6 +546,9 @@
   },
   "searchVault": {
     "message": "Vyhledat v trezoru"
+  },
+  "resetSearch": {
+    "message": "Resetovat hledání"
   },
   "edit": {
     "message": "Upravit"
@@ -1013,7 +1016,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
-    "message": "Ptát se na přidání přihlášení"
+    "message": "Zeptat se na přidání přihlášení"
   },
   "vaultSaveOptionsTitle": {
     "message": "Uložit do voleb trezoru"
@@ -1046,7 +1049,7 @@
     "message": "Klepněte na položky pro automatické vyplnění v zobrazení trezoru"
   },
   "clickToAutofill": {
-    "message": "Klepněte na položky v návrhu automatického vyplňování pro vyplnění"
+    "message": "Klepnout na položky v návrhu automatického vyplňování pro vyplnění"
   },
   "clearClipboard": {
     "message": "Vymazat schránku",
@@ -1302,7 +1305,7 @@
     "message": "Sdílené"
   },
   "bitwardenForBusinessPageDesc": {
-    "message": "Bitwarden pro bvyznys Vám umožňuje sdílet položky v trezoru s ostatními prostřednictvím organizace. Více informací naleznete na bitwarden.com."
+    "message": "Bitwarden pro podnikání Vám umožňuje sdílet položky v trezoru s ostatními prostřednictvím organizace. Více informací naleznete na bitwarden.com."
   },
   "moveToOrganization": {
     "message": "Přesunout do organizace"
@@ -1657,7 +1660,7 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Automaticky vyplnit údaje při načtení stránky"
+    "message": "Automatické vyplnění údajů při načtení stránky"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Automaticky vyplnit údaje při načtení stránky"
@@ -1675,7 +1678,7 @@
     "message": "Více informací o automatickém vyplňování"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "Výchozí nastavení automatického vyplňování pro položky přihlášení"
+    "message": "Výchozí nastavení autom. vyplňování"
   },
   "defaultAutoFillOnPageLoadDesc": {
     "message": "Můžete vypnout automatické vyplňování při načtení stránky pro jednotlivé přihlašovací položky v zobrazení pro úpravu položky."
@@ -1687,10 +1690,10 @@
     "message": "Použít výchozí nastavení"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Automatické vyplnění při načtení stránky"
+    "message": "Automatické vyplnění při načtení"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Nevyplňovat automaticky při načtení stránky"
+    "message": "Nevyplňovat automaticky při načtení"
   },
   "commandOpenPopup": {
     "message": "Otevřít vyskakovací okno trezoru"
@@ -1829,6 +1832,9 @@
   "securityCode": {
     "message": "Bezpečnostní kód"
   },
+  "cardNumber": {
+    "message": "číslo karty"
+  },
   "ex": {
     "message": "např."
   },
@@ -1845,7 +1851,7 @@
     "message": "Slečna"
   },
   "dr": {
-    "message": "MUDr."
+    "message": "Dr."
   },
   "mx": {
     "message": "Neutrální"
@@ -1869,7 +1875,7 @@
     "message": "Společnost"
   },
   "ssn": {
-    "message": "Číslo sociálního pojištění"
+    "message": "Rodné číslo"
   },
   "passportNumber": {
     "message": "Číslo cestovního pasu"
@@ -2093,7 +2099,7 @@
     "message": "Nic k zobrazení"
   },
   "nothingGeneratedRecently": {
-    "message": "Nedávno jste nic nevygenerovali"
+    "message": "Ještě jste nic nevygenerovali"
   },
   "remove": {
     "message": "Odebrat"
@@ -2227,7 +2233,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "pro vytvoření silného jedinečného hesla",
+    "message": "pro vytvoření silného jedinečného hesla.",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
@@ -2679,7 +2685,7 @@
     "message": "Změny v zablokovaných doménách byly uloženy"
   },
   "excludedDomainsSavedSuccess": {
-    "message": "Vyloučené změny domény byly uloženy"
+    "message": "Změny vyloučené domény byly uloženy"
   },
   "limitSendViews": {
     "message": "Omezit zobrazení"
@@ -2905,7 +2911,7 @@
     "message": "Došlo k chybě při ukládání datumu smzání a vypršení platnosti."
   },
   "hideYourEmail": {
-    "message": "Skryje Vaši e-mailovou adresu před zobrazením."
+    "message": "Skrýt Vaši e-mailovou adresu"
   },
   "passwordPrompt": {
     "message": "Zeptat se znovu na hlavní heslo"
@@ -3222,7 +3228,7 @@
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Vyberte doménu, která je podporována vybranou službou",
+    "message": "Vyberte doménu, která je podporována vybranou službou.",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -3460,6 +3466,28 @@
   "logInRequestSent": {
     "message": "Požadavek odeslán"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Požadavek na přihlášení byl schválen pro $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to Vy, zkuste se znovu přihlásit do zařízení."
+  },
+  "device": {
+    "message": "Zařízení"
+  },
+  "loginStatus": {
+    "message": "Stav přihlášení"
+  },
   "masterPasswordChanged": {
     "message": "Hlavní heslo bylo uloženo"
   },
@@ -3555,6 +3583,94 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Zapamatovat si toto zařízení pro bezproblémové budoucí přihlášení"
+  },
+  "manageDevices": {
+    "message": "Spravovat zařízení"
+  },
+  "currentSession": {
+    "message": "Aktuální relace"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Rozšíření",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Počítač",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Webový trezor"
+  },
+  "webApp": {
+    "message": "Webová aplikace"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Čekající požadavek"
+  },
+  "firstLogin": {
+    "message": "První přihlášení"
+  },
+  "trusted": {
+    "message": "Důvěryhodný"
+  },
+  "needsApproval": {
+    "message": "Vyžaduje schválení"
+  },
+  "devices": {
+    "message": "Zařízení"
+  },
+  "accessAttemptBy": {
+    "message": "Pokus o přístup z $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Potvrdit přístup"
+  },
+  "denyAccess": {
+    "message": "Zamítnout přístup"
+  },
+  "time": {
+    "message": "Čas"
+  },
+  "deviceType": {
+    "message": "Typ zařízení"
+  },
+  "loginRequest": {
+    "message": "Požadavek na přihlášení"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Tento požadavek již není platný."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Požadavek na přihlášení již vypršel."
+  },
+  "justNow": {
+    "message": "Právě teď"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Požadováno před $MINUTES$ minutami",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Vyžaduje se schválení zařízení. Vyberte možnost schválení níže:"
@@ -4015,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Zvolte sbírku"
   },
-  "importTargetHint": {
-    "message": "Pokud chcete obsah importovaného souboru přesunout do složky $DESTINATION$, vyberte tuto volbu",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
+  },
+  "importTargetHintFolder": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do složky, vyberte tuto volbu"
   },
   "importUnassignedItemsError": {
     "message": "Soubor obsahuje nepřiřazené položky."
@@ -4291,7 +4403,7 @@
     "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
   },
   "confirmContinueToHelpCenterPasswordManagementContent": {
-    "message": "Změňte nastavení automatického vyplňování a správy hesel.",
+    "message": "Změna nastavení automatického vyplňování a nastavení správy hesel.",
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
   },
   "confirmContinueToHelpCenterKeyboardShortcutsContent": {
@@ -4299,7 +4411,7 @@
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
   },
   "confirmContinueToBrowserPasswordManagementSettingsContent": {
-    "message": "Změňte nastavení automatického vyplňování a správy hesel.",
+    "message": "Změna nastavení automatického vyplňování a nastavení správy hesel.",
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
   },
   "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
@@ -4465,17 +4577,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Kopírovat $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4829,13 +4941,13 @@
     "message": "Popis pole"
   },
   "textHelpText": {
-    "message": "Použijte textová pole pro data jako bezpečnostní otázky"
+    "message": "Použijte textová pole pro data (jako např. bezpečnostní otázky)."
   },
   "hiddenHelpText": {
-    "message": "Použijte skrytá pole pro citlivá data, jako je heslo"
+    "message": "Použijte skrytá pole pro citlivá data, jako je heslo."
   },
   "checkBoxHelpText": {
-    "message": "Použijte zaškrtávací políčka, pokud chcete automaticky vyplnit zaškrtávací políčko formuláře (např. pro zapamatování e-mailu)"
+    "message": "Použijte zaškrtávací políčka, pokud chcete automaticky zvolit zaškrtávací políčko formuláře (např. pro zapamatování e-mailu)."
   },
   "linkedHelpText": {
     "message": "Použijte propojené pole, pokud máte problémy s automatickým vyplňováním na konkrétní webové stránce."
@@ -5005,7 +5117,7 @@
     "message": "Zobrazit akce rychlé kopie v trezoru"
   },
   "systemDefault": {
-    "message": "Systémový výchozí"
+    "message": "Výchozí systémový"
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "Na toto nastavení byly uplatněny požadavky podnikových zásad"
@@ -5062,7 +5174,7 @@
     "message": "Položky, které smažete, se zde zobrazí a budou trvale smazány po 30 dnech."
   },
   "trashWarning": {
-    "message": "Položky, které byly v koši déle než 30 dní, budou automaticky smazány."
+    "message": "Položky, které byly v koši déle než 30 dnů, budou automaticky smazány."
   },
   "restore": {
     "message": "Obnovit"
@@ -5278,10 +5390,10 @@
     "message": "Šířka rozšíření"
   },
   "wide": {
-    "message": "Šířka"
+    "message": "Široké"
   },
   "extraWide": {
-    "message": "Extra široký"
+    "message": "Extra široké"
   },
   "sshKeyWrongPassword": {
     "message": "Zadané heslo není správné."
@@ -5457,5 +5569,15 @@
   "wasmNotSupported": {
     "message": "WebAssembly není ve Vašem prohlížeči podporováno nebo není povoleno. WebAssembly je vyžadováno pro použití aplikace Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Zobrazit více"
+  },
+  "showLess": {
+    "message": "Zobrazit méně"
+  },
+  "moreBreadcrumbs": {
+    "message": "Více...",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

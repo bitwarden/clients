@@ -4,6 +4,8 @@ import * as lunr from "lunr";
 import { Observable, firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { perUserCache$ } from "@bitwarden/common/vault/utils/observable-utilities";
+
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
@@ -19,6 +21,10 @@ import { SearchService as SearchServiceAbstraction } from "../abstractions/searc
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
+
+// Time to wait before performing a search after the user stops typing.
+export const SearchTextDebounceInterval = 200; // milliseconds
 
 export type SerializedLunrIndex = {
   version: string;
@@ -100,11 +106,19 @@ export class SearchService implements SearchServiceAbstraction {
     return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEX);
   }
 
-  private index$(userId: UserId): Observable<lunr.Index | null> {
+  private index$ = perUserCache$((userId: UserId) => {
     return this.searchIndexState(userId).state$.pipe(
-      map((searchIndex) => (searchIndex ? lunr.Index.load(searchIndex) : null)),
+      map((searchIndex) => {
+        let index: lunr.Index | null = null;
+        if (searchIndex) {
+          const loadTime = performance.now();
+          index = lunr.Index.load(searchIndex);
+          this.logService.measure(loadTime, "Vault", "SearchService", "index load");
+        }
+        return index;
+      }),
     );
-  }
+  });
 
   private searchIndexEntityIdState(userId: UserId): SingleUserState<IndexedEntityId | null> {
     return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEXED_ENTITY_ID);
@@ -128,14 +142,22 @@ export class SearchService implements SearchServiceAbstraction {
     await this.searchIsIndexingState(userId).update(() => null);
   }
 
-  async isSearchable(userId: UserId, query: string): Promise<boolean> {
+  async isSearchable(userId: UserId, query: string | null): Promise<boolean> {
     query = SearchService.normalizeSearchQuery(query);
-    const index = await this.getIndexForSearch(userId);
-    const notSearchable =
-      query == null ||
-      (index == null && query.length < this.searchableMinLength) ||
-      (index != null && query.length < this.searchableMinLength && query.indexOf(">") !== 0);
-    return !notSearchable;
+
+    // Nothing to search if the query is null
+    if (query == null || query === "") {
+      return false;
+    }
+
+    const isLunrQuery = query.indexOf(">") === 0;
+    if (isLunrQuery) {
+      // Lunr queries always require an index
+      return (await this.getIndexForSearch(userId)) != null;
+    }
+
+    // Regular queries only require a minimum length
+    return query.length >= this.searchableMinLength;
   }
 
   async indexCiphers(
@@ -147,7 +169,7 @@ export class SearchService implements SearchServiceAbstraction {
       return;
     }
 
-    const indexingStartTime = new Date().getTime();
+    const indexingStartTime = performance.now();
     await this.setIsIndexing(userId, true);
     await this.setIndexedEntityIdForSearch(userId, indexedEntityId as IndexedEntityId);
     const builder = new lunr.Builder();
@@ -188,20 +210,20 @@ export class SearchService implements SearchServiceAbstraction {
     await this.setIndexForSearch(userId, index.toJSON() as SerializedLunrIndex);
 
     await this.setIsIndexing(userId, false);
-    this.logService.info(
-      `[SearchService] Building search index of ${ciphers.length} ciphers took ${
-        new Date().getTime() - indexingStartTime
-      }ms`,
-    );
+
+    this.logService.measure(indexingStartTime, "Vault", "SearchService", "index complete", [
+      ["Items", ciphers.length],
+    ]);
   }
 
-  async searchCiphers(
+  async searchCiphers<C extends CipherViewLike>(
     userId: UserId,
     query: string,
-    filter: ((cipher: CipherView) => boolean) | ((cipher: CipherView) => boolean)[] = null,
-    ciphers: CipherView[],
-  ): Promise<CipherView[]> {
-    const results: CipherView[] = [];
+    filter: ((cipher: C) => boolean) | ((cipher: C) => boolean)[] = null,
+    ciphers: C[],
+  ): Promise<C[]> {
+    const results: C[] = [];
+    const searchStartTime = performance.now();
     if (query != null) {
       query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
     }
@@ -216,7 +238,7 @@ export class SearchService implements SearchServiceAbstraction {
     if (filter != null && Array.isArray(filter) && filter.length > 0) {
       ciphers = ciphers.filter((c) => filter.every((f) => f == null || f(c)));
     } else if (filter != null) {
-      ciphers = ciphers.filter(filter as (cipher: CipherView) => boolean);
+      ciphers = ciphers.filter(filter as (cipher: C) => boolean);
     }
 
     if (!(await this.isSearchable(userId, query))) {
@@ -233,10 +255,12 @@ export class SearchService implements SearchServiceAbstraction {
     const index = await this.getIndexForSearch(userId);
     if (index == null) {
       // Fall back to basic search if index is not available
-      return this.searchCiphersBasic(ciphers, query);
+      const basicResults = this.searchCiphersBasic(ciphers, query);
+      this.logService.measure(searchStartTime, "Vault", "SearchService", "basic search complete");
+      return basicResults;
     }
 
-    const ciphersMap = new Map<string, CipherView>();
+    const ciphersMap = new Map<string, C>();
     ciphers.forEach((c) => ciphersMap.set(c.id, c));
 
     let searchResults: lunr.Index.Result[] = null;
@@ -267,13 +291,14 @@ export class SearchService implements SearchServiceAbstraction {
         }
       });
     }
+    this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
     return results;
   }
 
-  searchCiphersBasic(ciphers: CipherView[], query: string, deleted = false) {
+  searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string, deleted = false) {
     query = SearchService.normalizeSearchQuery(query.trim().toLowerCase());
     return ciphers.filter((c) => {
-      if (deleted !== c.isDeleted) {
+      if (deleted !== CipherViewLikeUtils.isDeleted(c)) {
         return false;
       }
       if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {
@@ -282,13 +307,17 @@ export class SearchService implements SearchServiceAbstraction {
       if (query.length >= 8 && c.id.startsWith(query)) {
         return true;
       }
-      if (c.subTitle != null && c.subTitle.toLowerCase().indexOf(query) > -1) {
+      const subtitle = CipherViewLikeUtils.subtitle(c);
+      if (subtitle != null && subtitle.toLowerCase().indexOf(query) > -1) {
         return true;
       }
+
+      const login = CipherViewLikeUtils.getLogin(c);
+
       if (
-        c.login &&
-        c.login.hasUris &&
-        c.login.uris.some((loginUri) => loginUri?.uri?.toLowerCase().indexOf(query) > -1)
+        login &&
+        login.uris.length &&
+        login.uris.some((loginUri) => loginUri?.uri?.toLowerCase().indexOf(query) > -1)
       ) {
         return true;
       }
@@ -397,11 +426,30 @@ export class SearchService implements SearchServiceAbstraction {
       if (u.uri == null || u.uri === "") {
         return;
       }
-      if (u.hostname != null) {
-        uris.push(u.hostname);
-        return;
-      }
+
+      // Match ports
+      const portMatch = u.uri.match(/:(\d+)(?:[/?#]|$)/);
+      const port = portMatch?.[1];
+
       let uri = u.uri;
+
+      if (u.hostname !== null) {
+        uris.push(u.hostname);
+        if (port) {
+          uris.push(`${u.hostname}:${port}`);
+          uris.push(port);
+        }
+        return;
+      } else {
+        const slash = uri.indexOf("/");
+        const hostPart = slash > -1 ? uri.substring(0, slash) : uri;
+        uris.push(hostPart);
+        if (port) {
+          uris.push(`${hostPart}`);
+          uris.push(port);
+        }
+      }
+
       if (u.match !== UriMatchStrategy.RegularExpression) {
         const protocolIndex = uri.indexOf("://");
         if (protocolIndex > -1) {

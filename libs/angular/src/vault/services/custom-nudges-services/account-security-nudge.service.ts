@@ -3,13 +3,10 @@ import { Observable, combineLatest, from, of } from "rxjs";
 import { catchError, switchMap } from "rxjs/operators";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService } from "@bitwarden/key-management";
@@ -24,7 +21,6 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
   private vaultProfileService = inject(VaultProfileService);
   private logService = inject(LogService);
   private pinService = inject(PinServiceAbstraction);
-  private vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private biometricStateService = inject(BiometricStateService);
   private policyService = inject(PolicyService);
   private organizationService = inject(OrganizationService);
@@ -76,7 +72,10 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
             hasSpotlightDismissed: status.hasSpotlightDismissed || hideNudge,
           };
 
-          if (isPinSet || biometricUnlockEnabled || hasOrgWithRemovePinPolicyOn) {
+          if (
+            (isPinSet || biometricUnlockEnabled || hasOrgWithRemovePinPolicyOn) &&
+            !status.hasSpotlightDismissed
+          ) {
             await this.setNudgeStatus(nudgeType, acctSecurityNudgeStatus, userId);
           }
           return acctSecurityNudgeStatus;

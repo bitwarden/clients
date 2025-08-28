@@ -1,27 +1,35 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { SendView } from "../../tools/send/models/view/send.view";
 import { IndexedEntityId, UserId } from "../../types/guid";
 import { CipherView } from "../models/view/cipher.view";
+import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 export abstract class SearchService {
-  indexedEntityId$: (userId: UserId) => Observable<IndexedEntityId | null>;
+  abstract indexedEntityId$(userId: UserId): Observable<IndexedEntityId | null>;
 
-  clearIndex: (userId: UserId) => Promise<void>;
-  isSearchable: (userId: UserId, query: string) => Promise<boolean>;
-  indexCiphers: (
+  abstract clearIndex(userId: UserId): Promise<void>;
+
+  /**
+   * Checks if the query is long enough to be searchable.
+   * For short Lunr.js queries (starts with '>'), a valid search index must exist for the user.
+   */
+  abstract isSearchable(userId: UserId, query: string | null): Promise<boolean>;
+  abstract indexCiphers(
     userId: UserId,
     ciphersToIndex: CipherView[],
     indexedEntityGuid?: string,
-  ) => Promise<void>;
-  searchCiphers: (
+  ): Promise<void>;
+  abstract searchCiphers<C extends CipherViewLike>(
     userId: UserId,
     query: string,
-    filter?: ((cipher: CipherView) => boolean) | ((cipher: CipherView) => boolean)[],
-    ciphers?: CipherView[],
-  ) => Promise<CipherView[]>;
-  searchCiphersBasic: (ciphers: CipherView[], query: string, deleted?: boolean) => CipherView[];
-  searchSends: (sends: SendView[], query: string) => SendView[];
+    filter?: ((cipher: C) => boolean) | ((cipher: C) => boolean)[],
+    ciphers?: C[],
+  ): Promise<C[]>;
+  abstract searchCiphersBasic<C extends CipherViewLike>(
+    ciphers: C[],
+    query: string,
+    deleted?: boolean,
+  ): C[];
+  abstract searchSends(sends: SendView[], query: string): SendView[];
 }

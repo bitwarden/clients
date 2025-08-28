@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Mégsem"
   },
+  "later": {
+    "message": "Később"
+  },
   "canceled": {
     "message": "Megszakítva"
   },
@@ -626,6 +629,9 @@
   "searchGroups": {
     "message": "Csoportok keresése"
   },
+  "resetSearch": {
+    "message": "Keresés visszaállítása"
+  },
   "allItems": {
     "message": "Összes elem"
   },
@@ -646,6 +652,9 @@
   },
   "typeSecureNote": {
     "message": "Biztonságos jegyzet"
+  },
+  "typeNote": {
+    "message": "Jegyzet"
   },
   "typeSshKey": {
     "message": "SSH kulcs"
@@ -860,6 +869,23 @@
   },
   "copyName": {
     "message": "Név másolása"
+  },
+  "cardNumber": {
+    "message": "kártya szám"
+  },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ másolása",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Én"
@@ -1401,9 +1427,6 @@
   },
   "notificationSentDevicePart1": {
     "message": "A Bitwarden zárolás feloldása az eszközön vagy: "
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "A fiókhoz próbálunk hozzáférni?"
   },
   "accessAttemptBy": {
     "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
@@ -2027,15 +2050,11 @@
   "selectImportCollection": {
     "message": "Gyűjtemény kiválasztása"
   },
-  "importTargetHint": {
-    "message": "Válasszuk ezt a lehetőséget, ha azt akarjuk, hogy az importált fájl tartalma $DESTINATION$ helyre kerüljön",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
+  },
+  "importTargetHintFolder": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -2428,9 +2447,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Probléma lépett fel a biztonsági kulcs olvasásakor. Próbáljuk újra."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "A platform korlátozások miatt nem lehetséges minden Bitwarden alkalmazásban a WebAuthn használata. Be kell üzemelni egy másik kétlépcsős bejelentkezés szolgáltatót, hogy hozzáférhessünk a fiókhoz akkor is, ha a WebAuthn nem használható."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden kétlépcsős bejelentkezés helyreállító kód"
   },
@@ -2800,6 +2816,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Árösszegzés megjelenítése"
+  },
+  "hidePricingSummary": {
+    "message": "Árösszegzés elrejtése"
   },
   "summary": {
     "message": "Összegzés"
@@ -3482,6 +3504,9 @@
   "webVault": {
     "message": "Webes széf"
   },
+  "webApp": {
+    "message": "Webalkalmazás"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3948,8 +3973,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "A kérés a továbbiakban már nem érvényes."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "A bejelentkezési kérelem jóváhagyásra került: $EMAIL$ - $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3957,11 +3982,11 @@
       },
       "device": {
         "content": "$2",
-        "example": "iOS"
+        "example": "Web app - Chrome"
       }
     }
   },
-  "youDeniedALogInAttemptFromAnotherDevice": {
+  "youDeniedLoginAttemptFromAnotherDevice": {
     "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
   "loginRequestHasAlreadyExpired": {
@@ -4107,6 +4132,9 @@
   },
   "reviewLoginRequest": {
     "message": "Bejelentkezési kérés áttekintése"
+  },
+  "loginRequest": {
+    "message": "Bejelentkezés kérés"
   },
   "freeTrialEndPromptCount": {
     "message": "Az ingyenes próbaidőszak $COUNT$ nap múlva ér véget.",
@@ -4583,6 +4611,9 @@
   },
   "receiveMarketingEmailsV2": {
     "message": "Kapj tanácsokat, bejelentéseket és közvélemény-kutatásokat a Bitwardentől a postaládádba."
+  },
+  "subscribe": {
+    "message": "Feliratkozás"
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -5233,6 +5264,14 @@
   "downloadAttachments": {
     "message": "Mellékletek letöltése"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Adjuk meg a jelszót a Send elem megtekintéséhez.",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Send megtekintése",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Az elérendő küldés nem létezik vagy már nem elérhető.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5392,6 +5431,37 @@
   },
   "organizationDataOwnership": {
     "message": "A szervezet adat tulajdonjogának érvényesítése"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Szükséges, hogy minden elem egy szervezet tulajdonában legyen, megújítva a fiókszintű elemek tárolásának lehetőségét.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Minden elem a szervezet tulajdonába és elmentésre kerül, lehetővé téve az egész szervezetre kiterjedő vezérlést, láthatóságot és jelentést. Ha be van kapcsolva, minden tag számára elérhető egy alapértelmezett gyűjtemény az elemek tárolására. Tudjunk meg többet a kezelésről:",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "hitelesítő életciklus",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Biztosan folytatni szeretnénk?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "a tagok számára hozzáférhető marad"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "nem lesz automatikusan kiválasztva új elemek létrehozásakor"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "nem kezelhető az Adminisztrációs konzolból, amíg a felhasználó ki nem kerül a rendszerből"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "A házirend kikapcsolásával az alapértelmezett gyűjtemény:"
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Bővebben:",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Személyes tulajdon"
@@ -6958,6 +7028,12 @@
   "unknownCipher": {
     "message": "Ismeretlen elem, lehet hogy egy másik fiókkal bejelentkezni az elem eléréséhez."
   },
+  "unknownSecret": {
+    "message": "Ismeretlen a titkos kód, előfordulhat, hogy engedélyt kell kérni a titkos kód eléréséhez."
+  },
+  "unknownProject": {
+    "message": "Ismeretlen a projekt, előfordulhat, hogy engedélyt kell kérni a projekt eléréséhez."
+  },
   "cannotSponsorSelf": {
     "message": "Az aktív számlára nem váltható be. Másik email címet kell megadni."
   },
@@ -8281,10 +8357,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "A titkos kód törlése megtörtént egy azonosítóval: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Ey titkkos kód visszaállításra került egy azonosítóval: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Új titkos adat létrehozása történt egy azonosítóval: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Egy projekt hozzáférésre került egy azonosítóval: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Törölt projek tazonosító: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Törölt titkos kód azonosító: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Egy projekt szerkesztése megtörtént egy azonosítóval: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Egy projekt törlése megtörtént egy azonosítóval: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Egy új projekt létrehozásra került egy azonosítóval: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9423,6 +9571,12 @@
   "deviceManagementDesc": {
     "message": "Az eszközkezelés konfigurálása a Bitwarden számára a platform megvalósítási útmutatója segítségével."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Eseményadatok küldése a Logscale példánynak"
+  },
+  "failedToSaveIntegration": {
+    "message": "Nem sikerült menteni az integrációt. Próbáljuk újra később."
+  },
   "deviceIdMissing": {
     "message": "Az eszköz AZ hiányzik."
   },
@@ -9437,6 +9591,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Nyissuk meg újra ezt a hivatkozást az emailből az asztali gépen."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "$INTEGRATION$ csatlakozás",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$ megvalósítási útmutató elindítása.",
@@ -9494,6 +9657,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
+  },
+  "url": {
+    "message": "Webcím"
+  },
+  "bearerToken": {
+    "message": "Tulajdonosi vezérjel"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Előfizetés kiválasztása"
@@ -10243,8 +10415,8 @@
   "organizationUserDeletedDesc": {
     "message": "A felhasználó eltávolításra került a szervezetből és az összes kapcsolódó felhasználói adat törlésre került."
   },
-  "deletedUserId": {
-    "message": "$ID$ felhasználó törlésre került – egy tulajdonos/adminisztrátor törölte a felhasználói fiókot.",
+  "deletedUserIdEventMessage": {
+    "message": "$ID$ felhasználó törlésre került.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10354,8 +10526,8 @@
   "domainStatusUnderVerification": {
     "message": "Ellenőrzés alatt"
   },
-  "claimedDomainsDesc": {
-    "message": "Igényeljünk egy tartományt az összes olyan tagfiók birtoklásához, amelynek email címe megegyezik a tartománnyal A tagok bejelentkezéskor kihagyhatják az egyszeri bejelentkezési azonosítót. Az adminisztrátorok törölhetik a tagfiókokat is."
+  "claimedDomainsDescription": {
+    "message": "Tartomány igénylése tagfiókok birtoklására. Az igényelt tartományokkal  rendelkező tagok bejelentkezése során az SSO azonosító oldal kihagyásra kerül és az adminisztrátorok törölhetik az igényelt fiókokat."
   },
   "invalidDomainNameClaimMessage": {
     "message": "A bemeneti formátum nem érvényes. Formátum: valami.hu Az altartományokhoz külön bejegyzések szükségesek az igényléshez."
@@ -10650,6 +10822,9 @@
   "upgradeEventLogMessage": {
     "message": "Ezek az események csak példák és nem tükröznek valós eseményeket a Bitwarden szervezetén belül."
   },
+  "viewEvents": {
+    "message": "Események megtekintése"
+  },
   "cannotCreateCollection": {
     "message": "Az ingyenes szervezeteknek legfeljebb 2 gyűjteményük lehet. Térjünk át egy fizetett csomagra további gyűjtemények hozzáadásához."
   },
@@ -10854,5 +11029,119 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Kifizetetlen számlák"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Az előfizetés nem lett kifizetve. Lépjünk kapcsolatba a szolgáltató adminisztrátorával, hogy visszaállítsa a szolgáltatást nekünk és az ügyfeleknek.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ felfüggesztésre került.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "A szolgáltatói portálhoz hozzáférés visszaállításához lépjünk kapcsolatba a Bitwarden ügyfélszolgálatával az előfizetés megújításához.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Az előfizetés nem lett kifizetve. A szolgáltatás visszaállításához nekünk és az ügyfeleknek adjunk hozzá egy fizetési módot $CANCELLATION_DATE$ segítségével.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Feliratkozás: $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "A 7 napos $PLAN$ próbaverzió ma kezdődik. Adjunk hozzá most egy fizetési módot, hogy továbbra is használhassuk ezeket a funkciókat a próba befejezése után:",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Korlátlan titkos elem és projekt"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Az előfizetés törlésre került."
+  },
+  "providersubCanceledmessage": {
+    "message": "Az ismételt feliratkozáshoz lépjünk kapcsolatba a Bitwarden Ügyféltámogatással."
+  },
+  "showMore": {
+    "message": "Több megjelenítése"
+  },
+  "showLess": {
+    "message": "Kevesebb megjelenítése"
+  },
+  "missingTaxId": {
+    "message": "Hiányzik az adó azonosító."
+  },
+  "missingTaxIdWarning": {
+    "message": "Intézkedés szükséges: Hiányzik egy adó azonosító szám a fizetési adatokból. Ha nincs hozzáadva adó azonosító, a számlák további adót is tartalmazhatnak."
+  },
+  "moreBreadcrumbs": {
+    "message": "További morzsamenük",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Adó azonosító hozzáadása"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Intézkedés szükséges: Hiányzik az adó azonosító."
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Ha nincs hozzáadva adó azonosító, a számlák további adót is tartalmazhatnak."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Intézkedés szükséges: Az adó azonosító száma nem ellenőrzött. Ha az adó azonosító nincs ellenőrizve, a számlák további adót is tartalmazhatnak."
+  },
+  "editTaxId": {
+    "message": "Adó azonosító szerkesztése"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Az adó azonosító nem ellenőrzött."
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Ellenőrizzük az adó azonosítót, hogy ellenőrizzük a formátum helyességét és hogy nincs-e elírás."
+  },
+  "pendingVerification": {
+    "message": "Függőben lévő ellenőrzés"
+  },
+  "checkInputFormat": {
+    "message": "ükEllenőrizze a beviteli formátumot az elírásokkal kapcsolatban."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Például $CODE$ formátuma: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

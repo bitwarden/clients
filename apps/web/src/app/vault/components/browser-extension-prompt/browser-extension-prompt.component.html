@@ -26,14 +26,7 @@
   </ng-container>
 
   <ng-container *ngIf="pageState === BrowserPromptState.ManualOpen">
-    <p bitTypography="body1" class="tw-mb-0 tw-text-xl">
-      {{ "openExtensionManuallyPart1" | i18n }}
-      <bit-icon
-        [icon]="BitwardenIcon"
-        class="[&>svg]:tw-align-baseline [&>svg]:-tw-mb-[2px]"
-      ></bit-icon>
-      {{ "openExtensionManuallyPart2" | i18n }}
-    </p>
+    <vault-manually-open-extension></vault-manually-open-extension>
   </ng-container>
 
   <ng-container *ngIf="pageState === BrowserPromptState.MobileBrowser">

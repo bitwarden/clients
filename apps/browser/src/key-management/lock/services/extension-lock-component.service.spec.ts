@@ -4,10 +4,8 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import {
-  PinServiceAbstraction,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";

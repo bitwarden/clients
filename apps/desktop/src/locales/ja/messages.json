@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "保管庫を検索"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "addItem": {
     "message": "アイテムの追加"
   },
@@ -572,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "認証コード (TOTP) をコピー"
   },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "長さ"
   },
@@ -684,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "添付ファイルを保存しました。"
+  },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
   },
   "file": {
     "message": "ファイル"
@@ -1208,11 +1231,17 @@
   "twoStepLogin": {
     "message": "2段階認証"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "保管庫のタイムアウト"
   },
   "vaultTimeout1": {
     "message": "タイムアウト"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "保管庫がタイムアウトし、選択したアクションを実行するタイミングを選択します。"
@@ -1424,6 +1453,9 @@
   "copySecurityCode": {
     "message": "セキュリティコードのコピー",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "プレミアム会員"
@@ -1796,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Windows Hello でロック解除"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "追加の Windows Hello 設定"
-  },
   "unlockWithPolkit": {
     "message": "システム認証でロック解除"
   },
@@ -1814,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "Bitwarden の認証を行います。"
   },
-  "autoPromptWindowsHello": {
-    "message": "起動時に Windows Hello を要求する"
-  },
-  "autoPromptPolkit": {
-    "message": "起動時にシステム認証を要求する"
-  },
   "autoPromptTouchId": {
     "message": "起動時に Touch ID を要求する"
-  },
-  "requirePasswordOnStart": {
-    "message": "アプリ起動時にパスワードまたは PIN を要求"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "アプリ起動時にパスワードを要求"
-  },
-  "recommendedForSecurity": {
-    "message": "セキュリティ向上のためおすすめします。"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "再起動時にマスターパスワードでロック"
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "保管庫のタイムアウトが組織によって設定された制限を超えています。"
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "招待が承認されました"
   },
@@ -2984,9 +3027,6 @@
     "message": "文字カウントを切り替える",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "アカウントにアクセスしようとしていますか？"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ によるログインの試行",
     "placeholders": {
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "デバイス種別"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "アクセスを拒否"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "$EMAIL$ に $DEVICE$ でのログインを承認しました",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "別のデバイスからのログイン試行を拒否しました。本当にあなたであった場合は、もう一度デバイスでログインしてみてください。"
   },
   "justNow": {
     "message": "たった今"
@@ -3423,15 +3491,11 @@
   "selectImportCollection": {
     "message": "コレクションを選択"
   },
-  "importTargetHint": {
-    "message": "インポートしたファイルコンテンツを $DESTINATION$ に移動したい場合は、このオプションを選択してください。",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "割り当てられていないアイテムがファイルに含まれています。"
@@ -3680,25 +3744,25 @@
     "message": "生体認証によるロック解除は、不明な理由により現在利用できません。"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "アイテムの詳細"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "アイテム名"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "ログイン資格情報"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "追加のオプション"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "アイテムの履歴"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "直近の編集"
   },
   "upload": {
-    "message": "Upload"
+    "message": "アップロード"
   },
   "authorize": {
     "message": "認可"
@@ -3782,10 +3846,10 @@
     "message": "移動"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "新しいフォルダー"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "フォルダー名"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -3997,5 +4061,21 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

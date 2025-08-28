@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "جستجوی گاوصندوق"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "ویرایش"
   },
@@ -1828,6 +1831,9 @@
   },
   "securityCode": {
     "message": "کد امنیتی"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "ex": {
     "message": "مثال."
@@ -3460,6 +3466,28 @@
   "logInRequestSent": {
     "message": "درخواست ارسال شد"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
   "masterPasswordChanged": {
     "message": "Master password saved"
   },
@@ -3555,6 +3583,94 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "این دستگاه را به خاطر بسپار تا ورودهای بعدی بدون مشکل انجام شود"
+  },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "تأیید دستگاه لازم است. یک روش تأیید انتخاب کنید:"
@@ -4015,15 +4131,11 @@
   "selectImportCollection": {
     "message": "انتخاب یک مجموعه"
   },
-  "importTargetHint": {
-    "message": "اگر می‌خواهید محتوای پرونده درون ریزی شده به $DESTINATION$ منتقل شود، این گزینه را انتخاب کنید",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "پرونده حاوی موارد اختصاص نیافته است."
@@ -4465,17 +4577,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "کپی $FIELD$، $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5457,5 +5569,15 @@
   "wasmNotSupported": {
     "message": "WebAssembly در مرورگر شما پشتیبانی نمی‌شود یا فعال نیست. برای استفاده از برنامه Bitwarden، فعال بودن WebAssembly الزامی است.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

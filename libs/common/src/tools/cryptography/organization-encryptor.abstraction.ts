@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { OrganizationId } from "../../types/guid";
 
 /** An encryption strategy that protects a type's secrets with

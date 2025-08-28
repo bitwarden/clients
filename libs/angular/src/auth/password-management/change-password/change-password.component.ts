@@ -1,6 +1,8 @@
+import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { LockIcon } from "@bitwarden/assets/svg";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -23,7 +25,6 @@ import {
   AnonLayoutWrapperDataService,
   DialogService,
   ToastService,
-  Icons,
   CalloutComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -41,7 +42,7 @@ import { ChangePasswordService } from "./change-password.service.abstraction";
 @Component({
   selector: "auth-change-password",
   templateUrl: "change-password.component.html",
-  imports: [InputPasswordComponent, I18nPipe, CalloutComponent],
+  imports: [InputPasswordComponent, I18nPipe, CalloutComponent, CommonModule],
 })
 export class ChangePasswordComponent implements OnInit {
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
@@ -96,13 +97,13 @@ export class ChangePasswordComponent implements OnInit {
 
     if (this.forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageIcon: Icons.LockIcon,
+        pageIcon: LockIcon,
         pageTitle: { key: "updateMasterPassword" },
         pageSubtitle: { key: "accountRecoveryUpdateMasterPasswordSubtitle" },
       });
     } else if (this.forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageIcon: Icons.LockIcon,
+        pageIcon: LockIcon,
         pageTitle: { key: "updateMasterPassword" },
         pageSubtitle: { key: "updateMasterPasswordSubtitle" },
         maxWidth: "lg",
@@ -177,6 +178,9 @@ export class ChangePasswordComponent implements OnInit {
 
         // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
         this.messagingService.send("logout");
+
+        // Close the popout if we are in a browser extension popout.
+        this.changePasswordService.closeBrowserExtensionPopout?.();
       }
     } catch (error) {
       this.logService.error(error);

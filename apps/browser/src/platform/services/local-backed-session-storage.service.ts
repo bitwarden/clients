@@ -3,6 +3,7 @@
 import { Subject } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -12,7 +13,6 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
@@ -73,8 +73,29 @@ export class LocalBackedSessionStorageService
 
     const value = await this.getLocalSessionValue(await this.sessionKey.get(), key);
 
-    this.cache[key] = value;
-    return value as T;
+    if (this.cache[key] === undefined && value !== undefined) {
+      // Cache is still empty and we just got a value from local/session storage, cache it.
+      this.cache[key] = value;
+      return value as T;
+    } else if (this.cache[key] === undefined && value === undefined) {
+      // Cache is still empty and we got nothing from local/session storage, no need to modify cache.
+      return value as T;
+    } else if (this.cache[key] !== undefined && value !== undefined) {
+      // Conflict, somebody wrote to the cache while we were reading from storage
+      // but we also got a value from storage. We assume the cache is more up to date
+      // and use that value.
+      this.logService.warning(
+        `Conflict while reading from local session storage, both cache and storage have values. Key: ${key}. Using cached value.`,
+      );
+      return this.cache[key] as T;
+    } else if (this.cache[key] !== undefined && value === undefined) {
+      // Cache was filled after the local/session storage read completed. We got null
+      // from the storage read, but we have a value from the cache, use that.
+      this.logService.warning(
+        `Conflict while reading from local session storage, cache has value but storage does not. Key: ${key}. Using cached value.`,
+      );
+      return this.cache[key] as T;
+    }
   }
 
   async has(key: string): Promise<boolean> {
@@ -118,14 +139,14 @@ export class LocalBackedSessionStorageService
       return null;
     }
 
-    const valueJson = await this.encryptService.decryptString(new EncString(local), encKey);
-    if (valueJson == null) {
+    try {
+      const valueJson = await this.encryptService.decryptString(new EncString(local), encKey);
+      return JSON.parse(valueJson);
+    } catch {
       // error with decryption, value is lost, delete state and start over
       await this.localStorage.remove(this.sessionStorageKey(key));
       return null;
     }
-
-    return JSON.parse(valueJson);
   }
 
   private async updateLocalSessionValue(key: string, value: unknown): Promise<void> {

@@ -144,7 +144,7 @@ Koristi Bitwarden da osiguraš svoje zaposlenike i podijeliš osjetljive podatke
 Više razloga za odabir Bitwardena:
 
 Enkripcija svjetske razine
-Lozinke su zaštićene naprednom end-to-end enkripcijom (AES-256 bit, salted hashtag i PBKDF2 SHA-256) tako da tvoji podaci ostaju sigurni i privatni.
+Lozinke su zaštićene naprednom end-to-end enkripcijom (AES-256 bit, salted hashing i PBKDF2 SHA-256) tako da tvoji podaci ostaju sigurni i privatni.
 
 Revizije treće strane
 Bitwarden je redovito podložan opsežnim sigurnosnim revizijama treće strane s poznatim sigurnosnim tvrtkama. Ove godišnje revizije uključuju procjene izvornog koda i testiranje penetracije preko Bitwarden IP adresa, poslužitelja i web aplikacija.

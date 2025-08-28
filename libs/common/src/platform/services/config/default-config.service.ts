@@ -77,7 +77,7 @@ export class DefaultConfigService implements ConfigService {
       switchMap((environment) =>
         this.globalConfigFor$(environment.getApiUrl()).pipe(
           map((config) => {
-            return [config, null as UserId | null, environment] as const;
+            return [config, null as UserId | null, environment, config] as const;
           }),
         ),
       ),
@@ -109,21 +109,24 @@ export class DefaultConfigService implements ConfigService {
                 if (config == null) {
                   // If the user doesn't have any config yet, use the global config for that url as the fallback
                   return this.globalConfigFor$(environment.getApiUrl()).pipe(
-                    map((globalConfig) => [globalConfig, userId, environment] as const),
+                    map(
+                      (globalConfig) =>
+                        [null as ServerConfig | null, userId, environment, globalConfig] as const,
+                    ),
                   );
                 }
 
-                return of([config, userId, environment] as const);
+                return of([config, userId, environment, config] as const);
               }),
             );
           }),
         );
       }),
       tap(async (rec) => {
-        const [existingConfig, userId, environment] = rec;
+        const [existingConfig, userId, environment, fallbackConfig] = rec;
         // Grab new config if older retrieval interval
         if (!existingConfig || this.olderThanRetrievalInterval(existingConfig.utcDate)) {
-          await this.renewConfig(existingConfig, userId, environment);
+          await this.renewConfig(existingConfig, userId, environment, fallbackConfig);
         }
       }),
       switchMap(([existingConfig]) => {
@@ -189,6 +192,7 @@ export class DefaultConfigService implements ConfigService {
     existingConfig: ServerConfig | null,
     userId: UserId | null,
     environment: Environment,
+    fallbackConfig: ServerConfig | null,
   ): Promise<void> {
     try {
       // Feature flags often have a big impact on user experience, lets ensure we return some value
@@ -196,7 +200,7 @@ export class DefaultConfigService implements ConfigService {
       // though so that hopefully it can have finished and hydrated a more accurate value.
       const handle = setTimeout(() => {
         this.logService.info("Environment did not respond in time, emitting previous config.");
-        this.failedFetchFallbackSubject.next(existingConfig);
+        this.failedFetchFallbackSubject.next(fallbackConfig);
       }, SLOW_EMISSION_GUARD);
       const response = await this.configApiService.get(userId);
       clearTimeout(handle);
@@ -224,7 +228,7 @@ export class DefaultConfigService implements ConfigService {
       // mutate error to be handled by catchError
       this.logService.error(`Unable to fetch ServerConfig from ${environment.getApiUrl()}`, e);
       // Emit the existing config
-      this.failedFetchFallbackSubject.next(existingConfig);
+      this.failedFetchFallbackSubject.next(fallbackConfig);
     }
   }
 

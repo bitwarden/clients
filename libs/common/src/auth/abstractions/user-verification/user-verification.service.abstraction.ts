@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { UserId } from "../../../types/guid";
 import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
 import { UserVerificationOptions } from "../../types/user-verification-options";
@@ -16,9 +14,9 @@ export abstract class UserVerificationService {
    * @param verificationType Type of verification to restrict the options to
    * @returns Available verification options for the user
    */
-  getAvailableVerificationOptions: (
+  abstract getAvailableVerificationOptions(
     verificationType: keyof UserVerificationOptions,
-  ) => Promise<UserVerificationOptions>;
+  ): Promise<UserVerificationOptions>;
   /**
    * Create a new request model to be used for server-side verification
    * @param verification User-supplied verification data (Master Password or OTP)
@@ -26,11 +24,11 @@ export abstract class UserVerificationService {
    * @param alreadyHashed Whether the master password is already hashed
    * @throws Error if the verification data is invalid
    */
-  buildRequest: <T extends SecretVerificationRequest>(
+  abstract buildRequest<T extends SecretVerificationRequest>(
     verification: Verification,
     requestClass?: new () => T,
     alreadyHashed?: boolean,
-  ) => Promise<T>;
+  ): Promise<T>;
   /**
    * Verifies the user using the provided verification data.
    * PIN or biometrics are verified client-side.
@@ -39,11 +37,11 @@ export abstract class UserVerificationService {
    * @param verification User-supplied verification data (OTP, MP, PIN, or biometrics)
    * @throws Error if the verification data is invalid or the verification fails
    */
-  verifyUser: (verification: Verification) => Promise<boolean>;
+  abstract verifyUser(verification: Verification): Promise<boolean>;
   /**
    * Request a one-time password (OTP) to be sent to the user's email
    */
-  requestOTP: () => Promise<void>;
+  abstract requestOTP(): Promise<void>;
   /**
    * Check if user has master password or can only use passwordless technologies to log in
    * Note: This only checks the server, not the local state
@@ -51,13 +49,13 @@ export abstract class UserVerificationService {
    * @returns True if the user has a master password
    * @deprecated Use UserDecryptionOptionsService.hasMasterPassword$ instead
    */
-  hasMasterPassword: (userId?: string) => Promise<boolean>;
+  abstract hasMasterPassword(userId?: string): Promise<boolean>;
   /**
    * Check if the user has a master password and has used it during their current session
    * @param userId The user id to check. If not provided, the current user id used
    * @returns True if the user has a master password and has used it in the current session
    */
-  hasMasterPasswordAndMasterKeyHash: (userId?: string) => Promise<boolean>;
+  abstract hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean>;
   /**
    * Verifies the user using the provided master password.
    * Attempts to verify client-side first, then server-side if necessary.
@@ -68,9 +66,9 @@ export abstract class UserVerificationService {
    * @throws Error if the master password is invalid
    * @returns An object containing the master key, and master password policy options if verified on server.
    */
-  verifyUserByMasterPassword: (
+  abstract verifyUserByMasterPassword(
     verification: MasterPasswordVerification,
     userId: UserId,
     email: string,
-  ) => Promise<MasterPasswordVerificationResponse>;
+  ): Promise<MasterPasswordVerificationResponse>;
 }

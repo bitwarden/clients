@@ -14,6 +14,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
 
@@ -31,22 +32,25 @@ const createMockCollection = (
   organizationId: string,
   readOnly = false,
   canEdit = true,
-) => {
-  return {
-    id,
+): CollectionView => {
+  const cv = new CollectionView({
     name,
-    organizationId,
-    externalId: "",
-    readOnly,
-    hidePasswords: false,
-    manage: true,
-    assigned: true,
-    type: CollectionTypes.DefaultUserCollection,
-    canEditItems: jest.fn().mockReturnValue(canEdit),
-    canEdit: jest.fn(),
-    canDelete: jest.fn(),
-    canViewCollectionInfo: jest.fn(),
-  };
+    organizationId: organizationId as OrganizationId,
+    id: id as CollectionId,
+  });
+  cv.readOnly = readOnly;
+  cv.manage = true;
+  cv.type = CollectionTypes.DefaultUserCollection;
+  cv.externalId = "";
+  cv.hidePasswords = false;
+  cv.assigned = true;
+  cv.canEditName = jest.fn().mockReturnValue(true);
+  cv.canEditItems = jest.fn().mockReturnValue(canEdit);
+  cv.canEdit = jest.fn();
+  cv.canDelete = jest.fn();
+  cv.canViewCollectionInfo = jest.fn();
+
+  return cv;
 };
 
 describe("ItemDetailsSectionComponent", () => {
@@ -244,7 +248,7 @@ describe("ItemDetailsSectionComponent", () => {
       fixture.detectChanges();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
-      const { value, label } = select.componentInstance.items[0];
+      const { value, label } = select.componentInstance.items()[0];
 
       expect(value).toBeNull();
       expect(label).toBe("test@example.com");
@@ -260,7 +264,7 @@ describe("ItemDetailsSectionComponent", () => {
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
 
-      const { value, label } = select.componentInstance.items[0];
+      const { value, label } = select.componentInstance.items()[0];
       expect(value).toBeNull();
       expect(label).toBe("test@example.com");
     });
@@ -561,7 +565,7 @@ describe("ItemDetailsSectionComponent", () => {
       fixture.detectChanges();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
-      const { label } = select.componentInstance.items[0];
+      const { label } = select.componentInstance.items()[0];
 
       expect(label).toBe("org1");
     });
@@ -571,6 +575,7 @@ describe("ItemDetailsSectionComponent", () => {
     it("returns matching default when flag & policy match", async () => {
       const def = createMockCollection("def1", "Def", "orgA");
       component.config.collections = [def] as CollectionView[];
+      component.config.organizationDataOwnershipDisabled = false;
       component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));

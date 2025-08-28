@@ -5,6 +5,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { CollectionAdminView, Unassigned, CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -20,7 +21,7 @@ import { RowHeightClass } from "./vault-items.component";
   templateUrl: "vault-collection-row.component.html",
   standalone: false,
 })
-export class VaultCollectionRowComponent {
+export class VaultCollectionRowComponent<C extends CipherViewLike> {
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
 
@@ -36,7 +37,7 @@ export class VaultCollectionRowComponent {
   @Input() groups: GroupView[];
   @Input() showPermissionsColumn: boolean;
 
-  @Output() onEvent = new EventEmitter<VaultItemEvent>();
+  @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
   @Input() checked: boolean;
   @Output() checkedToggled = new EventEmitter<void>();
@@ -103,13 +104,5 @@ export class VaultCollectionRowComponent {
 
   protected deleteCollection() {
     this.onEvent.next({ type: "delete", items: [{ collection: this.collection }] });
-  }
-
-  protected get showCheckbox() {
-    if (this.collection?.id === Unassigned) {
-      return false; // Never show checkbox for Unassigned
-    }
-
-    return this.canEditCollection || this.canDeleteCollection;
   }
 }

@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Prohledat trezor"
   },
+  "resetSearch": {
+    "message": "Resetovat hledání"
+  },
   "addItem": {
     "message": "Přidat položku"
   },
@@ -572,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Kopírovat ověřovací kód (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Délka"
   },
@@ -684,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Příloha byla uložena"
+  },
+  "addAttachment": {
+    "message": "Přidat přílohu"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximální velikost souboru je 500 MB"
   },
   "file": {
     "message": "Soubor"
@@ -1208,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Dvoufázové přihlášení"
   },
+  "vaultTimeoutHeader": {
+    "message": "Časový limit trezoru"
+  },
   "vaultTimeout": {
     "message": "Časový limit trezoru"
   },
   "vaultTimeout1": {
     "message": "Časový limit"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Akce vypršení časového limitu"
   },
   "vaultTimeoutDesc": {
     "message": "Vyberte, kdy vyprší bezpečnostní limit trezoru. Poté bude provedena vybraná akce."
@@ -1424,6 +1453,9 @@
   "copySecurityCode": {
     "message": "Kopírovat bezpečnostní kód",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "číslo karty"
   },
   "premiumMembership": {
     "message": "Prémiové členství"
@@ -1796,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Odemknout pomocí Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Další nastavení Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Odemknout pomocí systémového ověření"
   },
@@ -1814,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "Odemknout Váš trezor"
   },
-  "autoPromptWindowsHello": {
-    "message": "Požádat o Windows Hello při spuštění aplikace"
-  },
-  "autoPromptPolkit": {
-    "message": "Požádat o systémové ověření při spuštění"
-  },
   "autoPromptTouchId": {
     "message": "Požádat o Touch ID při spuštění aplikace"
-  },
-  "requirePasswordOnStart": {
-    "message": "Vyžadovat heslo nebo PIN při spuštění aplikace"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Vyžadovat heslo při spuštění aplikace"
-  },
-  "recommendedForSecurity": {
-    "message": "Doporučeno pro bezpečnost."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zamknout trezor při restartu pomocí hlavního hesla"
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Časový limit Vašeho trezoru překračuje omezení stanovená Vaší organizací."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Na volby časového limitu byly uplatněny požadavky podnikových zásad"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Zásady Vaší organizace nastavily maximální povolený časový limit trezoru na $HOURS$ hodin a $MINUTES$ minut.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Časový limit překračuje omezení stanovené Vaší organizací: maximálně $HOURS$ hodin a $MINUTES$ minut",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Pozvánka byla přijata"
   },
@@ -2984,9 +3027,6 @@
     "message": "Zobrazit počet znaků",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokoušíte se získat přístup k Vašemu účtu?"
-  },
   "accessAttemptBy": {
     "message": "Pokus o přístup z $EMAIL$",
     "placeholders": {
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Požadavek na přihlášení byl schválen pro $EMAIL$ na $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to Vy, zkuste se znovu přihlásit do zařízení."
+  },
+  "webApp": {
+    "message": "Webová aplikace"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Rozšíření",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Počítač",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Požadavek na přihlášení"
   },
   "deviceType": {
     "message": "Typ zařízení"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Zamítnout přístup"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Přihlášení bylo potvrzeno z $EMAIL$ pro $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to opravdu Vy, zkuste se znovu přihlásit do zařízení."
   },
   "justNow": {
     "message": "Právě teď"
@@ -3423,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Zvolte sbírku"
   },
-  "importTargetHint": {
-    "message": "Pokud chcete obsah importovaného souboru přesunout do složky $DESTINATION$, vyberte tuto volbu",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
+  },
+  "importTargetHintFolder": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do složky, vyberte tuto volbu"
   },
   "importUnassignedItemsError": {
     "message": "Soubor obsahuje nepřiřazené položky."
@@ -3997,5 +4061,21 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Zobrazit více"
+  },
+  "showLess": {
+    "message": "Zobrazit méně"
+  },
+  "enableAutotype": {
+    "message": "Povolit automatický zápis"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden neověřuje umístění vstupu. Před použitím zkratky se ujistěte, že jste ve správném okně a poli."
+  },
+  "moreBreadcrumbs": {
+    "message": "Více...",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

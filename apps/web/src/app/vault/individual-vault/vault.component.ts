@@ -16,6 +16,7 @@ import {
   catchError,
   concatMap,
   debounceTime,
+  distinctUntilChanged,
   filter,
   first,
   map,
@@ -34,6 +35,7 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import { Search } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -66,8 +68,14 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -102,6 +110,7 @@ import {
 } from "../components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
+import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 
 import {
@@ -129,7 +138,6 @@ import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
-const SearchTextDebounceInterval = 200;
 
 @Component({
   selector: "app-vault",
@@ -148,14 +156,15 @@ const SearchTextDebounceInterval = 200;
     DefaultCipherFormConfigService,
   ],
 })
-export class VaultComponent implements OnInit, OnDestroy {
+export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   @ViewChild("vaultFilter", { static: true }) filterComponent: VaultFilterComponent;
+  @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<C>;
 
   trashCleanupWarning: string = null;
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
 
-  protected noItemIcon = Icons.Search;
+  protected noItemIcon = Search;
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -164,7 +173,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected canAccessPremium: boolean;
   protected allCollections: CollectionView[];
   protected allOrganizations: Organization[] = [];
-  protected ciphers: CipherView[];
+  protected ciphers: C[];
   protected collections: CollectionView[];
   protected isEmpty: boolean;
   protected selectedCollection: TreeNode<CollectionView> | undefined;
@@ -328,13 +337,18 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
 
     const filter$ = this.routedVaultFilterService.filter$;
-    const allCollections$ = this.collectionService.decryptedCollections$;
+
+    const allCollections$ = this.collectionService.decryptedCollections$(activeUserId);
     const nestedCollections$ = allCollections$.pipe(
       map((collections) => getNestedCollectionTree(collections)),
     );
 
     this.searchText$
-      .pipe(debounceTime(SearchTextDebounceInterval), takeUntil(this.destroy$))
+      .pipe(
+        debounceTime(SearchTextDebounceInterval),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
       .subscribe((searchText) =>
         this.router.navigate([], {
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
@@ -345,11 +359,15 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
+    const _ciphers = this.cipherService
+      .cipherListViews$(activeUserId)
+      .pipe(filter((c) => c !== null));
+
     /**
      * This observable filters the ciphers based on the active user ID and the restricted item types.
      */
     const allowedCiphers$ = combineLatest([
-      this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null)),
+      _ciphers,
       this.restrictedItemTypesService.restricted$,
     ]).pipe(
       map(([ciphers, restrictedTypes]) =>
@@ -369,15 +387,15 @@ export class VaultComponent implements OnInit, OnDestroy {
         const allCiphers = [...failedCiphers, ...ciphers];
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          return await this.searchService.searchCiphers(
+          return await this.searchService.searchCiphers<C>(
             activeUserId,
             searchText,
             [filterFunction],
-            allCiphers,
+            allCiphers as C[],
           );
         }
 
-        return allCiphers.filter(filterFunction);
+        return ciphers.filter(filterFunction) as C[];
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -548,7 +566,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.refreshing = false;
 
           // Explicitly mark for check to ensure the view is updated
-          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS notifications)
+          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)
           this.changeDetectorRef.markForCheck();
         },
       );
@@ -561,7 +579,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.vaultFilterService.clearOrganizationFilter();
   }
 
-  async onVaultItemsEvent(event: VaultItemEvent) {
+  async onVaultItemsEvent(event: VaultItemEvent<C>) {
     this.processingEvent = true;
     try {
       switch (event.type) {
@@ -649,7 +667,7 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @param cipher
    * @returns
    */
-  async editCipherAttachments(cipher: CipherView) {
+  async editCipherAttachments(cipher: C) {
     if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
       await this.go({ cipherId: null, itemId: null });
       return;
@@ -756,7 +774,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.openVaultItemDialog("form", cipherFormConfig);
   }
 
-  async editCipher(cipher: CipherView, cloneMode?: boolean) {
+  async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {
     return this.editCipherId(cipher?.id, cloneMode);
   }
 
@@ -847,7 +865,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       if (result.collection) {
         // Update CollectionService with the new collection
         const c = new CollectionData(result.collection as CollectionDetailsResponse);
-        await this.collectionService.upsert(c);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        await this.collectionService.upsert(c, activeUserId);
       }
       this.refresh();
     }
@@ -864,20 +885,23 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     const result = await lastValueFrom(dialog.closed);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (result.action === CollectionDialogAction.Saved) {
       if (result.collection) {
         // Update CollectionService with the new collection
         const c = new CollectionData(result.collection as CollectionDetailsResponse);
-        await this.collectionService.upsert(c);
+        await this.collectionService.upsert(c, activeUserId);
       }
       this.refresh();
     } else if (result.action === CollectionDialogAction.Deleted) {
-      await this.collectionService.delete(result.collection?.id);
-      this.refresh();
+      const parent = this.selectedCollection?.parent;
       // Navigate away if we deleted the collection we were viewing
-      if (this.selectedCollection?.node.id === c?.id) {
+      const navigateAway = this.selectedCollection && this.selectedCollection.node.id === c.id;
+      await this.collectionService.delete([result.collection?.id as CollectionId], activeUserId);
+      this.refresh();
+      if (navigateAway) {
         await this.router.navigate([], {
-          queryParams: { collectionId: this.selectedCollection.parent?.node.id ?? null },
+          queryParams: { collectionId: parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
@@ -902,18 +926,22 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
     try {
+      const parent = this.selectedCollection?.parent;
+      // Navigate away if we deleted the collection we were viewing
+      const navigateAway =
+        this.selectedCollection && this.selectedCollection.node.id === collection.id;
       await this.apiService.deleteCollection(collection.organizationId, collection.id);
-      await this.collectionService.delete(collection.id);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.collectionService.delete([collection.id as CollectionId], activeUserId);
 
       this.toastService.showToast({
         variant: "success",
         title: null,
         message: this.i18nService.t("deletedCollectionId", collection.name),
       });
-      // Navigate away if we deleted the collection we were viewing
-      if (this.selectedCollection?.node.id === collection.id) {
+      if (navigateAway) {
         await this.router.navigate([], {
-          queryParams: { collectionId: this.selectedCollection.parent?.node.id ?? null },
+          queryParams: { collectionId: parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
@@ -924,7 +952,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async bulkAssignToCollections(ciphers: CipherView[]) {
+  async bulkAssignToCollections(ciphers: C[]) {
     if (!(await this.repromptCipher(ciphers))) {
       return;
     }
@@ -950,9 +978,28 @@ export class VaultComponent implements OnInit, OnDestroy {
       );
     }
 
+    let ciphersToAssign: CipherView[];
+
+    // Convert `CipherListView` to `CipherView` if necessary
+    if (ciphers.some(CipherViewLikeUtils.isCipherListView)) {
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      ciphersToAssign = await firstValueFrom(
+        this.cipherService
+          .cipherViews$(userId)
+          .pipe(
+            map(
+              (cipherViews) =>
+                cipherViews.filter((c) => ciphers.some((cc) => cc.id === c.id)) as CipherView[],
+            ),
+          ),
+      );
+    } else {
+      ciphersToAssign = ciphers as CipherView[];
+    }
+
     const dialog = AssignCollectionsWebComponent.open(this.dialogService, {
       data: {
-        ciphers,
+        ciphers: ciphersToAssign,
         organizationId: orgId as OrganizationId,
         availableCollections,
         activeCollection: this.activeFilter?.selectedCollectionNode?.node,
@@ -965,8 +1012,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async cloneCipher(cipher: CipherView) {
-    if (cipher.login?.hasFido2Credentials) {
+  async cloneCipher(cipher: CipherView | CipherListView) {
+    if (CipherViewLikeUtils.hasFido2Credentials(cipher)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
@@ -981,8 +1028,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.editCipher(cipher, true);
   }
 
-  restore = async (c: CipherView): Promise<boolean> => {
-    if (!c.isDeleted) {
+  restore = async (c: C): Promise<boolean> => {
+    if (!CipherViewLikeUtils.isDeleted(c)) {
       return;
     }
 
@@ -1009,7 +1056,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   };
 
-  async bulkRestore(ciphers: CipherView[]) {
+  async bulkRestore(ciphers: C[]) {
     if (ciphers.some((c) => !c.edit)) {
       this.showMissingPermissionsError();
       return;
@@ -1029,7 +1076,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.cipherService.restoreManyWithServer(selectedCipherIds);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.cipherService.restoreManyWithServer(selectedCipherIds, activeUserId);
     this.toastService.showToast({
       variant: "success",
       title: null,
@@ -1038,8 +1086,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.refresh();
   }
 
-  private async handleDeleteEvent(items: VaultItem[]) {
-    const ciphers = items.filter((i) => i.collection === undefined).map((i) => i.cipher);
+  private async handleDeleteEvent(items: VaultItem<C>[]) {
+    const ciphers: C[] = items.filter((i) => i.collection === undefined).map((i) => i.cipher);
     const collections = items.filter((i) => i.cipher === undefined).map((i) => i.collection);
     if (ciphers.length === 1 && collections.length === 0) {
       await this.deleteCipher(ciphers[0]);
@@ -1056,7 +1104,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteCipher(c: CipherView): Promise<boolean> {
+  async deleteCipher(c: C): Promise<boolean> {
     if (!(await this.repromptCipher([c]))) {
       return;
     }
@@ -1066,7 +1114,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const permanent = c.isDeleted;
+    const permanent = CipherViewLikeUtils.isDeleted(c);
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: permanent ? "permanentlyDeleteItem" : "deleteItem" },
@@ -1093,11 +1141,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async bulkDelete(
-    ciphers: CipherView[],
-    collections: CollectionView[],
-    organizations: Organization[],
-  ) {
+  async bulkDelete(ciphers: C[], collections: CollectionView[], organizations: Organization[]) {
     if (!(await this.repromptCipher(ciphers))) {
       return;
     }
@@ -1136,7 +1180,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async bulkMove(ciphers: CipherView[]) {
+  async bulkMove(ciphers: C[]) {
     if (!(await this.repromptCipher(ciphers))) {
       return;
     }
@@ -1161,22 +1205,32 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async copy(cipher: CipherView, field: "username" | "password" | "totp") {
+  async copy(cipher: C, field: "username" | "password" | "totp") {
     let aType;
     let value;
     let typeI18nKey;
 
+    const login = CipherViewLikeUtils.getLogin(cipher);
+
+    if (!login) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("unexpectedError"),
+      });
+    }
+
     if (field === "username") {
       aType = "Username";
-      value = cipher.login.username;
+      value = login.username;
       typeI18nKey = "username";
     } else if (field === "password") {
       aType = "Password";
-      value = cipher.login.password;
+      value = await this.getPasswordFromCipherViewLike(cipher);
       typeI18nKey = "password";
     } else if (field === "totp") {
       aType = "TOTP";
-      const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
       value = totpResponse.code;
       typeI18nKey = "verificationCodeTotp";
     } else {
@@ -1222,7 +1276,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       : this.cipherService.softDeleteWithServer(id, userId);
   }
 
-  protected async repromptCipher(ciphers: CipherView[]) {
+  protected async repromptCipher(ciphers: C[]) {
     const notProtected = !ciphers.find((cipher) => cipher.reprompt !== CipherRepromptType.None);
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());
@@ -1230,6 +1284,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private refresh() {
     this.refresh$.next();
+    this.vaultItemsComponent?.clearSelection();
   }
 
   private async go(queryParams: any = null) {
@@ -1257,6 +1312,21 @@ export class VaultComponent implements OnInit, OnDestroy {
       title: null,
       message: this.i18nService.t("missingPermissions"),
     });
+  }
+
+  /**
+   * Returns the password for a `CipherViewLike` object.
+   * `CipherListView` does not contain the password, the full `CipherView` needs to be fetched.
+   */
+  private async getPasswordFromCipherViewLike(cipher: C): Promise<string | undefined> {
+    if (!CipherViewLikeUtils.isCipherListView(cipher)) {
+      return Promise.resolve(cipher.login?.password);
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const _cipher = await this.cipherService.get(cipher.id, activeUserId);
+    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
+    return cipherView.login?.password;
   }
 }
 

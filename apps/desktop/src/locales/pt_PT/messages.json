@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Procurar no cofre"
   },
+  "resetSearch": {
+    "message": "Repor pesquisa"
+  },
   "addItem": {
     "message": "Adicionar item"
   },
@@ -572,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Copiar código de verificação (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Comprimento"
   },
@@ -591,14 +608,14 @@
     "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Carateres especiais (!@#$%^&*)"
+    "message": "Caracteres especiais (!@#$%^&*)"
   },
   "include": {
     "message": "Incluir",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Incluir carateres em maiúsculas",
+    "message": "Incluir caracteres em maiúsculas",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -606,7 +623,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Incluir carateres em minúsculas",
+    "message": "Incluir caracteres em minúsculas",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -622,7 +639,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Incluir carateres especiais",
+    "message": "Incluir caracteres especiais",
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
@@ -645,15 +662,15 @@
     "message": "Mínimo de números"
   },
   "minSpecial": {
-    "message": "Mínimo de carateres especiais",
+    "message": "Mínimo de caracteres especiais",
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "Evitar carateres ambíguos",
+    "message": "Evitar caracteres ambíguos",
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Evitar carateres ambíguos",
+    "message": "Evitar caracteres ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -684,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Anexo guardado"
+  },
+  "addAttachment": {
+    "message": "Adicionar anexo"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "O tamanho máximo do ficheiro é de 500 MB"
   },
   "file": {
     "message": "Ficheiro"
@@ -767,7 +790,7 @@
     "message": "Dica da palavra-passe mestra (opcional)"
   },
   "masterPassHintText": {
-    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ carateres.",
+    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ caracteres.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -846,7 +869,7 @@
     "message": "É necessário reescrever a palavra-passe mestra."
   },
   "masterPasswordMinlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ carateres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ caracteres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1208,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Verificação de dois passos"
   },
+  "vaultTimeoutHeader": {
+    "message": "Tempo limite do cofre"
+  },
   "vaultTimeout": {
     "message": "Tempo limite do cofre"
   },
   "vaultTimeout1": {
     "message": "Tempo limite"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Ação de tempo limite"
   },
   "vaultTimeoutDesc": {
     "message": "Escolha quando é que o seu cofre executará a ação de tempo limite do cofre."
@@ -1424,6 +1453,9 @@
   "copySecurityCode": {
     "message": "Copiar código de segurança",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "número do cartão"
   },
   "premiumMembership": {
     "message": "Subscrição Premium"
@@ -1796,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Desbloquear com o Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Definições adicionais do Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Desbloqueio com autenticação do sistema"
   },
@@ -1814,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "desbloquear o cofre"
   },
-  "autoPromptWindowsHello": {
-    "message": "Pedir o Windows Hello ao iniciar a app"
-  },
-  "autoPromptPolkit": {
-    "message": "Pedir a autenticação do sistema no arranque"
-  },
   "autoPromptTouchId": {
     "message": "Pedir o Touch ID ao iniciar a app"
-  },
-  "requirePasswordOnStart": {
-    "message": "Exigir palavra-passe ou PIN ao iniciar a app"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Exigir palavra-passe ao iniciar a app"
-  },
-  "recommendedForSecurity": {
-    "message": "Recomendado por segurança."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear com a palavra-passe mestra ao reiniciar"
@@ -2056,16 +2070,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais carateres em maiúsculas"
+    "message": "Contém um ou mais caracteres em maiúsculas"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais carateres em minúsculas"
+    "message": "Contém um ou mais caracteres em minúsculas"
   },
   "policyInEffectNumbers": {
     "message": "Contém um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes carateres especiais $CHARS$",
+    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -2503,6 +2517,35 @@
   "vaultTimeoutTooLarge": {
     "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "As políticas da sua organização definiram o tempo limite máximo permitido do cofre de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "O tempo limite excede a restrição definida pela sua organização: $HOURS$ hora(s) e $MINUTES$ minuto(s) no máximo",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Convite aceite"
   },
@@ -2681,7 +2724,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Utilize $RECOMMENDED$ carateres ou mais para gerar uma palavra-passe forte.",
+    "message": " Utilize $RECOMMENDED$ caracteres ou mais para gerar uma palavra-passe forte.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2981,11 +3024,8 @@
     "message": "Reenviar notificação"
   },
   "toggleCharacterCount": {
-    "message": "Mostrar/ocultar contagem de carateres",
+    "message": "Mostrar/ocultar contagem de caracteres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Está a tentar aceder à sua conta?"
   },
   "accessAttemptBy": {
     "message": "Tentativa de acesso por $EMAIL$",
@@ -2995,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Pedido de início de sessão aprovado para $EMAIL$ no $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+  },
+  "webApp": {
+    "message": "Aplicação web"
+  },
+  "mobile": {
+    "message": "Móvel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensão",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Computador",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Servidor"
+  },
+  "loginRequest": {
+    "message": "Pedido de início de sessão"
   },
   "deviceType": {
     "message": "Tipo de dispositivo"
@@ -3010,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Recusar acesso"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Início de sessão confirmado para $EMAIL$ no $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
   "justNow": {
     "message": "Agora mesmo"
@@ -3115,7 +3183,7 @@
     "message": "A sua palavra-passe mestra não pode ser recuperada se a esquecer!"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ carateres no mínimo",
+    "message": "$LENGTH$ caracteres no mínimo",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -3173,7 +3241,7 @@
     "message": "auto-hospedado"
   },
   "accessDenied": {
-    "message": "Acesso negado. Não tem permissão para visualizar esta página."
+    "message": "Acesso negado. Não tem permissão para ver esta página."
   },
   "accountSuccessfullyCreated": {
     "message": "Conta criada com sucesso!"
@@ -3233,7 +3301,7 @@
     "message": "Procurar"
   },
   "inputMinLength": {
-    "message": "O campo deve ter pelo menos $COUNT$ carateres.",
+    "message": "O campo deve ter pelo menos $COUNT$ caracteres.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3242,7 +3310,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "O campo não pode exceder os $COUNT$ carateres de comprimento.",
+    "message": "O campo não pode exceder os $COUNT$ caracteres de comprimento.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3251,7 +3319,7 @@
     }
   },
   "inputForbiddenCharacters": {
-    "message": "Não são permitidos os seguintes carateres: $CHARACTERS$",
+    "message": "Não são permitidos os seguintes caracteres: $CHARACTERS$",
     "placeholders": {
       "characters": {
         "content": "$1",
@@ -3260,7 +3328,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ carateres.",
+    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -3269,7 +3337,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "O valor do campo não pode exceder os $MAX$ carateres.",
+    "message": "O valor do campo não pode exceder os $MAX$ caracteres.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -3423,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Selecionar uma coleção"
   },
-  "importTargetHint": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma coleção"
+  },
+  "importTargetHintFolder": {
+    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma pasta"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."
@@ -3555,7 +3619,7 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "A \"expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
+    "message": "A \"Expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
@@ -3997,5 +4061,21 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Mostrar mais"
+  },
+  "showLess": {
+    "message": "Mostrar menos"
+  },
+  "enableAutotype": {
+    "message": "Ativar digitação automática"
+  },
+  "enableAutotypeDescription": {
+    "message": "O Bitwarden não valida a introdução de localizações. Certifique-se de que está na janela e no campo corretos antes de utilizar o atalho."
+  },
+  "moreBreadcrumbs": {
+    "message": "Mais da navegação estrutural",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

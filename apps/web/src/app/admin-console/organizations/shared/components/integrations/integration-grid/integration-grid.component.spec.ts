@@ -1,14 +1,20 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+// eslint-disable-next-line no-restricted-imports
+import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations/services";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
+// eslint-disable-next-line import/order
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 // FIXME: remove `src` and fix import
+
+import { ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { SharedModule } from "@bitwarden/components/src/shared";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -21,6 +27,8 @@ import { IntegrationGridComponent } from "./integration-grid.component";
 describe("IntegrationGridComponent", () => {
   let component: IntegrationGridComponent;
   let fixture: ComponentFixture<IntegrationGridComponent>;
+  const mockActivatedRoute = mock<ActivatedRoute>();
+  const mockOrgIntegrationApiService = mock<OrganizationIntegrationApiService>();
   const integrations: Integration[] = [
     {
       name: "Integration 1",
@@ -37,6 +45,12 @@ describe("IntegrationGridComponent", () => {
   ];
 
   beforeEach(() => {
+    mockActivatedRoute.snapshot = {
+      paramMap: {
+        get: jest.fn().mockReturnValue("test-organization-id"),
+      },
+    } as any;
+
     TestBed.configureTestingModule({
       imports: [IntegrationGridComponent, IntegrationCardComponent, SharedModule],
       providers: [
@@ -55,6 +69,18 @@ describe("IntegrationGridComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>({ t: (key, p1) => key + " " + p1 }),
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: mockActivatedRoute,
+        },
+        {
+          provide: OrganizationIntegrationApiService,
+          useValue: mockOrgIntegrationApiService,
+        },
+        {
+          provide: ToastService,
+          useValue: mock<ToastService>(),
         },
       ],
     });

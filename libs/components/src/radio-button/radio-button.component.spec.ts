@@ -1,5 +1,6 @@
-import { Component } from "@angular/core";
+import { Component, DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -10,70 +11,62 @@ import { RadioButtonModule } from "./radio-button.module";
 import { RadioGroupComponent } from "./radio-group.component";
 
 describe("RadioButton", () => {
-  let mockGroupComponent: MockedButtonGroupComponent;
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
-  let radioButton: HTMLInputElement;
+  let fixture: ComponentFixture<TestComponent>;
+  let radioButtonGroup: RadioGroupComponent;
+  let radioButtons: DebugElement[];
 
   beforeEach(async () => {
-    mockGroupComponent = new MockedButtonGroupComponent();
-
     TestBed.configureTestingModule({
-      imports: [TestApp],
-      providers: [
-        { provide: RadioGroupComponent, useValue: mockGroupComponent },
-        { provide: I18nService, useValue: new I18nMockService({}) },
-      ],
+      imports: [TestComponent],
+      providers: [{ provide: I18nService, useValue: new I18nMockService({}) }],
     });
 
     await TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
+    fixture = TestBed.createComponent(TestComponent);
     fixture.detectChanges();
-    testAppComponent = fixture.debugElement.componentInstance;
-    radioButton = fixture.debugElement.query(By.css("input[type=radio]")).nativeElement;
+    radioButtonGroup = fixture.debugElement.query(
+      By.directive(RadioGroupComponent),
+    ).componentInstance;
+    radioButtons = fixture.debugElement.queryAll(By.css("input[type=radio]"));
   });
 
   it("should emit value when clicking on radio button", () => {
-    testAppComponent.value = "value";
+    const spyFn = jest.spyOn(radioButtonGroup, "onInputChange");
+
+    radioButtons[1].triggerEventHandler("change");
     fixture.detectChanges();
 
-    radioButton.click();
-    fixture.detectChanges();
-
-    expect(mockGroupComponent.onInputChange).toHaveBeenCalledWith("value");
+    expect(spyFn).toHaveBeenCalledWith(1);
   });
 
-  it("should check radio button when selected matches value", () => {
-    testAppComponent.value = "value";
+  it("should check radio button only when selected matches value", () => {
     fixture.detectChanges();
 
-    mockGroupComponent.selected = "value";
+    expect(radioButtons[0].nativeElement.checked).toBe(true);
+    expect(radioButtons[1].nativeElement.checked).toBe(false);
+
+    radioButtons[1].triggerEventHandler("change");
     fixture.detectChanges();
 
-    expect(radioButton.checked).toBe(true);
-  });
-
-  it("should not check radio button when selected does not match value", () => {
-    testAppComponent.value = "value";
-    fixture.detectChanges();
-
-    mockGroupComponent.selected = "nonMatchingValue";
-    fixture.detectChanges();
-
-    expect(radioButton.checked).toBe(false);
+    expect(radioButtons[0].nativeElement.checked).toBe(false);
+    expect(radioButtons[1].nativeElement.checked).toBe(true);
   });
 });
 
-class MockedButtonGroupComponent implements Partial<RadioGroupComponent> {
-  onInputChange = jest.fn();
-  selected: unknown = null;
-}
-
 @Component({
-  selector: "test-app",
-  template: `<bit-radio-button [value]="value"><bit-label>Element</bit-label></bit-radio-button>`,
-  imports: [RadioButtonModule],
+  selector: "test-component",
+  template: `
+    <form [formGroup]="formObj">
+      <bit-radio-group formControlName="radio">
+        <bit-radio-button [value]="0"><bit-label>Element</bit-label></bit-radio-button>
+        <bit-radio-button [value]="1"><bit-label>Element</bit-label></bit-radio-button>
+      </bit-radio-group>
+    </form>
+  `,
+  imports: [FormsModule, ReactiveFormsModule, RadioButtonModule],
 })
-class TestApp {
-  value?: string;
+class TestComponent {
+  formObj = new FormGroup({
+    radio: new FormControl(0),
+  });
 }

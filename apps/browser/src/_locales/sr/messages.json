@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Претражи сеф"
   },
+  "resetSearch": {
+    "message": "Ресетовати претрагу"
+  },
   "edit": {
     "message": "Уреди"
   },
@@ -1828,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Сигурносни код"
+  },
+  "cardNumber": {
+    "message": "број картице"
   },
   "ex": {
     "message": "нпр."
@@ -3460,6 +3466,28 @@
   "logInRequestSent": {
     "message": "Захтев је послат"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Захтев за пријаву одобрен за $EMAIL$ на $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Одбили сте покушај пријаве са другог уређаја. Ако сте то били ви, покушајте поново да се пријавите помоћу уређаја."
+  },
+  "device": {
+    "message": "Уређај"
+  },
+  "loginStatus": {
+    "message": "Статус пријаве"
+  },
   "masterPasswordChanged": {
     "message": "Главна лозинка сачувана"
   },
@@ -3555,6 +3583,94 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Запамтити овај уређај да би будуће пријаве биле беспрекорне"
+  },
+  "manageDevices": {
+    "message": "Управљање уређајима"
+  },
+  "currentSession": {
+    "message": "Тренутна сесија"
+  },
+  "mobile": {
+    "message": "Мобилни",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Додатак",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Десктоп",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Интернет Сеф"
+  },
+  "webApp": {
+    "message": "Веб апликација"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Захтев је на чекању"
+  },
+  "firstLogin": {
+    "message": "Прва пријава"
+  },
+  "trusted": {
+    "message": "Поуздан"
+  },
+  "needsApproval": {
+    "message": "Потребно је одобрење"
+  },
+  "devices": {
+    "message": "Уређаји"
+  },
+  "accessAttemptBy": {
+    "message": "Покушај приступа са $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Потврди приступ"
+  },
+  "denyAccess": {
+    "message": "Одбиј приступ"
+  },
+  "time": {
+    "message": "Време"
+  },
+  "deviceType": {
+    "message": "Тип уређаја"
+  },
+  "loginRequest": {
+    "message": "Захтев за пријаву"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Овај захтев више није важећи."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Захтев за пријаву је већ истекао."
+  },
+  "justNow": {
+    "message": "Управо сада"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Затражено пре $MINUTES$ минута",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Потребно је одобрење уређаја. Изаберите опцију одобрења испод:"
@@ -4015,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Изабери колекцију"
   },
-  "importTargetHint": {
-    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке премести у $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."
@@ -4465,17 +4577,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Копирај $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Копирај $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5457,5 +5569,15 @@
   "wasmNotSupported": {
     "message": "WebAssembly није подржано или није уапљено на вашем прегледачу. WebAssembly је потребно да би се користила апликација Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

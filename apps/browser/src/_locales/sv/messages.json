@@ -547,6 +547,9 @@
   "searchVault": {
     "message": "Sök i valvet"
   },
+  "resetSearch": {
+    "message": "Nollställ sökning"
+  },
   "edit": {
     "message": "Redigera"
   },
@@ -1828,6 +1831,9 @@
   },
   "securityCode": {
     "message": "Säkerhetskod"
+  },
+  "cardNumber": {
+    "message": "kortnummer"
   },
   "ex": {
     "message": "t. ex."
@@ -3460,6 +3466,28 @@
   "logInRequestSent": {
     "message": "Begäran skickad"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggningsbegäran godkänd för $EMAIL$ på $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om det var du, försök att logga in med enheten igen."
+  },
+  "device": {
+    "message": "Enhet"
+  },
+  "loginStatus": {
+    "message": "Inloggningsstatus"
+  },
   "masterPasswordChanged": {
     "message": "Huvudlösenordet sparades"
   },
@@ -3555,6 +3583,94 @@
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Kom ihåg den här enheten för att göra framtida inloggningar smidiga"
+  },
+  "manageDevices": {
+    "message": "Hantera enheter"
+  },
+  "currentSession": {
+    "message": "Aktuell session"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Tillägg",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Skrivbord",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Webbvalv"
+  },
+  "webApp": {
+    "message": "Webbapp"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Förfrågning väntar"
+  },
+  "firstLogin": {
+    "message": "Första inloggningen"
+  },
+  "trusted": {
+    "message": "Betrodd"
+  },
+  "needsApproval": {
+    "message": "Kräver godkännande"
+  },
+  "devices": {
+    "message": "Enheter"
+  },
+  "accessAttemptBy": {
+    "message": "Åtkomstförsök av $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Bekräfta åtkomst"
+  },
+  "denyAccess": {
+    "message": "Neka åtkomst"
+  },
+  "time": {
+    "message": "Tid"
+  },
+  "deviceType": {
+    "message": "Enhetstyp"
+  },
+  "loginRequest": {
+    "message": "Begäran om inloggning"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Denna begäran är inte längre giltig."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Inloggningsbegäran har redan gått ut."
+  },
+  "justNow": {
+    "message": "Just nu"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Begärdes för $MINUTES$ minuter sedan",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "deviceApprovalRequired": {
     "message": "Godkännande av enhet krävs. Välj ett alternativ för godkännande nedan:"
@@ -4015,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Välj en samling"
   },
-  "importTargetHint": {
-    "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en samling"
+  },
+  "importTargetHintFolder": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."
@@ -4075,10 +4187,10 @@
     "message": "Inloggad!"
   },
   "passkeyNotCopied": {
-    "message": "Lösennyckeln kommer inte kopieras"
+    "message": "Inloggningsnyckeln kommer inte kopieras"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Lösennyckeln kommer inte att kopieras till det klonade objektet. Vill du fortsätta klona det här objektet?"
+    "message": "Inloggningsnyckeln kommer inte att kopieras till det klonade objektet. Vill du fortsätta klona det här objektet?"
   },
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Verifiering krävs av den initierande webbplatsen. Denna funktion är ännu inte implementerad för konton utan huvudlösenord."
@@ -4087,7 +4199,7 @@
     "message": "Logga in med nyckel?"
   },
   "passkeyAlreadyExists": {
-    "message": "En lösennyckel finns redan för detta program."
+    "message": "En inloggningsnyckel finns redan för detta program."
   },
   "noPasskeysFoundForThisApplication": {
     "message": "Inga lösennycklar hittades för detta program."
@@ -4111,25 +4223,25 @@
     "message": "Spara nyckel som ny inloggning"
   },
   "chooseCipherForPasskeySave": {
-    "message": "Välj en inloggning som du vill spara nyckeln till"
+    "message": "Välj en inloggning som du vill spara inloggningsnyckeln till"
   },
   "chooseCipherForPasskeyAuth": {
-    "message": "Välj en lösenordskod att logga in med"
+    "message": "Välj en inloggningsnyckel att logga in med"
   },
   "passkeyItem": {
-    "message": "Lösennyckelobjekt"
+    "message": "Inloggningsnyckelsobjekt"
   },
   "overwritePasskey": {
-    "message": "Skriv över lösennyckel?"
+    "message": "Skriv över inloggningsnyckel?"
   },
   "overwritePasskeyAlert": {
-    "message": "Detta objekt innehåller redan en lösennyckel. Är du säker på att du vill skriva över nuvarande lösennyckeln?"
+    "message": "Detta objekt innehåller redan en inloggningsnyckel. Är du säker på att du vill skriva över nuvarande inloggningsnyckel?"
   },
   "featureNotSupported": {
     "message": "Funktionen stöds ännu inte"
   },
   "yourPasskeyIsLocked": {
-    "message": "Autentisering krävs för att använda lösennyckel. Verifiera din identitet för att fortsätta."
+    "message": "Autentisering krävs för att använda inloggningsnyckel. Verifiera din identitet för att fortsätta."
   },
   "multifactorAuthenticationCancelled": {
     "message": "Flerfaktorsautentisering avbruten"
@@ -4354,10 +4466,10 @@
     "message": "Lyckades"
   },
   "removePasskey": {
-    "message": "Ta bort passkey"
+    "message": "Ta bort inloggningsnyckel"
   },
   "passkeyRemoved": {
-    "message": "Passkey borttagen"
+    "message": "Inloggningsnyckel borttagen"
   },
   "autofillSuggestions": {
     "message": "Förslag för autofyll"
@@ -4465,17 +4577,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Kopiera $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Kopiera $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -5457,5 +5569,15 @@
   "wasmNotSupported": {
     "message": "WebAssembly stöds inte av din webbläsare eller är inte aktiverat. WebAssembly krävs för att använda Bitwarden-appen.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Visa mer"
+  },
+  "showLess": {
+    "message": "Visa mindre"
+  },
+  "moreBreadcrumbs": {
+    "message": "Fler länkstigar",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }
