@@ -229,6 +229,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
   getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames();
 
+  getUnownedTopLayerItems = (includeCandidates?: boolean) =>
+    this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);
+
   /**
    * Clears all cached user filled fields.
    */
