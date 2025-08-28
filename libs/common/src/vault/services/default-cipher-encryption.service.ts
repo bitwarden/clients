@@ -261,7 +261,9 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
             .decrypt_list_with_failures(ciphers.map((cipher) => cipher.toSdkCipher()));
 
           const decryptedCiphers = result.successes;
-          const failedCiphers = result.failures.map((cipher) => Cipher.fromSdkCipher(cipher));
+          const failedCiphers: Cipher[] = result.failures
+            .map((cipher) => Cipher.fromSdkCipher(cipher))
+            .filter((cipher): cipher is Cipher => cipher !== undefined);
 
           return [decryptedCiphers, failedCiphers];
         }),
