@@ -29,7 +29,7 @@ import { SharedModule } from "../../../shared";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
 import { BasePolicy } from "./base-policy.component";
-import { PolicyEditDialogComponent, PolicyEditDialogResult } from "./policy-edit-dialog.component";
+import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { PolicyListService } from "./policy-list.service";
 import { POLICY_REGISTER_TOKEN } from "./policy-register-token";
 
@@ -127,10 +127,10 @@ export class PoliciesComponent implements OnInit {
 
     const result = await lastValueFrom(dialogRef.closed);
     switch (result) {
-      case PolicyEditDialogResult.Saved:
+      case "saved":
         await this.load();
         break;
-      case PolicyEditDialogResult.UpgradePlan:
+      case "upgrade-plan":
         await this.changePlan(await firstValueFrom(this.organization$));
         break;
     }

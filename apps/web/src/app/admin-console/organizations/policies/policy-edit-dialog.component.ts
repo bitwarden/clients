@@ -43,12 +43,8 @@ export type PolicyEditDialogData = {
   organizationId: string;
 };
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum PolicyEditDialogResult {
-  Saved = "saved",
-  UpgradePlan = "upgrade-plan",
-}
+export type PolicyEditDialogResult = "saved" | "upgrade-plan";
+
 @Component({
   templateUrl: "policy-edit-dialog.component.html",
   imports: [SharedModule],
@@ -160,7 +156,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       variant: "success",
       message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
     });
-    this.dialogRef.close(PolicyEditDialogResult.Saved);
+    this.dialogRef.close("saved");
   };
 
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
@@ -168,6 +164,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   };
 
   protected upgradePlan(): void {
-    this.dialogRef.close(PolicyEditDialogResult.UpgradePlan);
+    this.dialogRef.close("upgrade-plan");
   }
 }
