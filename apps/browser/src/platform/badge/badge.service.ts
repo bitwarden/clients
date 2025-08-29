@@ -43,8 +43,6 @@ export class BadgeService {
     private badgeApi: BadgeBrowserApi,
     private logService: LogService,
   ) {
-    (global as any).badgeService = this; // For easier debugging
-
     this.serviceState = this.stateProvider.getGlobal(BADGE_STATES);
   }
 
@@ -59,7 +57,6 @@ export class BadgeService {
         withLatestFrom(this.serviceState.state$),
         filter(([activeTabs]) => activeTabs.length > 0),
         concatMap(async ([activeTabs, serviceState]) => {
-          // serviceState = await firstValueFrom(this.serviceState.state$);
           await Promise.all(activeTabs.map((tab) => this.updateBadge(serviceState, tab.tabId)));
         }),
       )
@@ -118,7 +115,6 @@ export class BadgeService {
     if (clearedState === undefined) {
       return;
     }
-    // const activeTabs = await firstValueFrom(this.badgeApi.activeTabs$);
     await this.updateBadge(newServiceState, clearedState.tabId);
   }
 
@@ -165,7 +161,6 @@ export class BadgeService {
    * @param tabId Tab id for which the the latest state change applied to. Set this to activeTab.tabId to force an update.
    */
   private async updateBadge(
-    // activeTabs: chrome.tabs.Tab[],
     serviceState: Record<string, StateSetting> | null | undefined,
     tabId: number | undefined,
   ) {

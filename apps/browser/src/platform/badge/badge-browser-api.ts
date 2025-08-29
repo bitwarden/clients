@@ -87,7 +87,6 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
   constructor(private platformUtilsService: PlatformUtilsService) {}
 
   async setState(state: RawBadgeState, tabId?: number): Promise<void> {
-    // console.log("[Badge] setState", state, tabId);
     await Promise.all([
       state.backgroundColor !== undefined ? this.setIcon(state.icon, tabId) : undefined,
       this.setText(state.text, tabId),
@@ -95,7 +94,6 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
         ? this.setBackgroundColor(state.backgroundColor, tabId)
         : undefined,
     ]);
-    // console.log("[Badge] setState done", state, tabId);
   }
 
   async getTabs(): Promise<number[]> {
