@@ -26,6 +26,8 @@ pub struct NamedPipeServerStream {
 }
 
 impl NamedPipeServerStream {
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     pub fn new(cancellation_token: CancellationToken, is_running: Arc<AtomicBool>) -> Self {
         let (tx, rx) = tokio::sync::mpsc::channel(16);
         tokio::spawn(async move {

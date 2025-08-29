@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Всего приложений"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Снять отметку критического приложения"
+  "unmarkAsCritical": {
+    "message": "Снять отметку критического"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Отметка критического приложения успешно снята"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Скопировать номер лицензии"
+  },
+  "copyPrivateKey": {
+    "message": "Скопировать приватный ключ"
+  },
+  "copyPublicKey": {
+    "message": "Скопировать публичный ключ"
+  },
+  "copyFingerprint": {
+    "message": "Скопировать отпечаток"
   },
   "copyName": {
     "message": "Скопировать имя"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Изменение языка, используемого веб-хранилищем."
   },
-  "enableFavicon": {
-    "message": "Показать значки сайтов"
-  },
-  "faviconDesc": {
-    "message": "Отображать узнаваемое изображение рядом с каждым логином."
+  "showIconsChangePasswordUrls": {
+    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
   "default": {
     "message": "По умолчанию"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Для пополнения счета необходим платежный адрес.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "Об этой настройке"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
   },
   "billingAddress": {
     "message": "Платежный адрес"

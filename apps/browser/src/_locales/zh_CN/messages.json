@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "此浏览器无法处理此弹出窗口中的 U2F 请求。您想要在新窗口中打开此弹出窗口吗？"
   },
-  "enableFavicon": {
-    "message": "显示网站图标"
-  },
-  "faviconDesc": {
-    "message": "在每个登录项目旁边显示一个可识别的图像。"
-  },
-  "faviconDescAlt": {
-    "message": "在每个登录的旁边显示一个可识别的图像。适用于所有已登录的账户。"
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "显示角标计数器"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "在扩展图标上显示自动填充建议的登录数量"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "在密码库上显示快速复制操作"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "点击「生成密码」按钮，轻松创建强大且唯一的密码，帮助您保持登录安全。",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"

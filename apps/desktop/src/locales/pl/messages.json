@@ -590,7 +590,7 @@
     }
   },
   "length": {
-    "message": "Długość"
+    "message": "Liczba znaków"
   },
   "passwordMinLength": {
     "message": "Minimalna długość hasła"
@@ -936,7 +936,7 @@
     "message": "Kod weryfikacyjny jest nieprawidłowy"
   },
   "continue": {
-    "message": "Przejdź"
+    "message": "Kontynuuj"
   },
   "verificationCodeEmailSent": {
     "message": "Wiadomość weryfikacyjna została wysłana na adres $EMAIL$.",
@@ -1163,7 +1163,7 @@
     "message": "Zmień hasło główne"
   },
   "continueToWebApp": {
-    "message": "Przejść do aplikacji internetowej?"
+    "message": "Kontynuować przejście do aplikacji internetowej?"
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "Możesz zmienić hasło główne w aplikacji internetowej Bitwarden."
@@ -1305,11 +1305,8 @@
     "message": "Automatycznie wyczyść skopiowaną wartość ze schowka.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Pokaż ikony stron internetowych"
-  },
-  "faviconDesc": {
-    "message": "Pokaż rozpoznawalną ikonę obok danych logowania."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimalizuj do zasobnika systemowego"
@@ -1693,7 +1690,7 @@
     "message": "Wyjdź"
   },
   "showHide": {
-    "message": "Pokaż / Ukryj",
+    "message": "Pokaż / ukryj",
     "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
   },
   "hideToTray": {
@@ -3927,6 +3924,12 @@
     "message": "Dowiedz się więcej o agencie SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Przypisz do kolekcji"

@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Peramban ini tidak bisa memproses permintaan U2F di jendela popup ini. Apakah Anda ingin membuka popup ini di jendela baru sehingga Anda dapat masuk menggunakan U2F?"
   },
-  "enableFavicon": {
-    "message": "Tampilkan ikon situs web"
-  },
-  "faviconDesc": {
-    "message": "Tampilkan sebuah gambar yang dapat dikenali di setiap masuk."
-  },
-  "faviconDescAlt": {
-    "message": "Tampilkan sebuah gambar yang dapat dikenali di sebelah tiap login. Diterapkan ke semua akun yang telah masuk."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Tampilkan hitungan di lencana"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Tampilkan jumlah saran isi otomatis login pada ikon pengaya"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Tampilkan tindakan salin cepat pada Vault"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Buat kata sandi yang kuat dan unik dengan mudah dengan menekan pada tombol Buat kata sandi untuk membantu Anda menyimpan login Anda dengan aman.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Anda tidak memiliki izin untuk melihat halaman ini. Coba masuk dengan akun yang berbeda."

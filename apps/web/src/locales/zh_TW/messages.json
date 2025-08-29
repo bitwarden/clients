@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Total applications"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Critical application successfully unmarked"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "copyName": {
     "message": "Copy name"
   },
@@ -1087,7 +1096,7 @@
     "message": "使用主密碼登入"
   },
   "readingPasskeyLoading": {
-    "message": "正在讀取密碼金輪..."
+    "message": "正在讀取通行金鑰..."
   },
   "readingPasskeyLoadingInfo": {
     "message": "保持此視窗打開，然後按照瀏覽器的提示進行操作。"
@@ -1111,7 +1120,7 @@
     "message": "不支援密碼金鑰 2FA。請更新 app 以登入。"
   },
   "loginWithPasskeyInfo": {
-    "message": "使用已產生的密碼金輪，無需密碼即可自動登入。生物特徵辨識（例如面部識別或指紋）或其他 FIDO2 安全方式將用於確認您的身分。"
+    "message": "使用已產生的密碼金鑰，無需密碼即可自動登入。生物特徵辨識（例如面部識別或指紋）或其他 FIDO2 安全方式將用於確認您的身分。"
   },
   "newPasskey": {
     "message": "新增密碼金鑰"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "變更網頁版密碼庫使用的語言。"
   },
-  "enableFavicon": {
-    "message": "顯示網站圖示"
-  },
-  "faviconDesc": {
-    "message": "在每個登入資料旁顯示一個可辨識的圖片。"
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "預設"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Billing address"

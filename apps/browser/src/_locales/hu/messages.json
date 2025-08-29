@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Ez a böngésző nem dolgozza fel az U2F kéréseket ebben a felbukkanó ablakban. Szeretnénk megnyitni a felbukkanó ablakot új böngészőablakban az U2F segítségével történő bejelentkezéshez?"
   },
-  "enableFavicon": {
-    "message": "Webhely ikonok megjelenítése"
-  },
-  "faviconDesc": {
-    "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
-  },
-  "faviconDescAlt": {
-    "message": "Minden bejelentkezés mellett egy felismerhető kép megjelenítése. Minden bejelentkezett fiókra vonatkozik."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Számláló jelvény megjelenítése"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Az automatikus bejelentkezési kitöltési javaslatok számának megjelenítése a bővítmény ikonján"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Gyors másolási műveletek megjelenítése a Széfen"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Könnyedén hozhatunk létre erős és egyedi jelszavakat a Jelszó generálása gombra kattintva, amely segít megőrizni a bejelentkezések biztonságát.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."

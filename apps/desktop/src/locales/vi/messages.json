@@ -1305,11 +1305,8 @@
     "message": "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Hiện biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiện logo trang web bên cạnh mỗi đăng nhập."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Thu nhỏ vào khay hệ thống"
@@ -3927,6 +3924,12 @@
     "message": "Tìm hiểu thêm về SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"

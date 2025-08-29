@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Tổng số ứng dụng"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Bỏ đánh dấu ứng dụng quan trọng"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Ứng dụng quan trọng đã được gỡ bỏ dấu hiệu thành công"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Sao chép số giấy phép"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "Sao chép tên"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Thay đổi ngôn ngữ của kho trên web."
   },
-  "enableFavicon": {
-    "message": "Hiện biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiện logo trang web bên cạnh mỗi đăng nhập."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Mặc định"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Cần có địa chỉ thanh toán để thêm tín dụng.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Địa chỉ thanh toán"

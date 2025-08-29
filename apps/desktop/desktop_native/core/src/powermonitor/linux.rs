@@ -19,6 +19,8 @@ const SCREEN_LOCK_MONITORS: [ScreenLock; 2] = [
     },
 ];
 
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 pub async fn on_lock(tx: tokio::sync::mpsc::Sender<()>) -> Result<(), Box<dyn std::error::Error>> {
     let connection = Connection::session().await?;
 
@@ -41,6 +43,8 @@ pub async fn on_lock(tx: tokio::sync::mpsc::Sender<()>) -> Result<(), Box<dyn st
     Ok(())
 }
 
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 pub async fn is_lock_monitor_available() -> bool {
     let connection = Connection::session().await.unwrap();
     for monitor in SCREEN_LOCK_MONITORS {

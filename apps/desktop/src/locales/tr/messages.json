@@ -211,7 +211,7 @@
     "message": "RSA 4096 bit"
   },
   "sshKeyGenerated": {
-    "message": "A new SSH key was generated"
+    "message": "Yeni bir SSH anahtarı oluşturuldu"
   },
   "sshKeyWrongPassword": {
     "message": "Girdiğiniz parola yanlış."
@@ -232,7 +232,7 @@
     "message": "Please unlock your vault to approve the SSH key request."
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "SSH anahtar isteği zaman aşımına uğradı."
   },
   "enableSshAgent": {
     "message": "Enable SSH agent"
@@ -280,11 +280,11 @@
     "message": "Bitwarden, aşağıda listelenen kasa öğelerinin şifresini çözemedi."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Müşteri ekibi ile başarıyla iletişime geçtin",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "ek veri kaybını önlemek için.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -560,7 +560,7 @@
     "message": "Parolayı kopyala"
   },
   "regenerateSshKey": {
-    "message": "Regenerate SSH key"
+    "message": "SSH anahtarını yeniden oluştur"
   },
   "copySshPrivateKey": {
     "message": "SSH özel anahtarını kopyala"
@@ -718,7 +718,7 @@
     "message": "Maksimum dosya boyutu 500 MB'dir."
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "Eski şifreleme artık desteklenmemektedir. Hesabınızı kurtarmak için lütfen destek ekibiyle iletişime geçin."
   },
   "editedFolder": {
     "message": "Klasör kaydedildi"
@@ -1027,13 +1027,13 @@
     "message": "Şirket içinde barındırılan ortam"
   },
   "selfHostedBaseUrlHint": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
+    "message": "Yerel sunucunuzda barındırılan Bitwarden kurulumunuzun temel URL’sini belirtin. Örnek: https://bitwarden.sirketiniz.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "İleri düzey yapılandırma için her hizmetin taban URL'sini bağımsız olarak belirleyebilirsiniz."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "You must add either the base Server URL or at least one custom environment."
+    "message": "Temel Sunucu URL’sini veya en az bir özel ortam eklemelisiniz."
   },
   "customEnvironment": {
     "message": "Özel ortam"
@@ -1305,11 +1305,8 @@
     "message": "Kopyalanan değerleri otomatik olarak panodan sil.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Web sitesi simgelerini göster"
-  },
-  "faviconDesc": {
-    "message": "Hesapların yanında tanıdık görseller göster."
+  "showIconsChangePasswordUrls": {
+    "message": "Web sitesi simgelerini göster ve parola değiştirme URL'lerini al"
   },
   "enableMinToTray": {
     "message": "Tepsi simgesine küçült"
@@ -1623,10 +1620,10 @@
     "message": "Kopyalama başarılı"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "Erişim Anahtarı Yenileme Hatası"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "No refresh token or API keys found. Please try logging out and logging back in."
+    "message": "Yenileme veya API anahtarı bulunamadı. Lütfen çıkış yapıp tekrar giriş yapmayı deneyin."
   },
   "help": {
     "message": "Yardım"
@@ -1749,7 +1746,7 @@
     "message": "Hesap kısıtlı"
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "Kart öge türleri içe aktarılamıyor"
   },
   "restrictCardTypeImportDesc": {
     "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
@@ -1829,7 +1826,7 @@
     "message": "Kilidi Windows Hello ile aç"
   },
   "unlockWithPolkit": {
-    "message": "Unlock with system authentication"
+    "message": "Sistem kimlik doğrulaması ile kilit açma"
   },
   "windowsHelloConsentMessage": {
     "message": "Bitwarden için doğrulayın."
@@ -2002,10 +1999,10 @@
     "message": "Kimlik doğrulama anahtarını kopyala (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "2 adımlı doğrulamayı sorunsuz hale getirin"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden, 2 adımlı doğrulama kodlarını saklayabilir ve otomatik olarak doldurabilir. Anahtarı kopyalayıp bu alana yapıştırın."
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
@@ -3927,6 +3924,12 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Bu ayar hakkında"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "Assign to collections"

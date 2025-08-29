@@ -1305,11 +1305,8 @@
     "message": "Automatikusan törli a vágólapra másolt értékeket.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Webhely ikonok megjelenítése"
-  },
-  "faviconDesc": {
-    "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
+  "showIconsChangePasswordUrls": {
+    "message": "Webhely ikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
   "enableMinToTray": {
     "message": "Kicsinyítés tálcaikonná"
@@ -3927,6 +3924,12 @@
     "message": "Tudjon meg többet az SSH ügynökröl",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Informció erről a beállításról"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményekhez"

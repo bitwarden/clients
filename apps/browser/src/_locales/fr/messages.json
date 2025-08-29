@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Ce navigateur ne peut pas traiter les demandes U2F dans cette fenêtre popup. Voulez-vous ouvrir cette popup dans une nouvelle fenêtre afin de pouvoir vous connecter à l'aide de l'U2F ?"
   },
-  "enableFavicon": {
-    "message": "Afficher les icônes des sites web"
-  },
-  "faviconDesc": {
-    "message": "Affiche une image reconnaissable à côté de chaque identifiant."
-  },
-  "faviconDescAlt": {
-    "message": "Affiche une image reconnaissable à côté de chaque identifiant. S'applique à tous les comptes connectés."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Afficher le compteur de badge"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Afficher le nombre de suggestions de saisie automatique d'identifiant sur l'icône d'extension"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Afficher les actions de copie rapide dans le coffre"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Créez facilement des mots de passe forts et uniques en cliquant sur le bouton Générer un mot de passe pour vous aider à sécuriser vos connexions.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Vous n'avez pas les autorisations pour consulter cette page. Essayez de vous connecter avec un autre compte."

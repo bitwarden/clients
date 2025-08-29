@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Bu brauzer bu açılan pəncərədə U2F tələblərini emal edə bilmir. U2F istifadə edərək giriş etmək üçün bu açılan pəncərəni yeni bir pəncərədə açmaq istəyirsiniz?"
   },
-  "enableFavicon": {
-    "message": "Veb sayt ikonlarını göstər"
-  },
-  "faviconDesc": {
-    "message": "Hər girişin yanında tanına bilən təsvir göstər."
-  },
-  "faviconDescAlt": {
-    "message": "Hər bir giriş elementinin yanında tanına bilən bir təsvir göstər. Giriş etmiş bütün hesablara aiddir."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Nişan sayğacını göstər"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Uzantı ikonunda giriş üçün avto-doldurma təklif sayını göstər"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Seyfdə cəld kopyalama fəaliyyətlərini göstər"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Girişlərinizi güvənli şəkildə saxlamağınıza kömək etməsi üçün Parol yarat düyməsinə klikləyərək güclü və unikal parolları asanlıqla yaradın.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Bu səhifəyə baxmaq icazəniz yoxdur. Fərqli hesabla giriş etməyə çalışın."

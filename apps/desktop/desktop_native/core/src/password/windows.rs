@@ -14,6 +14,7 @@ use windows::{
 
 const CRED_FLAGS_NONE: u32 = 0;
 
+#[allow(clippy::unused_async)]
 pub async fn get_password(service: &str, account: &str) -> Result<String> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
@@ -46,6 +47,7 @@ pub async fn get_password(service: &str, account: &str) -> Result<String> {
     Ok(password)
 }
 
+#[allow(clippy::unused_async)]
 pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
     let mut target_name = U16CString::from_str(target_name(service, account))?;
     let mut user_name = U16CString::from_str(account)?;
@@ -77,6 +79,7 @@ pub async fn set_password(service: &str, account: &str, password: &str) -> Resul
     Ok(())
 }
 
+#[allow(clippy::unused_async)]
 pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
@@ -87,6 +90,7 @@ pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     Ok(())
 }
 
+#[allow(clippy::unused_async)]
 pub async fn is_available() -> Result<bool> {
     Ok(true)
 }

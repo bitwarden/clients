@@ -7,11 +7,16 @@ export class UnsupportedAuthRequestAnsweringService
   implements AuthRequestAnsweringServiceAbstraction
 {
   constructor() {}
-  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void> {
+
+  receivedPendingAuthRequest(userId: UserId, notificationId: string): Promise<void> {
     throw new Error("Received pending auth request not supported.");
   }
 
-  async receivedPendingAuthRequest(userId: UserId, notificationId: string): Promise<void> {
+  handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void> {
     throw new Error("Received pending auth request not supported.");
+  }
+
+  processPendingAuthRequests(): Promise<void> {
+    throw new Error("Popup opened not supported.");
   }
 }

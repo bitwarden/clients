@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Dieser Browser kann U2F-Anfragen in diesem Popup-Fenster nicht verarbeiten. Möchtest du dieses Popup in einem neuen Fenster öffnen, damit du dich mit U2F anmelden kannst?"
   },
-  "enableFavicon": {
-    "message": "Website-Symbole anzeigen"
-  },
-  "faviconDesc": {
-    "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen."
-  },
-  "faviconDescAlt": {
-    "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen. Gilt für alle angemeldeten Konten."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Badge-Zähler anzeigen"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Anzahl der Auto-Ausfüllen-Vorschläge von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Schnellkopier-Aktionen im Tresor anzeigen"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Generiere ganz einfach starke und einzigartige Passwörter, indem du auf den \"Passwort generieren\"-Button klickst, um dir zu helfen, deine Zugangsdaten sicher zu halten.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche dich mit einem anderen Konto anzumelden."

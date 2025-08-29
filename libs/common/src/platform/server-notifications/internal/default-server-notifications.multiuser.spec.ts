@@ -41,12 +41,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let environmentConfiguration$: BehaviorSubject<Environment>;
 
   let authenticationStatusByUser: Map<UserId, BehaviorSubject<AuthenticationStatus>>;
-  let webPushSupportStatusByUser: Map<
-    UserId,
-    BehaviorSubject<
-      { type: "supported"; service: WebPushConnector } | { type: "not-supported"; reason: string }
-    >
-  >;
+  let webPushSupportStatusByUser: Map<UserId, BehaviorSubject<{ type: "supported"; service: WebPushConnector } | { type: "not-supported"; reason: string }>>;
 
   let connectionSubjectByUser: Map<UserId, Subject<any>>;
   let defaultServerNotificationsService: DefaultServerNotificationsService;
@@ -83,9 +78,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     messagingService = mock<MessagingService>();
 
     accountService = mock<AccountService>();
-    activeUserAccount$ = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(
-      null,
-    );
+    activeUserAccount$ = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(null);
     accountService.activeAccount$ = activeUserAccount$.asObservable();
     userAccounts$ = new BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>({} as any);
     accountService.accounts$ = userAccounts$.asObservable();
@@ -115,15 +108,14 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
 
     webPushNotificationConnectionService = mock<WebPushConnectionService>();
     webPushSupportStatusByUser = new Map();
-    webPushNotificationConnectionService.supportStatus$.mockImplementation((userId: UserId) => {
-      if (!webPushSupportStatusByUser.has(userId)) {
-        webPushSupportStatusByUser.set(
-          userId,
-          new BehaviorSubject({ type: "not-supported", reason: "init" } as any),
-        );
-      }
-      return webPushSupportStatusByUser.get(userId)!.asObservable();
-    });
+    (webPushNotificationConnectionService.supportStatus$).mockImplementation(
+      (userId: UserId) => {
+        if (!webPushSupportStatusByUser.has(userId)) {
+          webPushSupportStatusByUser.set(userId, new BehaviorSubject({ type: "not-supported", reason: "init" } as any));
+        }
+        return webPushSupportStatusByUser.get(userId)!.asObservable();
+      },
+    );
 
     authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
 
@@ -131,6 +123,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
       const flagValueByFlag: Partial<Record<FeatureFlag, boolean>> = {
         [FeatureFlag.InactiveUserServerNotification]: true,
+        [FeatureFlag.PushNotificationsWhenLocked]: true,
       };
       return new BehaviorSubject(flagValueByFlag[flag] ?? false) as any;
     });
@@ -155,12 +148,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     if (userId == null) {
       activeUserAccount$.next(null);
     } else {
-      activeUserAccount$.next({
-        id: userId,
-        email: "email",
-        name: "Test Name",
-        emailVerified: true,
-      });
+      activeUserAccount$.next({ id: userId, email: "email", name: "Test Name", emailVerified: true });
     }
   }
 
@@ -174,10 +162,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
 
   function setUserUnlocked(userId: UserId) {
     if (!authenticationStatusByUser.has(userId)) {
-      authenticationStatusByUser.set(
-        userId,
-        new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.LoggedOut),
-      );
+      authenticationStatusByUser.set(userId, new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.LoggedOut));
     }
     authenticationStatusByUser.get(userId)!.next(AuthenticationStatus.Unlocked);
   }
@@ -187,14 +172,9 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     const notificationSubject = new Subject<NotificationResponse>();
     webPushConnector.notifications$ = notificationSubject.asObservable();
     if (!webPushSupportStatusByUser.has(userId)) {
-      webPushSupportStatusByUser.set(
-        userId,
-        new BehaviorSubject({ type: "supported", service: webPushConnector } as any),
-      );
+      webPushSupportStatusByUser.set(userId, new BehaviorSubject({ type: "supported", service: webPushConnector } as any));
     } else {
-      webPushSupportStatusByUser
-        .get(userId)!
-        .next({ type: "supported", service: webPushConnector } as any);
+      webPushSupportStatusByUser.get(userId)!.next({ type: "supported", service: webPushConnector } as any);
     }
     return { webPushConnector, notificationSubject } as const;
   }
@@ -209,16 +189,10 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     const user1WebPush = setWebPushConnectorForUser(mockUserId1);
     const user2WebPush = setWebPushConnectorForUser(mockUserId2);
 
-    const twoNotifications = firstValueFrom(
-      defaultServerNotificationsService.notifications$.pipe(bufferCount(2)),
-    );
+    const twoNotifications = firstValueFrom(defaultServerNotificationsService.notifications$.pipe(bufferCount(2)));
 
-    user1WebPush.notificationSubject.next(
-      new NotificationResponse({ type: NotificationType.SyncFolderCreate }),
-    );
-    user2WebPush.notificationSubject.next(
-      new NotificationResponse({ type: NotificationType.SyncFolderDelete }),
-    );
+    user1WebPush.notificationSubject.next(new NotificationResponse({ type: NotificationType.SyncFolderCreate }));
+    user2WebPush.notificationSubject.next(new NotificationResponse({ type: NotificationType.SyncFolderDelete }));
 
     const notificationResults = await twoNotifications;
     expect(notificationResults.length).toBe(2);
@@ -226,12 +200,8 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     const [notification2, userB] = notificationResults[1];
     expect(userA === mockUserId1 || userA === mockUserId2).toBe(true);
     expect(userB === mockUserId1 || userB === mockUserId2).toBe(true);
-    expect([NotificationType.SyncFolderCreate, NotificationType.SyncFolderDelete]).toContain(
-      notification1.type,
-    );
-    expect([NotificationType.SyncFolderCreate, NotificationType.SyncFolderDelete]).toContain(
-      notification2.type,
-    );
+    expect([NotificationType.SyncFolderCreate, NotificationType.SyncFolderDelete]).toContain(notification1.type);
+    expect([NotificationType.SyncFolderCreate, NotificationType.SyncFolderDelete]).toContain(notification2.type);
   });
 
   it("processes allowed multi-user notifications for non-active users (AuthRequest)", async () => {
@@ -243,18 +213,11 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
 
     // Force SignalR path for user2
     if (!webPushSupportStatusByUser.has(mockUserId2)) {
-      webPushSupportStatusByUser.set(
-        mockUserId2,
-        new BehaviorSubject({ type: "not-supported", reason: "test" } as any),
-      );
+      webPushSupportStatusByUser.set(mockUserId2, new BehaviorSubject({ type: "not-supported", reason: "test" } as any));
     } else {
-      webPushSupportStatusByUser
-        .get(mockUserId2)!
-        .next({ type: "not-supported", reason: "test" } as any);
+      webPushSupportStatusByUser.get(mockUserId2)!.next({ type: "not-supported", reason: "test" } as any);
     }
-
-    // TODO: When PM-14943 goes in, uncomment
-    // authRequestAnsweringService.receivedPendingAuthRequest.mockResolvedValue(undefined as any);
+    authRequestAnsweringService.receivedPendingAuthRequest.mockResolvedValue(undefined as any);
 
     const subscription = defaultServerNotificationsService.startListening();
 
@@ -273,12 +236,10 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
       notificationId: "auth-id-2",
     });
-
-    // TODO: When PM-14943 goes in, uncomment
-    // expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
-    //   mockUserId2,
-    //   "auth-id-2",
-    // );
+    expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
+      mockUserId2,
+      "auth-id-2",
+    );
 
     subscription.unsubscribe();
   });
@@ -296,13 +257,9 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     const subscription = defaultServerNotificationsService.startListening();
 
     // Emit a folder create for non-active user (should be ignored)
-    user2WebPush.notificationSubject.next(
-      new NotificationResponse({ type: NotificationType.SyncFolderCreate }),
-    );
+    user2WebPush.notificationSubject.next(new NotificationResponse({ type: NotificationType.SyncFolderCreate }));
     // Emit a folder create for active user (should be processed)
-    user1WebPush.notificationSubject.next(
-      new NotificationResponse({ type: NotificationType.SyncFolderCreate }),
-    );
+    user1WebPush.notificationSubject.next(new NotificationResponse({ type: NotificationType.SyncFolderCreate }));
 
     await new Promise((resolve) => setTimeout(resolve, 0));
 

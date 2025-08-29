@@ -106,6 +106,7 @@ import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -752,6 +753,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       LOGOUT_CALLBACK,
       VaultTimeoutSettingsService,
+      AccountService,
       HTTP_OPERATIONS,
     ],
   }),
@@ -942,6 +944,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: PendingAuthRequestsStateService,
+    useClass: PendingAuthRequestsStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
     provide: AuthRequestAnsweringServiceAbstraction,
     useClass: AuthRequestAnsweringService,
     deps: [
@@ -950,6 +957,8 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       I18nServiceAbstraction,
       MasterPasswordServiceAbstraction,
+      MessagingServiceAbstraction,
+      PendingAuthRequestsStateService,
       PlatformUtilsServiceAbstraction,
       SystemNotificationsService,
     ],
@@ -1158,7 +1167,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ConfigApiServiceAbstraction,
     useClass: ConfigApiService,
-    deps: [ApiServiceAbstraction, TokenServiceAbstraction],
+    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: AnonymousHubServiceAbstraction,

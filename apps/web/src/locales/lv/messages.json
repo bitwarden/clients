@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Kopējais lietotņu skaits"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Noņemt kritiskas lietontes atzīmi"
+  "unmarkAsCritical": {
+    "message": "Noņemt kritiskuma atzīmi"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritiskas lietotnes atzīme sekmīgi noņemta"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Ievietot licences numuru starpliktuvē"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "Ievietot nosaukumu starpliktuvē"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Nomainīt tīmekļa glabātavā izmantoto valodu."
   },
-  "enableFavicon": {
-    "message": "Rādīt tīmekļvietņu ikonas"
-  },
-  "faviconDesc": {
-    "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
+  "showIconsChangePasswordUrls": {
+    "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
   },
   "default": {
     "message": "Noklusējums"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Norēķinu adrese ir nepieciešama, lai pievienot kredītu.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "Par šo iestatījumu"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden izmantos saglabātos pieteikšanās vienuma URI, lai noteiktu, kuru ikonu vai paroles nomaiņas URL izmantot, lai uzlabotu pieredzi. Šī pakalpojuma izmantošanas laikā nekāda informācija netiek ievākta vai saglabāta."
   },
   "billingAddress": {
     "message": "Norēķinu adrese"

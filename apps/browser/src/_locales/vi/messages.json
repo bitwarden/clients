@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Trình duyệt này không thể xử lý các yêu cầu U2F trong cửa sổ popup này. Bạn có muốn mở popup này trong cửa sổ mới để bạn có thể đăng nhập thông qua U2F?"
   },
-  "enableFavicon": {
-    "message": "Hiển thị biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiển thị một ảnh nhận dạng bên cạnh mỗi lần đăng nhập."
-  },
-  "faviconDescAlt": {
-    "message": "Hiển thị một biểu tượng dễ nhận dạng bên cạnh mỗi mục đăng nhập. Áp dụng với mọi tài khoản đăng nhập trên thiết bị."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Hiển thị biểu tượng bộ đếm"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Hiển thị số lượng đề xuất tự động điền đăng nhập trên biểu tượng tiện ích mở rộng"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Hiển thị các hành động sao chép nhanh trên Kho"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Dễ dàng tạo mật khẩu mạnh và duy nhất bằng cách nhấp vào Trình tạo mật khẩu để giúp bạn bảo vệ tài khoản đăng nhập của mình.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."

@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Дадзены браўзер не можа апрацоўваць запыты U2F у гэтым усплывальным акне. Адкрыць гэта ўсплывальнае акно ў новым акне, каб мець магчымасць увайсці ў сістэму, выкарыстоўваючы U2F?"
   },
-  "enableFavicon": {
-    "message": "Паказваць значкі вэб-сайтаў"
-  },
-  "faviconDesc": {
-    "message": "Паказваць распазнавальны відарыс побач з кожным лагінам."
-  },
-  "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Паказваць лічыльнік на значку"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."

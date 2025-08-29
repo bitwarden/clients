@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Cəmi tətbiq"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Kritik tətbiq kimi işarəni götür"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritik tətbiq işarəsi uğurla götürüldü"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Lisenziya nömrəsini kopyala"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "Adı kopyala"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Veb seyfdə istifadə olunan dili dəyişdirin."
   },
-  "enableFavicon": {
-    "message": "Veb sayt ikonlarını göstər"
-  },
-  "faviconDesc": {
-    "message": "Hər girişin yanında tanına bilən təsvir göstər."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "İlkin"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Kredit əlavə etmək üçün faktura ünvanı tələb olunur.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Faktura ünvanı"

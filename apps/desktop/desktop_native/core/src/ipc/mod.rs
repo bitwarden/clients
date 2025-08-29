@@ -30,6 +30,8 @@ fn internal_ipc_codec<T: AsyncRead + AsyncWrite>(inner: T) -> Framed<T, LengthDe
 }
 
 /// Resolve the path to the IPC socket.
+// FIXME: Remove unwraps! They panic and terminate the whole application.
+#[allow(clippy::unwrap_used)]
 pub fn path(name: &str) -> std::path::PathBuf {
     #[cfg(target_os = "windows")]
     {

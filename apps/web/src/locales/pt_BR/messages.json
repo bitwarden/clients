@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Todos os aplicativos"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Desmarcar como aplicativo crítico"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Aplicação crítica desmarcada com sucesso"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Copiar número da CNH"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "Copiar nome"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Altere o idioma usado pelo cofre web."
   },
-  "enableFavicon": {
-    "message": "Mostrar ícones do site"
-  },
-  "faviconDesc": {
-    "message": "Mostrar uma imagem reconhecível ao lado de cada login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Padrão"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Billing address"

@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Šis pārlūks nevar apstrādāt U2F pieprasījumus šajā uznirstošajā logā. Vai atvērt to atsevišķā logā, lai varētu pieteikties, izmantojot U2F?"
   },
-  "enableFavicon": {
-    "message": "Rādīt tīmekļvietņu ikonas"
-  },
-  "faviconDesc": {
-    "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
-  },
-  "faviconDescAlt": {
-    "message": "Parādīt atpazīstamu attēlu pie katra pieteikšanās vienuma. Attiecas uz visiem kontiem, kuros ir notikusi pieteikšanās."
+  "showIconsChangePasswordUrls": {
+    "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
   },
   "enableBadgeCounter": {
     "message": "Rādīt skaita nozīmīti"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Paplašinājuma ikonā rādīt pieteikšanās automātiskās aizpildes ieteikumu skaitu"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Glabātavā rādīt ātrās kopēšanas darbības"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar pogu \"Izveidot paroli\", lai palīdzētu uzturēt pieteikšanās vienumus drošus.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "Par šo iestatījumu"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden izmantos saglabātos pieteikšanās vienuma URI, lai noteiktu, kuru ikonu vai paroles nomaiņas URL izmantot, lai uzlabotu pieredzi. Šī pakalpojuma izmantošanas laikā nekāda informācija netiek ievākta vai saglabāta."
   },
   "noPermissionsViewPage": {
     "message": "Nav atļaujas apskatīt šo lapu. Jāmēģina pieteikties ar citu kontu."
