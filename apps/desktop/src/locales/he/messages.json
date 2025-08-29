@@ -1305,11 +1305,8 @@
     "message": "נקה אוטומטית ערכים שהועתקו ללוח ההעתקות (clipboard).",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "הצג סמלים של אתרי האינטרננט"
-  },
-  "faviconDesc": {
-    "message": "הצג תמונה מוכרת בכל נסיון התחברות."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "מזער למגש המערכת"
@@ -1752,7 +1749,7 @@
     "message": "לא ניתן לייבא סוגי פריטי כרטיסים"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "פוליסה שנקבעה על ידי ארגון אחד או יותר מונע ממך מלייבא כרטיסים לכספות שלך."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"סיסמת קובץ\"  ו\"אשר סיסמת קובץ\" אינם תואמים."
@@ -2422,13 +2419,13 @@
     "message": "הסיסמה הראשית שלך אינה עומדת באחת או יותר מפוליסות הארגון שלך. כדי לגשת לכספת, אתה מוכרח לעדכן את הסיסמה הראשית שלך עכשיו. בהמשך תנותק מההפעלה הנוכחית שלך, מה שידרוש ממך להיכנס חזרה. הפעלות פעילות במכשירים אחרים עלולות להישאר פעילות למשך עד שעה אחת."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "לאחר שינוי סיסמא, תצטרך להתחבר באמצעות הסיסמא החדשה שלך. הפעלות פעילות במכשירים אחרים ינותקו תוך שעה."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "יש לשנות את הסיסמא הראשית שלך כדי להשלים את שחזור החשבון."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "הסיסמא הראשית שלך לא עומדת בדרישות ארגון זה. שנה את הסיסמא הראשית שלך כדי להמשיך."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "הארגון שלך השבית הצפנת מכשיר מהימן. נא להגדיר סיסמה ראשית כדי לגשת לכספת שלך."
@@ -2571,7 +2568,7 @@
     "message": "הסיסמה הראשית הוסרה"
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "סיסמא ראשית אינה נדרשת עוד עבור חברים בארגון הבא. אנא אשר את הדומיין שלהלן עם מנהל הארגון שלך."
   },
   "organizationName": {
     "message": "שם הארגון"
@@ -3225,7 +3222,7 @@
     "message": "לא ניתן להשלים את ההתחברות"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "עליך להיכנס ממכשיר מהימן או לבקש ממנהל המערכת שלך להקצות לך סיסמא."
   },
   "region": {
     "message": "אזור"
@@ -3280,13 +3277,13 @@
     "message": "הארגון אינו אמין"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "למען אבטחת חשבונך, אשר רק אם הענקת גישה בשעת חירום למשתמש זה וטביעת האצבע שלהם תואמת עם מה שמוצג בחשבון שלהם"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "למען אבטחת חשבונך, המשך רק אם אתה חבר בארגון זה, שחזור חשבונך מופעל, וטביעת האצבע המוצגת למטה תואמת לטביעת האצבע של הארגון."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "לארגון זה יש פוליסות ארגוניות שירשמו אותך לשחזור חשבון. ההרשמה תאפשר למנהלי הארגון לשנות את סיסמתך. המשך רק אם אתה מזהה ארגון זה וביטוי טביעת האצבע המוצג למטה תואם לטביעת האצבע של הארגון."
   },
   "trustUser": {
     "message": "סמוך על המשתמש"
@@ -3462,7 +3459,7 @@
     "message": "עקוב אחר השלבים למטה כדי לסיים להיכנס."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "עקוב אחרי השלבים למטה כדי לסיים את הכניסה באמצעות מפתח האבטחה שלך."
   },
   "launchDuo": {
     "message": "פתח את Duo בדפדפן"
@@ -3615,15 +3612,15 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "זיהוי התאמת URI הוא האופן שבו Bitwarden מזהה הצעות למילוי אוטומטי.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"ביטוי רגולרי\" היא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורי כניסה.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"מתחיל עם\" היא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורי כניסה.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -3927,6 +3924,12 @@
     "message": "למד עוד על סוכן SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "הקצה לאוספים"

@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Celkem aplikací"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Zrušit označení jako kritické aplikace"
+  "unmarkAsCritical": {
+    "message": "Zrušit označení jako kritické"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritická aplikace úspěšně odoznačena"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Kopírovat číslo dokladu totožnosti"
+  },
+  "copyPrivateKey": {
+    "message": "Kopírovat soukromý klíč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovat veřejný klíč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovat otisk prstu"
   },
   "copyName": {
     "message": "Kopírovat název"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Změní jazyk používaný ve webovém trezoru."
   },
-  "enableFavicon": {
-    "message": "Zobrazit ikony webových stránek"
-  },
-  "faviconDesc": {
-    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
   "default": {
     "message": "Výchozí"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Pro přidání kreditu je vyžadována fakturační adresa.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
   "billingAddress": {
     "message": "Fakturační adresa"

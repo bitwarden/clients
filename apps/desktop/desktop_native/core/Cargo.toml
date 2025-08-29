@@ -7,32 +7,35 @@ publish = { workspace = true }
 
 [features]
 default = [
-  "dep:widestring",
-  "dep:windows",
-  "dep:core-foundation",
-  "dep:security-framework",
-  "dep:security-framework-sys",
-  "dep:zbus",
-  "dep:zbus_polkit",
+    "dep:widestring",
+    "dep:windows",
+    "dep:core-foundation",
+    "dep:security-framework",
+    "dep:security-framework-sys",
+    "dep:zbus",
+    "dep:zbus_polkit"
 ]
 manual_test = []
 
 [dependencies]
 aes = { workspace = true }
 anyhow = { workspace = true }
-arboard = { workspace = true, features = [
-    "wayland-data-control",
-] }
+arboard = { workspace = true, features = ["wayland-data-control"] }
 base64 = { workspace = true }
+bitwarden-russh = { workspace = true }
 byteorder = { workspace = true }
+bytes = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
-homedir = { workspace = true }
-pin-project = { workspace = true }
 dirs = { workspace = true }
+ed25519 = { workspace = true, features = ["pkcs8"] }
 futures = { workspace = true }
+homedir = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
 log = { workspace = true }
+pin-project = { workspace = true }
+pkcs8 = { workspace = true, features = ["alloc", "encryption", "pem"] }
 rand = { workspace = true }
+rsa = { workspace = true }
 russh-cryptovec = { workspace = true }
 scopeguard = { workspace = true }
 sha2 = { workspace = true }
@@ -43,17 +46,12 @@ ssh-key = { workspace = true, features = [
     "rsa",
     "getrandom",
 ] }
-bitwarden-russh = { workspace = true }
+sysinfo = { workspace = true, features = ["windows"] }
+thiserror = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
 tokio-stream = { workspace = true, features = ["net"] }
 tokio-util = { workspace = true, features = ["codec"] }
-thiserror = { workspace = true }
 typenum = { workspace = true }
-pkcs8 = { workspace = true, features = ["alloc", "encryption", "pem"] }
-rsa = { workspace = true }
-ed25519 = { workspace = true, features = ["pkcs8"] }
-bytes = { workspace = true }
-sysinfo = { workspace = true, features = ["windows"] }
 zeroizing-alloc = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
@@ -88,3 +86,6 @@ ashpd = { workspace = true }
 
 zbus = { workspace = true, optional = true }
 zbus_polkit = { workspace = true, optional = true }
+
+[lints]
+workspace = true
