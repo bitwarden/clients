@@ -1,2 +1,2 @@
 // Components
-export * from "./components/pricing-card.component";
+export * from "./components/pricing-card/pricing-card.component";
