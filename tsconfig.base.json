@@ -49,6 +49,7 @@
       "@bitwarden/nx-plugin": ["libs/nx-plugin/src/index.ts"],
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/platform/*": ["./libs/platform/src/*"],
+      "@bitwarden/pricing": ["libs/pricing/src/index.ts"],
       "@bitwarden/send-ui": ["./libs/tools/send/send-ui/src"],
       "@bitwarden/serialization": ["libs/serialization/src/index.ts"],
       "@bitwarden/state": ["libs/state/src/index.ts"],

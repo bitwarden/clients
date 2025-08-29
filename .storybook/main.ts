@@ -10,6 +10,8 @@ const config: StorybookConfig = {
     "../libs/auth/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/dirt/card/src/**/*.mdx",
     "../libs/dirt/card/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../libs/pricing/src/**/*.mdx",
+    "../libs/pricing/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/tools/send/send-ui/src/**/*.mdx",
     "../libs/tools/send/send-ui/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/vault/src/**/*.mdx",
