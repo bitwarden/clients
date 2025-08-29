@@ -172,28 +172,28 @@ describe("ViewV2Component", () => {
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader typeLogin");
+      expect(component.headerText).toEqual("viewItemHeaderLogin");
 
       // Set header text for a card
       mockCipher.type = CipherType.Card;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader typeCard");
+      expect(component.headerText).toEqual("viewItemHeaderCard");
 
       // Set header text for an identity
       mockCipher.type = CipherType.Identity;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader typeIdentity");
+      expect(component.headerText).toEqual("viewItemHeaderIdentity");
 
       // Set header text for a secure note
       mockCipher.type = CipherType.SecureNote;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader note");
+      expect(component.headerText).toEqual("viewItemHeaderNote");
     }));
 
     it("sends viewed event", fakeAsync(() => {

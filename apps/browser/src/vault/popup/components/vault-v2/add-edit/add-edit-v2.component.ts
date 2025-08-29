@@ -368,20 +368,15 @@ export class AddEditV2Component implements OnInit {
   }
 
   setHeader(mode: CipherFormMode, type: CipherType) {
-    const partOne = mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
-
-    switch (type) {
-      case CipherType.Login:
-        return this.i18nService.t(partOne, this.i18nService.t("typeLogin"));
-      case CipherType.Card:
-        return this.i18nService.t(partOne, this.i18nService.t("typeCard"));
-      case CipherType.Identity:
-        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity"));
-      case CipherType.SecureNote:
-        return this.i18nService.t(partOne, this.i18nService.t("note"));
-      case CipherType.SshKey:
-        return this.i18nService.t(partOne, this.i18nService.t("typeSshKey"));
-    }
+    const isEditMode = mode === "edit" || mode === "partial-edit";
+    const translation = {
+      [CipherType.Login]: isEditMode ? "editItemHeaderLogin" : "newItemHeaderLogin",
+      [CipherType.Card]: isEditMode ? "editItemHeaderCard" : "newItemHeaderCard",
+      [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
+      [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
+      [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+    };
+    return this.i18nService.t(translation[type]);
   }
 
   delete = async () => {
