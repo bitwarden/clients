@@ -735,6 +735,7 @@ export default class MainBackground {
       this.logService,
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
       this.vaultTimeoutSettingsService,
+      this.accountService,
       { createRequest: (url, request) => new Request(url, request) },
     );
 
@@ -841,7 +842,7 @@ export default class MainBackground {
       this.tokenService,
     );
 
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
+    this.configApiService = new ConfigApiService(this.apiService);
 
     this.configService = new DefaultConfigService(
       this.configApiService,

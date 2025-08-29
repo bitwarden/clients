@@ -1,13 +1,19 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { ObservedValueOf, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { UserId } from "@bitwarden/user-core";
 
+import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
 import { DeviceType } from "../enums";
-import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "../key-management/vault-timeout";
 import { ErrorResponse } from "../models/response/error.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
@@ -25,9 +31,13 @@ describe("ApiService", () => {
   let logService: MockProxy<LogService>;
   let logoutCallback: jest.Mock<Promise<void>, [reason: LogoutReason]>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
+  let accountService: MockProxy<AccountService>;
   let httpOperations: MockProxy<HttpOperations>;
 
   let sut: ApiService;
+
+  const testActiveUser = "activeUser" as UserId;
+  const testInactiveUser = "inactiveUser" as UserId;
 
   beforeEach(() => {
     tokenService = mock();
@@ -40,6 +50,15 @@ describe("ApiService", () => {
     logService = mock();
     logoutCallback = jest.fn();
     vaultTimeoutSettingsService = mock();
+    accountService = mock();
+
+    accountService.activeAccount$ = of({
+      id: testActiveUser,
+      email: "user1@example.com",
+      emailVerified: true,
+      name: "Test Name",
+    } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
+
     httpOperations = mock();
 
     sut = new ApiService(
@@ -51,6 +70,7 @@ describe("ApiService", () => {
       logService,
       logoutCallback,
       vaultTimeoutSettingsService,
+      accountService,
       httpOperations,
       "custom-user-agent",
     );
@@ -61,6 +81,12 @@ describe("ApiService", () => {
       environmentService.environment$ = of({
         getApiUrl: () => "https://example.com",
       } satisfies Partial<Environment> as Environment);
+
+      environmentService.getEnvironment$.mockReturnValue(
+        of({
+          getApiUrl: () => "https://authed.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
 
       httpOperations.createRequest.mockImplementation((url, request) => {
         return {
@@ -96,6 +122,7 @@ describe("ApiService", () => {
 
       expect(nativeFetch).toHaveBeenCalledTimes(1);
       const request = nativeFetch.mock.calls[0][0];
+      expect(request.url).toBe("https://authed.example.com/something");
       // This should get set for users of send
       expect(request.cache).toBe("no-store");
       // TODO: Could expect on the credentials parameter
@@ -108,6 +135,185 @@ describe("ApiService", () => {
       expect(request.headers.get("Authorization")).toBe("Bearer access_token");
       // The response body
       expect(response).toEqual({ hello: "world" });
+    });
+
+    it("authenticates with non-active user when user is passed in", async () => {
+      environmentService.environment$ = of({
+        getApiUrl: () => "https://example.com",
+      } satisfies Partial<Environment> as Environment);
+
+      environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValueOnce(
+        of({
+          getApiUrl: () => "https://inactive.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      httpOperations.createRequest.mockImplementation((url, request) => {
+        return {
+          url: url,
+          cache: request.cache,
+          credentials: request.credentials,
+          method: request.method,
+          mode: request.mode,
+          signal: request.signal,
+          headers: new Headers(request.headers),
+        } satisfies Partial<Request> as unknown as Request;
+      });
+
+      tokenService.getAccessToken
+        .calledWith(testInactiveUser)
+        .mockResolvedValue("inactive_access_token");
+
+      tokenService.tokenNeedsRefresh.calledWith(testInactiveUser).mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+
+      nativeFetch.mockImplementation((request) => {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ hello: "world" }),
+          headers: new Headers({
+            "content-type": "application/json",
+          }),
+        } satisfies Partial<Response> as Response);
+      });
+
+      sut.nativeFetch = nativeFetch;
+
+      const response = await sut.send(
+        "GET",
+        "/something",
+        null,
+        testInactiveUser,
+        true,
+        null,
+        null,
+      );
+
+      expect(nativeFetch).toHaveBeenCalledTimes(1);
+      const request = nativeFetch.mock.calls[0][0];
+      expect(request.url).toBe("https://inactive.example.com/something");
+      // This should get set for users of send
+      expect(request.cache).toBe("no-store");
+      // TODO: Could expect on the credentials parameter
+      expect(request.headers.get("Device-Type")).toBe("2"); // Chrome Extension
+      // Custom user agent should get set
+      expect(request.headers.get("User-Agent")).toBe("custom-user-agent");
+      // This should be set when the caller has indicated there is a response
+      expect(request.headers.get("Accept")).toBe("application/json");
+      // If they have indicated that it's authed, then the authorization header should get set.
+      expect(request.headers.get("Authorization")).toBe("Bearer inactive_access_token");
+      // The response body
+      expect(response).toEqual({ hello: "world" });
+    });
+
+    const cases: {
+      name: string;
+      authedOrUserId: boolean | UserId;
+      expectedEffectiveUser: UserId;
+    }[] = [
+      {
+        name: "refreshes active user when true passed in for auth",
+        authedOrUserId: true,
+        expectedEffectiveUser: testActiveUser,
+      },
+      {
+        name: "refreshes acess token when the user passed in happens to be the active one",
+        authedOrUserId: testActiveUser,
+        expectedEffectiveUser: testActiveUser,
+      },
+      {
+        name: "refreshes access token when the user passed in happens to be inactive",
+        authedOrUserId: testInactiveUser,
+        expectedEffectiveUser: testInactiveUser,
+      },
+    ];
+
+    it.each(cases)("$name does", async ({ authedOrUserId, expectedEffectiveUser }) => {
+      environmentService.getEnvironment$.calledWith(expectedEffectiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => `https://${expectedEffectiveUser}.example.com`,
+          getIdentityUrl: () => `https://${expectedEffectiveUser}.identity.example.com`,
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken
+        .calledWith(expectedEffectiveUser)
+        .mockResolvedValue(`${expectedEffectiveUser}_access_token`);
+
+      tokenService.tokenNeedsRefresh.calledWith(expectedEffectiveUser).mockResolvedValue(true);
+
+      tokenService.getRefreshToken
+        .calledWith(expectedEffectiveUser)
+        .mockResolvedValue(`${expectedEffectiveUser}_refresh_token`);
+
+      tokenService.decodeAccessToken
+        .calledWith(expectedEffectiveUser)
+        .mockResolvedValue({ client_id: "web" });
+
+      tokenService.decodeAccessToken
+        .calledWith(`${expectedEffectiveUser}_new_access_token`)
+        .mockResolvedValue({ sub: expectedEffectiveUser });
+
+      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
+        .calledWith(expectedEffectiveUser)
+        .mockReturnValue(of(VaultTimeoutAction.Lock));
+
+      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
+        .calledWith(expectedEffectiveUser)
+        .mockReturnValue(of(VaultTimeoutStringType.Never));
+
+      tokenService.setTokens
+        .calledWith(
+          `${expectedEffectiveUser}_new_access_token`,
+          VaultTimeoutAction.Lock,
+          VaultTimeoutStringType.Never,
+          `${expectedEffectiveUser}_new_refresh_token`,
+        )
+        .mockResolvedValue({ accessToken: `${expectedEffectiveUser}_refreshed_access_token` });
+
+      httpOperations.createRequest.mockImplementation((url, request) => {
+        return {
+          url: url,
+          cache: request.cache,
+          credentials: request.credentials,
+          method: request.method,
+          mode: request.mode,
+          signal: request.signal,
+          headers: new Headers(request.headers),
+        } satisfies Partial<Request> as unknown as Request;
+      });
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+
+      nativeFetch.mockImplementation((request) => {
+        if (request.url.includes("identity")) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            json: () =>
+              Promise.resolve({
+                access_token: `${expectedEffectiveUser}_new_access_token`,
+                refresh_token: `${expectedEffectiveUser}_new_refresh_token`,
+              }),
+          } satisfies Partial<Response> as Response);
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ hello: "world" }),
+          headers: new Headers({
+            "content-type": "application/json",
+          }),
+        } satisfies Partial<Response> as Response);
+      });
+
+      sut.nativeFetch = nativeFetch;
+
+      await sut.send("GET", "/something", null, authedOrUserId, true, null, null);
+
+      expect(nativeFetch).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -169,9 +375,11 @@ describe("ApiService", () => {
   it.each(errorData)(
     "throws error-like response when not ok response with $name",
     async ({ input, error }) => {
-      environmentService.environment$ = of({
-        getApiUrl: () => "https://example.com",
-      } satisfies Partial<Environment> as Environment);
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
 
       httpOperations.createRequest.mockImplementation((url, request) => {
         return {
