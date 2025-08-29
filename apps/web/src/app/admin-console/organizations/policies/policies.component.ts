@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, lastValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom, Observable } from "rxjs";
 import { first, map } from "rxjs/operators";
 
 import {
@@ -31,7 +31,7 @@ export class PoliciesComponent implements OnInit {
   loading = true;
   organizationId: string;
   policies: BasePolicy[];
-  organization: Organization;
+  organization$: Observable<Organization>;
 
   private orgPolicies: PolicyResponse[];
   protected policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
@@ -53,11 +53,11 @@ export class PoliciesComponent implements OnInit {
       const userId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      this.organization = await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(this.organizationId)),
-      );
+
+      this.organization$ = this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId));
+
       this.policies = this.policyListService.getPolicies();
 
       await this.load();
