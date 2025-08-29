@@ -33,7 +33,11 @@
       [title]="'atRiskMembers' | i18n"
       [value]="applicationSummary.totalAtRiskMemberCount"
       [maxValue]="applicationSummary.totalMemberCount"
+      [tabindex]="0"
+      role="button"
       (click)="showOrgAtRiskMembers('allAppsOrgAtRiskMembers')"
+      (keydown.enter)="showOrgAtRiskMembers('allAppsOrgAtRiskMembers')"
+      (keydown.space)="showOrgAtRiskMembers('allAppsOrgAtRiskMembers'); $event.preventDefault()"
     >
     </dirt-card>
     <dirt-card
@@ -45,7 +49,11 @@
       [title]="'atRiskApplications' | i18n"
       [value]="applicationSummary.totalAtRiskApplicationCount"
       [maxValue]="applicationSummary.totalApplicationCount"
+      [tabindex]="0"
+      role="button"
       (click)="showOrgAtRiskApps('allAppsOrgAtRiskApplications')"
+      (keydown.enter)="showOrgAtRiskApps('allAppsOrgAtRiskApplications')"
+      (keydown.space)="showOrgAtRiskApps('allAppsOrgAtRiskApplications'); $event.preventDefault()"
     >
     </dirt-card>
   </div>

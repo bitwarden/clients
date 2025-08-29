@@ -37,8 +37,11 @@
       <td
         class="tw-cursor-pointer"
         [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
+        [tabindex]="0"
+        role="button"
         (click)="showAppAtRiskMembers(row.applicationName)"
-        (keypress)="showAppAtRiskMembers(row.applicationName)"
+        (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
+        (keydown.space)="showAppAtRiskMembers(row.applicationName); $event.preventDefault()"
         bitCell
       >
         <span>{{ row.applicationName }}</span>
