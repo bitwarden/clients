@@ -8,6 +8,7 @@ import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.r
 // eslint-disable-next-line no-restricted-imports
 import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
 import { MessageSender } from "@bitwarden/messaging";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
@@ -116,6 +117,12 @@ describe("Cipher Service", () => {
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
     encryptService.encryptString.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
+
+    // Mock i18nService collator
+    i18nService.collator = {
+      compare: jest.fn().mockImplementation((a: string, b: string) => a.localeCompare(b)),
+      resolvedOptions: jest.fn().mockReturnValue({}),
+    } as any;
 
     (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
@@ -731,6 +738,77 @@ describe("Cipher Service", () => {
         } as unknown as CipherView),
         userId,
       );
+    });
+  });
+
+  describe("decryptCiphers", () => {
+    let mockCiphers: Cipher[];
+
+    beforeEach(() => {
+      const originalUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
+      const orgKey = new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey;
+      const keys = {
+        userKey: originalUserKey,
+        orgKeys: { [orgId]: orgKey },
+      } as CipherDecryptionKeys;
+      keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));
+
+      mockCiphers = [
+        new Cipher({ ...cipherData, id: "cipher1" }),
+        new Cipher({ ...cipherData, id: "cipher2" }),
+      ];
+
+      //// Mock the SDK response
+      cipherEncryptionService.decryptManyWithFailures.mockResolvedValue([
+        [{ id: mockCiphers[0].id, name: "Success 1" } as CipherListView],
+        [mockCiphers[1]], // Mock failed cipher
+      ]);
+    });
+
+    it("should use the SDK for decryption when SDK feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
+        .mockResolvedValue(true);
+
+      // Set up expected results
+      const expectedSuccessCipherViews = [
+        { id: mockCiphers[0].id, name: "Success 1" } as CipherListView,
+      ];
+      const expectedFailedCipherViews = [new CipherView(mockCiphers[1])];
+      expectedFailedCipherViews[0].decryptionFailure = true;
+
+      // Execute
+      const [successes, failures] = await (cipherService as any).decryptCiphers(
+        mockCiphers,
+        userId,
+      );
+
+      // Verify the SDK was used for decryption
+      expect(cipherEncryptionService.decryptManyWithFailures).toHaveBeenCalledWith(
+        mockCiphers,
+        userId,
+      );
+
+      expect(successes).toEqual(expectedSuccessCipherViews);
+      expect(failures).toEqual(expectedFailedCipherViews);
+    });
+
+    it("should use legacy decryption when SDK feature flag is disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
+        .mockResolvedValue(false);
+
+      // Execute
+      const [successes, failures] = await (cipherService as any).decryptCiphers(
+        mockCiphers,
+        userId,
+      );
+
+      // Verify the SDK was not used for decryption
+      expect(cipherEncryptionService.decryptManyWithFailures).toHaveBeenCalledTimes(0);
+
+      expect(successes).toHaveLength(2);
+      expect(failures).toHaveLength(0);
     });
   });
 });
