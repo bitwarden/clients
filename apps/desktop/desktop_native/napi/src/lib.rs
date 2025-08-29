@@ -945,13 +945,13 @@ pub mod chromium_importer {
     }
 
     #[napi]
-    pub async fn get_installed_browsers() -> napi::Result<Vec<String>> {
+    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
         bitwarden_chromium_importer::chromium::get_installed_browsers()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
     #[napi]
-    pub async fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
+    pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
         bitwarden_chromium_importer::chromium::get_available_profiles(&browser)
             .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
