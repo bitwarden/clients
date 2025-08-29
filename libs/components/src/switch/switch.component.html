@@ -25,7 +25,10 @@
       />
       <span
         class="tw-absolute tw-block tw-size-[1.125rem] tw-top-[2px] tw-start-[2px] tw-bg-background tw-rounded-full tw-shadow-md tw-transform tw-transition-transform"
-        [ngClass]="{ 'tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))]': selected() }"
+        [ngClass]="{
+          'tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))] rtl:-tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))]':
+            selected(),
+        }"
       ></span>
     </span>
     <div>
