@@ -2,13 +2,12 @@
 // @ts-strict-ignore
 import { EVENTS, MAX_DEEP_QUERY_RECURSION_DEPTH } from "@bitwarden/common/autofill/constants";
 
-import { nodeIsElement, sendExtensionMessage } from "../utils";
+import { nodeIsElement } from "../utils";
 
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
 
 export class DomQueryService implements DomQueryServiceInterface {
   private pageContainsShadowDom: boolean;
-  private useTreeWalkerStrategyFlagSet = true;
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -56,7 +55,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   ): T[] {
     const ignoredTreeWalkerNodes = ignoredTreeWalkerNodesOverride || this.ignoredTreeWalkerNodes;
 
-    if (!forceDeepQueryAttempt && this.pageContainsShadowDomElements()) {
+    if (!forceDeepQueryAttempt) {
       return this.queryAllTreeWalkerNodes<T>(
         root,
         treeWalkerFilter,
@@ -85,23 +84,9 @@ export class DomQueryService implements DomQueryServiceInterface {
   };
 
   /**
-   * Determines whether to use the treeWalker strategy for querying the DOM.
-   */
-  pageContainsShadowDomElements(): boolean {
-    return this.useTreeWalkerStrategyFlagSet || this.pageContainsShadowDom;
-  }
-
-  /**
    * Initializes the DomQueryService, checking for the presence of shadow DOM elements on the page.
    */
   private async init() {
-    const useTreeWalkerStrategyFlag = await sendExtensionMessage(
-      "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
-    );
-    if (useTreeWalkerStrategyFlag && typeof useTreeWalkerStrategyFlag.result === "boolean") {
-      this.useTreeWalkerStrategyFlagSet = useTreeWalkerStrategyFlag.result;
-    }
-
     if (globalThis.document.readyState === "complete") {
       this.checkPageContainsShadowDom();
       return;

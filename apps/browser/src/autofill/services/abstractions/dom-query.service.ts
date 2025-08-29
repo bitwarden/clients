@@ -7,5 +7,4 @@ export interface DomQueryService {
     forceDeepQueryAttempt?: boolean,
   ): T[];
   checkPageContainsShadowDom(): void;
-  pageContainsShadowDomElements(): boolean;
 }
