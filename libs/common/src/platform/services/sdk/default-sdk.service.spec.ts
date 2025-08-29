@@ -232,6 +232,7 @@ function createMockClient(): MockProxy<BitwardenClient> {
   client.platform.mockReturnValue({
     state: jest.fn().mockReturnValue(mock()),
     free: mock(),
+    load_flags: jest.fn(),
   });
   return client;
 }
