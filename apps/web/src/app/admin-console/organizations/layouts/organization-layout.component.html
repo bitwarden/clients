@@ -55,10 +55,7 @@
       <bit-nav-item
         [text]="'eventLogs' | i18n"
         route="reporting/events"
-        *ngIf="
-          (organization.canAccessEventLogs && organization.useEvents) ||
-          (organization.isOwner && (isBreadcrumbEventLogsEnabled$ | async))
-        "
+        *ngIf="organization.canAccessEventLogs || organization.isOwner"
       ></bit-nav-item>
       <bit-nav-item
         [text]="'reports' | i18n"
@@ -102,7 +99,7 @@
       <bit-nav-item
         [text]="'policies' | i18n"
         route="settings/policies"
-        *ngIf="canShowPoliciesTab$ | async"
+        *ngIf="organization.canManagePolicies"
       ></bit-nav-item>
       <bit-nav-item
         [text]="'twoStepLogin' | i18n"

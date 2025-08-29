@@ -19,7 +19,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { EventSystemUser } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { EventView } from "@bitwarden/common/models/view/event.view";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -61,10 +60,6 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
   private orgUsersUserIdMap = new Map<string, any>();
   readonly ProductTierType = ProductTierType;
-
-  protected isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM12276_BreadcrumbEventLogs,
-  );
 
   constructor(
     private apiService: ApiService,
