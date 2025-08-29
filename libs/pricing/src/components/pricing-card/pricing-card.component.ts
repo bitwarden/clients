@@ -1,6 +1,13 @@
 import { Component, EventEmitter, input, Output } from "@angular/core";
 
-import { ButtonModule, ButtonType, IconModule, TypographyModule } from "@bitwarden/components";
+import {
+  BadgeModule,
+  BadgeVariant,
+  ButtonModule,
+  ButtonType,
+  IconModule,
+  TypographyModule,
+} from "@bitwarden/components";
 
 /**
  * A reusable UI-only component that displays pricing information in a card format.
@@ -10,7 +17,7 @@ import { ButtonModule, ButtonType, IconModule, TypographyModule } from "@bitward
 @Component({
   selector: "billing-pricing-card",
   templateUrl: "./pricing-card.component.html",
-  imports: [ButtonModule, IconModule, TypographyModule],
+  imports: [BadgeModule, ButtonModule, IconModule, TypographyModule],
 })
 export class PricingCardComponent {
   tagline = input.required<string>();
@@ -23,7 +30,11 @@ export class PricingCardComponent {
     iconPosition?: "before" | "after";
   }>();
   features = input<string[]>();
-  activeBadge = input<{ text: string; show: boolean }>({ text: "Active plan", show: false });
+  activeBadge = input<{ text: string; show: boolean; variant?: BadgeVariant }>({
+    text: "Active plan",
+    show: false,
+    variant: "primary",
+  });
 
   @Output() buttonClick = new EventEmitter<void>();
 

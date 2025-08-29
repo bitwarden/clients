@@ -4,7 +4,7 @@ import { Component, Input } from "@angular/core";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CollectionId } from "@bitwarden/sdk-internal";
+import { CollectionId } from "@bitwarden/common/types/guid";
 
 import { SharedModule } from "../../../../shared/shared.module";
 import { GetCollectionNameFromIdPipe } from "../pipes";

@@ -1,10 +1,15 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
+import { TypographyModule } from "@bitwarden/components";
+
 import { PricingCardComponent } from "./pricing-card.component";
 
 export default {
   title: "Billing/Pricing Card",
   component: PricingCardComponent,
+  moduleMetadata: {
+    imports: [TypographyModule],
+  },
   args: {
     tagline: "Everything you need for secure password management across all your devices",
   },
@@ -226,35 +231,29 @@ export const ConfigurableHeadings: Story = {
 export const PricingGrid: Story = {
   render: () => ({
     template: `
-      <div class="tw-flex tw-flex-wrap tw-gap-6 tw-p-4 tw-justify-start">
-        <div class="tw-flex tw-flex-col tw-h-full">
-          <billing-pricing-card
-            tagline="For personal use with essential features"
-            [button]="{ text: 'Get Started', type: 'secondary' }"
-            [features]="['Store unlimited passwords', 'Access from any device', 'Secure password generator']">
-            <h3 class="title-slot tw-m-0" bitTypography="h3">Free</h3>
-          </billing-pricing-card>
-        </div>
+      <div class="tw-flex tw-flex-wrap tw-gap-6 tw-p-4 tw-justify-center">
+        <billing-pricing-card
+          tagline="For personal use with essential features"
+          [button]="{ text: 'Get Started', type: 'secondary' }"
+          [features]="['Store unlimited passwords', 'Access from any device', 'Secure password generator']">
+          <h3 class="title-slot tw-m-0" bitTypography="h3">Free</h3>
+        </billing-pricing-card>
         
-        <div class="tw-flex tw-flex-col tw-h-full">
-          <billing-pricing-card
-            tagline="Everything you need for secure password management"
-            [price]="{ amount: 10, cadence: 'monthly' }"
-            [button]="{ text: 'Choose Premium', type: 'primary' }"
-            [features]="['Unlimited passwords and passkeys', 'Secure password sharing', 'Integrated 2FA authenticator', 'Advanced 2FA options', 'Priority customer support']">
-            <h3 class="title-slot tw-m-0" bitTypography="h3">Premium</h3>
-          </billing-pricing-card>
-        </div>
+        <billing-pricing-card
+          tagline="Everything you need for secure password management"
+          [price]="{ amount: 10, cadence: 'monthly' }"
+          [button]="{ text: 'Choose Premium', type: 'primary' }"
+          [features]="['Unlimited passwords and passkeys', 'Secure password sharing', 'Integrated 2FA authenticator', 'Advanced 2FA options', 'Priority customer support']">
+          <h3 class="title-slot tw-m-0" bitTypography="h3">Premium</h3>
+        </billing-pricing-card>
         
-        <div class="tw-flex tw-flex-col tw-h-full">
-          <billing-pricing-card
-            tagline="Advanced security and management for teams"
-            [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
-            [button]="{ text: 'Start Business Trial', type: 'primary' }"
-            [features]="['Everything in Premium', 'Admin dashboard', 'Team reporting', 'Advanced permissions', 'SSO integration']">
-            <h3 class="title-slot tw-m-0" bitTypography="h3">Business</h3>
-          </billing-pricing-card>
-        </div>
+        <billing-pricing-card
+          tagline="Advanced security and management for teams"
+          [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
+          [button]="{ text: 'Start Business Trial', type: 'primary' }"
+          [features]="['Everything in Premium', 'Admin dashboard', 'Team reporting', 'Advanced permissions', 'SSO integration']">
+          <h3 class="title-slot tw-m-0" bitTypography="h3">Business</h3>
+        </billing-pricing-card>
       </div>
     `,
     props: {},

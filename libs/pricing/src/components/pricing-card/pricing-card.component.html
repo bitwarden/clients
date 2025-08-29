@@ -7,9 +7,7 @@
 
     <!-- Active Badge (if provided) -->
     @if (activeBadge().show) {
-      <span
-        class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-primary-100 tw-text-primary-700 tw-ml-3"
-      >
+      <span bitBadge [variant]="activeBadge().variant || 'primary'" class="tw-ml-3">
         {{ activeBadge().text }}
       </span>
     }
@@ -24,7 +22,7 @@
   @if (price(); as priceValue) {
     <div class="tw-mb-6">
       <div class="tw-flex tw-items-baseline tw-gap-1 tw-flex-wrap">
-        <span class="tw-text-[30px] tw-font-bold tw-leading-none tw-m-0"
+        <span class="tw-text-3xl tw-font-bold tw-leading-none tw-m-0"
           >${{ priceValue.amount }}</span
         >
         <span bitTypography="helper" class="tw-text-muted">
