@@ -19,7 +19,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { getById, isNotNull } from "@bitwarden/common/platform/misc";
+import { getById, isNotNullish } from "@bitwarden/common/platform/misc";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -81,7 +81,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       getUserId,
       switchMap((userId) => this.organizationService.organizations$(userId)),
       getById(this.data.organizationId),
-      filter(isNotNull),
+      filter(isNotNullish),
     );
     this.isBreadcrumbingEnabled$ = this.organization$.pipe(
       switchMap((organization) =>

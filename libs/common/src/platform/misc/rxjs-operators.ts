@@ -23,6 +23,6 @@ export const getByIds = <TId, T extends { id: TId }>(ids: TId[]) => {
 /**
  * A type guard that returns true if the value is not nullish.
  * Used for filtering nullish values from observable streams.
- * @example someObservable$.pipe(filter(isNotNull));
+ * @example someObservable$.pipe(filter(isNotNullish));
  */
-export const isNotNull = <T>(val: T | null | undefined): val is T => val != null;
+export const isNotNullish = <T>(val: T | null | undefined): val is T => val != null;
