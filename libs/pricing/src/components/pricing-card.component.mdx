@@ -21,29 +21,53 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 
 ```html
 <billing-pricing-card
-  title="Premium Plan"
   tagline="Everything you need for secure password management"
   [price]="{ amount: 10, cadence: 'monthly', showPerUser: true }"
   [button]="{ text: 'Choose Premium', type: 'primary' }"
   [features]="features"
-  [titleLevel]="'h2'"
+  [activeBadge]="{ text: 'Active plan', show: true }"
   (buttonClick)="onPlanSelected()"
 >
+  <h2 class="title-slot tw-m-0" bitTypography="h3">Premium Plan</h2>
 </billing-pricing-card>
 ```
 
-## Inputs
+## API
 
-| Input        | Type                                                                          | Description                                                     |
-| ------------ | ----------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `title`      | `string`                                                                      | **Required.** The plan title displayed at the top               |
-| `tagline`    | `string`                                                                      | **Required.** Descriptive text below title (max 2 lines)        |
-| `price`      | `{ amount: number; cadence: "monthly" \| "annually"; showPerUser?: boolean }` | **Optional.** Price information. If omitted, no price is shown  |
-| `button`     | `{ type: ButtonType; text: string; disabled?: boolean }`                      | **Required.** Button configuration                              |
-| `features`   | `string[]`                                                                    | **Optional.** List of features with checkmarks                  |
-| `titleLevel` | `"h1" \| "h2" \| "h3" \| "h4" \| "h5" \| "h6"`                                | **Optional.** Heading level for accessibility. Defaults to "h3" |
+### Inputs
 
-## Outputs
+| Input         | Type                                                                          | Description                                                                                                                                 |
+| ------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tagline`     | `string`                                                                      | **Required.** Descriptive text below title (max 2 lines)                                                                                    |
+| `price`       | `{ amount: number; cadence: "monthly" \| "annually"; showPerUser?: boolean }` | **Optional.** Price information. If omitted, no price is shown                                                                              |
+| `button`      | `{ type: ButtonType; text: string; disabled?: boolean }`                      | **Optional.** Button configuration. If omitted, no button is shown                                                                          |
+| `features`    | `string[]`                                                                    | **Optional.** List of features with checkmarks                                                                                              |
+| `activeBadge` | `{ text: string; show: boolean }`                                             | **Optional.** Active plan badge positioned on the same line as title, aligned to the right. Defaults to "Active plan" text with show: false |
+
+### Content Slots
+
+| Slot         | Description                                                                                                 |
+| ------------ | ----------------------------------------------------------------------------------------------------------- |
+| `title-slot` | **Required.** HTML element with `title-slot` class for the title with appropriate heading level and styling |
+
+### Events
+
+| Event         | Type   | Description                               |
+| ------------- | ------ | ----------------------------------------- |
+| `buttonClick` | `void` | Emitted when the action button is clicked |
+
+## Flexibility
+
+The title slot allows complete control over the heading element and styling:
+
+```html
+<!-- Different semantic levels -->
+<h1 class="title-slot tw-m-0" bitTypography="h3">Main Plan</h1>
+<h3 class="title-slot tw-m-0" bitTypography="h3">Sub Plan</h3>
+
+<!-- Custom styling -->
+<h2 class="title-slot tw-m-0 tw-text-primary-600" bitTypography="h2">Featured Plan</h2>
+```
 
 | Output        | Type   | Description                             |
 | ------------- | ------ | --------------------------------------- |
@@ -61,7 +85,7 @@ The component follows the Bitwarden design system with:
 - **Signal inputs**: Type-safe inputs using Angular's signal-based input API
 - **Official buttons**: Uses `bitButton` directive from Component Library
 - **Typography**: Uses `bitTypography` helper and custom 30px price styling
-- **Icons**: Uses `bwi-check` icon with primary-600 styling from icon library
+- **Icons**: Uses `bwi-check` icon with primary-600 styling from the legacy icon library
 - **Layout**: Flexbox column layout with button positioned at bottom
 - **Accessibility**: Configurable heading levels and semantic structure
 

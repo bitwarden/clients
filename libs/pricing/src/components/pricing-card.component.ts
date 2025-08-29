@@ -13,13 +13,11 @@ import { ButtonModule, ButtonType, IconModule, TypographyModule } from "@bitward
   imports: [ButtonModule, IconModule, TypographyModule],
 })
 export class PricingCardComponent {
-  title = input.required<string>();
   tagline = input.required<string>();
   price = input<{ amount: number; cadence: "monthly" | "annually"; showPerUser?: boolean }>();
-  button = input.required<{ type: ButtonType; text: string; disabled?: boolean }>();
+  button = input<{ type: ButtonType; text: string; disabled?: boolean }>();
   features = input<string[]>();
-
-  titleLevel = input<"h1" | "h2" | "h3" | "h4" | "h5" | "h6">("h3");
+  activeBadge = input<{ text: string; show: boolean }>({ text: "Active plan", show: false });
 
   @Output() buttonClick = new EventEmitter<void>();
 

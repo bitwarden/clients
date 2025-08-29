@@ -6,7 +6,6 @@ export default {
   title: "Billing/Pricing Card",
   component: PricingCardComponent,
   args: {
-    title: "Premium Plan",
     tagline: "Everything you need for secure password management across all your devices",
   },
   parameters: {
@@ -20,8 +19,19 @@ export default {
 type Story = StoryObj<PricingCardComponent>;
 
 export const Default: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-pricing-card
+        [tagline]="tagline"
+        [price]="price"
+        [button]="button"
+        [features]="features">
+        <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Premium Plan</h3>
+      </billing-pricing-card>
+    `,
+  }),
   args: {
-    title: "Premium Plan",
     tagline: "Everything you need for secure password management across all your devices",
     price: { amount: 10, cadence: "monthly" },
     button: { text: "Choose Premium", type: "primary" },
@@ -36,8 +46,18 @@ export const Default: Story = {
 };
 
 export const WithoutPrice: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-pricing-card
+        [tagline]="tagline"
+        [button]="button"
+        [features]="features">
+        <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Free Plan</h3>
+      </billing-pricing-card>
+    `,
+  }),
   args: {
-    title: "Free Plan",
     tagline: "Get started with essential password management features",
     button: { text: "Get Started", type: "secondary" },
     features: ["Store unlimited passwords", "Access from any device", "Secure password generator"],
@@ -45,8 +65,18 @@ export const WithoutPrice: Story = {
 };
 
 export const WithoutFeatures: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-pricing-card
+        [tagline]="tagline"
+        [price]="price"
+        [button]="button">
+        <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Enterprise Plan</h3>
+      </billing-pricing-card>
+    `,
+  }),
   args: {
-    title: "Enterprise Plan",
     tagline: "Advanced security and management for your organization",
     price: { amount: 3, cadence: "monthly" },
     button: { text: "Contact Sales", type: "primary" },
@@ -54,8 +84,19 @@ export const WithoutFeatures: Story = {
 };
 
 export const Annual: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-pricing-card
+        [tagline]="tagline"
+        [price]="price"
+        [button]="button"
+        [features]="features">
+        <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Premium Plan</h3>
+      </billing-pricing-card>
+    `,
+  }),
   args: {
-    title: "Premium Plan",
     tagline: "Save more with annual billing",
     price: { amount: 120, cadence: "annually" },
     button: { text: "Choose Annual", type: "primary" },
@@ -68,8 +109,19 @@ export const Annual: Story = {
 };
 
 export const Disabled: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-pricing-card
+        [tagline]="tagline"
+        [price]="price"
+        [button]="button"
+        [features]="features">
+        <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Coming Soon</h3>
+      </billing-pricing-card>
+    `,
+  }),
   args: {
-    title: "Coming Soon",
     tagline: "This plan will be available soon with exciting new features",
     price: { amount: 15, cadence: "monthly" },
     button: { text: "Coming Soon", type: "secondary", disabled: true },
@@ -78,8 +130,19 @@ export const Disabled: Story = {
 };
 
 export const LongTagline: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-pricing-card
+        [tagline]="tagline"
+        [price]="price"
+        [button]="button"
+        [features]="features">
+        <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Business Plan</h3>
+      </billing-pricing-card>
+    `,
+  }),
   args: {
-    title: "Business Plan",
     tagline:
       "Comprehensive password management solution for teams and organizations that need advanced security features, detailed reporting, and enterprise-grade administration tools that scale with your business",
     price: { amount: 5, cadence: "monthly", showPerUser: true },
@@ -99,35 +162,35 @@ export const AllButtonTypes: Story = {
     template: `
       <div class="tw-flex tw-flex-wrap tw-gap-4 tw-justify-center">
         <billing-pricing-card
-          title="Primary Button"
           tagline="Example with primary button styling"
           [price]="{ amount: 10, cadence: 'monthly' }"
           [button]="{ text: 'Primary Action', type: 'primary' }"
           [features]="['Feature 1', 'Feature 2']">
+          <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Primary Button</h3>
         </billing-pricing-card>
         
         <billing-pricing-card
-          title="Secondary Button"
           tagline="Example with secondary button styling"
           [price]="{ amount: 5, cadence: 'monthly' }"
           [button]="{ text: 'Secondary Action', type: 'secondary' }"
           [features]="['Feature 1', 'Feature 2']">
+          <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Secondary Button</h3>
         </billing-pricing-card>
         
         <billing-pricing-card
-          title="Danger Button"
           tagline="Example with danger button styling"
           [price]="{ amount: 15, cadence: 'monthly' }"
           [button]="{ text: 'Delete Plan', type: 'danger' }"
           [features]="['Feature 1', 'Feature 2']">
+          <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Danger Button</h3>
         </billing-pricing-card>
         
         <billing-pricing-card
-          title="Unstyled Button"
           tagline="Example with unstyled button"
           [price]="{ amount: 0, cadence: 'monthly' }"
           [button]="{ text: 'Learn More', type: 'unstyled' }"
           [features]="['Feature 1', 'Feature 2']">
+          <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Unstyled Button</h3>
         </billing-pricing-card>
       </div>
     `,
@@ -140,21 +203,19 @@ export const ConfigurableHeadings: Story = {
     template: `
       <div class="tw-flex tw-flex-wrap tw-gap-6 tw-p-4 tw-justify-center">
         <billing-pricing-card
-          title="H2 Heading"
           tagline="Example with h2 heading for accessibility"
-          [titleLevel]="'h2'"
           [price]="{ amount: 10, cadence: 'monthly' }"
           [button]="{ text: 'Choose Plan', type: 'primary' }"
           [features]="['Feature 1', 'Feature 2']">
+          <h2 class="title-slot" bitTypography="h3" class="tw-m-0">H2 Heading</h2>
         </billing-pricing-card>
         
         <billing-pricing-card
-          title="H4 Heading"
           tagline="Example with h4 heading for nested content"
-          [titleLevel]="'h4'"
           [price]="{ amount: 15, cadence: 'monthly' }"
           [button]="{ text: 'Choose Plan', type: 'secondary' }"
           [features]="['Feature 1', 'Feature 2']">
+          <h4 class="title-slot" bitTypography="h3" class="tw-m-0">H4 Heading</h4>
         </billing-pricing-card>
       </div>
     `,
@@ -168,30 +229,107 @@ export const PricingGrid: Story = {
       <div class="tw-flex tw-flex-wrap tw-gap-6 tw-p-4 tw-justify-start">
         <div class="tw-flex tw-flex-col tw-h-full">
           <billing-pricing-card
-            title="Free"
             tagline="For personal use with essential features"
             [button]="{ text: 'Get Started', type: 'secondary' }"
             [features]="['Store unlimited passwords', 'Access from any device', 'Secure password generator']">
+            <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Free</h3>
           </billing-pricing-card>
         </div>
         
         <div class="tw-flex tw-flex-col tw-h-full">
           <billing-pricing-card
-            title="Premium"
             tagline="Everything you need for secure password management"
             [price]="{ amount: 10, cadence: 'monthly' }"
             [button]="{ text: 'Choose Premium', type: 'primary' }"
             [features]="['Unlimited passwords and passkeys', 'Secure password sharing', 'Integrated 2FA authenticator', 'Advanced 2FA options', 'Priority customer support']">
+            <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Premium</h3>
           </billing-pricing-card>
         </div>
         
         <div class="tw-flex tw-flex-col tw-h-full">
           <billing-pricing-card
-            title="Business"
             tagline="Advanced security and management for teams"
             [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
             [button]="{ text: 'Start Business Trial', type: 'primary' }"
             [features]="['Everything in Premium', 'Admin dashboard', 'Team reporting', 'Advanced permissions', 'SSO integration']">
+            <h3 class="title-slot" bitTypography="h3" class="tw-m-0">Business</h3>
+          </billing-pricing-card>
+        </div>
+      </div>
+    `,
+    props: {},
+  }),
+};
+
+export const WithoutButton: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-pricing-card
+        [tagline]="tagline"
+        [price]="price"
+        [features]="features">
+        <h3 class="title-slot tw-m-0" bitTypography="h3">Coming Soon Plan</h3>
+      </billing-pricing-card>
+    `,
+  }),
+  args: {
+    tagline: "This plan will be available soon with exciting new features",
+    price: { amount: 15, cadence: "monthly" },
+    features: ["Advanced security features", "Enhanced collaboration tools", "Premium support"],
+  },
+};
+
+export const ActivePlan: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-pricing-card
+        [tagline]="tagline"
+        [features]="features"
+        [activeBadge]="activeBadge">
+        <h3 class="title-slot tw-m-0" bitTypography="h3">Free</h3>
+      </billing-pricing-card>
+    `,
+  }),
+  args: {
+    tagline: "Your current plan with essential password management features",
+    features: ["Store unlimited passwords", "Access from any device", "Secure password generator"],
+    activeBadge: { text: "Active plan", show: true },
+  },
+};
+
+export const PricingComparison: Story = {
+  render: () => ({
+    template: `
+      <div class="tw-flex tw-flex-wrap tw-gap-6 tw-p-4 tw-justify-center">
+        <div class="tw-flex tw-flex-col tw-h-full">
+          <billing-pricing-card
+            tagline="Your current plan with essential features"
+            [price]="{ amount: 0, cadence: 'monthly' }"
+            [features]="['Store unlimited passwords', 'Access from any device', 'Secure password generator']"
+            [activeBadge]="{ text: 'Active plan', show: true }">
+            <h3 class="title-slot tw-m-0" bitTypography="h3">Free</h3>
+          </billing-pricing-card>
+        </div>
+        
+        <div class="tw-flex tw-flex-col tw-h-full">
+          <billing-pricing-card
+            tagline="Everything you need for secure password management"
+            [price]="{ amount: 10, cadence: 'monthly' }"
+            [button]="{ text: 'Upgrade to Premium', type: 'primary' }"
+            [features]="['Unlimited passwords and passkeys', 'Secure password sharing', 'Integrated 2FA authenticator', 'Advanced 2FA options', 'Priority customer support']">
+            <h3 class="title-slot tw-m-0" bitTypography="h3">Premium</h3>
+          </billing-pricing-card>
+        </div>
+        
+        <div class="tw-flex tw-flex-col tw-h-full">
+          <billing-pricing-card
+            tagline="Advanced security and management for teams"
+            [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
+            [button]="{ text: 'Start Business Trial', type: 'primary' }"
+            [features]="['Everything in Premium', 'Admin dashboard', 'Team reporting', 'Advanced permissions', 'SSO integration']">
+            <h3 class="title-slot tw-m-0" bitTypography="h3">Business</h3>
           </billing-pricing-card>
         </div>
       </div>

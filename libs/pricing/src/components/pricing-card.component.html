@@ -1,27 +1,19 @@
 <div
   class="tw-box-border tw-bg-background tw-text-main tw-border tw-border-secondary-100 tw-rounded-3xl tw-p-8 tw-shadow-sm tw-w-[449px] tw-h-full tw-flex tw-flex-col"
 >
-  <!-- Title -->
-  @switch (titleLevel()) {
-    @case ("h1") {
-      <h1 bitTypography="h3" class="tw-m-0">{{ title() }}</h1>
+  <!-- Title Section with Active Badge -->
+  <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
+    <ng-content select=".title-slot"></ng-content>
+
+    <!-- Active Badge (if provided) -->
+    @if (activeBadge().show) {
+      <span
+        class="tw-inline-flex tw-items-center tw-px-2.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-primary-100 tw-text-primary-700 tw-ml-3"
+      >
+        {{ activeBadge().text }}
+      </span>
     }
-    @case ("h2") {
-      <h2 bitTypography="h3" class="tw-m-0">{{ title() }}</h2>
-    }
-    @case ("h3") {
-      <h3 bitTypography="h3" class="tw-m-0">{{ title() }}</h3>
-    }
-    @case ("h4") {
-      <h4 bitTypography="h3" class="tw-m-0">{{ title() }}</h4>
-    }
-    @case ("h5") {
-      <h5 bitTypography="h3" class="tw-m-0">{{ title() }}</h5>
-    }
-    @case ("h6") {
-      <h6 bitTypography="h3" class="tw-m-0">{{ title() }}</h6>
-    }
-  }
+  </div>
 
   <!-- Tagline with 2-line text wrapping -->
   <p bitTypography="helper" class="tw-text-muted tw-mb-6 tw-m-0 tw-leading-relaxed tw-line-clamp-2">
@@ -46,18 +38,20 @@
   }
 
   <!-- Button (positioned after price, before features) -->
-  <div class="tw-mb-6 tw-mt-auto">
-    <button
-      bitButton
-      [buttonType]="button().type"
-      [block]="true"
-      [disabled]="button().disabled"
-      (click)="onButtonClick()"
-      type="button"
-    >
-      {{ button().text }}
-    </button>
-  </div>
+  @if (button(); as buttonConfig) {
+    <div class="tw-mb-6 tw-mt-auto">
+      <button
+        bitButton
+        [buttonType]="buttonConfig.type"
+        [block]="true"
+        [disabled]="buttonConfig.disabled"
+        (click)="onButtonClick()"
+        type="button"
+      >
+        {{ buttonConfig.text }}
+      </button>
+    </div>
+  }
 
   <!-- Features List (if provided) -->
   @if (features(); as featureList) {
@@ -66,11 +60,10 @@
         <ul class="tw-list-none tw-p-0 tw-m-0">
           @for (feature of featureList; track feature) {
             <li class="tw-flex tw-items-start tw-gap-2 tw-mb-2 last:tw-mb-0">
-              <bit-icon
-                icon="bwi-check"
-                class="tw-text-primary-600 tw-mt-0.5 tw-flex-shrink-0"
+              <i
+                class="bwi bwi-check tw-text-primary-600 tw-mt-0.5 tw-flex-shrink-0"
                 aria-hidden="true"
-              ></bit-icon>
+              ></i>
               <span bitTypography="helper" class="tw-text-muted tw-leading-relaxed">{{
                 feature
               }}</span>
