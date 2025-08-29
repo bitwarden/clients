@@ -92,6 +92,8 @@
             buttonType="secondary"
             [disabled]="!biometricsAvailable"
             block
+            [title]="biometricsAvailable ? undefined : biometricUnavailabilityReason"
+            [style]="biometricsAvailable ? undefined : 'pointer-events: auto'"
             (click)="activeUnlockOption = UnlockOption.Biometrics"
           >
             <span> {{ biometricUnlockBtnText | i18n }}</span>
