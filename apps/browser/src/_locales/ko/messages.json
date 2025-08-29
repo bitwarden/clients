@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwarden 로고"
   },
   "extName": {
     "message": "Bitwarden 비밀번호 관리자",
@@ -465,10 +465,10 @@
     "message": "암호 생성"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "비밀번호 생성됨"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "패스프레이즈 생성됨"
   },
   "usernameGenerated": {
     "message": "Username generated"
@@ -747,7 +747,7 @@
     "message": "시스템 잠금 시"
   },
   "onRestart": {
-    "message": "브라우저 다시 시작 시"
+    "message": "브라우저 재시작 시"
   },
   "never": {
     "message": "안함"
@@ -1016,7 +1016,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
-    "message": "로그인을 추가할 건지 물어보기"
+    "message": "로그인 추가 확인"
   },
   "vaultSaveOptionsTitle": {
     "message": "보관함 옵션들을 저장하기"
@@ -1028,7 +1028,7 @@
     "message": "보관함에 항목이 없을 경우 추가하라는 메시지를 표시합니다. 모든 로그인된 계정에 적용됩니다."
   },
   "showCardsInVaultViewV2": {
-    "message": "보관함 보기에서 언제나 카드 자동 완성 제안을 표시"
+    "message": "보관함 보기에서 자동 완성 제안으로 카드를 항상 표시"
   },
   "showCardsCurrentTab": {
     "message": "탭 페이지에 카드 표시"
@@ -1037,7 +1037,7 @@
     "message": "간편한 자동완성을 위해 탭에 카드 항목들을 나열"
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "보관함 보기에서 언제나 신원의 자동 완성 제안을 표시"
+    "message": "보관함 보기에서 자동 채우기 제안으로 신원을 항상 표시"
   },
   "showIdentitiesCurrentTab": {
     "message": "탭 페이지에 신원들을 표시"
@@ -1049,7 +1049,7 @@
     "message": "보관함 보기에서 항목을 클릭하여 자동 완성"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "자동 완성 제안에서 항목 클릭으로 채우기"
   },
   "clearClipboard": {
     "message": "클립보드 비우기",
@@ -1183,7 +1183,7 @@
     "message": "Change your master password to complete account recovery."
   },
   "enableChangedPasswordNotification": {
-    "message": "현재 로그인으로 업데이트할 건지 묻기"
+    "message": "기존 로그인 정보 업데이트 확인"
   },
   "changedPasswordNotificationDesc": {
     "message": "웹사이트에서 변경 사항이 감지되면 로그인 비밀번호를 업데이트하라는 메시지를 표시합니다."
@@ -1213,7 +1213,7 @@
     "message": "추가 옵션"
   },
   "enableContextMenuItem": {
-    "message": "문맥 매뉴 옵션 표시"
+    "message": "컨텍스트 메뉴 옵션 표시"
   },
   "contextMenuItemDesc": {
     "message": "우클릭을 사용하여, 비밀번호 생성과 웹사이트 로그인 매칭에 접근하세요"
@@ -1264,10 +1264,10 @@
     "message": "이 비밀번호는 이 파일을 파일 내보내거나, 가져오는데 사용됩니다."
   },
   "accountRestrictedOptionDescription": {
-    "message": "내보내기를 당신의 계정의 사용자이름과 마스터비밀번호로부터 파생된 계정 암호화 키를 사용하여 암호화하고, 현재의 Bitwarden 계정으로만 가져오도록 제한합니다."
+    "message": "당신 계정의 사용자 이름과 마스터 비밀번호를 통한 암호화 키로 내보내기 파일을 암호화 하고, 현재의 Bitwarden 계정으로만 가져올 수 있도록 제한합니다."
   },
   "passwordProtectedOptionDescription": {
-    "message": "파일에 비밀번호를 설정하여 내보내기를 암호화하고, 어느 Bitwarden 계정으로든 그 비밀번호로 해독하여 가져오기 합니다."
+    "message": "파일에 비밀번호를 설정하여 내보내기 파일을 암호화하며, 그 비밀번호만 입력하면 어느 Bitwarden 계정으로든 가져올 수 있습니다."
   },
   "exportTypeHeading": {
     "message": "내보내기 유형"
@@ -1486,17 +1486,17 @@
     "message": "Don't ask again on this device for 30 days"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "다른 방법 시도",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "복구 코드 사용"
   },
   "insertU2f": {
     "message": "보안 키를 컴퓨터의 USB 포트에 삽입하고 버튼이 있는 경우 누르세요."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "새 탭에서 열기"
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn 인증"
@@ -1630,13 +1630,13 @@
     "message": "양식 필드에 자동 완성 제안 표시"
   },
   "showInlineMenuIdentitiesLabel": {
-    "message": "신원를 제안으로 표시"
+    "message": "신원을 제안으로 표시"
   },
   "showInlineMenuCardsLabel": {
     "message": "카드를 제안으로 표시"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "아이콘을 선택할 때 제안을 표시"
+    "message": "아이콘 선택 시 제안 표시"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
     "message": "로그인한 모든 계정에 적용"
@@ -2196,7 +2196,7 @@
     "message": "브라우저 다시 시작 시 마스터 비밀번호로 잠금"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "브라우저 다시 시작 시 마스터 비밀번호가 필요합니다"
+    "message": "브라우저 재시작 시 마스터 비밀번호 요구"
   },
   "selectOneCollection": {
     "message": "반드시 하나 이상의 컬렉션을 선택해야 합니다."
@@ -3115,7 +3115,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "$EMAIL$ 계정과 관련된 개인 보관함 항목과 첨부 파일만 내보내집니다. 조직 보관함 항목은 포함되지 않습니다.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
@@ -3808,7 +3789,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "플랫폼에 구애받지 않고 누구에게나 파일과 데이터를 안전하게 공유하세요. 전송하는 정보는 종단 간 암호화로 보호되어 외부 노출이 최소화됩니다.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4150,15 +4131,11 @@
   "selectImportCollection": {
     "message": "컬렉션 선택"
   },
-  "importTargetHint": {
-    "message": "가져온 파일의 내용을 $DESTINATION$로 이동하려면 이 옵션을 선택하세요.",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "파일에 할당되지 않은 항목이 포함되어 있습니다."
@@ -4398,7 +4375,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Bitwarden에서 자동 채우기 제안을 식별하는 방법은 URI 일치 감지입니다.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -5592,5 +5569,15 @@
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

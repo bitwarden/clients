@@ -3,8 +3,9 @@
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
-  CollectionRequest,
   CollectionResponse,
+  CreateCollectionRequest,
+  UpdateCollectionRequest,
 } from "@bitwarden/admin-console/common";
 
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -270,12 +271,12 @@ export abstract class ApiService {
   ): Promise<ListResponse<CollectionAccessDetailsResponse>>;
   abstract postCollection(
     organizationId: string,
-    request: CollectionRequest,
+    request: CreateCollectionRequest,
   ): Promise<CollectionDetailsResponse>;
   abstract putCollection(
     organizationId: string,
     id: string,
-    request: CollectionRequest,
+    request: UpdateCollectionRequest,
   ): Promise<CollectionDetailsResponse>;
   abstract deleteCollection(organizationId: string, id: string): Promise<any>;
   abstract deleteManyCollections(organizationId: string, collectionIds: string[]): Promise<any>;
@@ -388,19 +389,23 @@ export abstract class ApiService {
     id: string,
     request: ProviderUserAcceptRequest,
   ): Promise<any>;
+
   abstract postProviderUserConfirm(
     providerId: string,
     id: string,
     request: ProviderUserConfirmRequest,
   ): Promise<any>;
+
   abstract postProviderUsersPublicKey(
     providerId: string,
     request: ProviderUserBulkRequest,
   ): Promise<ListResponse<ProviderUserBulkPublicKeyResponse>>;
+
   abstract postProviderUserBulkConfirm(
     providerId: string,
     request: ProviderUserBulkConfirmRequest,
   ): Promise<ListResponse<ProviderUserBulkResponse>>;
+
   abstract putProviderUser(
     providerId: string,
     id: string,
@@ -430,6 +435,21 @@ export abstract class ApiService {
     token: string,
   ): Promise<ListResponse<EventResponse>>;
   abstract getEventsCipher(
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>>;
+
+  abstract getEventsSecret(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>>;
+  abstract getEventsProject(
+    orgId: string,
     id: string,
     start: string,
     end: string,

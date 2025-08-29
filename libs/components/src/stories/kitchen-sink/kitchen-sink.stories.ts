@@ -6,15 +6,14 @@ import {
   userEvent,
   getAllByRole,
   getByRole,
-  getByLabelText,
   fireEvent,
   getByText,
   getAllByLabelText,
 } from "@storybook/test";
 
+import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { PasswordManagerLogo } from "../../icon";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
@@ -155,16 +154,11 @@ export const PopoverOpen: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
-    const passwordLabelIcon = getByLabelText(canvas, "A random password (required)", {
-      selector: "button",
+    const popoverLink = getByRole(canvas, "button", {
+      name: "Popover trigger link",
     });
 
-    await userEvent.click(passwordLabelIcon);
-  },
-  parameters: {
-    chromatic: {
-      disableSnapshot: true,
-    },
+    await userEvent.click(popoverLink);
   },
 };
 

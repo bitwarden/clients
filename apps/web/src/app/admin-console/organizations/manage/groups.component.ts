@@ -89,8 +89,8 @@ export class GroupsComponent {
   protected searchControl = new FormControl("");
 
   // Fixed sizes used for cdkVirtualScroll
-  protected rowHeight = 52;
-  protected rowHeightClass = `tw-h-[52px]`;
+  protected rowHeight = 50;
+  protected rowHeightClass = `tw-h-[50px]`;
 
   protected ModalTabType = GroupAddEditTabType;
   private refreshGroups$ = new BehaviorSubject<void>(null);
@@ -253,8 +253,8 @@ export class GroupsComponent {
   private toCollectionMap(
     response: ListResponse<CollectionResponse>,
   ): Observable<Record<string, CollectionView>> {
-    const collections = response.data.map(
-      (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
+    const collections = response.data.map((r) =>
+      Collection.fromCollectionData(new CollectionData(r as CollectionDetailsResponse)),
     );
 
     return this.accountService.activeAccount$.pipe(

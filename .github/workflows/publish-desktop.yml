@@ -18,10 +18,15 @@ on:
         type: string
         default: latest
       electron_rollout_percentage:
-        description: 'Staged Rollout Percentage for Electron'
-        required: true
+        description: 'Staged Rollout Percentage for Electron (ignored if Electron publish disabled)'
+        required: false
         default: '10'
         type: string
+      electron_publish:
+        description: 'Publish to Electron (auto-updater)'
+        required: true
+        default: true
+        type: boolean
       snap_publish:
         description: 'Publish to Snap store'
         required: true
@@ -32,6 +37,15 @@ on:
         required: true
         default: true
         type: boolean
+      mas_publish:
+        description: 'Publish to Mac App Store'
+        required: true
+        default: true
+        type: boolean
+      release_notes:
+        description: 'Release Notes'
+        required: false
+        type: string
 
 jobs:
   setup:
@@ -71,7 +85,7 @@ jobs:
             echo "Release Version: ${{ inputs.version }}"
             echo "version=${{ inputs.version }}"
 
-            $TAG_NAME="desktop-v${{ inputs.version }}"
+            TAG_NAME="desktop-v${{ inputs.version }}"
 
             echo "Tag name: $TAG_NAME"
             echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
@@ -109,6 +123,7 @@ jobs:
     name: Electron blob publish
     runs-on: ubuntu-22.04
     needs: setup
+    if: inputs.electron_publish
     permissions:
       contents: read
       packages: read
@@ -292,6 +307,92 @@ jobs:
         run: choco push --source=https://push.chocolatey.org/
         working-directory: apps/desktop/dist
 
+  mas:
+    name: Deploy Mac App Store
+    runs-on: macos-15
+    needs: setup
+    permissions:
+      contents: read
+      id-token: write
+    if: inputs.mas_publish
+    env:
+      _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
+      _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Validate release notes for MAS
+        if: inputs.mas_publish && (inputs.release_notes == '' || inputs.release_notes == null)
+        run: |
+          echo "❌ Release notes are required when publishing to Mac App Store"
+          echo "Please provide release notes using the 'Release Notes' input field"
+          exit 1
+
+      - name: Download MacOS App Store build number
+        working-directory: apps/desktop
+        run: wget https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/macos-build-number.json
+
+      - name: Setup Ruby and Install Fastlane
+        uses: ruby/setup-ruby@ca041f971d66735f3e5ff1e21cc13e2d51e7e535 # v1.233.0
+        with:
+          ruby-version: '3.0'
+          bundler-cache: false
+          working-directory: apps/desktop
+        
+      - name: Install Fastlane
+        working-directory: apps/desktop
+        run: gem install fastlane
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Publish to App Store
+        env:
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+          APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+        working-directory: apps/desktop
+        run: |
+          BUILD_NUMBER=$(jq -r '.buildNumber' macos-build-number.json)
+          CHANGELOG="${{ inputs.release_notes }}"
+          IS_DRY_RUN="${{ inputs.publish_type == 'Dry Run' }}"
+          
+          if [ "$IS_DRY_RUN" = "true" ]; then
+            echo "🧪 DRY RUN MODE - Testing without actual App Store submission"
+            echo "📦 Would publish build $BUILD_NUMBER to Mac App Store"
+          else
+            echo "🚀 PRODUCTION MODE - Publishing to Mac App Store"
+            echo "📦 Publishing build $BUILD_NUMBER to Mac App Store"
+          fi
+          
+          echo "📝 Release notes (${#CHANGELOG} chars): ${CHANGELOG:0:100}..."
+          
+          # Validate changelog length (App Store limit is 4000 chars)
+          if [ ${#CHANGELOG} -gt 4000 ]; then
+            echo "❌ Release notes too long: ${#CHANGELOG} characters (max 4000)"
+            exit 1
+          fi
+          
+          fastlane publish --verbose \
+            app_version:"${{ env._PKG_VERSION }}" \
+            build_number:$BUILD_NUMBER \
+            changelog:"$CHANGELOG" \
+            dry_run:$IS_DRY_RUN
+
   update-deployment:
     name: Update Deployment Status
     runs-on: ubuntu-22.04
@@ -300,6 +401,7 @@ jobs:
       - electron-blob
       - snap
       - choco
+      - mas
     permissions:
       contents: read
       deployments: write

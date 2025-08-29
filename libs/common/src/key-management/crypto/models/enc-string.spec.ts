@@ -4,7 +4,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
-import { makeEncString, makeStaticByteArray } from "../../../../spec";
+import { makeStaticByteArray } from "../../../../spec";
 import { EncryptionType } from "../../../platform/enums";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
@@ -83,7 +83,7 @@ describe("EncString", () => {
 
       const keyService = mock<KeyService>();
       keyService.hasUserKey.mockResolvedValue(true);
-      keyService.getUserKeyWithLegacySupport.mockResolvedValue(
+      keyService.getUserKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(32)) as UserKey,
       );
 
@@ -111,67 +111,6 @@ describe("EncString", () => {
 
         expect(decrypted).toBe("decrypted");
       });
-    });
-  });
-
-  describe("decryptWithKey", () => {
-    const encString = new EncString(EncryptionType.Rsa2048_OaepSha256_B64, "data");
-
-    const keyService = mock<KeyService>();
-    const encryptService = mock<EncryptService>();
-    encryptService.decryptString
-      .calledWith(encString, expect.anything())
-      .mockResolvedValue("decrypted");
-
-    function setupEncryption() {
-      encryptService.encryptString.mockImplementation(async (data, key) => {
-        return makeEncString(data);
-      });
-      encryptService.decryptString.mockImplementation(async (encString, key) => {
-        return encString.data;
-      });
-    }
-
-    beforeEach(() => {
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-    });
-
-    it("decrypts using the provided key and encryptService", async () => {
-      setupEncryption();
-
-      const key = new SymmetricCryptoKey(makeStaticByteArray(32));
-      await encString.decryptWithKey(key, encryptService);
-
-      expect(encryptService.decryptString).toHaveBeenCalledWith(encString, key);
-    });
-
-    it("fails to decrypt when key is null", async () => {
-      const decrypted = await encString.decryptWithKey(null, encryptService);
-
-      expect(decrypted).toBe("[error: cannot decrypt]");
-      expect(encString.decryptedValue).toBe("[error: cannot decrypt]");
-    });
-
-    it("fails to decrypt when encryptService is null", async () => {
-      const decrypted = await encString.decryptWithKey(
-        new SymmetricCryptoKey(makeStaticByteArray(32)),
-        null,
-      );
-
-      expect(decrypted).toBe("[error: cannot decrypt]");
-      expect(encString.decryptedValue).toBe("[error: cannot decrypt]");
-    });
-
-    it("fails to decrypt when encryptService throws", async () => {
-      encryptService.decryptString.mockRejectedValue("error");
-
-      const decrypted = await encString.decryptWithKey(
-        new SymmetricCryptoKey(makeStaticByteArray(32)),
-        encryptService,
-      );
-
-      expect(decrypted).toBe("[error: cannot decrypt]");
-      expect(encString.decryptedValue).toBe("[error: cannot decrypt]");
     });
   });
 
@@ -343,7 +282,7 @@ describe("EncString", () => {
 
       await encString.decrypt(null, key);
 
-      expect(keyService.getUserKeyWithLegacySupport).not.toHaveBeenCalled();
+      expect(keyService.getUserKey).not.toHaveBeenCalled();
       expect(encryptService.decryptString).toHaveBeenCalledWith(encString, key);
     });
 
@@ -361,11 +300,11 @@ describe("EncString", () => {
     it("gets the user's decryption key if required", async () => {
       const userKey = mock<UserKey>();
 
-      keyService.getUserKeyWithLegacySupport.mockResolvedValue(userKey);
+      keyService.getUserKey.mockResolvedValue(userKey);
 
       await encString.decrypt(null, null);
 
-      expect(keyService.getUserKeyWithLegacySupport).toHaveBeenCalledWith();
+      expect(keyService.getUserKey).toHaveBeenCalledWith();
       expect(encryptService.decryptString).toHaveBeenCalledWith(encString, userKey);
     });
   });

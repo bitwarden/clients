@@ -216,7 +216,7 @@
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
-    "message": "Tạo mật khẩu (đã sao chép)"
+    "message": "Tạo mật khẩu (cũng sao chép)"
   },
   "copyElementIdentifier": {
     "message": "Sao chép tên trường tùy chỉnh"
@@ -453,7 +453,7 @@
     "message": "Ứng dụng web Bitwarden"
   },
   "importItems": {
-    "message": "Nhập mục"
+    "message": "Nhập vào kho"
   },
   "select": {
     "message": "Chọn"
@@ -1016,16 +1016,16 @@
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
-    "message": "Hỏi để thêm đăng nhập"
+    "message": "Gợi ý thêm mục đăng nhập"
   },
   "vaultSaveOptionsTitle": {
     "message": "Tùy chọn lưu vào kho"
   },
   "addLoginNotificationDesc": {
-    "message": "Nếu không tìm thấy mục nào trong kho của bạn, hãy yêu cầu thêm mục đó."
+    "message": "Gợi ý thêm mục nếu không tìm thấy mục nào trong kho trùng khớp."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Nếu không tìm thấy mục nào trong kho của bạn, hãy yêu cầu thêm mục đó. Áp dụng cho tất cả tài khoản đã đăng nhập."
+    "message": "Gợi ý thêm mục nếu không tìm thấy mục nào trong kho trùng khớp. Áp dụng cho tất cả tài khoản đã đăng nhập."
   },
   "showCardsInVaultViewV2": {
     "message": "Luôn hiển thị thẻ như đề xuất tự động điền trên giao diện kho"
@@ -1226,7 +1226,7 @@
     "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Chọn cách thức mặc định hệ thống so khớp đường dẫn (URI) để xử lý đăng nhập khi thực hiện các thao tác như tự động điền."
+    "message": "Chọn cách hệ thống so khớp đường dẫn để xử lý đăng nhập khi thực hiện các thao tác như tự động điền."
   },
   "theme": {
     "message": "Chủ đề"
@@ -1738,7 +1738,7 @@
     "message": "Văn bản"
   },
   "cfTypeHidden": {
-    "message": "Đã ẩn đi"
+    "message": "Bí ẩn"
   },
   "cfTypeBoolean": {
     "message": "Đúng/Sai"
@@ -1836,7 +1836,7 @@
     "message": "số thẻ"
   },
   "ex": {
-    "message": "Ví dụ:"
+    "message": "ví dụ."
   },
   "title": {
     "message": "Tiêu đề"
@@ -1848,10 +1848,10 @@
     "message": "Bà"
   },
   "ms": {
-    "message": "Chị"
+    "message": "Cô"
   },
   "dr": {
-    "message": "Bác sĩ"
+    "message": "Tiến sĩ/Bác sĩ"
   },
   "mx": {
     "message": "Mx"
@@ -1905,7 +1905,7 @@
     "message": "Xã / Phường"
   },
   "stateProvince": {
-    "message": "Tỉnh/Thành Phố"
+    "message": "Tỉnh / Thành Phố"
   },
   "zipPostalCode": {
     "message": "Mã bưu chính"
@@ -2112,7 +2112,7 @@
     "description": "ex. Date this item was updated"
   },
   "dateCreated": {
-    "message": "Ngày tạo",
+    "message": "Tạo lúc",
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
@@ -2458,7 +2458,7 @@
     "message": "Nhận dạng sinh trắc học không được hỗ trợ"
   },
   "biometricsNotSupportedDesc": {
-    "message": "Nhận dạng sinh trắc học trên trình duyệt không được hỗ trợ trên thiết bị này"
+    "message": "Nhận dạng sinh trắc học trên trình duyệt không được hỗ trợ trên thiết bị này."
   },
   "biometricsNotUnlockedTitle": {
     "message": "Người dùng đã khoá hoặc đã đăng xuất"
@@ -2691,7 +2691,7 @@
     "message": "Giới hạn số lượt xem"
   },
   "limitSendViewsHint": {
-    "message": "Không ai có thể xem mục Gửi này sau khi đạt đến giới hạn.",
+    "message": "Không ai có thể xem Send này sau khi đạt đến giới hạn.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
@@ -2730,7 +2730,7 @@
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
-    "message": "Mặc định ẩn văn bản"
+    "message": "Ẩn văn bản theo mặc định"
   },
   "expired": {
     "message": "Đã hết hạn"
@@ -2785,7 +2785,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDate": {
-    "message": "Ngày xóa"
+    "message": "Xóa sau"
   },
   "deletionDateDescV2": {
     "message": "Send sẽ được xóa vĩnh viễn vào ngày này.",
@@ -3657,25 +3657,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Yêu cầu này không còn hiệu lực."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Bạn đang cố gắng truy cập tài khoản của mình?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Đã xác nhận đăng nhập cho $EMAIL$ trên $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu thực sự là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Yêu cầu đăng nhập đã hết hạn."
   },
@@ -4150,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Chọn bộ sưu tập"
   },
-  "importTargetHint": {
-    "message": "Chọn tùy chọn này nếu bạn muốn nội dung của tệp đã nhập được di chuyển đến $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -4760,7 +4737,7 @@
     "message": "Truy cập mật khẩu của bạn mọi lúc mọi nơi với ứng dụng di động Bitwarden."
   },
   "getTheDesktopApp": {
-    "message": "Tải ứng dụng cho máy tính"
+    "message": "Tải ứng dụng máy tính"
   },
   "getTheDesktopAppDesc": {
     "message": "Truy cập kho lưu trữ của bạn mà không cần trình duyệt, sau đó thiết lập mở khóa bằng sinh trắc học để mở khóa dễ dàng trong cả ứng dụng trên máy tính và tiện ích mở rộng trình duyệt."
@@ -4895,7 +4872,7 @@
     "message": "Thông tin thẻ"
   },
   "cardBrandDetails": {
-    "message": "Chi tiết $BRAND$",
+    "message": "Chi tiết thẻ $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -5592,5 +5569,15 @@
   "wasmNotSupported": {
     "message": "WebAssembly không được hỗ trợ trên trình duyệt của bạn hoặc chưa được kích hoạt. WebAssembly là yêu cầu bắt buộc để sử dụng ứng dụng Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Xem thêm"
+  },
+  "showLess": {
+    "message": "Thu gọn"
+  },
+  "moreBreadcrumbs": {
+    "message": "Thêm mục điều hướng",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

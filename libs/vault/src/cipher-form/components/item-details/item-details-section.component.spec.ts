@@ -14,6 +14,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
 
@@ -32,22 +33,24 @@ const createMockCollection = (
   readOnly = false,
   canEdit = true,
 ): CollectionView => {
-  return {
-    id,
+  const cv = new CollectionView({
     name,
-    organizationId,
-    externalId: "",
-    readOnly,
-    hidePasswords: false,
-    manage: true,
-    assigned: true,
-    type: CollectionTypes.DefaultUserCollection,
-    isDefaultCollection: true,
-    canEditItems: jest.fn().mockReturnValue(canEdit),
-    canEdit: jest.fn(),
-    canDelete: jest.fn(),
-    canViewCollectionInfo: jest.fn(),
-  };
+    organizationId: organizationId as OrganizationId,
+    id: id as CollectionId,
+  });
+  cv.readOnly = readOnly;
+  cv.manage = true;
+  cv.type = CollectionTypes.DefaultUserCollection;
+  cv.externalId = "";
+  cv.hidePasswords = false;
+  cv.assigned = true;
+  cv.canEditName = jest.fn().mockReturnValue(true);
+  cv.canEditItems = jest.fn().mockReturnValue(canEdit);
+  cv.canEdit = jest.fn();
+  cv.canDelete = jest.fn();
+  cv.canViewCollectionInfo = jest.fn();
+
+  return cv;
 };
 
 describe("ItemDetailsSectionComponent", () => {

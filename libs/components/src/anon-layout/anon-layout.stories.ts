@@ -2,14 +2,13 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
+import { Icon, LockIcon } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { ButtonModule } from "../button";
-import { Icon } from "../icon";
-import { LockIcon } from "../icon/icons";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { AnonLayoutComponent } from "./anon-layout.component";
@@ -98,7 +97,7 @@ export default {
             <div class="tw-font-bold tw-mb-2">
               Secondary Projected Content (optional)
             </div>
-            <button bitButton>Perform Action</button>
+            <button type="button" bitButton>Perform Action</button>
           </div>
         </auth-anon-layout>
       `,

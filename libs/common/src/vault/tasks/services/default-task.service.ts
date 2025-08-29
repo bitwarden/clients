@@ -17,7 +17,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { NotificationType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -42,7 +42,7 @@ export class DefaultTaskService implements TaskService {
     private apiService: ApiService,
     private organizationService: OrganizationService,
     private authService: AuthService,
-    private notificationService: NotificationsService,
+    private notificationService: ServerNotificationsService,
     private messageListener: MessageListener,
   ) {}
 
@@ -171,7 +171,7 @@ export class DefaultTaskService implements TaskService {
   }
 
   /**
-   * Creates a subscription for pending security task notifications or completed syncs for unlocked users.
+   * Creates a subscription for pending security task server notifications or completed syncs for unlocked users.
    */
   listenForTaskNotifications(): Subscription {
     return this.authService.authStatuses$

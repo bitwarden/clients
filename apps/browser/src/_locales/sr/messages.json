@@ -548,7 +548,7 @@
     "message": "Претражи сеф"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Ресетовати претрагу"
   },
   "edit": {
     "message": "Уреди"
@@ -1833,7 +1833,7 @@
     "message": "Сигурносни код"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "број картице"
   },
   "ex": {
     "message": "нпр."
@@ -3467,7 +3467,7 @@
     "message": "Захтев је послат"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Захтев за пријаву одобрен за $EMAIL$ на $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3480,13 +3480,13 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Одбили сте покушај пријаве са другог уређаја. Ако сте то били ви, покушајте поново да се пријавите помоћу уређаја."
   },
   "device": {
-    "message": "Device"
+    "message": "Уређај"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Статус пријаве"
   },
   "masterPasswordChanged": {
     "message": "Главна лозинка сачувана"
@@ -3585,28 +3585,28 @@
     "message": "Запамтити овај уређај да би будуће пријаве биле беспрекорне"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Управљање уређајима"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Тренутна сесија"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Мобилни",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Додатак",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Десктоп",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Интернет Сеф"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Веб апликација"
   },
   "cli": {
     "message": "CLI"
@@ -3616,22 +3616,22 @@
     "description": "Software Development Kit"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Захтев је на чекању"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Прва пријава"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Поуздан"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Потребно је одобрење"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Уређаји"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Покушај приступа са $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3640,50 +3640,31 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Потврди приступ"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Одбиј приступ"
   },
   "time": {
-    "message": "Time"
+    "message": "Време"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Тип уређаја"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Захтев за пријаву"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Овај захтев више није важећи."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Захтев за пријаву је већ истекао."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Управо сада"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Затражено пре $MINUTES$ минута",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4150,15 +4131,11 @@
   "selectImportCollection": {
     "message": "Изабери колекцију"
   },
-  "importTargetHint": {
-    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке премести у $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."
@@ -4601,7 +4578,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Копирај $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -5592,5 +5569,15 @@
   "wasmNotSupported": {
     "message": "WebAssembly није подржано или није уапљено на вашем прегледачу. WebAssembly је потребно да би се користила апликација Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

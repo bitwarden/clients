@@ -15,7 +15,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { VerifyAsymmetricKeysResponse } from "@bitwarden/sdk-internal";
+import { VerifyAsymmetricKeysResponse, EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import { KeyService } from "../../abstractions/key.service";
 import { UserAsymmetricKeysRegenerationApiService } from "../abstractions/user-asymmetric-key-regeneration-api.service";
@@ -28,7 +28,7 @@ function setupVerificationResponse(
 ) {
   const mockKeyPairResponse = {
     userPublicKey: "userPublicKey",
-    userKeyEncryptedPrivateKey: "userKeyEncryptedPrivateKey",
+    userKeyEncryptedPrivateKey: "userKeyEncryptedPrivateKey" as SdkEncString,
   };
 
   sdkService.client.crypto
@@ -54,7 +54,6 @@ function setupUserKeyValidation(
   encryptService.unwrapSymmetricKey.mockResolvedValue(
     new SymmetricCryptoKey(makeStaticByteArray(64)),
   );
-  encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(64));
   encryptService.decryptString.mockResolvedValue("mockDecryptedString");
   (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 }
@@ -276,7 +275,6 @@ describe("regenerateIfNeeded", () => {
     };
     setupVerificationResponse(mockVerificationResponse, sdkService);
     setupUserKeyValidation(cipherService, keyService, encryptService);
-    encryptService.decryptToBytes.mockRejectedValue(new Error("error"));
     encryptService.decryptString.mockRejectedValue(new Error("error"));
     encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("error"));
 
@@ -327,7 +325,6 @@ describe("regenerateIfNeeded", () => {
     };
     setupVerificationResponse(mockVerificationResponse, sdkService);
     setupUserKeyValidation(cipherService, keyService, encryptService);
-    encryptService.decryptToBytes.mockRejectedValue(new Error("error"));
     encryptService.decryptString.mockRejectedValue(new Error("error"));
     encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("error"));
 
@@ -353,5 +350,23 @@ describe("regenerateIfNeeded", () => {
       userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
     ).not.toHaveBeenCalled();
     expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+  });
+
+  it("should not regenerate when userKey type is CoseEncrypt0 (V2 encryption)", async () => {
+    const mockUserKey = {
+      keyB64: "mockKeyB64",
+      inner: () => ({ type: 7 }),
+    } as unknown as UserKey;
+    keyService.userKey$.mockReturnValue(of(mockUserKey));
+
+    await sut.regenerateIfNeeded(userId);
+
+    expect(
+      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
+    ).not.toHaveBeenCalled();
+    expect(keyService.setPrivateKey).not.toHaveBeenCalled();
+    expect(logService.error).toHaveBeenCalledWith(
+      "[UserAsymmetricKeyRegeneration] Cannot regenerate asymmetric keys for accounts on V2 encryption.",
+    );
   });
 });

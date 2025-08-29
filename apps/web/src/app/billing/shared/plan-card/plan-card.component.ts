@@ -5,7 +5,6 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 export interface PlanCard {
   title: string;
   costPerMember: number;
-  discount?: number;
   isDisabled: boolean;
   isAnnual: boolean;
   isSelected: boolean;

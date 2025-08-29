@@ -568,6 +568,9 @@
   "cancel": {
     "message": "Zrušit"
   },
+  "later": {
+    "message": "Později"
+  },
   "canceled": {
     "message": "Zrušeno"
   },
@@ -625,6 +628,9 @@
   },
   "searchGroups": {
     "message": "Prohledat skupiny"
+  },
+  "resetSearch": {
+    "message": "Resetovat hledání"
   },
   "allItems": {
     "message": "Všechny položky"
@@ -1024,7 +1030,7 @@
     "message": "Úroveň přístupu"
   },
   "accessing": {
-    "message": "Přistupování"
+    "message": "Přístup k"
   },
   "loggedOut": {
     "message": "Odhlášení"
@@ -1421,9 +1427,6 @@
   },
   "notificationSentDevicePart1": {
     "message": "Odemknout Bitwarden na Vašem zařízení nebo na "
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokoušíte se získat přístup k Vašemu účtu?"
   },
   "accessAttemptBy": {
     "message": "Pokus o přístup z $EMAIL$",
@@ -2047,15 +2050,11 @@
   "selectImportCollection": {
     "message": "Zvolte sbírku"
   },
-  "importTargetHint": {
-    "message": "Pokud chcete obsah importovaného souboru přesunout do složky $DESTINATION$, vyberte tuto volbu",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do sbírky, vyberte tuto volbu"
+  },
+  "importTargetHintFolder": {
+    "message": "Pokud chcete obsah importovaného souboru přesunout do složky, vyberte tuto volbu"
   },
   "importUnassignedItemsError": {
     "message": "Soubor obsahuje nepřiřazené položky."
@@ -2448,9 +2447,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Při čtení bezpečnostního klíče došlo k potížím. Zkuste to znovu."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Z důvodu omezení platformy nelze WebAuthn použít ve všech aplikacích Bitwarden. Měli byste využít i jiného poskytovatele dvoufaktorového přihlášení, abyste měli přístup ke svému účtu, když nelze použít WebAuthn."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Váš kód pro obnovení dvoufázového přihlášení"
   },
@@ -2820,6 +2816,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Zobrazit přehled cen"
+  },
+  "hidePricingSummary": {
+    "message": "Skrýt přehled cen"
   },
   "summary": {
     "message": "Souhrn"
@@ -3230,7 +3232,7 @@
     "message": "Přednostní zákaznická podpora"
   },
   "xDayFreeTrial": {
-    "message": "$COUNT$denní zkušební verze, možno kdykoli zrušit",
+    "message": "$COUNT$denní zkušební verze, můžete kdykoli zrušit",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3971,22 +3973,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Tento požadavek již není platný."
   },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Přihlášení bylo potvrzeno z $EMAIL$ pro $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to opravdu Vy, zkuste se znovu přihlásit do zařízení."
-  },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Požadavek na přihlášení byl schválen pro $EMAIL$ na $DEVICE$",
     "placeholders": {
@@ -4019,7 +4005,7 @@
     }
   },
   "creatingAccountOn": {
-    "message": "Vytváření účtu na"
+    "message": "Vytvořit účet na"
   },
   "checkYourEmail": {
     "message": "Zkontrolujte Váš e-mail"
@@ -4034,7 +4020,7 @@
     "message": "Žádný e-mail?"
   },
   "goBack": {
-    "message": "Zpět"
+    "message": "Vraťte se"
   },
   "toEditYourEmailAddress": {
     "message": "pro úpravu Vaší e-mailové adresy."
@@ -4626,14 +4612,17 @@
   "receiveMarketingEmailsV2": {
     "message": "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden."
   },
+  "subscribe": {
+    "message": "Předplatné"
+  },
   "unsubscribe": {
     "message": "Odhlásit odběr"
   },
   "atAnyTime": {
-    "message": "kdykoli."
+    "message": "můžete kdykoli."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "Pokračováním souhlasíte s"
+    "message": "Pokračováním souhlasíte s dokumenty"
   },
   "and": {
     "message": "a"
@@ -5275,6 +5264,14 @@
   "downloadAttachments": {
     "message": "Stáhnout přílohy"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Zadejte heslo pro zobrazení tohoto Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Zobrazit Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Send, ke kterému se pokoušíte přistupovat, neexistuje nebo již není k dispozici.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5435,6 +5432,37 @@
   "organizationDataOwnership": {
     "message": "Vynutit vlastnictví dat organizace"
   },
+  "organizationDataOwnershipDesc": {
+    "message": "Vyžaduje, aby byly všechny položky vlastněny organizací s odebráním volby ukládat položky na úrovni účtu.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Všechny položky budou vlastněny a uloženy v organizaci, což umožní organizaci ovládání, viditelnost a hlášení. Pokud je zapnuto, bude k dispozici výchozí sbírka pro každého člena pro ukládání položek. Další informace o správě ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "životního cyklu pověření",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Opravdu chcete pokračovat?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "bude i nadále přístupné členům"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "nebude automaticky vybráno při vytváření nových položek"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "nelze spravovat z konzole pro správce, dokud není uživatel odpojen"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Odmítnutím této zásady se jedná o výchozí sbírku: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Více informací o ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
+  },
   "personalOwnership": {
     "message": "Odebrat osobní trezor"
   },
@@ -5588,7 +5616,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendAccessTaglineLearnMore": {
-    "message": "Dozvědět se více o",
+    "message": "Získejte více informací o",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**Learn more about** Bitwarden Send or sign up to try it today.'"
   },
   "sendVaultCardProductDesc": {
@@ -5692,7 +5720,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or **sign up** to try it today.'"
   },
   "sendAccessTaglineTryToday": {
-    "message": "abyste to vyzkoušeli ještě dnes.",
+    "message": "pro vyzkoušení ještě dnes.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
   "sendAccessCreatorIdentifier": {
@@ -7000,6 +7028,12 @@
   "unknownCipher": {
     "message": "Neznámá položka, možná budete muset požádat o oprávnění pro přístup k této položce."
   },
+  "unknownSecret": {
+    "message": "Neznámý tajný klíč. Možná budete muset požádat o oprávnění pro přístup k tomuto tajnému klíči."
+  },
+  "unknownProject": {
+    "message": "Neznámý projekt. Možná budete muset požádat o oprávnění pro přístup k tomuto projektu."
+  },
   "cannotSponsorSelf": {
     "message": "Nemůžete uplatnit pro aktivní účet. Zadejte jiný e-mail."
   },
@@ -8288,7 +8322,7 @@
     "message": "V průběhu pokusu o přečtení souboru s importem se vyskytla chyba"
   },
   "accessedSecretWithId": {
-    "message": "Přístup k tajnému klíči s identifikátorem: $SECRET_ID$",
+    "message": "Přístup k tajnému klíči s ID: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8306,7 +8340,7 @@
     }
   },
   "editedSecretWithId": {
-    "message": "Úprava tajného klíče s identifikátorem: $SECRET_ID$",
+    "message": "Úprava tajného klíče s ID: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8315,7 +8349,25 @@
     }
   },
   "deletedSecretWithId": {
-    "message": "Smazání tajného klíče s identifikátorem: $SECRET_ID$",
+    "message": "Smazání tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Trvalé smazání tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Obnovení tajného klíče s ID: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8324,9 +8376,63 @@
     }
   },
   "createdSecretWithId": {
-    "message": "Vytvoření nového tajného klíče s identifikátorem: $SECRET_ID$",
+    "message": "Vytvoření nového tajného klíče s ID: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Přístup k projektu s ID: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Smazání projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Smazání tajného klíče s ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Úprava projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Smazání projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Vytvoření nového projektu s ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9465,6 +9571,12 @@
   "deviceManagementDesc": {
     "message": "Nastaví správu zařízení pro Bitwarden pomocí implementačního průvodce pro Vaši platformu."
   },
+  "crowdstrikeEventIntegrationDesc": {
+    "message": "Odeslat data události do Vaší instance Logscale"
+  },
+  "failedToSaveIntegration": {
+    "message": "Nepodařilo se uložit integraci. Opakujte akci později."
+  },
   "deviceIdMissing": {
     "message": "Chybí ID zařízení"
   },
@@ -9479,6 +9591,15 @@
   },
   "reopenLinkOnDesktop": {
     "message": "Znovu otevřete tento odkaz z Vašeho e-mailu na počítači."
+  },
+  "connectIntegrationButtonDesc": {
+    "message": "Připojit $INTEGRATION$",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
   },
   "integrationCardTooltip": {
     "message": "Spustí průvodce implementací $INTEGRATION$.",
@@ -9536,6 +9657,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Vytvořte novou klientskou organizaci pro správu jako poskytovatele. Další uživatelé budou reflektováni v dalším platebním cyklu."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Token na doručitele"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Vyberte plán"
@@ -10285,8 +10415,8 @@
   "organizationUserDeletedDesc": {
     "message": "Uživatel byl odebrán z organizace a všechna přidružená uživatelská data byla smazána."
   },
-  "deletedUserId": {
-    "message": "Smazaný uživatel $ID$ - vlastník / správce smazal uživatelský účet",
+  "deletedUserIdEventMessage": {
+    "message": "Smazaný uživatel $ID$",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10396,8 +10526,8 @@
   "domainStatusUnderVerification": {
     "message": "V ověřování"
   },
-  "claimedDomainsDesc": {
-    "message": "Uplatněním domény získáte všechny členské účty, jejichž e-mailová adresa se shoduje s doménou. Členové budou moci při přihlašování přeskočit identifikátor SSO. Správci budou moci členské účty také mazat."
+  "claimedDomainsDescription": {
+    "message": "Požádejte o doménu, abyste mohli vlastnit členské účty. Stránka s identifikátorem SSO bude při přihlašování členů s deklarovanými doménami přeskočena a správci budou moci deklarované účty smazat."
   },
   "invalidDomainNameClaimMessage": {
     "message": "Vstup není platný formát. Příklad: mojedoména.cz.Poddomény vyžadují samostatné záznamy, které je třeba uplatnit."
@@ -10692,6 +10822,9 @@
   "upgradeEventLogMessage": {
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
   },
+  "viewEvents": {
+    "message": "Zobrazit události"
+  },
   "cannotCreateCollection": {
     "message": "Bezplatné organizace mohou mít až 2 sbírky. Chcete-li přidat více sbírek, přejděte na placený tarif."
   },
@@ -10896,5 +11029,119 @@
         "example": "12-3456789"
       }
     }
+  },
+  "unpaidInvoices": {
+    "message": "Nezaplacené faktury"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Vaše předplatné nebylo zaplaceno. Obraťte se na správce poskytovatele, abyste obnovili službu pro Vás a Vaše klienty.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ je pozastaven",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Chcete-li obnovit přístup k portálu poskytovatele, obraťte se na zákaznickou podporu Bitwarden pro obnovení předplatného.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Vaše předplatné nebylo zaplaceno. Chcete-li obnovit službu Vám a Vašim klientům, přidejte platební metodu do $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
+  "subscribetoEnterprise": {
+    "message": "Předplatné $PLAN$",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "subscribeEnterpriseSubtitle": {
+    "message": "Vaše 7denní zkušební verze $PLAN$ začíná dnes. Přidejte platební metodu nyní, abyste mohli pokračovat v používání těchto funkcí po skončení zkušební verze: ",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "unlimitedSecretsAndProjects": {
+    "message": "Neomezené tajné klíče a projekty"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Předplatné bylo zrušeno"
+  },
+  "providersubCanceledmessage": {
+    "message": "Chcete-li se znovu přihlásit, kontaktujte zákaznickou podporu Bitwarden."
+  },
+  "showMore": {
+    "message": "Zobrazit více"
+  },
+  "showLess": {
+    "message": "Zobrazit méně"
+  },
+  "missingTaxId": {
+    "message": "Chybí DIČ"
+  },
+  "missingTaxIdWarning": {
+    "message": "Požadovaná akce: V platebních údajích chybí DIČ. Pokud DIČ není uvedeno, mohou být Vaše faktury zatíženy dodatečnou daní."
+  },
+  "moreBreadcrumbs": {
+    "message": "Více...",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Přidat DIČ"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Požadovaná akce: Chybí DIČ"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Pokud není přidáno DIČ, Vaše faktury mohou obsahovat další daň."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Požadovaná akce: Vaše DIČ není ověřeno. Pokud není DIČ ověřeno, Vaše faktury mohou obsahovat další daň."
+  },
+  "editTaxId": {
+    "message": "Upravit Vaše DIČ"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "DIČ neověřeno"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Zkontrolujte své DIČ pro ověření správného formátu a zda neexistují žádné překlepy."
+  },
+  "pendingVerification": {
+    "message": "Čeká se na ověření"
+  },
+  "checkInputFormat": {
+    "message": "Zkontrolujte vstupní formát, zda neobsahuje překlepy."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Příklad formátu $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

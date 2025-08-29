@@ -1,24 +1,18 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BadgeModule,
   ButtonModule,
-  DialogService,
   LinkModule,
   TableDataSource,
   TableModule,
 } from "@bitwarden/components";
 
 import { DeviceDisplayData } from "./device-management.component";
-import { clearAuthRequestAndResortDevices } from "./resort-devices.helper";
 
 /** Displays user devices in a sortable table view */
 @Component({
@@ -29,6 +23,8 @@ import { clearAuthRequestAndResortDevices } from "./resort-devices.helper";
 })
 export class DeviceManagementTableComponent implements OnChanges {
   @Input() devices: DeviceDisplayData[] = [];
+  @Output() onAuthRequestAnswered = new EventEmitter<DevicePendingAuthRequest>();
+
   protected tableDataSource = new TableDataSource<DeviceDisplayData>();
 
   protected readonly columnConfig = [
@@ -52,10 +48,7 @@ export class DeviceManagementTableComponent implements OnChanges {
     },
   ];
 
-  constructor(
-    private i18nService: I18nService,
-    private dialogService: DialogService,
-  ) {}
+  constructor(private i18nService: I18nService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.devices) {
@@ -63,24 +56,10 @@ export class DeviceManagementTableComponent implements OnChanges {
     }
   }
 
-  protected async approveOrDenyAuthRequest(pendingAuthRequest: DevicePendingAuthRequest | null) {
+  protected answerAuthRequest(pendingAuthRequest: DevicePendingAuthRequest | null) {
     if (pendingAuthRequest == null) {
       return;
     }
-
-    const loginApprovalDialog = LoginApprovalComponent.open(this.dialogService, {
-      notificationId: pendingAuthRequest.id,
-    });
-
-    const result = await firstValueFrom(loginApprovalDialog.closed);
-
-    if (result !== undefined && typeof result === "boolean") {
-      // Auth request was approved or denied, so clear the
-      // pending auth request and re-sort the device array
-      this.tableDataSource.data = clearAuthRequestAndResortDevices(
-        this.devices,
-        pendingAuthRequest,
-      );
-    }
+    this.onAuthRequestAnswered.emit(pendingAuthRequest);
   }
 }

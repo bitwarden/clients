@@ -8,13 +8,13 @@ import { firstValueFrom } from "rxjs";
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
+import { KeyGenerationService } from "../../key-management/crypto";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutStringType,
 } from "../../key-management/vault-timeout";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
@@ -1476,8 +1476,14 @@ describe("TokenService", () => {
           expect(logoutCallback).not.toHaveBeenCalled();
         });
 
-        it("does not error and fallback to disk storage when passed a null value for the refresh token", async () => {
+        it("does not error and does not fallback to disk storage when passed a null value for the refresh token", async () => {
           // Arrange
+
+          // We must have an initial value in disk so that we can assert that it gets cleaned up
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
+            .nextState(refreshToken);
+
           secureStorageService.get.mockResolvedValue(null);
 
           // Act

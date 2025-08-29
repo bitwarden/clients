@@ -12,6 +12,7 @@
     <auth-input-password
       [flow]="inputPasswordFlow"
       [email]="email"
+      [loading]="submitting"
       [masterPasswordPolicyOptions]="enforcedPolicyOptions"
       (onPasswordFormSubmit)="handlePasswordSubmit($event)"
       [primaryButtonText]="{ key: 'createAccount' }"
@@ -23,6 +24,7 @@
         <auth-input-password
           [flow]="inputPasswordFlow"
           [email]="email"
+          [loading]="submitting"
           [masterPasswordPolicyOptions]="enforcedPolicyOptions"
           (onPasswordFormSubmit)="handlePasswordSubmit($event)"
           [primaryButtonText]="{ key: 'createAccount' }"
