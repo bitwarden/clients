@@ -6,6 +6,7 @@ import {
   filter,
   firstValueFrom,
   map,
+  merge,
   mergeMap,
   Observable,
   share,
@@ -17,6 +18,7 @@ import {
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AllowedMultiUserNotificationTypes } from "@bitwarden/common/platform/enums/multi-user-allow-list.enum";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
@@ -62,21 +64,48 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
     private readonly configService: ConfigService,
   ) {
-    this.notifications$ = this.accountService.activeAccount$.pipe(
-      map((account) => account?.id),
-      distinctUntilChanged(),
-      switchMap((activeAccountId) => {
-        if (activeAccountId == null) {
-          // We don't emit server-notifications for inactive accounts currently
-          return EMPTY;
-        }
+    this.notifications$ = this.configService
+      .getFeatureFlag$(FeatureFlag.InactiveUserServerNotification)
+      .pipe(
+        distinctUntilChanged(),
+        switchMap((inactiveUserServerNotificationEnabled) => {
+          if (inactiveUserServerNotificationEnabled) {
+            return this.accountService.accounts$.pipe(
+              map((accounts) => Object.keys(accounts) as UserId[]),
+              distinctUntilChanged(),
+              switchMap((userIds) => {
+                if (userIds.length === 0) {
+                  return EMPTY;
+                }
 
-        return this.userNotifications$(activeAccountId).pipe(
-          map((notification) => [notification, activeAccountId] as const),
-        );
-      }),
-      share(), // Multiple subscribers should only create a single connection to the server
-    );
+                const streams = userIds.map((id) =>
+                  this.userNotifications$(id).pipe(
+                    map((notification) => [notification, id] as const),
+                  ),
+                );
+
+                return merge(...streams);
+              }),
+            );
+          }
+
+          return this.accountService.activeAccount$.pipe(
+            map((account) => account?.id),
+            distinctUntilChanged(),
+            switchMap((activeAccountId) => {
+              if (activeAccountId == null) {
+                // We don't emit server-notifications for inactive accounts currently
+                return EMPTY;
+              }
+
+              return this.userNotifications$(activeAccountId).pipe(
+                map((notification) => [notification, activeAccountId] as const),
+              );
+            }),
+          );
+        }),
+        share(), // Multiple subscribers should only create a single connection to the server
+      );
   }
 
   /**
@@ -84,7 +113,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
    * @param userId The user id of the user to get the push server notifications for.
    */
   private userNotifications$(userId: UserId) {
-    return this.environmentService.environment$.pipe(
+    return this.environmentService.getEnvironment$(userId).pipe(
       map((env) => env.getNotificationsUrl()),
       distinctUntilChanged(),
       switchMap((notificationsUrl) => {
@@ -169,6 +198,21 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     const payloadUserId = notification.payload?.userId || notification.payload?.UserId;
     if (payloadUserId != null && payloadUserId !== userId) {
       return;
+    }
+
+    if (
+      await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.InactiveUserServerNotification),
+      )
+    ) {
+      const activeAccountId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+
+      const isActiveUser = activeAccountId === userId;
+      if (!isActiveUser && !AllowedMultiUserNotificationTypes.has(notification.type)) {
+        return;
+      }
     }
 
     switch (notification.type) {
