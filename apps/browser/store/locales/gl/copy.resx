@@ -144,7 +144,7 @@ Usa Bitwarden para protexer ao teu persoal e compartir información confidencial
 Máis razóns para escoller Bitwarden:
 
 Cifrado de clase mundial
-Os contrasinais están protexidos con cifrado avanzado de extremo a extremo (AES-256 bits, hashtag salgado e PBKDF2 SHA-256) para que os teus datos permanezan seguros e privados.
+Os contrasinais están protexidos con cifrado avanzado de extremo a extremo (AES-256 bits, hashing salgado e PBKDF2 SHA-256) para que os teus datos permanezan seguros e privados.
 
 Auditorías de terceiros
 Bitwarden realiza regularmente auditorías de seguridade completas de terceiros con importantes empresas de seguridade. Estas auditorías anuais inclúen avaliacións do código fonte e probas de penetración nas IP, servidores e aplicacións web de Bitwarden.

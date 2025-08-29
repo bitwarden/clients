@@ -4,7 +4,7 @@ import { NgModule } from "@angular/core";
 // eslint-disable-next-line no-restricted-imports
 import { BannerModule } from "../../../../../../libs/components/src/banner/banner.module";
 import { UserVerificationModule } from "../../auth/shared/components/user-verification";
-import { LooseComponentsModule } from "../../shared";
+import { HeaderModule } from "../../layouts/header/header.module";
 import { BillingSharedModule } from "../shared";
 
 import { AdjustSubscription } from "./adjust-subscription.component";
@@ -29,7 +29,7 @@ import { SubscriptionStatusComponent } from "./subscription-status.component";
     UserVerificationModule,
     BillingSharedModule,
     OrganizationPlansComponent,
-    LooseComponentsModule,
+    HeaderModule,
     BannerModule,
   ],
   declarations: [
