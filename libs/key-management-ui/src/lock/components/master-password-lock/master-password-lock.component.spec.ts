@@ -173,13 +173,40 @@ describe("MasterPasswordLockComponent", () => {
 
     const hiddenButtonTests = [
       {
-        case: "biometrics swap button when biometrics disabled",
+        case: "biometrics swap button when biometrics is undefined",
+        setup: () =>
+          setupComponent(
+            {
+              pin: { enabled: false },
+              biometrics: {
+                enabled: undefined as unknown as boolean,
+                biometricsStatus: BiometricsStatus.PlatformUnsupported,
+              },
+            },
+            "swapBiometrics",
+          ),
+        expectHidden: true,
+      },
+      {
+        case: "biometrics swap button when biometrics is disabled",
         setup: () => setupComponent({}, "swapBiometrics"),
         expectHidden: true,
       },
       {
-        case: "PIN swap button when PIN disabled",
-        setup: () => setupComponent(),
+        case: "PIN swap button when PIN is disabled",
+        setup: () => setupComponent({}),
+        expectHidden: true,
+      },
+      {
+        case: "PIN swap button when PIN is undefined",
+        setup: () =>
+          setupComponent({
+            pin: { enabled: undefined as unknown as boolean },
+            biometrics: {
+              enabled: undefined as unknown as boolean,
+              biometricsStatus: BiometricsStatus.PlatformUnsupported,
+            },
+          }),
         expectHidden: true,
       },
     ];
@@ -284,30 +311,86 @@ describe("MasterPasswordLockComponent", () => {
         },
         expectedText: "unlockWithPin",
         expectedUnlockOption: UnlockOption.Pin,
+        shouldShow: true,
+        shouldEnable: true,
       },
       {
-        name: "biometrics swap button when biometrics is enabled",
+        name: "PIN swap button when PIN is disabled",
+        unlockOptions: {
+          pin: { enabled: false },
+          biometrics: {
+            enabled: false,
+            biometricsStatus: BiometricsStatus.PlatformUnsupported,
+          },
+        },
+        expectedText: "unlockWithPin",
+        expectedUnlockOption: null,
+        shouldShow: false,
+        shouldEnable: false,
+      },
+      {
+        name: "biometrics swap button when biometrics status is available and enabled",
         unlockOptions: {
           pin: { enabled: false },
           biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
         },
         expectedText: "swapBiometrics",
         expectedUnlockOption: UnlockOption.Biometrics,
+        shouldShow: true,
+        shouldEnable: true,
+      },
+      {
+        name: "biometrics swap button when biometrics status is available and disabled",
+        unlockOptions: {
+          pin: { enabled: false },
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.Available },
+        },
+        expectedText: "swapBiometrics",
+        expectedUnlockOption: UnlockOption.Biometrics,
+        shouldShow: true,
+        shouldEnable: false,
+      },
+      {
+        name: "biometrics swap button when biometrics biometrics status is unsupported and enabled",
+        unlockOptions: {
+          pin: { enabled: false },
+          biometrics: { enabled: true, biometricsStatus: BiometricsStatus.PlatformUnsupported },
+        },
+        expectedText: "swapBiometrics",
+        expectedUnlockOption: UnlockOption.Biometrics,
+        shouldShow: false,
+        shouldEnable: false,
+      },
+      {
+        name: "biometrics swap button when biometrics status is unsupported and disabled",
+        unlockOptions: {
+          pin: { enabled: false },
+          biometrics: { enabled: false, biometricsStatus: BiometricsStatus.PlatformUnsupported },
+        },
+        expectedText: "swapBiometrics",
+        expectedUnlockOption: UnlockOption.Biometrics,
+        shouldShow: false,
+        shouldEnable: false,
       },
     ];
 
     test.each(swapButtonScenarios)(
       "renders and handles $name",
-      ({ unlockOptions, expectedText, expectedUnlockOption }) => {
-        const setup = setupComponent(unlockOptions, expectedText);
-        const secondaryButton = setup.secondaryButton;
+      ({ unlockOptions, expectedText, expectedUnlockOption, shouldShow, shouldEnable }) => {
+        const { secondaryButton, component } = setupComponent(unlockOptions, expectedText);
 
-        expect(secondaryButton).toBeTruthy();
-        expect(secondaryButton.nativeElement.textContent?.trim()).toEqual(expectedText);
+        if (shouldShow) {
+          expect(secondaryButton).toBeTruthy();
+          expect(secondaryButton.nativeElement.textContent?.trim()).toBe(expectedText);
+          expect(secondaryButton.nativeElement.disabled).toBe(!shouldEnable);
 
-        // Test click behavior
-        secondaryButton.nativeElement.click();
-        expect(component.activeUnlockOption()).toBe(expectedUnlockOption);
+          if (shouldEnable) {
+            secondaryButton.nativeElement.click();
+            expect(component.activeUnlockOption()).toBe(expectedUnlockOption);
+          }
+        } else {
+          expect(secondaryButton).toBeFalsy();
+        }
       },
     );
   });

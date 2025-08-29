@@ -47,7 +47,7 @@ export class MasterPasswordLockComponent {
 
   unlockOptions = input.required<UnlockOptions>();
   biometricUnlockBtnText = input.required<string>();
-  showPinSwap = computed(() => this.unlockOptions().pin.enabled);
+  showPinSwap = computed(() => this.unlockOptions().pin.enabled ?? false);
   biometricsAvailable = computed(() => this.unlockOptions().biometrics.enabled ?? false);
   showBiometricsSwap = computed(() => {
     const status = this.unlockOptions().biometrics.biometricsStatus;
