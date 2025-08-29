@@ -11,10 +11,10 @@
       (setPasswordEvent)="setPassword($event)"
       *ngIf="passwordRequired && !error"
     ></app-send-access-password>
-    <bit-no-items [icon]="expiredSendIcon" class="tw-text-main" *ngIf="unavailable">
+    <bit-no-items [icon]="sendIcon" class="tw-text-main" *ngIf="unavailable">
       <ng-container slot="description">{{ "sendAccessUnavailable" | i18n }}</ng-container>
     </bit-no-items>
-    <bit-no-items [icon]="expiredSendIcon" class="tw-text-main" *ngIf="error">
+    <bit-no-items [icon]="sendIcon" class="tw-text-main" *ngIf="error">
       <ng-container slot="description">{{ "unexpectedErrorSend" | i18n }}</ng-container>
     </bit-no-items>
     <div *ngIf="!passwordRequired && send && !error && !unavailable">

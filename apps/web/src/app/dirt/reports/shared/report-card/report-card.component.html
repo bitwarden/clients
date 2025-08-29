@@ -7,7 +7,9 @@
       class="tw-flex tw-h-28 tw-bg-background-alt2 tw-text-center tw-text-primary-300"
       [ngClass]="{ 'tw-grayscale': disabled }"
     >
-      <div class="tw-m-auto"><bit-icon [icon]="icon" aria-hidden="true"></bit-icon></div>
+      <div class="tw-mx-auto tw-my-2 tw-size-24 tw-content-center">
+        <bit-icon [icon]="icon" aria-hidden="true"></bit-icon>
+      </div>
     </div>
     <div class="tw-p-5" [ngClass]="{ 'tw-grayscale': disabled }">
       <h3 class="tw-mb-4 tw-text-xl tw-font-bold">{{ title }}</h3>

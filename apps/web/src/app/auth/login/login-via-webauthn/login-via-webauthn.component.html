@@ -12,7 +12,9 @@
     >
       <div class="tw-flex tw-flex-col tw-items-center">
         <ng-container *ngIf="currentState === 'assert'">
-          <bit-icon [icon]="Icons.CreatePasskeyIcon" class="tw-my-10"></bit-icon>
+          <div class="tw-size-24 tw-content-center tw-my-10">
+            <bit-icon [icon]="Icons.TwoFactorAuthSecurityKeyIcon"></bit-icon>
+          </div>
           <p bitTypography="body1">{{ "readingPasskeyLoadingInfo" | i18n }}</p>
           <button
             type="button"
@@ -27,7 +29,12 @@
         </ng-container>
 
         <ng-container *ngIf="currentState === 'assertFailed'">
-          <bit-icon [icon]="Icons.CreatePasskeyFailedIcon" class="tw-my-10"></bit-icon>
+          <div class="tw-size-24 tw-content-center tw-my-10">
+            <bit-icon
+              [icon]="Icons.TwoFactorAuthSecurityKeyFailedIcon"
+              class="tw-max-h-full tw-flex tw-justify-center"
+            ></bit-icon>
+          </div>
           <p bitTypography="body1">{{ "readingPasskeyLoadingInfo" | i18n }}</p>
           <button
             type="button"
