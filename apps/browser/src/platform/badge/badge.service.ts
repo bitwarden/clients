@@ -8,7 +8,7 @@ import {
   StateProvider,
 } from "@bitwarden/common/platform/state";
 
-import { BadgeBrowserApi, RawBadgeState } from "./badge-browser-api";
+import { BadgeBrowserApi, RawBadgeState, Tab } from "./badge-browser-api";
 import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
@@ -21,10 +21,22 @@ interface StateSetting {
 
 const BADGE_STATES = new KeyDefinition(BADGE_MEMORY, "badgeStates", {
   deserializer: (value: Record<string, StateSetting>) => value ?? {},
+  cleanupDelayMs: 0,
 });
 
 export class BadgeService {
   private serviceState: GlobalState<Record<string, StateSetting>>;
+
+  /**
+   * An observable that emits whenever one or multiple tabs are updated and might need its state updated.
+   * Use this to know exactly which tabs to calculate the badge state for.
+   * This is not the same as `onActivated` which only emits when the active tab changes.
+   */
+  activeTabsUpdated$ = this.badgeApi.activeTabsUpdated$;
+
+  getActiveTabs(): Promise<Tab[]> {
+    return this.badgeApi.getActiveTabs();
+  }
 
   constructor(
     private stateProvider: StateProvider,
@@ -40,12 +52,12 @@ export class BadgeService {
    */
   startListening(): Subscription {
     // React to tab changes
-    return this.badgeApi.activeTab$
+    return this.badgeApi.activeTabsUpdated$
       .pipe(
         withLatestFrom(this.serviceState.state$),
-        filter(([activeTab]) => activeTab != undefined),
-        concatMap(async ([activeTab, serviceState]) => {
-          await this.updateBadge(serviceState, activeTab!.tabId);
+        filter(([activeTabs]) => activeTabs.length > 0),
+        concatMap(async ([activeTabs, serviceState]) => {
+          await Promise.all(activeTabs.map((tab) => this.updateBadge(serviceState, tab.tabId)));
         }),
       )
       .subscribe({
@@ -78,7 +90,6 @@ export class BadgeService {
       ...s,
       [name]: { priority, state, tabId },
     }));
-
     await this.updateBadge(newServiceState, tabId);
   }
 
@@ -104,7 +115,6 @@ export class BadgeService {
     if (clearedState === undefined) {
       return;
     }
-    // const activeTabs = await firstValueFrom(this.badgeApi.activeTabs$);
     await this.updateBadge(newServiceState, clearedState.tabId);
   }
 
@@ -151,16 +161,15 @@ export class BadgeService {
    * @param tabId Tab id for which the the latest state change applied to. Set this to activeTab.tabId to force an update.
    */
   private async updateBadge(
-    // activeTabs: chrome.tabs.Tab[],
     serviceState: Record<string, StateSetting> | null | undefined,
     tabId: number | undefined,
   ) {
     const activeTabs = await this.badgeApi.getActiveTabs();
-    if (tabId !== undefined && !activeTabs.some((tab) => tab.id === tabId)) {
+    if (tabId !== undefined && !activeTabs.some((tab) => tab.tabId === tabId)) {
       return; // No need to update the badge if the state is not for the active tab.
     }
 
-    const tabIdsToUpdate = tabId ? [tabId] : activeTabs.map((tab) => tab.id);
+    const tabIdsToUpdate = tabId ? [tabId] : activeTabs.map((tab) => tab.tabId);
 
     for (const tabId of tabIdsToUpdate) {
       if (tabId === undefined) {

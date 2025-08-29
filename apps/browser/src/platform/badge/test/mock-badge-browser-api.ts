@@ -1,38 +1,33 @@
 import { BehaviorSubject } from "rxjs";
 
-import { BadgeBrowserApi, RawBadgeState } from "../badge-browser-api";
+import { BadgeBrowserApi, RawBadgeState, Tab } from "../badge-browser-api";
 
 export class MockBadgeBrowserApi implements BadgeBrowserApi {
-  private _activeTab$ = new BehaviorSubject<chrome.tabs.TabActiveInfo | undefined>(undefined);
-  activeTab$ = this._activeTab$.asObservable();
+  private _activeTabsUpdated$ = new BehaviorSubject<Tab[]>([]);
+  activeTabsUpdated$ = this._activeTabsUpdated$.asObservable();
 
   specificStates: Record<number, RawBadgeState> = {};
   generalState?: RawBadgeState;
   tabs: number[] = [];
   activeTabs: number[] = [];
 
-  getActiveTabs(): Promise<chrome.tabs.Tab[]> {
+  getActiveTabs(): Promise<Tab[]> {
     return Promise.resolve(
       this.activeTabs.map(
         (tabId) =>
           ({
-            id: tabId,
-            windowId: 1,
-            active: true,
-          }) as chrome.tabs.Tab,
+            tabId,
+            url: `https://example.com/${tabId}`,
+          }) satisfies Tab,
       ),
     );
   }
 
   setActiveTabs(tabs: number[]) {
     this.activeTabs = tabs;
-  }
-
-  setLastActivatedTab(tabId: number) {
-    this._activeTab$.next({
-      tabId,
-      windowId: 1,
-    });
+    this._activeTabsUpdated$.next(
+      tabs.map((tabId) => ({ tabId, url: `https://example.com/${tabId}` })),
+    );
   }
 
   setState = jest.fn().mockImplementation((state: RawBadgeState, tabId?: number): Promise<void> => {
