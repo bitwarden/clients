@@ -150,7 +150,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   canEdit(type: FieldType): boolean {
     return (
       !this.isPartialEdit &&
-      (type !== FieldType.Hidden || this.cipherFormContainer.originalCipherView?.viewPassword)
+      (type !== FieldType.Hidden ||
+        this.cipherFormContainer.originalCipherView === null ||
+        this.cipherFormContainer.originalCipherView.viewPassword)
     );
   }
 
