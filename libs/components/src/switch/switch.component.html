@@ -1,5 +1,5 @@
 <div
-  class="tw-rounded-md tw-max-w-[60ch] [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-offset-2 [&:has(input:focus-visible)]:tw-ring-primary-600"
+  class="tw-rounded-md tw-flex tw-flex-col tw-max-w-[60ch] [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-offset-2 [&:has(input:focus-visible)]:tw-ring-primary-600"
 >
   <label
     [attr.for]="inputId"
@@ -38,12 +38,12 @@
       </span>
     </div>
   </label>
+  <div class="tw-ps-[calc(theme(spacing.9)_+_theme(spacing.2))] [&_bit-hint]:tw-mt-0">
+    <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
+  </div>
   @if (disabledReasonText && disabled()) {
     <div [attr.id]="disabledReasonTextId" class="tw-sr-only">
       {{ disabledReasonText() }}
     </div>
   }
-  <div class="tw-ps-[calc(theme(spacing.9)_+_theme(spacing.2))]">
-    <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
-  </div>
 </div>
