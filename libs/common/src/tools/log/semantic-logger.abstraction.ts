@@ -92,4 +92,24 @@ export interface SemanticLogger {
 
   /** combined signature for overloaded methods */
   panic<T>(content: Jsonify<T> | string, message?: string): never;
+
+  /** Conditionally panics.
+   *  @param when - when this condition is true, the logger panics.
+   *  @param message - a message to record in the log's `message` field.
+   */
+  panicWhen(when: boolean, message: string): when is false | never;
+
+  /** Conditionally panics.
+   *  @param when - when this condition is true, the logger panics.
+   *  @param content - JSON content included in the log's `content` field.
+   *  @param message - a message to record in the log's `message` field.
+   */
+  panicWhen<T>(when: boolean, content: Jsonify<T>, message?: string): when is false | never;
+
+  /** combined signature for overloaded methods */
+  panicWhen<T>(
+    when: boolean,
+    content: Jsonify<T> | string,
+    message?: string,
+  ): when is false | never;
 }
