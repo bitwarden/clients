@@ -91,6 +91,8 @@ export class AutoFillConstants {
     "current-password",
     "new-password",
   ]);
+
+  static readonly ExcludedTotpFieldNames: string[] = ["backup", "recovery"];
 }
 
 export class CreditCardAutoFillConstants {

@@ -949,7 +949,8 @@ export default class AutofillService implements AutofillServiceInterface {
             ...AutoFillConstants.TotpFieldNames,
             ...AutoFillConstants.AmbiguousTotpFieldNames,
           ]) ||
-            field.autoCompleteType === "one-time-code");
+            field.autoCompleteType === "one-time-code") &&
+          !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.ExcludedTotpFieldNames]);
 
         const isFillableUsernameField =
           !options.skipUsernameOnlyFill &&
@@ -2512,11 +2513,12 @@ export default class AutofillService implements AutofillServiceInterface {
         (canBeReadOnly || !f.readonly) &&
         (withoutForm || f.form === passwordField.form) &&
         (canBeHidden || f.viewable) &&
-        (f.type === "text" || f.type === "number") &&
+        (f.type === "tel" || f.type === "text" || f.type === "number") &&
         AutofillService.fieldIsFuzzyMatch(f, [
           ...AutoFillConstants.TotpFieldNames,
           ...AutoFillConstants.AmbiguousTotpFieldNames,
-        ])
+        ]) &&
+        !AutofillService.fieldIsFuzzyMatch(f, [...AutoFillConstants.ExcludedTotpFieldNames])
       ) {
         totpField = f;
 
@@ -2706,7 +2708,7 @@ export default class AutofillService implements AutofillServiceInterface {
       if (!AutofillService.hasValue(value)) {
         continue;
       }
-      if (this.fuzzyMatch(names, value)) {
+      if (AutofillService.fuzzyMatch(names, value)) {
         return showMatch ? [true, { attr, value }] : true;
       }
     }
@@ -2722,7 +2724,13 @@ export default class AutofillService implements AutofillServiceInterface {
    * @private
    */
   private static fuzzyMatch(options: string[], value: string): boolean {
-    if (options == null || options.length === 0 || value == null || value === "") {
+    if (
+      options == null ||
+      options.length === 0 ||
+      value == null ||
+      value === "" ||
+      typeof value !== "string"
+    ) {
       return false;
     }
 

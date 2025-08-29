@@ -16,6 +16,7 @@ import {
   SubmitChangePasswordButtonNames,
   SubmitLoginButtonNames,
 } from "./autofill-constants";
+import AutofillService from "./autofill.service";
 
 export class InlineMenuFieldQualificationService
   implements InlineMenuFieldQualificationServiceInterface
@@ -1071,6 +1072,10 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isTotpField = (field: AutofillField): boolean => {
+    if (AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.ExcludedTotpFieldNames])) {
+      return false;
+    }
+
     if (this.fieldContainsAutocompleteValues(field, this.totpFieldAutocompleteValue)) {
       return true;
     }
