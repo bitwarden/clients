@@ -40,6 +40,8 @@ Most policies should be OSS licensed unless they specifically relate to premium/
 
 Create a new component file in the appropriate `policy-edit-definitions/` folder following the naming pattern `your-policy-name.component.ts`.
 
+**Note:** you may also create the policy files in your own team's code if you prefer to own your own definition. The same licensing considerations apply.
+
 ### Basic Structure
 
 ```typescript
