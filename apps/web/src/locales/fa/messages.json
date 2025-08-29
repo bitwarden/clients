@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "کل برنامه‌ها"
   },
-  "unmarkAsCriticalApp": {
-    "message": "لغو علامت حیاتی بودن برنامه"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "برنامه حیاتی با موفقیت لغو علامت شد"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "کپی شماره گواهینامه"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "کپی نام"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "زبان مورد استفاده در گاوصندوق وب را تغییر دهید."
   },
-  "enableFavicon": {
-    "message": "نمایش نمادهای وب‌سایت"
-  },
-  "faviconDesc": {
-    "message": "یک تصویر قابل تشخیص در کنار هر ورود نشان دهید."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "پیش‌فرض"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "نشانی صورتحساب برای افزودن اعتبار الزامی است.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Billing address"
