@@ -45,6 +45,13 @@ export function otpInvalid(e: SendAccessTokenApiErrorResponse): e is OtpInvalid 
   return e.error === "invalid_grant" && e.send_access_error_type === "otp_invalid";
 }
 
+export type OtpGenerationFailed = InvalidGrant & {
+  send_access_error_type: "otp_generation_failed";
+};
+export function otpGenerationFailed(e: SendAccessTokenApiErrorResponse): e is OtpGenerationFailed {
+  return e.error === "invalid_grant" && e.send_access_error_type === "otp_generation_failed";
+}
+
 export type UnknownInvalidGrant = InvalidGrant & {
   send_access_error_type: "unknown";
 };

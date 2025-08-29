@@ -73,6 +73,7 @@ describe("SendTokenService", () => {
       "password_hash_b64_invalid",
       "email_invalid",
       "otp_invalid",
+      "otp_generation_failed",
       "unknown",
     ];
 
