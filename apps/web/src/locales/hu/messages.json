@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Összes alkalmazás"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Ktritkus alkalmazás jelölés eltávolítása"
+  "unmarkAsCritical": {
+    "message": "Ktritkus jelölés eltávolítása"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "A ktritkus alkalmazás jelölés eltávolítása sikeres volt."
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Vezetői engedély szám másolása"
+  },
+  "copyPrivateKey": {
+    "message": "Személyes kulcs másolása"
+  },
+  "copyPublicKey": {
+    "message": "Nyilvános kulcs másolása"
+  },
+  "copyFingerprint": {
+    "message": "Ujjlenyomat másolása"
   },
   "copyName": {
     "message": "Név másolása"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "A webes széf nyelvének megváltoztatása."
   },
-  "enableFavicon": {
-    "message": "Webhely ikonok megjelenítése"
-  },
-  "faviconDesc": {
-    "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
+  "showIconsChangePasswordUrls": {
+    "message": "Webhely ikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
   "default": {
     "message": "Alapértelmezett"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "A jóváírás hozzáadásához szükséges számlázási cím.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "Informció erről a beállításról"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
   "billingAddress": {
     "message": "Számlázási cím"

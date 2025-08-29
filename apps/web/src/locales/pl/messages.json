@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Wszystkie aplikacje"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Odznacz jako krytyczną aplikację"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Krytyczna aplikacja została pomyślnie odznaczona"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Skopiuj numer licencji"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "Skopiuj nazwę"
@@ -1715,7 +1724,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "length": {
-    "message": "Długość"
+    "message": "Liczba znaków"
   },
   "passwordMinLength": {
     "message": "Minimalna długość hasła"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Zmień język używany przez sejf."
   },
-  "enableFavicon": {
-    "message": "Pokaż ikony witryn"
-  },
-  "faviconDesc": {
-    "message": "Pokaż rozpoznawalny obraz obok każdych danych logowania."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Domyślny"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Aby dodać środki, wymagany jest adres rozliczeniowy.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Adres rozliczeniowy"
