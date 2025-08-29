@@ -14,7 +14,7 @@ import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 import { WildcardRoutingModule } from "@bitwarden/web-vault/app/wildcard-routing.module";
 
 import { OrganizationsModule } from "./admin-console/organizations/organizations.module";
-import { policyEditRegister } from "./admin-console/policies";
+import { bitPolicyEditRegister } from "./admin-console/policies";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { AccessIntelligenceModule } from "./dirt/access-intelligence/access-intelligence.module";
@@ -47,7 +47,7 @@ import { AccessIntelligenceModule } from "./dirt/access-intelligence/access-inte
   providers: [
     safeProvider({
       provide: POLICY_REGISTER_TOKEN,
-      useValue: policyEditRegister,
+      useValue: bitPolicyEditRegister,
     }),
   ],
 })

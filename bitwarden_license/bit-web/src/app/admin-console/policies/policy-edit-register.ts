@@ -5,10 +5,12 @@ import {
 
 import { FreeFamiliesSponsorshipPolicy } from "../../billing/policies/free-families-sponsorship.component";
 
-import { ActivateAutofillPolicy } from "./activate-autofill.component";
-import { AutomaticAppLoginPolicy } from "./automatic-app-login.component";
-import { DisablePersonalVaultExportPolicy } from "./disable-personal-vault-export.component";
-import { MaximumVaultTimeoutPolicy } from "./maximum-vault-timeout.component";
+import {
+  ActivateAutofillPolicy,
+  AutomaticAppLoginPolicy,
+  DisablePersonalVaultExportPolicy,
+  MaximumVaultTimeoutPolicy,
+} from "./policy-edit-definitions";
 
 /**
  * The policy register for Bitwarden Licensed policies.
