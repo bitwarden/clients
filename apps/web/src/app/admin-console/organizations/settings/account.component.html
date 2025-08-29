@@ -57,21 +57,25 @@
     [formGroup]="collectionManagementFormGroup"
   >
     <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "collectionManagement" | i18n }}</h1>
-    <p bitTypography="body1">{{ "collectionManagementDesc" | i18n }}</p>
+    <p bitTypography="body1">{{ "collectionManagementDescription" | i18n }}</p>
     <bit-form-control>
-      <bit-label>{{ "allowAdminAccessToAllCollectionItemsDesc" | i18n }}</bit-label>
+      <bit-label>{{ "allowAdminAccessToAllCollectionItemsDescription" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="allowAdminAccessToAllCollectionItems" />
     </bit-form-control>
     <bit-form-control>
-      <bit-label>{{ "limitCollectionCreationDesc" | i18n }}</bit-label>
+      <bit-label>{{ "restrictCollectionCreationDescription" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitCollectionCreation" />
     </bit-form-control>
     <bit-form-control>
-      <bit-label>{{ "limitCollectionDeletionDesc" | i18n }}</bit-label>
+      <bit-label>{{ "restrictCollectionDeletionDescription" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitCollectionDeletion" />
     </bit-form-control>
     <bit-form-control>
-      <bit-label>{{ "limitItemDeletionDescription" | i18n }}</bit-label>
+      <bit-label>
+        {{ "restrictItemDeletionDescriptionStart" | i18n }}
+        <span class="tw-italic">{{ "manageCollection" | i18n }}</span>
+        {{ "restrictItemDeletionDescriptionEnd" | i18n }}
+      </bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitItemDeletion" />
     </bit-form-control>
     <button
