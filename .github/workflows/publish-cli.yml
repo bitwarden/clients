@@ -183,6 +183,7 @@ jobs:
 
   npm:
     name: Publish NPM
+    environment: NPM
     runs-on: ubuntu-22.04
     needs: setup
     permissions:
@@ -195,23 +196,21 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      
+      - name: Get Node version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Log in to Azure
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+      - name: Install Husky
+        run: npm install -g husky
 
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "npm-api-key"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
+      - name: Install NPM
+        run: |
+          npm install -g npm@latest # npm 11.5.1 or later is required to publish w/ OIDC
+          npm --version
 
       - name: Download and set up artifact
         run: |
@@ -219,19 +218,9 @@ jobs:
           wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip
           unzip bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip -d build
 
-      - name: Setup NPM
-        run: |
-          echo 'registry="https://registry.npmjs.org/"' > ./.npmrc
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ./.npmrc
-        env:
-          NPM_TOKEN: ${{ steps.retrieve-secrets.outputs.npm-api-key }}
-
-      - name: Install Husky
-        run: npm install -g husky
-
       - name: Publish NPM
         if: ${{ inputs.publish_type != 'Dry Run' }}
-        run: npm publish --access public --regsitry=https://registry.npmjs.org/  --userconfig=./.npmrc
+        run: npm publish --access public
 
   update-deployment:
     name: Update Deployment Status
