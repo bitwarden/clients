@@ -28,6 +28,11 @@ export abstract class MasterPasswordServiceAbstraction {
    */
   abstract saltForUser$: (userId: UserId) => Observable<MasterPasswordSalt>;
   /**
+   * Converts an email to a master password salt. This is a canonical encoding of the
+   * email, no matter how the email is capitalized.
+   */
+  abstract emailToSalt(email: string): MasterPasswordSalt;
+  /**
    * An observable that emits the master key for the user.
    * @deprecated Interacting with the master-key directly is deprecated. Please use {@link makeMasterPasswordUnlockData}, {@link makeMasterPasswordAuthenticationData} or {@link unwrapUserKeyFromMasterPasswordUnlockData} instead.
    * @param userId The user ID.

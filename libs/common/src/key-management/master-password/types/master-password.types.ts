@@ -2,8 +2,7 @@ import { Opaque } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
-
-import { EncString } from "../../crypto/models/enc-string";
+import { EncString } from "@bitwarden/sdk-internal";
 
 /**
  * The Base64-encoded master password authentication hash, that is sent to the server for authentication.
@@ -13,7 +12,7 @@ export type MasterPasswordAuthenticationHash = Opaque<string, "MasterPasswordAut
  * You MUST obtain this through the emailToSalt function in MasterPasswordService
  */
 export type MasterPasswordSalt = Opaque<string, "MasterPasswordSalt">;
-export type MasterKeyWrappedUserKey = Opaque<EncString, "MasterPasswordSalt">;
+export type MasterKeyWrappedUserKey = Opaque<EncString, "MasterKeyWrappedUserKey">;
 
 /**
  * The data required to unlock with the master password.
