@@ -74,9 +74,8 @@ export function isWindowsPortable() {
 
 /**
  * We block the browser integration on some unsupported platforms, which also
- * blocks partially supported platforms (mac .dmg in dev builds) / prevents
- * experimenting with the feature for QA. So this env var allows overriding
- * the block.
+ * blocks partially supported platforms / prevents experimenting with the feature
+ * for QA. So this env var allows overriding the block.
  */
 export function allowBrowserintegrationOverride() {
   return process.env.ALLOW_BROWSER_INTEGRATION_OVERRIDE === "true";

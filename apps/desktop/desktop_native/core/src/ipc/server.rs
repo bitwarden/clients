@@ -1,7 +1,4 @@
-use std::{
-    error::Error,
-    path::{Path, PathBuf},
-};
+use std::{error::Error, path::PathBuf};
 
 use futures::{SinkExt, StreamExt, TryFutureExt};
 
@@ -32,7 +29,7 @@ pub enum MessageType {
 }
 
 pub struct Server {
-    pub path: PathBuf,
+    pub paths: Vec<PathBuf>,
     cancel_token: CancellationToken,
     server_to_clients_send: broadcast::Sender<String>,
 }
@@ -45,19 +42,9 @@ impl Server {
     /// - `name`: The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
     /// - `client_to_server_send`: This [`mpsc::Sender<Message>`] will receive all the [`Message`]'s that the clients send to this server.
     pub fn start(
-        path: &Path,
+        paths: Vec<PathBuf>,
         client_to_server_send: mpsc::Sender<Message>,
     ) -> Result<Self, Box<dyn Error>> {
-        // If the unix socket file already exists, we get an error when trying to bind to it. So we remove it first.
-        // Any processes that were using the old socket should remain connected to it but any new connections will use the new socket.
-        if !cfg!(windows) {
-            let _ = std::fs::remove_file(path);
-        }
-
-        let name = path.as_os_str().to_fs_name::<GenericFilePath>()?;
-        let opts = ListenerOptions::new().name(name);
-        let listener = opts.create_tokio()?;
-
         // This broadcast channel is used for sending messages to all connected clients, and so the sender
         // will be stored in the server while the receiver will be cloned and passed to each client handler.
         let (server_to_clients_send, server_to_clients_recv) =
@@ -67,20 +54,39 @@ impl Server {
         // tasks without having to wait on all the pending tasks finalizing first
         let cancel_token = CancellationToken::new();
 
+        for path in paths.iter() {
+            // If the unix socket file already exists, we get an error when trying to bind to it. So we remove it first.
+            // Any processes that were using the old socket should remain connected to it but any new connections will use the new socket.
+            if !cfg!(windows) && path.exists() {
+                println!("Removing existing IPC socket at: {}", path.display());
+                std::fs::remove_file(path)?;
+            }
+
+            let name = path.as_os_str().to_fs_name::<GenericFilePath>()?;
+            let opts = ListenerOptions::new().name(name);
+            let Ok(listener) = opts.create_tokio() else {
+                println!("Failed to create IPC listener for path: {}", path.display());
+                continue;
+            };
+
+            let client_to_server_send = client_to_server_send.clone();
+            let server_to_clients_recv = server_to_clients_recv.resubscribe();
+            let cancel_token = cancel_token.clone();
+            tokio::spawn(listen_incoming(
+                listener,
+                client_to_server_send,
+                server_to_clients_recv,
+                cancel_token,
+            ));
+        }
+
         // Create the server and start listening for incoming connections
         // in a separate task to avoid blocking the current task
         let server = Server {
-            path: path.to_owned(),
+            paths,
             cancel_token: cancel_token.clone(),
             server_to_clients_send,
         };
-        tokio::spawn(listen_incoming(
-            listener,
-            client_to_server_send,
-            server_to_clients_recv,
-            cancel_token,
-        ));
-
         Ok(server)
     }
 

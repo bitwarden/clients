@@ -445,21 +445,26 @@ pub mod ipc {
                 }
             });
 
-            let path = desktop_core::ipc::path(&name);
+            let path = desktop_core::ipc::all_paths(&name);
 
-            let server = desktop_core::ipc::server::Server::start(&path, send).map_err(|e| {
-                napi::Error::from_reason(format!(
-                    "Error listening to server - Path: {path:?} - Error: {e} - {e:?}"
-                ))
-            })?;
+            let server =
+                desktop_core::ipc::server::Server::start(path.clone(), send).map_err(|e| {
+                    napi::Error::from_reason(format!(
+                        "Error listening to server - Paths: {path:?} - Error: {e} - {e:?}"
+                    ))
+                })?;
 
             Ok(IpcServer { server })
         }
 
         /// Return the path to the IPC server.
         #[napi]
-        pub fn get_path(&self) -> String {
-            self.server.path.to_string_lossy().to_string()
+        pub fn get_paths(&self) -> Vec<String> {
+            self.server
+                .paths
+                .iter()
+                .map(|p| p.to_string_lossy().to_string())
+                .collect()
         }
 
         /// Stop the IPC server.
@@ -721,11 +726,12 @@ pub mod autofill {
 
             let path = desktop_core::ipc::path(&name);
 
-            let server = desktop_core::ipc::server::Server::start(&path, send).map_err(|e| {
-                napi::Error::from_reason(format!(
-                    "Error listening to server - Path: {path:?} - Error: {e} - {e:?}"
-                ))
-            })?;
+            let server = desktop_core::ipc::server::Server::start(vec![path.clone()], send)
+                .map_err(|e| {
+                    napi::Error::from_reason(format!(
+                        "Error listening to server - Path: {path:?} - Error: {e} - {e:?}"
+                    ))
+                })?;
 
             Ok(IpcServer { server })
         }
@@ -733,7 +739,11 @@ pub mod autofill {
         /// Return the path to the IPC server.
         #[napi]
         pub fn get_path(&self) -> String {
-            self.server.path.to_string_lossy().to_string()
+            self.server
+                .paths
+                .first()
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_default()
         }
 
         /// Stop the IPC server.
