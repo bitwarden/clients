@@ -124,7 +124,8 @@ jobs:
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-universal.pkg.archive,
             apps/desktop/artifacts/${{ env.RELEASE_CHANNEL }}.yml,
             apps/desktop/artifacts/${{ env.RELEASE_CHANNEL }}-linux.yml,
-            apps/desktop/artifacts/${{ env.RELEASE_CHANNEL }}-mac.yml"
+            apps/desktop/artifacts/${{ env.RELEASE_CHANNEL }}-mac.yml,
+            apps/desktop/artifacts/macos-build-number.json"
           commit: ${{ github.sha }}
           tag: desktop-v${{ env.PKG_VERSION }}
           name: Desktop v${{ env.PKG_VERSION }}

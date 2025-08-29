@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Ukupno aplikacija"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Odznači kao kritičnu aplikaciju"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritična aplikacija uspješno odznačena"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Kopiraj broj osobne"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "Kopiraj ime"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Promijeni jezik web trezora."
   },
-  "enableFavicon": {
-    "message": "Prikaži ikone mrežnih mjesta"
-  },
-  "faviconDesc": {
-    "message": "Prikaži prepoznatljivu sliku pored svake prijave."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Zadano"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Za dodavanje kredita potrebna je adresa za naplatu.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Adresa za naplatu"
