@@ -5,22 +5,22 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { SharedModule } from "../../../../shared";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class RequireSsoPolicy extends BasePolicy {
+export class RequireSsoPolicy extends BasePolicyEditDefinition {
   name = "requireSso";
   description = "requireSsoPolicyDesc";
   type = PolicyType.RequireSso;
   component = RequireSsoPolicyComponent;
 
-  display(organization: Organization, configService: ConfigService) {
+  display$(organization: Organization, configService: ConfigService) {
     return of(organization.useSso);
   }
 }
 
 @Component({
-  selector: "policy-require-sso",
   templateUrl: "require-sso.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
-export class RequireSsoPolicyComponent extends BasePolicyComponent {}
+export class RequireSsoPolicyComponent extends BasePolicyEditComponent {}

@@ -6,25 +6,25 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { SharedModule } from "../../../../shared";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class RestrictedItemTypesPolicy extends BasePolicy {
+export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   name = "restrictedItemTypePolicy";
   description = "restrictedItemTypePolicyDesc";
   type = PolicyType.RestrictedItemTypes;
   component = RestrictedItemTypesPolicyComponent;
 
-  display(organization: Organization, configService: ConfigService): Observable<boolean> {
+  display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.RemoveCardItemTypePolicy);
   }
 }
 
 @Component({
-  selector: "policy-restricted-item-types",
   templateUrl: "restricted-item-types.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
-export class RestrictedItemTypesPolicyComponent extends BasePolicyComponent {
+export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent {
   constructor() {
     super();
   }

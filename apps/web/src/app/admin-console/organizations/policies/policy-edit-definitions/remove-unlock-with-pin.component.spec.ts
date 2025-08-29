@@ -1,11 +1,8 @@
-import { CommonModule } from "@angular/common";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -33,8 +30,6 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CommonModule, ReactiveFormsModule],
-      declarations: [RemoveUnlockWithPinPolicyComponent, I18nPipe],
       providers: [
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: I18nService, useValue: i18nService },
@@ -102,9 +97,6 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
 
     const bitLabelElement = fixture.debugElement.query(By.css("bit-label"));
     expect(bitLabelElement).not.toBeNull();
-    const textNodes = bitLabelElement.childNodes
-      .filter((node) => node.nativeNode.nodeType === Node.TEXT_NODE)
-      .map((node) => node.nativeNode.wholeText?.trim());
-    expect(textNodes).toContain("Turn on");
+    expect(bitLabelElement.nativeElement.textContent.trim()).toBe("Turn on");
   });
 });

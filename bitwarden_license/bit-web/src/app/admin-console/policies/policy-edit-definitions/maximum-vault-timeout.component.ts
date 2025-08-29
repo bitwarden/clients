@@ -8,11 +8,12 @@ import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/po
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
-  BasePolicy,
-  BasePolicyComponent,
-} from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+  BasePolicyEditDefinition,
+  BasePolicyEditComponent,
+} from "@bitwarden/web-vault/app/admin-console/organizations/policies";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-export class MaximumVaultTimeoutPolicy extends BasePolicy {
+export class MaximumVaultTimeoutPolicy extends BasePolicyEditDefinition {
   name = "maximumVaultTimeout";
   description = "maximumVaultTimeoutDesc";
   type = PolicyType.MaximumVaultTimeout;
@@ -20,11 +21,10 @@ export class MaximumVaultTimeoutPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-maximum-timeout",
   templateUrl: "maximum-vault-timeout.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
-export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
+export class MaximumVaultTimeoutPolicyComponent extends BasePolicyEditComponent {
   vaultTimeoutActionOptions: { name: string; value: string }[];
   data = this.formBuilder.group({
     hours: new FormControl<number>(null),

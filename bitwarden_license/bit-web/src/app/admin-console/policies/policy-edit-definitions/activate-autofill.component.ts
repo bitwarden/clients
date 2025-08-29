@@ -5,11 +5,12 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
-  BasePolicy,
-  BasePolicyComponent,
-} from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+  BasePolicyEditDefinition,
+  BasePolicyEditComponent,
+} from "@bitwarden/web-vault/app/admin-console/organizations/policies";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-export class ActivateAutofillPolicy extends BasePolicy {
+export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   name = "activateAutofill";
   description = "activateAutofillPolicyDesc";
   type = PolicyType.ActivateAutofill;
@@ -21,8 +22,7 @@ export class ActivateAutofillPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-activate-autofill",
   templateUrl: "activate-autofill.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
-export class ActivateAutofillPolicyComponent extends BasePolicyComponent {}
+export class ActivateAutofillPolicyComponent extends BasePolicyEditComponent {}

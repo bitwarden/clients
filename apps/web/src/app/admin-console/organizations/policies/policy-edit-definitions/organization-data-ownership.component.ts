@@ -6,15 +6,16 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { SharedModule } from "../../../../shared";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class OrganizationDataOwnershipPolicy extends BasePolicy {
+export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "organizationDataOwnership";
   description = "personalOwnershipPolicyDesc";
   type = PolicyType.OrganizationDataOwnership;
   component = OrganizationDataOwnershipPolicyComponent;
 
-  display(organization: Organization, configService: ConfigService): Observable<boolean> {
+  display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService
       .getFeatureFlag$(FeatureFlag.CreateDefaultLocation)
       .pipe(map((enabled) => !enabled));
@@ -22,8 +23,7 @@ export class OrganizationDataOwnershipPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-organization-data-ownership",
   templateUrl: "organization-data-ownership.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
-export class OrganizationDataOwnershipPolicyComponent extends BasePolicyComponent {}
+export class OrganizationDataOwnershipPolicyComponent extends BasePolicyEditComponent {}

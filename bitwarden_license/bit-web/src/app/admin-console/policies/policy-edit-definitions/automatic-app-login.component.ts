@@ -5,11 +5,12 @@ import { FormBuilder, FormControl } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
-  BasePolicy,
-  BasePolicyComponent,
-} from "@bitwarden/web-vault/app/admin-console/organizations/policies/base-policy.component";
+  BasePolicyEditDefinition,
+  BasePolicyEditComponent,
+} from "@bitwarden/web-vault/app/admin-console/organizations/policies";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-export class AutomaticAppLoginPolicy extends BasePolicy {
+export class AutomaticAppLoginPolicy extends BasePolicyEditDefinition {
   name = "automaticAppLogin";
   description = "automaticAppLoginDesc";
   type = PolicyType.AutomaticAppLogIn;
@@ -17,11 +18,10 @@ export class AutomaticAppLoginPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-automatic-app-login",
   templateUrl: "automatic-app-login.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
-export class AutomaticAppLoginPolicyComponent extends BasePolicyComponent {
+export class AutomaticAppLoginPolicyComponent extends BasePolicyEditComponent {
   data = this.formBuilder.group({
     idpHost: new FormControl<string>(null),
   });
