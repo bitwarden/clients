@@ -14,13 +14,11 @@ import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-manage
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import {
   DevicesIcon,
-  RegistrationLockAltIcon,
   RegistrationUserAddIcon,
   TwoFactorTimeoutIcon,
-  DeviceVerificationIcon,
+  TwoFactorAuthEmailIcon,
   UserLockIcon,
   VaultIcon,
-  RegistrationExpiredLinkIcon,
   SsoKeyIcon,
   LockIcon,
   BrowserExtensionIcon,
@@ -170,7 +168,7 @@ const routes: Routes = [
         path: "finish-signup",
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: RegistrationLockAltIcon,
+          pageIcon: LockIcon,
           titleId: "setAStrongPassword",
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
@@ -303,7 +301,7 @@ const routes: Routes = [
         path: "signup-link-expired",
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: RegistrationExpiredLinkIcon,
+          pageIcon: TwoFactorTimeoutIcon,
           pageTitle: {
             key: "expiredLink",
           },
@@ -434,7 +432,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: DeviceVerificationIcon,
+          pageIcon: TwoFactorAuthEmailIcon,
           pageTitle: {
             key: "verifyYourIdentity",
           },

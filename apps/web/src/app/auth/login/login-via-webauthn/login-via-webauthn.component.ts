@@ -1,7 +1,10 @@
 import { Component } from "@angular/core";
 
 import { BaseLoginViaWebAuthnComponent } from "@bitwarden/angular/auth/components/base-login-via-webauthn.component";
-import { CreatePasskeyIcon, CreatePasskeyFailedIcon } from "@bitwarden/assets/svg";
+import {
+  TwoFactorAuthSecurityKeyIcon,
+  TwoFactorAuthSecurityKeyFailedIcon,
+} from "@bitwarden/assets/svg";
 
 @Component({
   selector: "app-login-via-webauthn",
@@ -10,7 +13,7 @@ import { CreatePasskeyIcon, CreatePasskeyFailedIcon } from "@bitwarden/assets/sv
 })
 export class LoginViaWebAuthnComponent extends BaseLoginViaWebAuthnComponent {
   protected readonly Icons = {
-    CreatePasskeyIcon,
-    CreatePasskeyFailedIcon,
+    TwoFactorAuthSecurityKeyIcon,
+    TwoFactorAuthSecurityKeyFailedIcon,
   };
 }

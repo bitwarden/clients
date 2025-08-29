@@ -1,19 +1,15 @@
 import { svgIcon } from "../icon-service";
 
 export const NoFolders = svgIcon`
-<svg width="147" height="91" viewBox="0 0 147 91" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path class="tw-stroke-art-accent" d="M64.8263 1.09473V9.90589" stroke-width="1.25" stroke-linecap="round"/>
-  <path class="tw-stroke-art-accent" d="M42.1936 6.09082L46.6564 13.7215" stroke-width="1.25" stroke-linecap="round"/>
-  <path class="tw-stroke-art-accent" d="M53.8507 2.4209L55.4006 11.0982" stroke-width="1.25" stroke-linecap="round"/>
-  <path class="tw-stroke-art-accent" d="M76.1821 2.50293L73.8719 11.0139" stroke-width="1.25" stroke-linecap="round"/>
-  <path class="tw-stroke-art-accent" d="M87.4594 6.09082L82.9966 13.7215" stroke-width="1.25" stroke-linecap="round"/>
-  <path class="tw-stroke-art-primary" d="M100.358 89.3406H28.3419C26.1377 89.3406 24.3422 87.8759 24.3422 86.0715V24.5211C24.3422 22.7167 26.127 21.252 28.3419 21.252H61.6082C63.8124 21.252 65.608 22.7167 65.608 24.5211V28.5013C65.608 30.5073 67.3928 32.1313 69.6077 32.1313H82.105" stroke-width="2.5" stroke-miterlimit="10"/>
-  <path class="tw-stroke-art-primary" d="M82.344 41.7686H40.1042C37.9646 41.7686 36.1475 42.7663 35.8465 44.1036L26.3203 86.2411C25.9547 87.8757 27.9653 89.3404 30.5781 89.3404H107.906C110.045 89.3404 111.862 88.3427 112.163 87.0053L116.904 62.5844" stroke-width="2.5" stroke-miterlimit="10"/>
-  <path class="tw-stroke-art-accent" d="M28.1209 36.6897V27.0451C28.1209 25.9523 29.0068 25.0664 30.0996 25.0664H40.7775" stroke-width="1.25" stroke-linecap="round"/>
-  <path class="tw-stroke-art-primary" d="M105.433 64.0751C119.875 65.725 132.919 55.3558 134.569 40.9147C136.219 26.4737 125.849 13.4294 111.408 11.7794C96.9673 10.1295 83.923 20.4988 82.2731 34.9398C80.6232 49.3809 90.9924 62.4252 105.433 64.0751Z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path class="tw-stroke-art-accent" d="M105.834 60.5706C118.253 61.9895 129.484 52.9549 130.92 40.3912M85.9456 35.2528C87.381 22.6891 98.6125 13.6544 111.032 15.0734" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-  <path class="tw-stroke-art-primary" d="M122.014 60.6246L125.553 65.0773L138.676 81.5851C139.806 83.0073 141.876 83.2437 143.298 82.1132L143.558 81.906C144.98 80.7755 145.217 78.7062 144.086 77.2841L130.964 60.7762L127.424 56.3235" stroke-width="2.19854" stroke-linecap="round" stroke-linejoin="round"/>
-  <path class="tw-stroke-art-primary" d="M101.309 31.3349C101.309 31.3349 101.415 28.8033 103.894 26.6553C105.382 25.3511 107.153 25.0059 108.747 24.9675C110.199 24.9291 111.51 25.1976 112.254 25.6196C113.6 26.31 116.186 27.9594 116.186 31.5267C116.186 35.2858 113.919 36.9735 111.368 38.8531C108.818 40.7326 109.185 43.1796 109.185 45.2509" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path class="tw-fill-art-primary" d="M109.191 51.7764C110.02 51.7764 110.691 51.1049 110.691 50.2764C110.691 49.448 110.02 48.7764 109.191 48.7764C108.363 48.7764 107.691 49.448 107.691 50.2764C107.691 51.1049 108.363 51.7764 109.191 51.7764Z" />
-</svg>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="2 12.5 93.63 72">
+    <path class="tw-fill-illustration-bg-secondary" d="M2 21.5a6 6 0 0 1 6-6h17.24a6 6 0 0 1 4.556 2.095L34 22.5h52a4 4 0 0 1 4 4v36c0 12.15-9.85 22-22 22H7a5 5 0 0 1-5-5v-58Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="m33.08 24.5-4.803-5.603A4 4 0 0 0 25.24 17.5H8a4 4 0 0 0-4 4v58a3 3 0 0 0 3 3h61c11.046 0 20-8.954 20-20v-36a2 2 0 0 0-2-2H33.08Zm.92-2-4.204-4.905A6 6 0 0 0 25.24 15.5H8a6 6 0 0 0-6 6v58a5 5 0 0 0 5 5h61c12.15 0 22-9.85 22-22v-36a4 4 0 0 0-4-4H34Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-primary" d="M11.02 40.3a6 6 0 0 1 5.88-4.8H91.1a4 4 0 0 1 3.92 4.8L86.98 79.7a6 6 0 0 1-5.88 4.8H6.9a4 4 0 0 1-3.92-4.8l8.042-39.4Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M91.101 37.5H16.9a4 4 0 0 0-3.919 3.2L4.94 80.1a2 2 0 0 0 1.959 2.4H81.1a4 4 0 0 0 3.92-3.2l8.04-39.4a2 2 0 0 0-1.96-2.4Zm-74.202-2a6 6 0 0 0-5.879 4.8L2.98 79.7a4 4 0 0 0 3.919 4.8H81.1a6 6 0 0 0 5.879-4.8l8.04-39.4a4 4 0 0 0-3.919-4.8H16.9Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-tertiary" d="M84 32.5c0 11.046-8.954 20-20 20s-20-8.954-20-20 8.954-20 20-20 20 8.954 20 20Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M64 50.5c9.941 0 18-8.059 18-18s-8.059-18-18-18-18 8.059-18 18 8.059 18 18 18Zm0 2c11.046 0 20-8.954 20-20s-8.954-20-20-20-20 8.954-20 20 8.954 20 20 20Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-tertiary" d="M79 32.5c0 8.284-6.716 15-15 15-8.284 0-15-6.716-15-15 0-8.284 6.716-15 15-15 8.284 0 15 6.716 15 15Z"/>
+    <path class="tw-fill-illustration-outline" d="M95.004 61.587 78.5 46l-2 2 15.587 16.504a2 2 0 0 0 2.868.04l.09-.089a2 2 0 0 0-.041-2.868Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M61.573 34.578a.948.948 0 0 0 .948.922h.53a.948.948 0 0 0 .949-.948V33.5c2.817-.04 5-1.603 5-4.5 0-3.072-2.037-4.5-5-4.5-2.59 0-4.918 1.71-5.04 4.18-.023.47.39.82.862.82h.23c.523 0 .93-.435 1.086-.935.404-1.3 1.633-2.065 2.862-2.065 1.5 0 2.75.888 2.75 2.5 0 2.387-2.564 2.82-4.52 2.888a.73.73 0 0 0-.71.742l.053 1.948ZM62.75 40c1.104 0 2-.672 2-1.5s-.896-1.5-2-1.5c-1.105 0-2 .672-2 1.5s.895 1.5 2 1.5Z" clip-rule="evenodd"/>
+  </svg>
 `;

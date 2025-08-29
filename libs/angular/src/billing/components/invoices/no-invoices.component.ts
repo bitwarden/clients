@@ -1,15 +1,14 @@
 import { Component } from "@angular/core";
 
-import { PartnerTrustIcon } from "@bitwarden/assets/svg";
+import { CreditCardIcon } from "@bitwarden/assets/svg";
 
 @Component({
   selector: "app-no-invoices",
-  template: `<div class="tw-flex tw-flex-col tw-items-center tw-text-info">
-    <bit-icon [icon]="icon"></bit-icon>
-    <p class="tw-mt-4">{{ "noInvoicesToList" | i18n }}</p>
-  </div>`,
+  template: `<bit-no-items [icon]="icon">
+    <div slot="title">{{ "noInvoicesToList" | i18n }}</div>
+  </bit-no-items>`,
   standalone: false,
 })
 export class NoInvoicesComponent {
-  icon = PartnerTrustIcon;
+  icon = CreditCardIcon;
 }

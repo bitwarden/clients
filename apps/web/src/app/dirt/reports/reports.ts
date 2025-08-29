@@ -1,11 +1,11 @@
 import {
-  MemberAccess,
+  NoCredentialsIcon,
   ReportBreach,
   ReportExposedPasswords,
-  ReportInactiveTwoFactor,
-  ReportReusedPasswords,
   ReportUnsecuredWebsites,
-  ReportWeakPasswords,
+  TwoFactorAuthSecurityKeyFailedIcon,
+  UnlockedIcon,
+  UserLockIcon,
 } from "@bitwarden/assets/svg";
 
 import { ReportEntry } from "./shared";
@@ -35,13 +35,13 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "reusedPasswordsReport",
     description: "reusedPasswordsReportDesc",
     route: "reused-passwords-report",
-    icon: ReportReusedPasswords,
+    icon: NoCredentialsIcon,
   },
   [ReportType.WeakPasswords]: {
     title: "weakPasswordsReport",
     description: "weakPasswordsReportDesc",
     route: "weak-passwords-report",
-    icon: ReportWeakPasswords,
+    icon: UnlockedIcon,
   },
   [ReportType.UnsecuredWebsites]: {
     title: "unsecuredWebsitesReport",
@@ -53,7 +53,7 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "inactive2faReport",
     description: "inactive2faReportDesc",
     route: "inactive-two-factor-report",
-    icon: ReportInactiveTwoFactor,
+    icon: TwoFactorAuthSecurityKeyFailedIcon,
   },
   [ReportType.DataBreach]: {
     title: "dataBreachReport",
@@ -65,6 +65,6 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "memberAccessReport",
     description: "memberAccessReportDesc",
     route: "member-access-report",
-    icon: MemberAccess,
+    icon: UserLockIcon,
   },
 };
