@@ -49,7 +49,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     private stateProvider: StateProvider,
     private logService: LogService,
     private defaultVaultTimeout: VaultTimeout,
-  ) {}
+  ) { }
 
   async setVaultTimeoutOptions(
     userId: UserId,
@@ -287,10 +287,6 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     }
 
     return availableActions;
-  }
-
-  async clear(userId: UserId): Promise<void> {
-    await this.keyService.clearPinKeys(userId);
   }
 
   private async userHasMasterPassword(userId: string): Promise<boolean> {

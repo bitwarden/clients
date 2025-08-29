@@ -1,11 +1,10 @@
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
 
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UserId } from "../../types/guid";
 import { PinKey, UserKey } from "../../types/key";
 
-import { PinLockType } from "./pin.service.implementation";
+import { PinLockType } from "./pin-lock-type";
 
 /**
  * The PinService is used for PIN-based unlocks. Below is a very basic overview of the PIN flow:
@@ -30,99 +29,56 @@ import { PinLockType } from "./pin.service.implementation";
  */
 export abstract class PinServiceAbstraction {
   /**
-   * Gets the persistent (stored on disk) version of the UserKey, encrypted by the PinKey.
+   * Gets the user's PIN
+   * @throws If the user is locked
+   * @returns The user's PIN
    */
-  abstract getPinKeyEncryptedUserKeyPersistent: (userId: UserId) => Promise<EncString | null>;
+  abstract getPin(userId: UserId): Promise<string>;
 
   /**
-   * Clears the persistent (stored on disk) version of the UserKey, encrypted by the PinKey.
+   * Setup pin unlock
+   * @throws If the provided user is locked 
    */
-  abstract clearPinKeyEncryptedUserKeyPersistent(userId: UserId): Promise<void>;
+  abstract setPin(pin: string, pinLockType: PinLockType, userId: UserId): Promise<void>;
 
-  /**
-   * Gets the ephemeral (stored in memory) version of the UserKey, encrypted by the PinKey.
+  /** 
+   * Clear pin unlock
    */
-  abstract getPinKeyEncryptedUserKeyEphemeral: (userId: UserId) => Promise<EncString | null>;
-
-  /**
-   * Clears the ephemeral (stored in memory) version of the UserKey, encrypted by the PinKey.
-   */
-  abstract clearPinKeyEncryptedUserKeyEphemeral(userId: UserId): Promise<void>;
-
-  /**
-   * Creates a pinKeyEncryptedUserKey from the provided PIN and UserKey.
-   */
-  abstract createPinKeyEncryptedUserKey: (
-    pin: string,
-    userKey: UserKey,
-    userId: UserId,
-  ) => Promise<EncString>;
-
-  /**
-   * Stores the UserKey, encrypted by the PinKey.
-   * @param storeEphemeralVersion If true, stores an ephemeral version via the private {@link setPinKeyEncryptedUserKeyEphemeral} method.
-   *                              If false, stores a persistent version via the private {@link setPinKeyEncryptedUserKeyPersistent} method.
-   */
-  abstract storePinKeyEncryptedUserKey: (
-    pinKeyEncryptedUserKey: EncString,
-    storeEphemeralVersion: boolean,
-    userId: UserId,
-  ) => Promise<void>;
-
-  /**
-   * Gets the user's PIN, encrypted by the UserKey.
-   */
-  abstract getUserKeyEncryptedPin: (userId: UserId) => Promise<EncString | null>;
-
-  /**
-   * Sets the user's PIN, encrypted by the UserKey.
-   */
-  abstract setUserKeyEncryptedPin: (
-    userKeyEncryptedPin: EncString,
-    userId: UserId,
-  ) => Promise<void>;
-
-  /**
-   * Creates a PIN, encrypted by the UserKey.
-   */
-  abstract createUserKeyEncryptedPin: (pin: string, userKey: UserKey) => Promise<EncString>;
-
-  /**
-   * Clears the user's PIN, encrypted by the UserKey.
-   */
-  abstract clearUserKeyEncryptedPin(userId: UserId): Promise<void>;
-
-  /**
-   * Makes a PinKey from the provided PIN.
-   */
-  abstract makePinKey: (pin: string, salt: string, kdfConfig: KdfConfig) => Promise<PinKey>;
+  abstract unsetPin(userId: UserId): Promise<void>;
 
   /**
    * Gets the user's PinLockType {@link PinLockType}.
    */
-  abstract getPinLockType: (userId: UserId) => Promise<PinLockType>;
+  abstract getPinLockType(userId: UserId): Promise<PinLockType>;
 
   /**
    * Declares whether or not the user has a PIN set (either persistent or ephemeral).
    * Note: for ephemeral, this does not check if we actual have an ephemeral PIN-encrypted UserKey stored in memory.
    * Decryption might not be possible even if this returns true. Use {@link isPinDecryptionAvailable} if decryption is required.
    */
-  abstract isPinSet: (userId: UserId) => Promise<boolean>;
+  abstract isPinSet(userId: UserId): Promise<boolean>;
 
   /**
    * Checks if PIN-encrypted keys are stored for the user.
    * Used for unlock / user verification scenarios where we will need to decrypt the UserKey with the PIN.
    */
-  abstract isPinDecryptionAvailable: (userId: UserId) => Promise<boolean>;
+  abstract isPinDecryptionAvailable(userId: UserId): Promise<boolean>;
+
+  /**
+   * Clears ephemeral PINs for the user being logged out. 
+   */
+  abstract logout(userId: UserId): Promise<void>;
 
   /**
    * Decrypts the UserKey with the provided PIN.
-   *
-   * @remarks - If the user has an old pinKeyEncryptedMasterKey (formerly called `pinProtected`), the UserKey
-   *            will be obtained via the private {@link decryptAndMigrateOldPinKeyEncryptedMasterKey} method.
-   *          - If the user does not have an old pinKeyEncryptedMasterKey, the UserKey will be obtained via the
-   *            private {@link decryptUserKey} method.
    * @returns UserKey
+   * @throws If the pin lock type is ephemeral but the ephemeral pin protected user key envelope is not available
    */
-  abstract decryptUserKeyWithPin: (pin: string, userId: UserId) => Promise<UserKey | null>;
+  abstract decryptUserKeyWithPin(pin: string, userId: UserId): Promise<UserKey | null>;
+
+  /**
+   * Makes a PinKey from the provided PIN.
+   * @deprecated - Note: This is currently re-used by vault exports, which is still permitted but should be refactored out to use a different construct.
+   */
+  abstract makePinKey(pin: string, salt: string, kdfConfig: KdfConfig): Promise<PinKey>;
 }

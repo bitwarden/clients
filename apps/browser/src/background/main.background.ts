@@ -676,16 +676,16 @@ export default class MainBackground {
 
     this.pinService = new PinService(
       this.accountService,
-      this.cryptoFunctionService,
       this.encryptService,
       this.kdfConfigService,
       this.keyGenerationService,
       this.logService,
       this.stateProvider,
+      this.keyService,
+      this.sdkService,
     );
 
     this.keyService = new DefaultKeyService(
-      this.pinService,
       this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
@@ -1606,7 +1606,6 @@ export default class MainBackground {
       this.keyService.clearKeys(userBeingLoggedOut),
       this.cipherService.clear(userBeingLoggedOut),
       this.folderService.clear(userBeingLoggedOut),
-      this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
       this.biometricStateService.logout(userBeingLoggedOut),
       this.popupViewCacheBackgroundService.clearState(),
       /* We intentionally do not clear:

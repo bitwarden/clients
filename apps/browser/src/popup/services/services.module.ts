@@ -267,7 +267,6 @@ const safeProviders: SafeProvider[] = [
       kdfConfigService: KdfConfigService,
     ) => {
       const keyService = new DefaultKeyService(
-        pinService,
         masterPasswordService,
         keyGenerationService,
         cryptoFunctionService,

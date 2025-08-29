@@ -1,5 +1,6 @@
 import * as bigInt from "big-integer";
 import {
+  BehaviorSubject,
   NEVER,
   Observable,
   combineLatest,
@@ -27,7 +28,6 @@ import {
   EncryptedString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -69,8 +69,13 @@ import { KdfConfig } from "./models/kdf-config";
 export class DefaultKeyService implements KeyServiceAbstraction {
   readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
+  // null is fine as the initial value since the observable is filtered to only emit non-null values.
+  private unlockedUserKeysSubject = new BehaviorSubject<{ userId: UserId; userKey: UserKey }>(
+    null as any,
+  );
+  readonly unlockedUserKeys$: Observable<{ userId: UserId; userKey: UserKey }>;
+
   constructor(
-    protected pinService: PinServiceAbstraction,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected keyGenerationService: KeyGenerationService,
     protected cryptoFunctionService: CryptoFunctionService,
@@ -88,6 +93,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: false }),
     ) as Observable<Record<OrganizationId, OrgKey>>;
+    this.unlockedUserKeys$ = this.unlockedUserKeysSubject
+      .asObservable()
+      .pipe(filter((x) => x != null));
   }
 
   async setUserKey(key: UserKey, userId: UserId): Promise<void> {
@@ -103,6 +111,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);
+    this.unlockedUserKeysSubject.next({ userId, userKey: key });
   }
 
   async setUserKeys(
@@ -221,17 +230,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearAllStoredUserKeys(userId);
   }
 
-  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<void> {
+  async clearStoredUserKey(userId: UserId): Promise<void> {
     if (userId == null) {
       throw new Error("UserId is required");
     }
 
-    if (keySuffix === KeySuffixOptions.Auto) {
-      await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-    }
-    if (keySuffix === KeySuffixOptions.Pin) {
-      await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-    }
+    await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
   }
 
   /**
@@ -507,16 +511,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_ENCRYPTED_PRIVATE_KEY, null, userId);
   }
 
-  async clearPinKeys(userId: UserId): Promise<void> {
-    if (userId == null) {
-      throw new Error("UserId is required");
-    }
-
-    await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
-    await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-    await this.pinService.clearUserKeyEncryptedPin(userId);
-  }
-
   async makeSendKey(keyMaterial: CsprngArray): Promise<SymmetricCryptoKey> {
     return await this.keyGenerationService.deriveKeyFromMaterial(
       keyMaterial,
@@ -539,7 +533,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearOrgKeys(userId);
     await this.clearProviderKeys(userId);
     await this.clearKeyPair(userId);
-    await this.clearPinKeys(userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, null, userId);
   }
 
@@ -671,32 +664,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     } else {
       await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     }
-
-    const storePin = await this.shouldStoreKey(KeySuffixOptions.Pin, userId);
-    if (storePin) {
-      // Decrypt userKeyEncryptedPin with user key
-      const pin = await this.encryptService.decryptString(
-        (await this.pinService.getUserKeyEncryptedPin(userId))!,
-        key,
-      );
-
-      const pinKeyEncryptedUserKey = await this.pinService.createPinKeyEncryptedUserKey(
-        pin,
-        key,
-        userId,
-      );
-      const noPreExistingPersistentKey =
-        (await this.pinService.getPinKeyEncryptedUserKeyPersistent(userId)) == null;
-
-      await this.pinService.storePinKeyEncryptedUserKey(
-        pinKeyEncryptedUserKey,
-        noPreExistingPersistentKey,
-        userId,
-      );
-    } else {
-      await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
-      await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-    }
   }
 
   protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId) {
@@ -711,11 +678,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         );
 
         shouldStoreKey = vaultTimeout == VaultTimeoutStringType.Never;
-        break;
-      }
-      case KeySuffixOptions.Pin: {
-        const userKeyEncryptedPin = await this.pinService.getUserKeyEncryptedPin(userId);
-        shouldStoreKey = !!userKeyEncryptedPin;
         break;
       }
     }
@@ -737,7 +699,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   protected async clearAllStoredUserKeys(userId: UserId): Promise<void> {
     await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-    await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
   }
 
   private async hashPhrase(hash: Uint8Array, minimumEntropy = 64) {

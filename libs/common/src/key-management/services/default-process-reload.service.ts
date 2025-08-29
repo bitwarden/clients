@@ -30,7 +30,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,
     private logService: LogService,
-  ) {}
+  ) { }
 
   async startProcessReload(authService: AuthService): Promise<void> {
     const accounts = await firstValueFrom(this.accountService.accounts$);
@@ -58,8 +58,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     // If there is an active user, check if they have a pinKeyEncryptedUserKeyEphemeral. If so, prevent process reload upon lock.
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (userId != null) {
-      const ephemeralPin = await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId);
-      if (ephemeralPin != null) {
+      if ((await this.pinService.getPinLockType(userId)) === "EPHEMERAL") {
         this.logService.info(
           "[Process Reload Service] Ephemeral pin active, preventing process reload",
         );
