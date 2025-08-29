@@ -31,7 +31,7 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
 import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { PolicyListService } from "./policy-list.service";
-import { POLICY_REGISTER_TOKEN } from "./policy-register-token";
+import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
@@ -39,7 +39,7 @@ import { POLICY_REGISTER_TOKEN } from "./policy-register-token";
   providers: [
     safeProvider({
       provide: PolicyListService,
-      deps: [POLICY_REGISTER_TOKEN],
+      deps: [POLICY_EDIT_REGISTER],
     }),
   ],
 })

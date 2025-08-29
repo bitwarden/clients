@@ -7,7 +7,7 @@ import { RouterModule } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/ui-common";
-import { POLICY_REGISTER_TOKEN } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
+import { POLICY_EDIT_REGISTER } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { CoreModule } from "@bitwarden/web-vault/app/core";
 import { OssRoutingModule } from "@bitwarden/web-vault/app/oss-routing.module";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
@@ -46,7 +46,7 @@ import { AccessIntelligenceModule } from "./dirt/access-intelligence/access-inte
   bootstrap: [AppComponent],
   providers: [
     safeProvider({
-      provide: POLICY_REGISTER_TOKEN,
+      provide: POLICY_EDIT_REGISTER,
       useValue: bitPolicyEditRegister,
     }),
   ],

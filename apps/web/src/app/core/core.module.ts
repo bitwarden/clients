@@ -114,7 +114,7 @@ import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core
 
 import { flagEnabled } from "../../utils/flags";
 import {
-  POLICY_REGISTER_TOKEN,
+  POLICY_EDIT_REGISTER,
   ossPolicyEditRegister,
 } from "../admin-console/organizations/policies";
 import {
@@ -156,7 +156,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider(RouterService),
   safeProvider(EventService),
   safeProvider({
-    provide: POLICY_REGISTER_TOKEN,
+    provide: POLICY_EDIT_REGISTER,
     useValue: ossPolicyEditRegister,
   }),
   safeProvider({
