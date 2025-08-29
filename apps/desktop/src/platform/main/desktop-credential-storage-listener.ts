@@ -20,6 +20,11 @@ export class DesktopCredentialStorageListener {
           serviceName += message.keySuffix;
         }
 
+        // Biometric is internal to the main process and must not be exposed via IPC
+        if (serviceName == "Bitwarden_biometric") {
+          return;
+        }
+
         let val: string | boolean = null;
         if (message.action && message.key) {
           if (message.action === "getPassword") {
