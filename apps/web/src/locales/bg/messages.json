@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Общо приложения"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Премахване на приложението от важните"
+  "unmarkAsCritical": {
+    "message": "Премахване от важните"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Приложението е премахнато от важните"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Копиране на номера на свидетелството"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "Копиране на името"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Смяна на езика на интерфейса. Ще трябва да пуснете програмата повторно."
   },
-  "enableFavicon": {
-    "message": "Показване на иконките на уеб сайтовете"
-  },
-  "faviconDesc": {
-    "message": "Показване на разпознаваемо изображение до всеки запис."
+  "showIconsChangePasswordUrls": {
+    "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
   "default": {
     "message": "Стандартно"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Адресът за таксуване е задължителен за добавянето на средства.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "Относно тази настройка"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
   },
   "billingAddress": {
     "message": "Адрес за фактуриране"

@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Todas de aplicações"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Desmarcar como aplicação crítica"
+  "unmarkAsCritical": {
+    "message": "Desmarcar como crítica"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Aplicação crítica desmarcada com sucesso"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Copiar número da carta de condução"
+  },
+  "copyPrivateKey": {
+    "message": "Copiar chave privada"
+  },
+  "copyPublicKey": {
+    "message": "Copiar chave pública"
+  },
+  "copyFingerprint": {
+    "message": "Copiar impressão digital"
   },
   "copyName": {
     "message": "Copiar nome"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Alterar o idioma utilizado pelo cofre web."
   },
-  "enableFavicon": {
-    "message": "Mostrar ícones do site"
-  },
-  "faviconDesc": {
-    "message": "Mostrar uma imagem reconhecível junto a cada credencial."
+  "showIconsChangePasswordUrls": {
+    "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
   },
   "default": {
     "message": "Predefinido"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Endereço de faturação necessário para adicionar crédito.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "Acerca desta definição"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
   },
   "billingAddress": {
     "message": "Endereço de faturação"
