@@ -1,6 +1,14 @@
 [workspace]
 resolver = "2"
-members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator", "autotype", "bitwarden_chromium_importer"]
+members = [
+    "autotype",
+    "bitwarden_chromium_importer",
+    "core",
+    "macos_provider",
+    "napi",
+    "proxy",
+    "windows_plugin_authenticator"
+]
 
 [workspace.package]
 version = "0.0.0"
@@ -20,7 +28,7 @@ bytes = "=1.10.1"
 cbc = "=0.1.2"
 core-foundation = "=0.10.0"
 dirs = "=6.0.0"
-ed25519 =  "=2.2.3"
+ed25519 = "=2.2.3"
 embed_plist = "=1.2.2"
 futures = "=0.3.31"
 hex = "=0.4.3"
@@ -35,7 +43,7 @@ napi-derive = "=2.16.13"
 oo7 = "=0.4.3"
 oslog = "=0.2.0"
 pin-project = "=1.1.10"
-pkcs8 =  "=0.10.2"
+pkcs8 = "=0.10.2"
 rand = "=0.9.1"
 rsa = "=0.9.6"
 russh-cryptovec = "=0.7.3"
@@ -47,14 +55,14 @@ serde_json = "=1.0.127"
 sha2 = "=0.10.8"
 simplelog = "=0.12.2"
 ssh-encoding = "=0.2.0"
-ssh-key = {version = "=0.6.7", default-features = false }
+ssh-key = { version = "=0.6.7", default-features = false }
 sysinfo = "=0.35.0"
 thiserror = "=2.0.12"
 tokio = "=1.45.0"
 tokio-stream = "=0.1.15"
 tokio-util = "=0.7.13"
 typenum = "=1.18.0"
-uniffi =  "=0.28.3"
+uniffi = "=0.28.3"
 widestring = "=1.2.0"
 windows = "=0.61.1"
 windows-core = "=0.61.0"
@@ -63,3 +71,8 @@ windows-registry = "=0.5.3"
 zbus = "=5.5.0"
 zbus_polkit = "=5.0.0"
 zeroizing-alloc = "=0.1.0"
+
+[workspace.lints.clippy]
+unused_async = "deny"
+unwrap_used = "deny"
+string_slice = "warn"

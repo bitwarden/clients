@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Total des applications"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Ne plus marquer comme application critique"
+  "unmarkAsCritical": {
+    "message": "Retirer la cote critique"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Marquage d'application critique retiré avec succès"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Copier le numéro de permis de conduire"
+  },
+  "copyPrivateKey": {
+    "message": "Copier la clé privée"
+  },
+  "copyPublicKey": {
+    "message": "Copier la clé publique"
+  },
+  "copyFingerprint": {
+    "message": "Copier l'empreinte digitale"
   },
   "copyName": {
     "message": "Copier le nom"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Changez la langue utilisée par le coffre web."
   },
-  "enableFavicon": {
-    "message": "Afficher les icônes des sites web"
-  },
-  "faviconDesc": {
-    "message": "Affichez une image reconnaissable à côté de chaque identifiant."
+  "showIconsChangePasswordUrls": {
+    "message": "Affiche les icônes du site web et récupère les URL de changement de mot de passe"
   },
   "default": {
     "message": "Par défaut"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "L'adresse de facturation est requise pour ajouter du crédit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "À propos de ce paramètre"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden utilisera les URIs de connexion enregistrées pour identifier quelle icône ou URL de changement de mot de passe doit être utilisée pour améliorer votre expérience. Aucune information n'est recueillie ou enregistrée lorsque vous utilisez ce service."
   },
   "billingAddress": {
     "message": "Adresse de facturation"
