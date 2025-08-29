@@ -1,4 +1,5 @@
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { VaultItem } from "./vault-item";
@@ -14,4 +15,5 @@ export type VaultItemEvent<C extends CipherViewLike> =
   | { type: "delete"; items: VaultItem<C>[] }
   | { type: "copyField"; item: C; field: "username" | "password" | "totp" }
   | { type: "moveToFolder"; items: C[] }
-  | { type: "assignToCollections"; items: C[] };
+  | { type: "assignToCollections"; items: C[] }
+  | { type: "editFolder"; item: FolderView };
