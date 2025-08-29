@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Укупно апликација"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Уклони ознаку критичне апликације"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Успешно уклоњена ознака са критичне апликације"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Копирати број лиценце"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "copyName": {
     "message": "Копирати име"
@@ -2102,11 +2111,8 @@
   "languageDesc": {
     "message": "Променити језик за Сеф."
   },
-  "enableFavicon": {
-    "message": "Прикажи иконе сајтова"
-  },
-  "faviconDesc": {
-    "message": "Прикажи препознатљиву иконицу поред сваке ставке за пријаву."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Подразумевано"
@@ -10981,6 +10987,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Адреса за наплату је потребна за додавање кредита.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Адреса рачуна"
