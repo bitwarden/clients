@@ -225,6 +225,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
   }
 
+  refreshMenuLayerPosition = () => this.inlineMenuContentService?.refreshTopLayerPosition();
+
+  getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames() || [];
+
+  getUnownedTopLayerItems = (includeCandidates?: boolean) =>
+    this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);
+
   /**
    * Clears all cached user filled fields.
    */
