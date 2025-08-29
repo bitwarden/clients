@@ -324,7 +324,7 @@ describe("MasterPasswordLockComponent", () => {
           },
         },
         expectedText: "unlockWithPin",
-        expectedUnlockOption: null,
+        expectedUnlockOption: UnlockOption.Pin,
         shouldShow: false,
         shouldEnable: false,
       },
