@@ -3,8 +3,8 @@ import { BehaviorSubject } from "rxjs";
 import { BadgeBrowserApi, RawBadgeState } from "../badge-browser-api";
 
 export class MockBadgeBrowserApi implements BadgeBrowserApi {
-  private _activeTab$ = new BehaviorSubject<chrome.tabs.TabActiveInfo | undefined>(undefined);
-  activeTab$ = this._activeTab$.asObservable();
+  private _tabUpdated$ = new BehaviorSubject<chrome.tabs.TabActiveInfo | undefined>(undefined);
+  tabUpdated$ = this._tabUpdated$.asObservable();
 
   specificStates: Record<number, RawBadgeState> = {};
   generalState?: RawBadgeState;
@@ -29,7 +29,7 @@ export class MockBadgeBrowserApi implements BadgeBrowserApi {
   }
 
   setLastActivatedTab(tabId: number) {
-    this._activeTab$.next({
+    this._tabUpdated$.next({
       tabId,
       windowId: 1,
     });
