@@ -1,0 +1,52 @@
+<div
+  class="tw-rounded-md tw-flex tw-flex-col tw-max-w-[60ch] [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-offset-2 [&:has(input:focus-visible)]:tw-ring-primary-600"
+>
+  <label
+    [attr.for]="inputId"
+    class="tw-inline-flex tw-gap-2 tw-items-center tw-cursor-pointer tw-max-w-[60ch]"
+  >
+    <span
+      class="tw-w-9 tw-shrink-0 tw-h-[1.375rem] tw-rounded-full tw-relative tw-transition-[background-color]"
+      [ngClass]="{
+        'tw-bg-secondary-100': disabled(),
+        'tw-bg-primary-600': selected() && !disabled(),
+        'tw-bg-secondary-300': !selected() && !disabled(),
+      }"
+    >
+      <input
+        type="checkbox"
+        role="switch"
+        [id]="inputId"
+        [checked]="selected()"
+        [attr.aria-disabled]="disabled()"
+        (change)="onInputChange($event)"
+        class="tw-sr-only"
+        [attr.aria-describedby]="describedByIds()"
+      />
+      <span
+        class="tw-absolute tw-block tw-size-[1.125rem] tw-top-[2px] tw-start-[2px] tw-bg-background tw-rounded-full tw-shadow-md tw-transform tw-transition-transform"
+        [ngClass]="{
+          'tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))] rtl:-tw-translate-x-[calc(theme(spacing.9)_-_(1.125rem_+_4px))]':
+            selected(),
+        }"
+      ></span>
+    </span>
+    <div>
+      <span
+        bitTypography="body2"
+        class="tw-block [&_*]:tw-whitespace-normal"
+        [ngClass]="{ 'tw-text-muted': disabled() }"
+      >
+        <ng-content select="bit-label"></ng-content>
+      </span>
+    </div>
+  </label>
+  <div class="tw-ps-[calc(theme(spacing.9)_+_theme(spacing.2))] [&_bit-hint]:tw-mt-0">
+    <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
+  </div>
+  @if (disabledReasonText && disabled()) {
+    <div [attr.id]="disabledReasonTextId" class="tw-sr-only">
+      {{ disabledReasonText() }}
+    </div>
+  }
+</div>
