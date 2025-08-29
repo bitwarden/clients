@@ -1,12 +1,12 @@
 <div
-  class="[&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-offset-2 [&:has(input:focus-visible)]:tw-ring-primary-600"
+  class="tw-rounded-md tw-max-w-[60ch] [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-offset-2 [&:has(input:focus-visible)]:tw-ring-primary-600"
 >
   <label
     [attr.for]="inputId"
-    class="tw-flex tw-gap-2 tw-items-center tw-rounded-md tw-cursor-pointer"
+    class="tw-inline-flex tw-gap-2 tw-items-center tw-cursor-pointer tw-max-w-[60ch]"
   >
     <span
-      class="tw-w-9 tw-h-[1.375rem] tw-rounded-full tw-relative tw-transition-[background-color]"
+      class="tw-w-9 tw-shrink-0 tw-h-[1.375rem] tw-rounded-full tw-relative tw-transition-[background-color]"
       [ngClass]="{
         'tw-bg-secondary-100': disabled(),
         'tw-bg-primary-600': selected() && !disabled(),
@@ -18,7 +18,7 @@
         role="switch"
         [id]="inputId"
         [checked]="selected()"
-        [disabled]="disabled()"
+        [attr.aria-disabled]="disabled()"
         (change)="onInputChange($event)"
         class="tw-sr-only"
         [attr.aria-describedby]="hintComponent().id"
@@ -29,7 +29,11 @@
       ></span>
     </span>
     <div>
-      <span bitTypography="body2" class="tw-block" [ngClass]="{ 'tw-text-muted': disabled() }">
+      <span
+        bitTypography="body2"
+        class="tw-block [&_*]:tw-whitespace-normal"
+        [ngClass]="{ 'tw-text-muted': disabled() }"
+      >
         <ng-content select="bit-label"></ng-content>
       </span>
     </div>

@@ -70,6 +70,30 @@ export const Default: Story = {
   },
 };
 
+export const WithLongLabel: Story = {
+  render: (args) => ({
+    props: {
+      formObj: new FormGroup({
+        switch: new FormControl(0),
+      }),
+    },
+    template: /* HTML */ `
+      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
+        <bit-label
+          >This example switch has a super long label. This is not recommended. Switch labels should
+          be clear and concise. They should tell the user what turning on the switch will
+          do.</bit-label
+        >
+        <bit-hint>This is a hint for the switch</bit-hint>
+      </bit-switch>
+    `,
+  }),
+  args: {
+    disabled: false,
+    selected: true,
+  },
+};
+
 export const WithForm: Story = {
   render: (args) => ({
     props: {

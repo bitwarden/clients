@@ -1,7 +1,8 @@
 import { NgClass } from "@angular/common";
-import { Component, contentChild, input, model } from "@angular/core";
+import { Component, contentChild, ElementRef, inject, input, model } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
+import { AriaDisableDirective } from "../a11y";
 import { FormControlModule } from "../form-control/form-control.module";
 import { BitHintComponent } from "../form-control/hint.component";
 
@@ -20,13 +21,18 @@ let nextId = 0;
   imports: [FormControlModule, NgClass],
   host: {
     "[id]": "this.id()",
+    "[attr.aria-disabled]": "this.disabled()",
   },
+  hostDirectives: [AriaDisableDirective],
 })
 export class SwitchComponent implements ControlValueAccessor {
   private notifyOnChange?: (v: boolean) => void;
   private notifyOnTouch?: () => void;
+  private el = inject(ElementRef<HTMLButtonElement>);
+
   protected selected = model(false);
   protected disabled = model(false);
+  protected disabledReasonText = input<string | null>(null);
 
   readonly hintComponent = contentChild<BitHintComponent>(BitHintComponent);
 
