@@ -266,7 +266,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (error instanceof ErrorResponse) {
       switch (error.statusCode) {
         case HttpStatusCode.BadRequest: {
-          if (error.message.toLowerCase().includes("username or password is incorrect")) {
+          if (error.message?.toLowerCase().includes("username or password is incorrect")) {
             this.formGroup.controls.masterPassword.setErrors({
               error: {
                 message: this.i18nService.t("invalidMasterPassword"),
