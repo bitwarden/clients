@@ -29,7 +29,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -253,13 +252,12 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   async navigateToPaymentMethod() {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+    await this.router.navigate(
+      ["organizations", `${this.organizationId}`, "billing", "payment-details"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
     );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
-    await this.router.navigate(["organizations", `${this.organizationId}`, "billing", route], {
-      state: { launchPaymentModalAutomatically: true },
-    });
   }
 
   ngOnDestroy(): void {
