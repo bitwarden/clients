@@ -1,5 +1,3 @@
-import { Injectable } from "@angular/core";
-
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   OrganizationId,
@@ -10,7 +8,6 @@ import {
 import { OrganizationIntegrationConfigurationRequest } from "../models/organization-integration-configuration-request";
 import { OrganizationIntegrationConfigurationResponse } from "../models/organization-integration-configuration-response";
 
-@Injectable()
 export class OrganizationIntegrationConfigurationApiService {
   constructor(private apiService: ApiService) {}
 
