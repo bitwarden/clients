@@ -51,7 +51,6 @@ export class PolicyEditComponent implements AfterViewInit {
   loading = true;
   enabled = false;
   saveDisabled$: Observable<boolean>;
-  defaultTypes: any[];
   policyComponent: BasePolicyComponent;
 
   private policyResponse: PolicyResponse;
