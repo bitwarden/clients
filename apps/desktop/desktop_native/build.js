@@ -35,7 +35,7 @@ function buildProxyBin(target, release = true) {
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
     child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
-    
+
     if (target) {
         // Copy the resulting binary to the dist folder
         const targetFolder = release ? "release" : "debug";
