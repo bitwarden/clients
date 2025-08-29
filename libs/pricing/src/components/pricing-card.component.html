@@ -1,5 +1,5 @@
 <div
-  class="tw-box-border tw-bg-background tw-text-main tw-border tw-border-secondary-100 tw-rounded-3xl tw-p-8 tw-shadow-sm tw-w-[449px] tw-h-full tw-flex tw-flex-col"
+  class="tw-box-border tw-bg-background tw-text-main tw-border tw-border-secondary-100 tw-rounded-3xl tw-p-8 tw-shadow-sm tw-w-full tw-min-h-[500px] tw-flex tw-flex-col"
 >
   <!-- Title Section with Active Badge -->
   <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
@@ -15,8 +15,8 @@
     }
   </div>
 
-  <!-- Tagline with 2-line text wrapping -->
-  <p bitTypography="helper" class="tw-text-muted tw-mb-6 tw-m-0 tw-leading-relaxed tw-line-clamp-2">
+  <!-- Tagline with 4-line text wrapping -->
+  <p bitTypography="helper" class="tw-text-muted tw-mb-6 tw-m-0 tw-leading-relaxed tw-line-clamp-4">
     {{ tagline() }}
   </p>
 
@@ -48,7 +48,15 @@
         (click)="onButtonClick()"
         type="button"
       >
+        @if (buttonConfig.icon && buttonConfig.iconPosition === "before") {
+          <i class="bwi {{ buttonConfig.icon }} tw-me-2" aria-hidden="true"></i>
+        }
         {{ buttonConfig.text }}
+        @if (
+          buttonConfig.icon && (buttonConfig.iconPosition === "after" || !buttonConfig.iconPosition)
+        ) {
+          <i class="bwi {{ buttonConfig.icon }} tw-ms-2" aria-hidden="true"></i>
+        }
       </button>
     </div>
   }

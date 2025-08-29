@@ -36,13 +36,13 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 
 ### Inputs
 
-| Input         | Type                                                                          | Description                                                                                                                                 |
-| ------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tagline`     | `string`                                                                      | **Required.** Descriptive text below title (max 2 lines)                                                                                    |
-| `price`       | `{ amount: number; cadence: "monthly" \| "annually"; showPerUser?: boolean }` | **Optional.** Price information. If omitted, no price is shown                                                                              |
-| `button`      | `{ type: ButtonType; text: string; disabled?: boolean }`                      | **Optional.** Button configuration. If omitted, no button is shown                                                                          |
-| `features`    | `string[]`                                                                    | **Optional.** List of features with checkmarks                                                                                              |
-| `activeBadge` | `{ text: string; show: boolean }`                                             | **Optional.** Active plan badge positioned on the same line as title, aligned to the right. Defaults to "Active plan" text with show: false |
+| Input         | Type                                                                                                        | Description                                                                                                                                    |
+| ------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tagline`     | `string`                                                                                                    | **Required.** Descriptive text below title (max 2 lines)                                                                                       |
+| `price`       | `{ amount: number; cadence: "monthly" \| "annually"; showPerUser?: boolean }`                               | **Optional.** Price information. If omitted, no price is shown                                                                                 |
+| `button`      | `{ type: ButtonType; text: string; disabled?: boolean; icon?: string; iconPosition?: "before" \| "after" }` | **Optional.** Button configuration with optional icon. If omitted, no button is shown. Icon uses `bwi-*` classes, position defaults to "after" |
+| `features`    | `string[]`                                                                                                  | **Optional.** List of features with checkmarks                                                                                                 |
+| `activeBadge` | `{ text: string; show: boolean }`                                                                           | **Optional.** Active plan badge positioned on the same line as title, aligned to the right. Defaults to "Active plan" text with show: false    |
 
 ### Content Slots
 

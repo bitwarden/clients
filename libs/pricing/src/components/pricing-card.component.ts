@@ -15,7 +15,13 @@ import { ButtonModule, ButtonType, IconModule, TypographyModule } from "@bitward
 export class PricingCardComponent {
   tagline = input.required<string>();
   price = input<{ amount: number; cadence: "monthly" | "annually"; showPerUser?: boolean }>();
-  button = input<{ type: ButtonType; text: string; disabled?: boolean }>();
+  button = input<{
+    type: ButtonType;
+    text: string;
+    disabled?: boolean;
+    icon?: string;
+    iconPosition?: "before" | "after";
+  }>();
   features = input<string[]>();
   activeBadge = input<{ text: string; show: boolean }>({ text: "Active plan", show: false });
 
