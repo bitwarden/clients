@@ -116,7 +116,10 @@ export const Disabled: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <bit-switch ${formatArgsForCodeSnippet<SwitchComponent>(args)}>
+      <bit-switch
+        disabledReasonText="Switch disabled because I am not allowed to change it"
+        ${formatArgsForCodeSnippet<SwitchComponent>(args)}
+      >
         <bit-label>Example switch</bit-label>
         <bit-hint>This is a hint for the switch</bit-hint>
       </bit-switch>

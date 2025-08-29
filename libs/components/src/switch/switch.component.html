@@ -21,7 +21,7 @@
         [attr.aria-disabled]="disabled()"
         (change)="onInputChange($event)"
         class="tw-sr-only"
-        [attr.aria-describedby]="hintComponent().id"
+        [attr.aria-describedby]="describedByIds()"
       />
       <span
         class="tw-absolute tw-block tw-size-[1.125rem] tw-top-[2px] tw-start-[2px] tw-bg-background tw-rounded-full tw-shadow-md tw-transform tw-transition-transform"
@@ -38,6 +38,11 @@
       </span>
     </div>
   </label>
+  @if (disabledReasonText && disabled()) {
+    <div [attr.id]="disabledReasonTextId" class="tw-sr-only">
+      {{ disabledReasonText() }}
+    </div>
+  }
   <div class="tw-ps-[calc(theme(spacing.9)_+_theme(spacing.2))]">
     <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
   </div>

@@ -1,5 +1,5 @@
 import { NgClass } from "@angular/common";
-import { Component, contentChild, ElementRef, inject, input, model } from "@angular/core";
+import { Component, computed, contentChild, ElementRef, inject, input, model } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { AriaDisableDirective } from "../a11y";
@@ -35,6 +35,24 @@ export class SwitchComponent implements ControlValueAccessor {
   protected disabledReasonText = input<string | null>(null);
 
   readonly hintComponent = contentChild<BitHintComponent>(BitHintComponent);
+
+  private disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
+
+  readonly describedByIds = computed(() => {
+    const ids: string[] = [];
+
+    if (this.disabledReasonText && this.disabled()) {
+      ids.push(this.disabledReasonTextId);
+    } else {
+      const hintId = this.hintComponent()?.id;
+
+      if (hintId) {
+        ids.push(hintId);
+      }
+    }
+
+    return ids.join(" ");
+  });
 
   writeValue(value: boolean): void {
     this.selected.set(value);
