@@ -118,7 +118,7 @@ type PaymentMethodFormGroup = FormGroup<{
         @case ("bankAccount") {
           <ng-container>
             <bit-callout type="warning" title="{{ 'verifyBankAccount' | i18n }}">
-              {{ "verifyBankAccountWarning" | i18n }}
+              {{ "requiredToVerifyBankAccountWithStripe" | i18n }}
             </bit-callout>
             <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-mb-4" formGroupName="bankAccount">
               <bit-form-field class="tw-col-span-1" [disableMargin]="true">

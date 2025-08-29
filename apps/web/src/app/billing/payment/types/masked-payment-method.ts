@@ -25,7 +25,7 @@ type MaskedBankAccount = {
   type: BankAccountPaymentMethod;
   bankName: string;
   last4: string;
-  verified: boolean;
+  hostedVerificationUrl?: string;
 };
 
 type MaskedCard = {
@@ -73,7 +73,7 @@ class MaskedBankAccountResponse extends BaseResponse implements MaskedBankAccoun
   type: BankAccountPaymentMethod;
   bankName: string;
   last4: string;
-  verified: boolean;
+  hostedVerificationUrl?: string;
 
   constructor(response: any) {
     super(response);
@@ -81,7 +81,7 @@ class MaskedBankAccountResponse extends BaseResponse implements MaskedBankAccoun
     this.type = "bankAccount";
     this.bankName = this.getResponseProperty("BankName");
     this.last4 = this.getResponseProperty("Last4");
-    this.verified = this.getResponseProperty("Verified");
+    this.hostedVerificationUrl = this.getResponseProperty("HostedVerificationUrl");
   }
 }
 

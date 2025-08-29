@@ -250,6 +250,17 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.SyncOrganizationCollectionSettingChanged:
         await this.syncService.fullSync(true);
         break;
+      case NotificationType.OrganizationBankAccountVerified:
+        this.messagingService.send("organizationBankAccountVerified", {
+          organizationId: notification.payload.organizationId,
+        });
+        break;
+      case NotificationType.ProviderBankAccountVerified:
+        this.messagingService.send("providerBankAccountVerified", {
+          providerId: notification.payload.providerId,
+          adminId: notification.payload.adminId,
+        });
+        break;
       default:
         break;
     }
