@@ -29,10 +29,12 @@ import {
   MasterPasswordVerificationResponse,
 } from "@bitwarden/common/auth/types/verification";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -64,6 +66,8 @@ import {
   UnlockOptionValue,
 } from "../services/lock-component.service";
 
+import { MasterPasswordLockComponent } from "./master-password-lock/master-password-lock.component";
+
 const BroadcasterSubscriptionId = "LockComponent";
 
 const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
@@ -87,11 +91,16 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
     FormFieldModule,
     AsyncActionsModule,
     IconButtonModule,
+    MasterPasswordLockComponent,
   ],
 })
 export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected loading = true;
+
+  protected forceUpdateKDFSettings$ = this.configService.getFeatureFlag$(
+    FeatureFlag.ForceUpdateKDFSettings,
+  );
 
   activeAccount: Account | null = null;
 
@@ -160,6 +169,7 @@ export class LockComponent implements OnInit, OnDestroy {
     private logoutService: LogoutService,
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private configService: ConfigService,
     // desktop deps
     private broadcasterService: BroadcasterService,
   ) {}
@@ -423,6 +433,7 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
+  //TODO This code isn't used and should be removed when removing ForceUpdateKDFSettings feature flag.
   togglePassword() {
     this.showPassword = !this.showPassword;
     const input = document.getElementById(
@@ -498,6 +509,7 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
+  // TODO remove when removing ForceUpdateKDFSettings feature flag.
   private validateMasterPassword(): boolean {
     if (this.formGroup?.invalid) {
       this.toastService.showToast({
@@ -511,6 +523,7 @@ export class LockComponent implements OnInit, OnDestroy {
     return true;
   }
 
+  // TODO remove when removing ForceUpdateKDFSettings feature flag.
   async unlockViaMasterPassword() {
     if (!this.validateMasterPassword() || this.formGroup == null || this.activeAccount == null) {
       return;
@@ -571,7 +584,7 @@ export class LockComponent implements OnInit, OnDestroy {
     await this.setUserKeyAndContinue(userKey, true);
   }
 
-  private async setUserKeyAndContinue(key: UserKey, evaluatePasswordAfterUnlock = false) {
+  protected async setUserKeyAndContinue(key: UserKey, evaluatePasswordAfterUnlock = false) {
     if (this.activeAccount == null) {
       throw new Error("No active user.");
     }
