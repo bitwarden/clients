@@ -1,6 +1,7 @@
 <app-header></app-header>
 
 <bit-container>
+  @let organization = organization$ | async;
   @if (loading) {
     <i
       class="bwi bwi-spinner bwi-spin tw-text-muted"
