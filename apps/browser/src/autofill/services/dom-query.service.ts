@@ -55,7 +55,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   ): T[] {
     const ignoredTreeWalkerNodes = ignoredTreeWalkerNodesOverride || this.ignoredTreeWalkerNodes;
 
-    if (!forceDeepQueryAttempt && this.pageContainsShadowDom) {
+    if (!forceDeepQueryAttempt) {
       return this.queryAllTreeWalkerNodes<T>(
         root,
         treeWalkerFilter,
