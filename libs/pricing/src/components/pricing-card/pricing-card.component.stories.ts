@@ -302,7 +302,7 @@ export const PricingComparison: Story = {
   render: () => ({
     template: `
       <div class="tw-flex tw-flex-wrap tw-gap-6 tw-p-4 tw-justify-center">
-        <div class="tw-flex tw-flex-col tw-h-full">
+        <div class="tw-w-80 tw-h-auto">
           <billing-pricing-card
             tagline="Your current plan with essential features"
             [price]="{ amount: 0, cadence: 'monthly' }"
@@ -312,7 +312,7 @@ export const PricingComparison: Story = {
           </billing-pricing-card>
         </div>
         
-        <div class="tw-flex tw-flex-col tw-h-full">
+        <div class="tw-w-80 tw-h-auto">
           <billing-pricing-card
             tagline="Everything you need for secure password management"
             [price]="{ amount: 10, cadence: 'monthly' }"
@@ -322,7 +322,7 @@ export const PricingComparison: Story = {
           </billing-pricing-card>
         </div>
         
-        <div class="tw-flex tw-flex-col tw-h-full">
+        <div class="tw-w-80 tw-h-auto">
           <billing-pricing-card
             tagline="Advanced security and management for teams"
             [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"

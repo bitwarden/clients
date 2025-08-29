@@ -189,7 +189,7 @@ describe("PricingCardComponent", () => {
 
     expect(cardContainer.classList).toContain("tw-flex");
     expect(cardContainer.classList).toContain("tw-flex-col");
-    expect(cardContainer.classList).toContain("tw-min-h-[500px]");
+    expect(cardContainer.classList).toContain("tw-w-full");
     expect(cardContainer.classList).not.toContain("tw-block"); // Should not have conflicting display property
   });
 });
