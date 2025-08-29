@@ -6,9 +6,9 @@
     <ng-content select=".title-slot"></ng-content>
 
     <!-- Active Badge (if provided) -->
-    @if (activeBadge().show) {
-      <span bitBadge [variant]="activeBadge().variant || 'primary'" class="tw-ml-3">
-        {{ activeBadge().text }}
+    @if (activeBadge(); as activeBadgeValue) {
+      <span bitBadge [variant]="activeBadgeValue.variant || 'primary'" class="tw-ml-3">
+        {{ activeBadgeValue.text }}
       </span>
     }
   </div>
@@ -46,14 +46,15 @@
         (click)="onButtonClick()"
         type="button"
       >
-        @if (buttonConfig.icon && buttonConfig.iconPosition === "before") {
-          <i class="bwi {{ buttonConfig.icon }} tw-me-2" aria-hidden="true"></i>
+        @if (buttonConfig.icon?.position === "before") {
+          <i class="bwi {{ buttonConfig.icon.type }} tw-me-2" aria-hidden="true"></i>
         }
         {{ buttonConfig.text }}
         @if (
-          buttonConfig.icon && (buttonConfig.iconPosition === "after" || !buttonConfig.iconPosition)
+          buttonConfig.icon &&
+          (buttonConfig.icon.position === "after" || !buttonConfig.icon.position)
         ) {
-          <i class="bwi {{ buttonConfig.icon }} tw-ms-2" aria-hidden="true"></i>
+          <i class="bwi {{ buttonConfig.icon.type }} tw-ms-2" aria-hidden="true"></i>
         }
       </button>
     </div>

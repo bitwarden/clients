@@ -26,15 +26,10 @@ export class PricingCardComponent {
     type: ButtonType;
     text: string;
     disabled?: boolean;
-    icon?: string;
-    iconPosition?: "before" | "after";
+    icon?: { type: string; position: "before" | "after" };
   }>();
   features = input<string[]>();
-  activeBadge = input<{ text: string; show: boolean; variant?: BadgeVariant }>({
-    text: "Active plan",
-    show: false,
-    variant: "primary",
-  });
+  activeBadge = input<{ text: string; variant?: BadgeVariant }>();
 
   @Output() buttonClick = new EventEmitter<void>();
 

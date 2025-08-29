@@ -294,7 +294,7 @@ export const ActivePlan: Story = {
   args: {
     tagline: "Your current plan with essential password management features",
     features: ["Store unlimited passwords", "Access from any device", "Secure password generator"],
-    activeBadge: { text: "Active plan", show: true },
+    activeBadge: { text: "Active plan" },
   },
 };
 
@@ -307,7 +307,7 @@ export const PricingComparison: Story = {
             tagline="Your current plan with essential features"
             [price]="{ amount: 0, cadence: 'monthly' }"
             [features]="['Store unlimited passwords', 'Access from any device', 'Secure password generator']"
-            [activeBadge]="{ text: 'Active plan', show: true }">
+            [activeBadge]="{ text: 'Active plan' }">
             <h3 class="title-slot tw-m-0" bitTypography="h3">Free</h3>
           </billing-pricing-card>
         </div>
@@ -345,7 +345,7 @@ export const WithButtonIcon: Story = {
         <billing-pricing-card
           tagline="Upgrade for advanced features"
           [price]="{ amount: 10, cadence: 'monthly' }"
-          [button]="{ text: 'Upgrade Now', type: 'primary', icon: 'bwi-external-link', iconPosition: 'after' }"
+          [button]="{ text: 'Upgrade Now', type: 'primary', icon: { type: 'bwi-external-link', position: 'after' } }"
           [features]="['Advanced security', 'Priority support', 'Extra storage']">
           <h3 class="title-slot tw-m-0" bitTypography="h3">Premium</h3>
         </billing-pricing-card>
@@ -354,7 +354,7 @@ export const WithButtonIcon: Story = {
         <billing-pricing-card
           tagline="Add more features to your plan"
           [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
-          [button]="{ text: 'Add Features', type: 'secondary', icon: 'bwi-plus', iconPosition: 'before' }"
+          [button]="{ text: 'Add Features', type: 'secondary', icon: { type: 'bwi-plus', position: 'before' } }"
           [features]="['Team management', 'Enhanced reporting', 'Custom branding']">
           <h3 class="title-slot tw-m-0" bitTypography="h3">Business</h3>
         </billing-pricing-card>
