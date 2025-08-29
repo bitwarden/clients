@@ -2,7 +2,7 @@ import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, interval, map, of, takeWhile, timeout } from "rxjs";
 import { ZXCVBNResult } from "zxcvbn";
@@ -91,6 +91,13 @@ describe("LockComponent", () => {
   const mockLockComponentService = mock<LockComponentService>();
   const mockAnonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
   const mockBroadcasterService = mock<BroadcasterService>();
+  const mockActivatedRoute = {
+    snapshot: {
+      paramMap: {
+        get: jest.fn().mockReturnValue(null), // return null for 'disable-redirect' param
+      },
+    },
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -148,6 +155,7 @@ describe("LockComponent", () => {
         { provide: LockComponentService, useValue: mockLockComponentService },
         { provide: AnonLayoutWrapperDataService, useValue: mockAnonLayoutWrapperDataService },
         { provide: BroadcasterService, useValue: mockBroadcasterService },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })
