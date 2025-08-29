@@ -11,11 +11,11 @@ import {
   DialogRef,
   DIALOG_DATA,
   DialogService,
+  PremiumBadgeComponent,
   ToastService,
 } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared/shared.module";
-import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
 

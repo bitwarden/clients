@@ -16,11 +16,10 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, PremiumBadgeComponent, ToastService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
-import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessStatusType } from "../../emergency-access/enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";

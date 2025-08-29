@@ -38,6 +38,7 @@ import {
   DialogService,
   ItemModule,
   ToastService,
+  PremiumBadgeComponent,
 } from "@bitwarden/components";
 import {
   AttachmentDialogCloseResult,
@@ -131,6 +132,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CipherFormModule,
     AsyncActionsModule,
     ItemModule,
+    PremiumBadgeComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },

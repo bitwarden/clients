@@ -30,6 +30,7 @@ export * from "./multi-select";
 export * from "./navigation";
 export * from "./no-items";
 export * from "./popover";
+export * from "./premium-badge";
 export * from "./progress";
 export * from "./radio-button";
 export * from "./search";

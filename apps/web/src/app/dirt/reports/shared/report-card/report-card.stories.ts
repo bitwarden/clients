@@ -3,10 +3,9 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BadgeModule, IconModule } from "@bitwarden/components";
+import { BadgeModule, IconModule, PremiumBadgeComponent } from "@bitwarden/components";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
-import { PremiumBadgeComponent } from "../../../../vault/components/premium-badge.component";
 import { ReportVariant } from "../models/report-variant";
 
 import { ReportCardComponent } from "./report-card.component";

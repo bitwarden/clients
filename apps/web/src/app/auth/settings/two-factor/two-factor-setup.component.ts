@@ -31,11 +31,10 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { DialogRef, DialogService, ItemModule } from "@bitwarden/components";
+import { DialogRef, DialogService, ItemModule, PremiumBadgeComponent } from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
-import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 
 import { TwoFactorRecoveryComponent } from "./two-factor-recovery.component";
 import { TwoFactorSetupAuthenticatorComponent } from "./two-factor-setup-authenticator.component";

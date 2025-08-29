@@ -25,17 +25,10 @@
           type="button"
           (click)="openAttachmentsDialog()"
         >
-          <p class="tw-m-0">
+          <div class="tw-flex tw-items-center tw-gap-2">
             {{ "attachments" | i18n }}
-            <span
-              *ngIf="!(canAccessAttachments$ | async)"
-              bitBadge
-              variant="success"
-              class="tw-ml-2"
-            >
-              {{ "premium" | i18n }}
-            </span>
-          </p>
+            <app-premium-badge *ngIf="!(canAccessAttachments$ | async)"></app-premium-badge>
+          </div>
           <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
         </button>
       </bit-item>

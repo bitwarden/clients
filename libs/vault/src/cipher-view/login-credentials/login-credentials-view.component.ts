@@ -31,6 +31,7 @@ import {
   IconButtonModule,
   BadgeModule,
   ColorPasswordModule,
+  PremiumBadgeComponent,
 } from "@bitwarden/components";
 
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
@@ -56,6 +57,7 @@ type TotpCodeValues = {
     BitTotpCountdownComponent,
     ReadOnlyCipherCardComponent,
     LinkModule,
+    PremiumBadgeComponent,
   ],
 })
 export class LoginCredentialsViewComponent implements OnChanges {
