@@ -23,9 +23,10 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 <billing-pricing-card
   title="Premium Plan"
   tagline="Everything you need for secure password management"
-  [price]="{ amount: 10, cadence: 'monthly' }"
+  [price]="{ amount: 10, cadence: 'monthly', showPerUser: true }"
   [button]="{ text: 'Choose Premium', type: 'primary' }"
   [features]="features"
+  [titleLevel]="'h2'"
   (buttonClick)="onPlanSelected()"
 >
 </billing-pricing-card>
@@ -33,13 +34,14 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 
 ## Inputs
 
-| Input      | Type                                                     | Description                                                    |
-| ---------- | -------------------------------------------------------- | -------------------------------------------------------------- |
-| `title`    | `string`                                                 | **Required.** The plan title displayed at the top              |
-| `tagline`  | `string`                                                 | **Required.** Descriptive text below title (max 2 lines)       |
-| `price`    | `{ amount: number; cadence: "monthly" \| "annually" }`   | **Optional.** Price information. If omitted, no price is shown |
-| `button`   | `{ type: ButtonType; text: string; disabled?: boolean }` | **Required.** Button configuration                             |
-| `features` | `string[]`                                               | **Optional.** List of features with checkmarks                 |
+| Input        | Type                                                                          | Description                                                     |
+| ------------ | ----------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `title`      | `string`                                                                      | **Required.** The plan title displayed at the top               |
+| `tagline`    | `string`                                                                      | **Required.** Descriptive text below title (max 2 lines)        |
+| `price`      | `{ amount: number; cadence: "monthly" \| "annually"; showPerUser?: boolean }` | **Optional.** Price information. If omitted, no price is shown  |
+| `button`     | `{ type: ButtonType; text: string; disabled?: boolean }`                      | **Required.** Button configuration                              |
+| `features`   | `string[]`                                                                    | **Optional.** List of features with checkmarks                  |
+| `titleLevel` | `"h1" \| "h2" \| "h3" \| "h4" \| "h5" \| "h6"`                                | **Optional.** Heading level for accessibility. Defaults to "h3" |
 
 ## Outputs
 
@@ -52,11 +54,16 @@ import { PricingCardComponent } from "@bitwarden/pricing";
 The component follows the Bitwarden design system with:
 
 - **Fixed width**: 449px for consistent layout
-- **Modern Angular**: Uses `@if` and `@for` control flow and signal inputs
+- **Border & Elevation**: secondary-100 border with shadow-sm elevation
+- **Border radius**: 24px (tw-rounded-3xl) for modern appearance
+- **Spacing**: 32px padding (tw-p-8) around content
+- **Modern Angular**: Uses `@if`, `@for`, and `@switch` control flow with signal inputs
 - **Signal inputs**: Type-safe inputs using Angular's signal-based input API
 - **Official buttons**: Uses `bitButton` directive from Component Library
-- **Typography**: Uses `bitTypography` directive for consistent text styling
-- **Accessibility**: Proper heading hierarchy and button semantics
+- **Typography**: Uses `bitTypography` helper and custom 30px price styling
+- **Icons**: Uses `bwi-check` icon with primary-600 styling from icon library
+- **Layout**: Flexbox column layout with button positioned at bottom
+- **Accessibility**: Configurable heading levels and semantic structure
 
 ## Examples
 
@@ -76,6 +83,23 @@ For free or contact-based plans, omit the `price` input:
 </billing-pricing-card>
 ```
 
+### Business Plan with Per User Pricing
+
+Show business plans with "per user" text:
+
+<Canvas of={PricingCardStories.LongTagline} />
+
+```html
+<billing-pricing-card
+  title="Business Plan"
+  tagline="Advanced security and management for teams"
+  [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
+  [button]="{ text: 'Start Business Trial', type: 'primary' }"
+  [features]="businessFeatures"
+>
+</billing-pricing-card>
+```
+
 ### Annual Pricing
 
 Show annual pricing with different cadence:
@@ -89,6 +113,34 @@ Show annual pricing with different cadence:
   [price]="{ amount: 120, cadence: 'annually' }"
   [button]="{ text: 'Choose Annual', type: 'primary' }"
   [features]="premiumFeatures"
+>
+</billing-pricing-card>
+```
+
+### Configurable Heading Levels
+
+For accessibility, you can configure the heading level:
+
+<Canvas of={PricingCardStories.ConfigurableHeadings} />
+
+```html
+<!-- In a section with h1, use h2 for plan titles -->
+<billing-pricing-card
+  title="Premium Plan"
+  tagline="Best value option"
+  [titleLevel]="'h2'"
+  [price]="{ amount: 10, cadence: 'monthly' }"
+  [button]="{ text: 'Choose Plan', type: 'primary' }"
+>
+</billing-pricing-card>
+
+<!-- In a subsection, use h4 for plan titles -->
+<billing-pricing-card
+  title="Add-on Plan"
+  tagline="Extra features"
+  [titleLevel]="'h4'"
+  [price]="{ amount: 5, cadence: 'monthly' }"
+  [button]="{ text: 'Add to Plan', type: 'secondary' }"
 >
 </billing-pricing-card>
 ```

@@ -82,7 +82,7 @@ export const LongTagline: Story = {
     title: "Business Plan",
     tagline:
       "Comprehensive password management solution for teams and organizations that need advanced security features, detailed reporting, and enterprise-grade administration tools that scale with your business",
-    price: { amount: 5, cadence: "monthly" },
+    price: { amount: 5, cadence: "monthly", showPerUser: true },
     button: { text: "Start Business Trial", type: "primary" },
     features: [
       "Everything in Premium",
@@ -135,32 +135,65 @@ export const AllButtonTypes: Story = {
   }),
 };
 
+export const ConfigurableHeadings: Story = {
+  render: () => ({
+    template: `
+      <div class="tw-flex tw-flex-wrap tw-gap-6 tw-p-4 tw-justify-center">
+        <billing-pricing-card
+          title="H2 Heading"
+          tagline="Example with h2 heading for accessibility"
+          [titleLevel]="'h2'"
+          [price]="{ amount: 10, cadence: 'monthly' }"
+          [button]="{ text: 'Choose Plan', type: 'primary' }"
+          [features]="['Feature 1', 'Feature 2']">
+        </billing-pricing-card>
+        
+        <billing-pricing-card
+          title="H4 Heading"
+          tagline="Example with h4 heading for nested content"
+          [titleLevel]="'h4'"
+          [price]="{ amount: 15, cadence: 'monthly' }"
+          [button]="{ text: 'Choose Plan', type: 'secondary' }"
+          [features]="['Feature 1', 'Feature 2']">
+        </billing-pricing-card>
+      </div>
+    `,
+    props: {},
+  }),
+};
+
 export const PricingGrid: Story = {
   render: () => ({
     template: `
-      <div class="tw-flex tw-flex-wrap tw-gap-6 tw-justify-center tw-p-4">
-        <billing-pricing-card
-          title="Free"
-          tagline="For personal use with essential features"
-          [button]="{ text: 'Get Started', type: 'secondary' }"
-          [features]="['Store unlimited passwords', 'Access from any device', 'Secure password generator']">
-        </billing-pricing-card>
+      <div class="tw-flex tw-flex-wrap tw-gap-6 tw-p-4 tw-justify-start">
+        <div class="tw-flex tw-flex-col tw-h-full">
+          <billing-pricing-card
+            title="Free"
+            tagline="For personal use with essential features"
+            [button]="{ text: 'Get Started', type: 'secondary' }"
+            [features]="['Store unlimited passwords', 'Access from any device', 'Secure password generator']">
+          </billing-pricing-card>
+        </div>
         
-        <billing-pricing-card
-          title="Premium"
-          tagline="Everything you need for secure password management"
-          [price]="{ amount: 10, cadence: 'monthly' }"
-          [button]="{ text: 'Choose Premium', type: 'primary' }"
-          [features]="['Unlimited passwords and passkeys', 'Secure password sharing', 'Integrated 2FA authenticator', 'Advanced 2FA options', 'Priority customer support']">
-        </billing-pricing-card>
+        <div class="tw-flex tw-flex-col tw-h-full">
+          <billing-pricing-card
+            title="Premium"
+            tagline="Everything you need for secure password management"
+            [price]="{ amount: 10, cadence: 'monthly' }"
+            [button]="{ text: 'Choose Premium', type: 'primary' }"
+            [features]="['Unlimited passwords and passkeys', 'Secure password sharing', 'Integrated 2FA authenticator', 'Advanced 2FA options', 'Priority customer support']">
+          </billing-pricing-card>
+        </div>
         
-        <billing-pricing-card
-          title="Business"
-          tagline="Advanced security and management for teams"
-          [price]="{ amount: 5, cadence: 'monthly' }"
-          [button]="{ text: 'Start Business Trial', type: 'primary' }"
-          [features]="['Everything in Premium', 'Admin dashboard', 'Team reporting', 'Advanced permissions', 'SSO integration']">
-        </billing-pricing-card>
+        <div class="tw-flex tw-flex-col tw-h-full">
+          <billing-pricing-card
+            title="Business"
+            tagline="Advanced security and management for teams"
+            [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
+            [button]="{ text: 'Start Business Trial', type: 'primary' }"
+            [features]="['Everything in Premium', 'Admin dashboard', 'Team reporting', 'Advanced permissions', 'SSO integration']">
+          </billing-pricing-card>
+        </div>
       </div>
     `,
     props: {},
