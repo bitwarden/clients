@@ -1,86 +1,96 @@
-import { mock } from "jest-mock-extended";
-
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
-import { passwords } from "@bitwarden/desktop-napi";
-import { BiometricStateService } from "@bitwarden/key-management";
+import { biometrics, passwords } from "@bitwarden/desktop-napi";
+import { BiometricsStatus } from "@bitwarden/key-management";
 
 import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
 
 jest.mock("@bitwarden/desktop-napi", () => ({
   biometrics: {
-    setBiometricSecret: jest.fn(),
-    getBiometricSecret: jest.fn(),
-    deleteBiometricSecret: jest.fn(),
-    prompt: jest.fn(),
-    available: jest.fn(),
-    deriveKeyMaterial: jest.fn(),
+    initBiometricSystem: jest.fn(() => "mockSystem"),
+    provideKey: jest.fn(),
+    unenroll: jest.fn(),
+    unlock: jest.fn(),
+    authenticate: jest.fn(),
+    authenticateAvailable: jest.fn(),
+    unlockAvailable: jest.fn(),
   },
   passwords: {
-    deletePassword: jest.fn(),
-    getPassword: jest.fn(),
     isAvailable: jest.fn(),
-    PASSWORD_NOT_FOUND: "Password not found",
   },
 }));
 
-describe("OsBiometricsServiceLinux", () => {
-  let service: OsBiometricsServiceLinux;
-  let logService: LogService;
+const mockKey = new Uint8Array(64);
 
-  const mockUserId = "test-user-id" as UserId;
+jest.mock("../../utils", () => ({
+  isFlatpak: jest.fn(() => false),
+  isLinux: jest.fn(() => true),
+  isSnapStore: jest.fn(() => false),
+}));
+
+describe("OsBiometricsServiceLinux", () => {
+  const userId = "user-id" as UserId;
+  const key = { toEncoded: () => ({ buffer: Buffer.from(mockKey) }) } as SymmetricCryptoKey;
+  let service: OsBiometricsServiceLinux;
 
   beforeEach(() => {
-    const biometricStateService = mock<BiometricStateService>();
-    const encryptService = mock<EncryptService>();
-    const cryptoFunctionService = mock<CryptoFunctionService>();
-    logService = mock<LogService>();
-    service = new OsBiometricsServiceLinux(
-      biometricStateService,
-      encryptService,
-      cryptoFunctionService,
-      logService,
-    );
-  });
-
-  afterEach(() => {
+    service = new OsBiometricsServiceLinux();
     jest.clearAllMocks();
   });
 
-  describe("deleteBiometricKey", () => {
-    const serviceName = "Bitwarden_biometric";
-    const keyName = "test-user-id_user_biometric";
+  it("should set biometric key", async () => {
+    await service.setBiometricKey(userId, key);
+    expect(biometrics.provideKey).toHaveBeenCalled();
+  });
 
-    it("should delete biometric key successfully", async () => {
-      await service.deleteBiometricKey(mockUserId);
+  it("should delete biometric key", async () => {
+    await service.deleteBiometricKey(userId);
+    expect(biometrics.unenroll).toHaveBeenCalled();
+  });
 
-      expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
-    });
+  it("should get biometric key", async () => {
+    (biometrics.unlock as jest.Mock).mockResolvedValue(mockKey);
+    const result = await service.getBiometricKey(userId);
+    expect(result).toBeInstanceOf(SymmetricCryptoKey);
+  });
 
-    it("should not throw error if key not found", async () => {
-      passwords.deletePassword = jest
-        .fn()
-        .mockRejectedValueOnce(new Error(passwords.PASSWORD_NOT_FOUND));
+  it("should return null if no biometric key", async () => {
+    (biometrics.unlock as jest.Mock).mockResolvedValue(null);
+    const result = await service.getBiometricKey(userId);
+    expect(result).toBeNull();
+  });
 
-      await service.deleteBiometricKey(mockUserId);
+  it("should authenticate biometric", async () => {
+    (biometrics.authenticate as jest.Mock).mockResolvedValue(true);
+    const result = await service.authenticateBiometric();
+    expect(result).toBe(true);
+  });
 
-      expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
-      expect(logService.debug).toHaveBeenCalledWith(
-        "[OsBiometricService] Biometric key %s not found for service %s.",
-        keyName,
-        serviceName,
-      );
-    });
+  it("should check if biometrics is supported", async () => {
+    (passwords.isAvailable as jest.Mock).mockResolvedValue(true);
+    const result = await service.supportsBiometrics();
+    expect(result).toBe(true);
+  });
 
-    it("should throw error for unexpected errors", async () => {
-      const error = new Error("Unexpected error");
-      passwords.deletePassword = jest.fn().mockRejectedValueOnce(error);
+  it("should check if setup is needed", async () => {
+    (biometrics.authenticateAvailable as jest.Mock).mockResolvedValue(false);
+    const result = await service.needsSetup();
+    expect(result).toBe(true);
+  });
 
-      await expect(service.deleteBiometricKey(mockUserId)).rejects.toThrow(error);
+  it("should check if can auto setup", async () => {
+    const result = await service.canAutoSetup();
+    expect(result).toBe(true);
+  });
 
-      expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
-    });
+  it("should get biometrics first unlock status for user", async () => {
+    (biometrics.unlockAvailable as jest.Mock).mockResolvedValue(true);
+    const result = await service.getBiometricsFirstUnlockStatusForUser(userId);
+    expect(result).toBe(BiometricsStatus.Available);
+  });
+
+  it("should return false for hasPersistentKey", async () => {
+    const result = await service.hasPersistentKey(userId);
+    expect(result).toBe(false);
   });
 });

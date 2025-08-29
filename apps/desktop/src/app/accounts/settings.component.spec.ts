@@ -149,6 +149,7 @@ describe("SettingsComponent", () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
+    desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
     vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
       of(VaultTimeoutStringType.OnLocked),
     );

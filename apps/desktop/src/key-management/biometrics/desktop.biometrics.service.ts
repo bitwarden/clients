@@ -13,4 +13,6 @@ export abstract class DesktopBiometricsService extends BiometricsService {
   ): Promise<void>;
   abstract deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void>;
   abstract setupBiometrics(): Promise<void>;
+  abstract enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void>;
+  abstract hasPersistentKey(userId: UserId): Promise<boolean>;
 }

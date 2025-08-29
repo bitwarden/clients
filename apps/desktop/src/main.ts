@@ -11,7 +11,6 @@ import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
@@ -194,11 +193,6 @@ export class Main {
 
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
-    const encryptService = new EncryptServiceImplementation(
-      this.mainCryptoFunctionService,
-      this.logService,
-      true,
-    );
 
     this.windowMain = new WindowMain(
       biometricStateService,
@@ -215,8 +209,6 @@ export class Main {
       this.logService,
       process.platform,
       biometricStateService,
-      encryptService,
-      this.mainCryptoFunctionService,
     );
 
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);

@@ -1846,6 +1846,9 @@
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
   },
+  "allowBiometricUnlockOnAppRestart": {
+    "message": "Allow biometric unlock for the first unlock after restarting the app"
+  },
   "deleteAccount": {
     "message": "Delete account"
   },

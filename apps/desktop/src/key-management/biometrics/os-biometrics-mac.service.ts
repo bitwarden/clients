@@ -20,6 +20,14 @@ export default class OsBiometricsServiceMac implements OsBiometricService {
     private logService: LogService,
   ) {}
 
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    return await passwords.setPassword(SERVICE, getLookupKeyForUser(userId), key.toBase64());
+  }
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return (await passwords.getPassword(SERVICE, getLookupKeyForUser(userId))) != null;
+  }
+
   async supportsBiometrics(): Promise<boolean> {
     return systemPreferences.canPromptTouchID();
   }

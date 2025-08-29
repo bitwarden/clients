@@ -1,5 +1,3 @@
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -22,21 +20,12 @@ export class MainBiometricsService extends DesktopBiometricsService {
     private logService: LogService,
     platform: NodeJS.Platform,
     private biometricStateService: BiometricStateService,
-    private encryptService: EncryptService,
-    private cryptoFunctionService: CryptoFunctionService,
   ) {
     super();
     if (platform === "win32") {
       // eslint-disable-next-line
       const OsBiometricsServiceWindows = require("./os-biometrics-windows.service").default;
-      this.osBiometricsService = new OsBiometricsServiceWindows(
-        this.i18nService,
-        this.windowMain,
-        this.logService,
-        this.biometricStateService,
-        this.encryptService,
-        this.cryptoFunctionService,
-      );
+      this.osBiometricsService = new OsBiometricsServiceWindows(this.i18nService, this.windowMain);
     } else if (platform === "darwin") {
       // eslint-disable-next-line
       const OsBiometricsServiceMac = require("./os-biometrics-mac.service").default;
@@ -44,12 +33,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
     } else if (platform === "linux") {
       // eslint-disable-next-line
       const OsBiometricsServiceLinux = require("./os-biometrics-linux.service").default;
-      this.osBiometricsService = new OsBiometricsServiceLinux(
-        this.biometricStateService,
-        this.encryptService,
-        this.cryptoFunctionService,
-        this.logService,
-      );
+      this.osBiometricsService = new OsBiometricsServiceLinux();
     } else {
       throw new Error("Unsupported platform");
     }
@@ -143,5 +127,13 @@ export class MainBiometricsService extends DesktopBiometricsService {
 
   async canEnableBiometricUnlock(): Promise<boolean> {
     return true;
+  }
+
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    return await this.osBiometricsService.enrollPersistent(userId, key);
+  }
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return await this.osBiometricsService.hasPersistentKey(userId);
   }
 }
