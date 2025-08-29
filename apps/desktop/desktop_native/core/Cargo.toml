@@ -38,6 +38,7 @@ rand = { workspace = true }
 rsa = { workspace = true }
 russh-cryptovec = { workspace = true }
 scopeguard = { workspace = true }
+secmem-proc = { workspace = true }
 sha2 = { workspace = true }
 ssh-encoding = { workspace = true }
 ssh-key = { workspace = true, features = [
