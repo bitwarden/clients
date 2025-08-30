@@ -11,9 +11,9 @@ import {
   DialogRef,
   DIALOG_DATA,
   DialogService,
-  PremiumBadgeComponent,
   ToastService,
 } from "@bitwarden/components";
+import { PremiumBadgeComponent } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
 import { EmergencyAccessService } from "../../emergency-access";

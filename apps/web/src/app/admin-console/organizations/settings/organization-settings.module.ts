@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 
-import { ItemModule, PremiumBadgeComponent } from "@bitwarden/components";
+import { ItemModule } from "@bitwarden/components";
+import { PremiumBadgeComponent } from "@bitwarden/vault";
 
 import { DangerZoneComponent } from "../../../auth/settings/account/danger-zone.component";
 import { HeaderModule } from "../../../layouts/header/header.module";

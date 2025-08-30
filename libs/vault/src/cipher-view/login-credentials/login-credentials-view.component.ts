@@ -31,9 +31,9 @@ import {
   IconButtonModule,
   BadgeModule,
   ColorPasswordModule,
-  PremiumBadgeComponent,
 } from "@bitwarden/components";
 
+import { PremiumBadgeComponent } from "../../components/premium-badge/premium-badge.component";
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 

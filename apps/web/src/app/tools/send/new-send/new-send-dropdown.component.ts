@@ -6,14 +6,9 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import {
-  BadgeModule,
-  ButtonModule,
-  DialogService,
-  MenuModule,
-  PremiumBadgeComponent,
-} from "@bitwarden/components";
+import { BadgeModule, ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwarden/send-ui";
+import { PremiumBadgeComponent } from "@bitwarden/vault";
 
 @Component({
   selector: "tools-new-send-dropdown",

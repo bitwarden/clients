@@ -38,7 +38,6 @@ import {
   DialogService,
   ItemModule,
   ToastService,
-  PremiumBadgeComponent,
 } from "@bitwarden/components";
 import {
   AttachmentDialogCloseResult,
@@ -52,6 +51,7 @@ import {
   CipherViewComponent,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
+  PremiumBadgeComponent,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
