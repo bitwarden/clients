@@ -682,6 +682,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       }),
     );
 
+    // Handle deep linking to a specific cipher (if the route specifies a cipherId)
     firstSetup$
       .pipe(
         switchMap(() => combineLatest([this.route.queryParams, allCipherMap$])),
@@ -742,6 +743,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
+    // Handle deep linking to a cipher event
     firstSetup$
       .pipe(
         switchMap(() =>
@@ -782,6 +784,9 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
+    // Handle last of initial setup - workaround for some state issues where we need to manually
+    // push the collections we've loaded back into the VaultFilterService.
+    // FIXME: figure out how we can remove this.
     firstSetup$
       .pipe(
         switchMap(() => this.allCollections$),
