@@ -13,9 +13,9 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { PremiumBadgeComponent } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
-import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
 

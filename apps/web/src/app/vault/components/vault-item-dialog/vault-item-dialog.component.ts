@@ -51,6 +51,7 @@ import {
   CipherViewComponent,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
+  PremiumBadgeComponent,
 } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared/shared.module";
@@ -131,6 +132,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CipherFormModule,
     AsyncActionsModule,
     ItemModule,
+    PremiumBadgeComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
