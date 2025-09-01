@@ -232,7 +232,7 @@ describe("PinService", () => {
     const mockPinProtectedUserKeyEnvelope = "mock-envelope" as PasswordProtectedKeyEnvelope;
     const mockUserKeyEncryptedPinFromSdk = "sdk-encrypted-pin";
 
-    beforeEach(() => { });
+    beforeEach(() => {});
 
     it("should throw an error if pin is null", async () => {
       // Act & Assert

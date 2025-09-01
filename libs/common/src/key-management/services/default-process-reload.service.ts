@@ -30,7 +30,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,
     private logService: LogService,
-  ) { }
+  ) {}
 
   async startProcessReload(authService: AuthService): Promise<void> {
     const accounts = await firstValueFrom(this.accountService.accounts$);

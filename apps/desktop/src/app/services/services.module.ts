@@ -471,4 +471,4 @@ const safeProviders: SafeProvider[] = [
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
   providers: safeProviders,
 })
-export class ServicesModule { }
+export class ServicesModule {}

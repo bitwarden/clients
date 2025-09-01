@@ -49,7 +49,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     private stateProvider: StateProvider,
     private logService: LogService,
     private defaultVaultTimeout: VaultTimeout,
-  ) { }
+  ) {}
 
   async setVaultTimeoutOptions(
     userId: UserId,

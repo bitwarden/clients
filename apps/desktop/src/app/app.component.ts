@@ -264,7 +264,7 @@ export class AppComponent implements OnInit, OnDestroy {
             if (
               message.userId == null ||
               message.userId ===
-              (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))))
+                (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))))
             ) {
               await this.router.navigate(["lock"]);
             }
@@ -307,8 +307,8 @@ export class AppComponent implements OnInit, OnDestroy {
             if (publicKey == null) {
               this.logService.error(
                 "[AppComponent] No public key available for the user: " +
-                activeUserId +
-                " fingerprint can't be displayed.",
+                  activeUserId +
+                  " fingerprint can't be displayed.",
               );
             } else {
               const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
@@ -724,7 +724,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // This must come last otherwise the logout will prematurely trigger
     // a process reload before all the state service user data can be cleaned up
-    this.authService.logOut(async () => { }, userBeingLoggedOut);
+    this.authService.logOut(async () => {}, userBeingLoggedOut);
   }
 
   private async recordActivity() {

@@ -25,7 +25,7 @@ export class SetPinComponent implements OnInit {
     private formBuilder: FormBuilder,
     private pinService: PinServiceAbstraction,
     private userVerificationService: UserVerificationService,
-  ) { }
+  ) {}
 
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();

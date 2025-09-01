@@ -37,11 +37,11 @@ export abstract class PinServiceAbstraction {
 
   /**
    * Setup pin unlock
-   * @throws If the provided user is locked 
+   * @throws If the provided user is locked
    */
   abstract setPin(pin: string, pinLockType: PinLockType, userId: UserId): Promise<void>;
 
-  /** 
+  /**
    * Clear pin unlock
    */
   abstract unsetPin(userId: UserId): Promise<void>;
@@ -65,7 +65,7 @@ export abstract class PinServiceAbstraction {
   abstract isPinDecryptionAvailable(userId: UserId): Promise<boolean>;
 
   /**
-   * Clears ephemeral PINs for the user being logged out. 
+   * Clears ephemeral PINs for the user being logged out.
    */
   abstract logout(userId: UserId): Promise<void>;
 
