@@ -5108,10 +5108,10 @@
     "message": "Показване на броя предложения за автоматично попълване на данни за вписване върху иконката на добавката"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Има заявка за достъп до акаунта"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Потвърждаване на заявката за достъп за $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
