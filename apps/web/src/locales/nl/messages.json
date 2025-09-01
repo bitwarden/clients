@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Totaal applicaties"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Markeren als belangrijke app ongedaan maken"
+  "unmarkAsCritical": {
+    "message": "Markeren als belangrijk ongedaan maken"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Markeren als belangrijke app ongedaan gemaakt"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kenteken kopiëren"
   },
+  "copyPrivateKey": {
+    "message": "Privésleutel kopiëren"
+  },
+  "copyPublicKey": {
+    "message": "Publieke sleutel kopiëren"
+  },
+  "copyFingerprint": {
+    "message": "Vingerafdruk kopiëren"
+  },
   "copyName": {
     "message": "Naam kopiëren"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Herstelcode"
   },
+  "invalidRecoveryCode": {
+    "message": "Ongeldige herstelcode"
+  },
   "authenticatorAppTitle": {
     "message": "Authenticatie-app"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "De taal van de webkluis aanpassen."
   },
-  "enableFavicon": {
-    "message": "Websitepictogrammen weergeven"
-  },
-  "faviconDesc": {
-    "message": "Een herkenbare afbeelding naast iedere login weergeven."
+  "showIconsChangePasswordUrls": {
+    "message": "Pictogrammen van de website weergeven URL's voor wachtwoordwijzigingen ophalen"
   },
   "default": {
     "message": "Standaard"
@@ -10981,6 +10990,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Factuuradres vereist voor het toevoegen van krediet.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "Over deze instelling"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
   },
   "billingAddress": {
     "message": "Factuuradres"

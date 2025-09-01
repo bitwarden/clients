@@ -1,3 +1,4 @@
+@import "theme.css";
 @import "@angular/cdk/a11y-prebuilt.css";
 @import "@angular/cdk/text-field-prebuilt.css";
 @import "./reset.css";
