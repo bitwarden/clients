@@ -330,8 +330,8 @@ pub mod processisolations {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
     #[napi]
-    pub async fn disable_memory_access() -> napi::Result<()> {
-        desktop_core::process_isolation::disable_memory_access()
+    pub async fn isolate_process() -> napi::Result<()> {
+        desktop_core::process_isolation::isolate_process()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
