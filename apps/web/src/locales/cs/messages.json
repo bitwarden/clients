@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Kód pro obnovení"
   },
+  "invalidRecoveryCode": {
+    "message": "Neplatný kód pro obnovení"
+  },
   "authenticatorAppTitle": {
     "message": "Ověřovací aplikace"
   },

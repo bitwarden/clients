@@ -868,13 +868,13 @@
     "message": "Копиране на номера на свидетелството"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Копиране на частния ключ"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Копиране на публичния ключ"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Копиране на отпечатъка"
   },
   "copyName": {
     "message": "Копиране на името"
@@ -1515,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Код за възстановяване"
+  },
+  "invalidRecoveryCode": {
+    "message": "Грешен код за възстановяване"
   },
   "authenticatorAppTitle": {
     "message": "Приложение за удостоверяване"

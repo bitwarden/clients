@@ -868,13 +868,13 @@
     "message": "Ievietot licences numuru starpliktuvē"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Ievietot starpliktuvē privāto atslēgu"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Ievietot starpliktuvē publisko atslēgu"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Ievietot starpliktuvē pirkstu nospiedumu"
   },
   "copyName": {
     "message": "Ievietot nosaukumu starpliktuvē"
@@ -1515,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Atkopes kods"
+  },
+  "invalidRecoveryCode": {
+    "message": "Nederīgs atkopes kods"
   },
   "authenticatorAppTitle": {
     "message": "Autentificētāja lietotne"
