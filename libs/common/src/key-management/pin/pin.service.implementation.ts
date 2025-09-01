@@ -97,12 +97,7 @@ export class PinService implements PinServiceAbstraction {
     );
 
     // NOTE: The type assertion should be replaced as soon as EncryptedString is just a type alias of the SDK's `EncString` type
-    await this.setPinState(
-      pinProtectedUserKeyEnvelope,
-      userKeyEncryptedPin as string as EncryptedString,
-      pinLockType,
-      userId,
-    );
+    await this.setPinState(pinProtectedUserKeyEnvelope, userKeyEncryptedPin, pinLockType, userId);
   }
 
   async unsetPin(userId: UserId): Promise<void> {
