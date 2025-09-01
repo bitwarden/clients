@@ -3,4 +3,3 @@ dist-safari/
 *.env
 PlugIns/safari.appex/
 xcuserdata/
-process_isolation/target/
