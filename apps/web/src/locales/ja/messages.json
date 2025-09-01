@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "リカバリーコード"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "認証アプリ"
   },
