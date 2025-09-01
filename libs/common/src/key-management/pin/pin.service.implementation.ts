@@ -44,10 +44,14 @@ export class PinService implements PinServiceAbstraction {
             (await this.getPinLockType(userId)) === "EPHEMERAL" &&
             !(await this.isPinDecryptionAvailable(userId))
           ) {
-            this.logService.info("[Pin Service] After first unlock: Setting up ephemeral PIN");
+            // On first unlock, set the ephemeral pin envelope, if it is not set yet
+            this.logService.info("[Pin Service] On first unlock: Setting up ephemeral PIN");
             const pin = await this.getPin(userId);
             await this.setPin(pin, "EPHEMERAL", userId);
           } else if ((await this.getPinLockType(userId)) === "PERSISTENT") {
+            // Encrypted migration for persistent pin unlock to pin envelopes.
+            // This will be removed at the earliest in 2026.1.0
+            //
             // ----- ENCRYPTION MIGRATION -----
             // Pin-key encrypted user-keys are eagerly migrated to the new pin-protected user key envelope format.
             if ((await this.getLegacyPinKeyEncryptedUserKeyPersistent(userId)) != null) {
