@@ -1,8 +1,8 @@
 import * as bigInt from "big-integer";
 import {
-  BehaviorSubject,
   NEVER,
   Observable,
+  ReplaySubject,
   combineLatest,
   distinctUntilChanged,
   filter,
@@ -69,10 +69,7 @@ import { KdfConfig } from "./models/kdf-config";
 export class DefaultKeyService implements KeyServiceAbstraction {
   readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
-  // null is fine as the initial value since the observable is filtered to only emit non-null values.
-  private unlockedUserKeysSubject = new BehaviorSubject<{ userId: UserId; userKey: UserKey }>(
-    null as any,
-  );
+  private unlockedUserKeysSubject = new ReplaySubject<{ userId: UserId; userKey: UserKey }>(1);
   readonly unlockedUserKeys$: Observable<{ userId: UserId; userKey: UserKey }>;
 
   constructor(
