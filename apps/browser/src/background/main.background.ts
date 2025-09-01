@@ -674,17 +674,6 @@ export default class MainBackground {
 
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
-    this.pinService = new PinService(
-      this.accountService,
-      this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
-      this.logService,
-      this.stateProvider,
-      this.keyService,
-      this.sdkService,
-    );
-
     this.keyService = new DefaultKeyService(
       this.masterPasswordService,
       this.keyGenerationService,
@@ -696,6 +685,17 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
+    );
+
+    this.pinService = new PinService(
+      this.accountService,
+      this.encryptService,
+      this.kdfConfigService,
+      this.keyGenerationService,
+      this.logService,
+      this.stateProvider,
+      this.keyService,
+      this.sdkService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
