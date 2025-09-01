@@ -1,3 +1,5 @@
+#![cfg(target_os = "linux")]
+
 //! This library compiles to a pre-loadable shared object. When preloaded, it
 //! immediately isolates the process using the methods available on the platform.
 //! On Linux, this is PR_SET_DUMPABLE to prevent debuggers from attaching, the env
