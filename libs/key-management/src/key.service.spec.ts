@@ -206,38 +206,30 @@ describe("keyService", () => {
     });
 
     it("should emit when a user key is set via setUserKey", async () => {
-      // Arrange
       const emittedValues: { userId: UserId; userKey: UserKey }[] = [];
       const subscription = keyService.unlockedUserKeys$.subscribe((value) => {
         emittedValues.push(value);
       });
 
-      // Act
       await keyService.setUserKey(mockUserKey, mockUserId);
 
-      // Assert
       expect(emittedValues).toHaveLength(1);
       expect(emittedValues[0]).toEqual({ userId: mockUserId, userKey: mockUserKey });
-
       subscription.unsubscribe();
     });
 
     it("should emit multiple values when different users unlock", async () => {
-      // Arrange
       const emittedValues: { userId: UserId; userKey: UserKey }[] = [];
       const subscription = keyService.unlockedUserKeys$.subscribe((value) => {
         emittedValues.push(value);
       });
 
-      // Act
       await keyService.setUserKey(mockUserKey, mockUserId);
       await keyService.setUserKey(mockUserKey2, mockUserId2);
 
-      // Assert
       expect(emittedValues).toHaveLength(2);
       expect(emittedValues[0]).toEqual({ userId: mockUserId, userKey: mockUserKey });
       expect(emittedValues[1]).toEqual({ userId: mockUserId2, userKey: mockUserKey2 });
-
       subscription.unsubscribe();
     });
   });
