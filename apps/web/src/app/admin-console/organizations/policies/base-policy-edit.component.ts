@@ -42,7 +42,8 @@ export abstract class BasePolicyEditDefinition {
    * A method that determines whether to display this policy in the Admin Console Policies page.
    * The default implementation will always display the policy.
    * This can be used to hide the policy based on the organization's plan features or a feature flag value.
-   * Use this to feature flag new policy implementations.
+   * Note: this only hides the policy for editing in Admin Console, it does not affect its enforcement
+   * if it has already been turned on. Enforcement should be feature flagged separately.
    */
   display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return of(true);
