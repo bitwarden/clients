@@ -16,3 +16,6 @@ tokio-util = { workspace = true, features = ["codec"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 embed_plist = { workspace = true }
+
+[lints]
+workspace = true

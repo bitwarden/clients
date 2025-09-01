@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Tổng số ứng dụng"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Bỏ đánh dấu ứng dụng quan trọng"
+  "unmarkAsCritical": {
+    "message": "Bỏ đánh dấu là nghiêm trọng"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Ứng dụng quan trọng đã được gỡ bỏ dấu hiệu thành công"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Sao chép số giấy phép"
   },
+  "copyPrivateKey": {
+    "message": "Sao chép khóa riêng tư"
+  },
+  "copyPublicKey": {
+    "message": "Sao chép khóa công khai"
+  },
+  "copyFingerprint": {
+    "message": "Sao chép vân tay"
+  },
   "copyName": {
     "message": "Sao chép tên"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Mã phục hồi"
   },
+  "invalidRecoveryCode": {
+    "message": "Mã khôi phục không hợp lệ"
+  },
   "authenticatorAppTitle": {
     "message": "Ứng dụng xác thực"
   },
@@ -2051,10 +2063,10 @@
     "message": "Chọn bộ sưu tập"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Thay đổi ngôn ngữ của kho trên web."
   },
-  "enableFavicon": {
-    "message": "Hiện biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiện logo trang web bên cạnh mỗi đăng nhập."
+  "showIconsChangePasswordUrls": {
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "default": {
     "message": "Mặc định"
@@ -7029,10 +7038,10 @@
     "message": "Mục không xác định, bạn có thể cần yêu cầu quyền để truy cập mục này."
   },
   "unknownSecret": {
-    "message": "Unknown secret, you may need to request permission to access this secret."
+    "message": "Bí mật không xác định, bạn có thể cần yêu cầu quyền để truy cập bí mật này."
   },
   "unknownProject": {
-    "message": "Unknown project, you may need to request permission to access this project."
+    "message": "Dự án không xác định, bạn có thể cần yêu cầu quyền để truy cập dự án này."
   },
   "cannotSponsorSelf": {
     "message": "Bạn không thể đổi thưởng cho tài khoản đang hoạt động. Vui lòng nhập email khác."
@@ -8358,7 +8367,7 @@
     }
   },
   "permanentlyDeletedSecretWithId": {
-    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "message": "Đã xóa vĩnh viễn một bí mật với định danh: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8367,7 +8376,7 @@
     }
   },
   "restoredSecretWithId": {
-    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "message": "Đã khôi phục một bí mật với định danh: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8385,7 +8394,7 @@
     }
   },
   "accessedProjectWithId": {
-    "message": "Accessed a project with Id: $PROJECT_ID$.",
+    "message": "Đã truy cập một dự án với ID: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8394,7 +8403,7 @@
     }
   },
   "nameUnavailableProjectDeleted": {
-    "message": "Deleted project Id: $PROJECT_ID$",
+    "message": "Đã xóa dự án với ID: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8403,7 +8412,7 @@
     }
   },
   "nameUnavailableSecretDeleted": {
-    "message": "Deleted secret Id: $SECRET_ID$",
+    "message": "Đã xóa bí mật với ID: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8412,7 +8421,7 @@
     }
   },
   "editedProjectWithId": {
-    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "message": "Đã chỉnh sửa một dự án với định danh: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8421,7 +8430,7 @@
     }
   },
   "deletedProjectWithId": {
-    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "message": "Đã xóa một dự án với định danh: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -8430,7 +8439,7 @@
     }
   },
   "createdProjectWithId": {
-    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "message": "Đã tạo một dự án mới với định danh: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -10823,7 +10832,7 @@
     "message": "Những sự kiện này chỉ là ví dụ và không phản ánh các sự kiện thực tế trong tổ chức Bitwarden của bạn."
   },
   "viewEvents": {
-    "message": "View Events"
+    "message": "Xem các Sự kiện"
   },
   "cannotCreateCollection": {
     "message": "Các tổ chức miễn phí có thể có tối đa 2 bộ sưu tập. Nâng cấp lên gói trả phí để thêm nhiều bộ sưu tập hơn."
@@ -10982,6 +10991,12 @@
     "message": "Cần có địa chỉ thanh toán để thêm tín dụng.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Về cài đặt này"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
+  },
   "billingAddress": {
     "message": "Địa chỉ thanh toán"
   },
@@ -11097,7 +11112,7 @@
     "message": "Thiếu mã số thuế"
   },
   "missingTaxIdWarning": {
-    "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+    "message": "Cần hành động: Bạn đang thiếu mã số thuế trong thông tin thanh toán. Nếu không thêm mã số thuế, hóa đơn của bạn có thể bao gồm thêm thuế."
   },
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",

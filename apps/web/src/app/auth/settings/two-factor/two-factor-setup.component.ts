@@ -33,8 +33,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogRef, DialogService, ItemModule } from "@bitwarden/components";
 
-import { LooseComponentsModule } from "../../../shared/loose-components.module";
+import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
+import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 
 import { TwoFactorRecoveryComponent } from "./two-factor-recovery.component";
 import { TwoFactorSetupAuthenticatorComponent } from "./two-factor-setup-authenticator.component";
@@ -47,7 +48,7 @@ import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
-  imports: [ItemModule, LooseComponentsModule, SharedModule],
+  imports: [ItemModule, HeaderModule, PremiumBadgeComponent, SharedModule],
 })
 export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   organizationId: string;

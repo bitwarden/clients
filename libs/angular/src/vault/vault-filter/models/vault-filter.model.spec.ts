@@ -118,15 +118,18 @@ describe("VaultFilter", () => {
     });
 
     describe("given an organizational cipher (with organization and collections)", () => {
+      const collection1 = "e9652fc0-1fe4-48d5-a3d8-d821e32fbd98";
+      const collection2 = "42a971a5-8c16-48a3-a725-4be27cd99bc9";
+
       const cipher = createCipher({
         organizationId: "organizationId",
-        collectionIds: ["collectionId", "anotherId"],
+        collectionIds: [collection1, collection2],
       });
 
       it("should return true when filter matches collection id", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: "collectionId",
+          selectedCollectionId: collection1,
         });
 
         const result = filterFunction(cipher);
@@ -137,7 +140,7 @@ describe("VaultFilter", () => {
       it("should return false when filter does not match collection id", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: "nonMatchingId",
+          selectedCollectionId: "1ea7ad96-3fc1-4567-8fe5-91aa9f697fd1",
         });
 
         const result = filterFunction(cipher);

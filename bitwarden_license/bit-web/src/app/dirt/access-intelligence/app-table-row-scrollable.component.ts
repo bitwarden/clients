@@ -19,6 +19,6 @@ export class AppTableRowScrollableComponent {
   @Input() selectedUrls: Set<string> = new Set<string>();
   @Input() isDrawerIsOpenForThisRecord!: (applicationName: string) => boolean;
   @Input() showAppAtRiskMembers!: (applicationName: string) => void;
-  @Input() unmarkAsCriticalApp!: (applicationName: string) => void;
+  @Input() unmarkAsCritical!: (applicationName: string) => void;
   @Input() checkboxChange!: (applicationName: string, $event: Event) => void;
 }

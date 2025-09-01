@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "总的应用程序"
   },
-  "unmarkAsCriticalApp": {
-    "message": "取消标记为关键应用程序"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "关键应用程序已成功取消标记"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "复制许可证号码"
   },
+  "copyPrivateKey": {
+    "message": "复制私钥"
+  },
+  "copyPublicKey": {
+    "message": "复制公钥"
+  },
+  "copyFingerprint": {
+    "message": "复制指纹"
+  },
   "copyName": {
     "message": "复制名称"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "恢复代码"
   },
+  "invalidRecoveryCode": {
+    "message": "无效的恢复码"
+  },
   "authenticatorAppTitle": {
     "message": "验证器 App"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "更改网页密码库的语言。"
   },
-  "enableFavicon": {
-    "message": "显示网站图标"
-  },
-  "faviconDesc": {
-    "message": "在每个登录项目旁边显示一个可识别的图像。"
+  "showIconsChangePasswordUrls": {
+    "message": "显示网站图标并检索更改密码的 URL"
   },
   "default": {
     "message": "默认"
@@ -10981,6 +10990,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "添加信用额度需要计费地址。",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "关于此设置"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden 将使用保存的登录 URI 来识别应使用哪个图标或更改密码 URL 来改善您的体验。 使用此服务时没有收集或保存任何信息。"
   },
   "billingAddress": {
     "message": "计费地址"
