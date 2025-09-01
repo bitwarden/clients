@@ -18,6 +18,7 @@ import {
   getOrganizationById,
   InternalOrganizationServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
@@ -413,7 +414,7 @@ export class SsoComponent implements OnInit, OnDestroy {
     );
 
     if (currentOrganization) {
-      const updatedOrganization = {
+      const updatedOrganization: OrganizationData = {
         ...currentOrganization,
         ssoEnabled: organizationSsoRequest.enabled,
         ssoMemberDecryptionType: organizationSsoRequest.data.memberDecryptionType,
