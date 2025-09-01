@@ -11,12 +11,12 @@ import { EncryptedString } from "../crypto/models/enc-string";
  * @see SetPinComponent.setPinForm.requireMasterPasswordOnClientRestart
  */
 export const PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT = new UserKeyDefinition<EncryptedString>(
-    PIN_DISK,
-    "pinKeyEncryptedUserKeyPersistent",
-    {
-        deserializer: (jsonValue) => jsonValue,
-        clearOn: ["logout"],
-    },
+  PIN_DISK,
+  "pinKeyEncryptedUserKeyPersistent",
+  {
+    deserializer: (jsonValue) => jsonValue,
+    clearOn: ["logout"],
+  },
 );
 
 /**
@@ -26,36 +26,36 @@ export const PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT = new UserKeyDefinition<Encry
  * @see SetPinComponent.setPinForm.requireMasterPasswordOnClientRestart
  */
 export const PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT =
-    new UserKeyDefinition<PasswordProtectedKeyEnvelope>(
-        PIN_DISK,
-        "pinProtectedUserKeyEnvelopePersistent",
-        {
-            deserializer: (jsonValue) => jsonValue,
-            clearOn: ["logout"],
-        },
-    );
+  new UserKeyDefinition<PasswordProtectedKeyEnvelope>(
+    PIN_DISK,
+    "pinProtectedUserKeyEnvelopePersistent",
+    {
+      deserializer: (jsonValue) => jsonValue,
+      clearOn: ["logout"],
+    },
+  );
 
 /**
  * The ephemeral (stored in memory) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
  */
 export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
-    new UserKeyDefinition<PasswordProtectedKeyEnvelope>(
-        PIN_MEMORY,
-        "pinProtectedUserKeyEnvelopeEphemeral",
-        {
-            deserializer: (jsonValue) => jsonValue,
-            clearOn: ["logout"],
-        },
-    );
+  new UserKeyDefinition<PasswordProtectedKeyEnvelope>(
+    PIN_MEMORY,
+    "pinProtectedUserKeyEnvelopeEphemeral",
+    {
+      deserializer: (jsonValue) => jsonValue,
+      clearOn: ["logout"],
+    },
+  );
 
 /**
  * The PIN, encrypted by the UserKey.
  */
 export const USER_KEY_ENCRYPTED_PIN = new UserKeyDefinition<EncryptedString>(
-    PIN_DISK,
-    "userKeyEncryptedPin",
-    {
-        deserializer: (jsonValue) => jsonValue,
-        clearOn: ["logout"],
-    },
+  PIN_DISK,
+  "userKeyEncryptedPin",
+  {
+    deserializer: (jsonValue) => jsonValue,
+    clearOn: ["logout"],
+  },
 );
