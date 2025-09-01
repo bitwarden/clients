@@ -10,5 +10,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 ctor.workspace = true
-libc = { workspace = true }
 desktop_core = { path = "../core" }
+libc = { workspace = true }
