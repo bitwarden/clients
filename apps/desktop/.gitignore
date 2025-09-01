@@ -3,3 +3,8 @@ dist-safari/
 *.env
 PlugIns/safari.appex/
 xcuserdata/
+
+# Fastlane
+fastlane/report.xml
+fastlane/README.md
+fastlane/release_notes/
