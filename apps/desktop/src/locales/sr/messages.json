@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Прилог је сачуван"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Датотека"
   },
@@ -1299,11 +1305,8 @@
     "message": "Аутоматски обришите копиране вредности из привремене меморије.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Прикажи иконе сајтова"
-  },
-  "faviconDesc": {
-    "message": "Прикажи препознатљиву слику поред сваке ставке за пријаву."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Минимизирај као иконицу у системској траци"
@@ -1839,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Захтевај Touch ID при покретању"
-  },
-  "requirePasswordOnStart": {
-    "message": "Захтевај лозинку или ПИН при покретању"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Захтевај лозинку при покретању"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Закључајте са главном лозинком при поновном покретању"
@@ -3491,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Изабери колекцију"
   },
-  "importTargetHint": {
-    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке премести у $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."
@@ -3932,6 +3925,12 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "assignToCollections": {
     "message": "Додели колекцијама"
   },
@@ -4077,5 +4076,9 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden не потврђује локације уноса, будите сигурни да сте у добром прозору и поље пре употребе пречице."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

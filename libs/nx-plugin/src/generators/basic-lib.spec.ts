@@ -83,3 +83,44 @@ describe("basic-lib generator", () => {
     expect(tree.exists(`libs/test/src/test.spec.ts`)).toBeTruthy();
   });
 });
+
+it("should update jest.config.js with new library", async () => {
+  // Create a mock jest.config.js with existing libs
+  const existingJestConfig = `module.exports = {
+  projects: [
+    "<rootDir>/apps/browser/jest.config.js",
+    "<rootDir>/libs/admin-console/jest.config.js",
+    "<rootDir>/libs/auth/jest.config.js",
+    "<rootDir>/libs/vault/jest.config.js",
+  ],
+};`;
+  tree.write("jest.config.js", existingJestConfig);
+
+  await basicLibGenerator(tree, options);
+
+  const jestConfigContent = tree.read("jest.config.js");
+  expect(jestConfigContent).not.toBeNull();
+  const jestConfig = jestConfigContent?.toString();
+
+  // Should contain the new library in alphabetical order
+  expect(jestConfig).toContain('"<rootDir>/libs/test/jest.config.js",');
+
+  // Should be in the right alphabetical position (after auth, before vault)
+  const authIndex = jestConfig?.indexOf('"<rootDir>/libs/auth/jest.config.js"');
+  const testIndex = jestConfig?.indexOf('"<rootDir>/libs/test/jest.config.js"');
+  const vaultIndex = jestConfig?.indexOf('"<rootDir>/libs/vault/jest.config.js"');
+
+  expect(authIndex).toBeDefined();
+  expect(testIndex).toBeDefined();
+  expect(vaultIndex).toBeDefined();
+  expect(authIndex! < testIndex!).toBeTruthy();
+  expect(testIndex! < vaultIndex!).toBeTruthy();
+});
+
+it("should handle missing jest.config.js file gracefully", async () => {
+  const consoleSpy = jest.spyOn(console, "warn").mockImplementation();
+  // Don't create jest.config.js file
+  await basicLibGenerator(tree, options);
+  expect(consoleSpy).toHaveBeenCalledWith("jest.config.js file not found at root");
+  consoleSpy.mockRestore();
+});

@@ -1022,7 +1022,7 @@
     "message": "Opslaan in kluisopties"
   },
   "addLoginNotificationDesc": {
-    "message": "\"Melding bij nieuwe login\" vraagt automatisch om nieuwe sites in de kluis op te slaan wanneer je ergens voor de eerste keer inlogt."
+    "message": "Vraag om een item toe te voegen als deze niet in je kluis is gevonden."
   },
   "addLoginNotificationDescAlt": {
     "message": "Vraag om een item toe te voegen als het niet is gevonden is je kluis. Dit geld voor alle ingelogde accounts."
@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Deze browser kan U2F-verzoeken niet verwerken in dit popupvenster. Wilt je deze pop-up openen in een nieuw venster zodat je kunt inloggen met U2F?"
   },
-  "enableFavicon": {
-    "message": "Websitepictogrammen weergeven"
-  },
-  "faviconDesc": {
-    "message": "Een herkenbare afbeelding naast iedere login weergeven."
-  },
-  "faviconDescAlt": {
-    "message": "Toon een herkenbare afbeelding naast elke login. Geldt voor alle ingelogde accounts."
+  "showIconsChangePasswordUrls": {
+    "message": "Pictogrammen van de website weergeven URL's voor wachtwoordwijzigingen ophalen"
   },
   "enableBadgeCounter": {
     "message": "Teller weergeven"
@@ -4131,15 +4125,11 @@
   "selectImportCollection": {
     "message": "Collectie selecteren"
   },
-  "importTargetHint": {
-    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud wilt verplaatsen naar een $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
+  },
+  "importTargetHintFolder": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."
@@ -5117,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Aantal login automatisch invullen suggesties op het extensie-pictogram weergeven"
   },
+  "accountAccessRequested": {
+    "message": "Accounttoegang aangevraagd"
+  },
+  "confirmAccessAttempt": {
+    "message": "Inlogpoging voor $EMAIL$ bevestigen",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Toon snelle kopieeracties in de kluis"
   },
@@ -5567,6 +5569,12 @@
     "message": "Maak eenvoudig sterke en unieke wachtwoorden door op de knop Wachtwoord genereren te klikken om je logins veilig te houden.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Over deze instelling"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
+  },
   "noPermissionsViewPage": {
     "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."
   },
@@ -5579,5 +5587,9 @@
   },
   "showLess": {
     "message": "Minder weergeven"
+  },
+  "moreBreadcrumbs": {
+    "message": "Meer broodkruimels",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

@@ -11,7 +11,7 @@ export const WebAuthnIcon = svgIcon`
     aria-label="[title]"
   >
     <title>Webauthn</title>
-    <g stroke="currentColor" clip-path="url(#a)" transform="translate(-6.081,-1.143)">
+    <g stroke="currentColor" clip-path="url(#webauthn-clip)" transform="translate(-6.081,-1.143)">
       <path
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -36,7 +36,7 @@ export const WebAuthnIcon = svgIcon`
       />
     </g>
     <defs>
-      <clipPath id="a"><path fill="#fff" d="M68.5.62H.5v61h68z" /></clipPath>
+      <clipPath id="webauthn-clip"><path fill="#fff" d="M68.5.62H.5v61h68z" /></clipPath>
     </defs>
   </svg>
 `;

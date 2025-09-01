@@ -548,7 +548,7 @@
     "message": "搜尋密碼庫"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "重設搜尋"
   },
   "edit": {
     "message": "編輯"
@@ -659,7 +659,7 @@
     "message": "您的瀏覽器不支援剪貼簿簡單複製，請手動複製。"
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "驗證您的身份"
   },
   "weDontRecognizeThisDevice": {
     "message": "我們無法識別此裝置。請輸入已傳送到您電子郵件的驗證碼以驗證您的身分。"
@@ -914,7 +914,7 @@
     "message": "否"
   },
   "location": {
-    "message": "Location"
+    "message": "位置"
   },
   "unexpectedError": {
     "message": "發生了未預期的錯誤。"
@@ -1096,11 +1096,11 @@
     }
   },
   "notificationLoginSaveConfirmation": {
-    "message": "saved to Bitwarden.",
+    "message": "已儲存至 Bitwarden。",
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
-    "message": "updated in Bitwarden.",
+    "message": "已更新至 Bitwarden。",
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
@@ -1120,7 +1120,7 @@
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Update login",
+    "message": "更新登入資料",
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
@@ -1128,7 +1128,7 @@
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
-    "message": "Save login",
+    "message": "儲存登入資料",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
@@ -1486,11 +1486,11 @@
     "message": "Don't ask again on this device for 30 days"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "選擇其他方式",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "使用您的復原碼"
   },
   "insertU2f": {
     "message": "將您的安全鑰匙插入電腦的 USB 連接埠，然後觸摸其按鈕（如有的話）。"
@@ -1624,7 +1624,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Turn off autofill"
+    "message": "停用自動填入"
   },
   "showInlineMenuLabel": {
     "message": "在表單欄位上顯示自動填入選單"
@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "此瀏覽器不能在彈出式視窗中處理 U2F 要求。是否在新視窗開啟此對話方塊，以便您能夠使用 U2F 登入？"
   },
-  "enableFavicon": {
-    "message": "顯示網站圖示"
-  },
-  "faviconDesc": {
-    "message": "在每個登入資料旁顯示一個可辨識的圖片。"
-  },
-  "faviconDescAlt": {
-    "message": "在每次登入時旁邊顯示可識別的圖片。適用於所有已登入的帳號。"
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "顯示圖示計數器"
@@ -2237,7 +2231,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "密碼庫自訂"
   },
   "vaultTimeoutAction": {
     "message": "密碼庫逾時動作"
@@ -2534,7 +2528,7 @@
     "message": "您可以於設定中進行更改"
   },
   "change": {
-    "message": "Change"
+    "message": "變更"
   },
   "changePassword": {
     "message": "Change password",
@@ -4131,15 +4125,11 @@
   "selectImportCollection": {
     "message": "選擇一個分類"
   },
-  "importTargetHint": {
-    "message": "如果您要將匯入檔案的內容移動到 $DESTINATION$，請選擇此選項",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "檔案包含未指派項目。"
@@ -4236,7 +4226,7 @@
     "message": "密碼金鑰項目"
   },
   "overwritePasskey": {
-    "message": "覆寫密碼金鑰嗎？"
+    "message": "要覆寫密碼金鑰嗎？"
   },
   "overwritePasskeyAlert": {
     "message": "該項目已包含密碼金鑰。您確定要覆寫目前的密碼金鑰嗎？"
@@ -4729,10 +4719,10 @@
     }
   },
   "downloadBitwarden": {
-    "message": "Download Bitwarden"
+    "message": "下載 Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "在所有裝置中下載 Bitwarden"
   },
   "getTheMobileApp": {
     "message": "Get the mobile app"
@@ -4747,13 +4737,13 @@
     "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
   },
   "downloadFromBitwardenNow": {
-    "message": "Download from bitwarden.com now"
+    "message": "立即從 bitwarden.com 下載"
   },
   "getItOnGooglePlay": {
     "message": "Get it on Google Play"
   },
   "downloadOnTheAppStore": {
-    "message": "Download on the App Store"
+    "message": "從 App Store 下載"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "您確定要永久刪除此附檔嗎？"
@@ -5117,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "在擴充套件圖示上顯示自動填入建議的數量"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "在密碼庫中顯示快速複製"
   },
@@ -5160,7 +5162,7 @@
     "message": "以及更多內容"
   },
   "fileSavedToDevice": {
-    "message": "檔案已儲存到裝置。在您的裝置上管理下載檔案。"
+    "message": "檔案已儲存至裝置。在您的裝置中管理下載的檔案。"
   },
   "showCharacterCount": {
     "message": "顯示字元數"
@@ -5445,7 +5447,7 @@
     "message": "Change at-risk password"
   },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "密碼庫選項"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
@@ -5567,6 +5569,12 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
@@ -5579,5 +5587,9 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }
