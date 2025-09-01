@@ -45,6 +45,19 @@ function buildProxyBin(target, release = true) {
     }
 }
 
+function buildProcessIsolation() {
+    if (process.platform !== "linux") {
+        return;
+    }
+
+    child_process.execSync(`cargo build --release`, {
+        stdio: 'inherit',
+        cwd: path.join(__dirname, "process_isolation")
+    });
+
+    fs.copyFileSync(path.join(__dirname, "target", "release", "libprocess_isolation.so"), path.join(__dirname, "dist", `libprocess_isolation.so`));
+}
+
 function installTarget(target) {
     child_process.execSync(`rustup target add ${target}`, { stdio: 'inherit', cwd: __dirname });
 }
@@ -53,6 +66,7 @@ if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildProcessIsolation();
     return;
 }
 
@@ -61,6 +75,7 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, mode === "release");
     buildProxyBin(target, mode === "release");
+    buildProcessIsolation();
     return;
 }
 
@@ -78,4 +93,5 @@ platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target);
     buildProxyBin(target);
+    buildProcessIsolation();
 });
