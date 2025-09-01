@@ -53,7 +53,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     private pinService: PinServiceAbstraction,
     private kdfConfigService: KdfConfigService,
     private biometricsService: BiometricsService,
-  ) { }
+  ) {}
 
   async getAvailableVerificationOptions(
     verificationType: keyof UserVerificationOptions,
