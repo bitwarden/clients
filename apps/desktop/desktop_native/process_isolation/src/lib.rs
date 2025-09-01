@@ -3,8 +3,8 @@
 //! On Linux, this is PR_SET_DUMPABLE to prevent debuggers from attaching, the env
 //! from being read and the memory from being stolen.
 
-use std::{ffi::c_char, sync::LazyLock};
 use desktop_core::process_isolation;
+use std::{ffi::c_char, sync::LazyLock};
 
 static ORIGINAL_UNSETENV: LazyLock<unsafe extern "C" fn(*const c_char) -> i32> =
     LazyLock::new(|| unsafe {
