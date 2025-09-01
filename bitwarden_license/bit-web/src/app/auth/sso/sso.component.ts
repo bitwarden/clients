@@ -298,7 +298,7 @@ export class SsoComponent implements OnInit, OnDestroy {
     const response = await this.organizationApiService.updateSso(this.organizationId, request);
     this.populateForm(response);
 
-    await this.upsertOrganizationWithSsoChanges(request.enabled, request.data.memberDecryptionType);
+    await this.upsertOrganizationWithSsoChanges(request);
 
     this.toastService.showToast({
       variant: "success",
@@ -403,8 +403,7 @@ export class SsoComponent implements OnInit, OnDestroy {
   }
 
   private async upsertOrganizationWithSsoChanges(
-    ssoEnabled: boolean,
-    ssoMemberDecryptionType: MemberDecryptionType,
+    organizationSsoRequest: OrganizationSsoRequest,
   ): Promise<void> {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const currentOrganization = await firstValueFrom(
@@ -416,8 +415,8 @@ export class SsoComponent implements OnInit, OnDestroy {
     if (currentOrganization) {
       const updatedOrganization = {
         ...currentOrganization,
-        ssoEnabled: ssoEnabled,
-        ssoMemberDecryptionType: ssoMemberDecryptionType,
+        ssoEnabled: organizationSsoRequest.enabled,
+        ssoMemberDecryptionType: organizationSsoRequest.data.memberDecryptionType,
       };
 
       await this.organizationService.upsert(updatedOrganization, userId);
