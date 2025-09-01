@@ -270,12 +270,7 @@ export class PinService implements PinServiceAbstraction {
     } else {
       throw new Error(`Cannot set up PIN with pin lock type ${pinLockType}`);
     }
-    await this.stateProvider.setUserState(
-      USER_KEY_ENCRYPTED_PIN,
-      /// TODO: This should be updated once EncryptedString is a type alias of SDK's EncString
-      userKeyEncryptedPin as string as EncryptedString,
-      userId,
-    );
+    await this.stateProvider.setUserState(USER_KEY_ENCRYPTED_PIN, userKeyEncryptedPin, userId);
   }
 
   /// Anything below here is deprecated and will be removed subsequently
