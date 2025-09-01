@@ -1,12 +1,15 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+// eslint-disable-next-line no-restricted-imports
+import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations/services";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-// FIXME: remove `src` and fix import
+import { ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { SharedModule } from "@bitwarden/components/src/shared";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -17,6 +20,8 @@ describe("IntegrationCardComponent", () => {
   let component: IntegrationCardComponent;
   let fixture: ComponentFixture<IntegrationCardComponent>;
   const mockI18nService = mock<I18nService>();
+  const activatedRoute = mock<ActivatedRoute>();
+  const mockOrgIntegrationApiService = mock<OrganizationIntegrationApiService>();
 
   const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
   const usersPreferenceTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
@@ -24,26 +29,22 @@ describe("IntegrationCardComponent", () => {
   beforeEach(async () => {
     // reset system theme
     systemTheme$.next(ThemeType.Light);
+    activatedRoute.snapshot = {
+      paramMap: {
+        get: jest.fn().mockReturnValue("test-organization-id"),
+      },
+    } as any;
 
     await TestBed.configureTestingModule({
       imports: [IntegrationCardComponent, SharedModule],
       providers: [
-        {
-          provide: ThemeStateService,
-          useValue: { selectedTheme$: usersPreferenceTheme$ },
-        },
-        {
-          provide: SYSTEM_THEME_OBSERVABLE,
-          useValue: systemTheme$,
-        },
-        {
-          provide: I18nPipe,
-          useValue: mock<I18nPipe>(),
-        },
-        {
-          provide: I18nService,
-          useValue: mockI18nService,
-        },
+        { provide: ThemeStateService, useValue: { selectedTheme$: usersPreferenceTheme$ } },
+        { provide: SYSTEM_THEME_OBSERVABLE, useValue: systemTheme$ },
+        { provide: I18nPipe, useValue: mock<I18nPipe>() },
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: OrganizationIntegrationApiService, useValue: mockOrgIntegrationApiService },
+        { provide: ToastService, useValue: mock<ToastService>() },
       ],
     }).compileComponents();
   });

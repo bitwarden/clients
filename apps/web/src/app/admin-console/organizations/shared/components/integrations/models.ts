@@ -20,4 +20,5 @@ export type Integration = {
   description?: string;
   isConnected?: boolean;
   canSetupConnection?: boolean;
+  configuration?: string;
 };

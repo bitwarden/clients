@@ -67,7 +67,7 @@ export class Password extends Domain {
    */
   toSdkPasswordHistory(): PasswordHistory {
     return {
-      password: this.password.toJSON(),
+      password: this.password.toSdk(),
       lastUsedDate: this.lastUsedDate.toISOString(),
     };
   }

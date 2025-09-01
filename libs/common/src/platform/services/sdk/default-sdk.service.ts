@@ -22,6 +22,7 @@ import {
   ClientSettings,
   DeviceType as SdkDeviceType,
   TokenProvider,
+  UnsignedSharedKey,
 } from "@bitwarden/sdk-internal";
 
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
@@ -34,9 +35,12 @@ import { Environment, EnvironmentService } from "../../abstractions/environment.
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
-import { SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
+import { asUuid, SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
+import { StateProvider } from "../../state";
+
+import { initializeState } from "./client-managed-state";
 
 // A symbol that represents an overriden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -80,6 +84,7 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
+    private stateProvider: StateProvider,
     private userAgent: string | null = null,
   ) {}
 
@@ -213,7 +218,7 @@ export class DefaultSdkService implements SdkService {
     orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
   ) {
     await client.crypto().initialize_user_crypto({
-      userId,
+      userId: asUuid(userId),
       email: account.email,
       method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
       kdfParams:
@@ -237,9 +242,12 @@ export class DefaultSdkService implements SdkService {
       organizationKeys: new Map(
         Object.entries(orgKeys ?? {})
           .filter(([_, v]) => v.type === "organization")
-          .map(([k, v]) => [k, v.key]),
+          .map(([k, v]) => [asUuid(k), v.key as UnsignedSharedKey]),
       ),
     });
+
+    // Initialize the SDK managed database and the client managed repositories.
+    await initializeState(userId, client.platform().state(), this.stateProvider);
   }
 
   private toSettings(env: Environment): ClientSettings {

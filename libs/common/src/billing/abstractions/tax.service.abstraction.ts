@@ -3,7 +3,6 @@ import { PreviewIndividualInvoiceRequest } from "../models/request/preview-indiv
 import { PreviewOrganizationInvoiceRequest } from "../models/request/preview-organization-invoice.request";
 import { PreviewTaxAmountForOrganizationTrialRequest } from "../models/request/tax";
 import { PreviewInvoiceResponse } from "../models/response/preview-invoice.response";
-import { PreviewTaxAmountResponse } from "../models/response/tax";
 
 export abstract class TaxServiceAbstraction {
   abstract getCountries(): CountryListItem[];
@@ -20,5 +19,5 @@ export abstract class TaxServiceAbstraction {
 
   abstract previewTaxAmountForOrganizationTrial: (
     request: PreviewTaxAmountForOrganizationTrialRequest,
-  ) => Promise<PreviewTaxAmountResponse>;
+  ) => Promise<number>;
 }

@@ -1,5 +1,4 @@
 import { PreviewTaxAmountForOrganizationTrialRequest } from "@bitwarden/common/billing/models/request/tax";
-import { PreviewTaxAmountResponse } from "@bitwarden/common/billing/models/response/tax";
 
 import { ApiService } from "../../abstractions/api.service";
 import { TaxServiceAbstraction } from "../abstractions/tax.service.abstraction";
@@ -306,13 +305,14 @@ export class TaxService implements TaxServiceAbstraction {
 
   async previewTaxAmountForOrganizationTrial(
     request: PreviewTaxAmountForOrganizationTrialRequest,
-  ): Promise<PreviewTaxAmountResponse> {
-    return await this.apiService.send(
+  ): Promise<number> {
+    const response = await this.apiService.send(
       "POST",
       "/tax/preview-amount/organization-trial",
       request,
       true,
       true,
     );
+    return response as number;
   }
 }

@@ -143,7 +143,7 @@ Utiliza Bitwarden para proteger a tu personal y compartir información confidenc
 Más razones para elegir Bitwarden:
 
 Encriptación de clase mundial
-Las contraseñas están protegidas con cifrado avanzado de extremo a extremo (AES-256 bits, hashtag salado y PBKDF2 SHA-256) para que tus datos permanezcan seguros y privados.
+Las contraseñas están protegidas con cifrado avanzado de extremo a extremo (AES-256 bits, hashing salado y PBKDF2 SHA-256) para que tus datos permanezcan seguros y privados.
 
 Auditorías de terceros
 Bitwarden realiza regularmente auditorías integrales de seguridad de terceros con empresas de seguridad notables. Estas auditorías anuales incluyen evaluaciones de código fuente y pruebas de penetración en las direcciones IP, los servidores y las aplicaciones web de Bitwarden.

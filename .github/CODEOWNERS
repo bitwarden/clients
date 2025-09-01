@@ -96,6 +96,13 @@ libs/logging @bitwarden/team-platform-dev
 libs/storage-test-utils @bitwarden/team-platform-dev
 libs/messaging @bitwarden/team-platform-dev
 libs/messaging-internal @bitwarden/team-platform-dev
+libs/serialization @bitwarden/team-platform-dev
+libs/guid @bitwarden/team-platform-dev
+libs/client-type @bitwarden/team-platform-dev
+libs/core-test-utils @bitwarden/team-platform-dev
+libs/state @bitwarden/team-platform-dev
+libs/state-internal @bitwarden/team-platform-dev
+libs/state-test-utils @bitwarden/team-platform-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files
@@ -125,6 +132,7 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
 # ESLint custom rules
 libs/eslint @bitwarden/team-platform-dev
+libs/eslint/components @bitwarden/team-ui-foundation
 # Typescript tooling
 tsconfig.base.json @bitwarden/team-platform-dev
 nx.json @bitwarden/team-platform-dev
@@ -137,6 +145,7 @@ apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/autotype @bitwarden/team-autofill-dev
+.github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
@@ -148,6 +157,7 @@ apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bit
 ## UI Foundation ##
 .storybook @bitwarden/team-ui-foundation
 libs/components @bitwarden/team-ui-foundation
+libs/assets @bitwarden/team-ui-foundation
 libs/ui @bitwarden/team-ui-foundation
 apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation

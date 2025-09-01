@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Totalt antal applikationer"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Avmarkera som kritisk app"
+  "unmarkAsCritical": {
+    "message": "Avmarkera som kritisk"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritisk applikation avmarkerades"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kopiera licensnummer"
   },
+  "copyPrivateKey": {
+    "message": "Kopiera privat nyckel"
+  },
+  "copyPublicKey": {
+    "message": "Kopiera publik nyckel"
+  },
+  "copyFingerprint": {
+    "message": "Kopiera fingeravtryck"
+  },
   "copyName": {
     "message": "Kopiera namn"
   },
@@ -1108,7 +1117,7 @@
     "message": "Ogiltig nyckel. Försök igen."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "Tvåstegsverifiering stöds inte för nycklar. Uppdatera appen för att logga in."
+    "message": "Tvåstegsverifiering stöds inte för inloggningsnycklar. Uppdatera appen för att logga in."
   },
   "loginWithPasskeyInfo": {
     "message": "Använd en genererad inloggningsnyckel som automatiskt loggar in dig utan lösenord. Din identitet verifieras med biometri, såsom ansiktsigenkänning eller fingeravtryck, eller en annan FIDO2-säkerhetsmetod."
@@ -1174,7 +1183,7 @@
     "message": "Ta bort inloggningsnyckel"
   },
   "removePasskeyInfo": {
-    "message": "Om alla nycklar tas bort kommer du inte kunna logga in på nya enheter utan ditt huvudlösenord."
+    "message": "Om alla inloggningsnycklar tas bort kommer du inte kunna logga in på nya enheter utan ditt huvudlösenord."
   },
   "passkeyLimitReachedInfo": {
     "message": "Gränsen för antal inloggningsnycklar har uppnåtts. Ta bort en inloggningsnyckel innan du lägger till en ny."
@@ -1428,9 +1437,6 @@
   "notificationSentDevicePart1": {
     "message": "Lås upp Bitwarden på din enhet eller på "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Försöker du komma åt ditt konto?"
-  },
   "accessAttemptBy": {
     "message": "Åtkomstförsök via $EMAIL$",
     "placeholders": {
@@ -1509,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Återställningskod"
+  },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
   },
   "authenticatorAppTitle": {
     "message": "Autentiseringsapp"
@@ -2053,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Välj en samling"
   },
-  "importTargetHint": {
-    "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en samling"
+  },
+  "importTargetHintFolder": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."
@@ -2109,11 +2114,8 @@
   "languageDesc": {
     "message": "Ändra språket som används i webbvalvet."
   },
-  "enableFavicon": {
-    "message": "Visa webbplatsikoner"
-  },
-  "faviconDesc": {
-    "message": "Visa en igenkännbar bild bredvid varje inloggning."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Standard"
@@ -2453,9 +2455,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Det gick inte att läsa säkerhetsnyckeln. Försök igen."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "På grund av plattformsbegränsningar kan WebAuthn inte användas på alla Bitwarden-applikationer. Du bör konfigurera en annan leverantör av tvåstegsinloggning så att du kan komma åt ditt konto när WebAuthn inte kan användas."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Din återställningskod för tvåstegsverifiering"
@@ -2826,6 +2825,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "Sammanfattning"
@@ -3976,22 +3981,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "Denna begäran är inte längre giltig."
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggning bekräftad för $EMAIL$ på $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om detta verkligen var du, försök att logga in med enheten igen."
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Inloggningsbegäran godkänd för $EMAIL$ på $DEVICE$",
@@ -5284,6 +5273,14 @@
   "downloadAttachments": {
     "message": "Ladda ner bilagor"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Ange lösenordet för att visa denna Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Visa Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Den Send du försöker komma åt finns inte eller är inte längre tillgänglig.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5440,37 @@
   },
   "organizationDataOwnership": {
     "message": "Genomför äganderätt till organisationsdata"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Kräv att alla objekt ägs av en organisation och ta bort möjligheten att lagra objekt på kontonivå.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Alla objekt kommer att ägas och sparas i organisationen, vilket möjliggör kontroll, synlighet och rapportering för hela organisationen. När funktionen är aktiverad finns en standardsamling tillgänglig för varje medlem att lagra objekt i. Läs mer om hur du hanterar ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "livscykel för inloggningsuppgifter",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Är du säker på att du vill fortsätta?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "kommer att kvarstå som tillgängliga för medlemmar"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "kommer inte automatiskt att väljas när nya objekt skapas"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "kan inte hanteras från administratörskonsollen tills användaren stängs av"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "Genom att stänga av denna policy kommer standardsamlingen att: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Läs mer om ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Radera individuellt valv"
@@ -7009,6 +7037,12 @@
   "unknownCipher": {
     "message": "Okänt objekt, du kan behöva begära tillstånd för att få tillgång till detta objekt."
   },
+  "unknownSecret": {
+    "message": "Okänd hemlighet, du kan behöver begära behörighet för att komma åt denna hemlighet."
+  },
+  "unknownProject": {
+    "message": "Okänt projekt, du kan behöver begära behörighet för att komma åt detta projekt."
+  },
   "cannotSponsorSelf": {
     "message": "Du kan inte lösa in för det aktiva kontot. Ange en annan e-postadress."
   },
@@ -8332,10 +8366,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Skapade en ny hemlighet med identifierare: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accessed a project with Id: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Deleted project Id: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Deleted secret Id: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9477,6 +9583,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Skicka händelsedata till din Logscale-instans"
   },
+  "failedToSaveIntegration": {
+    "message": "Misslyckades med att spara integration. Försök igen senare."
+  },
   "deviceIdMissing": {
     "message": "Enhetens ID saknas"
   },
@@ -9557,6 +9666,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Skapa en ny kundorganisation som du kan hantera som Provider. Ytterligare platser kommer att återspeglas i nästa faktureringscykel."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Bärartoken"
+  },
+  "index": {
+    "message": "Index"
   },
   "selectAPlan": {
     "message": "Välj en plan"
@@ -10713,6 +10831,9 @@
   "upgradeEventLogMessage": {
     "message": "Dessa händelser är endast exempel och återspeglar inte verkliga händelser inom din Bitwarden-organisation."
   },
+  "viewEvents": {
+    "message": "Visa händelser"
+  },
   "cannotCreateCollection": {
     "message": "Gratisorganisationer kan ha upp till 2 samlingar. Uppgradera till en betald plan för att lägga till fler samlingar."
   },
@@ -10870,6 +10991,12 @@
     "message": "Faktureringsadress krävs för att lägga till kredit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Om denna inställning"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Faktureringsadress"
   },
@@ -10918,6 +11045,36 @@
       }
     }
   },
+  "unpaidInvoices": {
+    "message": "Obetalda fakturor"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Din prenumeration har inte betalats. Kontakta din leverantörsadministratör för att återställa tjänsten för dig och dina kunder.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ är avstängd",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "För att återställa åtkomsten till din leverantörsportal, kontakta Bitwardens kundsupport för att förnya ditt abonnemang.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Din prenumeration har inte betalats. För att återställa tjänsten för dig och dina kunder, lägg till en betalningsmetod senast $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
   "subscribetoEnterprise": {
     "message": "Abonnera på $PLAN$",
     "placeholders": {
@@ -10938,5 +11095,68 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Obegränsade hemligheter och projekt"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Prenumerationen avbruten"
+  },
+  "providersubCanceledmessage": {
+    "message": "Kontakta Bitwardens kundtjänst för att återaktivera prenumerationen."
+  },
+  "showMore": {
+    "message": "Visa mer"
+  },
+  "showLess": {
+    "message": "Visa mindre"
+  },
+  "missingTaxId": {
+    "message": "Missing Tax ID"
+  },
+  "missingTaxIdWarning": {
+    "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Add a Tax ID"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Action required: Missing Tax ID"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Action required: Your Tax ID number is unverified. If your Tax ID is left unverified, your invoices may include additional tax."
+  },
+  "editTaxId": {
+    "message": "Edit your Tax ID"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Tax ID unverified"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Check your Tax ID to verify the format is correct and there are no typos."
+  },
+  "pendingVerification": {
+    "message": "Väntande verifiering"
+  },
+  "checkInputFormat": {
+    "message": "Check input format for typos."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Exempel $CODE$ format: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

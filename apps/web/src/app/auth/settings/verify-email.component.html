@@ -4,10 +4,9 @@
     id="sendBtn"
     bitLink
     linkType="secondary"
-    bitButton
     type="button"
     buttonType="unstyled"
-    [bitAction]="send"
+    (click)="send()"
   >
     {{ "sendEmail" | i18n }}
   </button>

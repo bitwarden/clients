@@ -19,7 +19,7 @@ import { TableDataSource, TableModule } from "../../../table";
     ScrollLayoutDirective,
   ],
   template: /*html*/ `<bit-section>
-    <cdk-virtual-scroll-viewport bitScrollLayout itemSize="63.5">
+    <cdk-virtual-scroll-viewport bitScrollLayout itemSize="49.5">
       <bit-table [dataSource]="dataSource">
         <ng-container header>
           <tr>
@@ -36,7 +36,7 @@ import { TableDataSource, TableModule } from "../../../table";
               <button
                 bitIconButton="bwi-ellipsis-v"
                 type="button"
-                aria-label="Options"
+                label="Options"
                 (click)="openDefaultDialog()"
               ></button>
             </td>

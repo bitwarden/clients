@@ -10,12 +10,12 @@ import {
   CollectionDetailsResponse,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -143,10 +143,12 @@ export class OrganizationVaultExportService
         if (exportData != null) {
           if (exportData.collections != null && exportData.collections.length > 0) {
             exportData.collections.forEach((c) => {
-              const collection = new Collection(new CollectionData(c as CollectionDetailsResponse));
+              const collection = Collection.fromCollectionData(
+                new CollectionData(c as CollectionDetailsResponse),
+              );
               exportPromises.push(
                 firstValueFrom(this.keyService.activeUserOrgKeys$)
-                  .then((keys) => collection.decrypt(keys[organizationId]))
+                  .then((keys) => collection.decrypt(keys[organizationId], this.encryptService))
                   .then((decCol) => {
                     decCollections.push(decCol);
                   }),
@@ -191,7 +193,9 @@ export class OrganizationVaultExportService
       this.apiService.getCollections(organizationId).then((c) => {
         if (c != null && c.data != null && c.data.length > 0) {
           c.data.forEach((r) => {
-            const collection = new Collection(new CollectionData(r as CollectionDetailsResponse));
+            const collection = Collection.fromCollectionData(
+              new CollectionData(r as CollectionDetailsResponse),
+            );
             collections.push(collection);
           });
         }

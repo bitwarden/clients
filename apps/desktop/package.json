@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/desktop",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.7.0",
+  "version": "2025.8.3",
   "keywords": [
     "bitwarden",
     "password",
@@ -19,7 +19,7 @@
     "postinstall": "electron-rebuild",
     "start": "cross-env ELECTRON_IS_DEV=0 ELECTRON_NO_UPDATER=1 electron ./build",
     "build-native": "cd desktop_native && node build.js",
-    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" concurrently -n Main,Rend,Prel -c yellow,cyan \"npm run build:main\" \"npm run build:renderer\" \"npm run build:preload\"",
+    "build": "concurrently -n Main,Rend,Prel -c yellow,cyan \"npm run build:main\" \"npm run build:renderer\" \"npm run build:preload\"",
     "build:dev": "concurrently -n Main,Rend -c yellow,cyan \"npm run build:main:dev\" \"npm run build:renderer:dev\"",
     "build:preload": "cross-env NODE_ENV=production webpack --config webpack.preload.js",
     "build:preload:watch": "cross-env NODE_ENV=production webpack --config webpack.preload.js --watch",

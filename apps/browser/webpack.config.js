@@ -199,7 +199,6 @@ const mainConfig = {
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
     "overlay/menu":
       "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
-    "encrypt-worker": "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
     "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
   },
@@ -393,7 +392,7 @@ if (manifestVersion == 2) {
       cache: true,
     },
     dependencies: ["main"],
-    plugins: [...requiredPlugins /*new AngularCheckPlugin()*/], // TODO (PM-22630): Re-enable this plugin when angular is removed from the background script.
+    plugins: [...requiredPlugins, new AngularCheckPlugin()],
   };
 
   // Safari's desktop build process requires a background.html and vendor.js file to exist

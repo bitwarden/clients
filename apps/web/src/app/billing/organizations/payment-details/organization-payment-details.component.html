@@ -21,19 +21,20 @@
   } @else {
     <ng-container>
       <app-display-payment-method
-        [owner]="view.organization"
+        [subscriber]="view.organization"
         [paymentMethod]="view.paymentMethod"
         (updated)="setPaymentMethod($event)"
       ></app-display-payment-method>
 
       <app-display-billing-address
-        [owner]="view.organization"
+        [subscriber]="view.organization"
         [billingAddress]="view.billingAddress"
+        [taxIdWarning]="enableTaxIdWarning ? view.taxIdWarning : null"
         (updated)="setBillingAddress($event)"
       ></app-display-billing-address>
 
       <app-display-account-credit
-        [owner]="view.organization"
+        [subscriber]="view.organization"
         [credit]="view.credit"
       ></app-display-account-credit>
     </ng-container>
