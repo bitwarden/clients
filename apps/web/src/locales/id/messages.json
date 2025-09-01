@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Semua aplikasi"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Critical application successfully unmarked"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Salin nomor lisensi"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "copyName": {
     "message": "Salin nama"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Kode Pemulihan"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Aplikasi Autentikasi"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Ubah bahasa yang digunakan oleh brankas web."
   },
-  "enableFavicon": {
-    "message": "Tampilkan ikon website"
-  },
-  "faviconDesc": {
-    "message": "Tampilkan gambar pengenal di samping setiap login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Bawaan"
@@ -10981,6 +10990,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Billing address"

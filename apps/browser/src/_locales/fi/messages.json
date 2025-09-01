@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Tämä selain ei voi käsitellä U2F-pyyntöjä tässä ponnahdusikkunassa. Haluatko avata näkymän uuteen ikkunaan vahvistaaksesi kirjautumisen U2F-suojausavaimella?"
   },
-  "enableFavicon": {
-    "message": "Näytä verkkosivustojen kuvakkeet"
-  },
-  "faviconDesc": {
-    "message": "Näytä tunnistettava kuva jokaiselle kirjautumistiedolle."
-  },
-  "faviconDescAlt": {
-    "message": "Näytä tunnistettava kuva jokaisen kirjautumistiedon vieressä. Koskee kaikkia kirjautuneita tilejä."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Näytä laskuri"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Näytä automaattitäytön ehdotusten määrä laajennuksen kuvakkeessa"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Näytä pikakopiointitoiminnot holvissa"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Luo helposti vahvoja ja uniikkeja salasanoja klikkaamalla Luo salasana -painiketta. Sen avuilla voit pitää kirjautumisesi turvallisina.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Sinulla ei ole oikeuksia tähän sivuun. Yritä kirjautua sisään toisella tilillä."

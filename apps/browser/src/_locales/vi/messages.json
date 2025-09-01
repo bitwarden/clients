@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Trình duyệt này không thể xử lý các yêu cầu U2F trong cửa sổ popup này. Bạn có muốn mở popup này trong cửa sổ mới để bạn có thể đăng nhập thông qua U2F?"
   },
-  "enableFavicon": {
-    "message": "Hiển thị biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiển thị một ảnh nhận dạng bên cạnh mỗi lần đăng nhập."
-  },
-  "faviconDescAlt": {
-    "message": "Hiển thị một biểu tượng dễ nhận dạng bên cạnh mỗi mục đăng nhập. Áp dụng với mọi tài khoản đăng nhập trên thiết bị."
+  "showIconsChangePasswordUrls": {
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "enableBadgeCounter": {
     "message": "Hiển thị biểu tượng bộ đếm"
@@ -4132,10 +4126,10 @@
     "message": "Chọn bộ sưu tập"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Hiển thị số lượng đề xuất tự động điền đăng nhập trên biểu tượng tiện ích mở rộng"
   },
+  "accountAccessRequested": {
+    "message": "Yêu cầu truy cập tài khoản"
+  },
+  "confirmAccessAttempt": {
+    "message": "Phê duyệt yêu cầu truy cập cho $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Hiển thị các hành động sao chép nhanh trên Kho"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Dễ dàng tạo mật khẩu mạnh và duy nhất bằng cách nhấp vào Trình tạo mật khẩu để giúp bạn bảo vệ tài khoản đăng nhập của mình.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "Về cài đặt này"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."

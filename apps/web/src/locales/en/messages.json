@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Total applications"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Critical application successfully unmarked"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "copyName": {
     "message": "Copy name"
   },
@@ -1507,6 +1516,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Recovery code"
+  },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
   },
   "authenticatorAppTitle": {
     "message": "Authenticator app"
