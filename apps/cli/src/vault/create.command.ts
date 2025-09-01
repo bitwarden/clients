@@ -5,7 +5,7 @@ import * as path from "path";
 
 import { firstValueFrom, map } from "rxjs";
 
-import { CollectionRequest } from "@bitwarden/admin-console/common";
+import { CreateCollectionRequest } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
@@ -233,7 +233,7 @@ export class CreateCommand {
           : req.users.map(
               (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
             );
-      const request = new CollectionRequest({
+      const request = new CreateCollectionRequest({
         name: await this.encryptService.encryptString(req.name, orgKey),
         externalId: req.externalId,
         groups,
