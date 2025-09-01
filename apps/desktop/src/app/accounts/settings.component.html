@@ -296,7 +296,7 @@
                   "alwaysShowDockDesc" | i18n
                 }}</small>
               </div>
-              <div class="form-group">
+              <div class="form-group" *ngIf="!isFlatpak && !isSnap">
                 <div class="checkbox">
                   <label for="enableBrowserIntegration">
                     <input

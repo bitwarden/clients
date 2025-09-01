@@ -104,6 +104,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   isWindows: boolean;
   isLinux: boolean;
   isMac: boolean;
+  isFlatpak: boolean;
+  isSnap: boolean;
 
   enableTrayText: string;
   enableTrayDescText: string;
@@ -197,6 +199,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
+    this.isFlatpak = ipc.platform.isFlatpak;
+    this.isSnap = ipc.platform.isSnapStore;
 
     // Workaround to avoid ghosting trays https://github.com/electron/electron/issues/17622
     this.requireEnableTray = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
