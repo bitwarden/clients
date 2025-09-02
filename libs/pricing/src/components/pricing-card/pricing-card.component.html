@@ -1,5 +1,5 @@
 <div
-  class="tw-box-border tw-bg-background tw-text-main tw-border tw-border-secondary-100 tw-rounded-3xl tw-p-8 tw-shadow-sm tw-w-full tw-flex tw-flex-col"
+  class="tw-box-border tw-bg-background tw-text-main tw-border tw-border-secondary-100 tw-rounded-3xl tw-p-8 tw-shadow-sm tw-size-full tw-flex tw-flex-col"
 >
   <!-- Title Section with Active Badge -->
   <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
@@ -63,7 +63,7 @@
   </div>
 
   <!-- Features List -->
-  <div>
+  <div class="tw-flex-grow">
     @if (features(); as featureList) {
       @if (featureList.length > 0) {
         <ul class="tw-list-none tw-p-0 tw-m-0">
