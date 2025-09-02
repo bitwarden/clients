@@ -101,7 +101,11 @@ impl LinuxCryptoService {
             self.v11_key = Some(util::derive_saltysalt(&master_password, 1)?);
         }
 
-        decrypt(self.v11_key.as_ref().unwrap(), encrypted)
+        let key = self
+            .v11_key
+            .as_ref()
+            .ok_or_else(|| anyhow!("Failed to retrieve key"))?;
+        decrypt(key, encrypted)
     }
 }
 
