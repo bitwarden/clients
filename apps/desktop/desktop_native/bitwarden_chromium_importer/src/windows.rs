@@ -100,10 +100,11 @@ impl CryptoService for WindowsCryptoService {
         }
 
         if self.master_key.is_none() {
-            self.master_key = Some(self.get_master_key(version).await?);
+            self.master_key = Some(self.get_master_key(version)?);
         }
 
-        let key = Key::<Aes256Gcm>::from_slice(self.master_key.as_ref().unwrap());
+        let key = self.master_key.as_ref().ok_or_else(|| anyhow!("Failed to retrieve key"));
+        let key = Key::<Aes256Gcm>::from_slice(key);
         let cipher = Aes256Gcm::new(key);
         let nonce = Nonce::from_slice(&no_prefix[..IV_SIZE]);
 
@@ -119,7 +120,7 @@ impl CryptoService for WindowsCryptoService {
 }
 
 impl WindowsCryptoService {
-    async fn get_master_key(&mut self, version: &str) -> Result<Vec<u8>> {
+    fn get_master_key(&mut self, version: &str) -> Result<Vec<u8>> {
         match version {
             "v10" => self.get_master_key_v10(),
             _ => Err(anyhow!("Unsupported version: {}", version)),
@@ -133,8 +134,9 @@ impl WindowsCryptoService {
             ));
         }
 
+        let key = self.encrypted_key.as_ref().ok_or_else(|| anyhow!("Failed to retrieve key"));
         let key_bytes = BASE64_STANDARD
-            .decode(self.encrypted_key.as_ref().unwrap())
+            .decode(key)
             .map_err(|e| anyhow!("Encrypted master key is not a valid base64 string: {}", e))?;
 
         if key_bytes.len() <= 5 || &key_bytes[..5] != b"DPAPI" {
