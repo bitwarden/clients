@@ -9,7 +9,7 @@
     "message": "Kritik uygulamalar"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Risk altında olan kritik uygulama yok"
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
@@ -54,10 +54,10 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Yeni giriş öğesi oluşturun"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "Kritik uygulamalar ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -75,7 +75,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "$ORG NAME$'de hiçbir uygulama bulunmadı",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -84,7 +84,7 @@
     }
   },
   "noAppsInOrgDescription": {
-    "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
+    "message": "Kullanıcılar oturum açma bilgilerini kaydettikçe, uygulamalar burada görünür ve risk altındaki parolaları gösterir. Kritik uygulamaları işaretleyin ve kullanıcıları parolalarını güncellemeleri için bilgilendirin."
   },
   "noCriticalAppsTitle": {
     "message": "You haven't marked any applications as a Critical"
@@ -114,7 +114,7 @@
     "message": "Toplam parola"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "Uygulamaları ara"
   },
   "atRiskMembers": {
     "message": "Riskli üyeler"
@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Toplam uygulama"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritik uygulama işareti başarıyla kaldırıldı"
@@ -657,7 +657,7 @@
     "message": "Not"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH anahtarı"
   },
   "typeLoginPlural": {
     "message": "Hesaplar"
@@ -813,7 +813,7 @@
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "Parola kopyalandı"
   },
   "copyUsername": {
     "message": "Kullanıcı adını kopyala",
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Ruhsat numarasını kopyala"
+  },
+  "copyPrivateKey": {
+    "message": "Özel anahtarı kopyala"
+  },
+  "copyPublicKey": {
+    "message": "Ortak anahtarı kopyala"
+  },
+  "copyFingerprint": {
+    "message": "Parmak izini kopyala"
   },
   "copyName": {
     "message": "Adı kopyala"
@@ -1096,13 +1105,13 @@
     "message": "Başka bir giriş yöntemi kullan"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Geçiş anahtarıyla giriş yap"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Çoklu oturum açma kullan"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Tekrar hoş geldiniz"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Geçersiz geçiş anahtarı. Lütfen tekrar deneyin."
@@ -1186,7 +1195,7 @@
     "message": "Hesap aç"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Bitwarden'da yeni misiniz?"
   },
   "setAStrongPassword": {
     "message": "Güçlü bir parola belirleyin"
@@ -1204,7 +1213,7 @@
     "message": "Giriş yap"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Bitwarden'a giriş yapın"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "E-posta adresinize gönderilen kodu girin"
@@ -1216,13 +1225,13 @@
     "message": "Press your YubiKey to authenticate"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Kimlik doğrulama zaman aşımı"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "Kimlik doğrulama oturumu zaman aşımına uğradı. Lütfen giriş sürecini yeniden başlatın."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Kimliğinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
     "message": "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin."
@@ -1399,7 +1408,7 @@
     "message": "Bu koleksiyondaki tüm kayıtları görmek için izniniz yok."
   },
   "youDoNotHavePermissions": {
-    "message": "You do not have permissions to this collection"
+    "message": "Bu koleksiyona erişme izniniz yok"
   },
   "noCollectionsInList": {
     "message": "Listelenecek koleksiyon yok."
@@ -1426,7 +1435,7 @@
     "message": "Cihazınıza bir bildirim gönderildi."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Bitwarden kilidini cihazınızdan veya "
   },
   "accessAttemptBy": {
     "message": "$EMAIL$ erişim denemesi",
@@ -1447,7 +1456,7 @@
     "message": "web uygulaması"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Onay vermeden önce parmak izi ifadesinin aşağıdakiyle eşleştiğini kontrol edin."
   },
   "notificationSentDeviceComplete": {
     "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
@@ -1474,14 +1483,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Bu cihazda 30 gün boyunca sorma"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Başka bir yöntem seç",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Kurtarma kodu kullan"
   },
   "insertU2f": {
     "message": "Güvenlik anahtarınızı bilgisayarınızın USB portuna takın. Düğmesi varsa dokunun."
@@ -1499,13 +1508,16 @@
     "message": "İki aşamalı giriş seçenekleri"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "İki aşamalı giriş yöntemini seçin"
   },
   "recoveryCodeDesc": {
     "message": "İki aşamalı giriş sağlayıcılarınıza ulaşamıyor musunuz? Kurtarma kodunuzu kullanarak hesabınızdaki tüm iki aşamalı giriş sağlayıcılarını devre dışı bırakabilirsiniz."
   },
   "recoveryCodeTitle": {
     "message": "Kurtarma kodu"
+  },
+  "invalidRecoveryCode": {
+    "message": "Geçersiz kurtarma kodu"
   },
   "authenticatorAppTitle": {
     "message": "Kimlik doğrulama uygulaması"
@@ -1820,7 +1832,7 @@
     "message": "Geçerli oturum"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "İstek bekliyor"
   },
   "logBackInOthersToo": {
     "message": "Lütfen yeniden oturum açın. Diğer Bitwarden uygulamalarını kullanıyorsanız onlarda da oturumunuzu kapatıp yeniden açın."
@@ -2050,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Bir koleksiyon seçin"
   },
-  "importTargetHint": {
-    "message": "İçe aktarılan dosya içeriğinin $DESTINATION$ konumuna taşınmasını istiyorsanız bu seçeneği seçin",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "İçe aktarılan dosya içeriklerinin bir koleksiyona taşınmasını istiyorsanız bu seçeneği seçin"
+  },
+  "importTargetHintFolder": {
+    "message": "İçe aktarılan dosya içeriklerinin bir klasöre taşınmasını istiyorsanız bu seçeneği seçin"
   },
   "importUnassignedItemsError": {
     "message": "Dosya atanmamış öğeler içeriyor."
@@ -2106,11 +2114,8 @@
   "languageDesc": {
     "message": "Web kasasında kullanılan dili değiştirin."
   },
-  "enableFavicon": {
-    "message": "Web sitesi simgelerini göster"
-  },
-  "faviconDesc": {
-    "message": "Hesapların yanında tanıdık görseller göster."
+  "showIconsChangePasswordUrls": {
+    "message": "Web sitesi simgelerini göster ve parola değiştirme URL'lerini al"
   },
   "default": {
     "message": "Varsayılan"
@@ -2450,9 +2455,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Güvenlik anahtarını okurken bir sorun oluştu. Tekrar deneyin."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Platform sınırlamaları nedeniyle WebAuthn tüm Bitwarden uygulamalarında kullanılamaz. WebAuthn kullanılamadığında hesabınıza erişebilmek için başka bir iki aşamalı doğrulama yöntemi ayarlamanız gerekir."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden iki aşamalı giriş kurtarma kodunuz"
@@ -2823,6 +2825,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "Özet"
@@ -7029,6 +7037,12 @@
   "unknownCipher": {
     "message": "Bilinmeyen Öğe, bu öğeye erişmek için izin istemeniz gerekebilir."
   },
+  "unknownSecret": {
+    "message": "Unknown secret, you may need to request permission to access this secret."
+  },
+  "unknownProject": {
+    "message": "Unknown project, you may need to request permission to access this project."
+  },
   "cannotSponsorSelf": {
     "message": "Aktif hesap için kullanamazsınız. Farklı bir e-posta girin."
   },
@@ -8352,10 +8366,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Created a new secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Accessed a project with Id: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Deleted project Id: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Deleted secret Id: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -10745,6 +10831,9 @@
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   },
+  "viewEvents": {
+    "message": "View Events"
+  },
   "cannotCreateCollection": {
     "message": "Ücretsiz kuruluşların en fazla 2 koleksiyonu olabilir. Daha fazla koleksiyon eklemek için ücretli bir plana geçin."
   },
@@ -10902,6 +10991,12 @@
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Bu ayar hakkında"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Fatura adresi"
   },
@@ -11012,5 +11107,56 @@
   },
   "showLess": {
     "message": "Daha az göster"
+  },
+  "missingTaxId": {
+    "message": "Missing Tax ID"
+  },
+  "missingTaxIdWarning": {
+    "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Add a Tax ID"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Action required: Missing Tax ID"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Action required: Your Tax ID number is unverified. If your Tax ID is left unverified, your invoices may include additional tax."
+  },
+  "editTaxId": {
+    "message": "Edit your Tax ID"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Tax ID unverified"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Check your Tax ID to verify the format is correct and there are no typos."
+  },
+  "pendingVerification": {
+    "message": "Pending verification"
+  },
+  "checkInputFormat": {
+    "message": "Check input format for typos."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Example $CODE$ format: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

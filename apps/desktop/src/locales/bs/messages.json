@@ -24,13 +24,13 @@
     "message": "Identitet"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Napomena"
   },
   "typeSecureNote": {
     "message": "Sigurna bilješka"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH ključ"
   },
   "folders": {
     "message": "Folderi"
@@ -343,7 +343,7 @@
     "message": "Mx"
   },
   "dr": {
-    "message": "dr."
+    "message": "dr"
   },
   "expirationMonth": {
     "message": "Mjesec isteka"
@@ -700,13 +700,19 @@
     "message": "Da li ste sigurni da želite obrisati priloženu datoteku?"
   },
   "attachmentSaved": {
-    "message": "Priložena datoteka je spremljena."
+    "message": "Priložena datoteka je spremljena"
+  },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
   },
   "file": {
     "message": "Datoteka"
   },
   "selectFile": {
-    "message": "Odaberite datoteku."
+    "message": "Odaberite datoteku"
   },
   "maxFileSize": {
     "message": "Maksimalna veličina datoteke je 500 MB."
@@ -997,7 +1003,7 @@
     "message": "Koristi bilo koji WebAuthn omogućeni sigurnosni ključ za pristup svojem računu."
   },
   "emailTitle": {
-    "message": "E-Mail "
+    "message": "E-Mail"
   },
   "emailDescV2": {
     "message": "Enter a code sent to your email."
@@ -1061,7 +1067,7 @@
     "message": "URL adresa servera ikona"
   },
   "environmentSaved": {
-    "message": "URL adrese okruženja su spremljene."
+    "message": "URL adrese okruženja su spremljene"
   },
   "ok": {
     "message": "Uredu"
@@ -1299,11 +1305,8 @@
     "message": "Automatski očistiti kopirane vrijednosti iz vaše međumemorije.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimiziraj kao ikonicu u sistemskoj traci"
@@ -1390,7 +1393,7 @@
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
-    "message": "Provjeri ima li ažuriranja"
+    "message": "Provjeri ima li ažuriranja…"
   },
   "version": {
     "message": "Verzija $VERSION_NUM$",
@@ -1839,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"
-  },
-  "requirePasswordOnStart": {
-    "message": "Require password or PIN on app start"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
@@ -3491,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -3932,6 +3925,12 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "assignToCollections": {
     "message": "Assign to collections"
   },
@@ -4077,5 +4076,9 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }
