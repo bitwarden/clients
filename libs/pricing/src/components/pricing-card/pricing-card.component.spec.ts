@@ -17,17 +17,16 @@ import { PricingCardComponent } from "./pricing-card.component";
       (buttonClick)="onButtonClick()"
     >
       <ng-container [ngSwitch]="titleLevel">
-         
         <h1 *ngSwitchCase="'h1'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h1>
-         
+
         <h2 *ngSwitchCase="'h2'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h2>
-         
+
         <h3 *ngSwitchCase="'h3'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h3>
-         
+
         <h4 *ngSwitchCase="'h4'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h4>
-         
+
         <h5 *ngSwitchCase="'h5'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h5>
-         
+
         <h6 *ngSwitchCase="'h6'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h6>
       </ng-container>
     </billing-pricing-card>
