@@ -1,3 +1,5 @@
+@let disabledText = disabledReasonText();
+
 <div
   class="tw-rounded-md tw-flex tw-flex-col tw-max-w-[60ch] [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-offset-2 [&:has(input:focus-visible)]:tw-ring-primary-600"
 >
@@ -39,7 +41,7 @@
       <span
         bitTypography="body2"
         class="tw-block [&_*]:tw-whitespace-normal"
-        [ngClass]="{ 'tw-text-muted': disabled() }"
+        [ngClass]="{ 'tw-text-muted tw-pointer-events-none': disabled() }"
       >
         <ng-content select="bit-label"></ng-content>
       </span>
@@ -48,7 +50,6 @@
   <div class="tw-ps-[calc(theme(spacing.9)_+_theme(spacing.2))] [&_bit-hint]:tw-mt-0">
     <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
   </div>
-  @let disabledText = disabledReasonText();
 
   @if (disabledText && disabled()) {
     <div [attr.id]="disabledReasonTextId" class="tw-sr-only">

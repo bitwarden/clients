@@ -22,12 +22,11 @@ let nextId = 0;
   host: {
     "[id]": "this.id()",
     "[attr.aria-disabled]": "this.disabled()",
+    "[attr.title]": "this.disabled() ? this.disabledReasonText() : null",
   },
   hostDirectives: [AriaDisableDirective],
 })
 export class SwitchComponent implements ControlValueAccessor {
-  private notifyOnChange?: (v: boolean) => void;
-  private notifyOnTouch?: () => void;
   private el = inject(ElementRef<HTMLButtonElement>);
 
   protected selected = model(false);
@@ -54,16 +53,20 @@ export class SwitchComponent implements ControlValueAccessor {
     return ids.join(" ");
   });
 
+  // ControlValueAccessor
+  onChange: (value: unknown) => void = () => {};
+  onTouched: () => void = () => {};
+
   writeValue(value: boolean): void {
     this.selected.set(value);
   }
 
   registerOnChange(fn: (value: boolean) => void): void {
-    this.notifyOnChange = fn;
+    this.onChange = fn;
   }
 
   registerOnTouched(fn: () => void): void {
-    this.notifyOnTouch = fn;
+    this.onTouched = fn;
   }
 
   readonly id = input(`bit-switch-${nextId++}`);
@@ -71,8 +74,8 @@ export class SwitchComponent implements ControlValueAccessor {
   protected onInputChange(event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
     this.writeValue(checked);
-    this.notifyOnChange(checked);
-    this.notifyOnTouch();
+    this.onChange(checked);
+    this.onTouched();
   }
 
   setDisabledState(isDisabled: boolean) {
