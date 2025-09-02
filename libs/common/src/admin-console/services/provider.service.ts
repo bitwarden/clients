@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable, of, switchMap, take } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { PROVIDERS_DISK, StateProvider, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
@@ -20,18 +20,10 @@ function mapToSingleProvider(providerId: string) {
 export class ProviderService implements ProviderServiceAbstraction {
   constructor(private stateProvider: StateProvider) {}
 
-  private providers$(userId?: UserId): Observable<Provider[] | undefined> {
-    // FIXME: Can be replaced with `getUserStateOrDefault$` if we weren't trying to pick this.
-    return (
-      userId != null
-        ? this.stateProvider.getUser(userId, PROVIDERS).state$
-        : this.stateProvider.activeUserId$.pipe(
-            take(1),
-            switchMap((userId) =>
-              userId != null ? this.stateProvider.getUser(userId, PROVIDERS).state$ : of(null),
-            ),
-          )
-    ).pipe(this.mapProviderRecordToArray());
+  private providers$(userId: UserId): Observable<Provider[] | undefined> {
+    return this.stateProvider
+      .getUser(userId, PROVIDERS)
+      .state$.pipe(this.mapProviderRecordToArray());
   }
 
   private mapProviderRecordToArray() {
@@ -40,19 +32,19 @@ export class ProviderService implements ProviderServiceAbstraction {
     );
   }
 
-  get$(id: string): Observable<Provider> {
-    return this.providers$().pipe(mapToSingleProvider(id));
+  get$(id: string, userId: UserId): Observable<Provider> {
+    return this.providers$(userId).pipe(mapToSingleProvider(id));
   }
 
-  async get(id: string): Promise<Provider> {
-    return await firstValueFrom(this.providers$().pipe(mapToSingleProvider(id)));
+  async get(id: string, userId: UserId): Promise<Provider> {
+    return await firstValueFrom(this.providers$(userId).pipe(mapToSingleProvider(id)));
   }
 
-  async getAll(): Promise<Provider[]> {
-    return await firstValueFrom(this.providers$());
+  async getAll(userId: UserId): Promise<Provider[]> {
+    return await firstValueFrom(this.providers$(userId));
   }
 
-  async save(providers: { [id: string]: ProviderData }, userId?: UserId) {
+  async save(providers: { [id: string]: ProviderData }, userId: UserId) {
     await this.stateProvider.setUserState(PROVIDERS, providers, userId);
   }
 }

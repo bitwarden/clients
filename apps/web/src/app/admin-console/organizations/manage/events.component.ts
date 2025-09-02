@@ -141,10 +141,11 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
     if (this.organization.providerId != null) {
       try {
-        const provider = await this.providerService.get(this.organization.providerId);
+        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+        const provider = await this.providerService.get(this.organization.providerId, userId);
         if (
           provider != null &&
-          (await this.providerService.get(this.organization.providerId)).canManageUsers
+          (await this.providerService.get(this.organization.providerId, userId)).canManageUsers
         ) {
           const providerUsersResponse = await this.apiService.getProviderUsers(
             this.organization.providerId,
