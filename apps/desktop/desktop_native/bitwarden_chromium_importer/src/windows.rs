@@ -140,7 +140,7 @@ impl WindowsCryptoService {
         let key = self
             .encrypted_key
             .as_ref()
-            .ok_or_else(|| anyhow!("Failed to retrieve key"));
+            .ok_or_else(|| anyhow!("Failed to retrieve key"))?;
         let key_bytes = BASE64_STANDARD
             .decode(key)
             .map_err(|e| anyhow!("Encrypted master key is not a valid base64 string: {}", e))?;
