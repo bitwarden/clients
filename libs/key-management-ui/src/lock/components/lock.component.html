@@ -120,13 +120,13 @@
 
   <!-- MP Unlock -->
   @if (
-    (forceUpdateKDFSettings$ | async) &&
+    (unlockWithMasterPasswordUnlockDataFlag$ | async) &&
     unlockOptions.masterPassword.enabled &&
     activeUnlockOption === UnlockOption.MasterPassword
   ) {
     <bit-master-password-lock
       [(activeUnlockOption)]="activeUnlockOption"
-      [unlockOptions]="this.unlockOptions"
+      [unlockOptions]="unlockOptions"
       [biometricUnlockBtnText]="biometricUnlockBtnText"
       (successfulUnlock)="setUserKeyAndContinue($event, true)"
       (logOut)="logOut()"
