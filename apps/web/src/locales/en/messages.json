@@ -9036,7 +9036,7 @@
     }
   },
   "limitCollectionCreationEnabled": {
-    "message": "Turned on Limit collection creation and deletion setting $ID$.",
+    "message": "Turned on Restrict collection creation and deletion setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9045,7 +9045,7 @@
     }
   },
   "limitCollectionCreationDisabled": {
-    "message": "Turned off Limit collection creation and deletion setting $ID$.",
+    "message": "Turned off Restrict collection creation and deletion setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9054,7 +9054,7 @@
     }
   },
   "limitCollectionDeletionEnabled": {
-    "message": "Turned on Limit collection deletion setting $ID$.",
+    "message": "Turned on Restrict collection deletion setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9063,7 +9063,7 @@
     }
   },
   "limitCollectionDeletionDisabled": {
-    "message": "Turned off Limit collection deletion setting $ID$.",
+    "message": "Turned off Restrict collection deletion setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9072,7 +9072,7 @@
     }
   },
   "limitItemDeletionEnabled": {
-    "message": "Turned on Limit item deletion setting $ID$.",
+    "message": "Turned on Restrict item deletion setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9081,7 +9081,7 @@
     }
   },
   "limitItemDeletionDisabled": {
-    "message": "Turned off Limit item deletion setting $ID$.",
+    "message": "Turned off Restrict item deletion setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9090,7 +9090,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsEnabled": {
-    "message": "Turned on Owners and admins can manage all collections and items setting $ID$.",
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9099,7 +9099,7 @@
     }
   },
   "allowAdminAccessToAllCollectionItemsDisabled": {
-    "message": "Turned off Owners and admins can manage all collections and items setting $ID$.",
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
