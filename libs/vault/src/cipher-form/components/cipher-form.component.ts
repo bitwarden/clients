@@ -161,9 +161,17 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     this.formStatusChangeSubject.next("disabled");
   }
 
+  /**
+   * Enables the form, only when it is currently disabled.
+   * Child forms could have disabled some of their controls based on
+   * other factors. Enabling the form from this level should only occur
+   * when the form was disabled at this level.
+   */
   enableFormFields(): void {
-    this.cipherForm.enable({ emitEvent: false });
-    this.formStatusChangeSubject.next("enabled");
+    if (this.cipherForm.disabled) {
+      this.cipherForm.enable({ emitEvent: false });
+      this.formStatusChangeSubject.next("enabled");
+    }
   }
 
   /**
