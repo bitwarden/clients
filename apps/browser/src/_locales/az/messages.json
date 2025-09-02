@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Bu brauzer bu açılan pəncərədə U2F tələblərini emal edə bilmir. U2F istifadə edərək giriş etmək üçün bu açılan pəncərəni yeni bir pəncərədə açmaq istəyirsiniz?"
   },
-  "enableFavicon": {
-    "message": "Veb sayt ikonlarını göstər"
-  },
-  "faviconDesc": {
-    "message": "Hər girişin yanında tanına bilən təsvir göstər."
-  },
-  "faviconDescAlt": {
-    "message": "Hər bir giriş elementinin yanında tanına bilən bir təsvir göstər. Giriş etmiş bütün hesablara aiddir."
+  "showIconsChangePasswordUrls": {
+    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
   },
   "enableBadgeCounter": {
     "message": "Nişan sayğacını göstər"
@@ -2383,13 +2377,13 @@
     "message": "Bu qutunu işarələyərək aşağıdakılarla razılaşırsınız:"
   },
   "acceptPoliciesRequired": {
-    "message": "Xidmət Şərtləri və Gizlilik Siyasəti qəbul edilməyib."
+    "message": "Xidmət Şərtləri və Məxfilik Siyasəti qəbul edilməyib."
   },
   "termsOfService": {
     "message": "Xidmət Şərtləri"
   },
   "privacyPolicy": {
-    "message": "Gizlilik Siyasəti"
+    "message": "Məxfilik Siyasəti"
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Yeni parolunuz hazırkı parolunuzla eyni ola bilməz."
@@ -2491,7 +2485,7 @@
     "message": "Bu əməliyyat yan çubuqda icra edilə bilməz. Lütfən açılan pəncərədə yenidən sınayın."
   },
   "personalOwnershipSubmitError": {
-    "message": "Müəssisə Siyasətinə görə, elementləri şəxsi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
+    "message": "Müəssisə Siyasətinə görə, elementləri fərdi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Bir təşkilat siyasəti, sahiblik seçimlərinizə təsir edir."
@@ -4131,15 +4125,11 @@
   "selectImportCollection": {
     "message": "Bir kolleksiya seçin"
   },
-  "importTargetHint": {
-    "message": "Daxilə köçürülən fayl məzmununun $DESTINATION$ yerinə daşınmasını istəyirsinizsə bu variantı seçin",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu variantı seçin"
+  },
+  "importTargetHintFolder": {
+    "message": "Daxilə köçürülən fayl məzmunlarının bir qovluğa daşınmasını istəyirsinizsə bu variantı seçin"
   },
   "importUnassignedItemsError": {
     "message": "Faylda təyin edilməmiş elementlər var."
@@ -4439,7 +4429,7 @@
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "privacyPermissionAdditionNotGrantedDescription": {
-    "message": "Bitwarden-i ilkin parol meneceri olaraq ayarlamaq üçün ona brauzer gizlilik icazələrini verməlisiniz.",
+    "message": "Bitwarden-i ilkin parol meneceri olaraq ayarlamaq üçün ona brauzer məxfilik icazələrini verməlisiniz.",
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
@@ -4783,7 +4773,7 @@
     }
   },
   "personalDetails": {
-    "message": "Şəxsi detallar"
+    "message": "Fərdi detallar"
   },
   "identification": {
     "message": "İdentifikasiya"
@@ -5116,6 +5106,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Uzantı ikonunda giriş üçün avto-doldurma təklif sayını göstər"
+  },
+  "accountAccessRequested": {
+    "message": "Hesab erişimi tələb olundu"
+  },
+  "confirmAccessAttempt": {
+    "message": "$EMAIL$ üçün erişim cəhdini təsdiqlə",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Seyfdə cəld kopyalama fəaliyyətlərini göstər"
@@ -5567,6 +5569,12 @@
     "message": "Girişlərinizi güvənli şəkildə saxlamağınıza kömək etməsi üçün Parol yarat düyməsinə klikləyərək güclü və unikal parolları asanlıqla yaradın.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Bu ayar barədə"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
+  },
   "noPermissionsViewPage": {
     "message": "Bu səhifəyə baxmaq icazəniz yoxdur. Fərqli hesabla giriş etməyə çalışın."
   },
@@ -5579,5 +5587,9 @@
   },
   "showLess": {
     "message": "Daha az göstər"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

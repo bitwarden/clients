@@ -77,7 +77,10 @@ import { IconModule } from "@bitwarden/components";
    - **Note:** Scaling is required for any SVG used as an
      [AnonLayout](?path=/docs/component-library-anon-layout--docs) `pageIcon`.
 
-7. **Import your SVG const** anywhere you want to use the SVG.
+7. **Replace any generic `clipPath` ids** (such as `id="a"`) with a unique id, and update the
+   referencing element to use the new id (such as `clip-path="url(#unique-id-here)"`).
+
+8. **Import your SVG const** anywhere you want to use the SVG.
    - **Angular Component Example:**
      - **TypeScript:**
 
@@ -113,5 +116,5 @@ import { IconModule } from "@bitwarden/components";
        <bit-icon [icon]="Icons.ExampleIcon" [ariaLabel]="Your custom label text here"></bit-icon>
        ```
 
-8. **Ensure your SVG renders properly** according to Figma in both light and dark modes on a client
+9. **Ensure your SVG renders properly** according to Figma in both light and dark modes on a client
    which supports multiple style modes.

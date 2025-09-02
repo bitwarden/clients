@@ -113,6 +113,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   /** Emits when a new custom field should be focused */
   private focusOnNewInput$ = new Subject<void>();
 
+  /** Tracks the disabled status of the edit cipher form */
+  protected parentFormDisabled: boolean = false;
+
   disallowHiddenField?: boolean;
 
   destroyed$: DestroyRef;
@@ -132,6 +135,10 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     this.customFieldsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       // getRawValue ensures disabled fields are included
       this.updateCipher(this.fields.getRawValue());
+    });
+
+    this.cipherFormContainer.formStatusChange$.pipe(takeUntilDestroyed()).subscribe((status) => {
+      this.parentFormDisabled = status === "disabled";
     });
   }
 
