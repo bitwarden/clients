@@ -266,6 +266,15 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     return planType ? this.applicablePlans.find((plan) => plan.type === planType) : null;
   }
 
+  protected get showTaxIdField(): boolean {
+    switch (this.organizationInfo.type) {
+      case ProductTierType.Families:
+        return false;
+      default:
+        return true;
+    }
+  }
+
   private getBillingInformationFromTaxInfoComponent(): BillingInformation {
     return {
       postalCode: this.taxInfoComponent.getTaxInformation()?.postalCode,

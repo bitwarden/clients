@@ -42,9 +42,7 @@ export class DefaultCollectionService implements CollectionService {
   /**
    * @returns a SingleUserState for encrypted collection data.
    */
-  private encryptedState(
-    userId: UserId,
-  ): SingleUserState<Record<CollectionId, CollectionData | null>> {
+  private encryptedState(userId: UserId): SingleUserState<Record<CollectionId, CollectionData>> {
     return this.stateProvider.getUser(userId, ENCRYPTED_COLLECTION_DATA_KEY);
   }
 
@@ -62,7 +60,7 @@ export class DefaultCollectionService implements CollectionService {
           return null;
         }
 
-        return Object.values(collections).map((c) => new Collection(c));
+        return Object.values(collections).map((c) => Collection.fromCollectionData(c));
       }),
     );
   }
@@ -110,8 +108,8 @@ export class DefaultCollectionService implements CollectionService {
       if (collections == null) {
         collections = {};
       }
-      collections[toUpdate.id] = toUpdate;
 
+      collections[toUpdate.id] = toUpdate;
       return collections;
     });
 
@@ -121,7 +119,7 @@ export class DefaultCollectionService implements CollectionService {
           if (!orgKeys) {
             throw new Error("No key for this collection's organization.");
           }
-          return this.decryptMany$([new Collection(toUpdate)], orgKeys);
+          return this.decryptMany$([Collection.fromCollectionData(toUpdate)], orgKeys);
         }),
       ),
     );
@@ -177,10 +175,6 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   async encrypt(model: CollectionView, userId: UserId): Promise<Collection> {
-    if (model.organizationId == null) {
-      throw new Error("Collection has no organization id.");
-    }
-
     const key = await firstValueFrom(
       this.keyService.orgKeys$(userId).pipe(
         filter((orgKeys) => !!orgKeys),
@@ -188,13 +182,7 @@ export class DefaultCollectionService implements CollectionService {
       ),
     );
 
-    const collection = new Collection();
-    collection.id = model.id;
-    collection.organizationId = model.organizationId;
-    collection.readOnly = model.readOnly;
-    collection.externalId = model.externalId;
-    collection.name = await this.encryptService.encryptString(model.name, key);
-    return collection;
+    return await model.encrypt(key, this.encryptService);
   }
 
   // TODO: this should be private.
@@ -211,7 +199,12 @@ export class DefaultCollectionService implements CollectionService {
 
     collections.forEach((collection) => {
       decCollections.push(
-        from(collection.decrypt(orgKeys[collection.organizationId as OrganizationId])),
+        from(
+          collection.decrypt(
+            orgKeys[collection.organizationId as OrganizationId],
+            this.encryptService,
+          ),
+        ),
       );
     });
 
@@ -223,9 +216,8 @@ export class DefaultCollectionService implements CollectionService {
   getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[] {
     const nodes: TreeNode<CollectionView>[] = [];
     collections.forEach((c) => {
-      const collectionCopy = new CollectionView();
-      collectionCopy.id = c.id;
-      collectionCopy.organizationId = c.organizationId;
+      const collectionCopy = Object.assign(new CollectionView({ ...c, name: c.name }), c);
+
       const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
       ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
     });

@@ -1,5 +1,4 @@
 import { ChangePlanFrequencyRequest } from "@bitwarden/common/billing/models/request/change-plan-frequency.request";
-import { OrganizationWarningsResponse } from "@bitwarden/common/billing/models/response/organization-warnings.response";
 
 import {
   BillingInvoiceResponse,
@@ -17,8 +16,6 @@ export abstract class OrganizationBillingApiServiceAbstraction {
     id: string,
     startAfter?: string,
   ) => Promise<BillingTransactionResponse[]>;
-
-  abstract getWarnings: (id: string) => Promise<OrganizationWarningsResponse>;
 
   abstract setupBusinessUnit: (
     id: string,

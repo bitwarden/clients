@@ -175,13 +175,13 @@ describe("CipherViewLikeUtils", () => {
       });
 
       it("returns false when the cipher is assigned to an organization and cannot be edited", () => {
-        cipherListView.organizationId = "org-id";
+        cipherListView.organizationId = "org-id" as any;
 
         expect(CipherViewLikeUtils.canAssignToCollections(cipherListView)).toBe(false);
       });
 
       it("returns true when the cipher is assigned to an organization and can be edited", () => {
-        cipherListView.organizationId = "org-id";
+        cipherListView.organizationId = "org-id" as any;
         cipherListView.edit = true;
         cipherListView.viewPassword = true;
 

@@ -29,7 +29,6 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategySetting,
   UriMatchStrategy,
@@ -1212,161 +1211,7 @@ export default class AutofillService implements AutofillServiceInterface {
       AutofillService.hasValue(card.expMonth) &&
       AutofillService.hasValue(card.expYear)
     ) {
-      let combinedExpiryFillValue = null;
-
-      const enableNewCardCombinedExpiryAutofill = await this.configService.getFeatureFlag(
-        FeatureFlag.EnableNewCardCombinedExpiryAutofill,
-      );
-
-      if (enableNewCardCombinedExpiryAutofill) {
-        combinedExpiryFillValue = this.generateCombinedExpiryValue(card, fillFields.exp);
-      } else {
-        const fullMonth = ("0" + card.expMonth).slice(-2);
-
-        let fullYear: string = card.expYear;
-        let partYear: string = null;
-        if (fullYear.length === 2) {
-          partYear = fullYear;
-          fullYear = normalizeExpiryYearFormat(fullYear);
-        } else if (fullYear.length === 4) {
-          partYear = fullYear.substr(2, 2);
-        }
-
-        for (let i = 0; i < CreditCardAutoFillConstants.MonthAbbr.length; i++) {
-          if (
-            // mm/yyyy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                "/" +
-                CreditCardAutoFillConstants.YearAbbrLong[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullMonth + "/" + fullYear;
-          } else if (
-            // mm/yy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                "/" +
-                CreditCardAutoFillConstants.YearAbbrShort[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = fullMonth + "/" + partYear;
-          } else if (
-            // yyyy/mm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrLong[i] +
-                "/" +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullYear + "/" + fullMonth;
-          } else if (
-            // yy/mm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrShort[i] +
-                "/" +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = partYear + "/" + fullMonth;
-          } else if (
-            // mm-yyyy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                "-" +
-                CreditCardAutoFillConstants.YearAbbrLong[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullMonth + "-" + fullYear;
-          } else if (
-            // mm-yy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                "-" +
-                CreditCardAutoFillConstants.YearAbbrShort[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = fullMonth + "-" + partYear;
-          } else if (
-            // yyyy-mm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrLong[i] +
-                "-" +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullYear + "-" + fullMonth;
-          } else if (
-            // yy-mm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrShort[i] +
-                "-" +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = partYear + "-" + fullMonth;
-          } else if (
-            // yyyymm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrLong[i] +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullYear + fullMonth;
-          } else if (
-            // yymm
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.YearAbbrShort[i] +
-                CreditCardAutoFillConstants.MonthAbbr[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = partYear + fullMonth;
-          } else if (
-            // mmyyyy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                CreditCardAutoFillConstants.YearAbbrLong[i],
-            )
-          ) {
-            combinedExpiryFillValue = fullMonth + fullYear;
-          } else if (
-            // mmyy
-            this.fieldAttrsContain(
-              fillFields.exp,
-              CreditCardAutoFillConstants.MonthAbbr[i] +
-                CreditCardAutoFillConstants.YearAbbrShort[i],
-            ) &&
-            partYear != null
-          ) {
-            combinedExpiryFillValue = fullMonth + partYear;
-          }
-
-          if (combinedExpiryFillValue != null) {
-            break;
-          }
-        }
-
-        // If none of the previous cases applied, set as default
-        if (combinedExpiryFillValue == null) {
-          combinedExpiryFillValue = fullYear + "-" + fullMonth;
-        }
-      }
+      const combinedExpiryFillValue = this.generateCombinedExpiryValue(card, fillFields.exp);
 
       this.makeScriptActionWithValue(
         fillScript,
@@ -2459,22 +2304,23 @@ export default class AutofillService implements AutofillServiceInterface {
         break;
       }
 
+      const includesUsernameFieldName =
+        this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
+
       if (
         !f.disabled &&
         (canBeReadOnly || !f.readonly) &&
-        (withoutForm || f.form === passwordField.form) &&
+        (withoutForm || f.form === passwordField.form || includesUsernameFieldName) &&
         (canBeHidden || f.viewable) &&
         (f.type === "text" || f.type === "email" || f.type === "tel")
       ) {
         usernameField = f;
-
-        if (this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1) {
-          // We found an exact match. No need to keep looking.
+        // We found an exact match. No need to keep looking.
+        if (includesUsernameFieldName) {
           break;
         }
       }
     }
-
     return usernameField;
   }
 

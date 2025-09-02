@@ -359,7 +359,7 @@
               type="button"
               [bitIconButton]="totalOpened ? 'bwi-angle-down' : 'bwi-angle-up'"
               size="small"
-              aria-hidden="true"
+              [label]="totalOpened ? ('hidePricingSummary' | i18n) : ('showPricingSummary' | i18n)"
             ></button>
           </p>
         </div>

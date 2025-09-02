@@ -90,7 +90,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
             return false;
         }
 
-        let request_id = self.get_request_id().await;
+        let request_id = self.get_request_id();
         let request_data = match request_parser::parse_request(data) {
             Ok(data) => data,
             Err(e) => {
@@ -138,7 +138,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
             return true;
         }
 
-        let request_id = self.get_request_id().await;
+        let request_id = self.get_request_id();
 
         let mut rx_channel = self.get_ui_response_rx.lock().await.resubscribe();
         let message = SshAgentUIRequest {
@@ -263,7 +263,7 @@ impl BitwardenDesktopAgent<BitwardenSshKey> {
         Ok(())
     }
 
-    async fn get_request_id(&self) -> u32 {
+    fn get_request_id(&self) -> u32 {
         if !self.is_running() {
             println!("[BitwardenDesktopAgent] Agent is not running, but tried to get request id");
             return 0;

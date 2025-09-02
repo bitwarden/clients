@@ -7,8 +7,9 @@ import { firstValueFrom } from "rxjs";
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
-  CollectionRequest,
   CollectionResponse,
+  CreateCollectionRequest,
+  UpdateCollectionRequest,
 } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -727,7 +728,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postCollection(
     organizationId: string,
-    request: CollectionRequest,
+    request: CreateCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "POST",
@@ -742,7 +743,7 @@ export class ApiService implements ApiServiceAbstraction {
   async putCollection(
     organizationId: string,
     id: string,
-    request: CollectionRequest,
+    request: UpdateCollectionRequest,
   ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "PUT",
@@ -1260,6 +1261,50 @@ export class ApiService implements ApiServiceAbstraction {
     const r = await this.send(
       "GET",
       this.addEventParameters("/ciphers/" + id + "/events", start, end, token),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
+  async getEventsSecret(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/secrets/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, EventResponse);
+  }
+
+  async getEventsProject(
+    orgId: string,
+    id: string,
+    start: string,
+    end: string,
+    token: string,
+  ): Promise<ListResponse<EventResponse>> {
+    const r = await this.send(
+      "GET",
+      this.addEventParameters(
+        "/organization/" + orgId + "/projects/" + id + "/events",
+        start,
+        end,
+        token,
+      ),
       null,
       true,
       true,

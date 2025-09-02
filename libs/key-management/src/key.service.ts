@@ -19,6 +19,7 @@ import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/mod
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
@@ -29,7 +30,6 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -471,19 +471,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       .update(() => encPrivateKey);
   }
 
-  // TODO: Make public key required
-  async getFingerprint(fingerprintMaterial: string, publicKey?: Uint8Array): Promise<string[]> {
+  async getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]> {
     if (publicKey == null) {
-      const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (activeUserId == null) {
-        throw new Error("No active user found.");
-      }
-      publicKey = (await firstValueFrom(this.userPublicKey$(activeUserId))) as Uint8Array;
+      throw new Error("Public key is required to generate a fingerprint.");
     }
 
-    if (publicKey === null) {
-      throw new Error("No public key available.");
-    }
     const keyFingerprint = await this.cryptoFunctionService.hash(publicKey, "sha256");
     const userFingerprint = await this.cryptoFunctionService.hkdfExpand(
       keyFingerprint,
@@ -730,7 +722,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   protected async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
     if (keySuffix === KeySuffixOptions.Auto) {
       const userKey = await this.stateService.getUserKeyAutoUnlock({ userId: userId });
