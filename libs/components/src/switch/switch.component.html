@@ -14,7 +14,7 @@
     <div>
       <span
         bitTypography="body2"
-        class="tw-block [&_*]:tw-whitespace-normal"
+        class="tw-block [&_*]:tw-whitespace-normal tw-max-w-[60ch]"
         [ngClass]="{ 'tw-text-muted tw-pointer-events-none': disabled() }"
       >
         <ng-content select="bit-label"></ng-content>
@@ -47,7 +47,7 @@
       ></span>
     </span>
   </label>
-  <div class="[&_bit-hint]:tw-mt-0">
+  <div class="[&_bit-hint]:tw-mt-0 tw-max-w-[60ch]">
     <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
   </div>
 
