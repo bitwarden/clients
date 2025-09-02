@@ -400,20 +400,29 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     }
     if (
       this.editMode &&
-      !this.collection.canEditName(this.organization) &&
+      !this.collection?.canEditName(this.organization) &&
       this.formGroup.controls.name.dirty
     ) {
       throw new Error("Cannot change readonly field: Name");
     }
 
     const parent = this.formGroup.controls.parent?.value;
-    const collectionView = new CollectionAdminView({
-      id: this.params.collectionId as CollectionId,
-      organizationId: this.formGroup.controls.selectedOrg.value,
-      name: parent
-        ? `${parent}/${this.formGroup.controls.name.value}`
-        : this.formGroup.controls.name.value,
-    });
+
+    // Clone the current collection
+    const collectionView = Object.assign(
+      new CollectionAdminView({
+        id: "" as CollectionId,
+        organizationId: "" as OrganizationId,
+        name: "",
+      }),
+      this.collection,
+    );
+
+    collectionView.name = parent
+      ? `${parent}/${this.formGroup.controls.name.value}`
+      : this.formGroup.controls.name.value;
+    collectionView.id = this.params.collectionId as CollectionId;
+    collectionView.organizationId = this.formGroup.controls.selectedOrg.value;
     collectionView.externalId = this.formGroup.controls.externalId.value;
     collectionView.groups = this.formGroup.controls.access.value
       .filter((v) => v.type === AccessItemType.Group)
@@ -421,7 +430,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     collectionView.users = this.formGroup.controls.access.value
       .filter((v) => v.type === AccessItemType.Member)
       .map(convertToSelectionView);
-    collectionView.defaultUserCollectionEmail = this.collection?.defaultUserCollectionEmail;
 
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
