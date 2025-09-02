@@ -227,7 +227,7 @@ fn get_logins(
         "tmp-logins-{}-{}.db",
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow!("Failed to retrieve system time: {}", e))?
             .as_millis(),
         rand::random::<u32>()
     ));
@@ -240,7 +240,9 @@ fn get_logins(
         )
     })?;
 
-    let maybe_logins = query_logins(tmp_db_path.to_str().unwrap())
+    let tmp_db_path = tmp_db_path.to_str()
+        .ok_or_else(|| anyhow!("Failed to locate database."))?;
+    let maybe_logins = query_logins(tmp_db_path)
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
     // Clean up temp file

@@ -12,7 +12,7 @@ pub fn split_encrypted_string(encrypted: &[u8]) -> Result<(&str, &[u8])> {
     }
 
     let (version, password) = encrypted.split_at(3);
-    Ok((std::str::from_utf8(version).unwrap(), password))
+    Ok((std::str::from_utf8(version)?, password))
 }
 
 pub fn split_encrypted_string_and_validate<'a>(
