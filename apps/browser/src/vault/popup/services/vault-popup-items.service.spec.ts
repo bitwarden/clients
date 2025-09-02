@@ -26,6 +26,7 @@ import {
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { CipherArchiveService } from "@bitwarden/vault";
 
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -66,6 +67,8 @@ describe("VaultPopupItemsService", () => {
   const userId = Utils.newGuid() as UserId;
   const accountServiceMock = mockAccountServiceWith(userId);
   const configServiceMock = mock<ConfigService>();
+  const cipherArchiveServiceMock = mock<CipherArchiveService>();
+  cipherArchiveServiceMock.userCanArchive.mockResolvedValue(true);
 
   const restrictedItemTypesService = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
@@ -175,6 +178,10 @@ describe("VaultPopupItemsService", () => {
         {
           provide: RestrictedItemTypesService,
           useValue: restrictedItemTypesService,
+        },
+        {
+          provide: CipherArchiveService,
+          useValue: cipherArchiveServiceMock,
         },
       ],
     });

@@ -23,7 +23,6 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -36,6 +35,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { CipherArchiveService } from "@bitwarden/vault";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
 import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
@@ -135,25 +135,23 @@ export class VaultPopupItemsService {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-  private archiveFeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM19148_InnovationArchive,
+  private userCanArchive$ = this.activeUserId$.pipe(
+    switchMap((userId) => {
+      return this.cipherArchiveService.userCanArchive(userId).then((canArchive) => canArchive);
+    }),
   );
 
   private _activeCipherList$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([
-        this.organizations$,
-        this.decryptedCollections$,
-        this.archiveFeatureFlag$,
-      ]).pipe(
-        map(([organizations, collections, archiveFeatureEnabled]) => {
+      combineLatest([this.organizations$, this.decryptedCollections$, this.userCanArchive$]).pipe(
+        map(([organizations, collections, canArchive]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
             .filter(
               (c) =>
                 !CipherViewLikeUtils.isDeleted(c) &&
-                (!archiveFeatureEnabled || !CipherViewLikeUtils.isArchived(c)),
+                (!canArchive || !CipherViewLikeUtils.isArchived(c)),
             )
             .map((cipher) => {
               (cipher as PopupCipherViewLike).collections = cipher.collectionIds?.map(
@@ -345,6 +343,7 @@ export class VaultPopupItemsService {
     private ngZone: NgZone,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   applyFilter(newSearchText: string) {
