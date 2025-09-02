@@ -2,8 +2,11 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { Observable, Subject, switchMap, takeUntil } from "rxjs";
 
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -13,26 +16,16 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { IntegrationType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { HeaderModule } from "../../../layouts/header/header.module";
-import { SharedModule } from "../../../shared/shared.module";
-import { SharedOrganizationModule } from "../shared";
-import { IntegrationGridComponent } from "../shared/components/integrations/integration-grid/integration-grid.component";
-import { FilterIntegrationsPipe } from "../shared/components/integrations/integrations.pipe";
-import { Integration } from "../shared/components/integrations/models";
-import { OrganizationIntegrationServiceType } from "@bitwarden/common/dirt/integrations/models/organization-integration-service-type";
-import { HecOrganizationIntegrationService } from "@bitwarden/common/dirt/integrations/services/hec-organization-integration-service";
+import { IntegrationGridComponent } from "./integration-grid/integration-grid.component";
+import { FilterIntegrationsPipe } from "./integrations.pipe";
 
 @Component({
   selector: "ac-integrations",
   templateUrl: "./integrations.component.html",
-  imports: [
-    SharedModule,
-    SharedOrganizationModule,
-    IntegrationGridComponent,
-    HeaderModule,
-    FilterIntegrationsPipe,
-  ],
+  imports: [SharedModule, IntegrationGridComponent, HeaderModule, FilterIntegrationsPipe],
 })
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
   tabIndex: number;
@@ -217,11 +210,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     },
   ];
 
-  async ngOnInit(): Promise<void> {
-    // const orgId = this.route.snapshot.params.organizationId;
-
-    // await this.hecOrganizationIntegrationService.setOrganizationId(orgId, this.integrationsList);
-
+  ngOnInit() {
     this.organization$ = this.route.params.pipe(
       switchMap((params) =>
         this.accountService.activeAccount$.pipe(
@@ -234,16 +223,10 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       ),
     );
 
-    const org = await firstValueFrom(this.organization$);
-
     // Sets the organization ID which also loads the integrations$
-    await this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
-
-    // this.organizationIntegrationService.integrationList$
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe((integrations) => {
-    //     this.integrationsList = integrations;
-    //   });
+    this.organization$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
+      this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
+    });
   }
 
   constructor(
@@ -251,7 +234,6 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private configService: ConfigService,
-    // private organizationIntegrationService: OrganizationIntegrationService,
     private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
   ) {
     this.configService

@@ -20,9 +20,6 @@ import { OrganizationIntegrationType } from "../models/organization-integration-
 import { OrganizationIntegrationApiService } from "./organization-integration-api.service";
 import { OrganizationIntegrationConfigurationApiService } from "./organization-integration-configuration-api.service";
 
-// @Injectable({
-//   providedIn: "root",
-// })
 export class HecOrganizationIntegrationService {
   private organizationId$ = new BehaviorSubject<OrganizationId | null>(null);
   private _integrations$ = new BehaviorSubject<OrganizationIntegration[]>([]);
@@ -233,7 +230,7 @@ export class HecOrganizationIntegrationService {
   // Could possibly be moved to a base service. All services would then assume that the
   // integration configuration would always be an array and this hec specific service
   // would just assume a single entry.
-  private async setIntegrations(orgId: OrganizationId) {
+  private setIntegrations(orgId: OrganizationId) {
     const results$ = zip(this.integrationApiService.getOrganizationIntegrations(orgId)).pipe(
       switchMap(([responses]) => {
         const integrations: OrganizationIntegration[] = [];

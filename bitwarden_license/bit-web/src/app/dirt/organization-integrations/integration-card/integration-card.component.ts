@@ -11,17 +11,17 @@ import { ActivatedRoute } from "@angular/router";
 import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-import { OrganizationIntegrationServiceType } from "@bitwarden/common/dirt/integrations/models/organization-integration-service-type";
-import { HecOrganizationIntegrationService } from "@bitwarden/common/dirt/integrations/services/hec-organization-integration-service";
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { SharedModule } from "../../../../../../shared/shared.module";
 import { openHecConnectDialog } from "../integration-dialog/index";
-import { Integration } from "../models";
 
 @Component({
   selector: "app-integration-card",

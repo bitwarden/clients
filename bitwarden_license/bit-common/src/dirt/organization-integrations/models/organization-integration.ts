@@ -26,4 +26,11 @@ export class OrganizationIntegration {
     this.configuration = configuration;
     this.integrationConfiguration = integrationConfiguration;
   }
+
+  getConfiguration<T>(): T | null {
+    if (this.configuration && typeof this.configuration === "object") {
+      return this.configuration as T;
+    }
+    return null;
+  }
 }

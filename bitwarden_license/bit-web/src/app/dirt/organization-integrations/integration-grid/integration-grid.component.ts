@@ -2,11 +2,11 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { IntegrationType } from "@bitwarden/common/enums";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { SharedModule } from "../../../../../../shared/shared.module";
 import { IntegrationCardComponent } from "../integration-card/integration-card.component";
-import { Integration } from "../models";
 
 @Component({
   selector: "app-integration-grid",

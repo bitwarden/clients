@@ -41,11 +41,6 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
-// eslint-disable-next-line no-restricted-imports
-import {
-  OrganizationIntegrationApiService,
-  OrganizationIntegrationConfigurationApiService,
-} from "@bitwarden/bit-common/dirt/integrations";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -396,16 +391,6 @@ const safeProviders: SafeProvider[] = [
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: DefaultDeviceManagementComponentService,
     deps: [],
-  }),
-  safeProvider({
-    provide: OrganizationIntegrationApiService,
-    useClass: OrganizationIntegrationApiService,
-    deps: [ApiService],
-  }),
-  safeProvider({
-    provide: OrganizationIntegrationConfigurationApiService,
-    useClass: OrganizationIntegrationConfigurationApiService,
-    deps: [ApiService],
   }),
 ];
 

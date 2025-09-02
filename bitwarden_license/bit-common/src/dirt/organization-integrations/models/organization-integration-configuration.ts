@@ -31,4 +31,11 @@ export class OrganizationIntegrationConfiguration {
     this.filters = filters;
     this.template = template;
   }
+
+  getTemplate<T>(): T | null {
+    if (this.template && typeof this.template === "object") {
+      return this.template as T;
+    }
+    return null;
+  }
 }

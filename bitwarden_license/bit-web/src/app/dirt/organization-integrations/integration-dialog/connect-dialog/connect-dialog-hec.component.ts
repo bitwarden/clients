@@ -1,10 +1,11 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
+import { HecConfiguration } from "@bitwarden/bit-common/dirt/organization-integrations/models/configuration/hec-configuration";
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { HecTemplate } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-configuration-config/configuration-template/hec-template";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
-
-import { Integration } from "../../models";
 
 export type HecConnectDialogParams = {
   settings: Integration;
@@ -26,6 +27,8 @@ export interface HecConnectDialogResult {
 })
 export class ConnectHecDialogComponent implements OnInit {
   loading = false;
+  hecConfig: HecConfiguration | null = null;
+  hecTemplate: HecTemplate | null = null;
   formGroup = this.formBuilder.group({
     url: ["", [Validators.required, Validators.pattern("https?://.+")]],
     bearerToken: ["", Validators.required],
@@ -40,16 +43,21 @@ export class ConnectHecDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.hecConfig =
+      this.connectInfo.settings.organizationIntegration?.getConfiguration<HecConfiguration>();
+    this.hecTemplate =
+      this.connectInfo.settings.organizationIntegration?.integrationConfiguration?.[0]?.getTemplate<HecTemplate>();
+
     this.formGroup.patchValue({
-      url: this.connectInfo.settings.HecConfiguration?.uri || "",
-      bearerToken: this.connectInfo.settings.HecConfiguration?.token || "",
-      index: this.connectInfo.settings.HecConfigurationTemplate?.index || "",
+      url: this.hecConfig?.uri || "",
+      bearerToken: this.hecConfig?.token || "",
+      index: this.hecTemplate?.index || "",
       service: this.connectInfo.settings.name,
     });
   }
 
   isUpdateAvailable(): boolean {
-    return !!this.connectInfo.settings.HecConfiguration;
+    return !!this.hecConfig;
   }
 
   getSettingsAsJson(configuration: string) {
