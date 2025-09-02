@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Kode Pemulihan"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Aplikasi Autentikasi"
   },

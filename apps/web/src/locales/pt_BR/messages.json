@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Código de recuperação"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Aplicativo de autenticação"
   },
