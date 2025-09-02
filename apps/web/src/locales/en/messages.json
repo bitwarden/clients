@@ -9036,7 +9036,7 @@
     }
   },
   "limitCollectionCreationEnabled": {
-    "message": "Turned on Restrict collection creation and deletion setting $ID$.",
+    "message": "Turned on Restrict collection creation setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9045,7 +9045,7 @@
     }
   },
   "limitCollectionCreationDisabled": {
-    "message": "Turned off Restrict collection creation and deletion setting $ID$.",
+    "message": "Turned off Restrict collection creation setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
