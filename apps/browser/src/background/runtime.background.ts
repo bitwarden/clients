@@ -7,7 +7,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -80,7 +79,6 @@ export default class RuntimeBackground {
         BiometricsCommands.UnlockWithBiometricsForUser,
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
-        "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getUserPremiumStatus",
       ];
 
@@ -204,11 +202,6 @@ export default class RuntimeBackground {
       }
       case BiometricsCommands.CanEnableBiometricUnlock: {
         return await this.main.biometricsService.canEnableBiometricUnlock();
-      }
-      case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
-        return await this.configService.getFeatureFlag(
-          FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
-        );
       }
       case "getUserPremiumStatus": {
         const activeUserId = await firstValueFrom(
