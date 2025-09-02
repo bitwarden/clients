@@ -35,22 +35,6 @@ describe("DomQueryService", () => {
     mockQuerySelectorAll.mockRestore();
   });
 
-  it("checks the page content for shadow DOM elements after the page has completed loading", async () => {
-    Object.defineProperty(document, "readyState", {
-      value: "loading",
-      writable: true,
-    });
-    jest.spyOn(globalThis, "addEventListener");
-
-    const domQueryService = new DomQueryService();
-    await flushPromises();
-
-    expect(globalThis.addEventListener).toHaveBeenCalledWith(
-      "load",
-      domQueryService["checkPageContainsShadowDom"],
-    );
-  });
-
   describe("deepQueryElements", () => {
     it("queries form field elements that are nested within a ShadowDOM", () => {
       const root = document.createElement("div");
@@ -72,7 +56,6 @@ describe("DomQueryService", () => {
     });
 
     it("queries form field elements that are nested within multiple ShadowDOM elements", () => {
-      domQueryService["pageContainsShadowDom"] = true;
       const root = document.createElement("div");
       const shadowRoot1 = root.attachShadow({ mode: "open" });
       const root2 = document.createElement("div");
@@ -95,7 +78,6 @@ describe("DomQueryService", () => {
     });
 
     it("will fallback to using the TreeWalker API if a depth larger than 4 ShadowDOM elements is encountered", () => {
-      domQueryService["pageContainsShadowDom"] = true;
       const root = document.createElement("div");
       const shadowRoot1 = root.attachShadow({ mode: "open" });
       const root2 = document.createElement("div");
