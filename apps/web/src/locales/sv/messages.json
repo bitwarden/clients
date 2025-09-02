@@ -177,7 +177,7 @@
     "message": "Totalt antal applikationer"
   },
   "unmarkAsCritical": {
-    "message": "Unmark as critical"
+    "message": "Avmarkera som kritisk"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritisk applikation avmarkerades"
@@ -868,13 +868,13 @@
     "message": "Kopiera licensnummer"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopiera privat nyckel"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopiera publik nyckel"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopiera fingeravtryck"
   },
   "copyName": {
     "message": "Kopiera namn"
@@ -1515,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Återställningskod"
+  },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
   },
   "authenticatorAppTitle": {
     "message": "Autentiseringsapp"
@@ -10989,7 +10992,7 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Om denna inställning"
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
