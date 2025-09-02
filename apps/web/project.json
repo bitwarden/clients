@@ -1,0 +1,194 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "web",
+  "projectType": "application",
+  "sourceRoot": "apps/web/src",
+  "tags": ["scope:web", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "oss",
+      "options": {
+        "outputPath": "dist/apps/web",
+        "webpackConfig": "apps/web/webpack.nx.config.js",
+        "tsConfig": "apps/web/tsconfig.json",
+        "main": "apps/web/src/main.ts",
+        "target": "web",
+        "compiler": "tsc"
+      },
+      "configurations": {
+        "oss": {
+          "mode": "production"
+        },
+        "oss-dev": {
+          "mode": "development"
+        },
+        "bit": {
+          "mode": "production",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts"
+        },
+        "bit-dev": {
+          "mode": "development",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "ENV": "development"
+          }
+        },
+        "bit-qa": {
+          "mode": "production",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "qa"
+          }
+        },
+        "bit-cloud": {
+          "mode": "production",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "cloud"
+          }
+        },
+        "bit-euprd": {
+          "mode": "production",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "euprd"
+          }
+        },
+        "bit-euqa": {
+          "mode": "production",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "euqa"
+          }
+        },
+        "bit-usdev": {
+          "mode": "production",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "usdev"
+          }
+        },
+        "bit-ee": {
+          "mode": "production",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "NODE_ENV": "production",
+            "ENV": "ee"
+          }
+        },
+        "oss-selfhost": {
+          "mode": "production",
+          "env": {
+            "ENV": "selfhosted",
+            "NODE_ENV": "production"
+          }
+        },
+        "oss-selfhost-dev": {
+          "mode": "development",
+          "env": {
+            "ENV": "selfhosted"
+          }
+        },
+        "bit-selfhost": {
+          "mode": "production",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "ENV": "selfhosted",
+            "NODE_ENV": "production"
+          }
+        },
+        "bit-selfhost-dev": {
+          "mode": "development",
+          "webpackConfig": "bitwarden_license/bit-web/webpack.config.js",
+          "main": "bitwarden_license/bit-web/src/main.ts",
+          "env": {
+            "ENV": "selfhosted"
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:dev-server",
+      "defaultConfiguration": "oss-dev",
+      "options": {
+        "buildTarget": "web:build",
+        "host": "localhost",
+        "port": 8080
+      },
+      "configurations": {
+        "oss": {
+          "buildTarget": "web:build:oss"
+        },
+        "oss-dev": {
+          "buildTarget": "web:build:oss-dev"
+        },
+        "bit": {
+          "buildTarget": "web:build:bit"
+        },
+        "bit-dev": {
+          "buildTarget": "web:build:bit-dev"
+        },
+        "bit-qa": {
+          "buildTarget": "web:build:bit-qa"
+        },
+        "bit-cloud": {
+          "buildTarget": "web:build:bit-cloud"
+        },
+        "bit-euprd": {
+          "buildTarget": "web:build:bit-euprd"
+        },
+        "bit-euqa": {
+          "buildTarget": "web:build:bit-euqa"
+        },
+        "bit-usdev": {
+          "buildTarget": "web:build:bit-usdev"
+        },
+        "bit-ee": {
+          "buildTarget": "web:build:bit-ee"
+        },
+        "oss-selfhost": {
+          "buildTarget": "web:build:oss-selfhost"
+        },
+        "oss-selfhost-dev": {
+          "buildTarget": "web:build:oss-selfhost-dev"
+        },
+        "bit-selfhost": {
+          "buildTarget": "web:build:bit-selfhost"
+        },
+        "bit-selfhost-dev": {
+          "buildTarget": "web:build:bit-selfhost-dev"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/web/jest.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/web/**/*.ts", "apps/web/**/*.html"]
+      }
+    }
+  }
+}
