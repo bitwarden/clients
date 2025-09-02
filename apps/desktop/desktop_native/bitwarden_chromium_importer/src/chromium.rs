@@ -240,10 +240,11 @@ fn get_logins(
         )
     })?;
 
-    let tmp_db_path = tmp_db_path.to_str()
+    let tmp_db_path = tmp_db_path
+        .to_str()
         .ok_or_else(|| anyhow!("Failed to locate database."))?;
-    let maybe_logins = query_logins(tmp_db_path)
-        .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
+    let maybe_logins =
+        query_logins(tmp_db_path).map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
     // Clean up temp file
     let _ = std::fs::remove_file(tmp_db_path);

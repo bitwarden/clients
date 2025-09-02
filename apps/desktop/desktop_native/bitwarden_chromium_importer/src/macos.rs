@@ -137,12 +137,14 @@ impl CryptoService for MacCryptoService {
             self.master_key = Some(get_master_key(self.config.service, self.config.account)?);
         }
 
-        let key = self.master_key.as_ref()
+        let key = self
+            .master_key
+            .as_ref()
             .ok_or_else(|| anyhow!("Failed to retrieve key"))?;
         let plaintext = util::decrypt_aes_128_cbc(key, &IV, no_prefix)
             .map_err(|e| anyhow!("Failed to decrypt: {}", e))?;
-        let plaintext = String::from_utf8(plaintext)
-            .map_err(|e| anyhow!("Invalid UTF-8: {}", e))?;
+        let plaintext =
+            String::from_utf8(plaintext).map_err(|e| anyhow!("Invalid UTF-8: {}", e))?;
 
         Ok(plaintext)
     }
