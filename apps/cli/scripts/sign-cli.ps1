@@ -37,7 +37,7 @@ function SignExe {
     )
 
     echo "Signing $exePath ..."
-    azuresigntool sign -kvu $vaultUrl -kvi $clientId -kvt $tenantId -kvs $clientSecret -kvc $certName -tr $timestampService $exePath
+    dotnet tool run azuresigntool sign -kvu $vaultUrl -kvi $clientId -kvt $tenantId -kvs $clientSecret -kvc $certName -tr $timestampService $exePath
 }
 
 
