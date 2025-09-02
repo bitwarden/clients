@@ -10,6 +10,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { CipherLike } from "../types/cipher-like";
 import { CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
@@ -108,7 +109,7 @@ export class RestrictedItemTypesService {
     // If cipher belongs to an organization
     if (cipher.organizationId) {
       // Check if this organization allows viewing this cipher type
-      return !restriction.allowViewOrgIds.includes(cipher.organizationId);
+      return !restriction.allowViewOrgIds.includes(uuidAsString(cipher.organizationId));
     }
 
     // Cipher is restricted by at least one organization, restrict it
