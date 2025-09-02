@@ -1,5 +1,5 @@
 import { FormsModule, ReactiveFormsModule, FormControl, FormGroup } from "@angular/forms";
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj, componentWrapperDecorator } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -14,6 +14,9 @@ export default {
   title: "Component Library/Form/Switch",
   component: SwitchComponent,
   decorators: [
+    componentWrapperDecorator((story) => {
+      return /* HTML */ `<div class="tw-max-w-[600px] ">${story}</div>`;
+    }),
     moduleMetadata({
       imports: [FormsModule, ReactiveFormsModule, SwitchComponent, FormControlModule],
       providers: [

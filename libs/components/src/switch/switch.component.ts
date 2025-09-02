@@ -8,6 +8,9 @@ import { BitHintComponent } from "../form-control/hint.component";
 
 let nextId = 0;
 
+/**
+ * Switch component for toggling between two states. Switch actions are meant to take place immediately and are not to be used in a form where saving/submiting actions are required.
+ */
 @Component({
   selector: "bit-switch",
   providers: [
