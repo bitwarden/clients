@@ -1,0 +1,45 @@
+<bit-simple-dialog hideIcon="true">
+  <span bitDialogTitle>Welcome to Risk insights</span>
+  <span bitDialogContent>
+    <div class="tw-text-left">
+      <p class="tw-text-muted tw-mb-6 tw-text-center">
+        To get started, follow these steps to find potential security risks.
+      </p>
+
+      <div class="tw-space-y-4">
+        <div
+          class="tw-bg-background-alt tw-p-4 tw-rounded-lg tw-border tw-border-solid tw-border-secondary-100"
+        >
+          <h3 class="tw-font-semibold tw-text-main tw-mb-2">
+            1. Enforce organization data ownership
+            <span class="tw-text-muted tw-font-normal">(recommended)</span>
+          </h3>
+          <p class="tw-text-muted tw-leading-relaxed">
+            Turn on the
+            <a
+              href="https://bitwarden.com/help/policies/#enforce-organization-data-ownership"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="tw-text-primary-600 tw-underline hover:tw-text-primary-700 tw-cursor-pointer"
+              >enforce organization data ownership policy</a
+            >
+            to get complete visibility of all organization vault data. This setting can be enabled
+            at any time.
+          </p>
+        </div>
+        <div
+          class="tw-bg-background-alt tw-p-4 tw-rounded-lg tw-border tw-border-solid tw-border-secondary-100"
+        >
+          <h3 class="tw-font-semibold tw-text-main tw-mb-2">2. Run the report</h3>
+          <p class="tw-text-muted tw-leading-relaxed">
+            Run the report to see a detailed view of potential at-risk passwords across your most
+            critical applications.
+          </p>
+        </div>
+      </div>
+    </div>
+  </span>
+  <ng-container bitDialogFooter>
+    <button bitButton buttonType="primary" type="button" (click)="runReport()">Run Report</button>
+  </ng-container>
+</bit-simple-dialog>

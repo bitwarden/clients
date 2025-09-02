@@ -25,6 +25,7 @@ import {
   SearchModule,
   TableDataSource,
   ToastService,
+  DialogService,
 } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -32,6 +33,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.component";
+import { FirstReportPromptDialogComponent } from "./first-report-prompt-dialog.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
@@ -62,6 +64,8 @@ export class AllApplicationsComponent implements OnInit {
     totalAtRiskApplicationCount: 0,
   };
 
+  private hasShownFirstReportPrompt = false; // Flag to prevent multiple prompts
+  private organizationId: string | null = null;
   destroyRef = inject(DestroyRef);
 
   constructor(
@@ -75,6 +79,7 @@ export class AllApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     protected criticalAppsService: CriticalAppsService,
     protected riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    protected dialogService: DialogService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -82,18 +87,39 @@ export class AllApplicationsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+    this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
 
-    if (organizationId) {
+    if (this.organizationId) {
       this.dataService.reportResults$
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((report) => {
-          if (report) {
+          // Check if we already have data in the dataSource (from previous session)
+          if (this.dataSource.data.length > 0) {
+            this.hasShownFirstReportPrompt = false; // Reset flag since we have data
+            return;
+          }
+
+          if (report && report.data && report.data.length > 0) {
             this.dataSource.data = report.data;
             // this.applicationSummary = this.reportService.generateApplicationsSummary(report.data);
+            this.hasShownFirstReportPrompt = false; // Reset flag when data is available
+          } else if (!this.hasShownFirstReportPrompt) {
+            // Show prompt only once when no report data is available
+            void this.showFirstReportPrompt();
           }
         });
     }
+  }
+
+  /**
+   * Shows a prompt encouraging users to run their first report
+   */
+  private async showFirstReportPrompt(): Promise<void> {
+    // Set flag to prevent multiple prompts
+    this.hasShownFirstReportPrompt = true;
+
+    // Open the dialog using the dialog service
+    FirstReportPromptDialogComponent.open(this.dialogService);
   }
 
   goToCreateNewLoginItem = async () => {
