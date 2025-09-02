@@ -3,6 +3,7 @@
 import { Component, OnInit } from "@angular/core";
 import { lastValueFrom, Observable, firstValueFrom, switchMap } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -17,7 +18,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PremiumBadgeComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";

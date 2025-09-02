@@ -14,6 +14,7 @@ import {
 } from "@angular/core";
 import { Observable, switchMap } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -33,7 +34,6 @@ import {
   ColorPasswordModule,
 } from "@bitwarden/components";
 
-import { PremiumBadgeComponent } from "../../components/premium-badge/premium-badge.component";
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 

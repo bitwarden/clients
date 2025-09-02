@@ -2,13 +2,13 @@ import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { firstValueFrom, Observable, of, switchMap } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { BadgeModule, ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwarden/send-ui";
-import { PremiumBadgeComponent } from "@bitwarden/vault";
 
 @Component({
   selector: "tools-new-send-dropdown",

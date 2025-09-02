@@ -12,6 +12,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -32,7 +33,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogRef, DialogService, ItemModule } from "@bitwarden/components";
-import { PremiumBadgeComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";

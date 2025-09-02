@@ -17,7 +17,7 @@ class MockMessagingService implements MessageSender {
 }
 
 export default {
-  title: "Vault/Premium Badge",
+  title: "Billing/Premium Badge",
   component: PremiumBadgeComponent,
   decorators: [
     moduleMetadata({
