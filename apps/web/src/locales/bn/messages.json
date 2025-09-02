@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "পুনরুদ্ধার কোড"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "প্রমাণীকরণকারী অ্যাপ"
   },

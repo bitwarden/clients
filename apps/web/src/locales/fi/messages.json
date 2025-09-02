@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Palautuskoodi"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Todennussovellus"
   },

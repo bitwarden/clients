@@ -5108,10 +5108,10 @@
     "message": "Otomatik öneri sayısını uzantı simgesinde göster"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Hesap erişimi istendi"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "$EMAIL$ erişimini onayla",
     "placeholders": {
       "email": {
         "content": "$1",
