@@ -5108,10 +5108,10 @@
     "message": "Az automatikus bejelentkezési kitöltési javaslatok számának megjelenítése a bővítmény ikonján"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Fiók hozzáférés kérés történt."
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Bejelentkezési kísérlet megerősítése $EMAIL$ email címmel",
     "placeholders": {
       "email": {
         "content": "$1",

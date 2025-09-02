@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Шифра за опоравак"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Апликација Аутентификатор"
   },

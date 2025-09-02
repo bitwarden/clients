@@ -145,9 +145,9 @@ export class CopyCipherFieldService {
     if (action.event !== undefined) {
       await this.eventCollectionService.collect(
         action.event,
-        uuidAsString(cipher.id),
+        cipher.id ? uuidAsString(cipher.id) : undefined,
         false,
-        uuidAsString(cipher.organizationId),
+        cipher.organizationId ? uuidAsString(cipher.organizationId) : undefined,
       );
     }
 
