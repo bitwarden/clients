@@ -32,10 +32,6 @@ const plugins = [
     banner: "#!/usr/bin/env node",
     raw: true,
   }),
-  new webpack.IgnorePlugin({
-    resourceRegExp: /^encoding$/,
-    contextRegExp: /node-fetch/,
-  }),
   new webpack.EnvironmentPlugin({
     ENV: ENV,
     BWCLI_ENV: ENV,

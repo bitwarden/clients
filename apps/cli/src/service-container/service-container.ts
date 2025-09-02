@@ -110,6 +110,7 @@ import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/us
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service construction
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
+import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
@@ -189,7 +190,6 @@ import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { ConsoleLogService } from "../platform/services/console-log.service";
 import { I18nService } from "../platform/services/i18n.service";
 import { LowdbStorageService } from "../platform/services/lowdb-storage.service";
-import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
 import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
@@ -217,7 +217,7 @@ export class ServiceContainer {
   keyService: KeyService;
   tokenService: TokenService;
   appIdService: AppIdService;
-  apiService: NodeApiService;
+  apiService: ApiService;
   environmentService: EnvironmentService;
   cipherService: CipherService;
   folderService: InternalFolderService;
@@ -495,7 +495,7 @@ export class ServiceContainer {
       throw new Error("Refresh Access token error");
     };
 
-    this.apiService = new NodeApiService(
+    this.apiService = new ApiService(
       this.tokenService,
       this.platformUtilsService,
       this.environmentService,
@@ -504,6 +504,7 @@ export class ServiceContainer {
       this.logService,
       logoutCallback,
       this.vaultTimeoutSettingsService,
+      { createRequest: (url, request) => new Request(url, request) },
       customUserAgent,
     );
 
