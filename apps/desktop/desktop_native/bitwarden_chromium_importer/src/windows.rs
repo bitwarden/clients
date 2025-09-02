@@ -106,7 +106,7 @@ impl CryptoService for WindowsCryptoService {
         let key = self
             .master_key
             .as_ref()
-            .ok_or_else(|| anyhow!("Failed to retrieve key"));
+            .ok_or_else(|| anyhow!("Failed to retrieve key"))?;
         let key = Key::<Aes256Gcm>::from_slice(key);
         let cipher = Aes256Gcm::new(key);
         let nonce = Nonce::from_slice(&no_prefix[..IV_SIZE]);
