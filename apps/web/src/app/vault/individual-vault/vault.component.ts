@@ -57,6 +57,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -689,7 +690,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     } else if (cipher.organizationId != null) {
       const org = await firstValueFrom(
-        this.organizations$.pipe(getOrganizationById(cipher.organizationId)),
+        this.organizations$.pipe(getOrganizationById(uuidAsString(cipher.organizationId))),
       );
       if (org != null && (org.maxStorageGb == null || org.maxStorageGb === 0)) {
         this.messagingService.send("upgradeOrganization", {
@@ -786,7 +787,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {
-    return this.editCipherId(cipher?.id, cloneMode);
+    return this.editCipherId(uuidAsString(cipher?.id), cloneMode);
   }
 
   /**
@@ -1055,7 +1056,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.cipherService.restoreWithServer(c.id, activeUserId);
+      await this.cipherService.restoreWithServer(uuidAsString(c.id), activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -1077,7 +1078,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
-    const selectedCipherIds = ciphers.map((cipher) => cipher.id);
+    const selectedCipherIds = ciphers.map((cipher) => uuidAsString(cipher.id));
     if (selectedCipherIds.length === 0) {
       this.toastService.showToast({
         variant: "error",
@@ -1139,7 +1140,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      await this.deleteCipherWithServer(c.id, activeUserId, permanent);
+      await this.deleteCipherWithServer(uuidAsString(c.id), activeUserId, permanent);
 
       this.toastService.showToast({
         variant: "success",
@@ -1179,7 +1180,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const dialog = openBulkDeleteDialog(this.dialogService, {
       data: {
         permanent: this.filter.type === "trash",
-        cipherIds: ciphers.map((c) => c.id),
+        cipherIds: ciphers.map((c) => uuidAsString(c.id)),
         organizations: organizations,
         collections: collections,
       },
@@ -1196,7 +1197,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
-    const selectedCipherIds = ciphers.map((cipher) => cipher.id);
+    const selectedCipherIds = ciphers.map((cipher) => uuidAsString(cipher.id));
     if (selectedCipherIds.length === 0) {
       this.toastService.showToast({
         variant: "error",
@@ -1272,11 +1273,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     });
 
     if (field === "password") {
-      await this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, cipher.id);
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientCopiedPassword,
+        uuidAsString(cipher.id),
+      );
     } else if (field === "totp") {
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientCopiedHiddenField,
-        cipher.id,
+        uuidAsString(cipher.id),
       );
     }
   }
@@ -1335,7 +1339,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(cipher.id, activeUserId);
+    const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
     const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
     return cipherView.login?.password;
   }

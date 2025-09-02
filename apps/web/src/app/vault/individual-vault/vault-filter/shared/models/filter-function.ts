@@ -81,7 +81,7 @@ export function createFilterFunction(
       filter.collectionId !== undefined &&
       filter.collectionId !== All &&
       filter.collectionId !== Unassigned &&
-      (cipher.collectionIds == null || !cipher.collectionIds.includes(filter.collectionId))
+      (cipher.collectionIds == null || !cipher.collectionIds.includes(filter.collectionId as any))
     ) {
       return false;
     }

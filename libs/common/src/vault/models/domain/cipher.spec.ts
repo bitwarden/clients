@@ -869,9 +869,9 @@ describe("Cipher DTO", () => {
       const lastLaunched = new Date("2025-04-15T12:00:00.000Z").getTime();
 
       const cipherData: CipherData = {
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
+        id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618",
+        organizationId: "4748ad12-212e-4bc8-82b7-a75f6709d033",
+        folderId: "b4dac811-e44a-495a-9334-9e53b7aaf54c",
         edit: true,
         permissions: new CipherPermissionsApi(),
         viewPassword: true,
@@ -940,9 +940,9 @@ describe("Cipher DTO", () => {
       const sdkCipher = cipher.toSdkCipher();
 
       expect(sdkCipher).toEqual({
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
+        id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618",
+        organizationId: "4748ad12-212e-4bc8-82b7-a75f6709d033",
+        folderId: "b4dac811-e44a-495a-9334-9e53b7aaf54c",
         collectionIds: [],
         key: "EncryptedString",
         name: "EncryptedString",
@@ -1027,9 +1027,9 @@ describe("Cipher DTO", () => {
     it("should map from SDK Cipher", () => {
       jest.restoreAllMocks();
       const sdkCipher: SdkCipher = {
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
+        id: "id" as any,
+        organizationId: "orgId" as any,
+        folderId: "folderId" as any,
         collectionIds: [],
         key: "EncryptedString" as SdkEncString,
         name: "EncryptedString" as SdkEncString,

@@ -1305,11 +1305,8 @@
     "message": "Gekopieerde waarden automatisch van het klembord wissen.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Toon website-pictogrammen"
-  },
-  "faviconDesc": {
-    "message": "Een herkenbare afbeelding naast iedere login weergeven."
+  "showIconsChangePasswordUrls": {
+    "message": "Pictogrammen van de website weergeven URL's voor wachtwoordwijzigingen ophalen"
   },
   "enableMinToTray": {
     "message": "Minimaliseren naar systeemvak"
@@ -3927,6 +3924,12 @@
     "message": "Meer informatie over SSH-agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "aboutThisSetting": {
+    "message": "Over deze instelling"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
   },
   "assignToCollections": {
     "message": "Aan collecties toewijzen"

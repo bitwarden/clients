@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Tento prohlížeč nemůže zpracovat požadavky U2F  ve vyskakovacím okně. Chcete otevřít toto vyskakovací okno v novém okně, abyste se mohli přihlásit pomocí U2F?"
   },
-  "enableFavicon": {
-    "message": "Zobrazit ikony webových stránek"
-  },
-  "faviconDesc": {
-    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
-  },
-  "faviconDescAlt": {
-    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení. Platí pro všechny přihlášené účty."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
   "enableBadgeCounter": {
     "message": "Zobrazovat počet uložených přihlašovacích údajů na stránce"
@@ -5113,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Zobrazit počet návrhů automatického vyplňování přihlášení na ikoně rozšíření"
   },
+  "accountAccessRequested": {
+    "message": "Požadován přístup k účtu"
+  },
+  "confirmAccessAttempt": {
+    "message": "Potvrďte pokus o přístup z $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Zobrazit akce rychlé kopie v trezoru"
   },
@@ -5562,6 +5568,12 @@
   "generatorNudgeBodyAria": {
     "message": "Jednoduše vytvořte silná a unikátní hesla klepnutím na tlačítko Generovat heslo, které Vám pomůže udržet Vaše přihlašovací údaje v bezpečí.",
     "description": "Aria label for the body content of the generator nudge"
+  },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnění k zobrazení této stránky. Zkuste se přihlásit jiným účtem."
