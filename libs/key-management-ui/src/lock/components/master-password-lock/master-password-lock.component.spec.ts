@@ -418,7 +418,7 @@ describe("MasterPasswordLockComponent", () => {
         accountService.activeAccount$ = of(value);
         component.formGroup.controls.masterPassword.setValue(mockMasterPassword);
 
-        await expect(component.submit()).rejects.toThrow("No active account found");
+        await expect(component.submit()).rejects.toThrow("Null or undefined account");
 
         expect(masterPasswordUnlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
       },
@@ -433,8 +433,8 @@ describe("MasterPasswordLockComponent", () => {
       await component.submit();
 
       expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+        activeAccount.id,
         mockMasterPassword,
-        activeAccount,
       );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
@@ -460,8 +460,8 @@ describe("MasterPasswordLockComponent", () => {
 
       expect(emittedUserKey).toEqual(mockUserKey);
       expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+        activeAccount.id,
         mockMasterPassword,
-        activeAccount,
       );
     });
   });
