@@ -1,7 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, map, Observable } from "rxjs";
 
+import { getById } from "../../platform/misc";
 import { PROVIDERS_DISK, StateProvider, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { ProviderService as ProviderServiceAbstraction } from "../abstractions/provider.service";
@@ -12,10 +11,6 @@ export const PROVIDERS = UserKeyDefinition.record<ProviderData>(PROVIDERS_DISK, 
   deserializer: (obj: ProviderData) => obj,
   clearOn: ["logout"],
 });
-
-function mapToSingleProvider(providerId: string) {
-  return map<Provider[], Provider>((providers) => providers?.find((p) => p.id === providerId));
-}
 
 export class ProviderService implements ProviderServiceAbstraction {
   constructor(private stateProvider: StateProvider) {}
@@ -33,11 +28,11 @@ export class ProviderService implements ProviderServiceAbstraction {
   }
 
   get$(id: string, userId: UserId): Observable<Provider> {
-    return this.providers$(userId).pipe(mapToSingleProvider(id));
+    return this.providers$(userId).pipe(getById(id));
   }
 
   async get(id: string, userId: UserId): Promise<Provider> {
-    return await firstValueFrom(this.providers$(userId).pipe(mapToSingleProvider(id)));
+    return await firstValueFrom(this.providers$(userId).pipe(getById(id)));
   }
 
   async getAll(userId: UserId): Promise<Provider[]> {
