@@ -3,7 +3,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -16,6 +17,7 @@ import {
 } from "@bitwarden/components";
 import { BiometricsStatus } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { UserId } from "@bitwarden/user-core";
 
 import {
   UnlockOption,
@@ -79,22 +81,19 @@ export class MasterPasswordLockComponent {
       return;
     }
 
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    if (activeAccount == null) {
-      throw new Error("No active account found");
-    }
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    await this.unlockViaMasterPassword(masterPassword, activeAccount);
+    await this.unlockViaMasterPassword(activeUserId, masterPassword);
   };
 
   private async unlockViaMasterPassword(
+    activeUserId: UserId,
     masterPassword: string,
-    activeAccount: Account,
   ): Promise<void> {
     try {
       const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
+        activeUserId,
         masterPassword,
-        activeAccount,
       );
       this.successfulUnlock.emit(userKey);
     } catch (error) {

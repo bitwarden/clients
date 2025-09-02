@@ -98,8 +98,8 @@ export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected loading = true;
 
-  protected forceUpdateKDFSettings$ = this.configService.getFeatureFlag$(
-    FeatureFlag.ForceUpdateKDFSettings,
+  protected unlockWithMasterPasswordUnlockDataFlag$ = this.configService.getFeatureFlag$(
+    FeatureFlag.UnlockWithMasterPasswordUnlockData,
   );
 
   activeAccount: Account | null = null;
@@ -433,7 +433,7 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
-  //TODO This code isn't used and should be removed when removing ForceUpdateKDFSettings feature flag.
+  //TODO PM-25385 This code isn't used and should be removed when removing the UnlockWithMasterPasswordUnlockData feature flag.
   togglePassword() {
     this.showPassword = !this.showPassword;
     const input = document.getElementById(
@@ -509,7 +509,7 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
-  // TODO remove when removing ForceUpdateKDFSettings feature flag.
+  // TODO PM-25385 remove when removing the UnlockWithMasterPasswordUnlockData feature flag.
   private validateMasterPassword(): boolean {
     if (this.formGroup?.invalid) {
       this.toastService.showToast({
@@ -523,7 +523,7 @@ export class LockComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  // TODO remove when removing ForceUpdateKDFSettings feature flag.
+  // TODO PM-25385 remove when removing the UnlockWithMasterPasswordUnlockData feature flag.
   async unlockViaMasterPassword() {
     if (!this.validateMasterPassword() || this.formGroup == null || this.activeAccount == null) {
       return;

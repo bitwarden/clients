@@ -1,13 +1,14 @@
 import { firstValueFrom } from "rxjs";
 
-import { Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
-import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
+import { HashPurpose } from "../../../platform/enums";
+import { UserKey } from "../../../types/key";
 import { MasterPasswordUnlockService } from "../abstractions/master-password-unlock.service";
+import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
+import { MasterPasswordUnlockData } from "../types/master-password.types";
 
 export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockService {
   constructor(
@@ -15,15 +16,15 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
     private readonly keyService: KeyService,
   ) {}
 
-  async unlockWithMasterPassword(masterPassword: string, activeAccount: Account): Promise<UserKey> {
-    this.validateInput(masterPassword, activeAccount);
+  async unlockWithMasterPassword(userId: UserId, masterPassword: string): Promise<UserKey> {
+    this.validateInput(userId, masterPassword);
 
     const masterPasswordUnlockData = await firstValueFrom(
-      this.masterPasswordService.masterPasswordUnlockData$(activeAccount.id),
+      this.masterPasswordService.masterPasswordUnlockData$(userId),
     );
 
     if (masterPasswordUnlockData == null) {
-      throw new Error("Master password unlock data was not found for the user " + activeAccount.id);
+      throw new Error("Master password unlock data was not found for the user " + userId);
     }
 
     const userKey = await this.masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData(
@@ -31,35 +32,31 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
       masterPasswordUnlockData,
     );
 
-    if (userKey == null) {
-      throw new Error("User key couldn't be decrypted");
-    }
-
-    await this.setLegacyState(masterPassword, activeAccount, masterPasswordUnlockData.kdf);
+    await this.setLegacyState(userId, masterPassword, masterPasswordUnlockData);
 
     return userKey;
   }
 
-  private validateInput(masterPassword: string, activeAccount: Account): void {
-    if (!masterPassword) {
-      throw new Error("Master password is required");
+  private validateInput(userId: UserId, masterPassword: string): void {
+    if (userId == null) {
+      throw new Error("User ID is required");
     }
-    if (!activeAccount) {
-      throw new Error("Active account is required");
+    if (masterPassword == null || masterPassword === "") {
+      throw new Error("Master password is required");
     }
   }
 
   // Previously unlocking had the side effect of setting the masterKey and masterPasswordHash in state.
   // This is to preserve that behavior, once masterKey and masterPasswordHash state is removed this should be removed as well.
   private async setLegacyState(
+    userId: UserId,
     masterPassword: string,
-    activeAccount: Account,
-    kdfConfig: KdfConfig,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
   ): Promise<void> {
     const masterKey = await this.keyService.makeMasterKey(
       masterPassword,
-      activeAccount.email,
-      kdfConfig,
+      masterPasswordUnlockData.salt,
+      masterPasswordUnlockData.kdf,
     );
 
     if (!masterKey) {
@@ -72,7 +69,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
       HashPurpose.LocalAuthorization,
     );
 
-    await this.masterPasswordService.setMasterKeyHash(localKeyHash, activeAccount.id);
-    await this.masterPasswordService.setMasterKey(masterKey, activeAccount.id);
+    await this.masterPasswordService.setMasterKeyHash(localKeyHash, userId);
+    await this.masterPasswordService.setMasterKey(masterKey, userId);
   }
 }

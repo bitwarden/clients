@@ -1,11 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
-import { Account } from "../../../auth/abstractions/account.service";
 import { HashPurpose } from "../../../platform/enums";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { MasterKey, UserKey } from "../../../types/key";
@@ -26,12 +26,8 @@ describe("DefaultMasterPasswordUnlockService", () => {
   let keyService: MockProxy<KeyService>;
 
   const mockMasterPassword = "testExample";
-  const activeAccount: Account = {
-    id: "user-id" as UserId,
-    email: "user@example.com",
-    emailVerified: true,
-    name: "User",
-  };
+  const mockUserId = newGuid() as UserId;
+
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockMasterPasswordUnlockData: MasterPasswordUnlockData = new MasterPasswordUnlockData(
     "user@example.com" as MasterPasswordSalt,
@@ -67,7 +63,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
     test.each([null as unknown as string, undefined as unknown as string, ""])(
       "throws when the provided master password is %s",
       async (masterPassword) => {
-        await expect(sut.unlockWithMasterPassword(masterPassword, activeAccount)).rejects.toThrow(
+        await expect(sut.unlockWithMasterPassword(mockUserId, masterPassword)).rejects.toThrow(
           "Master password is required",
         );
         expect(masterPasswordService.masterPasswordUnlockData$).not.toHaveBeenCalled();
@@ -77,11 +73,11 @@ describe("DefaultMasterPasswordUnlockService", () => {
       },
     );
 
-    test.each([null as unknown as Account, undefined as unknown as Account])(
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
       "throws when the provided master password is %s",
-      async (account) => {
-        await expect(sut.unlockWithMasterPassword(mockMasterPassword, account)).rejects.toThrow(
-          "Active account is required",
+      async (userId) => {
+        await expect(sut.unlockWithMasterPassword(userId, mockMasterPassword)).rejects.toThrow(
+          "User ID is required",
         );
       },
     );
@@ -89,44 +85,20 @@ describe("DefaultMasterPasswordUnlockService", () => {
     it("throws an error when the user doesn't have masterPasswordUnlockData", async () => {
       masterPasswordService.masterPasswordUnlockData$.mockReturnValue(of(null));
 
-      await expect(sut.unlockWithMasterPassword(mockMasterPassword, activeAccount)).rejects.toThrow(
-        "Master password unlock data was not found for the user " + activeAccount.id,
+      await expect(sut.unlockWithMasterPassword(mockUserId, mockMasterPassword)).rejects.toThrow(
+        "Master password unlock data was not found for the user " + mockUserId,
       );
-      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(
-        activeAccount.id,
-      );
+      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
       expect(
         masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData,
       ).not.toHaveBeenCalled();
     });
 
-    test.each([null as unknown as UserKey, undefined as unknown as UserKey])(
-      "throws when the unwrap userKey is %s",
-      async (userKey) => {
-        masterPasswordService.masterPasswordUnlockData$.mockReturnValue(
-          of(mockMasterPasswordUnlockData),
-        );
-        masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData.mockResolvedValue(userKey);
-
-        await expect(
-          sut.unlockWithMasterPassword(mockMasterPassword, activeAccount),
-        ).rejects.toThrow("User key couldn't be decrypted");
-        expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(
-          activeAccount.id,
-        );
-        expect(
-          masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData,
-        ).toHaveBeenCalledWith(mockMasterPassword, mockMasterPasswordUnlockData);
-      },
-    );
-
     it("returns userKey successfully", async () => {
-      const result = await sut.unlockWithMasterPassword(mockMasterPassword, activeAccount);
+      const result = await sut.unlockWithMasterPassword(mockUserId, mockMasterPassword);
 
       expect(result).toEqual(mockUserKey);
-      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(
-        activeAccount.id,
-      );
+      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
       expect(masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData).toHaveBeenCalledWith(
         mockMasterPassword,
         mockMasterPasswordUnlockData,
@@ -134,12 +106,10 @@ describe("DefaultMasterPasswordUnlockService", () => {
     });
 
     it("sets legacy state on success", async () => {
-      const result = await sut.unlockWithMasterPassword(mockMasterPassword, activeAccount);
+      const result = await sut.unlockWithMasterPassword(mockUserId, mockMasterPassword);
 
       expect(result).toEqual(mockUserKey);
-      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(
-        activeAccount.id,
-      );
+      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
       expect(masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData).toHaveBeenCalledWith(
         mockMasterPassword,
         mockMasterPasswordUnlockData,
@@ -147,7 +117,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
 
       expect(keyService.makeMasterKey).toHaveBeenCalledWith(
         mockMasterPassword,
-        activeAccount.email,
+        mockMasterPasswordUnlockData.salt,
         mockMasterPasswordUnlockData.kdf,
       );
       expect(keyService.hashMasterKey).toHaveBeenCalledWith(
@@ -155,26 +125,18 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterKey,
         HashPurpose.LocalAuthorization,
       );
-      expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-        mockKeyHash,
-        activeAccount.id,
-      );
-      expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-        mockMasterKey,
-        activeAccount.id,
-      );
+      expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(mockKeyHash, mockUserId);
+      expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
     });
 
     it("throws an error if masterKey construction fails", async () => {
       keyService.makeMasterKey.mockResolvedValue(null as unknown as MasterKey);
 
-      await expect(sut.unlockWithMasterPassword(mockMasterPassword, activeAccount)).rejects.toThrow(
+      await expect(sut.unlockWithMasterPassword(mockUserId, mockMasterPassword)).rejects.toThrow(
         "Master key could not be created to set legacy master password state.",
       );
 
-      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(
-        activeAccount.id,
-      );
+      expect(masterPasswordService.masterPasswordUnlockData$).toHaveBeenCalledWith(mockUserId);
       expect(masterPasswordService.unwrapUserKeyFromMasterPasswordUnlockData).toHaveBeenCalledWith(
         mockMasterPassword,
         mockMasterPasswordUnlockData,
@@ -182,7 +144,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
 
       expect(keyService.makeMasterKey).toHaveBeenCalledWith(
         mockMasterPassword,
-        activeAccount.email,
+        mockMasterPasswordUnlockData.salt,
         mockMasterPasswordUnlockData.kdf,
       );
       expect(keyService.hashMasterKey).not.toHaveBeenCalled();
