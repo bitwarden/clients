@@ -60,12 +60,14 @@ export class UnlockCommand {
     const [userId, email] = [activeAccount.id, activeAccount.email];
 
     if (
-      await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.ForceUpdateKDFSettings))
+      await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.UnlockWithMasterPasswordUnlockData),
+      )
     ) {
       try {
         const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
+          activeAccount.id,
           password,
-          activeAccount,
         );
 
         await this.keyService.setUserKey(userKey, activeAccount.id);
