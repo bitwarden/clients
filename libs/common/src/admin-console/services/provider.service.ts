@@ -15,23 +15,23 @@ export const PROVIDERS = UserKeyDefinition.record<ProviderData>(PROVIDERS_DISK, 
 export class ProviderService implements ProviderServiceAbstraction {
   constructor(private stateProvider: StateProvider) {}
 
-  private providers$(userId: UserId): Observable<Provider[] | undefined> {
+  private providers$(userId: UserId): Observable<Provider[]> {
     return this.stateProvider
       .getUser(userId, PROVIDERS)
       .state$.pipe(this.mapProviderRecordToArray());
   }
 
   private mapProviderRecordToArray() {
-    return map<Record<string, ProviderData>, Provider[]>((providers) =>
-      Object.values(providers ?? {})?.map((o) => new Provider(o)),
+    return map<Record<string, ProviderData> | null, Provider[]>((providers) =>
+      Object.values(providers ?? {}).map((o) => new Provider(o)),
     );
   }
 
-  get$(id: string, userId: UserId): Observable<Provider> {
+  get$(id: string, userId: UserId): Observable<Provider | undefined> {
     return this.providers$(userId).pipe(getById(id));
   }
 
-  async get(id: string, userId: UserId): Promise<Provider> {
+  async get(id: string, userId: UserId): Promise<Provider | undefined> {
     return await firstValueFrom(this.providers$(userId).pipe(getById(id)));
   }
 
