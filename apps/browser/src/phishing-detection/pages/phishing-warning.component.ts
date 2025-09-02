@@ -44,11 +44,11 @@ export class PhishingWarning implements OnDestroy {
     });
   }
 
-  closeTab() {
-    PhishingDetectionService.requestClosePhishingWarningPage();
+  async closeTab() {
+    await PhishingDetectionService.requestClosePhishingWarningPage();
   }
-  continueAnyway() {
-    PhishingDetectionService.requestContinueToDangerousUrl(this.phishingHost);
+  async continueAnyway() {
+    await PhishingDetectionService.requestContinueToDangerousUrl();
   }
 
   ngOnDestroy(): void {

@@ -219,7 +219,7 @@ export class BrowserApi {
    */
   static async closeTab(tabId: number): Promise<void> {
     if (tabId) {
-      browser.tabs.remove(tabId).catch((error) => {
+      chrome.tabs.remove(tabId).catch((error) => {
         throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
       });
     }
@@ -233,9 +233,17 @@ export class BrowserApi {
    */
   static async navigateTabToUrl(tabId: number, url: URL): Promise<void> {
     if (tabId) {
-      browser.tabs.update(tabId, { url: url.href }).catch((error) => {
-        throw new Error("Failed to navigate tab to URL: " + error.message);
-      });
+      if (BrowserApi.isWebExtensionsApi) {
+        browser.tabs.update(tabId, { url: url.href }).catch((error) => {
+          throw new Error("Failed to navigate tab to URL: " + error.message);
+        });
+      } else if (BrowserApi.isChromeApi) {
+        chrome.tabs.update(tabId, { url: url.href }, () => {
+          if (chrome.runtime.lastError) {
+            throw new Error("Failed to navigate tab to URL: " + chrome.runtime.lastError.message);
+          }
+        });
+      }
     }
   }
 
@@ -345,6 +353,14 @@ export class BrowserApi {
     responseCallback?: (response: T) => void,
   ) {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
+  }
+
+  static getRuntimeURL(path: string): string {
+    if (BrowserApi.isWebExtensionsApi) {
+      return browser.runtime.getURL(path);
+    } else if (BrowserApi.isChromeApi) {
+      return chrome.runtime.getURL(path);
+    }
   }
 
   static async onWindowCreated(callback: (win: chrome.windows.Window) => any) {

@@ -88,7 +88,9 @@ export class PhishingDetectionService {
    * Sends a message to the phishing detection service to close the warning page
    */
   static requestClosePhishingWarningPage(): void {
-    void browser.runtime.sendMessage({
+    // [FIXME] User BrowserApi to handle memory leaks in safari but currently causes error
+    // await BrowserApi.sendMessage(PhishingDetectionMessage.Close);
+    void chrome.runtime.sendMessage({
       action: PhishingDetectionMessage.Close,
     });
   }
@@ -96,10 +98,11 @@ export class PhishingDetectionService {
   /**
    * Sends a message to the phishing detection service to continue to the caught url
    */
-  static requestContinueToDangerousUrl(href: string) {
-    void browser.runtime.sendMessage({
+  static async requestContinueToDangerousUrl() {
+    // [FIXME] User BrowserApi to handle memory leaks in safari but currently causes error
+    // await BrowserApi.sendMessage(PhishingDetectionMessage.Continue);
+    void chrome.runtime.sendMessage({
       action: PhishingDetectionMessage.Continue,
-      href,
     });
   }
 
@@ -157,46 +160,68 @@ export class PhishingDetectionService {
    */
   private static _setupListeners(): void {
     // Setup listeners from web page/content script
-    browser.runtime.onMessage.addListener(async (message, sender) => {
-      const isValidSender = sender && sender.tab && sender.tab.id;
-      const senderTabId = isValidSender ? sender.tab.id : null;
-
-      // Only process messages from tab navigation
-      if (senderTabId == null) {
-        return;
-      }
-
-      // Handle Dangerous Continue to Phishing Domain
-      if (message.action === PhishingDetectionMessage.Continue) {
-        this._logService.debug(
-          "[PhishingDetectionService] User requested continue to phishing domain on tab: ",
-          senderTabId,
-        );
-
-        this._setCaughtTabContinue(senderTabId);
-        void this._continueToDangerousUrl(senderTabId);
-      }
-
-      // Handle Close Phishing Warning Page
-      if (message.action === PhishingDetectionMessage.Close) {
-        this._logService.debug(
-          "[PhishingDetectionService] User requested to close phishing warning page on tab: ",
-          senderTabId,
-        );
-
-        await BrowserApi.closeTab(senderTabId);
-        this._removeCaughtTab(senderTabId);
-      }
+    chrome.runtime.onMessage.addListener(async (message, sender) => {
+      await this._handleExtensionMessage(message.action, sender);
     });
+    // [FIXME] BrowserApi should be used to handle memory leaks in safari but currently
+    // it causes issues with the listener not being called in firefox
+    // BrowserApi.addListener(chrome.runtime.onMessage, this._handleExtensionMessage);
 
     chrome.webNavigation.onCompleted.addListener(
       (details: chrome.webNavigation.WebNavigationFramedCallbackDetails): void => {
-        const currentUrl = new URL(details.url);
-
-        this._checkTabForPhishing(details.tabId, currentUrl);
-        this._handleTabNavigation(details.tabId);
+        this._handleNavigationEvent(details);
       },
     );
+    // [FIXME] BrowserApi should be used to handle memory leaks in safari but currently
+    // it causes issues with the listener not being called in firefox
+    // BrowserApi.addListener(
+    //   chrome.webNavigation.onCompleted,
+    //   this._handleNavigationEvent.bind(this),
+    // );
+  }
+
+  private static async _handleExtensionMessage(
+    message: string,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const isValidSender = sender && sender.tab && sender.tab.id;
+    const senderTabId = isValidSender ? sender.tab.id : null;
+
+    // Only process messages from tab navigation
+    if (senderTabId == null) {
+      return;
+    }
+
+    // Handle Dangerous Continue to Phishing Domain
+    if (message === PhishingDetectionMessage.Continue) {
+      this._logService.debug(
+        "[PhishingDetectionService] User requested continue to phishing domain on tab: ",
+        senderTabId,
+      );
+
+      this._setCaughtTabContinue(senderTabId);
+      void this._continueToDangerousUrl(senderTabId);
+    }
+
+    // Handle Close Phishing Warning Page
+    if (message === PhishingDetectionMessage.Close) {
+      this._logService.debug(
+        "[PhishingDetectionService] User requested to close phishing warning page on tab: ",
+        senderTabId,
+      );
+
+      await BrowserApi.closeTab(senderTabId);
+      this._removeCaughtTab(senderTabId);
+    }
+  }
+
+  private static _handleNavigationEvent(
+    details: chrome.webNavigation.WebNavigationFramedCallbackDetails,
+  ): void {
+    const currentUrl = new URL(details.url);
+
+    this._checkTabForPhishing(details.tabId, currentUrl);
+    this._handleTabNavigation(details.tabId);
   }
 
   /**
@@ -313,7 +338,7 @@ export class PhishingDetectionService {
    * @returns The complete URL to the phishing warning page
    */
   private static _createWarningPageUrl(caughtUrl: URL) {
-    const phishingWarningPage = browser.runtime.getURL(
+    const phishingWarningPage = BrowserApi.getRuntimeURL(
       "popup/index.html#/security/phishing-warning",
     );
     const pageWithViewData = `${phishingWarningPage}?phishingHost=${caughtUrl.hostname}`;
@@ -566,5 +591,8 @@ export class PhishingDetectionService {
     this._lastUpdateTime = 0;
     this._isUpdating = false;
     this._retryCount = 0;
+    // [FIXME] BrowserApi remove listeners when enabled
+    // BrowserApi.removeListener(chrome.runtime.onMessage, this._handleExtensionMessage);
+    // BrowserApi.removeListener(chrome.webNavigation.onCompleted, this._handleNavigationEvent);
   }
 }
