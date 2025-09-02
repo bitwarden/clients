@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "ಮರುಪಡೆಯುವಿಕೆ ಕೋಡ್"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "ದೃಢೀಕರಣ ಅಪ್ಲಿಕೇಶನ್"
   },
