@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, Input } from "@angular/core";
+import { booleanAttribute, Component, computed, Input, OnInit, signal } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, combineLatest, firstValueFrom, map, of, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -11,8 +11,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -40,7 +38,7 @@ import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
   templateUrl: "./item-more-options.component.html",
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
 })
-export class ItemMoreOptionsComponent {
+export class ItemMoreOptionsComponent implements OnInit {
   private _cipher$ = new BehaviorSubject<CipherViewLike>(undefined);
 
   @Input({
@@ -106,23 +104,19 @@ export class ItemMoreOptionsComponent {
       );
     }),
   );
-  /**
-   * Observable that emits a boolean value indicating if the user is authorized to archive the cipher.
-   * @protected
-   */
-  protected canArchive$ = this.configService
-    .getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive)
-    .pipe(
-      switchMap((enabled) => {
-        if (!enabled) {
-          return of(false);
-        }
-        return this._cipher$.pipe(
-          filter((c) => c != null),
-          map((c) => !CipherViewLikeUtils.isArchived(c) && c.organizationId == null),
-        );
-      }),
+
+  /** Boolean to check if user has archive permissions and if cipher can be archived*/
+  protected canArchive = signal<boolean>(false);
+  protected canArchiveComputed = computed(() => {
+    const cipher = this._cipher$.value;
+    if (!cipher) {
+      return false;
+    }
+
+    return (
+      this.canArchive() && !CipherViewLikeUtils.isArchived(cipher) && cipher.organizationId == null
     );
+  });
 
   /** Boolean dependent on the current user having access to an organization */
   protected hasOrganizations = false;
@@ -140,7 +134,6 @@ export class ItemMoreOptionsComponent {
     private cipherAuthorizationService: CipherAuthorizationService,
     private collectionService: CollectionService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
     private cipherArchiveService: CipherArchiveService,
   ) {}
 
@@ -171,6 +164,18 @@ export class ItemMoreOptionsComponent {
 
   get favoriteText() {
     return this.cipher.favorite ? "unfavorite" : "favorite";
+  }
+
+  async ngOnInit() {
+    await this.checkArchivePermission();
+  }
+
+  private async checkArchivePermission(): Promise<void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (userId) {
+      const canArchive = await this.cipherArchiveService.userCanArchive(userId);
+      this.canArchive.set(canArchive);
+    }
   }
 
   async doAutofill() {

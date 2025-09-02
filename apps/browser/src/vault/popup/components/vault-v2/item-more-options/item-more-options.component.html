@@ -38,7 +38,7 @@
         {{ "assignToCollections" | i18n }}
       </a>
     </ng-container>
-    <button type="button" bitMenuItem (click)="archive()" *ngIf="canArchive$ | async">
+    <button type="button" bitMenuItem (click)="archive()" *ngIf="canArchiveComputed()">
       {{ "archive" | i18n }}
     </button>
   </bit-menu>
