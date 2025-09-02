@@ -44,9 +44,11 @@
   <div class="tw-ps-[calc(theme(spacing.9)_+_theme(spacing.2))] [&_bit-hint]:tw-mt-0">
     <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
   </div>
-  @if (disabledReasonText && disabled()) {
+  @let disabledText = disabledReasonText();
+
+  @if (disabledText && disabled()) {
     <div [attr.id]="disabledReasonTextId" class="tw-sr-only">
-      {{ disabledReasonText() }}
+      {{ disabledText }}
     </div>
   }
 </div>

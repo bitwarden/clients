@@ -41,7 +41,7 @@ export class SwitchComponent implements ControlValueAccessor {
   readonly describedByIds = computed(() => {
     const ids: string[] = [];
 
-    if (this.disabledReasonText && this.disabled()) {
+    if (this.disabledReasonText() && this.disabled()) {
       ids.push(this.disabledReasonTextId);
     } else {
       const hintId = this.hintComponent()?.id;
