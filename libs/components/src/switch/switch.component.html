@@ -3,7 +3,11 @@
 >
   <label
     [attr.for]="inputId"
-    class="tw-inline-flex tw-gap-2 tw-items-center tw-cursor-pointer tw-max-w-[60ch]"
+    class="tw-inline-flex tw-gap-2 tw-items-center tw-max-w-[60ch]"
+    [ngClass]="{
+      'tw-cursor-default': disabled(),
+      'tw-cursor-pointer': !disabled(),
+    }"
   >
     <span
       class="tw-w-9 tw-shrink-0 tw-h-[1.375rem] tw-rounded-full tw-relative tw-transition-[background-color]"
