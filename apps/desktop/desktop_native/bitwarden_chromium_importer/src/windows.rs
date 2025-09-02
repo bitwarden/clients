@@ -103,7 +103,10 @@ impl CryptoService for WindowsCryptoService {
             self.master_key = Some(self.get_master_key(version)?);
         }
 
-        let key = self.master_key.as_ref().ok_or_else(|| anyhow!("Failed to retrieve key"));
+        let key = self
+            .master_key
+            .as_ref()
+            .ok_or_else(|| anyhow!("Failed to retrieve key"));
         let key = Key::<Aes256Gcm>::from_slice(key);
         let cipher = Aes256Gcm::new(key);
         let nonce = Nonce::from_slice(&no_prefix[..IV_SIZE]);
@@ -134,7 +137,10 @@ impl WindowsCryptoService {
             ));
         }
 
-        let key = self.encrypted_key.as_ref().ok_or_else(|| anyhow!("Failed to retrieve key"));
+        let key = self
+            .encrypted_key
+            .as_ref()
+            .ok_or_else(|| anyhow!("Failed to retrieve key"));
         let key_bytes = BASE64_STANDARD
             .decode(key)
             .map_err(|e| anyhow!("Encrypted master key is not a valid base64 string: {}", e))?;
