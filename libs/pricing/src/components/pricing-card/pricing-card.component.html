@@ -3,7 +3,7 @@
 >
   <!-- Title Section with Active Badge -->
   <div class="tw-flex tw-items-center tw-justify-between tw-mb-2">
-    <ng-content select=".title-slot"></ng-content>
+    <ng-content select="[slot=title]"></ng-content>
 
     <!-- Active Badge (if provided) -->
     @if (activeBadge(); as activeBadgeValue) {

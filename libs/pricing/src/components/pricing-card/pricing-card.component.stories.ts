@@ -32,7 +32,7 @@ export const Default: Story = {
         [price]="price"
         [button]="button"
         [features]="features">
-        <h3 class="title-slot tw-m-0" bitTypography="h3">Premium Plan</h3>
+        <h3 slot="title" class="tw-m-0" bitTypography="h3">Premium Plan</h3>
       </billing-pricing-card>
     `,
   }),
@@ -58,7 +58,7 @@ export const WithoutPrice: Story = {
         [tagline]="tagline"
         [button]="button"
         [features]="features">
-        <h3 class="title-slot tw-m-0" bitTypography="h3">Free Plan</h3>
+        <h3 slot="title" class="tw-m-0" bitTypography="h3">Free Plan</h3>
       </billing-pricing-card>
     `,
   }),
@@ -77,7 +77,7 @@ export const WithoutFeatures: Story = {
         [tagline]="tagline"
         [price]="price"
         [button]="button">
-        <h3 class="title-slot tw-m-0" bitTypography="h3">Enterprise Plan</h3>
+        <h3 slot="title" class="tw-m-0" bitTypography="h3">Enterprise Plan</h3>
       </billing-pricing-card>
     `,
   }),
@@ -97,7 +97,7 @@ export const Annual: Story = {
         [price]="price"
         [button]="button"
         [features]="features">
-        <h3 class="title-slot tw-m-0" bitTypography="h3">Premium Plan</h3>
+        <h3 slot="title" class="tw-m-0" bitTypography="h3">Premium Plan</h3>
       </billing-pricing-card>
     `,
   }),
@@ -122,7 +122,7 @@ export const Disabled: Story = {
         [price]="price"
         [button]="button"
         [features]="features">
-        <h3 class="title-slot tw-m-0" bitTypography="h3">Coming Soon</h3>
+        <h3 slot="title" class="tw-m-0" bitTypography="h3">Coming Soon</h3>
       </billing-pricing-card>
     `,
   }),
@@ -143,7 +143,7 @@ export const LongTagline: Story = {
         [price]="price"
         [button]="button"
         [features]="features">
-        <h3 class="title-slot tw-m-0" bitTypography="h3">Business Plan</h3>
+        <h3 slot="title" class="tw-m-0" bitTypography="h3">Business Plan</h3>
       </billing-pricing-card>
     `,
   }),
@@ -171,7 +171,7 @@ export const AllButtonTypes: Story = {
           [price]="{ amount: 10, cadence: 'monthly' }"
           [button]="{ text: 'Primary Action', type: 'primary' }"
           [features]="['Feature 1', 'Feature 2']">
-          <h3 class="title-slot tw-m-0" bitTypography="h3">Primary Button</h3>
+          <h3 slot="title" class="tw-m-0" bitTypography="h3">Primary Button</h3>
         </billing-pricing-card>
         
         <billing-pricing-card
@@ -179,7 +179,7 @@ export const AllButtonTypes: Story = {
           [price]="{ amount: 5, cadence: 'monthly' }"
           [button]="{ text: 'Secondary Action', type: 'secondary' }"
           [features]="['Feature 1', 'Feature 2']">
-          <h3 class="title-slot tw-m-0" bitTypography="h3">Secondary Button</h3>
+          <h3 slot="title" class="tw-m-0" bitTypography="h3">Secondary Button</h3>
         </billing-pricing-card>
         
         <billing-pricing-card
@@ -187,7 +187,7 @@ export const AllButtonTypes: Story = {
           [price]="{ amount: 15, cadence: 'monthly' }"
           [button]="{ text: 'Delete Plan', type: 'danger' }"
           [features]="['Feature 1', 'Feature 2']">
-          <h3 class="title-slot tw-m-0" bitTypography="h3">Danger Button</h3>
+          <h3 slot="title" class="tw-m-0" bitTypography="h3">Danger Button</h3>
         </billing-pricing-card>
         
         <billing-pricing-card
@@ -195,7 +195,7 @@ export const AllButtonTypes: Story = {
           [price]="{ amount: 0, cadence: 'monthly' }"
           [button]="{ text: 'Learn More', type: 'unstyled' }"
           [features]="['Feature 1', 'Feature 2']">
-          <h3 class="title-slot tw-m-0" bitTypography="h3">Unstyled Button</h3>
+          <h3 slot="title" class="tw-m-0" bitTypography="h3">Unstyled Button</h3>
         </billing-pricing-card>
       </div>
     `,
@@ -212,7 +212,7 @@ export const ConfigurableHeadings: Story = {
           [price]="{ amount: 10, cadence: 'monthly' }"
           [button]="{ text: 'Choose Plan', type: 'primary' }"
           [features]="['Feature 1', 'Feature 2']">
-          <h2 class="title-slot tw-m-0" bitTypography="h3">H2 Heading</h2>
+          <h2 slot="title" class="tw-m-0" bitTypography="h3">H2 Heading</h2>
         </billing-pricing-card>
         
         <billing-pricing-card
@@ -220,7 +220,7 @@ export const ConfigurableHeadings: Story = {
           [price]="{ amount: 15, cadence: 'monthly' }"
           [button]="{ text: 'Choose Plan', type: 'secondary' }"
           [features]="['Feature 1', 'Feature 2']">
-          <h4 class="title-slot tw-m-0" bitTypography="h3">H4 Heading</h4>
+          <h4 slot="title" class="tw-m-0" bitTypography="h3">H4 Heading</h4>
         </billing-pricing-card>
       </div>
     `,
@@ -268,7 +268,7 @@ export const WithoutButton: Story = {
         [tagline]="tagline"
         [price]="price"
         [features]="features">
-        <h3 class="title-slot tw-m-0" bitTypography="h3">Coming Soon Plan</h3>
+        <h3 slot="title" class="tw-m-0" bitTypography="h3">Coming Soon Plan</h3>
       </billing-pricing-card>
     `,
   }),
@@ -308,7 +308,7 @@ export const PricingComparison: Story = {
             [price]="{ amount: 0, cadence: 'monthly' }"
             [features]="['Store unlimited passwords', 'Access from any device', 'Secure password generator']"
             [activeBadge]="{ text: 'Active plan' }">
-            <h3 class="title-slot tw-m-0" bitTypography="h3">Free</h3>
+            <h3 slot="title" class="tw-m-0" bitTypography="h3">Free</h3>
           </billing-pricing-card>
         </div>
         
@@ -318,7 +318,7 @@ export const PricingComparison: Story = {
             [price]="{ amount: 10, cadence: 'monthly' }"
             [button]="{ text: 'Upgrade to Premium', type: 'primary' }"
             [features]="['Unlimited passwords and passkeys', 'Secure password sharing', 'Integrated 2FA authenticator', 'Advanced 2FA options', 'Priority customer support']">
-            <h3 class="title-slot tw-m-0" bitTypography="h3">Premium</h3>
+            <h3 slot="title" class="tw-m-0" bitTypography="h3">Premium</h3>
           </billing-pricing-card>
         </div>
         
@@ -328,7 +328,7 @@ export const PricingComparison: Story = {
             [price]="{ amount: 5, cadence: 'monthly', showPerUser: true }"
             [button]="{ text: 'Start Business Trial', type: 'primary' }"
             [features]="['Everything in Premium', 'Admin dashboard', 'Team reporting', 'Advanced permissions', 'SSO integration']">
-            <h3 class="title-slot tw-m-0" bitTypography="h3">Business</h3>
+            <h3 slot="title" class="tw-m-0" bitTypography="h3">Business</h3>
           </billing-pricing-card>
         </div>
       </div>

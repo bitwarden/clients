@@ -17,18 +17,18 @@ import { PricingCardComponent } from "./pricing-card.component";
       (buttonClick)="onButtonClick()"
     >
       <ng-container [ngSwitch]="titleLevel">
-        <!-- eslint-disable-next-line tailwindcss/no-custom-classname -->
-        <h1 *ngSwitchCase="'h1'" class="title-slot tw-m-0" bitTypography="h3">{{ titleText }}</h1>
-        <!-- eslint-disable-next-line tailwindcss/no-custom-classname -->
-        <h2 *ngSwitchCase="'h2'" class="title-slot tw-m-0" bitTypography="h3">{{ titleText }}</h2>
-        <!-- eslint-disable-next-line tailwindcss/no-custom-classname -->
-        <h3 *ngSwitchCase="'h3'" class="title-slot tw-m-0" bitTypography="h3">{{ titleText }}</h3>
-        <!-- eslint-disable-next-line tailwindcss/no-custom-classname -->
-        <h4 *ngSwitchCase="'h4'" class="title-slot tw-m-0" bitTypography="h3">{{ titleText }}</h4>
-        <!-- eslint-disable-next-line tailwindcss/no-custom-classname -->
-        <h5 *ngSwitchCase="'h5'" class="title-slot tw-m-0" bitTypography="h3">{{ titleText }}</h5>
-        <!-- eslint-disable-next-line tailwindcss/no-custom-classname -->
-        <h6 *ngSwitchCase="'h6'" class="title-slot tw-m-0" bitTypography="h3">{{ titleText }}</h6>
+         
+        <h1 *ngSwitchCase="'h1'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h1>
+         
+        <h2 *ngSwitchCase="'h2'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h2>
+         
+        <h3 *ngSwitchCase="'h3'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h3>
+         
+        <h4 *ngSwitchCase="'h4'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h4>
+         
+        <h5 *ngSwitchCase="'h5'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h5>
+         
+        <h6 *ngSwitchCase="'h6'" slot="title" class="tw-m-0" bitTypography="h3">{{ titleText }}</h6>
       </ng-container>
     </billing-pricing-card>
   `,
