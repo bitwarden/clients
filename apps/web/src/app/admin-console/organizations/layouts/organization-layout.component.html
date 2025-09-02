@@ -74,10 +74,9 @@
     >
       <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
       <ng-container *ngIf="(showPaymentAndHistory$ | async) && (organizationIsUnmanaged$ | async)">
-        @let paymentDetailsPageData = paymentDetailsPageData$ | async;
         <bit-nav-item
-          [text]="paymentDetailsPageData.textKey | i18n"
-          [route]="paymentDetailsPageData.route"
+          [text]="'paymentDetails' | i18n"
+          [route]="'billing/payment-details'"
         ></bit-nav-item>
         <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
       </ng-container>

@@ -15,6 +15,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 
 import { SharedModule } from "../../shared";
 
+// TODO: [Billing Bonfire] Still used by the PremiumComponent, which is due for a rewrite.
+
 /**
  * @deprecated Use `ManageTaxInformationComponent` instead.
  */
