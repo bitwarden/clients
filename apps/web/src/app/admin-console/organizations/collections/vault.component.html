@@ -1,48 +1,12 @@
-<app-organization-free-trial-warning
-  *ngIf="useOrganizationWarningsService$ | async"
-  [organization]="organization"
-  (clicked)="navigateToPaymentMethod()"
->
-</app-organization-free-trial-warning>
-<app-organization-reseller-renewal-warning
-  *ngIf="useOrganizationWarningsService$ | async"
-  [organization]="organization"
->
-</app-organization-reseller-renewal-warning>
-<ng-container *ngIf="freeTrialWhenWarningsServiceDisabled$ | async as freeTrial">
-  <bit-banner
-    id="free-trial-banner"
-    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    icon="bwi-billing"
-    bannerType="premium"
-    [showClose]="false"
-    *ngIf="!refreshing && freeTrial.shownBanner"
+@if (organization) {
+  <app-organization-free-trial-warning
+    [organization]="organization"
+    (clicked)="navigateToPaymentMethod()"
   >
-    {{ freeTrial.message }}
-    <a
-      bitLink
-      linkType="secondary"
-      (click)="navigateToPaymentMethod()"
-      class="tw-cursor-pointer"
-      rel="noreferrer noopener"
-    >
-      {{ "clickHereToAddPaymentMethod" | i18n }}
-    </a>
-  </bit-banner>
-</ng-container>
-<ng-container *ngIf="resellerWarningWhenWarningsServiceDisabled$ | async as resellerWarning">
-  <bit-banner
-    id="reseller-warning-banner"
-    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    icon="bwi-billing"
-    bannerType="info"
-    [showClose]="false"
-    *ngIf="!refreshing"
-  >
-    {{ resellerWarning?.message }}
-  </bit-banner>
-</ng-container>
-
+  </app-organization-free-trial-warning>
+  <app-organization-reseller-renewal-warning [organization]="organization">
+  </app-organization-reseller-renewal-warning>
+}
 <app-org-vault-header
   [filter]="filter"
   [loading]="refreshing"

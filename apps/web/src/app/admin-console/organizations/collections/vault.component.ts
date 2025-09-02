@@ -6,14 +6,12 @@ import {
   BehaviorSubject,
   combineLatest,
   firstValueFrom,
-  from,
   lastValueFrom,
+  merge,
   Observable,
-  of,
   Subject,
 } from "rxjs";
 import {
-  catchError,
   concatMap,
   debounceTime,
   distinctUntilChanged,
@@ -37,12 +35,10 @@ import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { Search } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -86,13 +82,6 @@ import {
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
-import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
-import {
-  ResellerWarning,
-  ResellerWarningService,
-} from "../../../billing/services/reseller-warning.service";
-import { TrialFlowService } from "../../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../../billing/types/free-trial";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
@@ -183,11 +172,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection: TreeNode<CollectionAdminView> | undefined;
   protected isEmpty: boolean;
   protected showCollectionAccessRestricted: boolean;
-  private hasSubscription$ = new BehaviorSubject<boolean>(false);
   protected currentSearchText$: Observable<string>;
-  protected useOrganizationWarningsService$: Observable<boolean>;
-  protected freeTrialWhenWarningsServiceDisabled$: Observable<FreeTrial>;
-  protected resellerWarningWhenWarningsServiceDisabled$: Observable<ResellerWarning | null>;
   protected prevCipherId: string | null = null;
   protected userId: UserId;
   /**
@@ -208,31 +193,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent<CipherView>;
-
-  private readonly unpaidSubscriptionDialog$ = this.accountService.activeAccount$.pipe(
-    map((account) => account?.id),
-    switchMap((id) =>
-      this.organizationService.organizations$(id).pipe(
-        filter((organizations) => organizations.length === 1),
-        map(([organization]) => organization),
-        switchMap((organization) =>
-          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)).pipe(
-            tap((organizationMetaData) => {
-              this.hasSubscription$.next(organizationMetaData.hasSubscription);
-            }),
-            switchMap((organizationMetaData) =>
-              from(
-                this.trialFlowService.handleUnpaidSubscriptionDialog(
-                  organization,
-                  organizationMetaData,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
 
   constructor(
     private route: ActivatedRoute,
@@ -262,13 +222,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private cipherFormConfigService: CipherFormConfigService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
-    private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private resellerWarningService: ResellerWarningService,
     private accountService: AccountService,
-    private billingNotificationService: BillingNotificationService,
     private organizationWarningsService: OrganizationWarningsService,
     private collectionService: CollectionService,
   ) {}
@@ -661,74 +616,17 @@ export class VaultComponent implements OnInit, OnDestroy {
       .subscribe();
 
     // Billing Warnings
-    this.useOrganizationWarningsService$ = this.configService.getFeatureFlag$(
-      FeatureFlag.UseOrganizationWarningsService,
-    );
-
-    this.useOrganizationWarningsService$
-      .pipe(
-        switchMap((enabled) =>
-          enabled
-            ? this.organizationWarningsService.showInactiveSubscriptionDialog$(this.organization)
-            : this.unpaidSubscriptionDialog$,
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
     organization$
       .pipe(
         switchMap((organization) =>
-          this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+          merge(
+            this.organizationWarningsService.showInactiveSubscriptionDialog$(organization),
+            this.organizationWarningsService.showSubscribeBeforeFreeTrialEndsDialog$(organization),
+          ),
         ),
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    const freeTrial$ = combineLatest([
-      organization$,
-      this.hasSubscription$.pipe(filter((hasSubscription) => hasSubscription !== null)),
-    ]).pipe(
-      filter(
-        ([org, hasSubscription]) => org.isOwner && hasSubscription && org.canViewBillingHistory,
-      ),
-      switchMap(([org]) =>
-        combineLatest([
-          of(org),
-          this.organizationApiService.getSubscription(org.id),
-          from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
-            catchError((error: unknown) => {
-              this.billingNotificationService.handleError(error);
-              return of(null);
-            }),
-          ),
-        ]),
-      ),
-      map(([org, sub, paymentSource]) =>
-        this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource),
-      ),
-      filter((result) => result !== null),
-    );
-
-    this.freeTrialWhenWarningsServiceDisabled$ = this.useOrganizationWarningsService$.pipe(
-      filter((enabled) => !enabled),
-      switchMap(() => freeTrial$),
-    );
-
-    const resellerWarning$ = organization$.pipe(
-      filter((org) => org.isOwner),
-      switchMap((org) =>
-        from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
-          map((metadata) => ({ org, metadata })),
-        ),
-      ),
-      map(({ org, metadata }) => this.resellerWarningService.getWarning(org, metadata)),
-    );
-
-    this.resellerWarningWhenWarningsServiceDisabled$ = this.useOrganizationWarningsService$.pipe(
-      filter((enabled) => !enabled),
-      switchMap(() => resellerWarning$),
-    );
     // End Billing Warnings
 
     firstSetup$
