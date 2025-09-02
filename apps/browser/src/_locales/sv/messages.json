@@ -1761,7 +1761,7 @@
     "message": "Den här webbläsaren kan inte bearbeta U2F-förfrågningar i detta popup-fönster. Vill du öppna ett nytt fönster så att du kan logga in med U2F?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Visa webbplatsikoner och hämta URL-adresser för att ändra lösenord"
   },
   "enableBadgeCounter": {
     "message": "Visa aktivitetsräknaren"
@@ -5108,10 +5108,10 @@
     "message": "Visa antal autofyllförslag för inloggning på tilläggsikonen"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Begäran om åtkomst till konto"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Bekräfta åtkomstförsök för $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5570,10 +5570,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Om denna inställning"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden använder sparade inloggnings-URI: er för att identifiera vilken ikon eller URL för lösenordsändring som ska användas för att förbättra din upplevelse. Ingen information samlas in eller sparas när du använder denna tjänst."
   },
   "noPermissionsViewPage": {
     "message": "Du har inte behörighet att visa den här sidan. Försök att logga in med ett annat konto."

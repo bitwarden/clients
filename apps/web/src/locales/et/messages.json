@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Taastamise kood"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Autentimise rakendus"
   },
