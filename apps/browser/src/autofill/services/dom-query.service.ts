@@ -76,7 +76,8 @@ export class DomQueryService implements DomQueryServiceInterface {
    * Checks if the page contains any shadow DOM elements.
    */
   checkPageContainsShadowDom = (): boolean => {
-    return this.queryShadowRoots(globalThis.document.body, true).length > 0;
+    this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
+    return this.pageContainsShadowDom;
   };
 
   /**
@@ -94,9 +95,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   ): T[] {
     let elements = this.queryElements<T>(root, queryString);
 
-    const shadowRoots = this.checkPageContainsShadowDom()
-      ? this.recursivelyQueryShadowRoots(root)
-      : [];
+    const shadowRoots = this.pageContainsShadowDom ? this.recursivelyQueryShadowRoots(root) : [];
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
       elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
