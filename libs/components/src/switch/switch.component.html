@@ -1,16 +1,25 @@
 @let disabledText = disabledReasonText();
 
 <div
-  class="tw-rounded-md tw-flex tw-flex-col tw-max-w-[60ch] [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-offset-2 [&:has(input:focus-visible)]:tw-ring-primary-600"
+  class="tw-rounded-md tw-flex tw-flex-col [&:has(input:focus-visible)]:tw-ring-2 [&:has(input:focus-visible)]:tw-ring-offset-2 [&:has(input:focus-visible)]:tw-ring-primary-600"
 >
   <label
     [attr.for]="inputId"
-    class="tw-inline-flex tw-gap-2 tw-max-w-[60ch]"
+    class="tw-inline-flex tw-gap-2 tw-justify-between"
     [ngClass]="{
       'tw-cursor-default': disabled(),
       'tw-cursor-pointer': !disabled(),
     }"
   >
+    <div>
+      <span
+        bitTypography="body2"
+        class="tw-block [&_*]:tw-whitespace-normal"
+        [ngClass]="{ 'tw-text-muted tw-pointer-events-none': disabled() }"
+      >
+        <ng-content select="bit-label"></ng-content>
+      </span>
+    </div>
     <span
       class="tw-w-9 tw-shrink-0 tw-h-[1.375rem] tw-rounded-full tw-relative tw-transition-[background-color]"
       [ngClass]="{
@@ -37,17 +46,8 @@
         }"
       ></span>
     </span>
-    <div>
-      <span
-        bitTypography="body2"
-        class="tw-block [&_*]:tw-whitespace-normal"
-        [ngClass]="{ 'tw-text-muted tw-pointer-events-none': disabled() }"
-      >
-        <ng-content select="bit-label"></ng-content>
-      </span>
-    </div>
   </label>
-  <div class="tw-ps-[calc(theme(spacing.9)_+_theme(spacing.2))] [&_bit-hint]:tw-mt-0">
+  <div class="[&_bit-hint]:tw-mt-0">
     <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
   </div>
 
