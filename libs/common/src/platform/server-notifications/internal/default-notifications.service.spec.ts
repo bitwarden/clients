@@ -1,9 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subject } from "rxjs";
+import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { awaitAsync } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
@@ -39,6 +41,7 @@ describe("NotificationsService", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
+  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
@@ -66,9 +69,16 @@ describe("NotificationsService", () => {
     signalRNotificationConnectionService = mock<SignalRConnectionService>();
     authService = mock<AuthService>();
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
+    authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
     configService = mock<ConfigService>();
 
-    configService.getFeatureFlag$.mockReturnValue(of(true));
+    // For these tests, use the active-user implementation (feature flag disabled)
+    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
+      const flagValueByFlag: Partial<Record<FeatureFlag, boolean>> = {
+        [FeatureFlag.PushNotificationsWhenLocked]: true,
+      };
+      return new BehaviorSubject(flagValueByFlag[flag] ?? false) as any;
+    });
 
     activeAccount = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(null);
     accountService.activeAccount$ = activeAccount.asObservable();
@@ -109,6 +119,7 @@ describe("NotificationsService", () => {
       signalRNotificationConnectionService,
       authService,
       webPushNotificationConnectionService,
+      authRequestAnsweringService,
       configService,
     );
   });
@@ -116,7 +127,7 @@ describe("NotificationsService", () => {
   const mockUser1 = "user1" as UserId;
   const mockUser2 = "user2" as UserId;
 
-  function emitActiveUser(userId: UserId) {
+  function emitActiveUser(userId: UserId | null) {
     if (userId == null) {
       activeAccount.next(null);
     } else {

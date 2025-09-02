@@ -42,9 +42,6 @@ describe("AutofillInlineMenuContentService", () => {
       "sendExtensionMessage",
     );
     jest.spyOn(autofillInlineMenuContentService as any, "getPageIsOpaque");
-    jest
-      .spyOn(autofillInlineMenuContentService as any, "getPageTopLayerInUse")
-      .mockResolvedValue(false);
   });
 
   afterEach(() => {
@@ -388,20 +385,6 @@ describe("AutofillInlineMenuContentService", () => {
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
-    });
-
-    it("closes the inline menu if the page has content in the top layer", async () => {
-      document.querySelector("html").style.opacity = "1";
-      document.body.style.opacity = "1";
-
-      jest
-        .spyOn(autofillInlineMenuContentService as any, "getPageTopLayerInUse")
-        .mockResolvedValue(true);
-
-      await autofillInlineMenuContentService["handlePageMutations"]([mockBodyMutationRecord]);
-
-      expect(autofillInlineMenuContentService["getPageIsOpaque"]).toHaveReturnedWith(true);
-      expect(autofillInlineMenuContentService["closeInlineMenu"]).toHaveBeenCalled();
     });
 
     it("closes the inline menu if the page body is not sufficiently opaque", async () => {

@@ -14,13 +14,14 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ImportCollectionServiceAbstraction } from "@bitwarden/importer-core";
 import { ImportComponent } from "@bitwarden/importer-ui";
 
-import { LooseComponentsModule, SharedModule } from "../../shared";
+import { HeaderModule } from "../../layouts/header/header.module";
+import { SharedModule } from "../../shared";
 
 import { ImportCollectionAdminService } from "./import-collection-admin.service";
 
 @Component({
   templateUrl: "org-import.component.html",
-  imports: [SharedModule, ImportComponent, LooseComponentsModule],
+  imports: [SharedModule, ImportComponent, HeaderModule],
   providers: [
     {
       provide: ImportCollectionServiceAbstraction,
