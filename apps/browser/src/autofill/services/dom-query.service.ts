@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { MAX_DEEP_QUERY_RECURSION_DEPTH } from "@bitwarden/common/autofill/constants";
+import { EVENTS, MAX_DEEP_QUERY_RECURSION_DEPTH } from "@bitwarden/common/autofill/constants";
 
 import { nodeIsElement } from "../utils";
 
@@ -29,6 +29,10 @@ export class DomQueryService implements DomQueryServiceInterface {
     "map",
     "area",
   ]);
+
+  constructor() {
+    void this.init();
+  }
 
   /**
    * Sets up a query that will trigger a deepQuery of the DOM, querying all elements that match the given query string.
@@ -79,6 +83,17 @@ export class DomQueryService implements DomQueryServiceInterface {
     this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
     return this.pageContainsShadowDom;
   };
+
+  /**
+   * Initializes the DomQueryService, checking for the presence of shadow DOM elements on the page.
+   */
+  private async init() {
+    if (globalThis.document.readyState === "complete") {
+      this.checkPageContainsShadowDom();
+      return;
+    }
+    globalThis.addEventListener(EVENTS.LOAD, this.checkPageContainsShadowDom);
+  }
 
   /**
    * Queries all elements in the DOM that match the given query string.

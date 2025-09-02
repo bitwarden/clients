@@ -35,6 +35,22 @@ describe("DomQueryService", () => {
     mockQuerySelectorAll.mockRestore();
   });
 
+  it("checks the page content for shadow DOM elements after the page has completed loading", async () => {
+    Object.defineProperty(document, "readyState", {
+      value: "loading",
+      writable: true,
+    });
+    jest.spyOn(globalThis, "addEventListener");
+
+    const domQueryService = new DomQueryService();
+    await flushPromises();
+
+    expect(globalThis.addEventListener).toHaveBeenCalledWith(
+      "load",
+      domQueryService["checkPageContainsShadowDom"],
+    );
+  });
+
   describe("deepQueryElements", () => {
     it("queries form field elements that are nested within a ShadowDOM", () => {
       const root = document.createElement("div");
