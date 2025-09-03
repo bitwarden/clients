@@ -104,7 +104,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
     // Await the key actually being set. This ensures that any subsequent callers know the key is already in state.
     // There were bugs related to the stateprovider observables in the past that caused issues around this.
-    if ((await firstValueFrom(this.userKey$(userId))) == null) {
+    const userKey = await firstValueFrom(this.userKey$(userId).pipe(filter((k) => k != null)));
+    if (userKey == null) {
       throw new Error("Failed to set user key");
     }
   }
