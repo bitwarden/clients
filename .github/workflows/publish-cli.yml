@@ -183,7 +183,7 @@ jobs:
 
   npm:
     name: Publish NPM
-    environment: NPM
+    environment: CLI - NPM
     runs-on: ubuntu-22.04
     needs: setup
     permissions:
