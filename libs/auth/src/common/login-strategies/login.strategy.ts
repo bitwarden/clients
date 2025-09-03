@@ -32,7 +32,6 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
-import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 
@@ -191,19 +190,6 @@ export abstract class LoginStrategy {
     await this.environmentService.seedUserEnvironment(userId);
 
     await this.accountService.switchAccount(userId);
-
-    await this.stateService.addAccount(
-      new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId,
-            name: accountInformation.name,
-            email: accountInformation.email,
-          },
-        },
-      }),
-    );
 
     await this.verifyAccountAdded(userId);
 

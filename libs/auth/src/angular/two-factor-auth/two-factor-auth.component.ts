@@ -16,6 +16,13 @@ import { lastValueFrom, firstValueFrom } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
+  TwoFactorAuthAuthenticatorIcon,
+  TwoFactorAuthEmailIcon,
+  TwoFactorAuthWebAuthnIcon,
+  TwoFactorAuthSecurityKeyIcon,
+  TwoFactorAuthDuoIcon,
+} from "@bitwarden/assets/svg";
+import {
   LoginStrategyServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
   TrustedDeviceUserDecryptionOption,
@@ -49,14 +56,6 @@ import {
   FormFieldModule,
   ToastService,
 } from "@bitwarden/components";
-
-import {
-  TwoFactorAuthAuthenticatorIcon,
-  TwoFactorAuthEmailIcon,
-  TwoFactorAuthWebAuthnIcon,
-  TwoFactorAuthSecurityKeyIcon,
-  TwoFactorAuthDuoIcon,
-} from "../icons/two-factor-auth";
 
 import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
 import { TwoFactorAuthDuoComponent } from "./child-components/two-factor-auth-duo/two-factor-auth-duo.component";

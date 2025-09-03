@@ -216,7 +216,7 @@
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
-    "message": "Tạo mật khẩu (đã sao chép)"
+    "message": "Tạo mật khẩu (cũng sao chép)"
   },
   "copyElementIdentifier": {
     "message": "Sao chép tên trường tùy chỉnh"
@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Trình duyệt này không thể xử lý các yêu cầu U2F trong cửa sổ popup này. Bạn có muốn mở popup này trong cửa sổ mới để bạn có thể đăng nhập thông qua U2F?"
   },
-  "enableFavicon": {
-    "message": "Hiển thị biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiển thị một ảnh nhận dạng bên cạnh mỗi lần đăng nhập."
-  },
-  "faviconDescAlt": {
-    "message": "Hiển thị một biểu tượng dễ nhận dạng bên cạnh mỗi mục đăng nhập. Áp dụng với mọi tài khoản đăng nhập trên thiết bị."
+  "showIconsChangePasswordUrls": {
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "enableBadgeCounter": {
     "message": "Hiển thị biểu tượng bộ đếm"
@@ -1836,7 +1830,7 @@
     "message": "số thẻ"
   },
   "ex": {
-    "message": "Ví dụ:"
+    "message": "ví dụ."
   },
   "title": {
     "message": "Tiêu đề"
@@ -2458,7 +2452,7 @@
     "message": "Nhận dạng sinh trắc học không được hỗ trợ"
   },
   "biometricsNotSupportedDesc": {
-    "message": "Nhận dạng sinh trắc học trên trình duyệt không được hỗ trợ trên thiết bị này"
+    "message": "Nhận dạng sinh trắc học trên trình duyệt không được hỗ trợ trên thiết bị này."
   },
   "biometricsNotUnlockedTitle": {
     "message": "Người dùng đã khoá hoặc đã đăng xuất"
@@ -4131,15 +4125,11 @@
   "selectImportCollection": {
     "message": "Chọn bộ sưu tập"
   },
-  "importTargetHint": {
-    "message": "Chọn tùy chọn này nếu bạn muốn nội dung của tệp đã nhập được di chuyển đến $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
+  },
+  "importTargetHintFolder": {
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -5117,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Hiển thị số lượng đề xuất tự động điền đăng nhập trên biểu tượng tiện ích mở rộng"
   },
+  "accountAccessRequested": {
+    "message": "Yêu cầu truy cập tài khoản"
+  },
+  "confirmAccessAttempt": {
+    "message": "Phê duyệt yêu cầu truy cập cho $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Hiển thị các hành động sao chép nhanh trên Kho"
   },
@@ -5567,6 +5569,12 @@
     "message": "Dễ dàng tạo mật khẩu mạnh và duy nhất bằng cách nhấp vào Trình tạo mật khẩu để giúp bạn bảo vệ tài khoản đăng nhập của mình.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Về cài đặt này"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
+  },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."
   },
@@ -5579,5 +5587,9 @@
   },
   "showLess": {
     "message": "Thu gọn"
+  },
+  "moreBreadcrumbs": {
+    "message": "Thêm mục điều hướng",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

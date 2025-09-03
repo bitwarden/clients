@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Ovaj preglednik ne može obraditi U2F zahtjeve u ovom iskočnom prozoru. Želiš li otvoriti ovaj iskočni prozor u novom prozoru za prijavu putem U2F?"
   },
-  "enableFavicon": {
-    "message": "Prikaži ikone mrežnih mjesta"
-  },
-  "faviconDesc": {
-    "message": "Prikaži prepoznatljivu sliku pored svake prijave."
-  },
-  "faviconDescAlt": {
-    "message": "Prikaži prepoznatljivu sliku pokraj svake prijave. Primjenjuje se na sve prijavljene račune."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Prikaži značku brojača"
@@ -4131,15 +4125,11 @@
   "selectImportCollection": {
     "message": "Odaberi zbirku"
   },
-  "importTargetHint": {
-    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš spremiti u $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Datoteka sadrži nedodijeljene stavke."
@@ -5117,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Prikaži broj prijedloga auto-ispune na ikoni proširenja"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Prikaži akcije brzog kopiranja na trezoru"
   },
@@ -5567,6 +5569,12 @@
     "message": "Jednostavno stvori jake i sigurne lozinke odabirom tipke Generiraj lozinku kako bi tvoje prijave ostale sigurne.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "Nemaš dozvolu za pregled ove stranice. Pokušaj se prijaviti s drugim računom."
   },
@@ -5575,9 +5583,13 @@
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Prikaži više"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Pokaži manje"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

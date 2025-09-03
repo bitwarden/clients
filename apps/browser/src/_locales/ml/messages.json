@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "ഈ ബ്ര pop സറിന് ഈ പോപ്പ്അപ്പ് വിൻഡോയിൽ U2F അഭ്യർത്ഥനകൾ പ്രോസസ്സ് ചെയ്യാൻ കഴിയില്ല. യു 2 എഫ് ഉപയോഗിച്ച് ലോഗിൻ ചെയ്യാൻ ഈ പോപ്പ്അപ്പ് ഒരു പുതിയ വിൻഡോയിൽ തുറക്കാൻ നിങ്ങൾ ആഗ്രഹിക്കുന്നുണ്ടോ?"
   },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
-  },
-  "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Show badge counter"
@@ -4131,15 +4125,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -5117,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
@@ -5567,6 +5569,12 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
@@ -5579,5 +5587,9 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

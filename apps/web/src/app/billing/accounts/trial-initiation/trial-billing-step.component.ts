@@ -42,7 +42,7 @@ export type TrialOrganizationType = Exclude<ProductTierType, ProductTierType.Fre
 export interface OrganizationInfo {
   name: string;
   email: string;
-  type: TrialOrganizationType;
+  type: TrialOrganizationType | null;
 }
 
 export interface OrganizationCreatedEvent {
@@ -257,6 +257,15 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     const productType = this.organizationInfo.type;
     const planType = this.productTypeToPlanTypeMap[productType]?.[cadence];
     return planType ? this.applicablePlans.find((plan) => plan.type === planType) : null;
+  }
+
+  protected get showTaxIdField(): boolean {
+    switch (this.organizationInfo.type) {
+      case ProductTierType.Families:
+        return false;
+      default:
+        return true;
+    }
   }
 
   private getBillingInformationFromTaxInfoComponent(): BillingInformation {

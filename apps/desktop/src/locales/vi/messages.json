@@ -324,7 +324,7 @@
     "message": "Tháng 12"
   },
   "ex": {
-    "message": "Ví dụ:",
+    "message": "ví dụ.",
     "description": "Short abbreviation for 'example'."
   },
   "title": {
@@ -701,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Đã lưu tệp đính kèm"
+  },
+  "addAttachment": {
+    "message": "Thêm tệp đính kèm"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Kích thước tối đa của tập tin là 500MB"
   },
   "file": {
     "message": "Tệp"
@@ -1299,11 +1305,8 @@
     "message": "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Hiện biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiện logo trang web bên cạnh mỗi đăng nhập."
+  "showIconsChangePasswordUrls": {
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "enableMinToTray": {
     "message": "Thu nhỏ vào khay hệ thống"
@@ -1390,7 +1393,7 @@
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
-    "message": "Kiểm tra cập nhật mới"
+    "message": "Kiểm tra cập nhật…"
   },
   "version": {
     "message": "Phiên bản $VERSION_NUM$",
@@ -1839,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Yêu cầu xác minh Touch ID khi mở ứng dụng"
-  },
-  "requirePasswordOnStart": {
-    "message": "Yêu cầu mật khẩu hoặc mã PIN khi mở ứng dụng"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Yêu cầu mật khẩu khi khởi động ứng dụng"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"
@@ -3491,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Chọn bộ sưu tập"
   },
-  "importTargetHint": {
-    "message": "Chọn tùy chọn này nếu bạn muốn nội dung của tệp đã nhập được di chuyển đến $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
+  },
+  "importTargetHintFolder": {
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -3769,7 +3762,7 @@
     "message": "Tải lên"
   },
   "authorize": {
-    "message": "Uỷ quyền"
+    "message": "Ủy quyền"
   },
   "deny": {
     "message": "Từ chối"
@@ -3932,6 +3925,12 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "aboutThisSetting": {
+    "message": "Về cài đặt này"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
+  },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
   },
@@ -4077,5 +4076,9 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."
+  },
+  "moreBreadcrumbs": {
+    "message": "Thêm mục điều hướng",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }
