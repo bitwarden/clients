@@ -131,7 +131,6 @@ import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
-
 const BroadcasterSubscriptionId = "VaultComponent";
 
 @Component({
