@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -14,7 +14,7 @@ import { UserId } from "../../types/guid";
 import { PinKey, UserKey } from "../../types/key";
 import { KeyGenerationService } from "../crypto";
 import { EncryptService } from "../crypto/abstractions/encrypt.service";
-import { EncString } from "../crypto/models/enc-string";
+import { EncryptedString, EncString } from "../crypto/models/enc-string";
 
 import { PinService } from "./pin.service.implementation";
 import {
@@ -47,32 +47,15 @@ describe("PinService", () => {
   const sdkService = new MockSdkService();
   const behaviorSubject = new BehaviorSubject<{ userId: UserId; userKey: UserKey }>(null);
 
-  const enroll_pin = jest.fn();
-  const unseal_password_protected_key_envelope = jest.fn().mockResolvedValue(new Uint8Array(64));
-  const mockSdkClient = {
-    crypto: jest.fn().mockReturnValue({
-      enroll_pin: enroll_pin,
-      get_pin: jest.fn(),
-      unset_pin: jest.fn(),
-      unseal_password_protected_key_envelope: unseal_password_protected_key_envelope,
-    }),
-  };
-  const mockRef = {
-    value: mockSdkClient,
-    [Symbol.dispose]: jest.fn(),
-  };
-  const mockSdk = {
-    take: jest.fn().mockReturnValue(mockRef),
-  };
-
   beforeEach(() => {
     accountService = mockAccountServiceWith(mockUserId, { email: mockUserEmail });
     stateProvider = new FakeStateProvider(accountService);
     (keyService as any)["unlockedUserKeys$"] = behaviorSubject
       .asObservable()
       .pipe(filter((x) => x != null));
-    sdkService.userClient$ = jest.fn((userId: UserId) => of(mockSdk)) as any;
-    sdkService.client$ = jest.fn(() => of(mockSdk)) as any;
+    sdkService.client.crypto
+      .mockDeep()
+      .unseal_password_protected_key_envelope.mockReturnValue(new Uint8Array(64));
 
     sut = new PinService(
       accountService,
@@ -250,10 +233,13 @@ describe("PinService", () => {
     });
 
     it("should successfully set an EPHEMERAL pin", async () => {
-      enroll_pin.mockReturnValue({
-        pinProtectedUserKeyEnvelope: mockPinProtectedUserKeyEnvelope,
-        userKeyEncryptedPin: mockUserKeyEncryptedPinFromSdk,
-      });
+      sdkService.simulate
+        .userLogin(mockUserId)
+        .crypto.mockDeep()
+        .enroll_pin.mockReturnValue({
+          pinProtectedUserKeyEnvelope: mockPinProtectedUserKeyEnvelope,
+          userKeyEncryptedPin: mockUserKeyEncryptedPinFromSdk as EncryptedString,
+        });
 
       await sut.setPin(mockPin, "EPHEMERAL", mockUserId);
 
@@ -272,10 +258,13 @@ describe("PinService", () => {
     });
 
     it("should successfully set a PERSISTENT pin", async () => {
-      enroll_pin.mockReturnValue({
-        pinProtectedUserKeyEnvelope: mockPinProtectedUserKeyEnvelope,
-        userKeyEncryptedPin: mockUserKeyEncryptedPinFromSdk,
-      });
+      sdkService.simulate
+        .userLogin(mockUserId)
+        .crypto.mockDeep()
+        .enroll_pin.mockReturnValue({
+          pinProtectedUserKeyEnvelope: mockPinProtectedUserKeyEnvelope,
+          userKeyEncryptedPin: mockUserKeyEncryptedPinFromSdk as EncryptedString,
+        });
 
       await sut.setPin(mockPin, "PERSISTENT", mockUserId);
 
@@ -640,7 +629,6 @@ describe("PinService", () => {
     });
 
     it("should return userkey with new pin EPHEMERAL", async () => {
-      sdkService.client$ = of(mockSdkClient) as any; // Mock the client$ to return the mock SDK
       // Arrange
       const mockPin = "1234";
       await stateProvider.setUserState(
@@ -662,7 +650,6 @@ describe("PinService", () => {
     });
 
     it("should return userkey with new pin PERSISTENT", async () => {
-      sdkService.client$ = of(mockSdkClient) as any; // Mock the client$ to return the mock SDK
       // Arrange
       const mockPin = "1234";
       await stateProvider.setUserState(
