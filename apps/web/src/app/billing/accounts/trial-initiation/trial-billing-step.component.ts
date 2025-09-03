@@ -42,7 +42,7 @@ export type TrialOrganizationType = Exclude<ProductTierType, ProductTierType.Fre
 export interface OrganizationInfo {
   name: string;
   email: string;
-  type: TrialOrganizationType;
+  type: TrialOrganizationType | null;
 }
 
 export interface OrganizationCreatedEvent {
