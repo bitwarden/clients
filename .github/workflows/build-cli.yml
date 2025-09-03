@@ -129,7 +129,6 @@ jobs:
           node-version: 24
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: ${{ env._NODE_VERSION }}
 
       - name: Install
         run: |
