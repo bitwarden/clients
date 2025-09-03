@@ -183,13 +183,19 @@ export class CipherViewLikeUtils {
     targetUri: string,
     equivalentDomains: Set<string>,
     defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain,
+    overrideNeverMatchStrategy?: true,
   ): boolean => {
     if (CipherViewLikeUtils.getType(cipher) !== CipherType.Login) {
       return false;
     }
 
     if (!this.isCipherListView(cipher)) {
-      return cipher.login.matchesUri(targetUri, equivalentDomains, defaultUriMatch);
+      return cipher.login.matchesUri(
+        targetUri,
+        equivalentDomains,
+        defaultUriMatch,
+        overrideNeverMatchStrategy,
+      );
     }
 
     const login = this.getLogin(cipher);
@@ -207,7 +213,7 @@ export class CipherViewLikeUtils {
       });
 
     return loginUriViews.some((uriView) =>
-      uriView.matchesUri(targetUri, equivalentDomains, defaultUriMatch),
+      uriView.matchesUri(targetUri, equivalentDomains, defaultUriMatch, overrideNeverMatchStrategy),
     );
   };
 

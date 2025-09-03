@@ -13,7 +13,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -222,28 +221,22 @@ export class VaultHeaderComponent {
   }
 
   async addCollection(): Promise<void> {
-    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    const organization = this.organizations?.find(
+      (org) => org.productTierType === ProductTierType.Free,
     );
 
-    if (isBreadcrumbEventLogsEnabled) {
-      const organization = this.organizations?.find(
-        (org) => org.productTierType === ProductTierType.Free,
-      );
-
-      if (this.organizations?.length == 1 && !!organization) {
-        const collections = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(
-            getUserId,
-            switchMap((userId) =>
-              this.collectionAdminService.collectionAdminViews$(organization.id, userId),
-            ),
+    if (this.organizations?.length == 1 && !!organization) {
+      const collections = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.collectionAdminService.collectionAdminViews$(organization.id, userId),
           ),
-        );
-        if (collections.length === organization.maxCollections) {
-          await this.showFreeOrgUpgradeDialog(organization);
-          return;
-        }
+        ),
+      );
+      if (collections.length === organization.maxCollections) {
+        await this.showFreeOrgUpgradeDialog(organization);
+        return;
       }
     }
 
