@@ -31,6 +31,7 @@ import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -600,6 +601,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     includeOtherTypes?: CipherType[],
     defaultMatch: UriMatchStrategySetting = null,
+    overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]> {
     return await firstValueFrom(
       this.cipherViews$(userId).pipe(
@@ -611,6 +613,7 @@ export class CipherService implements CipherServiceAbstraction {
               url,
               includeOtherTypes,
               defaultMatch,
+              overrideNeverMatchStrategy,
             ),
         ),
       ),
@@ -622,6 +625,7 @@ export class CipherService implements CipherServiceAbstraction {
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch: UriMatchStrategySetting = null,
+    overrideNeverMatchStrategy?: true,
   ): Promise<C[]> {
     if (url == null && includeOtherTypes == null) {
       return [];
@@ -646,7 +650,13 @@ export class CipherService implements CipherServiceAbstraction {
       }
 
       if (cipherIsLogin) {
-        return CipherViewLikeUtils.matchesUri(cipher, url, equivalentDomains, defaultMatch);
+        return CipherViewLikeUtils.matchesUri(
+          cipher,
+          url,
+          equivalentDomains,
+          defaultMatch,
+          overrideNeverMatchStrategy,
+        );
       }
 
       return false;
@@ -2034,7 +2044,7 @@ export class CipherService implements CipherServiceAbstraction {
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      const cipher = await this.get(c.id!, activeUserId);
+      const cipher = await this.get(uuidAsString(c.id!), activeUserId);
       return this.decrypt(cipher, activeUserId);
     }
 

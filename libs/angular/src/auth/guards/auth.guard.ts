@@ -74,13 +74,6 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree(["lock"], { queryParams: { promptBiometric: true } });
   }
 
-  if (
-    !routerState.url.includes("remove-password") &&
-    (await firstValueFrom(keyConnectorService.convertAccountRequired$))
-  ) {
-    return router.createUrlTree(["/remove-password"]);
-  }
-
   // Handle cases where a user needs to set a password when they don't already have one:
   // - TDE org user has been given "manage account recovery" permission
   // - TDE offboarding on a trusted device, where we have access to their encryption key wrap with their new password
@@ -104,6 +97,15 @@ export const authGuard: CanActivateFn = async (
   ) {
     const route = "/change-password";
     return router.createUrlTree([route]);
+  }
+
+  // Remove password when Key Connector is enabled
+  if (
+    forceSetPasswordReason == ForceSetPasswordReason.None &&
+    !routerState.url.includes("remove-password") &&
+    (await firstValueFrom(keyConnectorService.convertAccountRequired$))
+  ) {
+    return router.createUrlTree(["/remove-password"]);
   }
 
   return true;

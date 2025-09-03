@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Totalt antal applikationer"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Avmarkera som kritisk app"
+  "unmarkAsCritical": {
+    "message": "Avmarkera som kritisk"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritisk applikation avmarkerades"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kopiera licensnummer"
   },
+  "copyPrivateKey": {
+    "message": "Kopiera privat nyckel"
+  },
+  "copyPublicKey": {
+    "message": "Kopiera publik nyckel"
+  },
+  "copyFingerprint": {
+    "message": "Kopiera fingeravtryck"
+  },
   "copyName": {
     "message": "Kopiera namn"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Återställningskod"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Autentiseringsapp"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Ändra språket som används i webbvalvet."
   },
-  "enableFavicon": {
-    "message": "Visa webbplatsikoner"
-  },
-  "faviconDesc": {
-    "message": "Visa en igenkännbar bild bredvid varje inloggning."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Standard"
@@ -7029,10 +7038,10 @@
     "message": "Okänt objekt, du kan behöva begära tillstånd för att få tillgång till detta objekt."
   },
   "unknownSecret": {
-    "message": "Unknown secret, you may need to request permission to access this secret."
+    "message": "Okänd hemlighet, du kan behöver begära behörighet för att komma åt denna hemlighet."
   },
   "unknownProject": {
-    "message": "Unknown project, you may need to request permission to access this project."
+    "message": "Okänt projekt, du kan behöver begära behörighet för att komma åt detta projekt."
   },
   "cannotSponsorSelf": {
     "message": "Du kan inte lösa in för det aktiva kontot. Ange en annan e-postadress."
@@ -10823,7 +10832,7 @@
     "message": "Dessa händelser är endast exempel och återspeglar inte verkliga händelser inom din Bitwarden-organisation."
   },
   "viewEvents": {
-    "message": "View Events"
+    "message": "Visa händelser"
   },
   "cannotCreateCollection": {
     "message": "Gratisorganisationer kan ha upp till 2 samlingar. Uppgradera till en betald plan för att lägga till fler samlingar."
@@ -10982,6 +10991,12 @@
     "message": "Faktureringsadress krävs för att lägga till kredit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Om denna inställning"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "billingAddress": {
     "message": "Faktureringsadress"
   },
@@ -11125,13 +11140,13 @@
     "message": "Check your Tax ID to verify the format is correct and there are no typos."
   },
   "pendingVerification": {
-    "message": "Pending verification"
+    "message": "Väntande verifiering"
   },
   "checkInputFormat": {
     "message": "Check input format for typos."
   },
   "exampleTaxIdFormat": {
-    "message": "Example $CODE$ format: $EXAMPLE$",
+    "message": "Exempel $CODE$ format: $EXAMPLE$",
     "placeholders": {
       "code": {
         "content": "$1",
