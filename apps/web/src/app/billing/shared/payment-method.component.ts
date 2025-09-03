@@ -1,33 +1,34 @@
+import { Location } from "@angular/common";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom, lastValueFrom, map } from "rxjs";
+
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import {
+  OrganizationService,
+  getOrganizationById,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PaymentMethodType } from "@bitwarden/common/billing/enums";
+import { BillingPaymentResponse } from "@bitwarden/common/billing/models/response/billing-payment.response";
+import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { VerifyBankRequest } from "@bitwarden/common/models/request/verify-bank.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
+import { DialogService, ToastService } from "@bitwarden/components";
+
 import { AddCreditDialogResult, openAddCreditDialog } from "./add-credit-dialog.component";
 import {
   AdjustPaymentDialogComponent,
   AdjustPaymentDialogResultType,
 } from "./adjust-payment-dialog/adjust-payment-dialog.component";
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { DialogService, ToastService } from "@bitwarden/components";
-import { FormBuilder, FormControl, Validators } from "@angular/forms";
-import {
-  OrganizationService,
-  getOrganizationById,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { firstValueFrom, lastValueFrom, map } from "rxjs";
-
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { BillingPaymentResponse } from "@bitwarden/common/billing/models/response/billing-payment.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Location } from "@angular/common";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import { PaymentMethodType } from "@bitwarden/common/billing/enums";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
-import { SyncService } from "@bitwarden/common/platform/sync";
-import { VerifyBankRequest } from "@bitwarden/common/models/request/verify-bank.request";
 
 @Component({
   templateUrl: "payment-method.component.html",
