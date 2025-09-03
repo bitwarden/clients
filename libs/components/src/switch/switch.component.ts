@@ -32,7 +32,14 @@ let nextId = 0;
 export class SwitchComponent implements ControlValueAccessor {
   private el = inject(ElementRef<HTMLButtonElement>);
 
+  /**
+   * Model signal for selected state binding when used outside of a form
+   */
   protected selected = model(false);
+
+  /**
+   * Model signal for disabled binding when used outside of a form
+   */
   protected disabled = model(false);
   protected disabledReasonText = input<string | null>(null);
 
