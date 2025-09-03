@@ -11,7 +11,7 @@ import { WebhookIntegrationConfigurationConfig } from "./integration-configurati
 export class OrganizationIntegrationConfiguration {
   id: OrganizationIntegrationConfigurationId;
   integrationId: OrganizationIntegrationId;
-  eventType?: EventType;
+  eventType?: EventType | null;
   configuration?: WebhookIntegrationConfigurationConfig | null;
   filters?: string;
   template?: HecTemplate | WebhookTemplate | null;

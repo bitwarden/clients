@@ -171,7 +171,7 @@ describe("HecOrganizationIntegrationService", () => {
       integrationId,
       null,
       null,
-      null,
+      "",
       {} as HecTemplate,
     );
 

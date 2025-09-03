@@ -17,8 +17,8 @@ export class OrganizationIntegration {
     id: OrganizationIntegrationId,
     type: OrganizationIntegrationType,
     serviceType: OrganizationIntegrationServiceType,
-    configuration: HecConfiguration | WebhookConfiguration,
-    integrationConfiguration: OrganizationIntegrationConfiguration[] = null,
+    configuration: HecConfiguration | WebhookConfiguration | null,
+    integrationConfiguration: OrganizationIntegrationConfiguration[] = [],
   ) {
     this.id = id;
     this.type = type;

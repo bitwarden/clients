@@ -96,7 +96,9 @@ export class HecOrganizationIntegrationService {
       newIntegrationResponse,
       newIntegrationConfigResponse,
     );
-    this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
+    if (newIntegration !== null) {
+      this._integrations$.next([...this._integrations$.getValue(), newIntegration]);
+    }
   }
 
   /**
@@ -148,7 +150,10 @@ export class HecOrganizationIntegrationService {
       updatedIntegrationResponse,
       updatedIntegrationConfigResponse,
     );
-    this._integrations$.next([...this._integrations$.getValue(), updatedIntegration]);
+
+    if (updatedIntegration !== null) {
+      this._integrations$.next([...this._integrations$.getValue(), updatedIntegration]);
+    }
   }
 
   /**
@@ -206,15 +211,20 @@ export class HecOrganizationIntegrationService {
   private mapResponsesToOrganizationIntegration(
     integrationResponse: OrganizationIntegrationResponse,
     configurationResponse: OrganizationIntegrationConfigurationResponse,
-  ): OrganizationIntegration {
+  ): OrganizationIntegration | null {
     const hecConfig = this.convertToJson<HecConfiguration>(integrationResponse.configuration);
     const template = this.convertToJson<HecTemplate>(configurationResponse.template);
+
+    if (!hecConfig || !template) {
+      return null;
+    }
+
     const integrationConfig = new OrganizationIntegrationConfiguration(
       configurationResponse.id,
       integrationResponse.id,
       null,
       null,
-      null,
+      "",
       template,
     );
 
@@ -247,7 +257,10 @@ export class HecOrganizationIntegrationService {
                 integration,
                 config,
               );
-              integrations.push(orgIntegration);
+
+              if (orgIntegration !== null) {
+                integrations.push(orgIntegration);
+              }
             });
           promises.push(promise);
         });

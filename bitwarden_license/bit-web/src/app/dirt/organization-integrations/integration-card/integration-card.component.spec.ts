@@ -240,9 +240,9 @@ describe("IntegrationCardComponent", () => {
       expect(component.showConnectedBadge()).toBe(false);
     });
 
-    it("returns undefined when canSetupConnection is undefined", () => {
+    it("returns false when canSetupConnection is undefined", () => {
       component.canSetupConnection = undefined;
-      expect(component.showConnectedBadge()).toBeUndefined();
+      expect(component.showConnectedBadge()).toBe(false);
     });
   });
 

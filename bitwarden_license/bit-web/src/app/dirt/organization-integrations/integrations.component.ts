@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, Observable, Subject, switchMap, takeUntil, takeWhile } from "rxjs";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
@@ -11,6 +11,7 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -26,8 +27,8 @@ import { FilterIntegrationsPipe } from "./integrations.pipe";
   imports: [SharedModule, IntegrationGridComponent, HeaderModule, FilterIntegrationsPipe],
 })
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
-  tabIndex: number;
-  organization$: Observable<Organization>;
+  tabIndex: number = 0;
+  organization$: Observable<Organization> = new Observable<Organization>();
   isEventBasedIntegrationsEnabled: boolean = false;
   private destroy$ = new Subject<void>();
 
@@ -208,15 +209,18 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     },
   ];
 
-  ngOnInit() {
+  async ngOnInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    if (!userId) {
+      throw new Error("User ID not found");
+    }
+
     this.organization$ = this.route.params.pipe(
       switchMap((params) =>
-        this.accountService.activeAccount$.pipe(
-          switchMap((account) =>
-            this.organizationService
-              .organizations$(account?.id)
-              .pipe(getOrganizationById(params.organizationId)),
-          ),
+        this.organizationService.organizations$(userId).pipe(
+          getOrganizationById(params.organizationId),
+          // Filter out undefined values
+          takeWhile((org: Organization | undefined) => !!org),
         ),
       ),
     );
@@ -263,7 +267,9 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
       .subscribe((integrations) => {
         integrations.map((integration) => {
           const item = this.integrationsList.find((i) => i.name === integration.serviceType);
-          item.organizationIntegration = integration;
+          if (item) {
+            item.organizationIntegration = integration;
+          }
         });
       });
   }

@@ -119,7 +119,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   }
 
   showConnectedBadge(): boolean {
-    return this.canSetupConnection;
+    return this.canSetupConnection ?? false;
   }
 
   isUpdateAvailable(): boolean {
@@ -143,10 +143,18 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
 
     try {
       if (this.isUpdateAvailable()) {
+        const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
+        const orgIntegrationConfigurationId =
+          this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+
+        if (!orgIntegrationId || !orgIntegrationConfigurationId) {
+          throw Error("Organization Integration ID or Configuration ID is missing");
+        }
+
         await this.hecOrganizationIntegrationService.updateHec(
           this.organizationId,
-          this.integrationSettings.organizationIntegration.id,
-          this.integrationSettings.organizationIntegration.integrationConfiguration[0].id,
+          orgIntegrationId,
+          orgIntegrationConfigurationId,
           this.integrationSettings.name as OrganizationIntegrationServiceType,
           result.url,
           result.bearerToken,

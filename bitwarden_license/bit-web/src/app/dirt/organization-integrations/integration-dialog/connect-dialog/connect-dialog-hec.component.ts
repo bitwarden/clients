@@ -44,9 +44,11 @@ export class ConnectHecDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.hecConfig =
-      this.connectInfo.settings.organizationIntegration?.getConfiguration<HecConfiguration>();
+      this.connectInfo.settings.organizationIntegration?.getConfiguration<HecConfiguration>() ??
+      null;
     this.hecTemplate =
-      this.connectInfo.settings.organizationIntegration?.integrationConfiguration?.[0]?.getTemplate<HecTemplate>();
+      this.connectInfo.settings.organizationIntegration?.integrationConfiguration?.[0]?.getTemplate<HecTemplate>() ??
+      null;
 
     this.formGroup.patchValue({
       url: this.hecConfig?.uri || "",
