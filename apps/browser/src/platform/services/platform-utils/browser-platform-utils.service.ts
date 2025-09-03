@@ -145,6 +145,22 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return false;
   }
 
+  isWindowsStore(): boolean {
+    return false;
+  }
+
+  isFlatpak(): boolean {
+    return false;
+  }
+
+  isSnapStore(): boolean {
+    return false;
+  }
+
+  isAppImage(): boolean {
+    return false;
+  }
+
   /**
    * Identifies if the vault popup is currently open. This is done by sending a
    * message to the popup and waiting for a response. If a response is received,
