@@ -41,8 +41,11 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
+import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -77,13 +80,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
   UnsupportedWebPushConnectionService,
   WebPushConnectionService,
-} from "@bitwarden/common/platform/notifications/internal";
+} from "@bitwarden/common/platform/server-notifications/internal";
 import { AppIdService as DefaultAppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -92,10 +94,7 @@ import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-/* eslint-disable import/no-restricted-paths -- Implementation for memory storage */
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
-import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
-/* eslint-enable import/no-restricted-paths -- Implementation for memory storage */
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import {
   DefaultThemeStateService,
@@ -109,6 +108,7 @@ import {
   BiometricsService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
+import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 
@@ -185,7 +185,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: OBSERVABLE_MEMORY_STORAGE,
-    useClass: MemoryStorageServiceForStateProviders,
+    useClass: SerializedMemoryStorageService,
     deps: [],
   }),
   safeProvider({
@@ -238,9 +238,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ThemeStateService,
-    useFactory: (globalStateProvider: GlobalStateProvider) =>
-      // Web chooses to have Light as the default theme
-      new DefaultThemeStateService(globalStateProvider, ThemeTypes.Light),
+    useClass: DefaultThemeStateService,
     deps: [GlobalStateProvider],
   }),
   safeProvider({
@@ -320,7 +318,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CollectionAdminService,
     useClass: DefaultCollectionAdminService,
-    deps: [ApiService, KeyServiceAbstraction, EncryptService, CollectionService],
+    deps: [
+      ApiService,
+      KeyServiceAbstraction,
+      EncryptService,
+      CollectionService,
+      OrganizationService,
+    ],
   }),
   safeProvider({
     provide: SdkLoadService,
@@ -394,6 +398,11 @@ const safeProviders: SafeProvider[] = [
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: DefaultDeviceManagementComponentService,
     deps: [],
+  }),
+  safeProvider({
+    provide: OrganizationIntegrationApiService,
+    useClass: OrganizationIntegrationApiService,
+    deps: [ApiService],
   }),
 ];
 

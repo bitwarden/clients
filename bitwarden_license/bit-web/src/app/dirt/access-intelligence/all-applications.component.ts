@@ -4,6 +4,7 @@ import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
+import { Security } from "@bitwarden/assets/svg";
 import {
   CriticalAppsService,
   RiskInsightsDataService,
@@ -28,7 +29,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   IconButtonModule,
-  Icons,
   NoItemsModule,
   SearchModule,
   TableDataSource,
@@ -64,7 +64,7 @@ export class AllApplicationsComponent implements OnInit {
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
   protected organization = new Organization();
-  noItemsIcon = Icons.Security;
+  noItemsIcon = Security;
   protected markingAsCritical = false;
   protected applicationSummary: ApplicationHealthReportSummary = {
     totalMemberCount: 0,

@@ -9,13 +9,26 @@ import {
   OnDestroy,
   ViewChild,
 } from "@angular/core";
-import { Observable, Subject, combineLatest, takeUntil } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+// eslint-disable-next-line no-restricted-imports
+import {
+  OrganizationIntegrationType,
+  OrganizationIntegrationRequest,
+  OrganizationIntegrationResponse,
+  OrganizationIntegrationApiService,
+} from "@bitwarden/bit-common/dirt/integrations/index";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../../../shared/shared.module";
+import { openHecConnectDialog } from "../integration-dialog/index";
+import { Integration } from "../models";
 
 @Component({
   selector: "app-integration-card",
@@ -30,6 +43,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   @Input() image: string;
   @Input() imageDarkMode?: string;
   @Input() linkURL: string;
+  @Input() integrationSettings: Integration;
 
   /** Adds relevant `rel` attribute to external links */
   @Input() externalURL?: boolean;
@@ -49,6 +63,11 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     private themeStateService: ThemeStateService,
     @Inject(SYSTEM_THEME_OBSERVABLE)
     private systemTheme$: Observable<ThemeType>,
+    private dialogService: DialogService,
+    private activatedRoute: ActivatedRoute,
+    private apiService: OrganizationIntegrationApiService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {}
 
   ngAfterViewInit() {
@@ -101,9 +120,58 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     return this.isConnected !== undefined;
   }
 
-  setupConnection(app: string) {
-    // This method can be used to handle the connection logic for the integration
-    // For example, it could open a modal or redirect to a setup page
-    this.isConnected = !this.isConnected; // Toggle connection state for demonstration
+  async setupConnection() {
+    // invoke the dialog to connect the integration
+    const dialog = openHecConnectDialog(this.dialogService, {
+      data: {
+        settings: this.integrationSettings,
+      },
+    });
+
+    const result = await lastValueFrom(dialog.closed);
+
+    // the dialog was cancelled
+    if (!result || !result.success) {
+      return;
+    }
+
+    // save the integration
+    try {
+      const dbResponse = await this.saveHecIntegration(result.configuration);
+      this.isConnected = !!dbResponse.id;
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("failedToSaveIntegration"),
+      });
+      return;
+    }
+  }
+
+  async saveHecIntegration(configuration: string): Promise<OrganizationIntegrationResponse> {
+    const organizationId = this.activatedRoute.snapshot.paramMap.get(
+      "organizationId",
+    ) as OrganizationId;
+
+    const request = new OrganizationIntegrationRequest(
+      OrganizationIntegrationType.Hec,
+      configuration,
+    );
+
+    const integrations = await this.apiService.getOrganizationIntegrations(organizationId);
+    const existingIntegration = integrations.find(
+      (i) => i.type === OrganizationIntegrationType.Hec,
+    );
+
+    if (existingIntegration) {
+      return await this.apiService.updateOrganizationIntegration(
+        organizationId,
+        existingIntegration.id,
+        request,
+      );
+    } else {
+      return await this.apiService.createOrganizationIntegration(organizationId, request);
+    }
   }
 }

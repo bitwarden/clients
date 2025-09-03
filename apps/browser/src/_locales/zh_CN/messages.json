@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "此浏览器无法处理此弹出窗口中的 U2F 请求。您想要在新窗口中打开此弹出窗口吗？"
   },
-  "enableFavicon": {
-    "message": "显示网站图标"
-  },
-  "faviconDesc": {
-    "message": "在每个登录项目旁边显示一个可识别的图像。"
-  },
-  "faviconDescAlt": {
-    "message": "在每个登录的旁边显示一个可识别的图像。适用于所有已登录的账户。"
+  "showIconsChangePasswordUrls": {
+    "message": "显示网站图标并检索更改密码的 URL"
   },
   "enableBadgeCounter": {
     "message": "显示角标计数器"
@@ -3657,25 +3651,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "此请求已失效。"
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "您正在尝试访问您的账户吗？"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "已确认 $EMAIL$ 在 $DEVICE$ 上的登录",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "登录请求已过期。"
   },
@@ -4150,15 +4125,11 @@
   "selectImportCollection": {
     "message": "选择一个集合"
   },
-  "importTargetHint": {
-    "message": "如果您希望将导入的文件内容移动到某个 $DESTINATION$，请选择此选项",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "如果希望将导入的文件内容移动到集合中，请选择此选项"
+  },
+  "importTargetHintFolder": {
+    "message": "如果希望将导入的文件内容移动到文件夹中，请选择此选项"
   },
   "importUnassignedItemsError": {
     "message": "文件包含未分配项目。"
@@ -5136,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "在扩展图标上显示自动填充建议的登录数量"
   },
+  "accountAccessRequested": {
+    "message": "已请求账户访问"
+  },
+  "confirmAccessAttempt": {
+    "message": "确认 $EMAIL$ 的访问尝试",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "在密码库上显示快速复制操作"
   },
@@ -5586,11 +5569,27 @@
     "message": "点击「生成密码」按钮，轻松创建强大且唯一的密码，帮助您保持登录安全。",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "关于此设置"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden 将使用保存的登录 URI 来识别应使用哪个图标或更改密码 URL 来改善您的体验。 使用此服务时没有收集或保存任何信息。"
+  },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
   },
   "wasmNotSupported": {
     "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。使用 Bitwarden App 需要 WebAssembly。",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "显示更多"
+  },
+  "showLess": {
+    "message": "显示更少"
+  },
+  "moreBreadcrumbs": {
+    "message": "进一步的指引",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

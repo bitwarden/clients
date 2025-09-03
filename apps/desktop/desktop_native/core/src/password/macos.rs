@@ -4,22 +4,26 @@ use security_framework::passwords::{
     delete_generic_password, get_generic_password, set_generic_password,
 };
 
+#[allow(clippy::unused_async)]
 pub async fn get_password(service: &str, account: &str) -> Result<String> {
     let password = get_generic_password(service, account).map_err(convert_error)?;
     let result = String::from_utf8(password)?;
     Ok(result)
 }
 
+#[allow(clippy::unused_async)]
 pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
     set_generic_password(service, account, password.as_bytes())?;
     Ok(())
 }
 
+#[allow(clippy::unused_async)]
 pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     delete_generic_password(service, account).map_err(convert_error)?;
     Ok(())
 }
 
+#[allow(clippy::unused_async)]
 pub async fn is_available() -> Result<bool> {
     Ok(true)
 }

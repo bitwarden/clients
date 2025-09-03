@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
@@ -27,12 +25,12 @@ import { PopoverComponent } from "./popover.component";
 export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   readonly popoverOpen = model(false);
 
-  readonly popover = input<PopoverComponent>(undefined, { alias: "bitPopoverTriggerFor" });
+  readonly popover = input.required<PopoverComponent>({ alias: "bitPopoverTriggerFor" });
 
   readonly position = input<string>();
 
-  private overlayRef: OverlayRef;
-  private closedEventsSub: Subscription;
+  private overlayRef: OverlayRef | null = null;
+  private closedEventsSub: Subscription | null = null;
 
   get positions() {
     if (!this.position()) {
@@ -82,7 +80,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
     this.popoverOpen.set(true);
     this.overlayRef = this.overlay.create(this.defaultPopoverConfig);
 
-    const templatePortal = new TemplatePortal(this.popover().templateRef, this.viewContainerRef);
+    const templatePortal = new TemplatePortal(this.popover().templateRef(), this.viewContainerRef);
 
     this.overlayRef.attach(templatePortal);
     this.closedEventsSub = this.getClosedEvents().subscribe(() => {
@@ -91,6 +89,10 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   }
 
   private getClosedEvents(): Observable<any> {
+    if (!this.overlayRef) {
+      throw new Error("Overlay reference is not available");
+    }
+
     const detachments = this.overlayRef.detachments();
     const escKey = this.overlayRef
       .keydownEvents()
@@ -102,7 +104,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   }
 
   private destroyPopover() {
-    if (this.overlayRef == null || !this.popoverOpen()) {
+    if (!this.overlayRef || !this.popoverOpen()) {
       return;
     }
 
@@ -112,7 +114,9 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
 
   private disposeAll() {
     this.closedEventsSub?.unsubscribe();
+    this.closedEventsSub = null;
     this.overlayRef?.dispose();
+    this.overlayRef = null;
   }
 
   ngAfterViewInit() {

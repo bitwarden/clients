@@ -1,5 +1,6 @@
 import { EMPTY, catchError, firstValueFrom, map } from "rxjs";
 
+import { UserKey } from "@bitwarden/common/types/key";
 import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   CipherListView,
@@ -8,7 +9,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
-import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
+import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, OrganizationId } from "../../types/guid";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherType } from "../enums";
@@ -38,7 +39,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
@@ -73,11 +74,44 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
-            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
           };
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to move cipher to organization: ${error}`);
+          return EMPTY;
+        }),
+      ),
+    );
+  }
+
+  async encryptCipherForRotation(
+    model: CipherView,
+    userId: UserId,
+    newKey: UserKey,
+  ): Promise<EncryptionContext | undefined> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map((sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+          const sdkCipherView = this.toSdkCipherView(model, ref.value);
+
+          const encryptionContext = ref.value
+            .vault()
+            .ciphers()
+            .encrypt_cipher_for_rotation(sdkCipherView, newKey.toBase64());
+
+          return {
+            cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
+            encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+          };
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to rotate cipher data: ${error}`);
           return EMPTY;
         }),
       ),

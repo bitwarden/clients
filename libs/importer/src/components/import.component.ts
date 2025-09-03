@@ -23,7 +23,6 @@ import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/opera
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
@@ -36,6 +35,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -279,7 +279,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.collections$ = Utils.asyncToObservable(() =>
       this.importCollectionService
-        .getAllAdminCollections(this.organizationId)
+        .getAllAdminCollections(this.organizationId, userId)
         .then((collections) => collections.sort(Utils.getSortFunction(this.i18nService, "name"))),
     );
 

@@ -124,48 +124,49 @@
     <value>无论是在家中、工作中还是在旅途中，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>被 PCMag、WIRED、The Verge、CNET、G2 等评为最佳的密码管理器！
+    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
 
-保护您的数字生活
-通过为每个账户生成并保存唯一而强大的密码，保护您的数字生活并防止数据泄露。所有内容保存在只有您可以访问的端对端加密的密码库中。
+SECURE YOUR DIGITAL LIFE
+Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
 
-随时随地在任何设备上访问您的数据
-不受任何限制，跨无限数量的设备，轻松地管理、存储、保护和分享不限数量的密码。
+ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
+Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
 
-每个人都应该拥有的保持在线安全的工具
-使用 Bitwarden 是免费的，没有广告，不会出售数据。Bitwarden 相信每个人都应该拥有保持在线安全的能力。高级计划提供了对高级功能的访问。
+EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
+Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
 
-使用 Bitwarden 为您的团队提供支持
-团队计划和企业计划具有专业的商业功能。例如 SSO 集成、自托管、目录集成，以及 SCIM 配置、全局策略、API 访问、事件日志等。
+EMPOWER YOUR TEAMS WITH BITWARDEN
+Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
 
-使用 Bitwarden 保护您的劳动成果，并与同事共享敏感信息。
+Use Bitwarden to secure your workforce and share sensitive information with colleagues.
 
 
-选择 Bitwarden 的更多理由：
+More reasons to choose Bitwarden:
 
-世界级加密
-密码受到先进的端对端加密（AES-256 位、加盐哈希标签和 PBKDF2 SHA-256）保护，使您的数据保持安全和私密。
+World-Class Encryption
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
 
-第三方审计
-Bitwarden 定期与知名的安全公司进行全面的第三方安全审计。这些年度审计包括对 Bitwarden IP、服务器和 Web 应用程序的源代码评估和渗透测试。
+3rd-party Audits
+Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
 
-高级 2FA
-使用第三方验证器、电子邮件代码或 FIDO2 WebAuthn 凭据（例如硬件安全密钥或通行密钥）保护您的登录。
+Advanced 2FA
+Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
 
 Bitwarden Send
-直接传输数据给他人，同时保持端对端加密的安全性并防止暴露。
+Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
 
-内置生成器
-为您访问的每个网站创建足够长、足够复杂且唯一的密码和用户名。与电子邮件别名提供商集成，增加隐私保护。
+Built-in Generator
+Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
 
-全球翻译
-Bitwarden 的翻译涵盖 60 多种语言，由全球社区使用 Crowdin 翻译。
+Global Translations
+Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
 
-跨平台应用程序
-从任何浏览器、移动设备或桌面操作系统中安全地访问和共享 Bitwarden 密码库中的敏感数据。
+Cross-Platform Applications
+Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
 
-Bitwarden 保护的不仅仅是密码
-Bitwarden 的端对端加密凭据管理解决方案使组织能够保护所有内容，包括开发人员机密和通行密钥体验。访问 Bitwarden.com 进一步了解 Bitwarden Secrets Manager 和 Bitwarden Passwordless.dev！</value>
+Bitwarden secures more than just passwords
+End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
     <value>无论是在家中、工作中还是在旅途中，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。</value>

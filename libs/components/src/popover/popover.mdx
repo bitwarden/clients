@@ -26,6 +26,13 @@ page.
 
 <Primary />
 
+## Implementation Notes
+
+The popover should have even spacing above and below the content. If you are using element(s) inside
+the popover that have built-in bottom margin, please remove the bottom margin on the last element.
+
+<Canvas of={stories.OpenLongTitle} />
+
 ## Open on Page Load
 
 A Popover can be set to initially open on page load by setting `[popoverOpen]="true"` on the trigger

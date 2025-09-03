@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -47,6 +48,7 @@ describe("LoginDetailsSectionComponent", () => {
     getInitialCipherView.mockClear();
     cipherFormContainer = mock<CipherFormContainer>({
       getInitialCipherView,
+      formStatusChange$: new BehaviorSubject<"enabled" | "disabled">("enabled"),
       website: "example.com",
     });
 

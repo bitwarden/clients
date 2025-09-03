@@ -155,10 +155,10 @@ export class Login extends Domain {
   toSdkLogin(): SdkLogin {
     return {
       uris: this.uris?.map((u) => u.toSdkLoginUri()),
-      username: this.username?.toJSON(),
-      password: this.password?.toJSON(),
+      username: this.username?.toSdk(),
+      password: this.password?.toSdk(),
       passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
-      totp: this.totp?.toJSON(),
+      totp: this.totp?.toSdk(),
       autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
       fido2Credentials: this.fido2Credentials?.map((f) => f.toSdkFido2Credential()),
     };

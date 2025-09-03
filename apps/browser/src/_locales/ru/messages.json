@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Этот браузер не может обрабатывать запросы U2F в этом всплывающем окне. Вы хотите открыть это всплывающее окно в новом окне, чтобы иметь возможность войти в систему, используя U2F?"
   },
-  "enableFavicon": {
-    "message": "Показать значки сайтов"
-  },
-  "faviconDesc": {
-    "message": "Отображать узнаваемое изображение рядом с каждым логином."
-  },
-  "faviconDescAlt": {
-    "message": "Показывать узнаваемое изображение рядом с каждым логином. Применяется ко всем авторизованным аккаунтам."
+  "showIconsChangePasswordUrls": {
+    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
   "enableBadgeCounter": {
     "message": "Показать счетчик на значке"
@@ -3657,25 +3651,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Этот запрос больше не действителен."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Вход подтвержден для $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Вы отклонили попытку авторизации с другого устройства. Если это действительно были вы, попробуйте авторизоваться с этого устройства еще раз."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Запрос на вход истек."
   },
@@ -3798,7 +3773,7 @@
     "message": "В целях обеспечения безопасности вашего аккаунта продолжайте только в том случае, если вы являетесь членом этой организации, у вас включено восстановление аккаунта, а отображаемый ниже отпечаток совпадает с отпечатком организации."
   },
   "orgTrustWarning1": {
-    "message": "В этой организации действует политика, которая позволит вам участвовать в восстановлении аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте, только если вы знаете эту организацию и фраза отпечатков, показанная ниже, совпадает с отпечатками организации."
+    "message": "Эта организация имеет корпоративную политику, которая зарегистрирует вас в системе восстановления аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте только в том случае, если вы узнаете эту организацию и фраза отпечатка, отображаемая ниже, соответствует отпечатку организации."
   },
   "trustUser": {
     "message": "Доверенный пользователь"
@@ -4150,15 +4125,11 @@
   "selectImportCollection": {
     "message": "Выберите коллекцию"
   },
-  "importTargetHint": {
-    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
+  },
+  "importTargetHintFolder": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
@@ -5136,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Показывать количество вариантов автозаполнения логина на значке расширения"
   },
+  "accountAccessRequested": {
+    "message": "Запрошен доступ к аккаунту"
+  },
+  "confirmAccessAttempt": {
+    "message": "Подтвердить попытку доступа $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Показать быстрые действия копирования в хранилище"
   },
@@ -5245,7 +5228,7 @@
     "message": "Установить PIN--код разблокировки"
   },
   "unlockWithBiometricSet": {
-    "message": "Разблокировать с помощью биометрии"
+    "message": "Разблокировка с помощью биометрии настроена"
   },
   "authenticating": {
     "message": "Аутентификация"
@@ -5586,11 +5569,27 @@
     "message": "Легко создавайте надежные и уникальные пароли, нажатием на кнопку 'Сгенерировать пароль', чтобы обеспечить безопасность ваших логинов.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Об этой настройке"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
+  },
   "noPermissionsViewPage": {
     "message": "У вас нет прав для просмотра этой страницы. Попробуйте авторизоваться под другим аккаунтом."
   },
   "wasmNotSupported": {
     "message": "WebAssembly не поддерживается вашим браузером или не включен. WebAssembly необходим для использования приложения Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Больше"
+  },
+  "showLess": {
+    "message": "Меньше"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

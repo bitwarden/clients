@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import {
   getOrganizationById,
@@ -10,6 +10,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
@@ -19,8 +20,8 @@ export class ResetPasswordPolicy extends BasePolicy {
   type = PolicyType.ResetPassword;
   component = ResetPasswordPolicyComponent;
 
-  display(organization: Organization) {
-    return organization.useResetPassword;
+  display(organization: Organization, configService: ConfigService) {
+    return of(organization.useResetPassword);
   }
 }
 
@@ -50,6 +51,10 @@ export class ResetPasswordPolicyComponent extends BasePolicyComponent implements
 
     if (!userId) {
       throw new Error("No user found.");
+    }
+
+    if (!this.policyResponse) {
+      throw new Error("Policies not found");
     }
 
     const organization = await firstValueFrom(

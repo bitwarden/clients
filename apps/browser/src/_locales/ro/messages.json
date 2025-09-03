@@ -398,7 +398,7 @@
     "message": "Numele folderului"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Grupează un folder prin adăugarea numelui folderului părinte urmat de \"/\" Exemplu: Social/Forums"
   },
   "noFoldersAdded": {
     "message": "No folders added"
@@ -890,7 +890,7 @@
     "message": "Follow the steps below to finish logging in."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Urmează pașii de mai jos pentru a finaliza autentificarea cu cheia de securitate."
   },
   "restartRegistration": {
     "message": "Reporniți înregistrarea"
@@ -932,7 +932,7 @@
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Continuați în aplicația web?"
   },
   "editedFolder": {
     "message": "Dosar salvat"
@@ -1049,7 +1049,7 @@
     "message": "Click items to autofill on Vault view"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Faceți clic pe elementele din sugestia de completare automată pentru a completa"
   },
   "clearClipboard": {
     "message": "Golire clipboard",
@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Acest browser nu poate procesa cererile U2F în această fereastră pop-up. Doriți să deschideți acest pop-up într-o fereastră nouă, astfel încât să vă puteți conecta utilizând U2F?"
   },
-  "enableFavicon": {
-    "message": "Afișați pictogramele site-ului web"
-  },
-  "faviconDesc": {
-    "message": "Afișează o imagine ușor de recunoscut lângă fiecare autentificare."
-  },
-  "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Afișați contorul de insigne"
@@ -3657,25 +3651,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
@@ -4150,15 +4125,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -5136,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
@@ -5586,11 +5569,27 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

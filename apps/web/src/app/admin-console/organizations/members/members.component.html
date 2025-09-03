@@ -106,7 +106,7 @@
                 type="button"
                 bitIconButton="bwi-ellipsis-v"
                 size="small"
-                appA11yTitle="{{ 'options' | i18n }}"
+                label="{{ 'options' | i18n }}"
                 *ngIf="showUserManagementControls$ | async"
               ></button>
 
@@ -326,7 +326,7 @@
               </td>
             </ng-template>
 
-            <td bitCell class="tw-text-muted">
+            <td bitCell class="tw-text-muted tw-space-x-2">
               <ng-container *ngIf="u.twoFactorEnabled">
                 <i
                   class="bwi bwi-lock"
@@ -350,7 +350,7 @@
                 type="button"
                 bitIconButton="bwi-ellipsis-v"
                 size="small"
-                appA11yTitle="{{ 'options' | i18n }}"
+                label="{{ 'options' | i18n }}"
               ></button>
 
               <bit-menu #rowMenu>
