@@ -17,8 +17,7 @@ export enum FeatureFlag {
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
-  EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
-  UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
+  NotificationRefresh = "notification-refresh",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
 
@@ -73,8 +72,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
-  [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
+  [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
