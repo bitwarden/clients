@@ -39,7 +39,7 @@ const scrollableContentObservable$ = (
   threshold: HasScrollableContentOptions["threshold"] = 1,
 ): Observable<boolean> => {
   const intersectionObserver$ = intersection$(target, { root, threshold });
-  const resizeObserver$ = resize$(root, target);
+  const resizeObserver$ = resize$(root, target).pipe(map(() => null));
 
   return merge(intersectionObserver$, resizeObserver$).pipe(
     startWith(null as IntersectionObserverEntry | null),
