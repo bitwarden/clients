@@ -7,7 +7,6 @@ import { KeyService } from "@bitwarden/key-management";
 import { makeStaticByteArray, mockEnc } from "../../../../../spec";
 import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "../../../../platform/services/container.service";
 import { UserKey } from "../../../../types/key";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
@@ -121,8 +120,6 @@ describe("Send", () => {
       .mockResolvedValue(makeStaticByteArray(32));
     keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
     keyService.getUserKey.mockResolvedValue(userKey);
-
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
     const view = await send.decrypt();
 

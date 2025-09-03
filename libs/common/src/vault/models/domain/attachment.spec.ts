@@ -8,7 +8,6 @@ import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "../../../platform/services/container.service";
 import { OrgKey, UserKey } from "../../../types/key";
 import { AttachmentData } from "../../models/data/attachment.data";
 import { Attachment } from "../../models/domain/attachment";
@@ -66,8 +65,6 @@ describe("Attachment", () => {
     beforeEach(() => {
       keyService = mock<KeyService>();
       encryptService = mock<EncryptService>();
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
     });
 
     it("expected output", async () => {

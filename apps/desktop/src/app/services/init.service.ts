@@ -14,7 +14,6 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwar
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
@@ -88,9 +87,6 @@ export class InitService {
       this.themingService.applyThemeChangesTo(this.document);
 
       this.versionService.init();
-
-      const containerService = new ContainerService(this.keyService, this.encryptService);
-      containerService.attachToGlobal(this.win);
 
       await this.autofillService.init();
       await this.autotypeService.init();

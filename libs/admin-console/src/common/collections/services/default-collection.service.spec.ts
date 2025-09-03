@@ -6,7 +6,6 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import {
   FakeStateProvider,
   makeEncString,
@@ -52,8 +51,6 @@ describe("DefaultCollectionService", () => {
         Promise.resolve(encString.data.replace("ENC_", "DEC_")),
       );
 
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
     // Arrange i18nService so that sorting algorithm doesn't throw
     i18nService.collator = null;
 
@@ -63,10 +60,6 @@ describe("DefaultCollectionService", () => {
       i18nService,
       stateProvider,
     );
-  });
-
-  afterEach(() => {
-    delete (window as any).bitwardenContainerService;
   });
 
   describe("decryptedCollections$", () => {

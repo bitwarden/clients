@@ -2,9 +2,6 @@ import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
 import {
   CipherType as SdkCipherType,
   UriMatchType,
@@ -18,7 +15,6 @@ import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/uti
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../abstractions/cipher.service";
@@ -97,13 +93,10 @@ describe("Cipher DTO", () => {
     login.decrypt.mockResolvedValue(loginView);
     cipher.login = login;
 
-    const keyService = mock<KeyService>();
     const encryptService = mock<EncryptService>();
     const cipherService = mock<CipherService>();
 
     encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("Failed to unwrap key"));
-
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
     const cipherView = await cipher.decrypt(
       await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -315,15 +308,12 @@ describe("Cipher DTO", () => {
       login.decrypt.mockResolvedValue(loginView);
       cipher.login = login;
 
-      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -438,15 +428,12 @@ describe("Cipher DTO", () => {
       cipher.key = mockEnc("EncKey");
       cipher.permissions = new CipherPermissionsApi();
 
-      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -579,15 +566,12 @@ describe("Cipher DTO", () => {
       card.decrypt.mockResolvedValue(cardView);
       cipher.card = card;
 
-      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -744,15 +728,12 @@ describe("Cipher DTO", () => {
       identity.decrypt.mockResolvedValue(identityView);
       cipher.identity = identity;
 
-      const keyService = mock<KeyService>();
       const encryptService = mock<EncryptService>();
       const cipherService = mock<CipherService>();
 
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const cipherView = await cipher.decrypt(
         await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),

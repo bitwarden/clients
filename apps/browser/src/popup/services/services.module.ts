@@ -99,7 +99,6 @@ import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
@@ -253,35 +252,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: KeyService,
-    useFactory: (
-      pinService: PinServiceAbstraction,
-      masterPasswordService: InternalMasterPasswordServiceAbstraction,
-      keyGenerationService: KeyGenerationService,
-      cryptoFunctionService: CryptoFunctionService,
-      encryptService: EncryptService,
-      platformUtilsService: PlatformUtilsService,
-      logService: LogService,
-      stateService: StateService,
-      accountService: AccountServiceAbstraction,
-      stateProvider: StateProvider,
-      kdfConfigService: KdfConfigService,
-    ) => {
-      const keyService = new DefaultKeyService(
-        pinService,
-        masterPasswordService,
-        keyGenerationService,
-        cryptoFunctionService,
-        encryptService,
-        platformUtilsService,
-        logService,
-        stateService,
-        accountService,
-        stateProvider,
-        kdfConfigService,
-      );
-      new ContainerService(keyService, encryptService).attachToGlobal(self);
-      return keyService;
-    },
+    useClass: DefaultKeyService,
     deps: [
       PinServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,

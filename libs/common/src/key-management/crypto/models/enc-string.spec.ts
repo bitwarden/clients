@@ -7,7 +7,6 @@ import { KeyService } from "@bitwarden/key-management";
 import { makeStaticByteArray } from "../../../../spec";
 import { EncryptionType } from "../../../platform/enums";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "../../../platform/services/container.service";
 import { UserKey, OrgKey } from "../../../types/key";
 import { EncryptService } from "../abstractions/encrypt.service";
 
@@ -91,13 +90,6 @@ describe("EncString", () => {
       encryptService.decryptString
         .calledWith(encString, expect.anything())
         .mockResolvedValue("decrypted");
-
-      beforeEach(() => {
-        (window as any).bitwardenContainerService = new ContainerService(
-          keyService,
-          encryptService,
-        );
-      });
 
       it("decrypts correctly", async () => {
         const decrypted = await encString.decrypt(null);
@@ -258,14 +250,10 @@ describe("EncString", () => {
       keyService = mock<KeyService>();
       encryptService = mock<EncryptService>();
       encString = new EncString(null);
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
     });
 
     it("handles value it can't decrypt", async () => {
       encryptService.decryptString.mockRejectedValue("error");
-
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
       const decrypted = await encString.decrypt(null);
 

@@ -96,7 +96,6 @@ import {
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
-import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
@@ -233,7 +232,6 @@ export class ServiceContainer {
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   totpService: TotpService;
-  containerService: ContainerService;
   auditService: AuditService;
   importService: ImportServiceAbstraction;
   importApiService: ImportApiServiceAbstraction;
@@ -506,8 +504,6 @@ export class ServiceContainer {
       this.vaultTimeoutSettingsService,
       customUserAgent,
     );
-
-    this.containerService = new ContainerService(this.keyService, this.encryptService);
 
     this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
 
@@ -916,7 +912,6 @@ export class ServiceContainer {
     await this.storageService.init();
 
     await this.migrationRunner.run();
-    this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
 

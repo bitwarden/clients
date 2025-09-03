@@ -7,7 +7,6 @@ import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { makeStaticByteArray, mockEnc } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -55,7 +54,6 @@ function setupUserKeyValidation(
     new SymmetricCryptoKey(makeStaticByteArray(64)),
   );
   encryptService.decryptString.mockResolvedValue("mockDecryptedString");
-  (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 }
 
 describe("regenerateIfNeeded", () => {

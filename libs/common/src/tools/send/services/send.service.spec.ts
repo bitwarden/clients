@@ -19,7 +19,6 @@ import { EnvironmentService } from "../../../platform/abstractions/environment.s
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "../../../platform/services/container.service";
 import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -66,8 +65,6 @@ describe("SendService", () => {
       configurable: true,
       get: () => of(new SelfHostedEnvironment({ webVault: "https://example.com" })),
     });
-
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
     accountService.activeAccountSubject.next({
       id: mockUserId,
