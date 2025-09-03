@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Общо приложения"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Премахване на приложението от важните"
+  "unmarkAsCritical": {
+    "message": "Премахване от важните"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Приложението е премахнато от важните"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Копиране на номера на свидетелството"
   },
+  "copyPrivateKey": {
+    "message": "Копиране на частния ключ"
+  },
+  "copyPublicKey": {
+    "message": "Копиране на публичния ключ"
+  },
+  "copyFingerprint": {
+    "message": "Копиране на отпечатъка"
+  },
   "copyName": {
     "message": "Копиране на името"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Код за възстановяване"
   },
+  "invalidRecoveryCode": {
+    "message": "Грешен код за възстановяване"
+  },
   "authenticatorAppTitle": {
     "message": "Приложение за удостоверяване"
   },
@@ -2050,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
-  "importTargetHint": {
-    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
+  },
+  "importTargetHintFolder": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -2106,11 +2114,8 @@
   "languageDesc": {
     "message": "Смяна на езика на интерфейса. Ще трябва да пуснете програмата повторно."
   },
-  "enableFavicon": {
-    "message": "Показване на иконките на уеб сайтовете"
-  },
-  "faviconDesc": {
-    "message": "Показване на разпознаваемо изображение до всеки запис."
+  "showIconsChangePasswordUrls": {
+    "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
   "default": {
     "message": "Стандартно"
@@ -2820,6 +2825,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Показване на резюме за цените"
+  },
+  "hidePricingSummary": {
+    "message": "Скриване на резюмето за цените"
   },
   "summary": {
     "message": "Обобщено"
@@ -7026,6 +7037,12 @@
   "unknownCipher": {
     "message": "Непознат запис. Може да трябва да се впишете с друга регистрация, за да получите достъп до този запис."
   },
+  "unknownSecret": {
+    "message": "Неизвестна тайна. Може да се нуждаете от правомощие за достъп до тази тайна."
+  },
+  "unknownProject": {
+    "message": "Неизвестен проект. Може да се нуждаете от правомощие за достъп до този проект."
+  },
   "cannotSponsorSelf": {
     "message": "You cannot redeem for the active account. Enter a different email."
   },
@@ -8349,10 +8366,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Изтрита е завинаги тайна с идентификатор: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Възстановена е тайна с идентификатор: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Създадена е нова тайна с идентификатор: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Осъществен е достъп до проект с идентификатор: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Идентификатор на изтрития проект: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Идентификатор на изтритата тайна: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Редактиран е проект с идентификатор: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Изтрит е проект с идентификатор: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Създаден е нов проект с идентификатор: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -10742,6 +10831,9 @@
   "upgradeEventLogMessage": {
     "message": "Тези събития са само за пример и не отразяват истинските събития във Вашата организация."
   },
+  "viewEvents": {
+    "message": "Преглед на събитията"
+  },
   "cannotCreateCollection": {
     "message": "Безплатните организации могат да имат не повече от 2 колекции. Надградете до платен план, ако искате да имате повече колекции."
   },
@@ -10899,6 +10991,12 @@
     "message": "Адресът за таксуване е задължителен за добавянето на средства.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Относно тази настройка"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
+  },
   "billingAddress": {
     "message": "Адрес за фактуриране"
   },
@@ -11009,5 +11107,56 @@
   },
   "showLess": {
     "message": "Показване на по-малко"
+  },
+  "missingTaxId": {
+    "message": "Липсва данъчен идентификатор"
+  },
+  "missingTaxIdWarning": {
+    "message": "Нужно е действие: в данните за разплащането липсва данъчен идентификатор. Ако такъв не бъде добавен, фактурите може да включват допълнителен данък."
+  },
+  "moreBreadcrumbs": {
+    "message": "Още елементи в пътечката",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Добавяне на данъчен идентификатор"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Нужно е действие: липсва данъчен идентификатор"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Ако не бъде добавен данъчен идентификатор, фактурите може да включват допълнителен данък."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Нужно е действие: данъчният идентификатор не е потвърден. Ако той не бъде потвърден, фактурите може да включват допълнителен данък."
+  },
+  "editTaxId": {
+    "message": "Редактиране на данъчния идентификатор"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Данъчният идентификатор не е потвърден"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Проверете своя данъчен идентификатор, за да се уверите, че форматът му е правилен и в него няма грешки."
+  },
+  "pendingVerification": {
+    "message": "Изчаква се потвърждение"
+  },
+  "checkInputFormat": {
+    "message": "Проверете въведеното за грешки."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Примерен формат за $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

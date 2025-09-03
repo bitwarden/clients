@@ -87,6 +87,7 @@ import {
   InternalAccountService,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AnonymousHubService as AnonymousHubServiceAbstraction } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
@@ -104,6 +105,7 @@ import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstract
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -230,27 +232,11 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
-import {
-  ActiveUserAccessor,
-  ActiveUserStateProvider,
-  DefaultStateService,
-  DerivedStateProvider,
-  GlobalStateProvider,
-  SingleUserStateProvider,
-  StateProvider,
-} from "@bitwarden/common/platform/state";
-/* eslint-disable import/no-restricted-paths -- We need the implementations to inject, but generally these should not be accessed */
-import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
-import { DefaultDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/default-derived-state.provider";
-import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
-import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
-import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
-import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
-import { StateEventRunnerService } from "@bitwarden/common/platform/state/state-event-runner.service";
-/* eslint-enable import/no-restricted-paths */
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
+import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications";
+import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import {
   DefaultThemeStateService,
   ThemeStateService,
@@ -329,6 +315,26 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import {
+  ActiveUserStateProvider,
+  DerivedStateProvider,
+  GlobalStateProvider,
+  SingleUserStateProvider,
+  StateEventRegistrarService,
+  StateEventRunnerService,
+  StateProvider,
+} from "@bitwarden/state";
+import {
+  ActiveUserAccessor,
+  DefaultActiveUserStateProvider,
+  DefaultDerivedStateProvider,
+  DefaultGlobalStateProvider,
+  DefaultSingleUserStateProvider,
+  DefaultStateEventRegistrarService,
+  DefaultStateEventRunnerService,
+  DefaultStateProvider,
+  DefaultStateService,
+} from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -746,6 +752,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       LOGOUT_CALLBACK,
       VaultTimeoutSettingsService,
+      AccountService,
       HTTP_OPERATIONS,
     ],
   }),
@@ -926,6 +933,29 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: ActionsService,
+    useClass: UnsupportedActionsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: SystemNotificationsService,
+    useClass: UnsupportedSystemNotificationsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: AuthRequestAnsweringServiceAbstraction,
+    useClass: AuthRequestAnsweringService,
+    deps: [
+      AccountServiceAbstraction,
+      ActionsService,
+      AuthServiceAbstraction,
+      I18nServiceAbstraction,
+      MasterPasswordServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      SystemNotificationsService,
+    ],
+  }),
+  safeProvider({
     provide: ServerNotificationsService,
     useClass: devFlagEnabled("noopNotifications")
       ? NoopServerNotificationsService
@@ -941,6 +971,8 @@ const safeProviders: SafeProvider[] = [
       SignalRConnectionService,
       AuthServiceAbstraction,
       WebPushConnectionService,
+      AuthRequestAnsweringServiceAbstraction,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1127,7 +1159,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ConfigApiServiceAbstraction,
     useClass: ConfigApiService,
-    deps: [ApiServiceAbstraction, TokenServiceAbstraction],
+    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: AnonymousHubServiceAbstraction,
@@ -1246,12 +1278,12 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: StateEventRegistrarService,
-    useClass: StateEventRegistrarService,
+    useClass: DefaultStateEventRegistrarService,
     deps: [GlobalStateProvider, StorageServiceProvider],
   }),
   safeProvider({
     provide: StateEventRunnerService,
-    useClass: StateEventRunnerService,
+    useClass: DefaultStateEventRunnerService,
     deps: [GlobalStateProvider, StorageServiceProvider],
   }),
   safeProvider({
