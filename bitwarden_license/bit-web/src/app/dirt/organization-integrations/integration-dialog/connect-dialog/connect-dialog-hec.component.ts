@@ -58,7 +58,7 @@ export class ConnectHecDialogComponent implements OnInit {
     });
   }
 
-  isUpdateAvailable(): boolean {
+  get isUpdateAvailable(): boolean {
     return !!this.hecConfig;
   }
 

@@ -28,7 +28,7 @@
     </div>
     <ng-container bitDialogFooter>
       <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading">
-        @if (isUpdateAvailable()) {
+        @if (isUpdateAvailable) {
           {{ "update" | i18n }}
         } @else {
           {{ "save" | i18n }}

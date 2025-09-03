@@ -279,7 +279,7 @@ describe("IntegrationCardComponent", () => {
         }),
       });
 
-      jest.spyOn(component, "isUpdateAvailable").mockReturnValue(true);
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
 
       await component.setupConnection();
 
@@ -311,7 +311,7 @@ describe("IntegrationCardComponent", () => {
         }),
       });
 
-      jest.spyOn(component, "isUpdateAvailable").mockReturnValue(false);
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(false);
 
       mockIntegrationService.saveHec.mockResolvedValue(undefined);
 
@@ -337,7 +337,7 @@ describe("IntegrationCardComponent", () => {
         }),
       });
 
-      jest.spyOn(component, "isUpdateAvailable").mockReturnValue(true);
+      jest.spyOn(component, "isUpdateAvailable", "get").mockReturnValue(true);
       mockIntegrationService.updateHec.mockRejectedValue(new Error("fail"));
 
       await component.setupConnection();

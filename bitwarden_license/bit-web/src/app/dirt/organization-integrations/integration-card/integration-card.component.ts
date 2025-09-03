@@ -122,7 +122,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     return this.canSetupConnection ?? false;
   }
 
-  isUpdateAvailable(): boolean {
+  get isUpdateAvailable(): boolean {
     return !!this.integrationSettings.organizationIntegration;
   }
 
@@ -142,7 +142,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     }
 
     try {
-      if (this.isUpdateAvailable()) {
+      if (this.isUpdateAvailable) {
         const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
         const orgIntegrationConfigurationId =
           this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
