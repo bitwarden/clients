@@ -1393,7 +1393,13 @@
     "message": "Lock now"
   },
   "noItemsInList": {
-    "message": "There are no items to list."
+    "message": "No items in the vault"
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "You do not have permission to view all items in this collection."

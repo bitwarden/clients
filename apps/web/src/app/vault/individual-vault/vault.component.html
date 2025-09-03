@@ -71,7 +71,15 @@
       class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
     >
       <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
-      <p>{{ "noItemsInList" | i18n }}</p>
+      <p>
+        {{
+          isSelectedOrgDisabled()
+            ? ("organizationIsDisabled" | i18n)
+            : filter?.type === "trash"
+              ? ("noItemsInTrash" | i18n)
+              : ("noItemsInList" | i18n)
+        }}
+      </p>
       <button
         type="button"
         buttonType="primary"
