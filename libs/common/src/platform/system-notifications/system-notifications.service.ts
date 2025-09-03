@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-// This is currently tailored for chrome extension's api, if safari works
+// This is currently tailored for Chrome extension's api, if Safari works
 // differently where clicking a notification button produces a different
 // identifier we need to reconcile that here.
 export const ButtonLocation = Object.freeze({

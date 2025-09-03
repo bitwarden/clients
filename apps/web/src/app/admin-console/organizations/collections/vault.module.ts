@@ -1,6 +1,5 @@
 import { NgModule } from "@angular/core";
 
-import { LooseComponentsModule } from "../../../shared/loose-components.module";
 import { SharedModule } from "../../../shared/shared.module";
 import { OrganizationBadgeModule } from "../../../vault/individual-vault/organization-badge/organization-badge.module";
 import { ViewComponent } from "../../../vault/individual-vault/view.component";
@@ -16,7 +15,6 @@ import { vNextVaultComponent } from "./vault.component";
   imports: [
     VaultRoutingModule,
     SharedModule,
-    LooseComponentsModule,
     GroupBadgeModule,
     CollectionNameBadgeComponent,
     OrganizationBadgeModule,
