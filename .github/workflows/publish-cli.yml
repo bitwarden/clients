@@ -213,7 +213,7 @@ jobs:
       - name: Install Husky
         run: npm install -g husky
 
-      - name: Install NPM
+      - name: Update NPM
         run: |
           npm install -g npm@latest # npm 11.5.1 or later is required to publish w/ OIDC
           npm --version
