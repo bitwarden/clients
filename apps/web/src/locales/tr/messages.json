@@ -868,13 +868,13 @@
     "message": "Ruhsat numarasını kopyala"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Özel anahtarı kopyala"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Ortak anahtarı kopyala"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Parmak izini kopyala"
   },
   "copyName": {
     "message": "Adı kopyala"
@@ -1515,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Kurtarma kodu"
+  },
+  "invalidRecoveryCode": {
+    "message": "Geçersiz kurtarma kodu"
   },
   "authenticatorAppTitle": {
     "message": "Kimlik doğrulama uygulaması"

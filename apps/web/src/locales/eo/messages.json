@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Rekuperiga Kodo"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Aŭtentiga Programo"
   },
