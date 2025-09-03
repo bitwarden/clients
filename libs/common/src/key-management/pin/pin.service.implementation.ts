@@ -1,17 +1,17 @@
 import { concatMap, firstValueFrom, map } from "rxjs";
 
-import { assertNonNullish } from "@bitwarden/common/auth/utils";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { StateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../auth/abstractions/account.service";
+import { assertNonNullish } from "../../auth/utils";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
 import { LogService } from "../../platform/abstractions/log.service";
+import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { PinKey, UserKey } from "../../types/key";
 import { KeyGenerationService } from "../crypto";
