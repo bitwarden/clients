@@ -43,11 +43,11 @@ export class SwitchComponent implements ControlValueAccessor {
   protected disabled = model(false);
   protected disabledReasonText = input<string | null>(null);
 
-  readonly hintComponent = contentChild<BitHintComponent>(BitHintComponent);
+  private hintComponent = contentChild<BitHintComponent>(BitHintComponent);
 
   private disabledReasonTextId = `bit-switch-disabled-text-${nextId++}`;
 
-  readonly describedByIds = computed(() => {
+  private describedByIds = computed(() => {
     const ids: string[] = [];
 
     if (this.disabledReasonText() && this.disabled()) {
@@ -64,19 +64,33 @@ export class SwitchComponent implements ControlValueAccessor {
   });
 
   // ControlValueAccessor functions
-  onChange: (value: unknown) => void = () => {};
-  onTouched: () => void = () => {};
+  private notifyOnChange: (value: unknown) => void = () => {};
+  private notifyOnTouch: () => void = () => {};
 
   writeValue(value: boolean): void {
     this.selected.set(value);
   }
 
+  onChange(value: boolean): void {
+    this.selected.set(value);
+
+    if (this.notifyOnChange != undefined) {
+      this.notifyOnChange(value);
+    }
+  }
+
+  onTouch() {
+    if (this.notifyOnTouch != undefined) {
+      this.notifyOnTouch();
+    }
+  }
+
   registerOnChange(fn: (value: boolean) => void): void {
-    this.onChange = fn;
+    this.notifyOnChange = fn;
   }
 
   registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
+    this.notifyOnTouch = fn;
   }
 
   setDisabledState(isDisabled: boolean) {
@@ -88,9 +102,8 @@ export class SwitchComponent implements ControlValueAccessor {
 
   protected onInputChange(event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
-    this.writeValue(checked);
     this.onChange(checked);
-    this.onTouched();
+    this.onTouch();
   }
 
   get inputId() {

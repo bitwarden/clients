@@ -48,6 +48,10 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/branch/8UUiry70QWI1VjILxo75GS/Tailwind-Component-Library?m=auto&node-id=30341-13313&t=83S7fjfIUxQJsM2r-1",
     },
+    controls: {
+      // exclude ControlAccessorValue methods
+      exclude: ["registerOnChange", "registerOnTouched", "setDisabledState", "writeValue"],
+    },
   },
 } as Meta<SwitchComponent>;
 
