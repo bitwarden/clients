@@ -1,3 +1,15 @@
+describe("userUnlocked()", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    // Act
+    await sut.userUnlocked(mockUserId);
+
+    // Assert
+    expect(getPinSpy).not.toHaveBeenCalled();
+    expect(setPinSpy).not.toHaveBeenCalled();
+  });
+});
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, filter, firstValueFrom } from "rxjs";
 
@@ -34,6 +46,64 @@ describe("PinService", () => {
   const kdfConfigService = mock<KdfConfigService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const logService = mock<LogService>();
+
+  describe("userUnlocked()", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it("should set up ephemeral PIN on first unlock if needed", async () => {
+      // Arrange
+      jest.spyOn(sut, "getPinLockType").mockResolvedValue("EPHEMERAL");
+      jest.spyOn(sut, "isPinDecryptionAvailable").mockResolvedValue(false);
+      const getPinSpy = jest.spyOn(sut, "getPin").mockResolvedValue(mockPin);
+      const setPinSpy = jest.spyOn(sut, "setPin").mockResolvedValue();
+
+      // Act
+      await sut.userUnlocked(mockUserId);
+
+      // Assert
+      expect(getPinSpy).toHaveBeenCalledWith(mockUserId);
+      expect(setPinSpy).toHaveBeenCalledWith(mockPin, "EPHEMERAL", mockUserId);
+      expect(logService.info).toHaveBeenCalledWith(
+        "[Pin Service] On first unlock: Setting up ephemeral PIN",
+      );
+    });
+
+    it("should migrate legacy persistent PIN if needed", async () => {
+      // Arrange
+      jest.spyOn(sut, "getPinLockType").mockResolvedValue("PERSISTENT");
+      jest
+        .spyOn(sut as any, "getLegacyPinKeyEncryptedUserKeyPersistent")
+        .mockResolvedValue("legacy-key");
+      const getPinSpy = jest.spyOn(sut, "getPin").mockResolvedValue(mockPin);
+      const setPinSpy = jest.spyOn(sut, "setPin").mockResolvedValue();
+
+      // Act
+      await sut.userUnlocked(mockUserId);
+
+      // Assert
+      expect(getPinSpy).toHaveBeenCalledWith(mockUserId);
+      expect(setPinSpy).toHaveBeenCalledWith(mockPin, "PERSISTENT", mockUserId);
+      expect(logService.info).toHaveBeenCalledWith(
+        "[Pin Service] Migrating legacy PIN key to PinProtectedUserKeyEnvelope",
+      );
+    });
+
+    it("should do nothing if no migration or setup is needed", async () => {
+      // Arrange
+      jest.spyOn(sut, "getPinLockType").mockResolvedValue("DISABLED");
+      const getPinSpy = jest.spyOn(sut, "getPin");
+      const setPinSpy = jest.spyOn(sut, "setPin");
+
+      // Act
+      await sut.userUnlocked(mockUserId);
+
+      // Assert
+      expect(getPinSpy).not.toHaveBeenCalled();
+      expect(setPinSpy).not.toHaveBeenCalled();
+    });
+  });
 
   const mockUserId = Utils.newGuid() as UserId;
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
@@ -548,43 +618,6 @@ describe("PinService", () => {
 
       // Assert
       expect(result).toEqual(false);
-    });
-  });
-
-  describe("constructor subscription", () => {
-    let mockGetPin: jest.SpyInstance;
-    let mockSetPin: jest.SpyInstance;
-    let mockGetPinLockType: jest.SpyInstance;
-    let mockIsPinDecryptionAvailable: jest.SpyInstance;
-
-    beforeEach(() => {
-      jest.clearAllMocks();
-      // Mock the methods that will be called in the subscription
-      mockGetPin = jest.spyOn(sut, "getPin");
-      mockSetPin = jest.spyOn(sut, "setPin");
-      mockGetPinLockType = jest.spyOn(sut, "getPinLockType");
-      mockIsPinDecryptionAvailable = jest.spyOn(sut, "isPinDecryptionAvailable");
-    });
-
-    it("should set up ephemeral PIN after first unlock when PIN lock type is EPHEMERAL and decryption is not available", async () => {
-      // Arrange
-      const mockPin = "1234";
-      mockGetPinLockType.mockResolvedValue("EPHEMERAL");
-      mockIsPinDecryptionAvailable.mockResolvedValue(false);
-      mockGetPin.mockResolvedValue(mockPin);
-      mockSetPin.mockResolvedValue(undefined);
-
-      // Act - emit a user key unlock event
-      behaviorSubject.next({ userId: mockUserId, userKey: mockUserKey });
-
-      // Wait for the async operations to complete
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      // Assert
-      expect(mockGetPinLockType).toHaveBeenCalledWith(mockUserId);
-      expect(mockIsPinDecryptionAvailable).toHaveBeenCalledWith(mockUserId);
-      expect(mockGetPin).toHaveBeenCalledWith(mockUserId);
-      expect(mockSetPin).toHaveBeenCalledWith(mockPin, "EPHEMERAL", mockUserId);
     });
   });
 

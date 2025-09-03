@@ -726,6 +726,7 @@ export default class MainBackground {
       this.biometricStateService,
       this.messagingService,
       this.vaultTimeoutSettingsService,
+      this.pinService,
     );
 
     this.apiService = new ApiService(

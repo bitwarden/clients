@@ -66,6 +66,11 @@ export abstract class PinServiceAbstraction {
   abstract decryptUserKeyWithPin(pin: string, userId: UserId): Promise<UserKey | null>;
 
   /**
+   * @deprecated This is not deprecated, but only meant to be called by KeyService. DO NOT USE IT.
+   */
+  abstract userUnlocked(userId: UserId): Promise<void>;
+
+  /**
    * Makes a PinKey from the provided PIN.
    * @deprecated - Note: This is currently re-used by vault exports, which is still permitted but should be refactored out to use a different construct.
    */
