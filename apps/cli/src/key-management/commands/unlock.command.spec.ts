@@ -4,6 +4,8 @@ import { of } from "rxjs";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
+import { MasterPasswordVerificationResponse } from "@bitwarden/common/auth/types/verification";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
@@ -13,7 +15,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { UserKey } from "@bitwarden/common/types/key";
+import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { ConsoleLogService } from "@bitwarden/logging";
 import { UserId } from "@bitwarden/user-core";
@@ -66,6 +68,9 @@ describe("UnlockCommand", () => {
       b64sessionKey,
   );
   expectedSuccessMessage.raw = b64sessionKey;
+
+  // Legacy test data
+  const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -198,6 +203,62 @@ describe("UnlockCommand", () => {
           mockMasterPassword,
         );
         expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
+      });
+    });
+
+    describe("unlock with feature flag off", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockReturnValue(of(false));
+      });
+
+      it("calls decryptUserKeyWithMasterKey successfully", async () => {
+        masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
+        userVerificationService.verifyUserByMasterPassword.mockResolvedValue({
+          masterKey: mockMasterKey,
+        } as MasterPasswordVerificationResponse);
+        masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(mockUserKey);
+
+        const response = await command.run(mockMasterPassword, {});
+
+        expect(response).not.toBeNull();
+        expect(response.success).toEqual(true);
+        expect(response.data).toEqual(expectedSuccessMessage);
+        expect(userVerificationService.verifyUserByMasterPassword).toHaveBeenCalledWith(
+          {
+            type: VerificationType.MasterPassword,
+            secret: mockMasterPassword,
+          },
+          activeAccount.id,
+          activeAccount.email,
+        );
+        expect(masterPasswordService.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
+          mockMasterKey,
+          activeAccount.id,
+        );
+        expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
+      });
+
+      it("returns error response when verifyUserByMasterPassword throws", async () => {
+        masterPasswordUnlockService.unlockWithMasterPassword.mockResolvedValue(mockUserKey);
+        userVerificationService.verifyUserByMasterPassword.mockRejectedValue(
+          new Error("Verification failed"),
+        );
+
+        const response = await command.run(mockMasterPassword, {});
+
+        expect(response).not.toBeNull();
+        expect(response.success).toEqual(false);
+        expect(response.message).toEqual("Verification failed");
+        expect(userVerificationService.verifyUserByMasterPassword).toHaveBeenCalledWith(
+          {
+            type: VerificationType.MasterPassword,
+            secret: mockMasterPassword,
+          },
+          activeAccount.id,
+          activeAccount.email,
+        );
+        expect(masterPasswordService.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
+        expect(keyService.setUserKey).not.toHaveBeenCalled();
       });
     });
   });
