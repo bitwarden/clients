@@ -31,11 +31,6 @@ export class CipherViewLikeUtils {
     return typeof cipher.type === "object" || typeof cipher.type === "string";
   };
 
-  /** @returns true when the given cipher is an instance of {@link CipherView}. */
-  static isCipherView = (cipher: CipherViewLike | Cipher): cipher is CipherView => {
-    return cipher instanceof CipherView;
-  };
-
   /** @returns The login object from the input cipher. If the cipher is not of type Login, returns null. */
   static getLogin = (cipher: CipherViewLike): LoginListView | LoginView | null => {
     if (this.isCipherListView(cipher)) {
@@ -83,6 +78,18 @@ export class CipherViewLikeUtils {
     }
 
     return cipher.isDeleted;
+  };
+
+  /**  @returns `true` when the cipher is not assigned to a collection, `false` otherwise. */
+  static isUnassigned = (cipher: CipherViewLike): boolean => {
+    if (this.isCipherListView(cipher)) {
+      return (
+        cipher.organizationId != null &&
+        (cipher.collectionIds == null || cipher.collectionIds.length === 0)
+      );
+    }
+
+    return cipher.isUnassigned;
   };
 
   /** @returns `true` when the user can assign the cipher to a collection, `false` otherwise. */

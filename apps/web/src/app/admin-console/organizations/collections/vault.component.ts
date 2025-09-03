@@ -605,10 +605,9 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       this.selectedCollection$,
       this.showCollectionAccessRestricted$,
     ]).pipe(
-      take(2), // Only take the emmision from startsWith and the emission from zip.
       map(() => true),
       startWith(false),
-      tap((firstLoadComplete) => this.refreshingSubject$.next(!firstLoadComplete)),
+      take(2), // Only take the emmision from startsWith and the emission from zip.
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -1053,12 +1052,8 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   }
 
   restore = async (c: CipherViewLike): Promise<boolean> => {
-    if (!CipherViewLikeUtils.isCipherView(c)) {
-      throw new Error("CipherViewLike is not a CipherView");
-    }
-
     const organization = await firstValueFrom(this.organization$);
-    if (!c.isDeleted) {
+    if (!CipherViewLikeUtils.isDeleted(c)) {
       return false;
     }
 
@@ -1077,9 +1072,12 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
 
     // Allow restore of an Unassigned Item
     try {
+      if (c.id == null) {
+        throw new Error("Cipher must have an Id to be restored");
+      }
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const organization = await firstValueFrom(this.organization$);
-      const asAdmin = organization.canEditAnyCollection || c.isUnassigned;
+      const asAdmin = organization.canEditAnyCollection || CipherViewLikeUtils.isUnassigned(c);
       await this.cipherService.restoreWithServer(c.id, activeUserId, asAdmin);
       this.toastService.showToast({
         variant: "success",
@@ -1498,7 +1496,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       : this.cipherService.softDeleteWithServer(id, userId, asAdmin);
   }
 
-  protected async repromptCipher(ciphers: CipherView[]) {
+  protected async repromptCipher(ciphers: CipherViewLike[]) {
     const notProtected = !ciphers.find((cipher) => cipher.reprompt !== CipherRepromptType.None);
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());
