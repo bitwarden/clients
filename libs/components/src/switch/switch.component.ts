@@ -64,7 +64,7 @@ export class SwitchComponent implements ControlValueAccessor {
   });
 
   // ControlValueAccessor functions
-  private notifyOnChange: (value: unknown) => void = () => {};
+  private notifyOnChange: (value: boolean) => void = () => {};
   private notifyOnTouch: () => void = () => {};
 
   writeValue(value: boolean): void {
