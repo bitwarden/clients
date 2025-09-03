@@ -786,6 +786,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyService,
       this.stateProvider,
+      this.configService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();

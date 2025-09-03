@@ -602,6 +602,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.keyService,
       this.stateProvider,
+      this.configService,
       customUserAgent,
     );
 
