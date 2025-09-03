@@ -210,7 +210,7 @@ describe("ApiService", () => {
 
       jest.spyOn(sut, "send").mockResolvedValue(mockResponse);
 
-      await sut.getHibpBreach(username);
+      const result = await sut.getHibpBreach(username);
 
       expect(sut.send).toHaveBeenCalledWith(
         "GET",
@@ -219,6 +219,8 @@ describe("ApiService", () => {
         true,
         true,
       );
+      expect(result).toEqual(mockResponse);
+      expect(result).toBeInstanceOf(Array);
     });
   });
 });
