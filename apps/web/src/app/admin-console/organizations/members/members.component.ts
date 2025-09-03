@@ -12,7 +12,6 @@ import {
   map,
   merge,
   Observable,
-  of,
   shareReplay,
   switchMap,
   take,
@@ -116,7 +115,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     () => this.organization()?.canManageUsers ?? false,
   );
   private refreshBillingMetadata$: BehaviorSubject<null> = new BehaviorSubject(null);
-  protected billingMetadata$: Observable<OrganizationBillingMetadataResponse> | undefined;
+  protected billingMetadata$: Observable<OrganizationBillingMetadataResponse>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 66;
@@ -264,6 +263,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
+    // Stripe is slow, so kick this off in the background but without blocking page load.
+    // Anyone who needs it will still await the first emission.
     this.billingMetadata$.pipe(take(1), takeUntilDestroyed()).subscribe();
   }
 
@@ -553,7 +554,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   private async handleInviteDialog(organization: Organization) {
-    const billingMetadata = await firstValueFrom(this.billingMetadata$ ?? of());
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         kind: "Add",
@@ -592,7 +593,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async invite(organization: Organization) {
-    const billingMetadata = await firstValueFrom(this.billingMetadata$ ?? of());
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
     if (
       organization.hasReseller &&
       organization.seats === billingMetadata?.organizationOccupiedSeats
@@ -623,7 +624,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     organization: Organization,
     initialTab: MemberDialogTab = MemberDialogTab.Role,
   ) {
-    const billingMetadata = await firstValueFrom(this.billingMetadata$ ?? of());
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         kind: "Edit",
