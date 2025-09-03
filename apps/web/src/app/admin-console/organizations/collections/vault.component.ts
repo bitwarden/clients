@@ -1078,7 +1078,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const organization = await firstValueFrom(this.organization$);
       const asAdmin = organization.canEditAnyCollection || CipherViewLikeUtils.isUnassigned(c);
-      await this.cipherService.restoreWithServer(c.id, activeUserId, asAdmin);
+      await this.cipherService.restoreWithServer(c.id as CipherId, activeUserId, asAdmin);
       this.toastService.showToast({
         variant: "success",
 
