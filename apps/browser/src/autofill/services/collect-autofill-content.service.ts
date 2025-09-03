@@ -49,6 +49,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private mutationObserver: MutationObserver;
   private mutationsQueue: MutationRecord[][] = [];
   private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
+  private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
@@ -85,6 +86,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @public
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
+    // Set up listeners on top-layer candidates that predate Mutation Observer setup
+    this.setupInitialTopLayerListeners();
+
     if (!this.mutationObserver) {
       this.setupMutationObserver();
     }
@@ -713,7 +717,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private trimAndRemoveNonPrintableText(textContent: string): string {
     return (textContent || "")
-      .replace(/[^\x20-\x7E]+|\s+/g, " ") // Strip out non-primitive characters and replace multiple spaces with a single space
+      .replace(/\p{C}+|\s+/gu, " ") // Strip out non-printable characters and replace multiple spaces with a single space
       .trim(); // Trim leading and trailing whitespace
   }
 
@@ -919,6 +923,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     return this.nonInputFormFieldTags.has(nodeTagName) && !nodeHasBwIgnoreAttribute;
   }
 
+  private setupInitialTopLayerListeners = () => {
+    const unownedTopLayerItems = this.autofillOverlayContentService?.getUnownedTopLayerItems(true);
+
+    if (unownedTopLayerItems?.length) {
+      for (const unownedElement of unownedTopLayerItems) {
+        if (this.shouldListenToTopLayerCandidate(unownedElement)) {
+          this.setupTopLayerCandidateListener(unownedElement);
+        }
+      }
+    }
+  };
+
   /**
    * Sets up a mutation observer on the body of the document. Observes changes to
    * DOM elements to ensure we have an updated set of autofill field data.
@@ -982,10 +998,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private processMutations = () => {
     const queueLength = this.mutationsQueue.length;
 
-    if (!this.domQueryService.pageContainsShadowDomElements()) {
-      this.checkPageContainsShadowDom();
-    }
-
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
       const mutations = this.mutationsQueue[queueIndex];
       const processMutationRecords = () => {
@@ -1001,17 +1013,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     this.mutationsQueue = [];
   };
-
-  /**
-   * Handles checking if the current page contains a ShadowDOM element and
-   * flags that a re-collection of page details is required if it does.
-   */
-  private checkPageContainsShadowDom() {
-    this.domQueryService.checkPageContainsShadowDom();
-    if (this.domQueryService.pageContainsShadowDomElements()) {
-      this.flagPageDetailsUpdateIsRequired();
-    }
-  }
 
   /**
    * Triggers several flags that indicate that a collection of page details should
@@ -1044,6 +1045,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private processMutationRecord(mutation: MutationRecord) {
+    this.handleTopLayerChanges(mutation);
+
     if (
       mutation.type === "childList" &&
       (this.isAutofillElementNodeMutated(mutation.removedNodes, true) ||
@@ -1057,6 +1060,64 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.handleAutofillElementAttributeMutation(mutation);
     }
   }
+
+  private setupTopLayerCandidateListener = (element: Element) => {
+    const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
+    this.ownedExperienceTagNames = ownedTags;
+
+    if (!ownedTags.includes(element.tagName)) {
+      element.addEventListener("toggle", (event: ToggleEvent) => {
+        if (event.newState === "open") {
+          // Add a slight delay (but faster than a user's reaction), to ensure the layer
+          // positioning happens after any triggered toggle has completed.
+          setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
+        }
+      });
+    }
+  };
+
+  private isPopoverAttribute = (attr: string | null) => {
+    const popoverAttributes = new Set(["popover", "popovertarget", "popovertargetaction"]);
+
+    return attr && popoverAttributes.has(attr.toLowerCase());
+  };
+
+  private shouldListenToTopLayerCandidate = (element: Element) => {
+    return (
+      !this.ownedExperienceTagNames.includes(element.tagName) &&
+      (element.tagName === "DIALOG" ||
+        Array.from(element.attributes || []).some((attribute) =>
+          this.isPopoverAttribute(attribute.name),
+        ))
+    );
+  };
+
+  /**
+   * Checks if a mutation record is related features that utilize the top layer.
+   * If so, it then calls `setupTopLayerElementListener` for future event
+   * listening on the relevant element.
+   *
+   * @param mutation - The MutationRecord to check
+   */
+  private handleTopLayerChanges = (mutation: MutationRecord) => {
+    // Check attribute mutations
+    if (mutation.type === "attributes" && this.isPopoverAttribute(mutation.attributeName)) {
+      this.setupTopLayerCandidateListener(mutation.target as Element);
+    }
+
+    // Check added nodes for dialog or popover attributes
+    if (mutation.type === "childList" && mutation.addedNodes?.length > 0) {
+      for (const node of mutation.addedNodes) {
+        const mutationElement = node as Element;
+
+        if (this.shouldListenToTopLayerCandidate(mutationElement)) {
+          this.setupTopLayerCandidateListener(mutationElement);
+        }
+      }
+    }
+
+    return;
+  };
 
   /**
    * Checks if the passed nodes either contain or are autofill elements.

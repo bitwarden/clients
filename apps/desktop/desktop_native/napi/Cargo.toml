@@ -14,19 +14,19 @@ default = []
 manual_test = []
 
 [dependencies]
+anyhow = { workspace = true }
 autotype = { path = "../autotype" }
 base64 = { workspace = true }
-hex = { workspace = true }
-anyhow = { workspace = true }
 desktop_core = { path = "../core" }
+hex = { workspace = true }
 log = { workspace = true }
 napi = { workspace = true, features = ["async"] }
 napi-derive = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { workspace = true }
-tokio-util = { workspace = true }
 tokio-stream = { workspace = true }
+tokio-util = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 windows-registry = { workspace = true }
@@ -34,3 +34,6 @@ windows_plugin_authenticator = { path = "../windows_plugin_authenticator" }
 
 [build-dependencies]
 napi-build = { workspace = true }
+
+[lints]
+workspace = true

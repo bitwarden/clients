@@ -25,9 +25,10 @@
         bitIconButton="bwi-clone"
         bitSuffix
         type="button"
+        [label]="'copyPrivateKey' | i18n"
         [appCopyClick]="sshKey.privateKey"
         showToast
-        [appA11yTitle]="'copyValue' | i18n"
+        [valueLabel]="'sshPrivateKey' | i18n"
       ></button>
     </bit-form-field>
     <bit-form-field>
@@ -43,9 +44,10 @@
         bitIconButton="bwi-clone"
         bitSuffix
         type="button"
+        [label]="'copyPublicKey' | i18n"
         [appCopyClick]="sshKey.publicKey"
         showToast
-        [appA11yTitle]="'copyValue' | i18n"
+        [valueLabel]="'sshPublicKey' | i18n"
       ></button>
     </bit-form-field>
     <bit-form-field>
@@ -61,9 +63,10 @@
         bitIconButton="bwi-clone"
         bitSuffix
         type="button"
+        [label]="'copyFingerprint' | i18n"
         [appCopyClick]="sshKey.keyFingerprint"
         showToast
-        [appA11yTitle]="'copyValue' | i18n"
+        [valueLabel]="'sshFingerprint' | i18n"
       ></button>
     </bit-form-field>
   </read-only-cipher-card>

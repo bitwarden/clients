@@ -17,22 +17,17 @@ export enum FeatureFlag {
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
-  BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
-  EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
   NotificationRefresh = "notification-refresh",
-  UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
-  PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
   UseOrganizationWarningsService = "use-organization-warnings-service",
-  AllowTrialLengthZero = "pm-20322-allow-trial-length-0",
   PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
   PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
+  PM22415_TaxIDWarnings = "pm-22415-tax-id-warnings",
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
@@ -47,18 +42,16 @@ export enum FeatureFlag {
   EventBasedOrganizationIntegrations = "event-based-organization-integrations",
 
   /* Vault */
-  PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
-  PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
-  EndUserNotifications = "pm-10609-end-user-notifications",
   RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
-  PM19315EndUserActivationMvp = "pm-19315-end-user-activation-mvp",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
+  InactiveUserServerNotification = "pm-25130-receive-push-notifications-for-inactive-users",
+  PushNotificationsWhenLocked = "pm-19388-push-notifications-when-locked",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -79,10 +72,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
-  [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
-  [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
-  [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
@@ -94,14 +84,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventBasedOrganizationIntegrations]: FALSE,
 
   /* Vault */
-  [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
-  [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
-  [FeatureFlag.PM19315EndUserActivationMvp]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
 
   /* Auth */
@@ -109,13 +95,11 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
-  [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,
-  [FeatureFlag.AllowTrialLengthZero]: FALSE,
   [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
   [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
+  [FeatureFlag.PM22415_TaxIDWarnings]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
@@ -124,6 +108,8 @@ export const DefaultFeatureFlagValue = {
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
+  [FeatureFlag.InactiveUserServerNotification]: FALSE,
+  [FeatureFlag.PushNotificationsWhenLocked]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

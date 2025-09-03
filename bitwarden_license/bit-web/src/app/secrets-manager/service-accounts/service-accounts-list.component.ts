@@ -5,7 +5,6 @@ import { Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core
 import { Subject, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TableDataSource, ToastService } from "@bitwarden/components";
 
 import {
@@ -49,7 +48,6 @@ export class ServiceAccountsListComponent implements OnDestroy {
 
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
   ) {
     this.selection.changed

@@ -216,7 +216,7 @@
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
-    "message": "Vygenerovať heslo (skopírované)"
+    "message": "Vygenerovať heslo (+skopírovať)"
   },
   "copyElementIdentifier": {
     "message": "Kopírovať názov vlastného poľa"
@@ -979,7 +979,7 @@
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
-    "message": "Pridaná položka"
+    "message": "Položka bola pridaná"
   },
   "editedItem": {
     "message": "Položka upravená"
@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Tento prehliadač nedokáže spracovať U2F požiadavku v popup okne. Chcete ho otvoriť v novom okne aby ste sa mohli prihlásiť pomocou U2F?"
   },
-  "enableFavicon": {
-    "message": "Zobrazovať favikony stránok"
-  },
-  "faviconDesc": {
-    "message": "Pri každom prihlásení zobrazí rozpoznateľný obrázok."
-  },
-  "faviconDescAlt": {
-    "message": "Vedľa každého účtu zobraziť rozpoznateľný obrázok. Použije sa na všetky prihlásené účty."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
   "enableBadgeCounter": {
     "message": "Zobraziť počítadlo na ikone"
@@ -3657,25 +3651,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "Táto žiadosť už nie je platná."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Snažíte sa získať prístup k svojmu účtu?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Potvrdené prihlásenie pre $EMAIL$ na $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli naozaj vy, skúste sa prihlásiť pomocou zariadenia znova."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Platnosť žiadosti o prihlásenie už vypršala."
   },
@@ -4150,15 +4125,11 @@
   "selectImportCollection": {
     "message": "Vyberte zbierku"
   },
-  "importTargetHint": {
-    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do zbierky"
+  },
+  "importTargetHintFolder": {
+    "message": "Zvoľte túto možnosť, ak chcete obsah importovaného súboru presunúť do priečinka"
   },
   "importUnassignedItemsError": {
     "message": "Súbor obsahuje nepriradené položky."
@@ -5136,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Zobraziť počet odporúčaných prihlasovacích údajov na ikone rozšírenia"
   },
+  "accountAccessRequested": {
+    "message": "Žiadosť o prístup k účtu"
+  },
+  "confirmAccessAttempt": {
+    "message": "Potvrďte pokus o prístup pre $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Zobraziť akcie rýchleho kopírovania v trezore"
   },
@@ -5586,11 +5569,27 @@
     "message": "Jednoducho vytvorte silné a jedinečné heslá kliknutím na tlačidlo Generovať heslo, aby ste zabezpečili prihlasovacie údaje.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
+  },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnenie na zobrazenie tejto stránky. Skúste sa prihlásiť pomocou iného účtu."
   },
   "wasmNotSupported": {
     "message": "WebAssembly nie je vo vašom prehliadači podporovaný alebo nie je povolený. Na používanie Bitwardenu sa vyžaduje WebAssembly.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Zobraziť viac"
+  },
+  "showLess": {
+    "message": "Zobraziť menej"
+  },
+  "moreBreadcrumbs": {
+    "message": "Viac",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

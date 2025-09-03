@@ -22,7 +22,7 @@ export function getNestedCollectionTree(
   // Collections need to be cloned because ServiceUtils.nestedTraverse actively
   // modifies the names of collections.
   // These changes risk affecting collections store in StateService.
-  const clonedCollections = collections
+  const clonedCollections: CollectionView[] | CollectionAdminView[] = collections
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(cloneCollection);
 
@@ -35,6 +35,27 @@ export function getNestedCollectionTree(
     ServiceUtils.nestedTraverse(nodes, 0, parts, collection, null, NestingDelimiter);
   });
   return nodes;
+}
+
+export function cloneCollection(collection: CollectionView): CollectionView;
+export function cloneCollection(collection: CollectionAdminView): CollectionAdminView;
+export function cloneCollection(
+  collection: CollectionView | CollectionAdminView,
+): CollectionView | CollectionAdminView {
+  let cloned;
+
+  if (collection instanceof CollectionAdminView) {
+    cloned = Object.assign(
+      new CollectionAdminView({ ...collection, name: collection.name }),
+      collection,
+    );
+  } else {
+    cloned = Object.assign(
+      new CollectionView({ ...collection, name: collection.name }),
+      collection,
+    );
+  }
+  return cloned;
 }
 
 export function getFlatCollectionTree(
@@ -56,33 +77,4 @@ export function getFlatCollectionTree(
     const children = getFlatCollectionTree(node.children);
     return [node.node, ...children];
   });
-}
-
-function cloneCollection(collection: CollectionView): CollectionView;
-function cloneCollection(collection: CollectionAdminView): CollectionAdminView;
-function cloneCollection(
-  collection: CollectionView | CollectionAdminView,
-): CollectionView | CollectionAdminView {
-  let cloned;
-
-  if (collection instanceof CollectionAdminView) {
-    cloned = new CollectionAdminView();
-    cloned.groups = [...collection.groups];
-    cloned.users = [...collection.users];
-    cloned.assigned = collection.assigned;
-    cloned.unmanaged = collection.unmanaged;
-  } else {
-    cloned = new CollectionView();
-  }
-
-  cloned.id = collection.id;
-  cloned.externalId = collection.externalId;
-  cloned.hidePasswords = collection.hidePasswords;
-  cloned.name = collection.name;
-  cloned.organizationId = collection.organizationId;
-  cloned.readOnly = collection.readOnly;
-  cloned.manage = collection.manage;
-  cloned.type = collection.type;
-
-  return cloned;
 }

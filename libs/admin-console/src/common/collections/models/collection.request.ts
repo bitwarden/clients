@@ -1,20 +1,60 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
-import { Collection } from "./collection";
-
-export class CollectionRequest {
-  name: string;
-  externalId: string;
+export abstract class BaseCollectionRequest {
+  externalId: string | undefined;
   groups: SelectionReadOnlyRequest[] = [];
   users: SelectionReadOnlyRequest[] = [];
 
-  constructor(collection?: Collection) {
-    if (collection == null) {
-      return;
+  static isUpdate = (request: BaseCollectionRequest): request is UpdateCollectionRequest => {
+    return request instanceof UpdateCollectionRequest;
+  };
+
+  protected constructor(c: {
+    users?: SelectionReadOnlyRequest[];
+    groups?: SelectionReadOnlyRequest[];
+    externalId?: string;
+  }) {
+    this.externalId = c.externalId;
+
+    if (c.groups) {
+      this.groups = c.groups;
     }
-    this.name = collection.name ? collection.name.encryptedString : null;
-    this.externalId = collection.externalId;
+    if (c.users) {
+      this.users = c.users;
+    }
+  }
+}
+
+export class CreateCollectionRequest extends BaseCollectionRequest {
+  name: string;
+
+  constructor(c: {
+    name: EncString;
+    users?: SelectionReadOnlyRequest[];
+    groups?: SelectionReadOnlyRequest[];
+    externalId?: string;
+  }) {
+    super(c);
+
+    if (!c.name || !c.name.encryptedString) {
+      throw new Error("Name not provided for CollectionRequest.");
+    }
+
+    this.name = c.name.encryptedString;
+  }
+}
+
+export class UpdateCollectionRequest extends BaseCollectionRequest {
+  name: string | null;
+
+  constructor(c: {
+    name: EncString | null;
+    users?: SelectionReadOnlyRequest[];
+    groups?: SelectionReadOnlyRequest[];
+    externalId?: string;
+  }) {
+    super(c);
+    this.name = c.name?.encryptedString ?? null;
   }
 }

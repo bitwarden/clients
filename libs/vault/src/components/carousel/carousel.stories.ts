@@ -1,5 +1,6 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ButtonComponent, TypographyModule } from "@bitwarden/components";
 
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
@@ -11,6 +12,7 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [VaultCarouselSlideComponent, TypographyModule, ButtonComponent],
+      providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
     }),
   ],
 } as Meta;

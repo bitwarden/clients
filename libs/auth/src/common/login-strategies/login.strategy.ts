@@ -32,15 +32,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
-import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { UserId } from "@bitwarden/common/types/guid";
-import {
-  KeyService,
-  Argon2KdfConfig,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KdfType,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
@@ -198,19 +191,6 @@ export abstract class LoginStrategy {
 
     await this.accountService.switchAccount(userId);
 
-    await this.stateService.addAccount(
-      new Account({
-        profile: {
-          ...new AccountProfile(),
-          ...{
-            userId,
-            name: accountInformation.name,
-            email: accountInformation.email,
-          },
-        },
-      }),
-    );
-
     await this.verifyAccountAdded(userId);
 
     // We must set user decryption options before retrieving vault timeout settings
@@ -234,16 +214,7 @@ export abstract class LoginStrategy {
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
 
-    await this.KdfConfigService.setKdfConfig(
-      userId as UserId,
-      tokenResponse.kdf === KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(tokenResponse.kdfIterations)
-        : new Argon2KdfConfig(
-            tokenResponse.kdfIterations,
-            tokenResponse.kdfMemory,
-            tokenResponse.kdfParallelism,
-          ),
-    );
+    await this.KdfConfigService.setKdfConfig(userId as UserId, tokenResponse.kdfConfig);
 
     await this.billingAccountProfileStateService.setHasPremium(
       accountInformation.premium ?? false,

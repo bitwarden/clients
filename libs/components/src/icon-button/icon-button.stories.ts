@@ -9,6 +9,7 @@ export default {
   component: BitIconButtonComponent,
   args: {
     bitIconButton: "bwi-plus",
+    label: "Your button label here",
   },
   argTypes: {
     buttonType: {
@@ -29,7 +30,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
+      <button type="button" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     `,
   }),
 };
@@ -76,7 +77,7 @@ export const NavContrast: Story = {
     template: /*html*/ `
     <div class="tw-bg-background-alt3 tw-p-6 tw-w-full tw-inline-block">
       <!-- <div> used only to provide dark background color -->
-      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
+      <button type="button" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     </div>
       `,
   }),
@@ -91,7 +92,7 @@ export const Contrast: Story = {
     template: /*html*/ `
     <div class="tw-bg-primary-600 tw-p-6 tw-w-full tw-inline-block">
       <!-- <div> used only to provide dark background color -->
-      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
+      <button type="button" ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     </div>
       `,
   }),
