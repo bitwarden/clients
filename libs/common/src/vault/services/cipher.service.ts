@@ -2033,6 +2033,7 @@ export class CipherService implements CipherServiceAbstraction {
     const decryptedViews = await Promise.all(decrypted.map((c) => this.getFullCipherView(c)));
     const failedViews = failures.map((c) => {
       const cipher_view = new CipherView(c);
+      cipher_view.name = "[error: cannot decrypt]";
       cipher_view.decryptionFailure = true;
       return cipher_view;
     });
