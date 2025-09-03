@@ -2358,7 +2358,10 @@ export default class AutofillService implements AutofillServiceInterface {
         (canBeReadOnly || !f.readonly) &&
         (withoutForm || f.form === passwordField.form) &&
         (canBeHidden || f.viewable) &&
-        (f.type === "tel" || f.type === "text" || f.type === "number") &&
+        (f.type === "text" ||
+          f.type === "number" ||
+          // sites will commonly use tel in order to get the digit pad against semantic recommendations
+          f.type === "tel") &&
         AutofillService.fieldIsFuzzyMatch(f, [
           ...AutoFillConstants.TotpFieldNames,
           ...AutoFillConstants.AmbiguousTotpFieldNames,
