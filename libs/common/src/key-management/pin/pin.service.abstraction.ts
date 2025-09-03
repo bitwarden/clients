@@ -7,25 +7,14 @@ import { PinKey, UserKey } from "../../types/key";
 import { PinLockType } from "./pin-lock-type";
 
 /**
- * The PinService is used for PIN-based unlocks. Below is a very basic overview of the PIN flow:
+ * The PinService provides PIN-based unlock functionality for user accounts.
  *
- * -- Setting the PIN via {@link SetPinComponent} --
+ * ## Overview
  *
- *    When the user submits the setPinForm:
-
- *    1. We encrypt the PIN with the UserKey and store it on disk as `userKeyEncryptedPin`.
- *
- *    2. We create a PinKey from the PIN, and then use that PinKey to encrypt the UserKey, resulting in
- *       a `pinKeyEncryptedUserKey`, which can be stored in one of two ways depending on what the user selects
- *       for the `requireMasterPasswordOnClientReset` checkbox.
- *
- *       If `requireMasterPasswordOnClientReset` is:
- *       - TRUE, store in memory as `pinKeyEncryptedUserKeyEphemeral` (does NOT persist through a client reset)
- *       - FALSE, store on disk as `pinKeyEncryptedUserKeyPersistent` (persists through a client reset)
- *
- * -- Unlocking with the PIN via {@link LockComponent} --
- *
- *    When the user enters their PIN, we decrypt their UserKey with the PIN and set that UserKey to state.
+ * - The PIN is used to unlock the user's UserKey
+ * - PIN state and key material are managed using secure envelopes and encrypted state, with support for both ephemeral (in-memory) and persistent (on-disk) storage.
+ *   When stored ephemerally, PIN unlock is only available after first unlock. When stored persistent, PIN unlock is available before first unlock.
+ * - The PIN is also stored, encrypted with the user's UserKey. After first unlock, the PIN can be retrieved.
  */
 export abstract class PinServiceAbstraction {
   /**
