@@ -72,7 +72,7 @@ describe("DefaultSdkService", () => {
     });
 
     describe("given the user is logged in", () => {
-      const userId = "user-id" as UserId;
+      const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
       beforeEach(() => {
         environmentService.getEnvironment$
           .calledWith(userId)
@@ -232,6 +232,7 @@ function createMockClient(): MockProxy<BitwardenClient> {
   client.platform.mockReturnValue({
     state: jest.fn().mockReturnValue(mock()),
     free: mock(),
+    load_flags: jest.fn(),
   });
   return client;
 }
