@@ -6,7 +6,6 @@ import {
   filter,
   firstValueFrom,
   map,
-  merge,
   mergeMap,
   Observable,
   share,
@@ -18,8 +17,9 @@ import {
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { trackedMerge } from "@bitwarden/common/platform/misc";
 
-import { AccountService } from "../../../auth/abstractions/account.service";
+import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { NotificationType } from "../../../enums";
@@ -74,20 +74,20 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         switchMap((inactiveUserServerNotificationEnabled) => {
           if (inactiveUserServerNotificationEnabled) {
             return this.accountService.accounts$.pipe(
-              map((accounts) => Object.keys(accounts) as UserId[]),
-              distinctUntilChanged(),
-              switchMap((userIds) => {
-                if (userIds.length === 0) {
-                  return EMPTY;
-                }
-
-                const streams = userIds.map((id) =>
-                  this.userNotifications$(id).pipe(
-                    map((notification) => [notification, id] as const),
+              map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
+                const validUserIds = Object.entries(accounts)
+                  .filter(
+                    ([_, accountInfo]) => accountInfo.email !== "" || accountInfo.emailVerified,
+                  )
+                  .map(([userId, _]) => userId as UserId);
+                return new Set(validUserIds);
+              }),
+              trackedMerge((id: UserId) => {
+                return this.userNotifications$(id as UserId).pipe(
+                  map(
+                    (notification: NotificationResponse) => [notification, id as UserId] as const,
                   ),
                 );
-
-                return merge(...streams);
               }),
             );
           }
