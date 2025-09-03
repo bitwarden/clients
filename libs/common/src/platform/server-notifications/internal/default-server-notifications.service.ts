@@ -172,6 +172,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
 
   private hasAccessToken$(userId: UserId) {
     return this.configService.getFeatureFlag$(FeatureFlag.PushNotificationsWhenLocked).pipe(
+      distinctUntilChanged(),
       switchMap((featureFlagEnabled) => {
         if (featureFlagEnabled) {
           return this.authService.authStatusFor$(userId).pipe(
