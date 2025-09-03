@@ -9,6 +9,6 @@ publish = { workspace = true }
 crate-type = ["cdylib"]
 
 [dependencies]
-ctor.workspace = true
+ctor = { workspace = true }
 desktop_core = { path = "../core" }
 libc = { workspace = true }
