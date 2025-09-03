@@ -111,6 +111,4 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
       this.lastSync = this.i18nService.t("never");
     }
   }
-
-  // protected readonly FeatureFlag = FeatureFlag;
 }

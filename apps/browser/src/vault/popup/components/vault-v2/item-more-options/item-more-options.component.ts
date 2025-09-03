@@ -122,9 +122,6 @@ export class ItemMoreOptionsComponent {
     }),
   );
 
-  /** Boolean dependent on the current user having access to an organization */
-  protected hasOrganizations = false;
-
   constructor(
     private cipherService: CipherService,
     private passwordRepromptService: PasswordRepromptService,

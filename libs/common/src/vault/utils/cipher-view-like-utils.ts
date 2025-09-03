@@ -71,7 +71,7 @@ export class CipherViewLikeUtils {
     return cipher.type === CipherType.Card ? cipher.card : null;
   };
 
-  /**  @returns `true` when the cipher has been deleted, `false` otherwise. */
+  /**  @returns `true` when the cipher has been archived, `false` otherwise. */
   static isArchived = (cipher: CipherViewLike): boolean => {
     if (this.isCipherListView(cipher)) {
       return !!cipher.archivedDate;

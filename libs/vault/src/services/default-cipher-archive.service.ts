@@ -61,8 +61,8 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
 
   /**
    * User can archive items if:
-   * Feature Flag must be enabled
-   * Check if user has premium from any source (personal or organization)
+   * Feature Flag is enabled
+   * User has premium from any source (personal or organization)
    */
   userCanArchive$(userId: UserId): Observable<boolean> {
     return combineLatest([
