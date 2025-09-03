@@ -1,4 +1,8 @@
 export const BadgeIcon = {
+  Berry: {
+    19: "/images/berry19.png",
+    38: "/images/berry38.png",
+  },
   LoggedOut: {
     19: "/images/icon19_gray.png",
     38: "/images/icon38_gray.png",
