@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Sovelluksia yhteensä"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+  "unmarkAsCritical": {
+    "message": "Unmark as critical"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Critical application successfully unmarked"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kopioi ajokortin numero"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "copyName": {
     "message": "Kopioi nimi"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Palautuskoodi"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Todennussovellus"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Vaihda verkkoholvissa käytettävä kieli."
   },
-  "enableFavicon": {
-    "message": "Näytä verkkosivustojen kuvakkeet"
-  },
-  "faviconDesc": {
-    "message": "Näytä tunnistettava kuvake jokaiselle kirjautumistiedolle."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "default": {
     "message": "Oletus"
@@ -10981,6 +10990,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "billingAddress": {
     "message": "Billing address"

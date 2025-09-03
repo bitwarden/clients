@@ -18,13 +18,11 @@ export enum FeatureFlag {
 
   /* Autofill */
   NotificationRefresh = "notification-refresh",
-  UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   WindowsDesktopAutotype = "windows-desktop-autotype",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
-  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   UseOrganizationWarningsService = "use-organization-warnings-service",
   PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
@@ -52,6 +50,7 @@ export enum FeatureFlag {
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
+  InactiveUserServerNotification = "pm-25130-receive-push-notifications-for-inactive-users",
   PushNotificationsWhenLocked = "pm-19388-push-notifications-when-locked",
 }
 
@@ -74,7 +73,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Autofill */
   [FeatureFlag.NotificationRefresh]: FALSE,
-  [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
@@ -97,7 +95,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
-  [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,
   [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
@@ -111,6 +108,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
+  [FeatureFlag.InactiveUserServerNotification]: FALSE,
   [FeatureFlag.PushNotificationsWhenLocked]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 

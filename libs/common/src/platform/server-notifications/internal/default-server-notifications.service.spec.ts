@@ -4,6 +4,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
 import { awaitAsync } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
@@ -39,9 +40,11 @@ describe("NotificationsService", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
+  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
+  let accounts: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
 
   let environment: BehaviorSubject<ObservedValueOf<EnvironmentService["environment$"]>>;
 
@@ -66,18 +69,27 @@ describe("NotificationsService", () => {
     signalRNotificationConnectionService = mock<SignalRConnectionService>();
     authService = mock<AuthService>();
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
+    authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
     configService = mock<ConfigService>();
 
-    configService.getFeatureFlag$.mockReturnValue(of(true));
+    // For these tests, use the active-user implementation (feature flag disabled)
+    configService.getFeatureFlag$.mockImplementation(() => of(true));
 
     activeAccount = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(null);
     accountService.activeAccount$ = activeAccount.asObservable();
+
+    accounts = new BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>({} as any);
+    accountService.accounts$ = accounts.asObservable();
 
     environment = new BehaviorSubject<ObservedValueOf<EnvironmentService["environment$"]>>({
       getNotificationsUrl: () => "https://notifications.bitwarden.com",
     } as Environment);
 
     environmentService.environment$ = environment;
+    // Ensure user-scoped environment lookups return the same test environment stream
+    environmentService.getEnvironment$.mockImplementation(
+      (_userId: UserId) => environment.asObservable() as any,
+    );
 
     authStatusGetter = Matrix.autoMockMethod(
       authService.authStatusFor$,
@@ -109,6 +121,7 @@ describe("NotificationsService", () => {
       signalRNotificationConnectionService,
       authService,
       webPushNotificationConnectionService,
+      authRequestAnsweringService,
       configService,
     );
   });
@@ -116,11 +129,17 @@ describe("NotificationsService", () => {
   const mockUser1 = "user1" as UserId;
   const mockUser2 = "user2" as UserId;
 
-  function emitActiveUser(userId: UserId) {
+  function emitActiveUser(userId: UserId | null) {
     if (userId == null) {
       activeAccount.next(null);
+      accounts.next({} as any);
     } else {
       activeAccount.next({ id: userId, email: "email", name: "Test Name", emailVerified: true });
+      const current = (accounts.getValue() as Record<string, any>) ?? {};
+      accounts.next({
+        ...current,
+        [userId]: { email: "email", name: "Test Name", emailVerified: true },
+      } as any);
     }
   }
 
