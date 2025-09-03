@@ -2,7 +2,6 @@ import * as bigInt from "big-integer";
 import {
   NEVER,
   Observable,
-  ReplaySubject,
   combineLatest,
   distinctUntilChanged,
   filter,
@@ -69,9 +68,6 @@ import { KdfConfig } from "./models/kdf-config";
 export class DefaultKeyService implements KeyServiceAbstraction {
   readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
-  private unlockedUserKeysSubject = new ReplaySubject<{ userId: UserId; userKey: UserKey }>(1);
-  readonly unlockedUserKeys$: Observable<{ userId: UserId; userKey: UserKey }>;
-
   constructor(
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected keyGenerationService: KeyGenerationService,
@@ -90,9 +86,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: false }),
     ) as Observable<Record<OrganizationId, OrgKey>>;
-    this.unlockedUserKeys$ = this.unlockedUserKeysSubject
-      .asObservable()
-      .pipe(filter((x) => x != null));
   }
 
   async setUserKey(key: UserKey, userId: UserId): Promise<void> {
@@ -108,7 +101,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);
-    this.unlockedUserKeysSubject.next({ userId, userKey: key });
   }
 
   async setUserKeys(

@@ -227,10 +227,6 @@ export abstract class KeyService {
    * @deprecated Use {@link orgKeys$} with a required {@link UserId} instead.
    */
   abstract activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
-  /**
-   * Retrieves a stream of unlocked user keys. Unlocking a user will emit the user key and user id.
-   */
-  abstract unlockedUserKeys$: Observable<{ userId: UserId; userKey: UserKey }>;
 
   /**
    * Returns the organization's symmetric key

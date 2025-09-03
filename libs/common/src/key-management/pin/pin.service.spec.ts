@@ -1,15 +1,3 @@
-describe("userUnlocked()", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-
-    // Act
-    await sut.userUnlocked(mockUserId);
-
-    // Assert
-    expect(getPinSpy).not.toHaveBeenCalled();
-    expect(setPinSpy).not.toHaveBeenCalled();
-  });
-});
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, filter, firstValueFrom } from "rxjs";
 
@@ -46,6 +34,43 @@ describe("PinService", () => {
   const kdfConfigService = mock<KdfConfigService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const logService = mock<LogService>();
+  const mockUserId = Utils.newGuid() as UserId;
+  const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+  const mockPinKey = new SymmetricCryptoKey(randomBytes(32)) as PinKey;
+  const mockUserEmail = "user@example.com";
+  const mockPin = "1234";
+  const mockUserKeyEncryptedPin = new EncString("userKeyEncryptedPin");
+  const mockEphemeralEnvelope = "mock-ephemeral-envelope" as PasswordProtectedKeyEnvelope;
+  const mockPersistentEnvelope = "mock-persistent-envelope" as PasswordProtectedKeyEnvelope;
+  const keyService = mock<KeyService>();
+  const sdkService = new MockSdkService();
+  const behaviorSubject = new BehaviorSubject<{ userId: UserId; userKey: UserKey }>(null);
+
+  beforeEach(() => {
+    accountService = mockAccountServiceWith(mockUserId, { email: mockUserEmail });
+    stateProvider = new FakeStateProvider(accountService);
+    (keyService as any)["unlockedUserKeys$"] = behaviorSubject
+      .asObservable()
+      .pipe(filter((x) => x != null));
+    sdkService.client.crypto
+      .mockDeep()
+      .unseal_password_protected_key_envelope.mockReturnValue(new Uint8Array(64));
+
+    sut = new PinService(
+      accountService,
+      encryptService,
+      kdfConfigService,
+      keyGenerationService,
+      logService,
+      stateProvider,
+      keyService,
+      sdkService,
+    );
+  });
+
+  it("should instantiate the PinService", () => {
+    expect(sut).not.toBeFalsy();
+  });
 
   describe("userUnlocked()", () => {
     beforeEach(() => {
@@ -103,44 +128,6 @@ describe("PinService", () => {
       expect(getPinSpy).not.toHaveBeenCalled();
       expect(setPinSpy).not.toHaveBeenCalled();
     });
-  });
-
-  const mockUserId = Utils.newGuid() as UserId;
-  const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-  const mockPinKey = new SymmetricCryptoKey(randomBytes(32)) as PinKey;
-  const mockUserEmail = "user@example.com";
-  const mockPin = "1234";
-  const mockUserKeyEncryptedPin = new EncString("userKeyEncryptedPin");
-  const mockEphemeralEnvelope = "mock-ephemeral-envelope" as PasswordProtectedKeyEnvelope;
-  const mockPersistentEnvelope = "mock-persistent-envelope" as PasswordProtectedKeyEnvelope;
-  const keyService = mock<KeyService>();
-  const sdkService = new MockSdkService();
-  const behaviorSubject = new BehaviorSubject<{ userId: UserId; userKey: UserKey }>(null);
-
-  beforeEach(() => {
-    accountService = mockAccountServiceWith(mockUserId, { email: mockUserEmail });
-    stateProvider = new FakeStateProvider(accountService);
-    (keyService as any)["unlockedUserKeys$"] = behaviorSubject
-      .asObservable()
-      .pipe(filter((x) => x != null));
-    sdkService.client.crypto
-      .mockDeep()
-      .unseal_password_protected_key_envelope.mockReturnValue(new Uint8Array(64));
-
-    sut = new PinService(
-      accountService,
-      encryptService,
-      kdfConfigService,
-      keyGenerationService,
-      logService,
-      stateProvider,
-      keyService,
-      sdkService,
-    );
-  });
-
-  it("should instantiate the PinService", () => {
-    expect(sut).not.toBeFalsy();
   });
 
   describe("makePinKey()", () => {
