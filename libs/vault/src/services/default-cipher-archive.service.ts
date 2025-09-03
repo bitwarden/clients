@@ -1,12 +1,4 @@
-import {
-  filter,
-  firstValueFrom,
-  map,
-  Observable,
-  shareReplay,
-  switchMap,
-  combineLatest,
-} from "rxjs";
+import { filter, map, Observable, shareReplay, switchMap, combineLatest } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -90,13 +82,17 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
    * This is separated from userCanArchive because a user that loses premium status, but has archived items,
    * should still be able to access their archive vault. The items will be read-only, and can be restored.
    */
-  async showArchiveVault(userId: UserId): Promise<boolean> {
-    const archiveFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
+  showArchiveVault$(userId: UserId): Observable<boolean> {
+    return combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
+      this.archivedCiphers$,
+    ]).pipe(
+      map(
+        ([archiveFlagEnabled, hasArchivedItems]) =>
+          archiveFlagEnabled && hasArchivedItems.length > 0,
+      ),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
-    const hasArchivedItems = await firstValueFrom(this.archivedCiphers$);
-
-    return archiveFlagEnabled && hasArchivedItems.length > 0;
   }
 
   async archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
