@@ -90,10 +90,6 @@ export class PinService implements PinServiceAbstraction {
     const { pinProtectedUserKeyEnvelope, userKeyEncryptedPin } = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
           using ref = sdk.take();
           return ref.value.crypto().enroll_pin(pin);
         }),

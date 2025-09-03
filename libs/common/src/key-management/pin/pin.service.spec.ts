@@ -1,11 +1,11 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, filter, firstValueFrom, of } from "rxjs";
 
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // eslint-disable-next-line no-restricted-imports
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
+import { MockSdkService } from "../..//platform/spec/mock-sdk.service";
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
@@ -44,7 +44,7 @@ describe("PinService", () => {
   const mockEphemeralEnvelope = "mock-ephemeral-envelope" as PasswordProtectedKeyEnvelope;
   const mockPersistentEnvelope = "mock-persistent-envelope" as PasswordProtectedKeyEnvelope;
   const keyService = mock<KeyService>();
-  const sdkService = mock<SdkService>();
+  const sdkService = new MockSdkService();
   const behaviorSubject = new BehaviorSubject<{ userId: UserId; userKey: UserKey }>(null);
 
   const enroll_pin = jest.fn();
@@ -291,16 +291,6 @@ describe("PinService", () => {
         stateProvider.getUserState$(USER_KEY_ENCRYPTED_PIN, mockUserId),
       );
       expect(userKeyEncryptedPin).toBe(mockUserKeyEncryptedPinFromSdk);
-    });
-
-    it("should handle SDK unavailable error", async () => {
-      // Arrange
-      sdkService.userClient$.mockReturnValue(new BehaviorSubject(undefined).asObservable());
-
-      // Act & Assert
-      await expect(sut.setPin(mockPin, "EPHEMERAL", mockUserId)).rejects.toThrow(
-        "SDK not available",
-      );
     });
   });
 
