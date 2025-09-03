@@ -6,7 +6,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 
 export abstract class CipherArchiveService {
   abstract archivedCiphers$: Observable<CipherViewLike[]>;
-  abstract userCanArchive(userId: UserId): Promise<boolean>;
+  abstract userCanArchive$(userId: UserId): Observable<boolean>;
   abstract showArchiveVault(userId: UserId): Promise<boolean>;
   abstract archiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void>;
   abstract unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void>;

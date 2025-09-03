@@ -1,4 +1,12 @@
-import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+  combineLatest,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -64,15 +72,14 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
    * Feature Flag must be enabled
    * Check if user has premium from any source (personal or organization)
    */
-  async userCanArchive(userId: UserId): Promise<boolean> {
-    const hasPremium = await firstValueFrom(
+  userCanArchive$(userId: UserId): Observable<boolean> {
+    return combineLatest([
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+      this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
+    ]).pipe(
+      map(([hasPremium, archiveFlagEnabled]) => hasPremium && archiveFlagEnabled),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
-    const archiveFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-
-    return hasPremium && archiveFlagEnabled;
   }
 
   /**

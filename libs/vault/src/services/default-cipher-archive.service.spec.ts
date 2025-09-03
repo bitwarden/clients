@@ -101,24 +101,27 @@ describe("DefaultCipherArchiveService", () => {
     });
   });
 
-  describe("userCanArchive", () => {
-    it("should return true when feature flag is enabled", async () => {
+  describe("userCanArchive$", () => {
+    it("should return true when user has premium and feature flag is enabled", async () => {
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
 
-      const result = await service.userCanArchive(userId);
+      const result = await firstValueFrom(service.userCanArchive$(userId));
 
       expect(result).toBe(true);
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
+      expect(mockBillingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
+        userId,
+      );
+      expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.PM19148_InnovationArchive,
       );
     });
 
     it("should return false when feature flag is disabled", async () => {
       mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
-      const result = await service.userCanArchive(userId);
+      const result = await firstValueFrom(service.userCanArchive$(userId));
 
       expect(result).toBe(false);
     });

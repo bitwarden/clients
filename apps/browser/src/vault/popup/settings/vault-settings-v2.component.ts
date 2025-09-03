@@ -70,7 +70,9 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
 
   private async checkCanArchiveStatus() {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const userArchiveStatus = await this.cipherArchiveService.userCanArchive(userId);
+    const userArchiveStatus = await firstValueFrom(
+      this.cipherArchiveService.userCanArchive$(userId),
+    );
     const showArchiveFilter = await this.cipherArchiveService.showArchiveVault(userId);
     this.userCanArchive.set(userArchiveStatus);
     this.showArchiveFilter.set(showArchiveFilter);

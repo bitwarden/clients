@@ -50,9 +50,7 @@ import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -84,6 +82,7 @@ import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
+  CipherArchiveService,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
@@ -165,7 +164,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   trashCleanupWarning: string = null;
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
-  archiveItemEnabled$: Observable<boolean>;
 
   protected noItemIcon = Search;
   protected performingInitialLoad = true;
@@ -250,6 +248,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
+  private userHasArchive$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => {
+      return this.cipherArchiveService.userCanArchive$(userId);
+    }),
+  );
+
   constructor(
     private syncService: SyncService,
     private route: ActivatedRoute,
@@ -283,13 +288,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private trialFlowService: TrialFlowService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private billingNotificationService: BillingNotificationService,
-    private configService: ConfigService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-  ) {
-    this.archiveItemEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-  }
+    private cipherArchiveService: CipherArchiveService,
+  ) {}
 
   async ngOnInit() {
     this.trashCleanupWarning = this.i18nService.t(
@@ -388,7 +389,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       allowedCiphers$,
       filter$,
       this.currentSearchText$,
-      this.archiveItemEnabled$,
+      this.userHasArchive$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText, archiveEnabled]) => {

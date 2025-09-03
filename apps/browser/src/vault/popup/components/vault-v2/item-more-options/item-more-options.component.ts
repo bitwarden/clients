@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, computed, Input, OnInit, signal } from "@angular/core";
+import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
@@ -38,7 +38,7 @@ import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
   templateUrl: "./item-more-options.component.html",
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
 })
-export class ItemMoreOptionsComponent implements OnInit {
+export class ItemMoreOptionsComponent {
   private _cipher$ = new BehaviorSubject<CipherViewLike>(undefined);
 
   @Input({
@@ -105,18 +105,22 @@ export class ItemMoreOptionsComponent implements OnInit {
     }),
   );
 
-  /** Boolean to check if user has archive permissions and if cipher can be archived*/
-  protected canArchive = signal<boolean>(false);
-  protected canArchiveComputed = computed(() => {
-    const cipher = this._cipher$.value;
-    if (!cipher) {
-      return false;
-    }
-
-    return (
-      this.canArchive() && !CipherViewLikeUtils.isArchived(cipher) && cipher.organizationId == null
-    );
-  });
+  /** Observable Boolean checking if item can show Archive menu option */
+  protected canArchive$ = combineLatest([
+    this._cipher$,
+    this.accountService.activeAccount$.pipe(getUserId),
+  ]).pipe(
+    filter(([cipher, userId]) => cipher != null && userId != null),
+    switchMap(([cipher, userId]) => {
+      return this.cipherArchiveService.userCanArchive$(userId).pipe(
+        map((canArchive) => {
+          return (
+            canArchive && !CipherViewLikeUtils.isArchived(cipher) && cipher.organizationId == null
+          );
+        }),
+      );
+    }),
+  );
 
   /** Boolean dependent on the current user having access to an organization */
   protected hasOrganizations = false;
@@ -164,18 +168,6 @@ export class ItemMoreOptionsComponent implements OnInit {
 
   get favoriteText() {
     return this.cipher.favorite ? "unfavorite" : "favorite";
-  }
-
-  async ngOnInit() {
-    await this.checkArchivePermission();
-  }
-
-  private async checkArchivePermission(): Promise<void> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    if (userId) {
-      const canArchive = await this.cipherArchiveService.userCanArchive(userId);
-      this.canArchive.set(canArchive);
-    }
   }
 
   async doAutofill() {
