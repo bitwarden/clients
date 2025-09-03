@@ -2,7 +2,17 @@
 // @ts-strict-ignore
 import "core-js/proposals/explicit-resource-management";
 
-import { filter, firstValueFrom, from, map, merge, Observable, Subject, switchMap, timeout } from "rxjs";
+import {
+  filter,
+  firstValueFrom,
+  from,
+  map,
+  merge,
+  Observable,
+  Subject,
+  switchMap,
+  timeout,
+} from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -42,9 +52,7 @@ import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-se
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
-import {
-  PendingAuthRequestsStateService
-} from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -1812,16 +1820,18 @@ export default class MainBackground {
     };
 
     // ======= Register All System Notification Handlers Here =======
-    register(
-      AuthServerNotificationTags.AuthRequest,
-      (event) => this.authRequestAnsweringService.handleAuthRequestNotificationClicked(event),
+    register(AuthServerNotificationTags.AuthRequest, (event) =>
+      this.authRequestAnsweringService.handleAuthRequestNotificationClicked(event),
     );
     // ======= End Register All System Notification Handlers =======
 
     const streams: Observable<void>[] = handlers.map(({ startsWith, handler }) =>
       this.systemNotificationService.notificationClicked$.pipe(
         filter((event: SystemNotificationEvent): boolean => event.id.startsWith(startsWith + "_")),
-        switchMap((event: SystemNotificationEvent): Observable<void> => from(Promise.resolve(handler(event)))),
+        switchMap(
+          (event: SystemNotificationEvent): Observable<void> =>
+            from(Promise.resolve(handler(event))),
+        ),
       ),
     );
 

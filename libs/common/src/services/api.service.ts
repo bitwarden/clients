@@ -1541,8 +1541,10 @@ export class ApiService implements ApiServiceAbstraction {
   // Helpers
 
   async getActiveBearerToken(userId: UserId): Promise<string> {
+    console.debug("[ApiService] getActiveBearerToken called");
     let accessToken = await this.tokenService.getAccessToken(userId);
     if (await this.tokenService.tokenNeedsRefresh(userId)) {
+      console.debug("[ApiService] access token needs refresh; refreshing now");
       accessToken = await this.refreshToken(userId);
     }
     return accessToken;

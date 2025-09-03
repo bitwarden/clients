@@ -6,11 +6,11 @@ import {
   filter,
   firstValueFrom,
   map,
-  merge,
   mergeMap,
   Observable,
   share,
   switchMap,
+  tap,
 } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -19,7 +19,8 @@ import { LogoutReason } from "@bitwarden/auth/common";
 import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
-import { AccountService } from "../../../auth/abstractions/account.service";
+import { trackedMerge } from "../../../../../../apps/browser/src/platform/browser/tracked-merge";
+import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { NotificationType } from "../../../enums";
@@ -74,20 +75,23 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         switchMap((inactiveUserServerNotificationEnabled) => {
           if (inactiveUserServerNotificationEnabled) {
             return this.accountService.accounts$.pipe(
-              map((accounts) => Object.keys(accounts) as UserId[]),
-              distinctUntilChanged(),
-              switchMap((userIds) => {
-                if (userIds.length === 0) {
-                  return EMPTY;
-                }
-
-                const streams = userIds.map((id) =>
-                  this.userNotifications$(id).pipe(
-                    map((notification) => [notification, id] as const),
-                  ),
+              tap((record) => {
+                console.debug(`[DefaultServerNotificationsService] account records: ${JSON.stringify(record)}`);
+              }),
+              map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
+                const validUserIds = Object.entries(accounts)
+                  .filter(([_, accountInfo]) => accountInfo.email !== "" || accountInfo.emailVerified)
+                  .map(([userId, _]) => userId as UserId);
+                return new Set(validUserIds);
+              }),
+              tap((userIds) => {
+                console.debug(`[DefaultServerNotificationsService] mapped user IDs: ${Array.from(userIds).join(', ')}`);
+              }),
+              trackedMerge((id: UserId) => {
+                console.debug(`[DefaultServerNotificationsService] trackedMerge called for user ID: ${id}`);
+                return this.userNotifications$(id as UserId).pipe(
+                  map((notification: NotificationResponse) => [notification, id as UserId] as const),
                 );
-
-                return merge(...streams);
               }),
             );
           }
