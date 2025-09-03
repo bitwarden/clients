@@ -60,14 +60,6 @@ export class ConnectHecDialogComponent implements OnInit {
     return !!this.hecConfig;
   }
 
-  getSettingsAsJson(configuration: string) {
-    try {
-      return JSON.parse(configuration);
-    } catch {
-      return {};
-    }
-  }
-
   submit = async (): Promise<void> => {
     const formJson = this.formGroup.getRawValue();
 

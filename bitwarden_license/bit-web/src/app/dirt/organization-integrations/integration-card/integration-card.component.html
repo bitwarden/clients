@@ -34,7 +34,7 @@
 
     @if (canSetupConnection) {
       <button type="button" class="tw-mt-3" bitButton (click)="setupConnection()">
-        @if (IsUpdateAvailable()) {
+        @if (isUpdateAvailable) {
           <span>{{ "updateIntegrationButtonDesc" | i18n: name }}</span>
         } @else {
           <span>{{ "connectIntegrationButtonDesc" | i18n: name }}</span>

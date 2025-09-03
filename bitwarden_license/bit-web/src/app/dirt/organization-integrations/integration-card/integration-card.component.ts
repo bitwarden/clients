@@ -49,7 +49,6 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
    */
   @Input() newBadgeExpiration?: string;
   @Input() description?: string;
-  @Input() isConnected?: boolean;
   @Input() canSetupConnection?: boolean;
 
   organizationId: OrganizationId;
@@ -115,11 +114,15 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     return expirationDate > new Date();
   }
 
-  showConnectedBadge(): boolean {
-    return this.isConnected !== undefined;
+  get isConnected(): boolean {
+    return !!this.integrationSettings.organizationIntegration?.configuration;
   }
 
-  IsUpdateAvailable(): boolean {
+  showConnectedBadge(): boolean {
+    return this.canSetupConnection;
+  }
+
+  isUpdateAvailable(): boolean {
     return !!this.integrationSettings.organizationIntegration;
   }
 
@@ -139,19 +142,19 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     }
 
     try {
-      if (this.IsUpdateAvailable) {
-        await this.hecOrganizationIntegrationService.saveHec(
+      if (this.isUpdateAvailable()) {
+        await this.hecOrganizationIntegrationService.updateHec(
           this.organizationId,
+          this.integrationSettings.organizationIntegration.id,
+          this.integrationSettings.organizationIntegration.integrationConfiguration[0].id,
           this.integrationSettings.name as OrganizationIntegrationServiceType,
           result.url,
           result.bearerToken,
           result.index,
         );
       } else {
-        await this.hecOrganizationIntegrationService.updateHec(
+        await this.hecOrganizationIntegrationService.saveHec(
           this.organizationId,
-          this.integrationSettings.organizationIntegration.id,
-          this.integrationSettings.organizationIntegration.integrationConfiguration[0].id,
           this.integrationSettings.name as OrganizationIntegrationServiceType,
           result.url,
           result.bearerToken,

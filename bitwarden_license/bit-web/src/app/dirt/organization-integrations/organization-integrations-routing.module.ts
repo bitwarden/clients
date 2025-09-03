@@ -7,7 +7,7 @@ import { AdminConsoleIntegrationsComponent } from "./integrations.component";
 
 const routes: Routes = [
   {
-    path: "integrations",
+    path: "",
     canActivate: [organizationPermissionsGuard((org) => org.canAccessIntegrations)],
     component: AdminConsoleIntegrationsComponent,
     data: {

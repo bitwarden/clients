@@ -1,27 +1,34 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
+import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { ToastService } from "@bitwarden/components";
-// eslint-disable-next-line no-restricted-imports
-import { SharedModule } from "@bitwarden/components/src/shared";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { OrganizationIntegrationService } from "../services/organization-integration.service";
+import { openHecConnectDialog } from "../integration-dialog";
 
 import { IntegrationCardComponent } from "./integration-card.component";
+
+jest.mock("../integration-dialog", () => ({
+  openHecConnectDialog: jest.fn(),
+}));
 
 describe("IntegrationCardComponent", () => {
   let component: IntegrationCardComponent;
   let fixture: ComponentFixture<IntegrationCardComponent>;
   const mockI18nService = mock<I18nService>();
   const activatedRoute = mock<ActivatedRoute>();
-  const mockIntegrationService = mock<OrganizationIntegrationService>();
+  const mockIntegrationService = mock<HecOrganizationIntegrationService>();
+  const dialogService = mock<DialogService>();
+  const toastService = mock<ToastService>();
 
   const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
   const usersPreferenceTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
@@ -43,8 +50,9 @@ describe("IntegrationCardComponent", () => {
         { provide: I18nPipe, useValue: mock<I18nPipe>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ActivatedRoute, useValue: activatedRoute },
-        { provide: OrganizationIntegrationService, useValue: mockIntegrationService },
-        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: HecOrganizationIntegrationService, useValue: mockIntegrationService },
+        { provide: ToastService, useValue: toastService },
+        { provide: DialogService, useValue: dialogService },
       ],
     }).compileComponents();
   });
@@ -186,27 +194,160 @@ describe("IntegrationCardComponent", () => {
     });
   });
 
-  describe("connected badge", () => {
-    it("shows connected badge when isConnected is true", () => {
-      component.isConnected = true;
+  describe("showNewBadge", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date("2024-06-01"));
+    });
 
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("returns false when newBadgeExpiration is undefined", () => {
+      component.newBadgeExpiration = undefined;
+      expect(component.showNewBadge()).toBe(false);
+    });
+
+    it("returns false when newBadgeExpiration is an invalid date", () => {
+      component.newBadgeExpiration = "invalid-date";
+      expect(component.showNewBadge()).toBe(false);
+    });
+
+    it("returns true when newBadgeExpiration is in the future", () => {
+      component.newBadgeExpiration = "2024-06-02";
+      expect(component.showNewBadge()).toBe(true);
+    });
+
+    it("returns false when newBadgeExpiration is today", () => {
+      component.newBadgeExpiration = "2024-06-01";
+      expect(component.showNewBadge()).toBe(false);
+    });
+
+    it("returns false when newBadgeExpiration is in the past", () => {
+      component.newBadgeExpiration = "2024-05-31";
+      expect(component.showNewBadge()).toBe(false);
+    });
+  });
+  describe("showConnectedBadge", () => {
+    it("returns true when canSetupConnection is true", () => {
+      component.canSetupConnection = true;
       expect(component.showConnectedBadge()).toBe(true);
     });
 
-    it("does not show connected badge when isConnected is false", () => {
-      component.isConnected = false;
-      fixture.detectChanges();
-      const name = fixture.nativeElement.querySelector("h3 > span > span > span");
-
-      expect(name.textContent).toContain("off");
-      // when isConnected is true/false, the badge should be shown as on/off
-      // when isConnected is undefined, the badge should not be shown
-      expect(component.showConnectedBadge()).toBe(true);
-    });
-
-    it("does not show connected badge when isConnected is undefined", () => {
-      component.isConnected = undefined;
+    it("returns false when canSetupConnection is false", () => {
+      component.canSetupConnection = false;
       expect(component.showConnectedBadge()).toBe(false);
+    });
+
+    it("returns undefined when canSetupConnection is undefined", () => {
+      component.canSetupConnection = undefined;
+      expect(component.showConnectedBadge()).toBeUndefined();
+    });
+  });
+
+  describe("setupConnection", () => {
+    beforeEach(() => {
+      component.integrationSettings = {
+        organizationIntegration: {
+          id: "integration-id",
+          configuration: {},
+          integrationConfiguration: [{ id: "config-id" }],
+        },
+        name: OrganizationIntegrationServiceType.CrowdStrike,
+      } as any;
+      component.organizationId = "org-id" as any;
+      jest.resetAllMocks();
+    });
+
+    it("should not proceed if dialog is cancelled", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({ success: false }),
+      });
+      await component.setupConnection();
+      expect(mockIntegrationService.updateHec).not.toHaveBeenCalled();
+      expect(mockIntegrationService.saveHec).not.toHaveBeenCalled();
+    });
+
+    it("should call updateHec if isUpdateAvailable is true", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: true,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      jest.spyOn(component, "isUpdateAvailable").mockReturnValue(true);
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.updateHec).toHaveBeenCalledWith(
+        "org-id",
+        "integration-id",
+        "config-id",
+        OrganizationIntegrationServiceType.CrowdStrike,
+        "test-url",
+        "token",
+        "index",
+      );
+      expect(mockIntegrationService.saveHec).not.toHaveBeenCalled();
+    });
+
+    it("should call saveHec if isUpdateAvailable is false", async () => {
+      component.integrationSettings = {
+        organizationIntegration: null,
+        name: OrganizationIntegrationServiceType.CrowdStrike,
+      } as any;
+      component.organizationId = "org-id" as any;
+
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: true,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      jest.spyOn(component, "isUpdateAvailable").mockReturnValue(false);
+
+      mockIntegrationService.saveHec.mockResolvedValue(undefined);
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.saveHec).toHaveBeenCalledWith(
+        "org-id",
+        OrganizationIntegrationServiceType.CrowdStrike,
+        "test-url",
+        "token",
+        "index",
+      );
+      expect(mockIntegrationService.updateHec).not.toHaveBeenCalled();
+    });
+
+    it("should show toast on error", async () => {
+      (openHecConnectDialog as jest.Mock).mockReturnValue({
+        closed: of({
+          success: true,
+          url: "test-url",
+          bearerToken: "token",
+          index: "index",
+        }),
+      });
+
+      jest.spyOn(component, "isUpdateAvailable").mockReturnValue(true);
+      mockIntegrationService.updateHec.mockRejectedValue(new Error("fail"));
+
+      await component.setupConnection();
+
+      expect(mockIntegrationService.updateHec).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "",
+        message: mockI18nService.t("failedToSaveIntegration"),
+      });
     });
   });
 });
