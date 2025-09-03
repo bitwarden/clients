@@ -393,7 +393,10 @@ export class DefaultSyncService extends CoreSyncService {
     return await this.policyService.replace(policies, userId);
   }
 
-  private async syncUserDecryption(userId: UserId, userDecryption?: UserDecryptionResponse) {
+  private async syncUserDecryption(
+    userId: UserId,
+    userDecryption: UserDecryptionResponse | undefined,
+  ) {
     if (userDecryption == null) {
       return;
     }
