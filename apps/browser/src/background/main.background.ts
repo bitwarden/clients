@@ -738,6 +738,22 @@ export default class MainBackground {
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
       this.vaultTimeoutSettingsService,
       { createRequest: (url, request) => new Request(url, request) },
+      this.stateProvider,
+    );
+
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      this.kdfConfigService,
+      this.keyService,
+      this.apiService,
+      this.stateProvider,
     );
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
@@ -770,20 +786,6 @@ export default class MainBackground {
       this.organizationService,
       this.keyGenerationService,
       logoutCallback,
-      this.stateProvider,
-    );
-
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
       this.stateProvider,
     );
 

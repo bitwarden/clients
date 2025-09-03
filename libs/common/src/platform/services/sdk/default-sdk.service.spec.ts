@@ -7,11 +7,12 @@ import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-ma
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import {
+  ObservableTracker,
   FakeAccountService,
   FakeStateProvider,
   mockAccountServiceWith,
-  ObservableTracker,
 } from "../../../../spec";
+import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { UserId } from "../../../types/guid";
@@ -41,6 +42,7 @@ describe("DefaultSdkService", () => {
     let platformUtilsService!: MockProxy<PlatformUtilsService>;
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
+    let apiService!: MockProxy<ApiService>;
     let service!: DefaultSdkService;
     let accountService!: FakeAccountService;
     let fakeStateProvider!: FakeStateProvider;
@@ -53,6 +55,7 @@ describe("DefaultSdkService", () => {
       platformUtilsService = mock<PlatformUtilsService>();
       kdfConfigService = mock<KdfConfigService>();
       keyService = mock<KeyService>();
+      apiService = mock<ApiService>();
       const mockUserId = Utils.newGuid() as UserId;
       accountService = mockAccountServiceWith(mockUserId);
       fakeStateProvider = new FakeStateProvider(accountService);
@@ -67,6 +70,7 @@ describe("DefaultSdkService", () => {
         accountService,
         kdfConfigService,
         keyService,
+        apiService,
         fakeStateProvider,
       );
     });

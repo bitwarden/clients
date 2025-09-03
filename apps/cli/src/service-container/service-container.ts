@@ -504,6 +504,7 @@ export class ServiceContainer {
       this.logService,
       logoutCallback,
       this.vaultTimeoutSettingsService,
+      this.stateProvider,
       customUserAgent,
     );
 
@@ -600,6 +601,7 @@ export class ServiceContainer {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
+      this.apiService,
       this.stateProvider,
       customUserAgent,
     );

@@ -753,6 +753,7 @@ const safeProviders: SafeProvider[] = [
       LOGOUT_CALLBACK,
       VaultTimeoutSettingsService,
       HTTP_OPERATIONS,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -1498,6 +1499,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       KdfConfigService,
       KeyService,
+      ApiServiceAbstraction,
       StateProvider,
     ],
   }),
