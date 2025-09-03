@@ -56,7 +56,7 @@ export class SwitchComponent implements ControlValueAccessor {
     return ids.join(" ");
   });
 
-  // ControlValueAccessor
+  // ControlValueAccessor functions
   onChange: (value: unknown) => void = () => {};
   onTouched: () => void = () => {};
 
@@ -72,6 +72,11 @@ export class SwitchComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
+  setDisabledState(isDisabled: boolean) {
+    this.disabled.set(isDisabled);
+  }
+  // end ControlValueAccessor functions
+
   readonly id = input(`bit-switch-${nextId++}`);
 
   protected onInputChange(event: Event) {
@@ -79,10 +84,6 @@ export class SwitchComponent implements ControlValueAccessor {
     this.writeValue(checked);
     this.onChange(checked);
     this.onTouched();
-  }
-
-  setDisabledState(isDisabled: boolean) {
-    this.disabled.set(isDisabled);
   }
 
   get inputId() {
