@@ -752,6 +752,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       LOGOUT_CALLBACK,
       VaultTimeoutSettingsService,
+      AccountService,
       HTTP_OPERATIONS,
     ],
   }),
@@ -1158,7 +1159,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ConfigApiServiceAbstraction,
     useClass: ConfigApiService,
-    deps: [ApiServiceAbstraction, TokenServiceAbstraction],
+    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: AnonymousHubServiceAbstraction,
