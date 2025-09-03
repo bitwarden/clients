@@ -3,15 +3,19 @@ import { BrowserWindow } from "electron";
 import { WindowState } from "./models/domain/window-state";
 
 // change as needed, however limited by mainwindow minimum size
-const popupWidth = 680;
-const popupHeight = 500;
+const popupWidth = 600;
+const popupHeight = 600;
 
 type Position = { x: number; y: number };
 
-export function applyPopupModalStyles(window: BrowserWindow, position?: Position) {
+export function applyPopupModalStyles(
+  window: BrowserWindow,
+  showTrafficButtons: boolean = true,
+  position?: Position,
+) {
   window.unmaximize();
   window.setSize(popupWidth, popupHeight);
-  window.setWindowButtonVisibility?.(false);
+  window.setWindowButtonVisibility?.(showTrafficButtons);
   window.setMenuBarVisibility?.(false);
   window.setResizable(false);
   window.setAlwaysOnTop(true);
@@ -35,12 +39,13 @@ function positionWindow(window: BrowserWindow, position?: Position) {
     const centeredY = position.y - popupHeight / 2;
     window.setPosition(centeredX, centeredY);
   } else {
+    this.logService.warning("No position provided, centering window");
     window.center();
   }
 }
 
 export function applyMainWindowStyles(window: BrowserWindow, existingWindowState: WindowState) {
-  window.setMinimumSize(680, 500);
+  window.setMinimumSize(600, 500);
 
   // need to guard against null/undefined values
 
