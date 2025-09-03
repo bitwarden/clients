@@ -254,7 +254,7 @@ export class AtRiskPasswordsComponent implements OnInit {
   }
 
   protected hasLoginUri(cipher: CipherView) {
-    return cipher.login?.uris.length > 0;
+    return cipher.login?.hasUris;
   }
 
   launchChangePassword = async (cipher: CipherView) => {

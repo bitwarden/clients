@@ -140,7 +140,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   }
 
   get hasLoginUri() {
-    return (this.cipher?.login?.uris.length ?? 0) > 0;
+    return this.cipher?.login?.hasUris;
   }
 
   async loadCipherData() {
