@@ -504,12 +504,13 @@ export class ServiceContainer {
       this.logService,
       logoutCallback,
       this.vaultTimeoutSettingsService,
+      this.accountService,
       customUserAgent,
     );
 
     this.containerService = new ContainerService(this.keyService, this.encryptService);
 
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
+    this.configApiService = new ConfigApiService(this.apiService);
 
     this.authService = new AuthService(
       this.accountService,
@@ -601,6 +602,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.keyService,
       this.stateProvider,
+      this.configService,
       customUserAgent,
     );
 

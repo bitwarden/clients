@@ -4083,5 +4083,11 @@
   },
   "next": {
     "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
   }
 }
