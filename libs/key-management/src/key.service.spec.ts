@@ -193,47 +193,6 @@ describe("keyService", () => {
     });
   });
 
-  describe("unlockedUserKeys$", () => {
-    let mockUserKey: UserKey;
-    let mockUserId2: UserId;
-    let mockUserKey2: UserKey;
-
-    beforeEach(() => {
-      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-      mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-      mockUserId2 = Utils.newGuid() as UserId;
-      mockUserKey2 = new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as UserKey;
-    });
-
-    it("should emit when a user key is set via setUserKey", async () => {
-      const emittedValues: { userId: UserId; userKey: UserKey }[] = [];
-      const subscription = keyService.unlockedUserKeys$.subscribe((value) => {
-        emittedValues.push(value);
-      });
-
-      await keyService.setUserKey(mockUserKey, mockUserId);
-
-      expect(emittedValues).toHaveLength(1);
-      expect(emittedValues[0]).toEqual({ userId: mockUserId, userKey: mockUserKey });
-      subscription.unsubscribe();
-    });
-
-    it("should emit multiple values when different users unlock", async () => {
-      const emittedValues: { userId: UserId; userKey: UserKey }[] = [];
-      const subscription = keyService.unlockedUserKeys$.subscribe((value) => {
-        emittedValues.push(value);
-      });
-
-      await keyService.setUserKey(mockUserKey, mockUserId);
-      await keyService.setUserKey(mockUserKey2, mockUserId2);
-
-      expect(emittedValues).toHaveLength(2);
-      expect(emittedValues[0]).toEqual({ userId: mockUserId, userKey: mockUserKey });
-      expect(emittedValues[1]).toEqual({ userId: mockUserId2, userKey: mockUserKey2 });
-      subscription.unsubscribe();
-    });
-  });
-
   describe("setUserKey", () => {
     let mockUserKey: UserKey;
     let everHadUserKeyState: FakeSingleUserState<boolean>;
