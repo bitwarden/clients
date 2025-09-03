@@ -17,6 +17,10 @@ export class CipherRecordMapper implements SdkRecordMapper<CipherData, SdkCipher
   }
 
   fromSdk(value: SdkCipher): CipherData {
-    throw new Error("Cipher.fromSdk is not implemented yet");
+    const cipher = Cipher.fromSdkCipher(value);
+    if (!cipher) {
+      throw new Error("Failed to convert SdkCipher to Cipher");
+    }
+    return cipher.toCipherData();
   }
 }
