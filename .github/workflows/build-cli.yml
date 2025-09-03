@@ -132,8 +132,9 @@ jobs:
           node-version: ${{ env._NODE_VERSION }}
 
       - name: Install
-        run: npm --version
-        run: npm ci
+        run: |
+          npm --version
+          npm ci
         working-directory: ./
 
       - name: Download SDK Artifacts
