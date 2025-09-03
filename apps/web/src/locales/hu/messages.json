@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
   },
+  "invalidRecoveryCode": {
+    "message": "Érvénytelen a helyreállító kód."
+  },
   "authenticatorAppTitle": {
     "message": "Hitelesítő alkalmazás"
   },

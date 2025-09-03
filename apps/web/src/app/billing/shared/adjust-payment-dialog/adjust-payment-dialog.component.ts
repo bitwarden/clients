@@ -24,7 +24,7 @@ import {
 import { PaymentComponent } from "../payment/payment.component";
 
 export interface AdjustPaymentDialogParams {
-  initialPaymentMethod?: PaymentMethodType;
+  initialPaymentMethod?: PaymentMethodType | null;
   organizationId?: string;
   productTier?: ProductTierType;
   providerId?: string;
