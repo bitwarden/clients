@@ -126,14 +126,12 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
-          node-version: 24
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
 
       - name: Install
-        run: |
-          npm --version
-          npm ci
+        run: npm ci
         working-directory: ./
 
       - name: Download SDK Artifacts
