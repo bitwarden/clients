@@ -177,7 +177,7 @@
     "message": "Všetkých aplikácii"
   },
   "unmarkAsCritical": {
-    "message": "Unmark as critical"
+    "message": "Zrušiť označenie za kritické"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Označenie aplikácie za kritickú úspešne zrušené"
@@ -868,13 +868,13 @@
     "message": "Kopírovať číslo licencie"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopírovať súkromný kľúč"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopírovať verejný kľúč"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopírovať odtlačok"
   },
   "copyName": {
     "message": "Kopírovať meno"
@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Záchranný kód"
   },
+  "invalidRecoveryCode": {
+    "message": "Neplatný kód na obnovenie"
+  },
   "authenticatorAppTitle": {
     "message": "Overovacia aplikácia"
   },
@@ -2112,7 +2115,7 @@
     "message": "Zmeňte východzí jazyk pre webový trezor."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
   "default": {
     "message": "Predvolené"
@@ -10989,10 +10992,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "O tomto nastavení"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
   },
   "billingAddress": {
     "message": "Fakturačná adresa"

@@ -2,6 +2,7 @@ import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { CipherFormCacheService } from "./default-cipher-form-cache.service";
@@ -36,9 +37,10 @@ describe("CipherFormCacheService", () => {
     it("updates the signal value", async () => {
       service = testBed.inject(CipherFormCacheService);
 
-      service.cacheCipherView({ id: "cipher-5" } as CipherView);
+      service.cacheCipherView(new CipherView({ id: "cipher-5" } as Cipher));
 
-      expect(cacheSignal.set).toHaveBeenCalledWith({ id: "cipher-5" });
+      expect(cacheSignal.set).toHaveBeenCalledWith(expect.any(CipherView)); // Ensure we keep the CipherView prototype
+      expect(cacheSignal.set).toHaveBeenCalledWith(expect.objectContaining({ id: "cipher-5" }));
     });
 
     describe("initializedWithValue", () => {
