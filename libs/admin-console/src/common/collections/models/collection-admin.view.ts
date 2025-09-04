@@ -118,7 +118,17 @@ export class CollectionAdminView extends CollectionView {
     orgKey: OrgKey,
   ): Promise<CollectionAdminView> {
     const view = new CollectionAdminView({ ...collection });
-    view.name = await encryptService.decryptString(new EncString(view.name), orgKey);
+    try {
+      view.name = await encryptService.decryptString(new EncString(view.name), orgKey);
+    } catch (e) {
+      // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
+      // eslint-disable-next-line no-console
+      console.error(
+        "[CollectionAdminView/fromCollectionAccessDetails] Error decrypting collection name",
+        e,
+      );
+      throw e;
+    }
     view.assigned = collection.assigned;
     view.readOnly = collection.readOnly;
     view.hidePasswords = collection.hidePasswords;
@@ -144,9 +154,22 @@ export class CollectionAdminView extends CollectionView {
     encryptService: EncryptService,
     orgKey: OrgKey,
   ): Promise<CollectionAdminView> {
+    let collectionName: string;
+    try {
+      await encryptService.decryptString(new EncString(collection.name), orgKey);
+    } catch (e) {
+      // Note: This should be updated by the owning team with appropriate, domain specific behavior
+      // eslint-disable-next-line no-console
+      console.log(
+        "[CollectionAdminView/fromCollectionResponse] Failed to decrypt the collection name",
+        e,
+      );
+      throw e;
+    }
+
     const collectionAdminView = new CollectionAdminView({
       id: collection.id,
-      name: await encryptService.decryptString(new EncString(collection.name), orgKey),
+      name: collectionName,
       organizationId: collection.organizationId,
     });
 

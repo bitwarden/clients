@@ -829,10 +829,14 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         }
 
         return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$.pipe(
-          switchMap(
-            async (encryptedPrivateKey) =>
-              await this.decryptPrivateKey(encryptedPrivateKey, userKey),
-          ),
+          switchMap(async (encryptedPrivateKey) => {
+            try {
+              return await this.decryptPrivateKey(encryptedPrivateKey, userKey);
+            } catch (e) {
+              this.logService.error("Failed to decrypt private key for user ", userId, e);
+              throw e;
+            }
+          }),
           // Combine outerscope info with user private key
           map((userPrivateKey) => ({
             userKey,

@@ -180,9 +180,9 @@ export class EncString {
 
       const encryptService = Utils.getContainerService().getEncryptService();
       this.decryptedValue = await encryptService.decryptString(this, key);
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("[EncString Generic Decrypt] failed to decrypt encstring", e);
       this.decryptedValue = DECRYPT_ERROR;
     }
     return this.decryptedValue;
