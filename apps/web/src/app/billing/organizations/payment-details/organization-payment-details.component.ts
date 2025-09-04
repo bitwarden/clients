@@ -212,7 +212,6 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
     const result = await lastValueFrom(dialogRef.closed);
     if (result?.type === "success") {
       await this.setPaymentMethod(result.paymentMethod);
-      this.organizationWarningsService.refreshFreeTrialWarning();
     }
   };
 
@@ -233,6 +232,10 @@ export class OrganizationPaymentDetailsComponent implements OnInit, OnDestroy {
 
   setPaymentMethod = async (paymentMethod: MaskedPaymentMethod) => {
     if (this.viewState$.value) {
+      if (!this.viewState$.value.paymentMethod) {
+        this.organizationWarningsService.refreshFreeTrialWarning();
+      }
+
       const billingAddress =
         this.viewState$.value.billingAddress ??
         (await this.subscriberBillingClient.getBillingAddress(this.viewState$.value.organization));

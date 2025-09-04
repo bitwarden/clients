@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, map, Observable, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -11,13 +11,13 @@ import type { Organization } from "@bitwarden/common/admin-console/models/domain
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { DialogService, NavigationModule } from "@bitwarden/components";
-
-import { TrialFlowService } from "./../../billing/services/trial-flow.service";
+import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 @Component({
   selector: "org-switcher",
   templateUrl: "org-switcher.component.html",
-  imports: [CommonModule, JslibModule, NavigationModule],
+  imports: [CommonModule, JslibModule, NavigationModule, OrganizationWarningsModule],
 })
 export class OrgSwitcherComponent {
   protected organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
@@ -64,9 +64,9 @@ export class OrgSwitcherComponent {
     private route: ActivatedRoute,
     protected dialogService: DialogService,
     private organizationService: OrganizationService,
-    private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
     private accountService: AccountService,
+    private organizationWarningsService: OrganizationWarningsService,
   ) {}
 
   protected toggle(event?: MouseEvent) {
@@ -75,8 +75,8 @@ export class OrgSwitcherComponent {
     this.openChange.emit(this.open);
   }
 
-  async handleUnpaidSubscription(org: Organization) {
-    const metaData = await this.billingApiService.getOrganizationBillingMetadata(org.id);
-    await this.trialFlowService.handleUnpaidSubscriptionDialog(org, metaData);
-  }
+  showInactiveSubscriptionDialog = async (organization: Organization) =>
+    await firstValueFrom(
+      this.organizationWarningsService.showInactiveSubscriptionDialog$(organization),
+    );
 }

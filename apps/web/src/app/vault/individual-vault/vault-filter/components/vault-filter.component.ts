@@ -1,5 +1,4 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { Router } from "@angular/router";
 import {
   combineLatest,
   distinctUntilChanged,
@@ -26,8 +25,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
   VaultFilterList,
@@ -61,10 +60,11 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   isLoaded = false;
 
   protected destroy$: Subject<void> = new Subject<void>();
-  private router = inject(Router);
   get filtersList() {
     return this.filters ? Object.values(this.filters) : [];
   }
+
+  protected organizationWarningsService = inject(OrganizationWarningsService);
 
   allTypeFilters: CipherTypeFilter[] = [
     {
@@ -143,7 +143,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return "searchVault";
   }
 
-  private trialFlowService = inject(TrialFlowService);
   protected activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   constructor(
@@ -211,8 +210,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         variant: "error",
         message: this.i18nService.t("disabledOrganizationFilterError"),
       });
-      const metadata = await this.billingApiService.getOrganizationBillingMetadata(orgNode.node.id);
-      await this.trialFlowService.handleUnpaidSubscriptionDialog(orgNode.node, metadata);
+      await firstValueFrom(
+        this.organizationWarningsService.showInactiveSubscriptionDialog$(orgNode.node),
+      );
     }
     const filter = this.activeFilter;
     if (orgNode?.node.id === "AllVaults") {

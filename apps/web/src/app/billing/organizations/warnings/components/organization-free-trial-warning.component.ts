@@ -38,6 +38,7 @@ import { OrganizationFreeTrialWarning } from "../types";
 })
 export class OrganizationFreeTrialWarningComponent implements OnInit {
   @Input({ required: true }) organization!: Organization;
+  @Input() includeOrganizationNameInMessaging = false;
   @Output() clicked = new EventEmitter<void>();
 
   warning$!: Observable<OrganizationFreeTrialWarning | null>;
@@ -45,6 +46,9 @@ export class OrganizationFreeTrialWarningComponent implements OnInit {
   constructor(private organizationWarningsService: OrganizationWarningsService) {}
 
   ngOnInit() {
-    this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization);
+    this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(
+      this.organization,
+      this.includeOrganizationNameInMessaging,
+    );
   }
 }
