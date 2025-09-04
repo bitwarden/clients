@@ -433,8 +433,8 @@ describe("MasterPasswordLockComponent", () => {
       await component.submit();
 
       expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-        activeAccount.id,
         mockMasterPassword,
+        activeAccount.id,
       );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
@@ -460,8 +460,8 @@ describe("MasterPasswordLockComponent", () => {
 
       expect(emittedUserKey).toEqual(mockUserKey);
       expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-        activeAccount.id,
         mockMasterPassword,
+        activeAccount.id,
       );
     });
   });

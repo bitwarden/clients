@@ -83,17 +83,17 @@ export class MasterPasswordLockComponent {
 
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    await this.unlockViaMasterPassword(activeUserId, masterPassword);
+    await this.unlockViaMasterPassword(masterPassword, activeUserId);
   };
 
   private async unlockViaMasterPassword(
-    activeUserId: UserId,
     masterPassword: string,
+    activeUserId: UserId,
   ): Promise<void> {
     try {
       const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-        activeUserId,
         masterPassword,
+        activeUserId,
       );
       this.successfulUnlock.emit(userKey);
     } catch (error) {
