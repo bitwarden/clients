@@ -1,6 +1,11 @@
 import { Observable } from "rxjs";
 
-import { AUTH_REQUEST_DISK_LOCAL, GlobalState, KeyDefinition, StateProvider } from "@bitwarden/common/platform/state";
+import {
+  AUTH_REQUEST_DISK_LOCAL,
+  GlobalState,
+  KeyDefinition,
+  StateProvider,
+} from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/user-core";
 
 export type PendingAuthUserMarker = {
@@ -43,7 +48,7 @@ export class PendingAuthRequestsStateService {
     });
   }
 
-  async clearByUserId(userId: UserId): Promise<void> {
+  async clear(userId: UserId): Promise<void> {
     await this.stateProvider.getGlobal(PENDING_AUTH_REQUESTS).update((current) => {
       const list = current ?? [];
       return list.filter((e) => e.userId !== userId);

@@ -14,9 +14,7 @@ import {
 } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import {
-  PendingAuthRequestsStateService
-} from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -258,9 +256,9 @@ export class DeviceManagementComponent implements OnInit {
 
       // If a user ignores or doesn't see the auth request dialog, but comes to account settings
       // to approve a device login attempt, clear out the state for that user.
-      await this.pendingAuthRequestStateService.clearByUserId(
-        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId))
-      )
+      await this.pendingAuthRequestStateService.clear(
+        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      );
     }
   }
 }

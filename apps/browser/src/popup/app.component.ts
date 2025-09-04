@@ -270,7 +270,7 @@ export class AppComponent implements OnInit, OnDestroy {
                   if (result !== undefined && typeof result === "boolean") {
                     respondedIds.add(req.id);
                     if (respondedIds.size === pendingList.length && this.activeUserId != null) {
-                      await this.pendingAuthRequestsState.clearByUserId(this.activeUserId);
+                      await this.pendingAuthRequestsState.clear(this.activeUserId);
                     }
                   }
                 }
