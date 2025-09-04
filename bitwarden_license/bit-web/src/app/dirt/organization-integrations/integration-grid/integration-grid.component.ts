@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
@@ -14,7 +12,7 @@ import { IntegrationCardComponent } from "../integration-card/integration-card.c
   imports: [IntegrationCardComponent, SharedModule],
 })
 export class IntegrationGridComponent {
-  @Input() integrations: Integration[];
+  @Input() integrations: Integration[] = [];
 
   @Input() ariaI18nKey: string = "integrationCardAriaLabel";
   @Input() tooltipI18nKey: string = "integrationCardTooltip";
