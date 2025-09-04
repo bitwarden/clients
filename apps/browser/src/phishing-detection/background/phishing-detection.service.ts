@@ -1,4 +1,4 @@
-import { mergeMap, Subscription } from "rxjs";
+import { concatMap, Subscription } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -54,7 +54,7 @@ export class PhishingDetectionService {
     configService
       .getFeatureFlag$(FeatureFlag.PhishingDetection)
       .pipe(
-        mergeMap(async (enabled) => {
+        concatMap(async (enabled) => {
           if (!enabled) {
             logService.info(
               "[PhishingDetectionService] Phishing detection feature flag is disabled.",
