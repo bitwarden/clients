@@ -760,7 +760,7 @@ describe("Cipher Service", () => {
 
       //// Mock the SDK response
       cipherEncryptionService.decryptManyWithFailures.mockResolvedValue([
-        [{ id: mockCiphers[0].id, name: "Success 1" } as CipherListView],
+        [{ id: mockCiphers[0].id, name: "Success 1" } as unknown as CipherListView],
         [mockCiphers[1]], // Mock failed cipher
       ]);
     });
@@ -772,7 +772,7 @@ describe("Cipher Service", () => {
 
       // Set up expected results
       const expectedSuccessCipherViews = [
-        { id: mockCiphers[0].id, name: "Success 1" } as CipherListView,
+        { id: mockCiphers[0].id, name: "Success 1" } as unknown as CipherListView,
       ];
       const expectedFailedCipherViews = [new CipherView(mockCiphers[1])];
       expectedFailedCipherViews[0].decryptionFailure = true;

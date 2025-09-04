@@ -555,8 +555,11 @@ describe("DefaultCipherEncryptionService", () => {
         new Cipher({ ...cipherData, id: "cipher2" as CipherId }),
       ];
 
-      const successCipherList = { id: "cipher1", name: "Decrypted Cipher 1" } as CipherListView;
-      const failedCipher = { id: "cipher2", name: "Failed Cipher" } as SdkCipher;
+      const successCipherList = {
+        id: "cipher1",
+        name: "Decrypted Cipher 1",
+      } as unknown as CipherListView;
+      const failedCipher = { id: "cipher2", name: "Failed Cipher" } as unknown as SdkCipher;
 
       const expectedFailedCiphers = [Cipher.fromSdkCipher(failedCipher)];
 
