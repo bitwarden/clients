@@ -66,7 +66,6 @@ import { TemporaryNotificationChangeLoginService } from "../services/notificatio
 import {
   AddChangePasswordNotificationQueueMessage,
   AddLoginQueueMessage,
-  AddUnlockVaultQueueMessage,
   AddLoginMessageData,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
@@ -115,7 +114,6 @@ export default class NotificationBackground {
     bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
     bgHandleReprompt: ({ message, sender }: any) =>
       this.handleCipherUpdateRepromptResponse(message),
-    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
     checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
     collectPageDetailsResponse: ({ message }) =>
       this.handleCollectPageDetailsResponseMessage(message),
@@ -667,29 +665,6 @@ export default class NotificationBackground {
     });
   }
 
-  /**
-   * Sets up a notification to unlock the vault when the user
-   * attempts to autofill a cipher while the vault is locked.
-   *
-   * @param message - Extension message, determines if the notification should be skipped
-   * @param tab - The tab that the message was sent from
-   */
-  private async unlockVault(message: NotificationBackgroundExtensionMessage, tab: chrome.tabs.Tab) {
-    if (message.data?.skipNotification) {
-      return;
-    }
-
-    const currentAuthStatus = await this.getAuthStatus();
-    if (currentAuthStatus !== AuthenticationStatus.Locked || this.notificationQueue.length) {
-      return;
-    }
-
-    const loginDomain = Utils.getDomain(tab.url);
-    if (loginDomain) {
-      await this.pushUnlockVaultToQueue(loginDomain, tab);
-    }
-  }
-
   private async pushChangePasswordToQueue(
     cipherId: string,
     loginDomain: string,
@@ -711,20 +686,6 @@ export default class NotificationBackground {
     };
     this.notificationQueue.push(message);
     await this.checkNotificationQueue(tab);
-  }
-
-  private async pushUnlockVaultToQueue(loginDomain: string, tab: chrome.tabs.Tab) {
-    this.removeTabFromNotificationQueue(tab);
-    const launchTimestamp = new Date().getTime();
-    const message: AddUnlockVaultQueueMessage = {
-      type: NotificationType.UnlockVault,
-      domain: loginDomain,
-      tab: tab,
-      launchTimestamp,
-      expires: new Date(launchTimestamp + 0.5 * 60000), // 30 seconds
-      wasVaultLocked: true,
-    };
-    await this.sendNotificationQueueMessage(tab, message);
   }
 
   /**

@@ -83,8 +83,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
     checkIsMostRecentlyFocusedFieldWithinViewport: () =>
       this.checkIsMostRecentlyFocusedFieldWithinViewport(),
-    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
+    blurFieldOnPopoutOpen: () => this.blurMostRecentlyFocusedField(true),
     redirectAutofillInlineMenuFocusOut: ({ message }) =>
       this.redirectInlineMenuFocusOut(message?.data?.direction),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),

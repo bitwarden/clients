@@ -34,7 +34,7 @@ describe("AuthPopoutWindow", () => {
       senderTab = { windowId: 1 } as chrome.tabs.Tab;
     });
 
-    it("opens a single action popup that allows the user to unlock the extension and sends a `bgUnlockPopoutOpened` message", async () => {
+    it("opens a single action popup that allows the user to unlock the extension and sends a `blurFieldOnPopoutOpen` message", async () => {
       jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
 
       await openUnlockPopout(senderTab);
@@ -43,17 +43,13 @@ describe("AuthPopoutWindow", () => {
         singleActionKey: AuthPopoutType.unlockExtension,
         senderWindowId: 1,
       });
-      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened", {
-        skipNotification: false,
-      });
+      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "blurFieldOnPopoutOpen", {});
     });
 
-    it("sends an indication that the presenting the notification bar for unlocking the extension should be skipped", async () => {
-      await openUnlockPopout(senderTab, true);
+    it("sends the blurFieldOnPopoutOpen message", async () => {
+      await openUnlockPopout(senderTab);
 
-      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened", {
-        skipNotification: true,
-      });
+      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "blurFieldOnPopoutOpen", {});
     });
 
     it("closes any existing popup window types that are open to the unlock extension route", async () => {
