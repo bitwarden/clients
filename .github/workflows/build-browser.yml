@@ -123,11 +123,20 @@ jobs:
 
 
   build-source:
-    name: Build browser source
+    name: Build browser source - ${{matrix.license_type.readable}}
     runs-on: ubuntu-22.04
     needs:
       - setup
       - locales-test
+    strategy:
+      matrix:
+        license_type:
+          - include_bitwarden_license_folder: false
+            archive_name_prefix: ""
+            readable: "open source license"
+          - include_bitwarden_license_folder: true
+            archive_name_prefix: "bit-"
+            readable: "commercial license"
     env:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -166,6 +175,12 @@ jobs:
           mkdir -p browser-source/apps/browser
           cp -r apps/browser/* browser-source/apps/browser
 
+          # Copy bitwarden_license/bit-browser to the Browser source directory
+          if [[ ${{matrix.license_type.include_bitwarden_license_folder}} == "true" ]]; then
+            mkdir -p browser-source/bitwarden_license/bit-browser
+            cp -r bitwarden_license/bit-browser/* browser-source/bitwarden_license/bit-browser
+          fi
+
           # Copy libs to Browser source directory
           mkdir browser-source/libs
           cp -r libs/* browser-source/libs
@@ -175,13 +190,13 @@ jobs:
       - name: Upload browser source
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: browser-source-${{ env._BUILD_NUMBER }}.zip
+          name: ${{matrix.license_type.archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
           path: browser-source.zip
           if-no-files-found: error
 
 
   build:
-    name: Build
+    name: Build ${{ matrix.browser.name }} - ${{ matrix.license_type.readable }}
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -192,25 +207,38 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     strategy:
       matrix:
-        include:
+        license_type:
+          - build_prefix: ""
+            artifact_prefix: ""
+            source_archive_name_prefix: ""
+            archive_name_prefix: ""
+            npm_command_prefix: "dist:"
+            readable: "open source license"
+          - build_prefix: "bit-"
+            artifact_prefix: "bit-"
+            source_archive_name_prefix: "bit-"
+            archive_name_prefix: "bit-"
+            npm_command_prefix: "dist:bit:"
+            readable: "commercial license"
+        browser:
           - name: "chrome"
-            npm_command: "dist:chrome"
+            npm_command_suffix: "chrome"
             archive_name: "dist-chrome.zip"
             artifact_name: "dist-chrome-MV3"
           - name: "edge"
-            npm_command: "dist:edge"
+            npm_command_suffix: "edge"
             archive_name: "dist-edge.zip"
             artifact_name: "dist-edge-MV3"
           - name: "firefox"
-            npm_command: "dist:firefox"
+            npm_command_suffix: "firefox"
             archive_name: "dist-firefox.zip"
             artifact_name: "dist-firefox"
           - name: "firefox-mv3"
-            npm_command: "dist:firefox:mv3"
+            npm_command_suffix: "firefox:mv3"
             archive_name: "dist-firefox.zip"
             artifact_name: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
           - name: "opera-mv3"
-            npm_command: "dist:opera:mv3"
+            npm_command_suffix: "opera:mv3"
             archive_name: "dist-opera.zip"
             artifact_name: "dist-opera-MV3"
     steps:
@@ -234,7 +262,7 @@ jobs:
       - name: Download browser source
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
-          name: browser-source-${{ env._BUILD_NUMBER }}.zip
+          name: ${{matrix.license_type.source_archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
 
       - name: Unzip browser source artifact
         run: |
@@ -264,7 +292,7 @@ jobs:
         run: npm link ../sdk-internal
 
       - name: Check source file size
-        if: ${{ startsWith(matrix.name, 'firefox') }}
+        if: ${{ startsWith(matrix.browser.name, 'firefox') }}
         run: |
           # Declare variable as indexed array
           declare -a FILES
@@ -287,19 +315,19 @@ jobs:
           fi
 
       - name: Build extension
-        run: npm run ${{ matrix.npm_command }}
+        run: npm run ${{matrix.license_type.npm_command_prefix}}${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload extension artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: ${{ matrix.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/${{ matrix.archive_name }}
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}
           if-no-files-found: error
 
 
   build-safari:
-    name: Build Safari
+    name: Build Safari - ${{ matrix.license_type.readable }}
     runs-on: macos-13
     permissions:
       contents: read
@@ -308,6 +336,19 @@ jobs:
       - setup
       - locales-test
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+    strategy:
+      matrix:
+        license_type:
+          - build_prefix: ""
+            artifact_prefix: ""
+            archive_name_prefix: ""
+            npm_command_prefix: "dist:"
+            readable: "open source license"
+          - build_prefix: "bit-"
+            artifact_prefix: "bit-"
+            archive_name_prefix: "bit-"
+            npm_command_prefix: "dist:bit:"
+            readable: "commercial license"
     env:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -433,21 +474,21 @@ jobs:
           npm link ../sdk-internal
 
       - name: Build Safari extension
-        run: npm run dist:safari
+        run: npm run ${{matrix.license_type.npm_command_prefix}}safari
         working-directory: apps/browser
 
       - name: Zip Safari build artifact
         run: |
           cd apps/browser/dist
-          zip dist-safari.zip ./Safari/**/build/Release/safari.appex -r
+          zip ${{matrix.license_type.archive_name_prefix }}dist-safari.zip ./Safari/**/build/Release/safari.appex -r
           pwd
           ls -la
 
       - name: Upload Safari artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: dist-safari-${{ env._BUILD_NUMBER }}.zip
-          path: apps/browser/dist/dist-safari.zip
+          name: ${{matrix.license_type.archive_name_prefix}}dist-safari-${{ env._BUILD_NUMBER }}.zip
+          path: apps/browser/dist/${{matrix.license_type.archive_name_prefix}}dist-safari.zip
           if-no-files-found: error
 
   crowdin-push:
