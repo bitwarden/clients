@@ -142,8 +142,8 @@ describe("UnlockCommand", () => {
         expect(response.success).toEqual(true);
         expect(response.data).toEqual(expectedSuccessMessage);
         expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-          activeAccount.id,
           mockMasterPassword,
+          activeAccount.id,
         );
         expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
       });
@@ -159,8 +159,8 @@ describe("UnlockCommand", () => {
         expect(response.success).toEqual(false);
         expect(response.message).toEqual("Unlock failed");
         expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-          activeAccount.id,
           mockMasterPassword,
+          activeAccount.id,
         );
         expect(keyService.setUserKey).not.toHaveBeenCalled();
       });
@@ -179,8 +179,8 @@ describe("UnlockCommand", () => {
         expect(response.success).toEqual(false);
         expect(response.message).toEqual("convert failed");
         expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-          activeAccount.id,
           mockMasterPassword,
+          activeAccount.id,
         );
         expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
       });
@@ -199,8 +199,8 @@ describe("UnlockCommand", () => {
         expect(response.success).toEqual(true);
         expect(response.data).toEqual(expectedSuccessMessage);
         expect(masterPasswordUnlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
-          activeAccount.id,
           mockMasterPassword,
+          activeAccount.id,
         );
         expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, activeAccount.id);
       });

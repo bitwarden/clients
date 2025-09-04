@@ -66,8 +66,8 @@ export class UnlockCommand {
     ) {
       try {
         const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-          activeAccount.id,
           password,
+          activeAccount.id,
         );
 
         await this.keyService.setUserKey(userKey, activeAccount.id);
