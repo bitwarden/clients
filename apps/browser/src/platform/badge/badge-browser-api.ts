@@ -1,4 +1,4 @@
-import { concat, defer, filter, map, merge, Observable, shareReplay, switchMap } from "rxjs";
+import { concat, defer, map, merge, Observable, shareReplay, switchMap } from "rxjs";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -16,8 +16,7 @@ export interface RawBadgeState {
 }
 
 export interface BadgeBrowserApi {
-  activeTab$: Observable<chrome.tabs.TabActiveInfo | undefined>;
-  // activeTabs$: Observable<chrome.tabs.Tab[]>;
+  tabUpdated$: Observable<chrome.tabs.TabActiveInfo | undefined>;
 
   setState(state: RawBadgeState, tabId?: number): Promise<void>;
   getTabs(): Promise<number[]>;
@@ -33,7 +32,7 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  activeTab$ = concat(
+  tabUpdated$ = concat(
     defer(async () => {
       const currentTab = await BrowserApi.getTabFromCurrentWindow();
       if (currentTab == null || currentTab.id === undefined) {
@@ -45,11 +44,6 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
     merge(
       this.onTabActivated$,
       fromChromeEvent(chrome.tabs.onUpdated).pipe(
-        filter(
-          ([_, changeInfo]) =>
-            // Only emit if the url was updated
-            changeInfo.url != undefined,
-        ),
         map(([tabId, _changeInfo, tab]) => ({ tabId, windowId: tab.windowId })),
       ),
     ),
