@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY, Observable } from "rxjs";
+import { EMPTY, firstValueFrom, Observable } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -15,6 +15,8 @@ import {
   DrawerType,
   PasswordHealthReportApplicationsResponse,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -78,15 +80,16 @@ export class RiskInsightsComponent implements OnInit {
     private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
     private criticalAppsService: CriticalAppsService,
+    private accountService: AccountService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
-    const orgId = this.route.snapshot.paramMap.get("organizationId") ?? "";
-    this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(orgId);
   }
 
   async ngOnInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -109,7 +112,11 @@ export class RiskInsightsComponent implements OnInit {
           if (applications) {
             this.appsCount = applications.length;
           }
-          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId);
+
+          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
+          this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(
+            this.organizationId as OrganizationId,
+          );
         },
       });
   }
