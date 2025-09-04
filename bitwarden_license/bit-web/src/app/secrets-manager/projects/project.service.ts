@@ -49,7 +49,7 @@ export class ProjectService {
     return await firstValueFrom(this.getOrganizationKey$(organizationId));
   }
 
-  async getByProjectId(projectId: string, forceRequest: boolean = false): Promise<ProjectView> {
+  async getByProjectId(projectId: string, forceRequest: boolean): Promise<ProjectView> {
     if (forceRequest || !this.projectCache.has(projectId)) {
       const request = this.apiService
         .send("GET", `/projects/${projectId}`, null, true, true)

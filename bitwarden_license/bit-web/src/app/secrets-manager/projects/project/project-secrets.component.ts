@@ -73,7 +73,7 @@ export class ProjectSecretsComponent implements OnInit {
     );
 
     this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
-      switchMap(([params, _]) => this.projectService.getByProjectId(params.projectId)),
+      switchMap(([params, _]) => this.projectService.getByProjectId(params.projectId, false)),
     );
 
     this.secrets$ = this.secretService.secret$.pipe(
