@@ -87,7 +87,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
+import { LogLevelType } from "@bitwarden/common/platform/enums";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import {
   TaskSchedulerService,
@@ -441,18 +441,7 @@ export class ServiceContainer {
       this.accountService,
     );
 
-    this.pinService = new PinService(
-      this.accountService,
-      this.cryptoFunctionService,
-      this.encryptService,
-      this.kdfConfigService,
-      this.keyGenerationService,
-      this.logService,
-      this.stateProvider,
-    );
-
     this.keyService = new KeyService(
-      this.pinService,
       this.masterPasswordService,
       this.keyGenerationService,
       this.cryptoFunctionService,
@@ -463,6 +452,17 @@ export class ServiceContainer {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
+    );
+
+    this.pinService = new PinService(
+      this.accountService,
+      this.encryptService,
+      this.kdfConfigService,
+      this.keyGenerationService,
+      this.logService,
+      this.stateProvider,
+      this.keyService,
+      this.sdkService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -737,7 +737,7 @@ export class ServiceContainer {
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
 
     const lockedCallback = async (userId: UserId) =>
-      await this.keyService.clearStoredUserKey(KeySuffixOptions.Auto, userId);
+      await this.keyService.clearStoredUserKey(userId);
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
