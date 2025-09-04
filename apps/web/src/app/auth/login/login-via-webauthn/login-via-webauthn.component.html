@@ -30,10 +30,7 @@
 
         <ng-container *ngIf="currentState === 'assertFailed'">
           <div class="tw-size-24 tw-content-center tw-my-10">
-            <bit-icon
-              [icon]="Icons.TwoFactorAuthSecurityKeyFailedIcon"
-              class="tw-max-h-full tw-flex tw-justify-center"
-            ></bit-icon>
+            <bit-icon [icon]="Icons.TwoFactorAuthSecurityKeyFailedIcon"></bit-icon>
           </div>
           <p bitTypography="body1">{{ "readingPasskeyLoadingInfo" | i18n }}</p>
           <button
