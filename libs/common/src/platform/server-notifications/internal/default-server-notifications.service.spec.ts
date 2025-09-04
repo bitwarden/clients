@@ -1,9 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, Subject } from "rxjs";
+import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
 import { awaitAsync } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
@@ -14,6 +15,7 @@ import { NotificationType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
 import { AppIdService } from "../../abstractions/app-id.service";
+import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { MessageSender } from "../../messaging";
@@ -38,8 +40,11 @@ describe("NotificationsService", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
+  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
+  let configService: MockProxy<ConfigService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
+  let accounts: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
 
   let environment: BehaviorSubject<ObservedValueOf<EnvironmentService["environment$"]>>;
 
@@ -64,15 +69,27 @@ describe("NotificationsService", () => {
     signalRNotificationConnectionService = mock<SignalRConnectionService>();
     authService = mock<AuthService>();
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
+    authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
+    configService = mock<ConfigService>();
+
+    // For these tests, use the active-user implementation (feature flag disabled)
+    configService.getFeatureFlag$.mockImplementation(() => of(true));
 
     activeAccount = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(null);
     accountService.activeAccount$ = activeAccount.asObservable();
+
+    accounts = new BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>({} as any);
+    accountService.accounts$ = accounts.asObservable();
 
     environment = new BehaviorSubject<ObservedValueOf<EnvironmentService["environment$"]>>({
       getNotificationsUrl: () => "https://notifications.bitwarden.com",
     } as Environment);
 
     environmentService.environment$ = environment;
+    // Ensure user-scoped environment lookups return the same test environment stream
+    environmentService.getEnvironment$.mockImplementation(
+      (_userId: UserId) => environment.asObservable() as any,
+    );
 
     authStatusGetter = Matrix.autoMockMethod(
       authService.authStatusFor$,
@@ -104,17 +121,25 @@ describe("NotificationsService", () => {
       signalRNotificationConnectionService,
       authService,
       webPushNotificationConnectionService,
+      authRequestAnsweringService,
+      configService,
     );
   });
 
   const mockUser1 = "user1" as UserId;
   const mockUser2 = "user2" as UserId;
 
-  function emitActiveUser(userId: UserId) {
+  function emitActiveUser(userId: UserId | null) {
     if (userId == null) {
       activeAccount.next(null);
+      accounts.next({} as any);
     } else {
       activeAccount.next({ id: userId, email: "email", name: "Test Name", emailVerified: true });
+      const current = (accounts.getValue() as Record<string, any>) ?? {};
+      accounts.next({
+        ...current,
+        [userId]: { email: "email", name: "Test Name", emailVerified: true },
+      } as any);
     }
   }
 
@@ -227,10 +252,9 @@ describe("NotificationsService", () => {
   });
 
   it.each([
-    // Temporarily rolling back server notifications being connected while locked
-    // { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Unlocked },
-    // { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Locked },
-    // { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Locked },
+    { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Unlocked },
+    { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Locked },
+    { initialStatus: AuthenticationStatus.Locked, updatedStatus: AuthenticationStatus.Locked },
     { initialStatus: AuthenticationStatus.Unlocked, updatedStatus: AuthenticationStatus.Unlocked },
   ])(
     "does not re-connect when the user transitions from $initialStatus to $updatedStatus",
@@ -255,11 +279,7 @@ describe("NotificationsService", () => {
     },
   );
 
-  it.each([
-    // Temporarily disabling server notifications connecting while in a locked state
-    // AuthenticationStatus.Locked,
-    AuthenticationStatus.Unlocked,
-  ])(
+  it.each([AuthenticationStatus.Locked, AuthenticationStatus.Unlocked])(
     "connects when a user transitions from logged out to %s",
     async (newStatus: AuthenticationStatus) => {
       emitActiveUser(mockUser1);

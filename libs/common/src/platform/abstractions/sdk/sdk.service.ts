@@ -32,7 +32,7 @@ export function asUuid<T extends Uuid>(uuid: string): T {
 /**
  * Converts a UUID to the string representation.
  */
-export function uuidToString<T extends Uuid>(uuid: T): string {
+export function uuidAsString<T extends Uuid>(uuid: T): string {
   return uuid as unknown as string;
 }
 

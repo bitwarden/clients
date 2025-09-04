@@ -9,6 +9,7 @@ import { perUserCache$ } from "@bitwarden/common/vault/utils/observable-utilitie
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
+import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import {
   SingleUserState,
   StateProvider,
@@ -261,7 +262,7 @@ export class SearchService implements SearchServiceAbstraction {
     }
 
     const ciphersMap = new Map<string, C>();
-    ciphers.forEach((c) => ciphersMap.set(c.id, c));
+    ciphers.forEach((c) => ciphersMap.set(uuidAsString(c.id), c));
 
     let searchResults: lunr.Index.Result[] = null;
     const isQueryString = query != null && query.length > 1 && query.indexOf(">") === 0;
@@ -304,7 +305,7 @@ export class SearchService implements SearchServiceAbstraction {
       if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {
         return true;
       }
-      if (query.length >= 8 && c.id.startsWith(query)) {
+      if (query.length >= 8 && uuidAsString(c.id).startsWith(query)) {
         return true;
       }
       const subtitle = CipherViewLikeUtils.subtitle(c);
@@ -426,11 +427,30 @@ export class SearchService implements SearchServiceAbstraction {
       if (u.uri == null || u.uri === "") {
         return;
       }
-      if (u.hostname != null) {
-        uris.push(u.hostname);
-        return;
-      }
+
+      // Match ports
+      const portMatch = u.uri.match(/:(\d+)(?:[/?#]|$)/);
+      const port = portMatch?.[1];
+
       let uri = u.uri;
+
+      if (u.hostname !== null) {
+        uris.push(u.hostname);
+        if (port) {
+          uris.push(`${u.hostname}:${port}`);
+          uris.push(port);
+        }
+        return;
+      } else {
+        const slash = uri.indexOf("/");
+        const hostPart = slash > -1 ? uri.substring(0, slash) : uri;
+        uris.push(hostPart);
+        if (port) {
+          uris.push(`${hostPart}`);
+          uris.push(port);
+        }
+      }
+
       if (u.match !== UriMatchStrategy.RegularExpression) {
         const protocolIndex = uri.indexOf("://");
         if (protocolIndex > -1) {
