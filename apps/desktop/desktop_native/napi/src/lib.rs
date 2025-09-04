@@ -880,6 +880,96 @@ pub mod logging {
 }
 
 #[napi]
+pub mod chromium_importer {
+    use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
+    use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
+
+    #[napi(object)]
+    pub struct ProfileInfo {
+        pub id: String,
+        pub name: String,
+    }
+
+    #[napi(object)]
+    pub struct Login {
+        pub url: String,
+        pub username: String,
+        pub password: String,
+        pub note: String,
+    }
+
+    #[napi(object)]
+    pub struct LoginImportFailure {
+        pub url: String,
+        pub username: String,
+        pub error: String,
+    }
+
+    #[napi(object)]
+    pub struct LoginImportResult {
+        pub login: Option<Login>,
+        pub failure: Option<LoginImportFailure>,
+    }
+
+    impl From<_LoginImportResult> for LoginImportResult {
+        fn from(l: _LoginImportResult) -> Self {
+            match l {
+                _LoginImportResult::Success(l) => LoginImportResult {
+                    login: Some(Login {
+                        url: l.url,
+                        username: l.username,
+                        password: l.password,
+                        note: l.note,
+                    }),
+                    failure: None,
+                },
+                _LoginImportResult::Failure(l) => LoginImportResult {
+                    login: None,
+                    failure: Some(LoginImportFailure {
+                        url: l.url,
+                        username: l.username,
+                        error: l.error,
+                    }),
+                },
+            }
+        }
+    }
+
+    impl From<_ProfileInfo> for ProfileInfo {
+        fn from(p: _ProfileInfo) -> Self {
+            ProfileInfo {
+                id: p.folder,
+                name: p.name,
+            }
+        }
+    }
+
+    #[napi]
+    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
+        bitwarden_chromium_importer::chromium::get_installed_browsers()
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
+        bitwarden_chromium_importer::chromium::get_available_profiles(&browser)
+            .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn import_logins(
+        browser: String,
+        profile_id: String,
+    ) -> napi::Result<Vec<LoginImportResult>> {
+        bitwarden_chromium_importer::chromium::import_logins(&browser, &profile_id)
+            .await
+            .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
 pub mod autotype {
     #[napi]
     pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
