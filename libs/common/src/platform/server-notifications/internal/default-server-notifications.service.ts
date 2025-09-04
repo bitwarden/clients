@@ -310,7 +310,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           try {
             await this.processNotification(notification, userId);
           } catch (err: unknown) {
-            this.logService.warning(
+            this.logService.error(
               `Problem processing notification of type ${notification.type}`,
               err,
             );
