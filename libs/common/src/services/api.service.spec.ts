@@ -14,6 +14,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "../key-management/vault-timeout";
+import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
@@ -427,8 +428,9 @@ describe("ApiService", () => {
         true,
         true,
       );
-      expect(result).toEqual(mockResponse);
       expect(result).toBeInstanceOf(Array);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(BreachAccountResponse);
     });
   });
 });
