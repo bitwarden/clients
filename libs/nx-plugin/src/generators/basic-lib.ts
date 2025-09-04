@@ -53,6 +53,9 @@ export async function basicLibGenerator(
   // Update CODEOWNERS with the new lib
   updateCodeowners(tree, options.directory, options.name, options.team);
 
+  // Update jest.config.js with the new lib
+  updateJestConfig(tree, options.directory, options.name);
+
   // Format all new files with prettier
   await formatFiles(tree);
 
@@ -122,6 +125,68 @@ function updateCodeowners(tree: Tree, directory: string, name: string, team: str
 
   const content = tree.read(codeownersPath)?.toString() || "";
   tree.write(codeownersPath, content + newLine);
+}
+
+/**
+ * Updates the jest.config.js file to include the new library
+ * This ensures the library's tests are included in CI runs
+ *
+ * @param {Tree} tree - The virtual file system tree
+ * @param {string} directory - Directory where the library is created
+ * @param {string} name - The library name
+ */
+function updateJestConfig(tree: Tree, directory: string, name: string) {
+  const jestConfigPath = "jest.config.js";
+
+  if (!tree.exists(jestConfigPath)) {
+    console.warn("jest.config.js file not found at root");
+    return;
+  }
+
+  const content = tree.read(jestConfigPath)?.toString() || "";
+  const libJestPath = `"<rootDir>/${directory}/${name}/jest.config.js",`;
+
+  // Find the libs section and insert the new library in alphabetical order
+  const lines = content.split("\n");
+  let insertIndex = -1;
+  let foundLibsSection = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Check if we're in the libs section
+    if (line.includes('"<rootDir>/libs/')) {
+      foundLibsSection = true;
+
+      // Extract the lib name for comparison
+      const match = line.match(/"<rootDir>libs([^"]+)/);
+      if (match) {
+        const existingLibName = match[1];
+
+        // If the new lib should come before this existing lib alphabetically
+        if (name < existingLibName) {
+          insertIndex = i;
+          break;
+        }
+      }
+    }
+    // If we were in libs section but hit a non-libs line, insert at end of libs
+    else if (foundLibsSection && !line.includes('"<rootDir>/libs/')) {
+      insertIndex = i;
+      break;
+    }
+  }
+
+  if (insertIndex === -1) {
+    console.warn(`Could not find appropriate location to insert ${name} in jest.config.js`);
+    return;
+  }
+
+  // Insert the new library line
+  lines.splice(insertIndex, 0, `    ${libJestPath}`);
+
+  // Write back the updated content
+  tree.write(jestConfigPath, lines.join("\n"));
 }
 
 export default basicLibGenerator;

@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Všetkých aplikácii"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Zrušiť označenie aplikácie za kritickú"
+  "unmarkAsCritical": {
+    "message": "Zrušiť označenie za kritické"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Označenie aplikácie za kritickú úspešne zrušené"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kopírovať číslo licencie"
   },
+  "copyPrivateKey": {
+    "message": "Kopírovať súkromný kľúč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovať verejný kľúč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovať odtlačok"
+  },
   "copyName": {
     "message": "Kopírovať meno"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Záchranný kód"
   },
+  "invalidRecoveryCode": {
+    "message": "Neplatný kód na obnovenie"
+  },
   "authenticatorAppTitle": {
     "message": "Overovacia aplikácia"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Zmeňte východzí jazyk pre webový trezor."
   },
-  "enableFavicon": {
-    "message": "Zobraziť favikony"
-  },
-  "faviconDesc": {
-    "message": "Pri každom prihlásení zobraziť rozpoznateľný obrázok."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
   "default": {
     "message": "Predvolené"
@@ -10981,6 +10990,12 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Na pridanie kreditu je potrebná fakturačná adresa.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
   },
   "billingAddress": {
     "message": "Fakturačná adresa"

@@ -28,6 +28,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   KeyDefinition,
@@ -236,7 +237,10 @@ export class VaultPopupListFiltersService {
               return false;
             }
 
-            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id!)) {
+            if (
+              filters.collection &&
+              !cipher.collectionIds?.includes(asUuid(filters.collection.id!))
+            ) {
               return false;
             }
 
