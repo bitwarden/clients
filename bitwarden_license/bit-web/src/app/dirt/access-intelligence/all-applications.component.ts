@@ -25,6 +25,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   IconButtonModule,
@@ -86,7 +87,7 @@ export class AllApplicationsComponent implements OnInit {
 
       combineLatest([
         this.dataService.applications$,
-        this.criticalAppsService.getAppsListForOrg(organizationId),
+        this.criticalAppsService.getAppsListForOrg(organizationId as OrganizationId),
         organization$,
       ])
         .pipe(
@@ -168,7 +169,7 @@ export class AllApplicationsComponent implements OnInit {
 
     try {
       await this.criticalAppsService.setCriticalApps(
-        this.organization.id,
+        this.organization.id as OrganizationId,
         Array.from(this.selectedUrls),
       );
 
