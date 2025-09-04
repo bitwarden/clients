@@ -710,14 +710,13 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
   }
 
   async navigateToPaymentMethod() {
-    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
-      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
-    );
-    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
     const organizationId = await firstValueFrom(this.organizationId$);
-    await this.router.navigate(["organizations", `${organizationId}`, "billing", route], {
-      state: { launchPaymentModalAutomatically: true },
-    });
+    await this.router.navigate(
+      ["organizations", `${organizationId}`, "billing", "payment-details"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
+    );
   }
 
   addAccessToggle(e: AddAccessStatusType) {
