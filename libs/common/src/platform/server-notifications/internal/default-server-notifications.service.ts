@@ -131,7 +131,6 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
 
   private userNotificationsHelper$(userId: UserId, notificationsUrl: string) {
     return this.hasAccessToken$(userId).pipe(
-      distinctUntilChanged(),
       switchMap((hasAccessToken) => {
         if (!hasAccessToken) {
           return EMPTY;
