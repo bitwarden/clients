@@ -306,11 +306,23 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
   startListening() {
     return this.notifications$
       .pipe(
-        mergeMap(async ([notification, userId]) => this.processNotification(notification, userId)),
+        mergeMap(async ([notification, userId]) => {
+          try {
+            await this.processNotification(notification, userId);
+          } catch (err: unknown) {
+            this.logService.warning(
+              `Problem processing notification of type ${notification.type}`,
+              err,
+            );
+          }
+        }),
       )
       .subscribe({
-        error: (e: unknown) =>
-          this.logService.warning("Error in server notifications$ observable", e),
+        error: (err: unknown) =>
+          this.logService.error(
+            "Fatal error in server notifications$ observable, notifications won't be recieved anymore.",
+            err,
+          ),
       });
   }
 
