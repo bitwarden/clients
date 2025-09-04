@@ -362,7 +362,7 @@
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="reinvite(u)"
+                      (click)="reinvite(u, organization)"
                       *ngIf="u.status === userStatusType.Invited"
                     >
                       <i aria-hidden="true" class="bwi bwi-envelope"></i>
@@ -371,7 +371,7 @@
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="confirm(u)"
+                      (click)="confirm(u, organization)"
                       *ngIf="u.status === userStatusType.Accepted"
                     >
                       <span class="tw-text-success">
@@ -450,7 +450,7 @@
                       *ngIf="!u.managedByOrganization"
                       type="button"
                       bitMenuItem
-                      (click)="remove(u)"
+                      (click)="remove(u, organization)"
                     >
                       <span class="tw-text-danger">
                         <i aria-hidden="true" class="bwi bwi-close"></i> {{ "remove" | i18n }}
