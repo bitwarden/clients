@@ -77,7 +77,20 @@
             ? ("organizationIsDisabled" | i18n)
             : filter?.type === "trash"
               ? ("noItemsInTrash" | i18n)
-              : ("noItemsInList" | i18n)
+              : filter?.type === "favorites"
+                ? ("emptyFavorites" | i18n)
+                : ("noItemsInVault" | i18n)
+        }}
+      </p>
+      <p class="tw-text-muted tw-w-[400px] tw-text-center">
+        {{
+          isSelectedOrgDisabled()
+            ? ("organizationIsDisabledDesc" | i18n)
+            : filter?.type === "trash"
+              ? ("noItemsInTrashDesc" | i18n)
+              : filter?.type === "favorites"
+                ? ("emptyFavoritesDesc" | i18n)
+                : ("emptyVaultDescription" | i18n)
         }}
       </p>
       <button
