@@ -156,7 +156,7 @@ export class CollectionAdminView extends CollectionView {
   ): Promise<CollectionAdminView> {
     let collectionName: string;
     try {
-      await encryptService.decryptString(new EncString(collection.name), orgKey);
+      collectionName = await encryptService.decryptString(new EncString(collection.name), orgKey);
     } catch (e) {
       // Note: This should be updated by the owning team with appropriate, domain specific behavior
       // eslint-disable-next-line no-console
