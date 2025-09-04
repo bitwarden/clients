@@ -7,4 +7,4 @@ See diagram for the high level picture of how this is wired up.
 
 ## Diagram
 
-![img.png](Notification_Architecture.png)
+![img.png](notification-architecture.png)
