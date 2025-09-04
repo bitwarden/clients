@@ -282,7 +282,8 @@ pub mod sshagent {
     #[napi]
     pub fn is_running(agent_state: &mut SshAgentState) -> bool {
         let bitwarden_agent_state = agent_state.state.clone();
-        bitwarden_agent_state.is_running()
+        let is_running = bitwarden_agent_state.is_running();
+        is_running
     }
 
     #[napi]

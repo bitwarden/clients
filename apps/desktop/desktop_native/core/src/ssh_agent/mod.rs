@@ -12,6 +12,8 @@ use bitwarden_russh::{
     ssh_agent::{self, SshKey},
 };
 
+use crate::ssh_agent::agent::agent::{Agent, SshPrivateKey};
+
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
 #[cfg_attr(target_os = "macos", path = "unix.rs")]
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
@@ -20,6 +22,7 @@ mod platform_ssh_agent;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod peercred_unix_listener_stream;
 
+mod agent;
 pub mod peerinfo;
 mod request_parser;
 
@@ -35,6 +38,7 @@ pub struct BitwardenDesktopAgent<Key> {
     is_running: Arc<AtomicBool>,
 }
 
+#[derive(Debug)]
 pub struct SshAgentUIRequest {
     pub request_id: u32,
     pub cipher_id: Option<String>,
@@ -175,6 +179,26 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
                 println!("[BitwardenDesktopAgent] Session bind failure: Signature failure");
             }
         }
+    }
+}
+
+impl Agent for BitwardenDesktopAgent<BitwardenSshKey> {
+    async fn list_keys(&self) -> Result<Vec<agent::agent::SshKeyPair>, anyhow::Error> {
+        let keystore = self.keystore.0.read().expect("RwLock is not poisoned");
+        println!(
+            "[BitwardenDesktopAgent] Listing keys, total keys in keystore: {}",
+            keystore.len()
+        );
+        Ok(keystore
+            .values()
+            .map(|key| {
+                agent::agent::SshKeyPair::new(
+                    SshPrivateKey::try_from(key.private_key.clone().unwrap())
+                        .expect("Invalid private key"),
+                    key.name.clone(),
+                )
+            })
+            .collect())
     }
 }
 

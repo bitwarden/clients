@@ -46,7 +46,7 @@ export class SshAgentService implements OnDestroy {
 
   private authorizedSshKeys: Record<string, Date> = {};
 
-  private isFeatureFlagEnabled = false;
+  private isFeatureFlagEnabled = true;
 
   private destroy$ = new Subject<void>();
 
@@ -272,6 +272,7 @@ export class SshAgentService implements OnDestroy {
               cipherId: cipher.id,
             };
           });
+          //this.logService.info(`Setting ${keys.length} SSH keys in agent renderer`);
           await ipc.platform.sshAgent.setKeys(keys);
         }),
         takeUntil(this.destroy$),
