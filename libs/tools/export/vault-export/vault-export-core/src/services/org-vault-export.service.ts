@@ -138,44 +138,49 @@ export class OrganizationVaultExportService
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
     promises.push(
-      this.vaultExportApiService.getOrganizationExport(organizationId as OrganizationId).then((exportData) => {
-        const exportPromises: any = [];
-        if (exportData != null) {
-          if (exportData.collections != null && exportData.collections.length > 0) {
-            exportData.collections.forEach((c) => {
-              const collection = Collection.fromCollectionData(
-                new CollectionData(c as CollectionDetailsResponse),
-              );
-              exportPromises.push(
-                firstValueFrom(this.keyService.activeUserOrgKeys$)
-                  .then((keys) =>
-                    collection.decrypt(keys[organizationId as OrganizationId], this.encryptService),
-                  )
-                  .then((decCol) => {
-                    decCollections.push(decCol);
-                  }),
-              );
-            });
-          }
-          if (exportData.ciphers != null && exportData.ciphers.length > 0) {
-            exportData.ciphers
-              .filter((c) => c.deletedDate === null)
-              .forEach(async (c) => {
-                const cipher = new Cipher(new CipherData(c));
+      this.vaultExportApiService
+        .getOrganizationExport(organizationId as OrganizationId)
+        .then((exportData) => {
+          const exportPromises: any = [];
+          if (exportData != null) {
+            if (exportData.collections != null && exportData.collections.length > 0) {
+              exportData.collections.forEach((c) => {
+                const collection = Collection.fromCollectionData(
+                  new CollectionData(c as CollectionDetailsResponse),
+                );
                 exportPromises.push(
-                  this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
-                    if (
-                      !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
-                    ) {
-                      decCiphers.push(decCipher);
-                    }
-                  }),
+                  firstValueFrom(this.keyService.activeUserOrgKeys$)
+                    .then((keys) =>
+                      collection.decrypt(
+                        keys[organizationId as OrganizationId],
+                        this.encryptService,
+                      ),
+                    )
+                    .then((decCol) => {
+                      decCollections.push(decCol);
+                    }),
                 );
               });
+            }
+            if (exportData.ciphers != null && exportData.ciphers.length > 0) {
+              exportData.ciphers
+                .filter((c) => c.deletedDate === null)
+                .forEach(async (c) => {
+                  const cipher = new Cipher(new CipherData(c));
+                  exportPromises.push(
+                    this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
+                      if (
+                        !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
+                      ) {
+                        decCiphers.push(decCipher);
+                      }
+                    }),
+                  );
+                });
+            }
           }
-        }
-        return Promise.all(exportPromises);
-      }),
+          return Promise.all(exportPromises);
+        }),
     );
 
     await Promise.all(promises);
@@ -192,7 +197,9 @@ export class OrganizationVaultExportService
 
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
-    const exportData = await this.vaultExportApiService.getOrganizationExport(organizationId as OrganizationId);
+    const exportData = await this.vaultExportApiService.getOrganizationExport(
+      organizationId as OrganizationId,
+    );
 
     if (exportData == null) {
       return;
