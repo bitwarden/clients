@@ -4,36 +4,36 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
+  inject,
   NgZone,
   OnDestroy,
   OnInit,
-  inject,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import {
-  Subject,
-  takeUntil,
-  firstValueFrom,
-  concatMap,
-  filter,
-  pairwise,
-  tap,
   catchError,
-  of,
-  map,
-  take,
+  concatMap,
   distinctUntilChanged,
-  switchMap,
+  filter,
+  firstValueFrom,
+  map,
+  of,
+  pairwise,
   startWith,
+  Subject,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
 } from "rxjs";
 
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval/login-approval-dialog.component";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import {
-  LogoutReason,
   AuthRequestServiceAbstraction,
+  LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -42,7 +42,9 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -80,6 +82,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private activeUserId: UserId;
   private routerAnimations = false;
   private processingPendingAuth = false;
+  private extensionLoginApprovalFeatureFlag = false;
 
   private destroy$ = new Subject<void>();
 
@@ -115,6 +118,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestService: AuthRequestServiceAbstraction,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
     private authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
+    private readonly configService: ConfigService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -123,6 +127,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    this.extensionLoginApprovalFeatureFlag = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
+    );
+
     initPopupClosedListener();
 
     this.compactModeService.init();
@@ -132,22 +140,24 @@ export class AppComponent implements OnInit, OnDestroy {
       this.activeUserId = account?.id;
     });
 
-    // Trigger processing auth requests when the active user is in an unlocked state. Runs once when
-    // the popup is open.
-    this.accountService.activeAccount$
-      .pipe(
-        map((a) => a?.id), // Extract active userId
-        distinctUntilChanged(), // Only when userId actually changes
-        filter((userId) => userId != null), // Require a valid userId
-        switchMap((userId) => this.authService.authStatusFor$(userId).pipe(take(1))), // Get current auth status once for new user
-        filter((status) => status === AuthenticationStatus.Unlocked), // Only when the new user is Unlocked
-        tap(() => {
-          // Trigger processing when switching users while popup is open
-          void this.authRequestAnsweringService.processPendingAuthRequests();
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+    if (this.extensionLoginApprovalFeatureFlag) {
+      // Trigger processing auth requests when the active user is in an unlocked state. Runs once when
+      // the popup is open.
+      this.accountService.activeAccount$
+        .pipe(
+          map((a) => a?.id), // Extract active userId
+          distinctUntilChanged(), // Only when userId actually changes
+          filter((userId) => userId != null), // Require a valid userId
+          switchMap((userId) => this.authService.authStatusFor$(userId).pipe(take(1))), // Get current auth status once for new user
+          filter((status) => status === AuthenticationStatus.Unlocked), // Only when the new user is Unlocked
+          tap(() => {
+            // Trigger processing when switching users while popup is open
+            void this.authRequestAnsweringService.processPendingAuthRequests();
+          }),
+          takeUntil(this.destroy$),
+        )
+        .subscribe();
+    }
 
     this.authService.activeAccountStatus$
       .pipe(
@@ -160,22 +170,24 @@ export class AppComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    // When the popup is already open and the active account transitions to Unlocked,
-    // process any pending auth requests for the active user. The above subscription does not handle
-    // this case.
-    this.authService.activeAccountStatus$
-      .pipe(
-        startWith(null as unknown as AuthenticationStatus), // Seed previous value to handle initial emission
-        pairwise(), // Compare previous and current statuses
-        filter(
-          ([prev, curr]) =>
-            prev !== AuthenticationStatus.Unlocked && curr === AuthenticationStatus.Unlocked, // Fire on transitions into Unlocked (incl. initial)
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(() => {
-        void this.authRequestAnsweringService.processPendingAuthRequests();
-      });
+    if (this.extensionLoginApprovalFeatureFlag) {
+      // When the popup is already open and the active account transitions to Unlocked,
+      // process any pending auth requests for the active user. The above subscription does not handle
+      // this case.
+      this.authService.activeAccountStatus$
+        .pipe(
+          startWith(null as unknown as AuthenticationStatus), // Seed previous value to handle initial emission
+          pairwise(), // Compare previous and current statuses
+          filter(
+            ([prev, curr]) =>
+              prev !== AuthenticationStatus.Unlocked && curr === AuthenticationStatus.Unlocked, // Fire on transitions into Unlocked (incl. initial)
+          ),
+          takeUntil(this.destroy$),
+        )
+        .subscribe(() => {
+          void this.authRequestAnsweringService.processPendingAuthRequests();
+        });
+    }
 
     this.ngZone.runOutsideAngular(() => {
       window.onmousedown = () => this.recordActivity();
@@ -230,7 +242,10 @@ export class AppComponent implements OnInit, OnDestroy {
             }
 
             await this.router.navigate(["lock"]);
-          } else if (msg.command === "openLoginApproval") {
+          } else if (
+            msg.command === "openLoginApproval" &&
+            this.extensionLoginApprovalFeatureFlag
+          ) {
             if (this.processingPendingAuth) {
               return;
             }
