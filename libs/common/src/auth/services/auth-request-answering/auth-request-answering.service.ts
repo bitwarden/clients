@@ -20,7 +20,10 @@ import { UserId } from "@bitwarden/user-core";
 
 import { AuthRequestAnsweringServiceAbstraction } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
-import { PendingAuthRequestsStateService } from "./pending-auth-requests.state";
+import {
+  PendingAuthRequestsStateService,
+  PendingAuthUserMarker,
+} from "./pending-auth-requests.state";
 
 export class AuthRequestAnsweringService implements AuthRequestAnsweringServiceAbstraction {
   constructor(
@@ -91,24 +94,17 @@ export class AuthRequestAnsweringService implements AuthRequestAnsweringServiceA
 
     await this.pendingAuthRequestsState.pruneOlderThan(fifteenMinutesMs);
 
-    const pending = (await firstValueFrom(this.pendingAuthRequestsState.getAll$())) ?? [];
+    const pendingAuthRequestsInState: PendingAuthUserMarker[] =
+      (await firstValueFrom(this.pendingAuthRequestsState.getAll$())) ?? [];
 
-    if (pending.length > 0) {
+    if (pendingAuthRequestsInState.length > 0) {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const pendingForActive = pending.some((e) => e.userId === activeUserId);
+      const pendingAuthRequestsForActiveUser = pendingAuthRequestsInState.some(
+        (e) => e.userId === activeUserId,
+      );
 
-      if (pendingForActive) {
-        const isUnlocked =
-          (await firstValueFrom(this.authService.authStatusFor$(activeUserId))) ===
-          AuthenticationStatus.Unlocked;
-
-        const forceSetPasswordReason = await firstValueFrom(
-          this.masterPasswordService.forceSetPasswordReason$(activeUserId),
-        );
-
-        if (isUnlocked && forceSetPasswordReason === ForceSetPasswordReason.None) {
-          this.messagingService.send("openLoginApproval");
-        }
+      if (pendingAuthRequestsForActiveUser) {
+        this.messagingService.send("openLoginApproval");
       }
     }
   }

@@ -161,9 +161,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.authService.activeAccountStatus$
       .pipe(
-        filter((status) => status === AuthenticationStatus.Unlocked), // Only track activity when unlocked
+        filter((status) => status === AuthenticationStatus.Unlocked),
         concatMap(async () => {
-          // Queue side-effects to maintain order
           await this.recordActivity();
         }),
         takeUntil(this.destroy$),
