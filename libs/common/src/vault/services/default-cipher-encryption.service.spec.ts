@@ -549,17 +549,19 @@ describe("DefaultCipherEncryptionService", () => {
   });
 
   describe("decryptManyWithFailures", () => {
+    const cipher1_id = "11111111-1111-1111-1111-111111111111";
+    const cipher2_id = "22222222-2222-2222-2222-222222222222";
     it("should decrypt multiple ciphers and return successes and failures", async () => {
       const ciphers = [
-        new Cipher({ ...cipherData, id: "cipher1" as CipherId }),
-        new Cipher({ ...cipherData, id: "cipher2" as CipherId }),
+        new Cipher({ ...cipherData, id: cipher1_id as CipherId }),
+        new Cipher({ ...cipherData, id: cipher2_id as CipherId }),
       ];
 
       const successCipherList = {
-        id: "cipher1",
+        id: cipher1_id,
         name: "Decrypted Cipher 1",
       } as unknown as CipherListView;
-      const failedCipher = { id: "cipher2", name: "Failed Cipher" } as unknown as SdkCipher;
+      const failedCipher = { id: cipher2_id, name: "Failed Cipher" } as unknown as SdkCipher;
 
       const expectedFailedCiphers = [Cipher.fromSdkCipher(failedCipher)];
 
@@ -575,8 +577,8 @@ describe("DefaultCipherEncryptionService", () => {
       expect(result).toEqual([[successCipherList], expectedFailedCiphers]);
       expect(mockSdkClient.vault().ciphers().decrypt_list_with_failures).toHaveBeenCalledWith(
         expect.arrayContaining([
-          expect.objectContaining({ id: "cipher1" }),
-          expect.objectContaining({ id: "cipher2" }),
+          expect.objectContaining({ id: cipher1_id }),
+          expect.objectContaining({ id: cipher2_id }),
         ]),
       );
       expect(Cipher.fromSdkCipher).toHaveBeenCalledWith(failedCipher);

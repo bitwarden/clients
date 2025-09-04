@@ -743,6 +743,8 @@ describe("Cipher Service", () => {
 
   describe("decryptCiphers", () => {
     let mockCiphers: Cipher[];
+    const cipher1_id = "11111111-1111-1111-1111-111111111111";
+    const cipher2_id = "22222222-2222-2222-2222-222222222222";
 
     beforeEach(() => {
       const originalUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
@@ -754,8 +756,8 @@ describe("Cipher Service", () => {
       keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));
 
       mockCiphers = [
-        new Cipher({ ...cipherData, id: "cipher1" }),
-        new Cipher({ ...cipherData, id: "cipher2" }),
+        new Cipher({ ...cipherData, id: cipher1_id }),
+        new Cipher({ ...cipherData, id: cipher2_id }),
       ];
 
       //// Mock the SDK response
@@ -774,8 +776,11 @@ describe("Cipher Service", () => {
       const expectedSuccessCipherViews = [
         { id: mockCiphers[0].id, name: "Success 1" } as unknown as CipherListView,
       ];
-      const expectedFailedCipherViews = [new CipherView(mockCiphers[1])];
-      expectedFailedCipherViews[0].decryptionFailure = true;
+
+      const expectedFailedCipher = new CipherView(mockCiphers[1]);
+      expectedFailedCipher.name = "[error: cannot decrypt]";
+      expectedFailedCipher.decryptionFailure = true;
+      const expectedFailedCipherViews = [expectedFailedCipher];
 
       // Execute
       const [successes, failures] = await (cipherService as any).decryptCiphers(
