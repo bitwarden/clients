@@ -5,9 +5,9 @@ import { UserKey } from "../../../types/key";
 export abstract class MasterPasswordUnlockService {
   /**
    * Unlocks the user's account using the master password.
-   * @param userId The ID of the active user.
    * @param masterPassword The master password provided by the user.
+   * @param userId The ID of the active user.
    * @returns the user's decrypted userKey.
    */
-  abstract unlockWithMasterPassword(userId: UserId, masterPassword: string): Promise<UserKey>;
+  abstract unlockWithMasterPassword(masterPassword: string, userId: UserId): Promise<UserKey>;
 }
