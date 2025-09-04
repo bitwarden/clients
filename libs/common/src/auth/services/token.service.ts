@@ -458,9 +458,7 @@ export class TokenService implements TokenServiceAbstraction {
     await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
   }
 
-  async getAccessToken(userId?: UserId): Promise<string | null> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
+  async getAccessToken(userId: UserId): Promise<string | null> {
     if (!userId) {
       return null;
     }
@@ -637,9 +635,7 @@ export class TokenService implements TokenServiceAbstraction {
     }
   }
 
-  async getRefreshToken(userId?: UserId): Promise<string | null> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
+  async getRefreshToken(userId: UserId): Promise<string | null> {
     if (!userId) {
       return null;
     }
@@ -752,9 +748,7 @@ export class TokenService implements TokenServiceAbstraction {
     }
   }
 
-  async getClientId(userId?: UserId): Promise<string | undefined> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
+  async getClientId(userId: UserId): Promise<string | undefined> {
     if (!userId) {
       return undefined;
     }
@@ -828,9 +822,7 @@ export class TokenService implements TokenServiceAbstraction {
     }
   }
 
-  async getClientSecret(userId?: UserId): Promise<string | undefined> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
+  async getClientSecret(userId: UserId): Promise<string | undefined> {
     if (!userId) {
       return undefined;
     }
@@ -921,7 +913,9 @@ export class TokenService implements TokenServiceAbstraction {
     if (Utils.isGuid(tokenOrUserId)) {
       token = await this.getAccessToken(tokenOrUserId as UserId);
     } else {
-      token ??= await this.getAccessToken();
+      token ??= await this.getAccessToken(
+        await firstValueFrom(this.activeUserIdGlobalState.state$),
+      );
     }
 
     if (token == null) {
@@ -934,10 +928,10 @@ export class TokenService implements TokenServiceAbstraction {
   // TODO: PM-6678- tech debt - consider consolidating the return types of all these access
   // token data retrieval methods to return null if something goes wrong instead of throwing an error.
 
-  async getTokenExpirationDate(): Promise<Date | null> {
+  async getTokenExpirationDate(userId: UserId): Promise<Date | null> {
     let decoded: DecodedAccessToken;
     try {
-      decoded = await this.decodeAccessToken();
+      decoded = await this.decodeAccessToken(userId);
     } catch (error) {
       throw new Error("Failed to decode access token: " + error.message);
     }
@@ -953,8 +947,8 @@ export class TokenService implements TokenServiceAbstraction {
     return expirationDate;
   }
 
-  async tokenSecondsRemaining(offsetSeconds = 0): Promise<number> {
-    const date = await this.getTokenExpirationDate();
+  async tokenSecondsRemaining(userId: UserId, offsetSeconds = 0): Promise<number> {
+    const date = await this.getTokenExpirationDate(userId);
     if (date == null) {
       return 0;
     }
@@ -963,8 +957,8 @@ export class TokenService implements TokenServiceAbstraction {
     return Math.round(msRemaining / 1000);
   }
 
-  async tokenNeedsRefresh(minutes = 5): Promise<boolean> {
-    const sRemaining = await this.tokenSecondsRemaining();
+  async tokenNeedsRefresh(userId: UserId, minutes = 5): Promise<boolean> {
+    const sRemaining = await this.tokenSecondsRemaining(userId);
     return sRemaining < 60 * minutes;
   }
 
