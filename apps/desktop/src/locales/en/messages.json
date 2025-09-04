@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "Please continue to log in using your company credentials."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
@@ -4083,5 +4089,11 @@
   },
   "next": {
     "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
   }
 }
