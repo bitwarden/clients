@@ -219,9 +219,15 @@ export class BrowserApi {
    */
   static async closeTab(tabId: number): Promise<void> {
     if (tabId) {
-      chrome.tabs.remove(tabId).catch((error) => {
-        throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
-      });
+      if (BrowserApi.isWebExtensionsApi) {
+        browser.tabs.remove(tabId).catch((error) => {
+          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+        });
+      } else if (BrowserApi.isChromeApi) {
+        chrome.tabs.remove(tabId).catch((error) => {
+          throw new Error("[BrowserApi] Failed to remove current tab: " + error.message);
+        });
+      }
     }
   }
 

@@ -14,6 +14,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 
 import {
   CaughtPhishingDomain,
+  isPhishingDetectionMessage,
   PhishingDetectionMessage,
   PhishingDetectionTabId,
 } from "./phishing-detection.types";
@@ -90,9 +91,7 @@ export class PhishingDetectionService {
   static requestClosePhishingWarningPage(): void {
     // [FIXME] User BrowserApi to handle memory leaks in safari but currently causes error
     // await BrowserApi.sendMessage(PhishingDetectionMessage.Close);
-    void chrome.runtime.sendMessage({
-      action: PhishingDetectionMessage.Close,
-    });
+    void chrome.runtime.sendMessage({ command: PhishingDetectionMessage.Close });
   }
 
   /**
@@ -101,9 +100,7 @@ export class PhishingDetectionService {
   static async requestContinueToDangerousUrl() {
     // [FIXME] User BrowserApi to handle memory leaks in safari but currently causes error
     // await BrowserApi.sendMessage(PhishingDetectionMessage.Continue);
-    void chrome.runtime.sendMessage({
-      action: PhishingDetectionMessage.Continue,
-    });
+    void chrome.runtime.sendMessage({ command: PhishingDetectionMessage.Continue });
   }
 
   /**
@@ -160,30 +157,17 @@ export class PhishingDetectionService {
    */
   private static _setupListeners(): void {
     // Setup listeners from web page/content script
-    chrome.runtime.onMessage.addListener(async (message, sender) => {
-      await this._handleExtensionMessage(message.action, sender);
-    });
-    // [FIXME] BrowserApi should be used to handle memory leaks in safari but currently
-    // it causes issues with the listener not being called in firefox
-    // BrowserApi.addListener(chrome.runtime.onMessage, this._handleExtensionMessage);
-
-    chrome.webNavigation.onCompleted.addListener(
-      (details: chrome.webNavigation.WebNavigationFramedCallbackDetails): void => {
-        this._handleNavigationEvent(details);
-      },
+    BrowserApi.addListener(chrome.runtime.onMessage, this._handleExtensionMessage.bind(this));
+    BrowserApi.addListener(
+      chrome.webNavigation.onCompleted,
+      this._handleNavigationEvent.bind(this),
     );
-    // [FIXME] BrowserApi should be used to handle memory leaks in safari but currently
-    // it causes issues with the listener not being called in firefox
-    // BrowserApi.addListener(
-    //   chrome.webNavigation.onCompleted,
-    //   this._handleNavigationEvent.bind(this),
-    // );
   }
 
-  private static async _handleExtensionMessage(
-    message: string,
-    sender: chrome.runtime.MessageSender,
-  ) {
+  private static _handleExtensionMessage(message: unknown, sender: chrome.runtime.MessageSender) {
+    if (!isPhishingDetectionMessage(message)) {
+      return;
+    }
     const isValidSender = sender && sender.tab && sender.tab.id;
     const senderTabId = isValidSender ? sender.tab.id : null;
 
@@ -193,7 +177,7 @@ export class PhishingDetectionService {
     }
 
     // Handle Dangerous Continue to Phishing Domain
-    if (message === PhishingDetectionMessage.Continue) {
+    if (message.command === PhishingDetectionMessage.Continue) {
       this._logService.debug(
         "[PhishingDetectionService] User requested continue to phishing domain on tab: ",
         senderTabId,
@@ -204,13 +188,13 @@ export class PhishingDetectionService {
     }
 
     // Handle Close Phishing Warning Page
-    if (message === PhishingDetectionMessage.Close) {
+    if (message.command === PhishingDetectionMessage.Close) {
       this._logService.debug(
         "[PhishingDetectionService] User requested to close phishing warning page on tab: ",
         senderTabId,
       );
 
-      await BrowserApi.closeTab(senderTabId);
+      void BrowserApi.closeTab(senderTabId);
       this._removeCaughtTab(senderTabId);
     }
   }
@@ -592,7 +576,10 @@ export class PhishingDetectionService {
     this._isUpdating = false;
     this._retryCount = 0;
     // [FIXME] BrowserApi remove listeners when enabled
-    // BrowserApi.removeListener(chrome.runtime.onMessage, this._handleExtensionMessage);
-    // BrowserApi.removeListener(chrome.webNavigation.onCompleted, this._handleNavigationEvent);
+    BrowserApi.removeListener(chrome.runtime.onMessage, this._handleExtensionMessage.bind(this));
+    BrowserApi.removeListener(
+      chrome.webNavigation.onCompleted,
+      this._handleNavigationEvent.bind(this),
+    );
   }
 }
