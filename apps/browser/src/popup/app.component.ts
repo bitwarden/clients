@@ -22,7 +22,6 @@ import {
   catchError,
   of,
   map,
-  skip,
   take,
   distinctUntilChanged,
   switchMap,
@@ -154,12 +153,12 @@ export class AppComponent implements OnInit, OnDestroy {
       this.activeUserId = account?.id;
     });
 
-    // Separate subscription: only trigger processing on subsequent user switches while popup is open
+    // Trigger processing auth requests when the active user is in an unlocked state. Runs once when
+    // the popup is open.
     this.accountService.activeAccount$
       .pipe(
         map((a) => a?.id), // Extract active userId
         distinctUntilChanged(), // Only when userId actually changes
-        skip(1), // Ignore initial emission (popup open)
         filter((userId) => userId != null), // Require a valid userId
         switchMap((userId) => this.authService.authStatusFor$(userId).pipe(take(1))), // Get current auth status once for new user
         filter((status) => status === AuthenticationStatus.Unlocked), // Only when the new user is Unlocked
@@ -183,7 +182,8 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe();
 
     // When the popup is already open and the active account transitions to Unlocked,
-    // process any pending auth requests for the active user.
+    // process any pending auth requests for the active user. The above subscription does not handle
+    // this case.
     this.authService.activeAccountStatus$
       .pipe(
         startWith(null as unknown as AuthenticationStatus), // Seed previous value to handle initial emission
