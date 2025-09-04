@@ -216,3 +216,4 @@ apps/web/src/locales/en/messages.json
 **/tsconfig.json @bitwarden/team-platform-dev
 **/jest.config.js @bitwarden/team-platform-dev
 **/project.jsons @bitwarden/team-platform-dev
+libs/pricing @bitwarden/team-billing-dev
