@@ -233,7 +233,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Snap
-        uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641 # v2.1.1
+        uses: samuelmeuli/action-snapcraft@fceeb3c308e76f3487e72ef608618de625fb7fe8 # v3.0.1
 
       - name: Setup
         run: mkdir dist
