@@ -647,12 +647,6 @@ describe("ItemDetailsSectionComponent", () => {
           getInitialCipherView.mockReturnValue(component.originalCipherView);
         });
 
-        it("disables organizationId", async () => {
-          await component.ngOnInit();
-
-          expect(component.itemDetailsForm.controls.organizationId.disabled).toBe(true);
-        });
-
         it("enables the rest of the form", async () => {
           await component.ngOnInit();
 
@@ -678,15 +672,6 @@ describe("ItemDetailsSectionComponent", () => {
 
       it("disables organizationId when personal ownership is allowed and the user has no organizations available", async () => {
         component.config.organizations = [];
-
-        await component.ngOnInit();
-
-        expect(component.itemDetailsForm.controls.organizationId.disabled).toBe(true);
-      });
-
-      it("disables organizationId when the user has only one organizations available and cannot have personal ownership", async () => {
-        component.config.organizationDataOwnershipDisabled = false;
-        component.config.organizations = [{ id: "orgId" } as Organization];
 
         await component.ngOnInit();
 

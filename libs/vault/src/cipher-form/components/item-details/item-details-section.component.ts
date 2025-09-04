@@ -253,9 +253,8 @@ export class ItemDetailsSectionComponent implements OnInit {
         this.favoriteButtonDisabled = true;
       } else {
         // The "after" from the above: When editing a cipher and the user cannot have personal ownership
-        // and the organization is populated - re-enable the global form but restrict them from editing the organizationId.
+        // and the organization is populated - re-enable the global form.
         this.cipherFormContainer.enableFormFields();
-        this.itemDetailsForm.controls.organizationId.disable({ emitEvent: false });
         this.favoriteButtonDisabled = false;
         this.setCollectionControlState();
       }
