@@ -5,13 +5,12 @@ import { Jsonify } from "type-fest";
 import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
 
 import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../platform/enums";
-import { Encrypted } from "../../../platform/interfaces/encrypted";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 export const DECRYPT_ERROR = "[error: cannot decrypt]";
 
-export class EncString implements Encrypted {
+export class EncString {
   encryptedString?: SdkEncString;
   encryptionType?: EncryptionType;
   decryptedValue?: string;
@@ -191,9 +190,7 @@ export class EncString implements Encrypted {
 
   private async getKeyForDecryption(orgId: string) {
     const keyService = Utils.getContainerService().getKeyService();
-    return orgId != null
-      ? await keyService.getOrgKey(orgId)
-      : await keyService.getUserKeyWithLegacySupport();
+    return orgId != null ? await keyService.getOrgKey(orgId) : await keyService.getUserKey();
   }
 }
 

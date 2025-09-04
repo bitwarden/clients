@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Всего приложений"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Снять отметку критического приложения"
+  "unmarkAsCritical": {
+    "message": "Снять отметку критического"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Отметка критического приложения успешно снята"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Скопировать номер лицензии"
   },
+  "copyPrivateKey": {
+    "message": "Скопировать приватный ключ"
+  },
+  "copyPublicKey": {
+    "message": "Скопировать публичный ключ"
+  },
+  "copyFingerprint": {
+    "message": "Скопировать отпечаток"
+  },
   "copyName": {
     "message": "Скопировать имя"
   },
@@ -1428,9 +1437,6 @@
   "notificationSentDevicePart1": {
     "message": "Разблокируйте Bitwarden на своем устройстве или "
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
-  },
   "accessAttemptBy": {
     "message": "Попытка доступа $EMAIL$",
     "placeholders": {
@@ -1509,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Код восстановления"
+  },
+  "invalidRecoveryCode": {
+    "message": "Неверный код восстановления"
   },
   "authenticatorAppTitle": {
     "message": "Приложение-аутентификатор"
@@ -2053,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Выберите коллекцию"
   },
-  "importTargetHint": {
-    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
+  },
+  "importTargetHintFolder": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
@@ -2109,11 +2114,8 @@
   "languageDesc": {
     "message": "Изменение языка, используемого веб-хранилищем."
   },
-  "enableFavicon": {
-    "message": "Показать значки сайтов"
-  },
-  "faviconDesc": {
-    "message": "Отображать узнаваемое изображение рядом с каждым логином."
+  "showIconsChangePasswordUrls": {
+    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
   "default": {
     "message": "По умолчанию"
@@ -2453,9 +2455,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Не удалось прочитать ключ безопасности. Попробуйте снова."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Из-за ограничений платформы WebAuthn нельзя использовать во всех приложениях Bitwarden. Вы должны настроить другого провайдера двухэтапной аутентификации, чтобы иметь возможность получить доступ к своей учетной записи, когда WebAuthn не может быть использован."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Ваш код восстановления двухэтапной аутентификации Bitwarden"
@@ -2826,6 +2825,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Show pricing summary"
+  },
+  "hidePricingSummary": {
+    "message": "Hide pricing summary"
   },
   "summary": {
     "message": "Итого"
@@ -3976,22 +3981,6 @@
   },
   "thisRequestIsNoLongerValid": {
     "message": "Этот запрос больше не действителен."
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Вход подтвержден для $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Вы отклонили попытку авторизации с другого устройства. Если это действительно были вы, попробуйте авторизоваться с этого устройства еще раз."
   },
   "loginRequestApprovedForEmailOnDevice": {
     "message": "Запрос входа для $EMAIL$ на $DEVICE$ одобрен",
@@ -5284,6 +5273,14 @@
   "downloadAttachments": {
     "message": "Скачать вложения"
   },
+  "sendAccessPasswordTitle": {
+    "message": "Введите пароль для просмотра этой Send",
+    "description": "Title of the Send password authentication screen."
+  },
+  "sendAccessContentTitle": {
+    "message": "Просмотр Send",
+    "description": "Title of the Send view content screen."
+  },
   "sendAccessUnavailable": {
     "message": "Send, к которой вы пытаетесь получить доступ, больше не существует или недоступна.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5443,6 +5440,37 @@
   },
   "organizationDataOwnership": {
     "message": "Принудительное соблюдение прав собственности на данные организации"
+  },
+  "organizationDataOwnershipDesc": {
+    "message": "Необходимо, чтобы все элементы принадлежали организации, что исключает возможность их хранения на уровне аккаунта.",
+    "description": "This is the policy description shown in the policy list."
+  },
+  "organizationDataOwnershipContent": {
+    "message": "Все элементы будут принадлежать организации и сохраняться в ней, что позволит осуществлять контроль, видимость и отчетность в масштабах всей организации. При включении для каждого участника будет доступна коллекция по умолчанию для хранения элементов. Узнайте больше об управлении ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection be available for each member to store items. Learn more about managing the credential lifecycle.'"
+  },
+  "organizationDataOwnershipContentAnchor": {
+    "message": "жизненным циклом учетных данных",
+    "description": "This will be used as a hyperlink"
+  },
+  "organizationDataOwnershipWarningTitle": {
+    "message": "Вы уверены, что хотите продолжить?"
+  },
+  "organizationDataOwnershipWarning1": {
+    "message": "будет оставаться доступным для участников"
+  },
+  "organizationDataOwnershipWarning2": {
+    "message": "не будет автоматически выбираться при создании новых элементов"
+  },
+  "organizationDataOwnershipWarning3": {
+    "message": "невозможно управлять из консоли администратора до тех пор, пока пользователь не будет удален"
+  },
+  "organizationDataOwnershipWarningContentTop": {
+    "message": "При отключении этой политики коллекция по умолчанию: "
+  },
+  "organizationDataOwnershipWarningContentBottom": {
+    "message": "Узнайте больше о ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "personalOwnership": {
     "message": "Удалить личное хранилище"
@@ -7009,6 +7037,12 @@
   "unknownCipher": {
     "message": "Неизвестный элемент. Вам может потребоваться запросить разрешение на доступ к этому элементу."
   },
+  "unknownSecret": {
+    "message": "Неизвестный секрет. Вам может потребоваться запросить разрешение на доступ к этому секрету."
+  },
+  "unknownProject": {
+    "message": "Неизвестный проект. Вам может потребоваться запросить разрешение на доступ к этому проекту."
+  },
   "cannotSponsorSelf": {
     "message": "Вы не можете активировать существующий аккаунт. Введите другой адрес электронной почты."
   },
@@ -8332,10 +8366,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Безвозвратно удален секрет с идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Восстановлен секрет с идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Создан новый секрет с идентификатором: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Получен доступ к проекту с ID: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Удален проект с ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Удален секрет с ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Изменен проект с идентификатором: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Удален проект с идентификатором: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Создан новый проект с идентификатором: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -9477,6 +9583,9 @@
   "crowdstrikeEventIntegrationDesc": {
     "message": "Отправлять данные о событиях в ваш инстанс Logscale"
   },
+  "failedToSaveIntegration": {
+    "message": "Не удалось сохранить интеграцию. Пожалуйста, повторите попытку позже."
+  },
   "deviceIdMissing": {
     "message": "ID устройства отсутствует"
   },
@@ -9557,6 +9666,15 @@
   },
   "createNewClientToManageAsProvider": {
     "message": "Создайте новую клиентскую организацию для управления ею в качестве провайдера. Дополнительные места будут отражены в следующем биллинговом цикле."
+  },
+  "url": {
+    "message": "URL"
+  },
+  "bearerToken": {
+    "message": "Токен на предъявителя"
+  },
+  "index": {
+    "message": "Индекс"
   },
   "selectAPlan": {
     "message": "Выберите план"
@@ -10713,6 +10831,9 @@
   "upgradeEventLogMessage": {
     "message": "Эти события являются лишь примерами и не отражают текущих событий вашей организации Bitwarden."
   },
+  "viewEvents": {
+    "message": "Просмотр событий"
+  },
   "cannotCreateCollection": {
     "message": "В бесплатных организациях может быть до 2 коллекций. Перейдите на платный план, чтобы добавить больше коллекций."
   },
@@ -10870,6 +10991,12 @@
     "message": "Для пополнения счета необходим платежный адрес.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Об этой настройке"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
+  },
   "billingAddress": {
     "message": "Платежный адрес"
   },
@@ -10918,6 +11045,36 @@
       }
     }
   },
+  "unpaidInvoices": {
+    "message": "Неоплаченные счета"
+  },
+  "unpaidInvoicesForServiceUser": {
+    "message": "Ваша подписка не была оплачена. Обратитесь к администратору вашего провайдера, чтобы восстановить обслуживание для вас и ваших клиентов.",
+    "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
+  },
+  "providerSuspended": {
+    "message": "$PROVIDER$ приостановлен",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme Industries"
+      }
+    }
+  },
+  "restoreProviderPortalAccessViaCustomerSupport": {
+    "message": "Чтобы восстановить доступ к порталу вашего провайдера, обратитесь в службу поддержки Bitwarden для продления подписки.",
+    "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
+  },
+  "restoreProviderPortalAccessViaPaymentMethod": {
+    "message": "Ваша подписка не была оплачена. Чтобы восстановить обслуживание для вас и ваших клиентов, добавьте способ оплаты с помощью $CANCELLATION_DATE$.",
+    "placeholders": {
+      "cancellation_date": {
+        "content": "$1",
+        "example": "07/10/2025"
+      }
+    },
+    "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
+  },
   "subscribetoEnterprise": {
     "message": "Подписаться на $PLAN$",
     "placeholders": {
@@ -10938,5 +11095,68 @@
   },
   "unlimitedSecretsAndProjects": {
     "message": "Неограниченные секреты и проекты"
+  },
+  "providersubscriptionCanceled": {
+    "message": "Подписка отменена"
+  },
+  "providersubCanceledmessage": {
+    "message": "Чтобы повторно оформить подписку, обратитесь в службу поддержки Bitwarden."
+  },
+  "showMore": {
+    "message": "Больше"
+  },
+  "showLess": {
+    "message": "Меньше"
+  },
+  "missingTaxId": {
+    "message": "Отсутствует идентификационный номер налогоплательщика"
+  },
+  "missingTaxIdWarning": {
+    "message": "Необходимые действия: В платежных реквизитах не указан идентификационный номер налогоплательщика. Если идентификационный номер налогоплательщика не указан, в ваших счетах могут быть указаны дополнительные налоги."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Добавить идентификационный номер налогоплательщика"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Требуется действие: отсутствует идентификационный номер налогоплательщика"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Если идентификационный номер налогоплательщика не добавлен, в ваших счетах может быть указан дополнительный налог."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Необходимые действия: Ваш идентификационный номер налогоплательщика не подтвержден. Если ваш идентификационный номер налогоплательщика не подтвержден, в ваших счетах могут быть указаны дополнительные налоги."
+  },
+  "editTaxId": {
+    "message": "Изменить ваш идентификационный номер налогоплательщика"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Идентификационный номер налогоплательщика не подтвержден"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Проверьте свой идентификационный номер налогоплательщика, чтобы убедиться в правильности формата и отсутствии опечаток."
+  },
+  "pendingVerification": {
+    "message": "Ожидание верификации"
+  },
+  "checkInputFormat": {
+    "message": "Проверьте формат ввода на наличие опечаток."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Пример формата $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
   }
 }
+

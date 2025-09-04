@@ -84,7 +84,7 @@
     "message": "Υπόδειξη κύριου κωδικού πρόσβασης (προαιρετικό)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Βαθμολογία ισχύς κωδικού πρόσβασης $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -468,13 +468,13 @@
     "message": "Ο κωδικός δημιουργήθηκε"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Το συνθηματικό δημιουργήθηκε"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Το όνομα χρήστη δημιουργήθηκε"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Το email δημιουργήθηκε"
   },
   "regeneratePassword": {
     "message": "Επαναδημιουργία κωδικού πρόσβασης"
@@ -548,7 +548,7 @@
     "message": "Αναζήτηση στο vault"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Επαναφορά αναζήτησης"
   },
   "edit": {
     "message": "Επεξεργασία"
@@ -659,10 +659,10 @@
     "message": "Το πρόγραμμα περιήγησης ιστού δεν υποστηρίζει εύκολη αντιγραφή πρόχειρου. Αντιγράψτε το με το χέρι αντ'αυτού."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Επαλήθευση ταυτότητας"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Δεν αναγνωρίζουμε αυτή τη συσκευή. Εισάγετε τον κωδικό που στάλθηκε στο email σας για να επαληθεύσετε την ταυτότητά σας."
   },
   "continueLoggingIn": {
     "message": "Continue logging in"
@@ -875,22 +875,22 @@
     "message": "Σύνδεση στο Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Εισάγετε τον κωδικό που στάλθηκε στο email σας"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Εισαγάγετε τον κωδικό μιας χρήσης από την εφαρμογή αυθεντικοποίησης"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Πιέστε το YubiKey σας για ταυτοποίηση"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Απαιτείται σύνδεση Duo δύο βημάτων για το λογαριασμό σας. Ακολουθήστε τα παρακάτω βήματα για να ολοκληρώσετε τη σύνδεση."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Ακολουθήστε τα παρακάτω βήματα για να ολοκληρώσετε τη σύνδεση."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Ακολουθήστε τα παρακάτω βήματα για να ολοκληρώσετε τη σύνδεση με το κλειδί ασφαλείας σας."
   },
   "restartRegistration": {
     "message": "Επανεκκίνηση εγγραφής"
@@ -1760,14 +1760,8 @@
   "popupU2fCloseMessage": {
     "message": "Αυτό το πρόγραμμα περιήγησης δεν μπορεί να επεξεργαστεί αιτήματα του U2F σε αυτό το αναδυόμενο παράθυρο. Θέλετε να ανοίξετε το αναδυόμενο σε νέο παράθυρο, ώστε να μπορείτε να συνδεθείτε χρησιμοποιώντας U2F;"
   },
-  "enableFavicon": {
-    "message": "Εμφάνιση εικονιδίων ιστοσελίδας"
-  },
-  "faviconDesc": {
-    "message": "Εμφάνιση μιας αναγνωρίσιμης εικόνας δίπλα σε κάθε σύνδεση."
-  },
-  "faviconDescAlt": {
-    "message": "Εμφάνιση μιας αναγνωρίσιμης εικόνας δίπλα σε κάθε σύνδεση. Ισχύει για όλους τους συνδεδεμένους λογαριασμούς."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Εμφάνιση μετρητή εμβλημάτων"
@@ -3657,25 +3651,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
-  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
@@ -4150,15 +4125,11 @@
   "selectImportCollection": {
     "message": "Επιλέξτε μια συλλογή"
   },
-  "importTargetHint": {
-    "message": "Επιλέξτε αυτή την επιλογή εάν θέλετε τα περιεχόμενα του εισαγόμενου αρχείου να μετακινηθούν στο $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Το αρχείο περιέχει μη συσχετισμένα στοιχεία."
@@ -5136,6 +5107,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Εμφάνιση αριθμού προτάσεων αυτόματης συμπλήρωσης σύνδεσης στο εικονίδιο επέκτασης"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Εμφάνιση ενεργειών γρήγορης αντιγραφής στο Θησαυ/κιο"
   },
@@ -5586,11 +5569,27 @@
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
   },
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

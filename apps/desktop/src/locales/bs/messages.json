@@ -24,13 +24,13 @@
     "message": "Identitet"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Napomena"
   },
   "typeSecureNote": {
     "message": "Sigurna bilješka"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH ključ"
   },
   "folders": {
     "message": "Folderi"
@@ -343,7 +343,7 @@
     "message": "Mx"
   },
   "dr": {
-    "message": "dr."
+    "message": "dr"
   },
   "expirationMonth": {
     "message": "Mjesec isteka"
@@ -700,13 +700,19 @@
     "message": "Da li ste sigurni da želite obrisati priloženu datoteku?"
   },
   "attachmentSaved": {
-    "message": "Priložena datoteka je spremljena."
+    "message": "Priložena datoteka je spremljena"
+  },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
   },
   "file": {
     "message": "Datoteka"
   },
   "selectFile": {
-    "message": "Odaberite datoteku."
+    "message": "Odaberite datoteku"
   },
   "maxFileSize": {
     "message": "Maksimalna veličina datoteke je 500 MB."
@@ -997,7 +1003,7 @@
     "message": "Koristi bilo koji WebAuthn omogućeni sigurnosni ključ za pristup svojem računu."
   },
   "emailTitle": {
-    "message": "E-Mail "
+    "message": "E-Mail"
   },
   "emailDescV2": {
     "message": "Enter a code sent to your email."
@@ -1061,7 +1067,7 @@
     "message": "URL adresa servera ikona"
   },
   "environmentSaved": {
-    "message": "URL adrese okruženja su spremljene."
+    "message": "URL adrese okruženja su spremljene"
   },
   "ok": {
     "message": "Uredu"
@@ -1225,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Prijava u dva koraka"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Vremensko ograničenje trezora"
   },
   "vaultTimeout1": {
     "message": "Timeout"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Odaberi kada će za koliko vremena će isteći aktivnost trezora i biti izvršena odabrana radnja."
@@ -1293,11 +1305,8 @@
     "message": "Automatski očistiti kopirane vrijednosti iz vaše međumemorije.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Show website icons"
-  },
-  "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Minimiziraj kao ikonicu u sistemskoj traci"
@@ -1384,7 +1393,7 @@
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
-    "message": "Provjeri ima li ažuriranja"
+    "message": "Provjeri ima li ažuriranja…"
   },
   "version": {
     "message": "Verzija $VERSION_NUM$",
@@ -1833,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"
-  },
-  "requirePasswordOnStart": {
-    "message": "Require password or PIN on app start"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
@@ -2511,6 +2514,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Invitation accepted"
   },
@@ -2992,9 +3024,6 @@
     "message": "Toggle character count",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
-  },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
     "placeholders": {
@@ -3003,6 +3032,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Device Type"
@@ -3018,22 +3091,6 @@
   },
   "denyAccess": {
     "message": "Deny access"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
   "justNow": {
     "message": "Just now"
@@ -3431,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -3872,6 +3925,12 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "assignToCollections": {
     "message": "Assign to collections"
   },
@@ -4006,10 +4065,20 @@
       }
     }
   },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
   "enableAutotype": {
     "message": "Enable Autotype"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

@@ -55,10 +55,13 @@ export class SendProgram extends BaseProgram {
           "optional password to access this Send. Can also be specified in JSON.",
         ).conflicts("email"),
       )
-      .option(
-        "--email <email>",
-        "optional emails to access this Send. Can also be specified in JSON.",
-        parseEmail,
+      .addOption(
+        new Option(
+          "--email <email>",
+          "optional emails to access this Send. Can also be specified in JSON.",
+        )
+          .argParser(parseEmail)
+          .hideHelp(),
       )
       .option("-a, --maxAccessCount <amount>", "The amount of max possible accesses.")
       .option("--hidden", "Hide <data> in web by default. Valid only if --file is not set.")
@@ -149,11 +152,11 @@ export class SendProgram extends BaseProgram {
 
   private templateCommand(): Command {
     return new Command("template")
-      .argument("<object>", "Valid objects are: send.text, send.file")
+      .argument("<object>", "Valid objects are: send.text, text, send.file, file")
       .description("Get json templates for send objects")
-      .action((options: OptionValues) =>
-        this.processResponse(new SendTemplateCommand().run(options.object)),
-      );
+      .action((object: string) => {
+        this.processResponse(new SendTemplateCommand().run(object));
+      });
   }
 
   private getCommand(): Command {

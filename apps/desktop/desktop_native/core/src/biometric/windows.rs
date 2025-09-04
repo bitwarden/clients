@@ -27,6 +27,8 @@ use super::{decrypt, encrypt, windows_focus::set_focus};
 pub struct Biometric {}
 
 impl super::BiometricTrait for Biometric {
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     async fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool> {
         let h = isize::from_le_bytes(hwnd.clone().try_into().unwrap());
 

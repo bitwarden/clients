@@ -42,7 +42,7 @@
     "message": "Претражи сеф"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Ресетовати претрагу"
   },
   "addItem": {
     "message": "Додај ставку"
@@ -576,7 +576,7 @@
     "message": "Копирај потврдни код (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Копирај $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -701,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Прилог је сачуван"
+  },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
   },
   "file": {
     "message": "Датотека"
@@ -1225,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Дво-коракна лозинка"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Тајмаут сефа"
   },
   "vaultTimeout1": {
     "message": "Време трајања"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Изаберите када ће сеф истећи и извршити одабрану радњу."
@@ -1293,11 +1305,8 @@
     "message": "Аутоматски обришите копиране вредности из привремене меморије.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Прикажи иконе сајтова"
-  },
-  "faviconDesc": {
-    "message": "Прикажи препознатљиву слику поред сваке ставке за пријаву."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableMinToTray": {
     "message": "Минимизирај као иконицу у системској траци"
@@ -1443,7 +1452,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "број картице"
   },
   "premiumMembership": {
     "message": "Премијум чланство"
@@ -1833,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Захтевај Touch ID при покретању"
-  },
-  "requirePasswordOnStart": {
-    "message": "Захтевај лозинку или ПИН при покретању"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Захтевај лозинку при покретању"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Закључајте са главном лозинком при поновном покретању"
@@ -2511,6 +2514,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Време истека вашег сефа је премашило дозвољена ограничења од стране ваше организације."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Позив прихваћен"
   },
@@ -2992,9 +3024,6 @@
     "message": "Пребаци бројање слова",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Да ли покушавате да приступите вашем налогу?"
-  },
   "accessAttemptBy": {
     "message": "Покушај приступа са $EMAIL$",
     "placeholders": {
@@ -3003,6 +3032,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Тип уређаја"
@@ -3018,22 +3091,6 @@
   },
   "denyAccess": {
     "message": "Одбити приступ"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Пријава потврђена за $EMAIL$ на $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Одбили сте покушај пријаве са другог уређаја. Ако сте то заиста били ви, покушајте поново да се пријавите помоћу уређаја."
   },
   "justNow": {
     "message": "Управо сада"
@@ -3431,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Изабери колекцију"
   },
-  "importTargetHint": {
-    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке премести у $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."
@@ -3872,6 +3925,12 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "assignToCollections": {
     "message": "Додели колекцијама"
   },
@@ -4006,10 +4065,20 @@
       }
     }
   },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
   "enableAutotype": {
-    "message": "Enable Autotype"
+    "message": "Упали ауто-унос"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden не потврђује локације уноса, будите сигурни да сте у добром прозору и поље пре употребе пречице."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   }
 }

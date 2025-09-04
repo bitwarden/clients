@@ -15,7 +15,7 @@
         bitSuffix
         *ngIf="loginDetailsForm.controls.username.enabled"
         data-testid="generate-username-button"
-        [appA11yTitle]="'generateUsername' | i18n"
+        [label]="'generateUsername' | i18n"
         [bitAction]="generateUsername"
       ></button>
     </bit-form-field>
@@ -47,7 +47,7 @@
           loginDetailsForm.controls.password.value?.length > 0
         "
         data-testid="check-password-button"
-        [appA11yTitle]="'checkPassword' | i18n"
+        [label]="'checkPassword' | i18n"
         [bitAction]="checkPassword"
       ></button>
       <button
@@ -65,7 +65,7 @@
         bitSuffix
         *ngIf="loginDetailsForm.controls.password.enabled"
         data-testid="generate-password-button"
-        [appA11yTitle]="'generatePassword' | i18n"
+        [label]="'generatePassword' | i18n"
         [bitAction]="generatePassword"
       ></button>
     </bit-form-field>
@@ -86,7 +86,7 @@
         *ngIf="loginDetailsForm.enabled && viewHiddenFields"
         [bitAction]="removePasskey"
         data-testid="remove-passkey-button"
-        [appA11yTitle]="'removePasskey' | i18n"
+        [label]="'removePasskey' | i18n"
       ></button>
     </bit-form-field>
 
@@ -103,7 +103,9 @@
           <i class="bwi bwi-sm bwi-question-circle" aria-hidden="true"></i>
         </button>
         <bit-popover #totpPopover [title]="'totpHelperTitle' | i18n">
-          <p>{{ (canCaptureTotp ? "totpHelperWithCapture" : "totpHelper") | i18n }}</p>
+          <p class="tw-mb-0">
+            {{ (canCaptureTotp ? "totpHelperWithCapture" : "totpHelper") | i18n }}
+          </p>
         </bit-popover>
       </bit-label>
       <input bitInput formControlName="totp" type="password" class="tw-font-mono" />
@@ -123,7 +125,7 @@
         *ngIf="canCaptureTotp"
         data-testid="capture-totp-button"
         [bitAction]="captureTotp"
-        [appA11yTitle]="'totpCapture' | i18n"
+        [label]="'totpCapture' | i18n"
       ></button>
     </bit-form-field>
   </bit-card>
