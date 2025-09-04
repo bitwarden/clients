@@ -61,6 +61,7 @@
       href="{{ this.cloudWebVaultUrl }}"
       target="_blank"
       rel="noreferrer"
+      class="tw-mb-4"
     >
       {{ "launchCloudSubscription" | i18n }}
     </a>
@@ -93,7 +94,7 @@
           </bit-hint>
         </bit-radio-button>
         <ng-container *ngIf="updateMethod === licenseOptions.SYNC">
-          <div class="tw-mt-6">
+          <div class="tw-mt-6 tw-flex tw-gap-2">
             <button
               bitButton
               buttonType="secondary"
