@@ -868,13 +868,13 @@
     "message": "复制许可证号码"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "复制私钥"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "复制公钥"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "复制指纹"
   },
   "copyName": {
     "message": "复制名称"
@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "恢复代码"
   },
+  "invalidRecoveryCode": {
+    "message": "无效的恢复码"
+  },
   "authenticatorAppTitle": {
     "message": "验证器 App"
   },
@@ -2112,7 +2115,7 @@
     "message": "更改网页密码库的语言。"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "显示网站图标并检索更改密码的 URL"
   },
   "default": {
     "message": "默认"
@@ -10989,10 +10992,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "关于此设置"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden 将使用保存的登录 URI 来识别应使用哪个图标或更改密码 URL 来改善您的体验。 使用此服务时没有收集或保存任何信息。"
   },
   "billingAddress": {
     "message": "计费地址"

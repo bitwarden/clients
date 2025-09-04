@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Herstelcode"
   },
+  "invalidRecoveryCode": {
+    "message": "Ongeldige herstelcode"
+  },
   "authenticatorAppTitle": {
     "message": "Authenticatie-app"
   },

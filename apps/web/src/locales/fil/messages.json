@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Code pang-recover"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Authenticator app"
   },
