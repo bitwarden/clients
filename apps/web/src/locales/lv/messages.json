@@ -8935,20 +8935,25 @@
   "collectionManagement": {
     "message": "Krājumu pārvaldība"
   },
-  "collectionManagementDesc": {
-    "message": "Krājumu uzvedības pārvaldība apvienībā"
+  "collectionManagementDescription": {
+    "message": "Konfigurēt krājumu uzvedību apvienībai"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Ļaut īpašniekiem un pārvaldītājiem pārvalīdt visus krājumus un vienumus pārvaldības konsolē"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Ļaut krājumu izveidošanu tikai īpašniekiem un pārvaldītājiem"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Ļaut krājumu izdzēšanu tikai īpašniekiem un pārvaldītājiem"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ļaut vienumu izdzēšanu tikai dalībniekiem ar krājuma pārvaldīšanas atļaujām"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Ļaut vienumu izdzēšanu dalībniekiem ar atļauju ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Īpašnieki un pārvaldnieki var pārvaldīt visus krājumus un vienumus"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Atjaunināts krājumu pārvaldības iestatījums"
@@ -11157,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Apstiprināt Key Connector domēnu"
   }
 }
 

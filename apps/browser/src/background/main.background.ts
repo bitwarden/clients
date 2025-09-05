@@ -777,6 +777,25 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.authService = new AuthService(
+      this.accountService,
+      this.messagingService,
+      this.keyService,
+      this.apiService,
+      this.stateService,
+      this.tokenService,
+    );
+
+    this.configApiService = new ConfigApiService(this.apiService);
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
+
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
@@ -837,25 +856,6 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.authRequestApiService,
-    );
-
-    this.authService = new AuthService(
-      this.accountService,
-      this.messagingService,
-      this.keyService,
-      this.apiService,
-      this.stateService,
-      this.tokenService,
-    );
-
-    this.configApiService = new ConfigApiService(this.apiService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
-      this.authService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
