@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "Folytassuk a bejelentkezést a cég hitelesítő adataival."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Importálás közvetlenül a bővítményből"
+  },
+  "browserProfile": {
+    "message": "Böngésző profil"
+  },
   "seeDetailedInstructions": {
     "message": "Tekintsük meg a részletes utasításokat a súgó oldalon:",
     "description": "This is followed a by a hyperlink to the help website."
@@ -4080,5 +4086,23 @@
   "moreBreadcrumbs": {
     "message": "További morzsamenük",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Következő"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "A Key Connector tartomány megerősítése"
+  },
+  "confirm": {
+    "message": "Megerősítés"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

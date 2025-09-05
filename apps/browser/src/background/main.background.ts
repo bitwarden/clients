@@ -304,7 +304,10 @@ import { BackgroundMemoryStorageService } from "../platform/storage/background-m
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
 import { OffscreenStorageService } from "../platform/storage/offscreen-storage.service";
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
-import { BrowserSystemNotificationService } from "../platform/system-notifications/browser-system-notification.service";
+import {
+  BrowserSystemNotificationService,
+  isNotificationsSupported,
+} from "../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-cipher-badge-updater.service";
 
@@ -778,6 +781,25 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.authService = new AuthService(
+      this.accountService,
+      this.messagingService,
+      this.keyService,
+      this.apiService,
+      this.stateService,
+      this.tokenService,
+    );
+
+    this.configApiService = new ConfigApiService(this.apiService);
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
+
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
@@ -838,25 +860,6 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.authRequestApiService,
-    );
-
-    this.authService = new AuthService(
-      this.accountService,
-      this.messagingService,
-      this.keyService,
-      this.apiService,
-      this.stateService,
-      this.tokenService,
-    );
-
-    this.configApiService = new ConfigApiService(this.apiService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
-      this.authService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
@@ -1125,7 +1128,7 @@ export default class MainBackground {
 
     this.actionsService = new BrowserActionsService(this.logService, this.platformUtilsService);
 
-    if ("notifications" in chrome) {
+    if (isNotificationsSupported()) {
       this.systemNotificationService = new BrowserSystemNotificationService(
         this.platformUtilsService,
       );
