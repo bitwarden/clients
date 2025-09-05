@@ -5,7 +5,10 @@ import { AuthRequestAnsweringServiceAbstraction } from "../../abstractions/auth-
 
 export class NoopAuthRequestAnsweringService implements AuthRequestAnsweringServiceAbstraction {
   constructor() {}
-  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void> {}
 
   async receivedPendingAuthRequest(userId: UserId, notificationId: string): Promise<void> {}
+
+  async handleAuthRequestNotificationClicked(event: SystemNotificationEvent): Promise<void> {}
+
+  async processPendingAuthRequests(): Promise<void> {}
 }

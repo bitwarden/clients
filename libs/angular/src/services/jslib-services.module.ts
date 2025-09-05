@@ -106,6 +106,7 @@ import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -943,6 +944,11 @@ const safeProviders: SafeProvider[] = [
     provide: SystemNotificationsService,
     useClass: UnsupportedSystemNotificationsService,
     deps: [],
+  }),
+  safeProvider({
+    provide: PendingAuthRequestsStateService,
+    useClass: PendingAuthRequestsStateService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: AuthRequestAnsweringServiceAbstraction,
