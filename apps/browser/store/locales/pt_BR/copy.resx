@@ -143,7 +143,7 @@ Utilize o Bitwarden para proteger os seus colaboradores e compartilhar informaç
 Mais razões para escolher Bitwarden:
 
 Criptografia mundialmente reconhecida
-Suas senhas são protegidas com avançada criptografia ponta a ponta (AES-256, salted hashtag, e PBKDF2 SHA-256) para que os seus dados estejam seguros e privados.
+Suas senhas são protegidas com avançada criptografia ponta a ponta (AES-256, salted hashing, e PBKDF2 SHA-256) para que os seus dados estejam seguros e privados.
 
 Auditoria de Terceiros
 A Bitwarden regularmente conduz auditorias de terceiros com notáveis empresas de segurança. Essas auditorias anuais incluem qualificação do código fonte e testes de invasão contra os IPs da Bitwarden, servidores e aplicações web.
