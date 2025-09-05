@@ -105,7 +105,7 @@ import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstract
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
-import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
+import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -752,6 +752,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       LOGOUT_CALLBACK,
       VaultTimeoutSettingsService,
+      AccountService,
       HTTP_OPERATIONS,
     ],
   }),
@@ -943,16 +944,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: AuthRequestAnsweringServiceAbstraction,
-    useClass: AuthRequestAnsweringService,
-    deps: [
-      AccountServiceAbstraction,
-      ActionsService,
-      AuthServiceAbstraction,
-      I18nServiceAbstraction,
-      MasterPasswordServiceAbstraction,
-      PlatformUtilsServiceAbstraction,
-      SystemNotificationsService,
-    ],
+    useClass: NoopAuthRequestAnsweringService,
+    deps: [],
   }),
   safeProvider({
     provide: ServerNotificationsService,
@@ -1158,7 +1151,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ConfigApiServiceAbstraction,
     useClass: ConfigApiService,
-    deps: [ApiServiceAbstraction, TokenServiceAbstraction],
+    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: AnonymousHubServiceAbstraction,
@@ -1331,7 +1324,6 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       OrganizationApiServiceAbstraction,
       SyncService,
-      ConfigService,
     ],
   }),
   safeProvider({
@@ -1499,6 +1491,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       KeyService,
       StateProvider,
+      ConfigService,
     ],
   }),
   safeProvider({

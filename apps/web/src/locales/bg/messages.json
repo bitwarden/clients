@@ -8935,20 +8935,25 @@
   "collectionManagement": {
     "message": "Управление на колекциите"
   },
-  "collectionManagementDesc": {
-    "message": "Управление на поведението на колекциите за организацията"
+  "collectionManagementDescription": {
+    "message": "Настройване на поведението на колекциите за организацията"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Разрешаване на собствениците и администраторите да управляват всички колекции и елементи от административната конзола"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Ограничаване на създаването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Ограничаване на изтриването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощия за управление на колекции"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощието ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Собствениците и администраторите могат да управляват всички колекции и елементи"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Настройката за управление на колекции е променена"
@@ -11157,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потвърждаване на домейна на конектора за ключове"
   }
 }
 

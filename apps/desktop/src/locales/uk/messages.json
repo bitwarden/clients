@@ -703,10 +703,10 @@
     "message": "Вкладення збережено"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Додати вкладення"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "Максимальний розмір файлу – 500 МБ"
   },
   "file": {
     "message": "Файл"
@@ -1306,7 +1306,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Показувати піктограми вебсайтів та отримувати адреси для зміни паролів"
   },
   "enableMinToTray": {
     "message": "Згортати до системного лотка"
@@ -3489,10 +3489,10 @@
     "message": "Вибрати збірку"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -3587,6 +3587,12 @@
   },
   "awaitingSSODesc": {
     "message": "Увійдіть з використанням облікових даних вашої компанії."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Перегляньте докладні інструкції на нашому довідковому сайті",
@@ -3926,10 +3932,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Про ці налаштування"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden використовуватиме збережені URI-адреси записів для визначення піктограм вебсайтів або URL-адрес для зміни паролів, щоб вдосконалити вашу роботу. Під час використання цієї послуги ваша інформація не збирається і не зберігається."
   },
   "assignToCollections": {
     "message": "Призначити до збірок"
@@ -4066,10 +4072,10 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Розгорнути"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Згорнути"
   },
   "enableAutotype": {
     "message": "Увімкнути автовведення"
@@ -4078,7 +4084,25 @@
     "message": "Bitwarden не перевіряє місця введення. Переконайтеся, що у вас відкрите правильне вікно і вибрано потрібне поле, перш ніж застосувати комбінацію клавіш."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Інші елементи",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

@@ -556,6 +556,9 @@
   "view": {
     "message": "Prikaz"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Nema stavki za prikaz."
   },
@@ -1761,7 +1764,7 @@
     "message": "Ovaj preglednik ne može obraditi U2F zahtjeve u ovom iskočnom prozoru. Želiš li otvoriti ovaj iskočni prozor u novom prozoru za prijavu putem U2F?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
   },
   "enableBadgeCounter": {
     "message": "Prikaži značku brojača"
@@ -4126,10 +4129,10 @@
     "message": "Odaberi zbirku"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u zbirku"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u mapu"
   },
   "importUnassignedItemsError": {
     "message": "Datoteka sadrži nedodijeljene stavke."
@@ -5108,10 +5111,10 @@
     "message": "Prikaži broj prijedloga auto-ispune na ikoni proširenja"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Zatražen je pristup računu"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Potvrdi pokušaj prijave za $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Promijeni rizičnu lozinku"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Mogućnosti trezora"
   },
@@ -5570,10 +5579,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "O ovoj postavci"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
   },
   "noPermissionsViewPage": {
     "message": "Nemaš dozvolu za pregled ove stranice. Pokušaj se prijaviti s drugim računom."
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Pokaži manje"
   },
+  "next": {
+    "message": "Sljedeće"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Više mrvica",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdi domenu kontektora ključa"
   }
 }

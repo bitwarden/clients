@@ -158,10 +158,13 @@ import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
+import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
+import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
+import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
@@ -302,6 +305,7 @@ import { OffscreenStorageService } from "../platform/storage/offscreen-storage.s
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { BrowserSystemNotificationService } from "../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
+import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-cipher-badge-updater.service";
 
 import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
@@ -433,6 +437,7 @@ export default class MainBackground {
   badgeService: BadgeService;
   authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
   autofillBadgeUpdaterService: AutofillBadgeUpdaterService;
+  atRiskCipherUpdaterService: AtRiskCipherBadgeUpdaterService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -735,6 +740,7 @@ export default class MainBackground {
       this.logService,
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
       this.vaultTimeoutSettingsService,
+      this.accountService,
       { createRequest: (url, request) => new Request(url, request) },
     );
 
@@ -771,6 +777,25 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.authService = new AuthService(
+      this.accountService,
+      this.messagingService,
+      this.keyService,
+      this.apiService,
+      this.stateService,
+      this.tokenService,
+    );
+
+    this.configApiService = new ConfigApiService(this.apiService);
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
+
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
@@ -783,6 +808,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyService,
       this.stateProvider,
+      this.configService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -830,25 +856,6 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.authRequestApiService,
-    );
-
-    this.authService = new AuthService(
-      this.accountService,
-      this.messagingService,
-      this.keyService,
-      this.apiService,
-      this.stateService,
-      this.tokenService,
-    );
-
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
-      this.authService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
@@ -1052,8 +1059,16 @@ export default class MainBackground {
       this.encryptService,
       this.pinService,
       this.accountService,
-      this.sdkService,
       this.restrictedItemTypesService,
+      createSystemServiceProvider(
+        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        this.stateProvider,
+        this.policyService,
+        buildExtensionRegistry(),
+        this.logService,
+        this.platformUtilsService,
+        this.configService,
+      ),
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1838,6 +1853,14 @@ export default class MainBackground {
       this.logService,
     );
 
+    this.atRiskCipherUpdaterService = new AtRiskCipherBadgeUpdaterService(
+      this.badgeService,
+      this.accountService,
+      this.cipherService,
+      this.logService,
+      this.taskService,
+    );
+
     this.tabsBackground = new TabsBackground(
       this,
       this.notificationBackground,
@@ -1847,6 +1870,7 @@ export default class MainBackground {
     await this.overlayBackground.init();
     await this.tabsBackground.init();
     await this.autofillBadgeUpdaterService.init();
+    await this.atRiskCipherUpdaterService.init();
   }
 
   generatePassword = async (): Promise<string> => {
