@@ -970,7 +970,7 @@
     "message": "验证器 App"
   },
   "authenticatorAppDescV2": {
-    "message": "输入验证器 App（例如 Bitwarden 验证器）生成的代码。",
+    "message": "输入验证器 App（例如 Bitwarden Authenticator）生成的代码。",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -3047,7 +3047,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请再次使用该设备登录。"
+    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
   },
   "webApp": {
     "message": "网页 App"
@@ -3123,7 +3123,7 @@
     "message": "已请求登录"
   },
   "accountAccessRequested": {
-    "message": "已请求账户访问"
+    "message": "已请求账户访问权限"
   },
   "creatingAccountOn": {
     "message": "创建账户至"
@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "请使用您的公司凭据继续登录。"
   },
+  "importDirectlyFromBrowser": {
+    "message": "直接从浏览器导入"
+  },
+  "browserProfile": {
+    "message": "浏览器配置文件"
+  },
   "seeDetailedInstructions": {
     "message": "请参阅我们的帮助网站上的详细说明：",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3929,7 +3935,7 @@
     "message": "关于此设置"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden 将使用保存的登录 URI 来识别应使用哪个图标或更改密码 URL 来改善您的体验。 使用此服务时没有收集或保存任何信息。"
+    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
   "assignToCollections": {
     "message": "分配到集合"
@@ -4080,5 +4086,23 @@
   "moreBreadcrumbs": {
     "message": "进一步的指引",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "下一步"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "确认 Key Connector 域名"
+  },
+  "confirm": {
+    "message": "确认"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

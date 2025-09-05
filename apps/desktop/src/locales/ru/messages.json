@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "Пожалуйста, продолжите вход, используя учетные данные вашей компании."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Импорт непосредственно из браузера"
+  },
+  "browserProfile": {
+    "message": "Профиль браузера"
+  },
   "seeDetailedInstructions": {
     "message": "Подробные инструкции см. на нашем справочном сайте по адресу",
     "description": "This is followed a by a hyperlink to the help website."
@@ -4080,5 +4086,23 @@
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Далее"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
+  },
+  "confirm": {
+    "message": "Подтвердить"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Включить ярлык автоввода"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Прежде чем использовать ярлык, убедитесь, что вы поставили курсор в нужное поле, чтобы избежать ввода данных в неправильное место."
+  },
+  "editShortcut": {
+    "message": "Изменить ярлык"
   }
 }
