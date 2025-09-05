@@ -21,4 +21,17 @@ export const DISABLED_LOGGER: SemanticLogger = deepFreeze({
       throw new Error(message);
     }
   },
+
+  panicWhen<T>(
+    predicate: boolean,
+    content: Jsonify<T> | string,
+    message?: string,
+  ): predicate is false | never {
+    if (predicate) {
+      // type conversion safe because Jsonify<string> === string
+      this.panic(content as Jsonify<T | string>, message);
+    }
+
+    return !predicate;
+  },
 });
