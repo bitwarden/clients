@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "請使用您的公司憑證繼續登入。"
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "請參閱我們說明網站上的詳細說明於",
     "description": "This is followed a by a hyperlink to the help website."
@@ -4080,5 +4086,23 @@
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

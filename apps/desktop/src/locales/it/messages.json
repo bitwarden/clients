@@ -703,10 +703,10 @@
     "message": "Allegato salvato"
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Aggiungi allegato"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "La dimensione massima consentita è 500 MB."
   },
   "file": {
     "message": "File"
@@ -1306,7 +1306,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Mostra le icone dei siti e recupera gli URL di cambio password"
   },
   "enableMinToTray": {
     "message": "Minimizza nell'area di notifica"
@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "Continua ad accedere utilizzando le tue credenziali aziendali."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Consulta le istruzioni dettagliate sul nostro sito di assistenza su",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3926,10 +3932,10 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Informazioni su questa opzione"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden userà gli URL memorizzati in ogni login per mostrare, se possibile, l'icona del sito Web e l'URL di modifica password per facilitare la modifica delle credenziali. Nessuna informazione è raccolta o archiviata per il funzionamento di questo servizio."
   },
   "assignToCollections": {
     "message": "Assegna a una raccolta"
@@ -4080,5 +4086,23 @@
   "moreBreadcrumbs": {
     "message": "Ulteriori segmenti",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Avanti"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Conferma dominio Key Connector"
+  },
+  "confirm": {
+    "message": "Conferma"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

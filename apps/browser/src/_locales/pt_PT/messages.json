@@ -556,6 +556,9 @@
   "view": {
     "message": "Ver"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Não existem itens para listar."
   },
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Alterar palavra-passe em risco"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Opções do cofre"
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Mostrar menos"
   },
+  "next": {
+    "message": "Seguinte"
+  },
   "moreBreadcrumbs": {
     "message": "Mais da navegação estrutural",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirmar o domínio do Key Connector"
   }
 }

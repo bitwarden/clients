@@ -556,6 +556,9 @@
   "view": {
     "message": "Görüntüle"
   },
+  "viewLogin": {
+    "message": "Hesabı görüntüle"
+  },
   "noItemsInList": {
     "message": "Listelenecek kayıt yok."
   },
@@ -2497,7 +2500,7 @@
     "message": "Kart öge türleri içe aktarılamıyor"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "1 veya daha fazla kuruluş tarafından belirlenen bir ilke, kasalarınıza kart aktarmanızı engeller."
   },
   "domainsTitle": {
     "message": "Alan adları",
@@ -2581,7 +2584,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "message": "Bu site için olan parolanız risk altındadır. $ORGANIZATION$ parolanızı değiştirmenizi istemiştir.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2591,7 +2594,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "message": "$ORGANIZATION$ risk altında olduğu için bu parolayı değiştirmenizi istiyor. Parolayı değiştirmek için hesap ayarlarınıza gidin.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3783,7 +3786,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Dosyaları ve verileri istediğiniz kişilerle, istediğiniz platformda paylaşın. Bilgileriniz başkalarının eline geçmemesi için uçtan şifrelenecektir.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3948,7 +3951,7 @@
     "description": "Button text to display in overlay when the account is locked."
   },
   "unlockAccountAria": {
-    "message": "Unlock your account, opens in a new window",
+    "message": "Hesabınızın kilidini açın, yeni bir pencerede açılır",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "totpCodeAria": {
@@ -4000,7 +4003,7 @@
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
-    "message": "Add new vault identity item, opens in a new window",
+    "message": "Yeni kasa kimliği kayıtı ekle, yeni bir pencerede açılır",
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
@@ -4090,7 +4093,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+    "message": "Duo hizmetine bağlanırken hata oluştu. Başka bir iki aşamalı giriş yöntemi kullanın veya destek almak Duo ile iletişime geçin."
   },
   "duoRequiredForAccount": {
     "message": "Hesabınız için Duo iki adımlı giriş gereklidir."
@@ -4397,19 +4400,19 @@
     "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
   },
   "confirmContinueToHelpCenterPasswordManagementContent": {
-    "message": "Change your browser's autofill and password management settings.",
+    "message": "Tarayıcınızın otomatik doldurma ve parola yönetimi ayarlarını değiştirin.",
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
   },
   "confirmContinueToHelpCenterKeyboardShortcutsContent": {
-    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "message": "Tarayıcınızın ayarlarında uzantı kısayollarını görüntüleyebilir ve ayarlayabilirsiniz.",
     "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
   },
   "confirmContinueToBrowserPasswordManagementSettingsContent": {
-    "message": "Change your browser's autofill and password management settings.",
+    "message": "Tarayıcınızın otomatik doldurma ve parola yönetimi ayarlarını değiştirin.",
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
   },
   "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
-    "message": "You can view and set extension shortcuts in your browser's settings.",
+    "message": "Tarayıcınızın ayarlarında uzantı kısayollarını görüntüleyebilir ve ayarlayabilirsiniz.",
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
@@ -4752,7 +4755,7 @@
     "message": "Premium"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "Free organizations cannot use attachments"
+    "message": "Ücretsiz kuruluşlar dosya eklerini kullanamaz"
   },
   "filters": {
     "message": "Filtreler"
@@ -4905,13 +4908,13 @@
     "message": "Ata"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Yalnızca bu koleksiyonlara erişimi olan kuruluş üyeleri kayıtı görebilecektir."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Yalnızca bu koleksiyonlara erişimi olan kuruluş üyeleri kayıtları görebilecektir."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "$TOTAL_COUNT$ kayıt seçtiniz. Düzenleme izniniz olmadığı için $READONLY_COUNT$ kayıtı güncelleyemezsiniz.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -4944,10 +4947,10 @@
     "message": "Formlardaki onay kutularını (örn. \"e-posta adresimi hatırla\") otomatik doldurmak isterseniz onay kutularını kullanın"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Belirli bir web sitesi için otomatik doldurma sorunları yaşıyorsanız bağlantılı bir alan kullanın."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Alanın html kimliğini (id), adını (name), aria-label etiketini veya yer tutucusunu (placeholder) girin."
   },
   "editField": {
     "message": "Alanı düzenle"
@@ -5009,13 +5012,13 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Atanacak koleksiyonları seçin"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 kayıt kalıcı olarak seçilen kuruluşa aktarılacaktır. Artık bu kayıta sahip olmayacaksınız."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ kayıt kalıcı olarak seçilen kuruluşa aktarılacaktır. Artık bu kayıtlara sahip olmayacaksınız.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5024,7 +5027,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 kayıt kalıcı olarak $ORG$ kuruluşuna aktarılacaktır. Artık bu kayıta sahip olmayacaksınız.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -5033,7 +5036,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ kayıt kalıcı olarak $ORG$ kuruluşuna aktarılacaktır. Artık bu kayıtlara sahip olmayacaksınız.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5046,7 +5049,7 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Başarıyla atanan koleksiyonlar"
   },
   "nothingSelected": {
     "message": "Hiçbir şey seçmediniz."
@@ -5225,10 +5228,10 @@
     "message": "Kasanıza daha hızlı ulaşmak için kilit açma ve zaman aşımı ayarlarınızı özelleştirebilirsiniz."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "Kilit açma PIN seti"
   },
   "unlockWithBiometricSet": {
-    "message": "Unlock with biometrics set"
+    "message": "Biyometrik set ile kilidi aç"
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
@@ -5417,19 +5420,19 @@
     "message": "Parolayı girin"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "SSH anahtarı geçersiz"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "SSH anahtar türü desteklenmiyor"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Anahtarı panodan içe aktar"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "SSH anahtarı başarıyla içe aktarıldı"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "Yalnızca Görüntüleme izinlerine sahip koleksiyonları kaldıramazsınız: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -5441,10 +5444,16 @@
     "message": "Lütfen masaüstü uygulamanızı güncelleyin"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "Biyometri ile kilidi açmayı kullanmak için lütfen masaüstü uygulamanızı güncelleyin veya masaüstü ayarlarında parmak izi ile kilidi açmayı devre dışı bırakın."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Risk altındaki parolayı değiştirin"
+  },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Bu hesap risk altında ve bir web sitesi eksik. Bir web sitesi ekleyin ve daha güçlü güvenlik için parolayı değiştirin."
+  },
+  "missingWebsite": {
+    "message": "Web sitesi eksik"
   },
   "settingsVaultOptions": {
     "message": "Kasa seçenekleri"
@@ -5486,7 +5495,7 @@
     "message": "Mevcut parolaları içe aktar"
   },
   "emptyVaultNudgeBody": {
-    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+    "message": "Hesapları manüel olarak eklemeden Bitwarden'a hızlı bir şekilde aktarmak için içe aktarıcıyı kullanın."
   },
   "emptyVaultNudgeButton": {
     "message": "Şimdi içe aktar"
@@ -5495,13 +5504,13 @@
     "message": "Kasanıza hoş geldiniz!"
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "Geçerli sayfa için kayıtları otomatik doldurma"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "Kolay erişim için favori ögeler"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "Kasanızda başka bir şey arayın"
   },
   "newLoginNudgeTitle": {
     "message": "Otomatik doldurmayla zaman kazanın"
@@ -5525,22 +5534,22 @@
     "message": "Kesintisiz çevrimiçi alışveriş"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "Kartlarla, ödeme formlarını güvenli ve doğru bir şekilde kolayca otomatik doldurun."
   },
   "newIdentityNudgeTitle": {
     "message": "Hesap oluşturmak artık daha basit"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "Kimlikler ile uzun kayıt veya iletişim formlarını hızla otomatik doldurun."
   },
   "newNoteNudgeTitle": {
     "message": "Hassas verilerinizi güvende tutun"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "Notlarla, bankacılık veya sigorta bilgileri gibi hassas verileri güvenli bir şekilde saklayın."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Geliştirici dostu SSH erişimi"
   },
   "newSshNudgeBodyOne": {
     "message": "Anahtarlarınızı saklayın ve hızlı, şifreli kimlik doğrulama için SSH aracısıyla bağlantı kurun.",
@@ -5561,7 +5570,7 @@
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "hesaplarınızı güvende tutmanıza yardımcı olmak için.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
@@ -5573,7 +5582,7 @@
     "message": "Bu ayar hakkında"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden, deneyiminizi iyileştirmek için hangi simgenin veya şifre değiştirme URL'sinin kullanılması gerektiğini belirlemek için kayıtlı giriş URI'lerini kullanacaktır. Bu hizmeti kullandığınızda hiçbir bilgi toplanmaz veya kaydedilmez."
   },
   "noPermissionsViewPage": {
     "message": "Bu sayfayı görüntüleme izniniz yok. Farklı bir hesapla giriş yapmayı deneyin."
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Daha az göster"
   },
+  "next": {
+    "message": "İleri"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector alan adını doğrulayın"
   }
 }
