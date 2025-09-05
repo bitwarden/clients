@@ -4,7 +4,7 @@
 <form [formGroup]="form" [bitSubmit]="submit">
   <bit-form-field>
     <bit-label>{{ description | i18n }}</bit-label>
-    <div class="tw-mt-4">
+    <div class="tw-my-1">
       <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
         {{ "chooseFile" | i18n }}
       </button>

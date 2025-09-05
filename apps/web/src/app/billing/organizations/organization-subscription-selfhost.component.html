@@ -12,7 +12,7 @@
   ></app-org-subscription-hidden>
 
   <ng-container *ngIf="subscription && firstLoaded">
-    <dl>
+    <dl class="tw-mb-2">
       <dt>{{ "billingPlan" | i18n }}</dt>
       <dd>{{ subscription.planName }}</dd>
       <ng-container *ngIf="billingSyncSetUp">
