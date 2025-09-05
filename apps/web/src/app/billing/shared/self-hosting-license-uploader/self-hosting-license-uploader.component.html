@@ -1,8 +1,10 @@
-<p bitTypography="body1">{{ "uploadLicenseFileOrg" | i18n }}</p>
+<p bitTypography="body1" class="tw-break-words tw-whitespace-normal tw-mb-8">
+  {{ "uploadLicenseFileOrg" | i18n }}
+</p>
 <form [formGroup]="form" [bitSubmit]="submit">
   <bit-form-field>
     <bit-label>{{ description | i18n }}</bit-label>
-    <div>
+    <div class="tw-my-1">
       <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
         {{ "chooseFile" | i18n }}
       </button>

@@ -8935,20 +8935,25 @@
   "collectionManagement": {
     "message": "Collectiebeheer"
   },
-  "collectionManagementDesc": {
-    "message": "Het gedrag van de collectie beheren voor de organisatie"
+  "collectionManagementDescription": {
+    "message": "Het gedrag van de collectie voor de organisatie instellen"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Eigenaren en beheerders toestaan om alle collecties en items via Admin Console te beheren"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Aanmaken van collecties beperken tot eigenaren en managers"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Verwijderen van collecties beperken tot eigenaren en managers"
   },
-  "limitItemDeletionDescription": {
-    "message": "Beperk het verwijderen van items tot leden met recht om collecties te beheren"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Het verwijderen van items beperken tot leden met de ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Eigenaren en beheerders kunnen alle collecties en items beheren"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " toestemming",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Instelling collectiebeheer bijgewerkt"
@@ -11157,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
   }
 }
 
