@@ -53,13 +53,13 @@ export class AuthRequestAnsweringService implements AuthRequestAnsweringServiceA
 
     // These are the conditions we are looking for to know if the extension is in a state to show
     // the approval dialog.
-    const conditionsMet =
+    const userIsAvailableToReceiveAuthRequest =
       popupOpen &&
       authStatus === AuthenticationStatus.Unlocked &&
       activeUserId === userId &&
       forceSetPasswordReason === ForceSetPasswordReason.None;
 
-    if (!conditionsMet) {
+    if (!userIsAvailableToReceiveAuthRequest) {
       // Get the user's email to include in the system notification
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const emailForUser = accounts[userId].email;
