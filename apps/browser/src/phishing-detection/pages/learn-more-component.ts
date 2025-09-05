@@ -1,4 +1,6 @@
+// eslint-disable-next-line no-restricted-imports
 import { CommonModule } from "@angular/common";
+// eslint-disable-next-line no-restricted-imports
 import { Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
