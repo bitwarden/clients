@@ -20,6 +20,8 @@ pub fn disable_coredumps() -> Result<()> {
         rlim_cur: 0,
         rlim_max: 0,
     };
+    println!("[Process Isolation] Disabling core dumps via setrlimit");
+
     if unsafe { libc::setrlimit(RLIMIT_CORE, &rlimit) } != 0 {
         let e = std::io::Error::last_os_error();
         return Err(anyhow::anyhow!(
@@ -44,11 +46,17 @@ pub fn is_core_dumping_disabled() -> Result<bool> {
     Ok(rlimit.rlim_cur == 0 && rlimit.rlim_max == 0)
 }
 
-pub fn disable_memory_access() -> Result<()> {
+pub fn isolate_process() -> Result<()> {
+    let pid = std::process::id();
+    println!(
+        "[Process Isolation] Disabling ptrace and memory access for main ({}) via PR_SET_DUMPABLE",
+        pid
+    );
+
     if unsafe { libc::prctl(PR_SET_DUMPABLE, 0) } != 0 {
         let e = std::io::Error::last_os_error();
         return Err(anyhow::anyhow!(
-            "failed to disable memory dumping, memory is dumpable by other processes {}",
+            "failed to disable memory dumping, memory may be accessible by other processes {}",
             e
         ));
     }
