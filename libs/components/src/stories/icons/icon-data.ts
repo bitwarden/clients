@@ -47,7 +47,7 @@ const bitwardenObjects = [
   },
   {
     id: "bwi-dashboard",
-    usage: "access dashboard view",
+    usage: "access-intelligence dashboard view",
   },
   {
     id: "bwi-family",
