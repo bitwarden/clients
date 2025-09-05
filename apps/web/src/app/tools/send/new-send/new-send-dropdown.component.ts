@@ -7,20 +7,13 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { BadgeModule, ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
+import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwarden/send-ui";
 
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  imports: [
-    JslibModule,
-    CommonModule,
-    ButtonModule,
-    MenuModule,
-    BadgeModule,
-    PremiumBadgeComponent,
-  ],
+  imports: [JslibModule, CommonModule, ButtonModule, MenuModule, PremiumBadgeComponent],
   providers: [DefaultSendFormConfigService],
 })
 /**
