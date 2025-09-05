@@ -382,11 +382,12 @@ describe("MasterPasswordLockComponent", () => {
         if (shouldShow) {
           expect(secondaryButton).toBeTruthy();
           expect(secondaryButton.nativeElement.textContent?.trim()).toBe(expectedText);
-          expect(secondaryButton.nativeElement.disabled).toBe(!shouldEnable);
 
           if (shouldEnable) {
             secondaryButton.nativeElement.click();
             expect(component.activeUnlockOption()).toBe(expectedUnlockOption);
+          } else {
+            expect(secondaryButton.nativeElement.getAttribute("aria-disabled")).toBe("true");
           }
         } else {
           expect(secondaryButton).toBeFalsy();

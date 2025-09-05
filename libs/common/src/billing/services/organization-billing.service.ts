@@ -3,6 +3,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -49,10 +50,13 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     return paymentMethod?.paymentSource;
   }
 
-  async purchaseSubscription(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
+  async purchaseSubscription(
+    subscription: SubscriptionInformation,
+    activeUserId: UserId,
+  ): Promise<OrganizationResponse> {
     const request = new OrganizationCreateRequest();
 
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(activeUserId);
 
     this.setOrganizationKeys(request, organizationKeys);
 
@@ -73,10 +77,11 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
 
   async purchaseSubscriptionNoPaymentMethod(
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<OrganizationResponse> {
     const request = new OrganizationNoPaymentMethodCreateRequest();
 
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(activeUserId);
 
     this.setOrganizationKeys(request, organizationKeys);
 
@@ -93,10 +98,13 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     return response;
   }
 
-  async startFree(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
+  async startFree(
+    subscription: SubscriptionInformation,
+    activeUserId: UserId,
+  ): Promise<OrganizationResponse> {
     const request = new OrganizationCreateRequest();
 
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(activeUserId);
 
     this.setOrganizationKeys(request, organizationKeys);
 
@@ -113,8 +121,8 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     return response;
   }
 
-  private async makeOrganizationKeys(): Promise<OrganizationKeys> {
-    const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>();
+  private async makeOrganizationKeys(activeUserId: UserId): Promise<OrganizationKeys> {
+    const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(key);
     const encryptedCollectionName = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
@@ -214,9 +222,10 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   async restartSubscription(
     organizationId: string,
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<void> {
     const request = new OrganizationCreateRequest();
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(activeUserId);
     this.setOrganizationKeys(request, organizationKeys);
     this.setOrganizationInformation(request, subscription.organization);
     this.setPlanInformation(request, subscription.plan);
