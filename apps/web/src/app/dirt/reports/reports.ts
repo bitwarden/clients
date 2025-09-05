@@ -1,10 +1,13 @@
-import { ReportBreach } from "./icons/report-breach.icon";
-import { ReportExposedPasswords } from "./icons/report-exposed-passwords.icon";
-import { ReportInactiveTwoFactor } from "./icons/report-inactive-two-factor.icon";
-import { MemberAccess } from "./icons/report-member-access.icon";
-import { ReportReusedPasswords } from "./icons/report-reused-passwords.icon";
-import { ReportUnsecuredWebsites } from "./icons/report-unsecured-websites.icon";
-import { ReportWeakPasswords } from "./icons/report-weak-passwords.icon";
+import {
+  MemberAccess,
+  ReportBreach,
+  ReportExposedPasswords,
+  ReportInactiveTwoFactor,
+  ReportReusedPasswords,
+  ReportUnsecuredWebsites,
+  ReportWeakPasswords,
+} from "@bitwarden/assets/svg";
+
 import { ReportEntry } from "./shared";
 
 // FIXME: update to use a const object instead of a typescript enum

@@ -1,8 +1,9 @@
 <button
+  *ngIf="!isDecryptionFailure"
   [bitAction]="download"
   bitIconButton="bwi-download"
   buttonType="main"
   size="small"
   type="button"
-  [appA11yTitle]="'downloadAttachmentName' | i18n: attachment.fileName"
+  [label]="'downloadAttachmentName' | i18n: attachment.fileName"
 ></button>

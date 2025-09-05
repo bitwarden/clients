@@ -473,19 +473,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       .update(() => encPrivateKey);
   }
 
-  // TODO: Make public key required
-  async getFingerprint(fingerprintMaterial: string, publicKey?: Uint8Array): Promise<string[]> {
+  async getFingerprint(fingerprintMaterial: string, publicKey: Uint8Array): Promise<string[]> {
     if (publicKey == null) {
-      const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (activeUserId == null) {
-        throw new Error("No active user found.");
-      }
-      publicKey = (await firstValueFrom(this.userPublicKey$(activeUserId))) as Uint8Array;
+      throw new Error("Public key is required to generate a fingerprint.");
     }
 
-    if (publicKey === null) {
-      throw new Error("No public key available.");
-    }
     const keyFingerprint = await this.cryptoFunctionService.hash(publicKey, "sha256");
     const userFingerprint = await this.cryptoFunctionService.hkdfExpand(
       keyFingerprint,
@@ -915,10 +907,57 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.cipherDecryptionKeys$(userId).pipe(map((keys) => keys?.orgKeys ?? null));
   }
 
-  encryptedOrgKeys$(
-    userId: UserId,
-  ): Observable<Record<OrganizationId, EncryptedOrganizationKeyData> | null> {
-    return this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$;
+  encryptedOrgKeys$(userId: UserId): Observable<Record<OrganizationId, EncString>> {
+    return this.userPrivateKey$(userId)?.pipe(
+      switchMap((userPrivateKey) => {
+        if (userPrivateKey == null) {
+          // We can't do any org based decryption
+          return of({});
+        }
+
+        return combineLatest([
+          this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
+          this.providerKeysHelper$(userId, userPrivateKey),
+        ]).pipe(
+          switchMap(async ([encryptedOrgKeys, providerKeys]) => {
+            const userPubKey = await this.derivePublicKey(userPrivateKey);
+
+            const result: Record<OrganizationId, EncString> = {};
+            encryptedOrgKeys = encryptedOrgKeys ?? {};
+            for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
+              if (result[orgId] != null) {
+                continue;
+              }
+              const encrypted = BaseEncryptedOrganizationKey.fromData(encryptedOrgKeys[orgId]);
+              if (encrypted == null) {
+                continue;
+              }
+
+              let orgKey: EncString;
+
+              // Because the SDK only supports user encrypted org keys, we need to re-encrypt
+              // any provider encrypted org keys with the user's public key. This should be removed
+              // once the SDK has support for provider keys.
+              if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
+                if (providerKeys == null) {
+                  continue;
+                }
+                orgKey = await this.encryptService.encapsulateKeyUnsigned(
+                  await encrypted.decrypt(this.encryptService, providerKeys!),
+                  userPubKey!,
+                );
+              } else {
+                orgKey = encrypted.encryptedOrganizationKey;
+              }
+
+              result[orgId] = orgKey;
+            }
+
+            return result;
+          }),
+        );
+      }),
+    );
   }
 
   cipherDecryptionKeys$(userId: UserId): Observable<CipherDecryptionKeys | null> {
