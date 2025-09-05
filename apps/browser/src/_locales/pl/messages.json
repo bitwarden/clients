@@ -556,6 +556,9 @@
   "view": {
     "message": "Pokaż"
   },
+  "viewLogin": {
+    "message": "Pokaż dane logowania"
+  },
   "noItemsInList": {
     "message": "Brak elementów do wyświetlenia."
   },
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Zmień zagrożone hasło"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
+  },
+  "missingWebsite": {
+    "message": "Brak strony internetowej"
+  },
   "settingsVaultOptions": {
     "message": "Opcje sejfu"
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Pokaż mniej"
   },
+  "next": {
+    "message": "Dalej"
+  },
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potwierdź domenę Key Connector"
   }
 }

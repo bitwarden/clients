@@ -116,6 +116,7 @@ import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/stora
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
+import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -187,7 +188,10 @@ import { ForegroundTaskSchedulerService } from "../../platform/services/task-sch
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { ForegroundSyncService } from "../../platform/sync/foreground-sync.service";
-import { BrowserSystemNotificationService } from "../../platform/system-notifications/browser-system-notification.service";
+import {
+  BrowserSystemNotificationService,
+  isNotificationsSupported,
+} from "../../platform/system-notifications/browser-system-notification.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
@@ -587,7 +591,13 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SystemNotificationsService,
-    useClass: BrowserSystemNotificationService,
+    useFactory: (platformUtilsService: PlatformUtilsService) => {
+      if (isNotificationsSupported()) {
+        return new BrowserSystemNotificationService(platformUtilsService);
+      }
+
+      return new UnsupportedSystemNotificationsService();
+    },
     deps: [PlatformUtilsService],
   }),
   safeProvider({
@@ -618,11 +628,6 @@ const safeProviders: SafeProvider[] = [
     provide: SsoUrlService,
     useClass: SsoUrlService,
     deps: [],
-  }),
-  safeProvider({
-    provide: SystemNotificationsService,
-    useClass: BrowserSystemNotificationService,
-    deps: [PlatformUtilsService],
   }),
   safeProvider({
     provide: LoginComponentService,

@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "Ga door met inloggen met de inloggegevens van je bedrijf."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Zie gedetailleerde instructies op onze helpsite op",
     "description": "This is followed a by a hyperlink to the help website."
@@ -4080,5 +4086,23 @@
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Volgende"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
+  },
+  "confirm": {
+    "message": "Bevestigen"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Snelkoppeling autotype inschakelen"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Zorg ervoor dat je je in het juiste veld bevindt voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
+  },
+  "editShortcut": {
+    "message": "Snelkoppeling bewerken"
   }
 }
