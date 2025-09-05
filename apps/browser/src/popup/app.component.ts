@@ -57,28 +57,7 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   selector: "app-root",
   styles: [],
   animations: [routerTransition],
-  template: `
-    @if (showSdkWarning | async) {
-      <div class="tw-h-screen tw-flex tw-justify-center tw-items-center tw-p-4">
-        <bit-callout type="danger">
-          {{ "wasmNotSupported" | i18n }}
-          <a
-            bitLink
-            href="https://bitwarden.com/help/wasm-not-supported/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {{ "learnMore" | i18n }}
-          </a>
-        </bit-callout>
-      </div>
-    } @else {
-      <div [@routerTransition]="getRouteElevation(outlet)">
-        <router-outlet #outlet="outlet"></router-outlet>
-      </div>
-      <bit-toast-container></bit-toast-container>
-    }
-  `,
+  templateUrl: "app.component.html",
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {

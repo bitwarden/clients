@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Kod odzyskiwania"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Aplikacja uwierzytelniająca"
   },
@@ -8932,20 +8935,25 @@
   "collectionManagement": {
     "message": "Zarządzanie kolekcją"
   },
-  "collectionManagementDesc": {
-    "message": "Zarządzaj zachowaniami kolekcji w organizacji"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Ogranicz tworzenie kolekcji do właścicieli i administratorów"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Ogranicz usuwanie kolekcji do właścicieli i administratorów"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ogranicz usuwanie elementów do użytkowników z uprawnieniem Zarządzania kolekcją"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Właściciele i administratorzy mogą zarządzać wszystkimi zbiorami i elementami"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Zaktualizowano ustawienia zarządzania kolekcją"
@@ -11154,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }
 

@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -41,6 +42,7 @@ describe("DefaultSdkService", () => {
     let platformUtilsService!: MockProxy<PlatformUtilsService>;
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
+    let configService!: MockProxy<ConfigService>;
     let service!: DefaultSdkService;
     let accountService!: FakeAccountService;
     let fakeStateProvider!: FakeStateProvider;
@@ -56,6 +58,9 @@ describe("DefaultSdkService", () => {
       const mockUserId = Utils.newGuid() as UserId;
       accountService = mockAccountServiceWith(mockUserId);
       fakeStateProvider = new FakeStateProvider(accountService);
+      configService = mock<ConfigService>();
+
+      configService.serverConfig$ = new BehaviorSubject(null);
 
       // Can't use `of(mock<Environment>())` for some reason
       environmentService.environment$ = new BehaviorSubject(mock<Environment>());
@@ -68,6 +73,7 @@ describe("DefaultSdkService", () => {
         kdfConfigService,
         keyService,
         fakeStateProvider,
+        configService,
       );
     });
 
@@ -232,6 +238,7 @@ function createMockClient(): MockProxy<BitwardenClient> {
   client.platform.mockReturnValue({
     state: jest.fn().mockReturnValue(mock()),
     free: mock(),
+    load_flags: jest.fn(),
   });
   return client;
 }

@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Código de recuperação"
   },
+  "invalidRecoveryCode": {
+    "message": "Código de recuperação inválido"
+  },
   "authenticatorAppTitle": {
     "message": "Aplicação de autenticação"
   },
@@ -8932,20 +8935,25 @@
   "collectionManagement": {
     "message": "Gestão de coleções"
   },
-  "collectionManagementDesc": {
-    "message": "Gerir o comportamento da coleção da organização"
+  "collectionManagementDescription": {
+    "message": "Configurar o comportamento da coleção da organização"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Limitar a criação de coleções aos proprietários e administradores"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Permitir aos proprietários e administradores gerir todas as coleções e itens a partir da consola de administração"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Limitar a eliminação de coleções aos proprietários e administradores"
+  "restrictCollectionCreationDescription": {
+    "message": "Restringir a criação de coleções aos proprietários e administradores"
   },
-  "limitItemDeletionDescription": {
-    "message": "Limitar a eliminação de itens aos membros com as permissões Gerir coleção"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restringir a eliminação de coleções aos proprietários e administradores"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Os proprietários e administradores podem gerir todas as coleções e itens"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restringir a eliminação de itens a membros com a permissão ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Definição de gestão de coleções atualizada"
@@ -11154,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirmar o domínio do Key Connector"
   }
 }
 

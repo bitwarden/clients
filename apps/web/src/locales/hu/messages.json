@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
   },
+  "invalidRecoveryCode": {
+    "message": "Érvénytelen a helyreállító kód."
+  },
   "authenticatorAppTitle": {
     "message": "Hitelesítő alkalmazás"
   },
@@ -8932,20 +8935,25 @@
   "collectionManagement": {
     "message": "Gyűjtemény kezelés"
   },
-  "collectionManagementDesc": {
-    "message": "Gyűjtési viselkedést kezelhet a szervezetnek"
+  "collectionManagementDescription": {
+    "message": "Gyűjtési viselkedés konfuguráció a szervezet részére."
   },
-  "limitCollectionCreationDesc": {
-    "message": "A gyűjtemény létrehozásának korlátozása tulajdonosokra és adminisztrátorokra"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Lehetővé teszi a tulajdonosok és adminisztrátorok számára, hogy kezeljék az összes gyűjteményt és elemet az Adminisztrációs konzolból."
   },
-  "limitCollectionDeletionDesc": {
-    "message": "A gyűjtemény törlésének korlátozása tulajdonosokra és adminisztrátorokra"
+  "restrictCollectionCreationDescription": {
+    "message": "A gyűjtemény létrehozásának korlátozása tulajdonosokra és adminisztrátorokra."
   },
-  "limitItemDeletionDescription": {
-    "message": "Az elemek törlésének korlátozása a Gyűjtemény kezelése jogosultsággal rendelkező tagokra"
+  "restrictCollectionDeletionDescription": {
+    "message": "A gyűjtemény törlésének korlátozása tulajdonosokra és adminisztrátorokra."
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Owners and admins can manage all collections and items"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Az elem törlésének korlátozása: ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " jogosultság",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Frissített gyűjteménykezelési beállítás"
@@ -11154,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "A Key Connector tartomány megerősítése"
   }
 }
 

@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Код восстановления"
   },
+  "invalidRecoveryCode": {
+    "message": "Неверный код восстановления"
+  },
   "authenticatorAppTitle": {
     "message": "Приложение-аутентификатор"
   },
@@ -8932,20 +8935,25 @@
   "collectionManagement": {
     "message": "Управление коллекцией"
   },
-  "collectionManagementDesc": {
-    "message": "Управление настройками коллекций для организации"
+  "collectionManagementDescription": {
+    "message": "Конфигурация коллекций для организации"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Ограничить создание коллекций владельцам и администраторам"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Разрешить владельцам и администраторам управлять всеми коллекциями и элементами из консоли администратора"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Ограничить удаление коллекций владельцам и администраторам"
+  "restrictCollectionCreationDescription": {
+    "message": "Ограничить создание коллекций владельцами и администраторами"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ограничить удаление элементов для пользователей с правами на управление коллекцией"
+  "restrictCollectionDeletionDescription": {
+    "message": "Ограничить удаление коллекций владельцами и администраторами"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Владельцы и администраторы могут управлять всеми коллекциями и элементами"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Ограничить удаление элемента пользователями с ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " разрешением",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Настройки управления коллекцией обновлены"
@@ -11154,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
   }
 }
 

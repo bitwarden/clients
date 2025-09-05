@@ -868,13 +868,13 @@
     "message": "Копіювати номер ліцензії"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Копіювати закритий ключ"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Копіювати відкритий ключ"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Копіювати відбиток"
   },
   "copyName": {
     "message": "Копіювати ім'я"
@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Код відновлення"
   },
+  "invalidRecoveryCode": {
+    "message": "Invalid recovery code"
+  },
   "authenticatorAppTitle": {
     "message": "Програма автентифікації"
   },
@@ -2060,10 +2063,10 @@
     "message": "Вибрати збірку"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -2112,7 +2115,7 @@
     "message": "Змінити мову інтерфейсу вебсховища."
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Показувати піктограми вебсайтів та отримувати адреси для зміни паролів"
   },
   "default": {
     "message": "Типово"
@@ -5275,7 +5278,7 @@
     "description": "Title of the Send password authentication screen."
   },
   "sendAccessContentTitle": {
-    "message": "View Send",
+    "message": "Переглянути відправлення",
     "description": "Title of the Send view content screen."
   },
   "sendAccessUnavailable": {
@@ -8932,20 +8935,25 @@
   "collectionManagement": {
     "message": "Керування збіркою"
   },
-  "collectionManagementDesc": {
-    "message": "Керувати налаштуваннями збірок для організації"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Дозволити створення збірок лише власникам та адміністраторам"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Дозволити видалення збірок лише власникам та адміністраторам"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "Обмежити видалення записів для учасників, які мають дозвіл на керування збірками"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Власники та адміністратори можуть керувати всіма збірками та записами"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Оновлено налаштування керування збірками"
@@ -10989,10 +10997,10 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Про ці налаштування"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden використовуватиме збережені URI-адреси записів для визначення піктограм вебсайтів або URL-адрес для зміни паролів, щоб вдосконалити вашу роботу. Під час використання цієї послуги ваша інформація не збирається і не зберігається."
   },
   "billingAddress": {
     "message": "Платіжна адреса"
@@ -11094,16 +11102,16 @@
     "message": "Unlimited secrets and projects"
   },
   "providersubscriptionCanceled": {
-    "message": "Subscription canceled"
+    "message": "Передплату скасовано"
   },
   "providersubCanceledmessage": {
     "message": "To resubscribe, contact Bitwarden Customer Support."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Розгорнути"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Згорнути"
   },
   "missingTaxId": {
     "message": "Missing Tax ID"
@@ -11154,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }
 
