@@ -556,6 +556,9 @@
   "view": {
     "message": "Anzeigen"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Keine Einträge zum Anzeigen vorhanden."
   },
@@ -1761,7 +1764,7 @@
     "message": "Dieser Browser kann U2F-Anfragen in diesem Popup-Fenster nicht verarbeiten. Möchtest du dieses Popup in einem neuen Fenster öffnen, damit du dich mit U2F anmelden kannst?"
   },
   "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+    "message": "Website Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
   },
   "enableBadgeCounter": {
     "message": "Badge-Zähler anzeigen"
@@ -4126,10 +4129,10 @@
     "message": "Sammlung auswählen"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -5108,10 +5111,10 @@
     "message": "Anzahl der Auto-Ausfüllen-Vorschläge von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Kontozugriff angefordert"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Zugriffsversuch für $EMAIL$ bestätigen",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Tresoroptionen"
   },
@@ -5570,10 +5579,10 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Über diese Einstellung"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden wird gespeicherte Login-URIs verwenden, um zu ermitteln, welches Symbol oder welche URL zum Ändern des Passworts verwendet werden soll, um Ihr Erlebnus zu verbessern. Bei der Nutzung dieses Dienstes werden keine Informationen erfasst oder gespeichert."
   },
   "noPermissionsViewPage": {
     "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche dich mit einem anderen Konto anzumelden."
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Weniger anzeigen"
   },
+  "next": {
+    "message": "Weiter"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Mehr Breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }
