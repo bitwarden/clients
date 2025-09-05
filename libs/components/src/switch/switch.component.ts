@@ -1,10 +1,20 @@
 import { NgClass } from "@angular/common";
-import { Component, computed, contentChild, ElementRef, inject, input, model } from "@angular/core";
+import {
+  Component,
+  computed,
+  contentChild,
+  ElementRef,
+  inject,
+  input,
+  model,
+  AfterViewInit,
+} from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { AriaDisableDirective } from "../a11y";
 import { FormControlModule } from "../form-control/form-control.module";
 import { BitHintComponent } from "../form-control/hint.component";
+import { BitLabel } from "../form-control/label.component";
 
 let nextId = 0;
 
@@ -29,8 +39,9 @@ let nextId = 0;
   },
   hostDirectives: [AriaDisableDirective],
 })
-export class SwitchComponent implements ControlValueAccessor {
+export class SwitchComponent implements ControlValueAccessor, AfterViewInit {
   private el = inject(ElementRef<HTMLButtonElement>);
+  private readonly label = contentChild.required(BitLabel);
 
   /**
    * Model signal for selected state binding when used outside of a form
@@ -108,5 +119,14 @@ export class SwitchComponent implements ControlValueAccessor {
 
   get inputId() {
     return `${this.id()}-input`;
+  }
+
+  ngAfterViewInit() {
+    if (!this.label()) {
+      // This is only here so Angular throws a compilation error if no label is provided.
+      // the `this.label()` value must try to be accessed for the required content child check to throw
+      // eslint-disable-next-line no-console
+      console.error("No label component provided. <bit-switch> must be used with a <bit-label>.");
+    }
   }
 }
