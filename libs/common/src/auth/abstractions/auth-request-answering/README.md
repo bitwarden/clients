@@ -8,19 +8,3 @@ See diagram for the high level picture of how this is wired up.
 ## Diagram
 
 ![img.png](notification-architecture.png)
-
-## Compatibility Table
-
-| Browser | Operating System | What Works?                                                      |
-| ------- | ---------------- | ---------------------------------------------------------------- |
-| Chrome  | Mac              | ✅ Everything works as designed                                  |
-| Chrome  | Windows          | 🟡 Works, save clicking a notification and the extension opening |
-| Firefox | Mac              | 🟡 Works, save clicking a notification and the extension opening |
-| Firefox | Windows          | ⚠️ Untested                                                      |
-| Safari  | Mac              | ❌ Nothing, notification nor open popup will function            |
-| Edge    | Mac              | 🟡 Works, save clicking a notification and the extension opening |
-| Edge    | Windows          | ⚠️ Untested                                                      |
-| Vivaldi | Mac              | 🟡 Works, save clicking a notification and the extension opening |
-| Vivaldi | Windows          | ⚠️ Untested                                                      |
-| Opera   | Mac              | ⚠️ Untested                                                      |
-| Opera   | Windows          | ⚠️ Untested                                                      |
