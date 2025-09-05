@@ -10,6 +10,7 @@ module.exports = {
   prefix: "tw-",
   content: [
     "./src/**/*.{html,ts}",
+    "../../libs/assets/src/**/*.{html,ts}",
     "../../libs/components/src/**/*.{html,ts}",
     "../../libs/key-management-ui/src/**/*.{html,ts}",
     "../../libs/auth/src/**/*.{html,ts}",
@@ -137,26 +138,9 @@ module.exports = {
       },
     },
     fontFamily: {
-      sans: [
-        "Roboto",
-        '"Helvetica Neue"',
-        "Helvetica",
-        "Arial",
-        "sans-serif",
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
-      ],
-      serif: ["ui-serif", "Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
-      mono: [
-        "Menlo",
-        "SFMono-Regular",
-        "Monaco",
-        "Consolas",
-        '"Liberation Mono"',
-        '"Courier New"',
-        "monospace",
-      ],
+      sans: "var(--font-sans)",
+      serif: "var(--font-serif)",
+      mono: "var(--font-mono)",
     },
     ringOffsetColor: ({ theme }) => ({
       DEFAULT: theme("colors.background"),

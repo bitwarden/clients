@@ -1,18 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   BehaviorSubject,
   Subject,
   combineLatest,
   filter,
-  from,
   map,
   of,
   shareReplay,
   switchMap,
-  takeUntil,
 } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -29,7 +27,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 @Directive()
-export class VaultItemsComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
+export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy {
   @Input() activeCipherId: string = null;
   @Output() onCipherClicked = new EventEmitter<C>();
   @Output() onCipherRightClicked = new EventEmitter<C>();
@@ -55,12 +53,9 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnInit, On
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  protected searchPending = false;
-
   /** Construct filters as an observable so it can be appended to the cipher stream. */
   private _filter$ = new BehaviorSubject<(cipher: C) => boolean | null>(null);
   private destroy$ = new Subject<void>();
-  private isSearchable: boolean = false;
   private _searchText$ = new BehaviorSubject<string>("");
 
   get searchText() {
@@ -85,19 +80,6 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnInit, On
     protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.subscribeToCiphers();
-  }
-
-  async ngOnInit() {
-    combineLatest([getUserId(this.accountService.activeAccount$), this._searchText$])
-      .pipe(
-        switchMap(([userId, searchText]) =>
-          from(this.searchService.isSearchable(userId, searchText)),
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((isSearchable) => {
-        this.isSearchable = isSearchable;
-      });
   }
 
   ngOnDestroy(): void {
@@ -138,10 +120,6 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnInit, On
 
   addCipherOptions() {
     this.onAddCipherOptions.emit();
-  }
-
-  isSearching() {
-    return !this.searchPending && this.isSearchable;
   }
 
   protected deletedFilter: (cipher: C) => boolean = (c) =>

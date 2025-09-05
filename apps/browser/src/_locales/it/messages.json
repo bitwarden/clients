@@ -556,6 +556,9 @@
   "view": {
     "message": "Visualizza"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Non ci sono elementi da mostrare."
   },
@@ -1760,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Questo browser non può elaborare richieste U2F in questo pop-up. Aprire questo pop-up in una nuova finestra per accedere usando U2F?"
   },
-  "enableFavicon": {
-    "message": "Mostra icone dei siti"
-  },
-  "faviconDesc": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login."
-  },
-  "faviconDescAlt": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login. Si applica a tutti gli account connessi."
+  "showIconsChangePasswordUrls": {
+    "message": "Mostra le icone dei siti e recupera gli URL di cambio password"
   },
   "enableBadgeCounter": {
     "message": "Mostra badge contatore"
@@ -4131,15 +4128,11 @@
   "selectImportCollection": {
     "message": "Seleziona una raccolta"
   },
-  "importTargetHint": {
-    "message": "Seleziona questa opzione se vuoi che i contenuti del file di importazione siano spostati in una $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una raccolta"
+  },
+  "importTargetHintFolder": {
+    "message": "Seleziona questa opzione se vuoi che i contenuti dell'importazione siano salvati in una cartella"
   },
   "importUnassignedItemsError": {
     "message": "Il file contiene elementi non assegnati."
@@ -5117,6 +5110,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Mostra il numero di suggerimenti di riempimento automatico sull'icona dell'estensione"
   },
+  "accountAccessRequested": {
+    "message": "Accesso all'account richiesto"
+  },
+  "confirmAccessAttempt": {
+    "message": "Conferma il tentativo di accesso per $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Mostra azioni di copia rapida nella Cassaforte"
   },
@@ -5444,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Cambia parola d'accesso a rischio"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Opzioni cassaforte"
   },
@@ -5567,6 +5578,12 @@
     "message": "Crea facilmente password forti e uniche cliccando sul pulsante 'Genera password' per aiutarti a mantenere al sicuro i tuoi login.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "Informazioni su questa opzione"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden userà gli URL memorizzati in ogni login per mostrare, se possibile, l'icona del sito Web e l'URL di modifica password per facilitare la modifica delle credenziali. Nessuna informazione è raccolta o archiviata per il funzionamento di questo servizio."
+  },
   "noPermissionsViewPage": {
     "message": "Non hai i permessi per visualizzare questa pagina. Prova ad accedere con un altro account."
   },
@@ -5579,5 +5596,15 @@
   },
   "showLess": {
     "message": "Mostra di meno"
+  },
+  "next": {
+    "message": "Avanti"
+  },
+  "moreBreadcrumbs": {
+    "message": "Ulteriori segmenti",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Conferma dominio Key Connector"
   }
 }

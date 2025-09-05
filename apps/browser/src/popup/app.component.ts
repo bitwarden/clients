@@ -49,7 +49,6 @@ import { BiometricsService, BiometricStateService, KeyService } from "@bitwarden
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
-import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
 import { routerTransition } from "./app-routing.animations";
 import { DesktopSyncVerificationDialogComponent } from "./components/desktop-sync-verification-dialog.component";
@@ -58,28 +57,7 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   selector: "app-root",
   styles: [],
   animations: [routerTransition],
-  template: `
-    @if (showSdkWarning | async) {
-      <div class="tw-h-screen tw-flex tw-justify-center tw-items-center tw-p-4">
-        <bit-callout type="danger">
-          {{ "wasmNotSupported" | i18n }}
-          <a
-            bitLink
-            href="https://bitwarden.com/help/wasm-not-supported/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {{ "learnMore" | i18n }}
-          </a>
-        </bit-callout>
-      </div>
-    } @else {
-      <div [@routerTransition]="getRouteElevation(outlet)">
-        <router-outlet #outlet="outlet"></router-outlet>
-      </div>
-      <bit-toast-container></bit-toast-container>
-    }
-  `,
+  templateUrl: "app.component.html",
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -103,7 +81,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private router: Router,
     private readonly tokenService: TokenService,
-    private vaultBrowserStateService: VaultBrowserStateService,
     private cipherService: CipherService,
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
@@ -134,10 +111,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.compactModeService.init();
     await this.popupSizeService.setHeight();
-
-    // Component states must not persist between closing and reopening the popup, otherwise they become dead objects
-    // Clear them aggressively to make sure this doesn't occur
-    await this.clearComponentStates();
 
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
@@ -249,13 +222,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.events.pipe(takeUntil(this.destroy$)).subscribe(async (event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects || event.url || "";
-        if (
-          url.startsWith("/tabs/") &&
-          (window as any).previousPopupUrl != null &&
-          (window as any).previousPopupUrl.startsWith("/tabs/")
-        ) {
-          await this.clearComponentStates();
-        }
         if (url.startsWith("/tabs/")) {
           await this.cipherService.setAddEditCipherInfo(null, this.activeUserId);
         }
@@ -318,17 +284,6 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     return firstValueFrom(dialogRef.closed);
-  }
-
-  private async clearComponentStates() {
-    if (!(await firstValueFrom(this.tokenService.hasAccessToken$(this.activeUserId)))) {
-      return;
-    }
-
-    await Promise.all([
-      this.vaultBrowserStateService.setBrowserGroupingsComponentState(null),
-      this.vaultBrowserStateService.setBrowserVaultItemsComponentState(null),
-    ]);
   }
 
   // Displaying toasts isn't super useful on the popup due to the reloads we do.
