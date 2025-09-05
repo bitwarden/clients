@@ -823,11 +823,25 @@ pub mod passkey_authenticator {
 
 #[napi]
 pub mod logging {
-    use log::{Level, Metadata, Record};
+    //! `logging` is the interface between the native desktop's usage of the `tracing` crate
+    //!  for logging, to intercept events and write to the JS space.
+    //!
+    //! # Example
+    //!
+    //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
+
+    use std::fmt::{self, Write};
+    use std::sync::OnceLock;
+
     use napi::threadsafe_function::{
         ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
-    use std::sync::OnceLock;
+    use tracing::{
+        field::{Field, Visit},
+        Level,
+    };
+    use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer};
+
     struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
     static JS_LOGGER: JsLogger = JsLogger(OnceLock::new());
 
@@ -840,42 +854,79 @@ pub mod logging {
         Error,
     }
 
-    impl From<Level> for LogLevel {
-        fn from(level: Level) -> Self {
-            match level {
-                Level::Trace => LogLevel::Trace,
-                Level::Debug => LogLevel::Debug,
-                Level::Info => LogLevel::Info,
-                Level::Warn => LogLevel::Warn,
-                Level::Error => LogLevel::Error,
+    impl From<&Level> for LogLevel {
+        fn from(level: &Level) -> Self {
+            match *level {
+                Level::TRACE => LogLevel::Trace,
+                Level::DEBUG => LogLevel::Debug,
+                Level::INFO => LogLevel::Info,
+                Level::WARN => LogLevel::Warn,
+                Level::ERROR => LogLevel::Error,
             }
+        }
+    }
+
+    /// Visitor handles custom formatting for the field names
+    struct Visitor<'a> {
+        buffer: &'a mut String,
+    }
+
+    impl Visit for Visitor<'_> {
+        fn record_debug(&mut self, field: &Field, value: &dyn fmt::Debug) {
+            // display the event's message
+            if field.name() == "message" {
+                write!(self.buffer, ": {:?}", value)
+                    .expect("Failed to write log event fields to buffer");
+
+            // all other fields display as "{field_name=field_value}"
+            } else {
+                write!(self.buffer, " {{{}={:?}}}", field.name(), value)
+                    .expect("Failed to write log event fields to buffer");
+            }
+        }
+    }
+
+    // JsLayer lets us intercept events and write them to the JS Logger.
+    struct JsLayer;
+
+    impl<S> Layer<S> for JsLayer
+    where
+        S: tracing::Subscriber,
+    {
+        fn on_event(
+            &self,
+            event: &tracing::Event<'_>,
+            _ctx: tracing_subscriber::layer::Context<'_, S>,
+        ) {
+            let mut buffer = String::new();
+
+            write!(
+                &mut buffer,
+                "[{}] {}",
+                event.metadata().level().as_str(),
+                event.metadata().module_path().unwrap_or_default()
+            )
+            .expect("Failed to write tracing event to buffer");
+
+            let mut visitor = Visitor {
+                buffer: &mut buffer,
+            };
+
+            event.record(&mut visitor);
+
+            let msg = (event.metadata().level().into(), buffer);
+
+            if let Some(logger) = JS_LOGGER.0.get() {
+                let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
+            };
         }
     }
 
     #[napi]
     pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
         let _ = JS_LOGGER.0.set(js_log_fn);
-        let _ = log::set_logger(&JS_LOGGER);
-        log::set_max_level(log::LevelFilter::Debug);
-    }
 
-    impl log::Log for JsLogger {
-        fn enabled(&self, metadata: &Metadata) -> bool {
-            metadata.level() <= log::max_level()
-        }
-
-        fn log(&self, record: &Record) {
-            if !self.enabled(record.metadata()) {
-                return;
-            }
-            let Some(logger) = self.0.get() else {
-                return;
-            };
-            let msg = (record.level().into(), record.args().to_string());
-            let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
-        }
-
-        fn flush(&self) {}
+        tracing_subscriber::registry().with(JsLayer).init();
     }
 }
 
