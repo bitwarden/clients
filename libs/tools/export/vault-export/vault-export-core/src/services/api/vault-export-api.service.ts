@@ -15,7 +15,7 @@ export class DefaultVaultExportApiService implements VaultExportApiService {
     const r = await this.apiService.send(
       "GET",
       "/organizations/" + organizationId + "/export",
-      null,
+      undefined,
       true,
       true,
     );
