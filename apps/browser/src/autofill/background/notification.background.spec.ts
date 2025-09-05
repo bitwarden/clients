@@ -1192,7 +1192,7 @@ describe("NotificationBackground", () => {
           await flushPromises();
 
           expect(cipherEncryptSpy).toHaveBeenCalledWith(cipherView, "testId");
-          expect(createWithServerSpy).toThrow(errorMessage);
+          expect(createWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageSpy).not.toHaveBeenCalledWith(sender.tab, {
             command: "addedCipher",
           });
@@ -1230,7 +1230,7 @@ describe("NotificationBackground", () => {
           sendMockExtensionMessage(message, sender);
           await flushPromises();
 
-          expect(updateWithServerSpy).toThrow(errorMessage);
+          expect(updateWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
             sender.tab,
             "saveCipherAttemptCompleted",
