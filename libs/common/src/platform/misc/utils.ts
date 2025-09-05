@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 /* eslint-disable no-useless-escape */
+import { Buffer as BufferLib } from "buffer";
 import * as path from "path";
 
-import { Buffer as BufferLib } from "buffer/";
 import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";

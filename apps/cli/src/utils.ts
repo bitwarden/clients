@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as inquirer from "inquirer";
+import * as inquirer from "@inquirer/prompts";
 import * as JSZip from "jszip";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -233,15 +233,10 @@ export class CliUtils {
 
     if (Utils.isNullOrEmpty(password)) {
       if (process.env.BW_NOINTERACTION !== "true") {
-        const answer: inquirer.Answers = await inquirer.createPromptModule({
-          output: process.stderr,
-        })({
-          type: "password",
-          name: "password",
+        password = await inquirer.password({
           message: "Master password:",
+          mask: true,
         });
-
-        password = answer.password;
       } else {
         return Response.badRequest(
           "Master password is required. Try again in interactive mode or provide a password file or environment variable.",

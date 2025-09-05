@@ -2,9 +2,8 @@
 // @ts-strict-ignore
 import * as http from "http";
 
+import * as inquirer from "@inquirer/prompts";
 import { OptionValues } from "commander";
-import * as inquirer from "inquirer";
-import Separator from "inquirer/lib/objects/separator";
 import { firstValueFrom, map } from "rxjs";
 
 import {
@@ -132,14 +131,9 @@ export class LoginCommand {
       }
     } else {
       if ((email == null || email === "") && this.canInteract) {
-        const answer: inquirer.Answers = await inquirer.createPromptModule({
-          output: process.stderr,
-        })({
-          type: "input",
-          name: "email",
+        email = await inquirer.input({
           message: "Email address:",
         });
-        email = answer.email;
       }
       if (email == null || email.trim() === "") {
         return Response.badRequest("Email address is required.");
@@ -155,14 +149,10 @@ export class LoginCommand {
         } else if (options.passwordenv && process.env[options.passwordenv]) {
           password = process.env[options.passwordenv];
         } else if (this.canInteract) {
-          const answer: inquirer.Answers = await inquirer.createPromptModule({
-            output: process.stderr,
-          })({
-            type: "password",
-            name: "password",
+          password = await inquirer.password({
             message: "Master password:",
+            mask: true,
           });
-          password = answer.password;
         }
       }
 
@@ -252,18 +242,16 @@ export class LoginCommand {
           if (twoFactorProviders.length === 1) {
             selectedProvider = twoFactorProviders[0];
           } else if (this.canInteract) {
-            const twoFactorOptions: (string | Separator)[] = twoFactorProviders.map((p) => p.name);
+            const twoFactorOptions: (inquirer.Separator | string)[] = twoFactorProviders.map(
+              (p) => p.name,
+            );
             twoFactorOptions.push(new inquirer.Separator());
             twoFactorOptions.push("Cancel");
-            const answer: inquirer.Answers = await inquirer.createPromptModule({
-              output: process.stderr,
-            })({
-              type: "list",
-              name: "method",
+            const answer = await inquirer.select({
               message: "Two-step login method:",
               choices: twoFactorOptions,
             });
-            const i = twoFactorOptions.indexOf(answer.method);
+            const i = twoFactorOptions.indexOf(answer as any);
             if (i === twoFactorOptions.length - 1) {
               return Response.error("Login failed.");
             }
@@ -283,14 +271,9 @@ export class LoginCommand {
 
         if (twoFactorToken == null) {
           if (this.canInteract) {
-            const answer: inquirer.Answers = await inquirer.createPromptModule({
-              output: process.stderr,
-            })({
-              type: "input",
-              name: "token",
+            twoFactorToken = await inquirer.input({
               message: "Two-step login code:",
             });
-            twoFactorToken = answer.token;
           }
           if (twoFactorToken == null || twoFactorToken === "") {
             return Response.badRequest("Code is required.");
@@ -307,14 +290,9 @@ export class LoginCommand {
       if (response.requiresDeviceVerification) {
         let newDeviceToken: string = null;
         if (this.canInteract) {
-          const answer: inquirer.Answers = await inquirer.createPromptModule({
-            output: process.stderr,
-          })({
-            type: "input",
-            name: "token",
+          newDeviceToken = await inquirer.input({
             message: "New device verification required. Enter OTP sent to login email:",
           });
-          newDeviceToken = answer.token;
         }
         if (newDeviceToken == null || newDeviceToken === "") {
           return Response.badRequest("Code is required.");
@@ -529,12 +507,10 @@ export class LoginCommand {
     // Get New Master Password
     const baseMessage = `${prompt}\n` + "Master password: ";
     const firstMessage = error != null ? error + baseMessage : baseMessage;
-    const mp: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
-      type: "password",
-      name: "password",
+    const masterPassword = await inquirer.password({
       message: firstMessage,
+      mask: true,
     });
-    const masterPassword = mp.password;
 
     // Master Password Validation
     if (masterPassword == null || masterPassword === "") {
@@ -577,12 +553,9 @@ export class LoginCommand {
 
     // Get New Master Password Re-type
     const reTypeMessage = "Re-type New Master password (Strength: " + strengthResult.score + ")";
-    const retype: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
-      type: "password",
-      name: "password",
+    const masterPasswordRetype = await inquirer.password({
       message: reTypeMessage,
     });
-    const masterPasswordRetype = retype.password;
 
     // Re-type Validation
     if (masterPassword !== masterPasswordRetype) {
@@ -594,12 +567,9 @@ export class LoginCommand {
     }
 
     // Get Hint (optional)
-    const hint: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
-      type: "input",
-      name: "input",
+    const masterPasswordHint = await inquirer.input({
       message: "Master Password Hint (optional):",
     });
-    const masterPasswordHint = hint.input;
     const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
     // Create new key and hash new password
@@ -628,14 +598,9 @@ export class LoginCommand {
     const storedClientId: string = process.env.BW_CLIENTID;
     if (storedClientId == null) {
       if (this.canInteract) {
-        const answer: inquirer.Answers = await inquirer.createPromptModule({
-          output: process.stderr,
-        })({
-          type: "input",
-          name: "clientId",
+        clientId = await inquirer.input({
           message: "client_id:",
         });
-        clientId = answer.clientId;
       } else {
         clientId = null;
       }
@@ -653,15 +618,10 @@ export class LoginCommand {
     const storedClientSecret: string = this.clientSecret || process.env.BW_CLIENTSECRET;
     if (storedClientSecret == null) {
       if (this.canInteract) {
-        const answer: inquirer.Answers = await inquirer.createPromptModule({
-          output: process.stderr,
-        })({
-          type: "input",
-          name: "clientSecret",
+        clientSecret = await inquirer.input({
           message:
             (isAdditionalAuthentication ? additionalAuthenticationMessage : "") + "client_secret:",
         });
-        clientSecret = answer.clientSecret;
       } else {
         clientSecret = null;
       }
