@@ -1,7 +1,7 @@
 import { OrganizationExportResponse } from "@bitwarden/common/admin-console/models/response/organization-export.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-export abstract class VaultExportApiServiceAbstraction {
+export abstract class VaultExportApiService {
   /**
    * Retrieves the export data for a specific organization.
    * @param organizationId The ID of the organization to export.

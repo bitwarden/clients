@@ -184,6 +184,7 @@ import {
   OrganizationVaultExportServiceAbstraction,
   VaultExportService,
   VaultExportServiceAbstraction,
+  DefaultVaultExportApiService,
 } from "@bitwarden/vault-export-core";
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
@@ -846,7 +847,7 @@ export class ServiceContainer {
       this.restrictedItemTypesService,
     );
 
-    this.vaultExportApiService = new VaultExportApiService(this.apiService);
+    this.vaultExportApiService = new DefaultVaultExportApiService(this.apiService);
 
     this.organizationExportService = new OrganizationVaultExportService(
       this.cipherService,

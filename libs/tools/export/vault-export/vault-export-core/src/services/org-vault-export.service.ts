@@ -33,7 +33,7 @@ import {
   ExportedVaultAsString,
 } from "../types";
 
-import { VaultExportApiServiceAbstraction } from "./api/vault-export-api.service.abstraction";
+import { VaultExportApiService } from "./api/vault-export-api.service.abstraction";
 import { BaseVaultExportService } from "./base-vault-export.service";
 import { ExportHelper } from "./export-helper";
 import { OrganizationVaultExportServiceAbstraction } from "./org-vault-export.service.abstraction";
@@ -45,7 +45,7 @@ export class OrganizationVaultExportService
 {
   constructor(
     private cipherService: CipherService,
-    private vaultExportApiService: VaultExportApiServiceAbstraction,
+    private vaultExportApiService: VaultExportApiService,
     pinService: PinServiceAbstraction,
     private keyService: KeyService,
     encryptService: EncryptService,
