@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Tổng số ứng dụng"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Bỏ đánh dấu ứng dụng quan trọng"
+  "unmarkAsCritical": {
+    "message": "Bỏ đánh dấu là nghiêm trọng"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Ứng dụng quan trọng đã được gỡ bỏ dấu hiệu thành công"
@@ -214,7 +214,7 @@
     "message": "Mật khẩu mới"
   },
   "passphrase": {
-    "message": "Cụm từ mật khẩu"
+    "message": "Cụm mật khẩu"
   },
   "notes": {
     "message": "Ghi chú"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Sao chép số giấy phép"
   },
+  "copyPrivateKey": {
+    "message": "Sao chép khóa riêng tư"
+  },
+  "copyPublicKey": {
+    "message": "Sao chép khóa công khai"
+  },
+  "copyFingerprint": {
+    "message": "Sao chép vân tay"
+  },
   "copyName": {
     "message": "Sao chép tên"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Mã phục hồi"
   },
+  "invalidRecoveryCode": {
+    "message": "Mã khôi phục không hợp lệ"
+  },
   "authenticatorAppTitle": {
     "message": "Ứng dụng xác thực"
   },
@@ -1787,7 +1799,7 @@
     "message": "Thay đổi địa chỉ email"
   },
   "changeEmailTwoFactorWarning": {
-    "message": "Thao tác này sẽ thay đổi địa chỉ email tài khoản của bạn. Nó sẽ không thay đổi địa chỉ email được sử dụng cho xác thực đăng nhập hai bước. Bạn có thể thay đổi địa chỉ email này trong cài đặt xác thực đăng nhập hai bước."
+    "message": "Thao tác này sẽ thay đổi địa chỉ email tài khoản của bạn. Điều này sẽ không thay đổi địa chỉ email được sử dụng cho xác thực đăng nhập hai bước. Bạn có thể thay đổi địa chỉ email này trong cài đặt xác thực đăng nhập hai bước."
   },
   "newEmail": {
     "message": "Địa chỉ email mới"
@@ -2050,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Chọn bộ sưu tập"
   },
-  "importTargetHint": {
-    "message": "Chọn tùy chọn này nếu bạn muốn nội dung của tệp đã nhập được di chuyển đến $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
+  },
+  "importTargetHintFolder": {
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -2106,11 +2114,8 @@
   "languageDesc": {
     "message": "Thay đổi ngôn ngữ của kho trên web."
   },
-  "enableFavicon": {
-    "message": "Hiện biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiện logo trang web bên cạnh mỗi đăng nhập."
+  "showIconsChangePasswordUrls": {
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "default": {
     "message": "Mặc định"
@@ -2451,9 +2456,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Có vấn đề khi đọc khóa bảo mật. Vui lòng thử lại."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Do hạn chế của nền tảng, WebAuthn không thể sử dụng trên tất cả các ứng dụng Bitwarden. Bạn nên thiết lập một nhà cung cấp đăng nhập hai bước khác để có thể truy cập tài khoản của mình khi WebAuthn không thể sử dụng."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Mã khôi phục đăng nhập hai bước của Bitwarden"
   },
@@ -2535,7 +2537,7 @@
     "message": "Mật khẩu bị lộ trong một vụ vi phạm dữ liệu là mục tiêu dễ dàng cho các tin tặc. Hãy thay đổi các mật khẩu này để ngăn chặn các cuộc tấn công tiềm ẩn."
   },
   "exposedPasswordsFound": {
-    "message": "Phát hiện mật khẩu bị rò rĩ"
+    "message": "Phát hiện mật khẩu bị lộ"
   },
   "exposedPasswordsFoundReportDesc": {
     "message": "Chúng tôi đã phát hiện $COUNT$ mục trong $VAULT$ của bạn có mật khẩu bị lộ trong các vụ vi phạm dữ liệu đã biết. Bạn nên thay đổi chúng sang mật khẩu mới.",
@@ -2823,6 +2825,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Xem tóm tắt giá"
+  },
+  "hidePricingSummary": {
+    "message": "Ẩn tóm tắt giá"
   },
   "summary": {
     "message": "Tóm tắt"
@@ -5164,23 +5172,23 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
-    "message": "Sửa mục Gửi",
+    "message": "Chỉnh sửa Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSend": {
-    "message": "Đã lưu mục Gửi",
+    "message": "Đã lưu Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
-    "message": "Đã lưu mục Gửi",
+    "message": "Đã lưu Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletedSend": {
-    "message": "Đã xóa mục Gửi",
+    "message": "Đã xóa Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSend": {
-    "message": "Xóa mục Gửi",
+    "message": "Xóa Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
@@ -5211,14 +5219,14 @@
     "message": "Đã thu hồi"
   },
   "sendLink": {
-    "message": "Liên kết Gửi",
+    "message": "Liên kết Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
     "message": "Sao chép liên kết"
   },
   "copySendLink": {
-    "message": "Sao chép liên kết mục Gửi",
+    "message": "Sao chép liên kết Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "removePassword": {
@@ -5231,7 +5239,7 @@
     "message": "Bạn có chắc chắn muốn xóa mật khẩu này không?"
   },
   "allSends": {
-    "message": "Tất cả mục Gửi"
+    "message": "Tất cả Send"
   },
   "maxAccessCountReached": {
     "message": "Đã vượt số lần truy cập tối đa",
@@ -5247,11 +5255,11 @@
     "message": "Đã hết hạn"
   },
   "searchSends": {
-    "message": "Tìm kiếm mục Gửi",
+    "message": "Tìm kiếm Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendProtectedPassword": {
-    "message": "Mục Gửi này được bảo vệ bằng mật khẩu. Hãy nhập mật khẩu vào bên dưới để tiếp tục.",
+    "message": "Send này được bảo vệ bằng mật khẩu. Hãy nhập mật khẩu vào bên dưới để tiếp tục.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendProtectedPasswordDontKnow": {
@@ -5477,7 +5485,7 @@
     "message": "Do chính sách của doanh nghiệp, bạn không thể lưu trữ các mục vào kho cá nhân của mình. Hãy thay đổi tùy chọn Quyền sở hữu thành tổ chức và chọn từ các bộ sưu tập có sẵn."
   },
   "disableSend": {
-    "message": "Xóa Gửi"
+    "message": "Xóa Send"
   },
   "disableSendPolicyDesc": {
     "message": "Không cho phép thành viên tạo hoặc chỉnh sửa Sends.",
@@ -5487,11 +5495,11 @@
     "message": "Các thành viên tổ chức có quyền quản lý chính sách của tổ chức sẽ được miễn áp dụng chính sách này."
   },
   "sendDisabled": {
-    "message": "Đã loại bỏ Gửi",
+    "message": "Đã loại bỏ Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
-    "message": "Do chính sách doanh nghiệp, bạn chỉ có thể xóa những mục Gửi hiện có.",
+    "message": "Do chính sách doanh nghiệp, bạn chỉ có thể xóa những Send hiện có.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendOptions": {
@@ -5609,7 +5617,7 @@
     "message": "Loại bỏ quyền sở hữu cá nhân cho người dùng tổ chức"
   },
   "send": {
-    "message": "Gửi",
+    "message": "Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendAccessTaglineProductDesc": {
@@ -6985,7 +6993,7 @@
     "message": "Sử dụng tính năng địa chỉ phụ của nhà cung cấp email của bạn."
   },
   "catchallEmail": {
-    "message": "Email bắt tất cả"
+    "message": "Catch-all email"
   },
   "catchallEmailDesc": {
     "message": "Sử dụng hộp thư bắt tất cả đã được cấu hình cho tên miền của bạn."
@@ -7028,6 +7036,12 @@
   },
   "unknownCipher": {
     "message": "Mục không xác định, bạn có thể cần yêu cầu quyền để truy cập mục này."
+  },
+  "unknownSecret": {
+    "message": "Bí mật không xác định, bạn có thể cần yêu cầu quyền để truy cập bí mật này."
+  },
+  "unknownProject": {
+    "message": "Dự án không xác định, bạn có thể cần yêu cầu quyền để truy cập dự án này."
   },
   "cannotSponsorSelf": {
     "message": "Bạn không thể đổi thưởng cho tài khoản đang hoạt động. Vui lòng nhập email khác."
@@ -7080,7 +7094,7 @@
     "description": "This text is displayed if an organization's billing is managed by a Provider. It tells the user to contact the Provider for assistance."
   },
   "forwardedEmail": {
-    "message": "Bí danh email chuyển tiếp"
+    "message": "Địa chỉ email thay thế"
   },
   "forwardedEmailDesc": {
     "message": "Tạo bí danh email với dịch vụ chuyển tiếp bên ngoài."
@@ -8352,10 +8366,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Đã xóa vĩnh viễn một bí mật với định danh: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Đã khôi phục một bí mật với định danh: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Đã tạo một bí mật mới với định danh: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Đã truy cập một dự án với ID: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Đã xóa dự án với ID: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Đã xóa bí mật với ID: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Đã chỉnh sửa một dự án với định danh: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Đã xóa một dự án với định danh: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Đã tạo một dự án mới với định danh: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8849,20 +8935,25 @@
   "collectionManagement": {
     "message": "Quản lý bộ sưu tập"
   },
-  "collectionManagementDesc": {
-    "message": "Quản lý hành vi của bộ sưu tập cho tổ chức"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Giới hạn việc tạo bộ sưu tập cho chủ sở hữu và quản trị viên"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Giới hạn việc xóa bộ sưu tập cho chủ sở hữu và quản trị viên"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "Giới hạn việc xóa mục cho các thành viên có quyền Quản lý bộ sưu tập"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Chủ sở hữu và quản trị viên có thể quản lý tất cả các bộ sưu tập và mục"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Đã cập nhật cài đặt quản lý bộ sưu tập"
@@ -9830,7 +9921,7 @@
     "message": "Tắt"
   },
   "higherKDFIterations": {
-    "message": "Số vòng lặp KDF cao hơn có thể giúp bảo vệ mật khẩu chính của bạn khỏi bị kẻ tấn công tấn công brute force."
+    "message": "Số vòng lặp KDF cao hơn có thể giúp bảo vệ mật khẩu chính của bạn khỏi các vụ tấn công brute force."
   },
   "incrementsOf100,000": {
     "message": "tăng theo bội số 100.000"
@@ -9842,7 +9933,7 @@
     "message": "Chúng tôi khuyến nghị 600.000 hoặc cao hơn"
   },
   "kdfToHighWarningIncreaseInIncrements": {
-    "message": "Đối với các thiết bị cũ, đặt KDF quá cao có thể dẫn đến vấn đề về hiệu suất. Tăng giá trị trong $VALUE$ và kiểm tra thiết bị của bạn.",
+    "message": "Đối với các thiết bị cũ, đặt KDF quá cao có thể gây ra vấn đề về hiệu suất. Tăng giá trị theo $VALUE$ và kiểm tra thiết bị của bạn.",
     "placeholders": {
       "value": {
         "content": "$1",
@@ -10745,6 +10836,9 @@
   "upgradeEventLogMessage": {
     "message": "Những sự kiện này chỉ là ví dụ và không phản ánh các sự kiện thực tế trong tổ chức Bitwarden của bạn."
   },
+  "viewEvents": {
+    "message": "Xem các Sự kiện"
+  },
   "cannotCreateCollection": {
     "message": "Các tổ chức miễn phí có thể có tối đa 2 bộ sưu tập. Nâng cấp lên gói trả phí để thêm nhiều bộ sưu tập hơn."
   },
@@ -10902,6 +10996,12 @@
     "message": "Cần có địa chỉ thanh toán để thêm tín dụng.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Về cài đặt này"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
+  },
   "billingAddress": {
     "message": "Địa chỉ thanh toán"
   },
@@ -11012,5 +11112,59 @@
   },
   "showLess": {
     "message": "Hiển thị bớt"
+  },
+  "missingTaxId": {
+    "message": "Thiếu mã số thuế"
+  },
+  "missingTaxIdWarning": {
+    "message": "Cần hành động: Bạn đang thiếu mã số thuế trong thông tin thanh toán. Nếu không thêm mã số thuế, hóa đơn của bạn có thể bao gồm thêm thuế."
+  },
+  "moreBreadcrumbs": {
+    "message": "Thêm mục điều hướng",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Thêm mã số thuế"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Cần thực hiện: Bổ sung mã số thuế"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Nếu không thêm mã số thuế, hóa đơn của bạn có thể sẽ bao gồm thêm thuế."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Cần thực hiện: Mã số thuế của bạn chưa được xác minh. Nếu mã số thuế không được xác minh, hóa đơn của bạn có thể sẽ bị tính thêm thuế."
+  },
+  "editTaxId": {
+    "message": "Chỉnh sửa mã số thuế"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Mã số thuế chưa được xác minh"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Kiểm tra mã số thuế của bạn để xác minh định dạng chính xác và không có lỗi chính tả."
+  },
+  "pendingVerification": {
+    "message": "Đang chờ xác minh"
+  },
+  "checkInputFormat": {
+    "message": "Kiểm tra định dạng nhập để tránh lỗi chính tả."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Ví dụ định dạng $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }
+

@@ -9,8 +9,9 @@
       [bitIconButton]="favoriteIcon"
       role="checkbox"
       [attr.aria-checked]="itemDetailsForm.value.favorite"
-      [appA11yTitle]="'favorite' | i18n"
+      [label]="'favorite' | i18n"
       (click)="toggleFavorite()"
+      [disabled]="favoriteButtonDisabled"
     ></button>
   </bit-section-header>
   <bit-card>

@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Totalt antal applikationer"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Avmarkera som kritisk app"
+  "unmarkAsCritical": {
+    "message": "Avmarkera som kritisk"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritisk applikation avmarkerades"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kopiera licensnummer"
   },
+  "copyPrivateKey": {
+    "message": "Kopiera privat nyckel"
+  },
+  "copyPublicKey": {
+    "message": "Kopiera publik nyckel"
+  },
+  "copyFingerprint": {
+    "message": "Kopiera fingeravtryck"
+  },
   "copyName": {
     "message": "Kopiera namn"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Återställningskod"
   },
+  "invalidRecoveryCode": {
+    "message": "Ogiltig återställningskod"
+  },
   "authenticatorAppTitle": {
     "message": "Autentiseringsapp"
   },
@@ -2050,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Välj en samling"
   },
-  "importTargetHint": {
-    "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en samling"
+  },
+  "importTargetHintFolder": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."
@@ -2106,11 +2114,8 @@
   "languageDesc": {
     "message": "Ändra språket som används i webbvalvet."
   },
-  "enableFavicon": {
-    "message": "Visa webbplatsikoner"
-  },
-  "faviconDesc": {
-    "message": "Visa en igenkännbar bild bredvid varje inloggning."
+  "showIconsChangePasswordUrls": {
+    "message": "Visa webbplatsikoner och URLer för lösenordsändringar"
   },
   "default": {
     "message": "Standard"
@@ -2450,9 +2455,6 @@
   },
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Det gick inte att läsa säkerhetsnyckeln. Försök igen."
-  },
-  "twoFactorWebAuthnWarning1": {
-    "message": "På grund av plattformsbegränsningar kan WebAuthn inte användas på alla Bitwarden-applikationer. Du bör konfigurera en annan leverantör av tvåstegsinloggning så att du kan komma åt ditt konto när WebAuthn inte kan användas."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Din återställningskod för tvåstegsverifiering"
@@ -2823,6 +2825,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Visa kostnadssammandrag"
+  },
+  "hidePricingSummary": {
+    "message": "Dölj kostnadssammandrag"
   },
   "summary": {
     "message": "Sammanfattning"
@@ -7029,6 +7037,12 @@
   "unknownCipher": {
     "message": "Okänt objekt, du kan behöva begära tillstånd för att få tillgång till detta objekt."
   },
+  "unknownSecret": {
+    "message": "Okänd hemlighet, du kan behöver begära behörighet för att komma åt denna hemlighet."
+  },
+  "unknownProject": {
+    "message": "Okänt projekt, du kan behöver begära behörighet för att komma åt detta projekt."
+  },
   "cannotSponsorSelf": {
     "message": "Du kan inte lösa in för det aktiva kontot. Ange en annan e-postadress."
   },
@@ -8352,10 +8366,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Tog permanent bort en hemlighet med identifieraren: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Återskapade en hemlighet med identiferaren: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Skapade en ny hemlighet med identifierare: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Gick in i ett projekt med id: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Tog bort projekt med id: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Tog bort hemlighet med id: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Redigerade ett projekt med identifieraren: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Tog bort ett projekt med identifieraren: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Skapade ett nytt projekt med identifieraren: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8849,20 +8935,25 @@
   "collectionManagement": {
     "message": "Samlingshantering"
   },
-  "collectionManagementDesc": {
-    "message": "Hantera insamlingsbeteendet för organisationen"
+  "collectionManagementDescription": {
+    "message": "Konfigurera beteendet för samling för organisationen"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Begränsa skapandet av samlingar till ägare och administratörer"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Tillåt ägare och administratörer att hantera alla samlingar och objekt från administratörskonsollen"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Begränsa borttagning av samlingar till ägare och administratörer"
+  "restrictCollectionCreationDescription": {
+    "message": "Begränsa skapande av samling till ägare och administratörer"
   },
-  "limitItemDeletionDescription": {
-    "message": "Begränsa borttagning av objekt till medlemmar med behörigheten Hantera samling"
+  "restrictCollectionDeletionDescription": {
+    "message": "Begränsa borttagning av samling till ägare och administratörer"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Ägare och administratörer kan hantera alla samlingar och objekt"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Begränsa objektborttagning till medlemmar med ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " behörighet",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Uppdaterad inställning för samlingshantering"
@@ -10745,6 +10836,9 @@
   "upgradeEventLogMessage": {
     "message": "Dessa händelser är endast exempel och återspeglar inte verkliga händelser inom din Bitwarden-organisation."
   },
+  "viewEvents": {
+    "message": "Visa händelser"
+  },
   "cannotCreateCollection": {
     "message": "Gratisorganisationer kan ha upp till 2 samlingar. Uppgradera till en betald plan för att lägga till fler samlingar."
   },
@@ -10902,6 +10996,12 @@
     "message": "Faktureringsadress krävs för att lägga till kredit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Om denna inställning"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden använder sparade inloggnings-URI: er för att identifiera vilken ikon eller URL för lösenordsändring som ska användas för att förbättra din upplevelse. Ingen information samlas in eller sparas när du använder denna tjänst."
+  },
   "billingAddress": {
     "message": "Faktureringsadress"
   },
@@ -11012,5 +11112,59 @@
   },
   "showLess": {
     "message": "Visa mindre"
+  },
+  "missingTaxId": {
+    "message": "Saknar momsregisteringsnummer"
+  },
+  "missingTaxIdWarning": {
+    "message": "Åtgärd krävs: Du saknar ett momsregisteringsnummer i betalningsuppgifter. Om ett momsregisteringsnummer inte läggs till kan dina fakturor innehålla ytterligare skatt."
+  },
+  "moreBreadcrumbs": {
+    "message": "Mer brödsmulor",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Lägg till ett momsregisteringsnummer"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Åtgärd krävs: Saknar momsregisteringsnummer"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Om ett momsregisteringsnummer inte läggs till kan dina fakturor innehålla ytterligare skatt."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Åtgärd krävs: Ditt momsregisteringsnummer är overifierat. Om ditt momsregisteringsnummer lämnas overifierat kan dina fakturor innehålla ytterligare skatt."
+  },
+  "editTaxId": {
+    "message": "Redigera ditt momsregisteringsnummer"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Momsregisteringsnumret är inte verifierat"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Kontrollera ditt momsregisteringsnummer för att verifiera att formatet är korrekt och att det inte finns några skrivfel."
+  },
+  "pendingVerification": {
+    "message": "Väntande verifiering"
+  },
+  "checkInputFormat": {
+    "message": "Kontrollera inmatningsformat för skrivfel."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Exempel $CODE$ format: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Bekräfta Key Connector-domän"
   }
 }
+

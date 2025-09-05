@@ -27,7 +27,7 @@ export const DisclosureWithIconButton: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button type="button" bitIconButton="bwi-sliders" [buttonType]="'muted'" [bitDisclosureTriggerFor]="disclosureRef">
+      <button type="button" label="Settings" bitIconButton="bwi-sliders" [buttonType]="'muted'" [bitDisclosureTriggerFor]="disclosureRef">
       </button>
       <bit-disclosure #disclosureRef class="tw-text-main tw-block" open>click button to hide this content</bit-disclosure>
     `,

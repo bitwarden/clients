@@ -46,7 +46,7 @@
       </div>
     </div>
     <div
-      class="tw-gap-1 tw-bg-background tw-rounded-lg tw-flex tw-min-h-11 [&:not(:has(button:enabled)):has(input:read-only)]:tw-bg-secondary-100 [&:not(:has(button:enabled)):has(textarea:read-only)]:tw-bg-secondary-100"
+      class="tw-gap-1 tw-bg-background tw-rounded-lg tw-flex tw-min-h-11 [&:has(input:read-only,textarea:read-only):not(:has(button:not([aria-disabled='true'])))]:tw-bg-secondary-100"
     >
       <div
         #prefixContainer

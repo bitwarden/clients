@@ -556,6 +556,9 @@
   "view": {
     "message": "Tampilan"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Tidak ada item yang dapat dicantumkan."
   },
@@ -1760,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Peramban ini tidak bisa memproses permintaan U2F di jendela popup ini. Apakah Anda ingin membuka popup ini di jendela baru sehingga Anda dapat masuk menggunakan U2F?"
   },
-  "enableFavicon": {
-    "message": "Tampilkan ikon situs web"
-  },
-  "faviconDesc": {
-    "message": "Tampilkan sebuah gambar yang dapat dikenali di setiap masuk."
-  },
-  "faviconDescAlt": {
-    "message": "Tampilkan sebuah gambar yang dapat dikenali di sebelah tiap login. Diterapkan ke semua akun yang telah masuk."
+  "showIconsChangePasswordUrls": {
+    "message": "Show website icons and retrieve change password URLs"
   },
   "enableBadgeCounter": {
     "message": "Tampilkan hitungan di lencana"
@@ -3789,7 +3786,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Bagikan berkas-berkas dan data secara aman dengan siapa saja, pada platform apapun. Informasi Anda akan tetap terenkripsi dari ujung-ke-ujung sembari membatasi paparan.",
+    "message": "Bagikan berkas-berkas dan data secara aman dengan siapa saja, pada platform apa pun. Informasi Anda akan tetap terenkripsi dari ujung ke ujung sembari membatasi paparan.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4131,15 +4128,11 @@
   "selectImportCollection": {
     "message": "Pilih koleksi"
   },
-  "importTargetHint": {
-    "message": "Pilih pilihan ini jika Anda ingin isi dari berkas yang diimpor dipindah ke $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Berkas berisi benda-benda yang belum ditetapkan."
@@ -5117,6 +5110,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Tampilkan jumlah saran isi otomatis login pada ikon pengaya"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Tampilkan tindakan salin cepat pada Vault"
   },
@@ -5444,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Ubah kata sandi yang berrisiko"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Pilihan brankas"
   },
@@ -5567,6 +5578,12 @@
     "message": "Buat kata sandi yang kuat dan unik dengan mudah dengan menekan pada tombol Buat kata sandi untuk membantu Anda menyimpan login Anda dengan aman.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "About this setting"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
   "noPermissionsViewPage": {
     "message": "Anda tidak memiliki izin untuk melihat halaman ini. Coba masuk dengan akun yang berbeda."
   },
@@ -5575,9 +5592,19 @@
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Tampilkan lebih banyak"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Tampilkan lebih sedikit"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }
