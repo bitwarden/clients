@@ -556,6 +556,9 @@
   "view": {
     "message": "הצג"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "אין פריטים להצגה."
   },
@@ -5446,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "שנה סיסמה בסיכון"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "אפשרויות כספת"
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "הצג פחות"
   },
+  "next": {
+    "message": "הבא"
+  },
   "moreBreadcrumbs": {
     "message": "עוד סימני דרך",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "אשר דומיין של Key Connector"
   }
 }

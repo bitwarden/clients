@@ -3588,6 +3588,12 @@
   "awaitingSSODesc": {
     "message": "Pokračujte v prihlasovaní pomocou prihlasovacích údajov svojej spoločnosti."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Importovať priamo z prehliadača"
+  },
+  "browserProfile": {
+    "message": "Profil prehliadača"
+  },
   "seeDetailedInstructions": {
     "message": "Podrobné pokyny nájdete na našej stránke pomoci na adrese",
     "description": "This is followed a by a hyperlink to the help website."
@@ -4080,5 +4086,23 @@
   "moreBreadcrumbs": {
     "message": "Viac",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Ďalej"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdiť doménu Key Connectora"
+  },
+  "confirm": {
+    "message": "Potvrdiť"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Povoliť skratku automatického písania"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Pred použitím skratky sa uistite, že sa nachádzate v správnom poli, aby ste údaje nevyplnili na nesprávne miesto."
+  },
+  "editShortcut": {
+    "message": "Upraviť skratku"
   }
 }
