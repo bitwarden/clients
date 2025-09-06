@@ -160,7 +160,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.formGroup.controls.email.valueChanges
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
-          this.checkIfSsoRequired({ showToast: false });
+          this.checkIfSsoRequired();
         });
     }
   }
@@ -215,36 +215,18 @@ export class LoginComponent implements OnInit, OnDestroy {
     );
     if (disableAlternateLoginMethodsFlagEnabled) {
       this.ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
-      this.checkIfSsoRequired({ showToast: false });
+      this.checkIfSsoRequired();
     }
   }
 
-  private checkIfSsoRequired(config: { showToast: boolean }): boolean {
+  private checkIfSsoRequired() {
     if (
       this.ssoRequiredCache != null &&
       this.ssoRequiredCache.includes(this.formGroup.controls.email.value.toLowerCase())
     ) {
-      if (config.showToast) {
-        this.toastService.showToast({
-          variant: "info",
-          message: this.i18nService.t(
-            "emailMustLoginWithSso",
-            this.formGroup.controls.email.value.toLowerCase(),
-          ),
-        });
-        this.logService.error(
-          this.i18nService.t(
-            "emailMustLoginWithSso",
-            this.formGroup.controls.email.value.toLowerCase(),
-          ),
-        );
-      }
-
       this.ssoRequired = true;
-      return true;
     } else {
       this.ssoRequired = false;
-      return false;
     }
   }
 
@@ -534,17 +516,6 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Needs to be separate from the continue() function because that can be triggered by the browser's forward button.
    */
   protected async continuePressed() {
-    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22110_DisableAlternateLoginMethods,
-    );
-
-    if (disableAlternateLoginMethodsFlagEnabled) {
-      const ssoRequired = this.checkIfSsoRequired({ showToast: true });
-      if (ssoRequired) {
-        return;
-      }
-    }
-
     // Add a new entry to the browser's history so that there is a history entry to go back to
     history.pushState({}, "", window.location.href);
     await this.continue();
@@ -567,17 +538,6 @@ export class LoginComponent implements OnInit, OnDestroy {
    * @param event - The event object.
    */
   async handleLoginWithPasskeyClick() {
-    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22110_DisableAlternateLoginMethods,
-    );
-
-    if (disableAlternateLoginMethodsFlagEnabled) {
-      const ssoRequired = this.checkIfSsoRequired({ showToast: false });
-      if (ssoRequired) {
-        return;
-      }
-    }
-
     await this.router.navigate(["/login-with-passkey"]);
   }
 
