@@ -30,7 +30,6 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -138,7 +137,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
-    private masterPasswordService: MasterPasswordServiceAbstraction,
     private configService: ConfigService,
     private ssoLoginService: SsoLoginServiceAbstraction,
   ) {
@@ -153,15 +151,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     if (this.clientType === ClientType.Desktop) {
       await this.desktopOnInit();
-    }
-
-    // Only setup this subscription if there is actually an ssoRequiredCache list
-    if (this.ssoRequiredCache && this.ssoRequiredCache.length > 0) {
-      this.formGroup.controls.email.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          this.checkIfSsoRequired();
-        });
     }
   }
 
@@ -209,20 +198,35 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.loadRememberedEmail();
     }
 
-    // TODO-rr-bw: account for scenarios where the user changes the email field (must re-activate buttons)
     const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM22110_DisableAlternateLoginMethods,
     );
     if (disableAlternateLoginMethodsFlagEnabled) {
+      // SSO required check should come after email has had a chance to be pre-filled (if it
+      // was found in query params or was the remembered email)
       this.ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
-      this.checkIfSsoRequired();
+
+      // Only perform update and setup this subscription if there is actually a populated ssoRequiredCache list
+      if (this.ssoRequiredCache != null && this.ssoRequiredCache.length > 0) {
+        // If there is a pre-filled/remembered email field value, update once initially
+        if (this.emailFormControl.value) {
+          this.updateSsoRequiredForThisEmail();
+        }
+
+        // On subsequent email field value changes, update again
+        this.formGroup.controls.email.valueChanges
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.updateSsoRequiredForThisEmail();
+          });
+      }
     }
   }
 
-  private checkIfSsoRequired() {
+  private updateSsoRequiredForThisEmail() {
     if (
       this.ssoRequiredCache != null &&
-      this.ssoRequiredCache.includes(this.formGroup.controls.email.value.toLowerCase())
+      this.ssoRequiredCache.includes(this.emailFormControl.value)
     ) {
       this.ssoRequired = true;
     } else {
