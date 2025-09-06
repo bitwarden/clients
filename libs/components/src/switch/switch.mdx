@@ -1,0 +1,36 @@
+import { Meta, Canvas, Source, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./switch.stories";
+
+<Meta of={stories} />
+
+```ts
+import { SwitchModule } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+NOTE: The switch component will span 100% of the width of its container. These stories have a
+container with a `max-width` of 600px
+
+<Primary />
+<Controls />
+
+## Stories
+
+### Default
+
+<Canvas of={stories.Default} />
+
+### Used with a from
+
+<Canvas of={stories.WithForm} />
+
+### With Long Label
+
+<Canvas of={stories.WithLongLabel} />
+
+### Disabled
+
+<Canvas of={stories.Disabled} />
