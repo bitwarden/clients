@@ -7,6 +7,7 @@ import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -131,6 +132,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CipherFormModule,
     AsyncActionsModule,
     ItemModule,
+    PremiumBadgeComponent,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
