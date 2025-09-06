@@ -141,33 +141,35 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_ORGANIZATION_SSO_IDENTIFIER);
   }
 
-  async setSsoRequiredCache(email: string): Promise<void> {
+  async addToSsoRequiredCache(email: string): Promise<void> {
     await this.ssoRequiredCacheState.update(
       (cache) => {
         if (cache == null) {
+          // If the cache is non-existent, initialize the cache with its first email
           return [email];
         } else {
+          // If a cache already exists, append the email to the end
           return [...cache, email];
         }
       },
       {
         // Only update if the new cache would be different from the previous cache
         shouldUpdate: (previousCache) => {
+          // A non-existent cache must be updated
           if (previousCache == null) {
             return true;
           }
 
-          const newCache = [...previousCache, email];
-
-          if (previousCache.length !== newCache.length) {
-            return false;
+          // An empty cache must be updated
+          if (previousCache.length === 0) {
+            return true;
           }
 
-          previousCache.forEach((email) => {
-            if (!previousCache.includes(email)) {
-              return false;
-            }
-          });
+          // A previousCache that already includes the email should not be updated
+          const cacheIncludesEmail = previousCache.some((email) => previousCache.includes(email));
+          if (cacheIncludesEmail) {
+            return false;
+          }
 
           return true;
         },
@@ -175,7 +177,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     );
   }
 
-  async removeFromSsoRequiredCache(email: string): Promise<void> {
+  async removeFromSsoRequiredCacheIfPresent(email: string): Promise<void> {
     await this.ssoRequiredCacheState.update(
       (previousCache) => {
         if (previousCache == null) {
@@ -185,7 +187,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
         const index = previousCache.indexOf(email);
 
         if (index >= 0) {
-          previousCache = previousCache.splice(index, 1);
+          previousCache.splice(index, 1);
           return previousCache;
         }
       },
@@ -193,21 +195,21 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
         // Only update if the new cache would be different from the previous cache
         shouldUpdate: (previousCache) => {
           {
+            // A non-existent cache does not need to be updated
             if (previousCache == null) {
               return false;
             }
 
-            const newCache = [...previousCache, email];
-
-            if (previousCache.length !== newCache.length) {
+            // An empty cache does not need to be updated
+            if (previousCache.length === 0) {
               return false;
             }
 
-            previousCache.forEach((email) => {
-              if (!previousCache.includes(email)) {
-                return false;
-              }
-            });
+            // A previousCache that includes the email must be updated
+            const cacheIncludesEmail = previousCache.some((email) => previousCache.includes(email));
+            if (cacheIncludesEmail) {
+              return true;
+            }
 
             return true;
           }

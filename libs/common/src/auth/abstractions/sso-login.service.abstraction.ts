@@ -93,8 +93,8 @@ export abstract class SsoLoginServiceAbstraction {
   abstract ssoRequiredCache$: Observable<string[] | null>;
 
   // TODO-rr-bw: add jsdocs
-  abstract setSsoRequiredCache: (email: string) => Promise<void>;
+  abstract addToSsoRequiredCache: (email: string) => Promise<void>;
 
   // TODO-rr-bw: add jsdocs
-  abstract removeFromSsoRequiredCache: (email: string) => Promise<void>;
+  abstract removeFromSsoRequiredCacheIfPresent: (email: string) => Promise<void>;
 }
