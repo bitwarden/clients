@@ -94,7 +94,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   isKnownDevice = false;
   loginUiState: LoginUiState = LoginUiState.EMAIL_ENTRY;
   ssoRequired = false;
-  ssoRequiredCache: string[] = [];
 
   formGroup = this.formBuilder.group(
     {
@@ -204,12 +203,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (disableAlternateLoginMethodsFlagEnabled) {
       // SSO required check should come after email has had a chance to be pre-filled (if it
       // was found in query params or was the remembered email)
-      this.ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
+      const ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
 
       // Only perform iniital update and setup a subscription if there is actually a populated ssoRequiredCache list
-      if (this.ssoRequiredCache != null && this.ssoRequiredCache.length > 0) {
+      if (ssoRequiredCache != null && ssoRequiredCache.length > 0) {
         // If there is a pre-filled/remembered email field value that exists in the cache, update value
-        if (this.ssoRequiredCache.includes(this.emailFormControl.value)) {
+        if (ssoRequiredCache.includes(this.emailFormControl.value)) {
           this.ssoRequired = true;
         }
 
@@ -217,7 +216,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.formGroup.controls.email.valueChanges
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(() => {
-            if (this.ssoRequiredCache.includes(this.emailFormControl.value)) {
+            if (ssoRequiredCache.includes(this.emailFormControl.value)) {
               this.ssoRequired = true;
             } else {
               this.ssoRequired = false;
