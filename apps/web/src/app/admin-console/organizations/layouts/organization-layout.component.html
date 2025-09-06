@@ -3,7 +3,7 @@
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
     <bit-nav-group
-      icon="bwi-filter"
+      icon="bwi-dashboard"
       *ngIf="organization.useRiskInsights && organization.canAccessReports"
       [text]="'accessIntelligence' | i18n"
       route="access-intelligence"
