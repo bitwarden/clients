@@ -30,4 +30,7 @@ export enum NotificationType {
   NotificationStatus = 21,
 
   RefreshSecurityTasks = 22,
+
+  OrganizationBankAccountVerified = 23,
+  ProviderBankAccountVerified = 24,
 }

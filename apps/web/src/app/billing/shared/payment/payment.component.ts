@@ -212,12 +212,4 @@ export class PaymentComponent implements OnInit, OnDestroy {
   private get usingStripe(): boolean {
     return this.usingBankAccount || this.usingCard;
   }
-
-  get bankAccountWarning(): string {
-    if (this.bankAccountWarningOverride) {
-      return this.bankAccountWarningOverride;
-    } else {
-      return this.i18nService.t("verifyBankAccountWithStatementDescriptorWarning");
-    }
-  }
 }
