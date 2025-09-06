@@ -9,12 +9,15 @@ import {
   input,
   booleanAttribute,
   AfterViewInit,
+  ElementRef,
+  DestroyRef,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
 import { TypographyDirective } from "../../typography/typography.directive";
+import { hasScrollableContent } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { fadeIn } from "../animations";
 import { DialogRef } from "../dialog.service";
@@ -40,8 +43,11 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
   ],
 })
 export class DialogComponent implements AfterViewInit {
-  protected dialogRef = inject(DialogRef, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
   private scrollableBody = viewChild.required(CdkScrollable);
+  private scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
+
+  protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
   protected isScrollable = false;
 
@@ -107,11 +113,14 @@ export class DialogComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.isScrollable = this.canScroll();
-  }
+    const scrollableEl = this.scrollableBody().getElementRef().nativeElement;
+    const sentinelEl = this.scrollBottom().nativeElement;
 
-  canScroll(): boolean {
-    const el = this.scrollableBody().getElementRef().nativeElement as HTMLElement;
-    return el.scrollHeight > el.clientHeight;
+    hasScrollableContent({
+      root: scrollableEl,
+      target: sentinelEl,
+      boundValue: (isScrollable: boolean) => (this.isScrollable = isScrollable),
+      options: { destroyRef: this.destroyRef },
+    });
   }
 }
