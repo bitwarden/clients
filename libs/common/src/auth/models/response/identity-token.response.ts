@@ -11,11 +11,13 @@ import { MasterPasswordPolicyResponse } from "./master-password-policy.response"
 import { UserDecryptionOptionsResponse } from "./user-decryption-options/user-decryption-options.response";
 
 export class IdentityTokenResponse extends BaseResponse {
+  // Authentication Information
   accessToken: string;
   expiresIn?: number;
   refreshToken?: string;
   tokenType: string;
 
+  // Decryption Information
   resetMasterPassword: boolean;
   privateKey: string; // userKeyEncryptedPrivateKey
   key?: EncString; // masterKeyEncryptedUserKey
