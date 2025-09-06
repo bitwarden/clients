@@ -32,6 +32,7 @@ export class RestrictedItemTypesService {
         if (!flagOn) {
           return of([]);
         }
+
         return this.accountService.activeAccount$.pipe(
           getOptionalUserId,
           switchMap((userId) => {
@@ -41,35 +42,71 @@ export class RestrictedItemTypesService {
             return combineLatest([
               this.organizationService.organizations$(userId),
               this.policyService.policiesByType$(PolicyType.RestrictedItemTypes, userId),
-            ]).pipe(
-              map(([orgs, enabledPolicies]) => {
-                // Helper to extract restricted types, defaulting to [Card]
-                const restrictedTypes = (p: (typeof enabledPolicies)[number]) =>
-                  (p.data as CipherType[]) ?? [CipherType.Card];
+            ]);
+          }),
+          map(([orgs, enabledPolicies]) => {
+            // Helper to extract restricted types from policy data
+            const restrictedTypes = (p: any) => {
+              if (!p.data) {
+                return [];
+              }
 
-                // Union across all enabled policies
-                const allRestrictedTypes = Array.from(
-                  new Set(enabledPolicies.flatMap(restrictedTypes)),
-                );
+              let parsedData = p.data;
 
-                return allRestrictedTypes.map((cipherType) => {
-                  // Determine which orgs allow viewing this type
-                  const allowViewOrgIds = orgs
-                    .filter((org) => {
-                      const orgPolicy = enabledPolicies.find((p) => p.organizationId === org.id);
-                      // no policy for this org => allows everything
-                      if (!orgPolicy) {
-                        return true;
-                      }
-                      // if this type not in their restricted list => they allow it
-                      return !restrictedTypes(orgPolicy).includes(cipherType);
-                    })
-                    .map((org) => org.id);
+              // If data is a string, try to parse it as JSON
+              if (typeof p.data === "string") {
+                try {
+                  parsedData = JSON.parse(p.data);
+                } catch {
+                  return [];
+                }
+              }
 
-                  return { cipherType, allowViewOrgIds };
-                });
-              }),
-            );
+              let result: CipherType[] = [];
+
+              // Handle both old format (direct array) and new format (object with RestrictedItemTypes property)
+              if (Array.isArray(parsedData)) {
+                result = parsedData as CipherType[];
+              } else if (
+                typeof parsedData === "object" &&
+                parsedData &&
+                "RestrictedItemTypes" in parsedData
+              ) {
+                result = (parsedData.RestrictedItemTypes as CipherType[]) ?? [];
+              } else if (
+                typeof parsedData === "object" &&
+                parsedData &&
+                "restrictedItemTypes" in parsedData
+              ) {
+                result = (parsedData.restrictedItemTypes as CipherType[]) ?? [];
+              }
+
+              return result;
+            };
+
+            // Union across all enabled policies
+            const allRestrictedTypes = Array.from(
+              new Set(enabledPolicies.flatMap(restrictedTypes)),
+            ) as CipherType[];
+
+            const result = allRestrictedTypes.map((cipherType) => {
+              // Determine which orgs allow viewing this type
+              const allowViewOrgIds = orgs
+                .filter((org: any) => {
+                  const orgPolicy = enabledPolicies.find((p: any) => p.organizationId === org.id);
+                  // no policy for this org => allows everything
+                  if (!orgPolicy) {
+                    return true;
+                  }
+                  // if this type not in their restricted list => they allow it
+                  return !restrictedTypes(orgPolicy).includes(cipherType);
+                })
+                .map((org: any) => org.id);
+
+              return { cipherType, allowViewOrgIds };
+            });
+
+            return result;
           }),
         );
       }),
@@ -97,9 +134,8 @@ export class RestrictedItemTypesService {
    * - Otherwise → restricted
    */
   isCipherRestricted(cipher: CipherLike, restrictedTypes: RestrictedCipherType[]): boolean {
-    const restriction = restrictedTypes.find(
-      (r) => r.cipherType === CipherViewLikeUtils.getType(cipher),
-    );
+    const cipherType = CipherViewLikeUtils.getType(cipher);
+    const restriction = restrictedTypes.find((r) => r.cipherType === cipherType);
 
     // If cipher type is not restricted by any organization, allow it
     if (!restriction) {

@@ -124,9 +124,15 @@ export class VaultPopupItemsService {
           map(([ciphers, failedToDecryptCiphers, restrictions]) => {
             const allCiphers = [...(failedToDecryptCiphers || []), ...ciphers];
 
-            return allCiphers.filter(
-              (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions),
-            );
+            const filteredCiphers = allCiphers.filter((cipher) => {
+              const isRestricted = this.restrictedItemTypesService.isCipherRestricted(
+                cipher,
+                restrictions,
+              );
+              return !isRestricted;
+            });
+
+            return filteredCiphers;
           }),
         ),
       ),

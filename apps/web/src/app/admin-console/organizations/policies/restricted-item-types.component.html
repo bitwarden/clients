@@ -2,5 +2,26 @@
   <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
   <bit-label>{{ "turnOn" | i18n }}</bit-label>
 </bit-form-control>
-<!-- To allow for multiple item types we can add a data formGroup, iterate over the
- cipher types as checkboxes/multi-select and use that as a means to track which types are restricted -->
+
+<div *ngIf="enabled.value" [formGroup]="data" class="tw-mt-4">
+  <h3 class="tw-text-main tw-text-base tw-font-semibold tw-mb-2">
+    {{ "selectItemTypesToRemove" | i18n }}
+  </h3>
+  <p class="tw-text-muted tw-text-sm tw-mb-4">
+    {{ "selectItemTypesToRemoveDesc" | i18n }}
+  </p>
+
+  <div class="tw-space-y-3">
+    <bit-form-control *ngFor="let cipherType of availableCipherTypes">
+      <input
+        type="checkbox"
+        bitCheckbox
+        [formControlName]="'restrictedType_' + cipherType.type"
+        [id]="'restrictedType_' + cipherType.type"
+      />
+      <bit-label>
+        {{ cipherType.translationKey | i18n }}
+      </bit-label>
+    </bit-form-control>
+  </div>
+</div>
