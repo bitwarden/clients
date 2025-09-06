@@ -1,7 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
@@ -16,14 +14,23 @@ import {
 import { WindowMain } from "../../main/window.main";
 
 import { MainBiometricsService } from "./main-biometrics.service";
-import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
-import OsBiometricsServiceMac from "./os-biometrics-mac.service";
-import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
-import { OsBiometricService } from "./os-biometrics.service";
+import { default as OsBiometricsServiceLinux } from "./native-v1/os-biometrics-linux.service";
+import { default as OsBiometricsServiceMac } from "./native-v1/os-biometrics-mac.service";
+import { default as OsBiometricsServiceWindows } from "./native-v1/os-biometrics-windows.service";
+import { OsBiometricService } from "./native-v2/os-biometrics.service";
 
 jest.mock("@bitwarden/desktop-napi", () => {
   return {
-    biometrics: jest.fn(),
+    biometrics: {
+      authenticate: jest.fn(),
+      authenticate_available: jest.fn(),
+      enroll_persistent: jest.fn(),
+      provide_key: jest.fn(),
+      unlock: jest.fn(),
+      unlock_available: jest.fn(),
+      has_persistent: jest.fn(),
+      initBiometricSystem: jest.fn(),
+    },
     passwords: jest.fn(),
   };
 });
@@ -35,8 +42,6 @@ describe("MainBiometricsService", function () {
   const windowMain = mock<WindowMain>();
   const logService = mock<LogService>();
   const biometricStateService = mock<BiometricStateService>();
-  const cryptoFunctionService = mock<CryptoFunctionService>();
-  const encryptService = mock<EncryptService>();
 
   it("Should call the platformspecific methods", async () => {
     const sut = new MainBiometricsService(
@@ -45,8 +50,6 @@ describe("MainBiometricsService", function () {
       logService,
       process.platform,
       biometricStateService,
-      encryptService,
-      cryptoFunctionService,
     );
 
     const mockService = mock<OsBiometricService>();
@@ -64,8 +67,6 @@ describe("MainBiometricsService", function () {
         logService,
         "win32",
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
 
       const internalService = (sut as any).osBiometricsService;
@@ -80,8 +81,6 @@ describe("MainBiometricsService", function () {
         logService,
         "darwin",
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
       const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
@@ -95,8 +94,6 @@ describe("MainBiometricsService", function () {
         logService,
         "linux",
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
 
       const internalService = (sut as any).osBiometricsService;
@@ -116,8 +113,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
 
       innerService = mock();
@@ -215,8 +210,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
       const osBiometricsService = mock<OsBiometricService>();
       (sut as any).osBiometricsService = osBiometricsService;
@@ -235,8 +228,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
       const osBiometricsService = mock<OsBiometricService>();
       (sut as any).osBiometricsService = osBiometricsService;
@@ -258,8 +249,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
       osBiometricsService = mock<OsBiometricService>();
       (sut as any).osBiometricsService = osBiometricsService;
@@ -299,8 +288,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
       osBiometricsService = mock<OsBiometricService>();
       (sut as any).osBiometricsService = osBiometricsService;
@@ -323,8 +310,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
       const osBiometricsService = mock<OsBiometricService>();
       (sut as any).osBiometricsService = osBiometricsService;
@@ -347,8 +332,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
     });
 
@@ -377,8 +360,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
 
       const shouldAutoPrompt = await sut.getShouldAutopromptNow();

@@ -133,6 +133,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   pinEnabled$: Observable<boolean> = of(true);
 
   hasPremium: boolean = false;
+  isBiometricV2Enabled: boolean = false;
 
   form = this.formBuilder.group({
     // Security
@@ -140,6 +141,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     vaultTimeoutAction: [VaultTimeoutAction.Lock],
     pin: [null as boolean | null],
     biometric: false,
+    requireMasterPasswordOnAppRestart: true,
     autoPromptBiometrics: false,
     // Account Preferences
     clearClipboard: [null],
@@ -271,6 +273,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    this.isBiometricV2Enabled = await this.biometricsService.isV2BiometricsBackendEnabled();
+
     this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
@@ -362,6 +366,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ),
       pin: this.userHasPinSet,
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
+      requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
+        activeAccount.id,
+      )),
       autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
@@ -463,6 +470,27 @@ export class SettingsComponent implements OnInit, OnDestroy {
         concatMap(async (enabled) => {
           await this.updateBiometricHandler(enabled);
           this.refreshTimeoutSettings$.next();
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+    this.form.controls.requireMasterPasswordOnAppRestart.valueChanges
+      .pipe(
+        concatMap(async (requireMasterPassword) => {
+          const userKey = await firstValueFrom(this.keyService.userKey$(activeAccount.id));
+          if (!requireMasterPassword && this.isBiometricV2Enabled) {
+            // Allow biometric unlock on app restart
+            if (!(await this.biometricsService.hasPersistentKey(activeAccount.id))) {
+              await this.biometricsService.enrollPersistent(activeAccount.id, userKey);
+            }
+          } else {
+            // Require master password on app restart
+            await this.biometricsService.deleteBiometricUnlockKeyForUser(activeAccount.id);
+            await this.biometricsService.setBiometricProtectedUnlockKeyForUser(
+              activeAccount.id,
+              userKey,
+            );
+          }
         }),
         takeUntil(this.destroy$),
       )

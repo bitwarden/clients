@@ -9,9 +9,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 
-import { WindowMain } from "../../main/window.main";
-
-import { OsBiometricService } from "./os-biometrics.service";
+import { WindowMain } from "../../../main/window.main";
+import { OsBiometricService } from "../native-v2/os-biometrics.service";
 
 const SERVICE = "Bitwarden_biometric";
 
@@ -34,6 +33,12 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
   ) {}
+
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
+  }
 
   async supportsBiometrics(): Promise<boolean> {
     return await biometrics.available();
