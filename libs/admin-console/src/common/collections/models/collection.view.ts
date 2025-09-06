@@ -144,7 +144,15 @@ export class CollectionView implements View, ITreeNodeObject {
   ): Promise<CollectionView> {
     const view = new CollectionView({ ...collection });
 
-    view.name = await encryptService.decryptString(new EncString(collection.name), orgKey);
+    try {
+      view.name = await encryptService.decryptString(new EncString(collection.name), orgKey);
+    } catch (e) {
+      // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
+      // eslint-disable-next-line no-console
+      console.error("[CollectionView] Error decrypting collection name", e);
+      throw e;
+    }
+
     view.externalId = collection.externalId;
     view.type = collection.type;
     view.assigned = collection.assigned;

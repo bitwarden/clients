@@ -36,10 +36,12 @@ export abstract class EncryptService {
   abstract decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string>;
   /**
    * Decrypts an EncString to a Uint8Array
+   * @throws IMPORTANT: This throws if decryption fails. If decryption failures are expected to happen,
+   * the callsite should log where the failure occurred, and handle it by domain specifc logic (e.g. show a UI error).
+   *
    * @param encString - The EncString containing the encrypted bytes.
    * @param key - The key to decrypt the value with
    * @returns The decrypted bytes as a Uint8Array
-   * @throws Error if decryption fails
    * @deprecated Bytes are not the right abstraction to encrypt in. Use e.g. key wrapping or file encryption instead
    */
   abstract decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array>;
