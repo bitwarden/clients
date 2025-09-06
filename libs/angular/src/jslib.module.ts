@@ -27,6 +27,7 @@ import {
   TypographyModule,
   CopyClickDirective,
   A11yTitleDirective,
+  NoItemsModule,
 } from "@bitwarden/components";
 
 import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
@@ -77,6 +78,7 @@ import { IconComponent } from "./vault/components/icon.component";
     TypographyModule,
     TableModule,
     MenuModule,
+    NoItemsModule,
     IconButtonModule,
     IconModule,
     LinkModule,

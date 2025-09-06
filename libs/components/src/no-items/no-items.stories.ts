@@ -1,5 +1,21 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import {
+  ActiveSendIcon,
+  DeactivatedOrg,
+  DevicesIcon,
+  DomainIcon,
+  EmptyTrash,
+  GearIcon,
+  NoCredentialsIcon,
+  NoFolders,
+  NoResults,
+  NoSendsIcon,
+  RestrictedView,
+  Security,
+  VaultOpen,
+} from "@bitwarden/assets/svg";
+
 import { ButtonModule } from "../button";
 
 import { NoItemsComponent } from "./no-items.component";
@@ -23,11 +39,27 @@ export default {
 
 type Story = StoryObj<NoItemsComponent>;
 
+const Icons = {
+  EmptyTrash,
+  NoFolders,
+  NoResults,
+  NoSendsIcon,
+  VaultOpen,
+  DeactivatedOrg,
+  ActiveSendIcon,
+  DevicesIcon,
+  Security,
+  NoCredentialsIcon,
+  RestrictedView,
+  DomainIcon,
+  GearIcon,
+};
+
 export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `
-    <bit-no-items class="tw-text-main">
+    template: /*html*/ `
+    <bit-no-items class="tw-text-main" [icon]="icon">
       <ng-container slot="title">No items found</ng-container>
       <ng-container slot="description">Your description here.</ng-container>
       <button
@@ -42,4 +74,14 @@ export const Default: Story = {
     </bit-no-items>
     `,
   }),
+  args: {
+    icon: NoResults,
+  },
+  argTypes: {
+    icon: {
+      options: Object.keys(Icons),
+      mapping: Icons,
+      control: { type: "select" },
+    },
+  },
 };

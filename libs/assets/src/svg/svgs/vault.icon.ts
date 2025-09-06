@@ -1,23 +1,23 @@
 import { svgIcon } from "../icon-service";
 
 export const VaultIcon = svgIcon`
-  <svg viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="5.61279" y="1.5" width="108.775" height="89.1503" rx="9.25741" class="tw-stroke-art-primary" stroke-width="2"/>
-    <path d="M49.5854 61.4941L49.5854 70.4652" class="tw-stroke-art-primary" stroke-width="2" stroke-linecap="round"/>
-    <path d="M49.5854 21.6851L49.5854 30.6562" class="tw-stroke-art-primary" stroke-width="2" stroke-linecap="round"/>
-    <path d="M38.6827 56.978L32.3392 63.3215" class="tw-stroke-art-primary" stroke-width="2" stroke-linecap="round"/>
-    <path d="M66.8324 28.8286L60.4889 35.1721" class="tw-stroke-art-primary" stroke-width="2" stroke-linecap="round"/>
-    <path d="M38.6827 35.1721L32.3392 28.8286" class="tw-stroke-art-primary" stroke-width="2" stroke-linecap="round"/>
-    <path d="M66.8324 63.3215L60.4889 56.978" class="tw-stroke-art-primary" stroke-width="2" stroke-linecap="round"/>
-    <path d="M74.1788 46.0513L65.2077 46.0513" class="tw-stroke-art-primary" stroke-width="2" stroke-linecap="round"/>
-    <path d="M33.6777 46.0513L24.7066 46.0514" class="tw-stroke-art-primary" stroke-width="2" stroke-linecap="round"/>
-    <ellipse cx="49.5855" cy="46.0513" rx="15.0433" ry="15.0433" class="tw-stroke-art-primary" stroke-width="2"/>
-    <ellipse cx="49.5855" cy="46.0513" rx="10.4146" ry="10.4146" class="tw-stroke-art-accent" />
-    <path d="M14.0227 90.6504V95.0286C14.0227 96.9458 15.577 98.5001 17.4942 98.5001H27.9327C29.8499 98.5001 31.4042 96.9458 31.4042 95.0286V90.6504" class="tw-stroke-art-primary" stroke-width="2"/>
-    <path d="M88.595 90.6504V95.0286C88.595 96.9458 90.1492 98.5001 92.0665 98.5001H102.505C104.422 98.5001 105.976 96.9458 105.976 95.0286V90.6504" class="tw-stroke-art-primary" stroke-width="2"/>
-    <path d="M105.977 32.3381L107.588 32.3381C108.866 32.3381 109.902 31.302 109.902 30.0238L109.902 17.271C109.902 15.9928 108.866 14.9566 107.588 14.9566L105.977 14.9566" class="tw-stroke-art-primary" stroke-width="2"/>
-    <path d="M105.977 77.1936L107.588 77.1936C108.866 77.1936 109.902 76.1574 109.902 74.8793L109.902 62.1265C109.902 60.8483 108.866 59.8121 107.588 59.8121L105.977 59.8121" class="tw-stroke-art-primary" stroke-width="2"/>
-    <rect x="14.0227" y="9.9104" width="91.9537" height="72.8902" rx="4.6287" class="tw-stroke-art-accent" />
-    <path d="M101.08 61.8082V75.5593C101.08 76.8375 100.044 77.8737 98.7654 77.8737H45.8796M19.4989 28.7961V17.122C19.4989 15.8438 20.5351 14.8076 21.8133 14.8076H74.5501" class="tw-stroke-art-accent"  stroke-linecap="round"/>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 8.33 80 66.67">
+    <path class="tw-fill-illustration-bg-primary" d="M8.333 66.667H20L18.333 75H10l-1.667-8.333Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M8.333 66.667 10 75h8.333L20 66.667H8.333Zm2.033 1.667 1 5h5.601l1-5h-7.6Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-primary" d="M60 66.667h11.667L70 75h-8.333L60 66.667Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M60 66.667 61.667 75H70l1.667-8.333H60Zm2.033 1.667 1 5h5.6l1-5h-7.6Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-secondary" fill-rule="evenodd" d="m10.417 68.334.416 2.5H17.5l.417-2.5h-7.5ZM62.084 68.334l.416 2.5h6.667l.416-2.5h-7.5Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-primary" d="M0 15a6.667 6.667 0 0 1 6.667-6.666h66.666A6.667 6.667 0 0 1 80 15.001v46.666a6.667 6.667 0 0 1-6.666 6.667H6.666A6.667 6.667 0 0 1 0 61.667V15.001Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M73.334 10H6.666a5 5 0 0 0-5 5v46.667a5 5 0 0 0 5 5h66.666a5 5 0 0 0 5-5V15.001a5 5 0 0 0-5-5ZM6.666 8.335A6.667 6.667 0 0 0 0 15.001v46.666a6.667 6.667 0 0 0 6.667 6.667h66.666A6.667 6.667 0 0 0 80 61.667V15.001a6.667 6.667 0 0 0-6.666-6.667H6.666Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-tertiary" d="M6.667 18.333A3.333 3.333 0 0 1 10 15h60a3.333 3.333 0 0 1 3.333 3.333v40A3.333 3.333 0 0 1 70 61.667H10a3.333 3.333 0 0 1-3.333-3.334v-40Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M70 16.667H10c-.92 0-1.667.746-1.667 1.666v40C8.333 59.253 9.08 60 10 60h60c.92 0 1.667-.746 1.667-1.667v-40c0-.92-.746-1.666-1.667-1.666ZM10 15a3.333 3.333 0 0 0-3.333 3.333v40A3.333 3.333 0 0 0 10 61.667h60a3.333 3.333 0 0 0 3.333-3.334v-40A3.333 3.333 0 0 0 70 15H10Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-primary" d="M45 38.333c0 8.745-7.089 15.834-15.833 15.834-8.745 0-15.834-7.09-15.834-15.834S20.423 22.5 29.167 22.5 45 29.589 45 38.333Z"/>
+    <path class="tw-fill-illustration-tertiary" d="M36.667 38.334a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M30 25a.833.833 0 0 0-1.666 0v4.204A9.125 9.125 0 0 0 23.3 31.29l-2.973-2.973a.834.834 0 0 0-1.179 1.179l2.973 2.973a9.125 9.125 0 0 0-2.084 5.032h-4.204a.833.833 0 1 0 0 1.667h4.204a9.125 9.125 0 0 0 2.084 5.032l-2.973 2.974a.833.833 0 1 0 1.179 1.178l2.973-2.973a9.127 9.127 0 0 0 5.033 2.085v4.204a.833.833 0 0 0 1.666 0v-4.204a9.127 9.127 0 0 0 5.033-2.085l2.973 2.973a.833.833 0 0 0 1.178-1.178l-2.973-2.974a9.125 9.125 0 0 0 2.085-5.032H42.5a.833.833 0 1 0 0-1.667h-4.204a9.125 9.125 0 0 0-2.085-5.032l2.973-2.973a.833.833 0 1 0-1.178-1.179l-2.973 2.973A9.125 9.125 0 0 0 30 29.204V25Zm4.468 18.64a7.5 7.5 0 1 1 0-10.61h.002l.003.003a7.476 7.476 0 0 1 2.194 5.297v.004c0 2.07-.839 3.944-2.195 5.301l-.002.002-.002.002ZM32.5 38.333a3.333 3.333 0 1 1-6.667 0 3.333 3.333 0 0 1 6.667 0Zm1.667 0a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-primary" d="M69.167 21.667c0-.92.746-1.667 1.666-1.667h3.334c.92 0 1.666.746 1.666 1.667V30c0 .92-.746 1.667-1.666 1.667h-3.334c-.92 0-1.666-.747-1.666-1.667v-8.333Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M74.167 21.667h-3.334V30h3.334v-8.333ZM70.833 20c-.92 0-1.666.746-1.666 1.667V30c0 .92.746 1.667 1.666 1.667h3.334c.92 0 1.666-.747 1.666-1.667v-8.333c0-.92-.746-1.667-1.666-1.667h-3.334Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-primary" d="M69.167 46.667c0-.92.746-1.667 1.666-1.667h3.334c.92 0 1.666.746 1.666 1.667V55c0 .92-.746 1.667-1.666 1.667h-3.334c-.92 0-1.666-.747-1.666-1.667v-8.333Z"/>
+    <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M74.167 46.667h-3.334V55h3.334v-8.333ZM70.833 45c-.92 0-1.666.746-1.666 1.667V55c0 .92.746 1.667 1.666 1.667h3.334c.92 0 1.666-.747 1.666-1.667v-8.333c0-.92-.746-1.667-1.666-1.667h-3.334Z" clip-rule="evenodd"/>
+    <path class="tw-fill-illustration-bg-secondary" fill-rule="evenodd" d="M70.834 51.667V55h3.333v-3.333h-3.334ZM70.834 26.667V30h3.333v-3.333h-3.334Z" clip-rule="evenodd"/>
   </svg>
 `;
