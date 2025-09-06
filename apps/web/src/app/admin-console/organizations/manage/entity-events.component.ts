@@ -28,7 +28,7 @@ import { EventService } from "../../../core";
 import { SharedModule } from "../../../shared";
 
 export interface EntityEventsDialogParams {
-  entity: "user" | "cipher" | "secret" | "project";
+  entity: "user" | "cipher" | "secret" | "project" | "service-account";
   entityId: string;
 
   organizationId?: string;
@@ -168,6 +168,14 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
       );
     } else if (this.params.entity === "secret") {
       response = await this.apiService.getEventsSecret(
+        this.params.organizationId,
+        this.params.entityId,
+        dates[0],
+        dates[1],
+        clearExisting ? null : this.continuationToken,
+      );
+    } else if (this.params.entity === "service-account") {
+      response = await this.apiService.getEventsServiceAccount(
         this.params.organizationId,
         this.params.entityId,
         dates[0],
