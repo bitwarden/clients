@@ -206,31 +206,24 @@ export class LoginComponent implements OnInit, OnDestroy {
       // was found in query params or was the remembered email)
       this.ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
 
-      // Only perform update and setup this subscription if there is actually a populated ssoRequiredCache list
+      // Only perform iniital update and setup a subscription if there is actually a populated ssoRequiredCache list
       if (this.ssoRequiredCache != null && this.ssoRequiredCache.length > 0) {
-        // If there is a pre-filled/remembered email field value, update once initially
-        if (this.emailFormControl.value) {
-          this.updateSsoRequiredForThisEmail();
+        // If there is a pre-filled/remembered email field value that exists in the cache, update value
+        if (this.ssoRequiredCache.includes(this.emailFormControl.value)) {
+          this.ssoRequired = true;
         }
 
         // On subsequent email field value changes, update again
         this.formGroup.controls.email.valueChanges
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(() => {
-            this.updateSsoRequiredForThisEmail();
+            if (this.ssoRequiredCache.includes(this.emailFormControl.value)) {
+              this.ssoRequired = true;
+            } else {
+              this.ssoRequired = false;
+            }
           });
       }
-    }
-  }
-
-  private updateSsoRequiredForThisEmail() {
-    if (
-      this.ssoRequiredCache != null &&
-      this.ssoRequiredCache.includes(this.emailFormControl.value)
-    ) {
-      this.ssoRequired = true;
-    } else {
-      this.ssoRequired = false;
     }
   }
 
