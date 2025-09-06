@@ -1,5 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom, Subject, take, takeUntil } from "rxjs";
@@ -17,8 +26,10 @@ import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.d
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -83,6 +94,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   LoginUiState = LoginUiState;
   isKnownDevice = false;
   loginUiState: LoginUiState = LoginUiState.EMAIL_ENTRY;
+  ssoRequired = false;
+  ssoRequiredCache: string[] = [];
 
   formGroup = this.formBuilder.group(
     {
@@ -108,6 +121,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private appIdService: AppIdService,
     private broadcasterService: BroadcasterService,
+    private destroyRef: DestroyRef,
     private devicesApiService: DevicesApiServiceAbstraction,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
@@ -126,6 +140,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
     private configService: ConfigService,
+    private ssoLoginService: SsoLoginServiceAbstraction,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -138,6 +153,15 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     if (this.clientType === ClientType.Desktop) {
       await this.desktopOnInit();
+    }
+
+    // Only setup this subscription if there is actually an ssoRequiredCache list
+    if (this.ssoRequiredCache && this.ssoRequiredCache.length > 0) {
+      this.formGroup.controls.email.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.checkIfSsoRequired({ showToast: false });
+        });
     }
   }
 
@@ -183,6 +207,44 @@ export class LoginComponent implements OnInit, OnDestroy {
     // This shouldn't happen under normal circumstances
     if (!this.activatedRoute) {
       await this.loadRememberedEmail();
+    }
+
+    // TODO-rr-bw: account for scenarios where the user changes the email field (must re-activate buttons)
+    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM22110_DisableAlternateLoginMethods,
+    );
+    if (disableAlternateLoginMethodsFlagEnabled) {
+      this.ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
+      this.checkIfSsoRequired({ showToast: false });
+    }
+  }
+
+  private checkIfSsoRequired(config: { showToast: boolean }): boolean {
+    if (
+      this.ssoRequiredCache != null &&
+      this.ssoRequiredCache.includes(this.formGroup.controls.email.value.toLowerCase())
+    ) {
+      if (config.showToast) {
+        this.toastService.showToast({
+          variant: "info",
+          message: this.i18nService.t(
+            "emailMustLoginWithSso",
+            this.formGroup.controls.email.value.toLowerCase(),
+          ),
+        });
+        this.logService.error(
+          this.i18nService.t(
+            "emailMustLoginWithSso",
+            this.formGroup.controls.email.value.toLowerCase(),
+          ),
+        );
+      }
+
+      this.ssoRequired = true;
+      return true;
+    } else {
+      this.ssoRequired = false;
+      return false;
     }
   }
 
@@ -472,6 +534,17 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Needs to be separate from the continue() function because that can be triggered by the browser's forward button.
    */
   protected async continuePressed() {
+    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM22110_DisableAlternateLoginMethods,
+    );
+
+    if (disableAlternateLoginMethodsFlagEnabled) {
+      const ssoRequired = this.checkIfSsoRequired({ showToast: true });
+      if (ssoRequired) {
+        return;
+      }
+    }
+
     // Add a new entry to the browser's history so that there is a history entry to go back to
     history.pushState({}, "", window.location.href);
     await this.continue();
@@ -494,6 +567,17 @@ export class LoginComponent implements OnInit, OnDestroy {
    * @param event - The event object.
    */
   async handleLoginWithPasskeyClick() {
+    const disableAlternateLoginMethodsFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM22110_DisableAlternateLoginMethods,
+    );
+
+    if (disableAlternateLoginMethodsFlagEnabled) {
+      const ssoRequired = this.checkIfSsoRequired({ showToast: false });
+      if (ssoRequired) {
+        return;
+      }
+    }
+
     await this.router.navigate(["/login-with-passkey"]);
   }
 

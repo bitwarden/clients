@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { UserId } from "@bitwarden/common/types/guid";
 
 export abstract class SsoLoginServiceAbstraction {
@@ -86,4 +88,13 @@ export abstract class SsoLoginServiceAbstraction {
     organizationIdentifier: string,
     userId: UserId | undefined,
   ) => Promise<void>;
+
+  // TODO-rr-bw: add jsdocs
+  abstract ssoRequiredCache$: Observable<string[] | null>;
+
+  // TODO-rr-bw: add jsdocs
+  abstract setSsoRequiredCache: (email: string) => Promise<void>;
+
+  // TODO-rr-bw: add jsdocs
+  abstract removeFromSsoRequiredCache: (email: string) => Promise<void>;
 }
