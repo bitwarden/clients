@@ -1,8 +1,7 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { IntegrationType } from "@bitwarden/common/enums";
-
-import { Integration } from "../../../shared/components/integrations/models";
 
 @Pipe({
   name: "filterIntegrations",

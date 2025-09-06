@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   AfterViewInit,
   Component,
@@ -13,22 +11,17 @@ import { ActivatedRoute } from "@angular/router";
 import { Observable, Subject, combineLatest, lastValueFrom, takeUntil } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-// eslint-disable-next-line no-restricted-imports
-import {
-  OrganizationIntegrationType,
-  OrganizationIntegrationRequest,
-  OrganizationIntegrationResponse,
-  OrganizationIntegrationApiService,
-} from "@bitwarden/bit-common/dirt/integrations/index";
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { SharedModule } from "../../../../../../shared/shared.module";
 import { openHecConnectDialog } from "../integration-dialog/index";
-import { Integration } from "../models";
 
 @Component({
   selector: "app-integration-card",
@@ -37,13 +30,13 @@ import { Integration } from "../models";
 })
 export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
   private destroyed$: Subject<void> = new Subject();
-  @ViewChild("imageEle") imageEle: ElementRef<HTMLImageElement>;
+  @ViewChild("imageEle") imageEle!: ElementRef<HTMLImageElement>;
 
-  @Input() name: string;
-  @Input() image: string;
-  @Input() imageDarkMode?: string;
-  @Input() linkURL: string;
-  @Input() integrationSettings: Integration;
+  @Input() name: string = "";
+  @Input() image: string = "";
+  @Input() imageDarkMode: string = "";
+  @Input() linkURL: string = "";
+  @Input() integrationSettings!: Integration;
 
   /** Adds relevant `rel` attribute to external links */
   @Input() externalURL?: boolean;
@@ -56,8 +49,9 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
    */
   @Input() newBadgeExpiration?: string;
   @Input() description?: string;
-  @Input() isConnected?: boolean;
   @Input() canSetupConnection?: boolean;
+
+  organizationId: OrganizationId;
 
   constructor(
     private themeStateService: ThemeStateService,
@@ -65,10 +59,14 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     private systemTheme$: Observable<ThemeType>,
     private dialogService: DialogService,
     private activatedRoute: ActivatedRoute,
-    private apiService: OrganizationIntegrationApiService,
+    private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
     private toastService: ToastService,
     private i18nService: I18nService,
-  ) {}
+  ) {
+    this.organizationId = this.activatedRoute.snapshot.paramMap.get(
+      "organizationId",
+    ) as OrganizationId;
+  }
 
   ngAfterViewInit() {
     combineLatest([this.themeStateService.selectedTheme$, this.systemTheme$])
@@ -116,8 +114,16 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
     return expirationDate > new Date();
   }
 
+  get isConnected(): boolean {
+    return !!this.integrationSettings.organizationIntegration?.configuration;
+  }
+
   showConnectedBadge(): boolean {
-    return this.isConnected !== undefined;
+    return this.canSetupConnection ?? false;
+  }
+
+  get isUpdateAvailable(): boolean {
+    return !!this.integrationSettings.organizationIntegration;
   }
 
   async setupConnection() {
@@ -135,43 +141,41 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // save the integration
     try {
-      const dbResponse = await this.saveHecIntegration(result.configuration);
-      this.isConnected = !!dbResponse.id;
+      if (this.isUpdateAvailable) {
+        const orgIntegrationId = this.integrationSettings.organizationIntegration?.id;
+        const orgIntegrationConfigurationId =
+          this.integrationSettings.organizationIntegration?.integrationConfiguration[0]?.id;
+
+        if (!orgIntegrationId || !orgIntegrationConfigurationId) {
+          throw Error("Organization Integration ID or Configuration ID is missing");
+        }
+
+        await this.hecOrganizationIntegrationService.updateHec(
+          this.organizationId,
+          orgIntegrationId,
+          orgIntegrationConfigurationId,
+          this.integrationSettings.name as OrganizationIntegrationServiceType,
+          result.url,
+          result.bearerToken,
+          result.index,
+        );
+      } else {
+        await this.hecOrganizationIntegrationService.saveHec(
+          this.organizationId,
+          this.integrationSettings.name as OrganizationIntegrationServiceType,
+          result.url,
+          result.bearerToken,
+          result.index,
+        );
+      }
     } catch {
       this.toastService.showToast({
         variant: "error",
-        title: null,
+        title: "",
         message: this.i18nService.t("failedToSaveIntegration"),
       });
       return;
-    }
-  }
-
-  async saveHecIntegration(configuration: string): Promise<OrganizationIntegrationResponse> {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get(
-      "organizationId",
-    ) as OrganizationId;
-
-    const request = new OrganizationIntegrationRequest(
-      OrganizationIntegrationType.Hec,
-      configuration,
-    );
-
-    const integrations = await this.apiService.getOrganizationIntegrations(organizationId);
-    const existingIntegration = integrations.find(
-      (i) => i.type === OrganizationIntegrationType.Hec,
-    );
-
-    if (existingIntegration) {
-      return await this.apiService.updateOrganizationIntegration(
-        organizationId,
-        existingIntegration.id,
-        request,
-      );
-    } else {
-      return await this.apiService.createOrganizationIntegration(organizationId, request);
     }
   }
 }

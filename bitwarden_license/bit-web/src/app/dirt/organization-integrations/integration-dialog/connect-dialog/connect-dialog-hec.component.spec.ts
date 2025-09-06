@@ -3,13 +3,12 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
-
-import { Integration } from "../../models";
 
 import {
   ConnectHecDialogComponent,
@@ -70,7 +69,9 @@ describe("ConnectDialogHecComponent", () => {
     canSetupConnection: true,
     type: IntegrationType.EVENT,
   } as Integration;
-  const connectInfo: HecConnectDialogParams = { settings: integrationMock };
+  const connectInfo: HecConnectDialogParams = {
+    settings: integrationMock, // Provide appropriate mock template if needed
+  };
 
   beforeEach(async () => {
     dialogRefMock = mock<DialogRef<HecConnectDialogResult>>();
@@ -150,12 +151,10 @@ describe("ConnectDialogHecComponent", () => {
 
     expect(dialogRefMock.close).toHaveBeenCalledWith({
       integrationSettings: integrationMock,
-      configuration: JSON.stringify({
-        url: "https://test.com",
-        bearerToken: "token",
-        index: "1",
-        service: "Test Service",
-      }),
+      url: "https://test.com",
+      bearerToken: "token",
+      index: "1",
+      service: "Test Service",
       success: true,
       error: null,
     });

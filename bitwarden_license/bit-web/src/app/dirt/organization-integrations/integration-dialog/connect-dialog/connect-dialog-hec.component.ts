@@ -1,10 +1,11 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
+import { HecConfiguration } from "@bitwarden/bit-common/dirt/organization-integrations/models/configuration/hec-configuration";
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { HecTemplate } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration-configuration-config/configuration-template/hec-template";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
-
-import { Integration } from "../../models";
 
 export type HecConnectDialogParams = {
   settings: Integration;
@@ -12,7 +13,10 @@ export type HecConnectDialogParams = {
 
 export interface HecConnectDialogResult {
   integrationSettings: Integration;
-  configuration: string;
+  url: string;
+  bearerToken: string;
+  index: string;
+  service: string;
   success: boolean;
   error: string | null;
 }
@@ -23,6 +27,8 @@ export interface HecConnectDialogResult {
 })
 export class ConnectHecDialogComponent implements OnInit {
   loading = false;
+  hecConfig: HecConfiguration | null = null;
+  hecTemplate: HecTemplate | null = null;
   formGroup = this.formBuilder.group({
     url: ["", [Validators.required, Validators.pattern("https?://.+")]],
     bearerToken: ["", Validators.required],
@@ -37,24 +43,23 @@ export class ConnectHecDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const settings = this.getSettingsAsJson(this.connectInfo.settings.configuration ?? "");
+    this.hecConfig =
+      this.connectInfo.settings.organizationIntegration?.getConfiguration<HecConfiguration>() ??
+      null;
+    this.hecTemplate =
+      this.connectInfo.settings.organizationIntegration?.integrationConfiguration?.[0]?.getTemplate<HecTemplate>() ??
+      null;
 
-    if (settings) {
-      this.formGroup.patchValue({
-        url: settings?.url || "",
-        bearerToken: settings?.bearerToken || "",
-        index: settings?.index || "",
-        service: this.connectInfo.settings.name,
-      });
-    }
+    this.formGroup.patchValue({
+      url: this.hecConfig?.uri || "",
+      bearerToken: this.hecConfig?.token || "",
+      index: this.hecTemplate?.index || "",
+      service: this.connectInfo.settings.name,
+    });
   }
 
-  getSettingsAsJson(configuration: string) {
-    try {
-      return JSON.parse(configuration);
-    } catch {
-      return {};
-    }
+  get isUpdateAvailable(): boolean {
+    return !!this.hecConfig;
   }
 
   submit = async (): Promise<void> => {
@@ -62,7 +67,10 @@ export class ConnectHecDialogComponent implements OnInit {
 
     const result: HecConnectDialogResult = {
       integrationSettings: this.connectInfo.settings,
-      configuration: JSON.stringify(formJson),
+      url: formJson.url || "",
+      bearerToken: formJson.bearerToken || "",
+      index: formJson.index || "",
+      service: formJson.service || "",
       success: true,
       error: null,
     };

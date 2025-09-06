@@ -85,6 +85,14 @@ const routes: Routes = [
             (m) => m.AccessIntelligenceModule,
           ),
       },
+      {
+        path: "integrations",
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessIntegrations)],
+        loadChildren: () =>
+          import("../../dirt/organization-integrations/organization-integrations.module").then(
+            (m) => m.OrganizationIntegrationsModule,
+          ),
+      },
     ],
   },
 ];

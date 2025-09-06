@@ -1,43 +1,34 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, Subject, switchMap, takeUntil, scheduled, asyncScheduler } from "rxjs";
+import { firstValueFrom, Observable, Subject, switchMap, takeUntil, takeWhile } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations";
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { OrganizationIntegrationServiceType } from "@bitwarden/bit-common/dirt/organization-integrations/models/organization-integration-service-type";
+import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { HeaderModule } from "../../../layouts/header/header.module";
-import { SharedModule } from "../../../shared/shared.module";
-import { SharedOrganizationModule } from "../shared";
-import { IntegrationGridComponent } from "../shared/components/integrations/integration-grid/integration-grid.component";
-import { FilterIntegrationsPipe } from "../shared/components/integrations/integrations.pipe";
-import { Integration } from "../shared/components/integrations/models";
+import { IntegrationGridComponent } from "./integration-grid/integration-grid.component";
+import { FilterIntegrationsPipe } from "./integrations.pipe";
 
 @Component({
   selector: "ac-integrations",
   templateUrl: "./integrations.component.html",
-  imports: [
-    SharedModule,
-    SharedOrganizationModule,
-    IntegrationGridComponent,
-    HeaderModule,
-    FilterIntegrationsPipe,
-  ],
+  imports: [SharedModule, IntegrationGridComponent, HeaderModule, FilterIntegrationsPipe],
 })
 export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
-  // integrationsList: Integration[] = [];
-  tabIndex: number;
-  organization$: Observable<Organization>;
+  tabIndex: number = 0;
+  organization$: Observable<Organization> = new Observable<Organization>();
   isEventBasedIntegrationsEnabled: boolean = false;
   private destroy$ = new Subject<void>();
 
@@ -218,39 +209,26 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     },
   ];
 
-  ngOnInit(): void {
-    const orgId = this.route.snapshot.params.organizationId;
+  async ngOnInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    if (!userId) {
+      throw new Error("User ID not found");
+    }
 
     this.organization$ = this.route.params.pipe(
       switchMap((params) =>
-        this.accountService.activeAccount$.pipe(
-          switchMap((account) =>
-            this.organizationService
-              .organizations$(account?.id)
-              .pipe(getOrganizationById(params.organizationId)),
-          ),
+        this.organizationService.organizations$(userId).pipe(
+          getOrganizationById(params.organizationId),
+          // Filter out undefined values
+          takeWhile((org: Organization | undefined) => !!org),
         ),
       ),
     );
 
-    scheduled(this.orgIntegrationApiService.getOrganizationIntegrations(orgId), asyncScheduler)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((integrations) => {
-        // Update the integrations list with the fetched integrations
-        if (integrations && integrations.length > 0) {
-          integrations.forEach((integration) => {
-            const configJson = JSON.parse(integration.configuration || "{}");
-            const serviceName = configJson.service ?? "";
-            const existingIntegration = this.integrationsList.find((i) => i.name === serviceName);
-
-            if (existingIntegration) {
-              // if a configuration exists, then it is connected
-              existingIntegration.isConnected = !!integration.configuration;
-              existingIntegration.configuration = integration.configuration || "";
-            }
-          });
-        }
-      });
+    // Sets the organization ID which also loads the integrations$
+    this.organization$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
+      this.hecOrganizationIntegrationService.setOrganizationIntegrations(org.id);
+    });
   }
 
   constructor(
@@ -258,7 +236,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private configService: ConfigService,
-    private orgIntegrationApiService: OrganizationIntegrationApiService,
+    private hecOrganizationIntegrationService: HecOrganizationIntegrationService,
   ) {
     this.configService
       .getFeatureFlag$(FeatureFlag.EventBasedOrganizationIntegrations)
@@ -267,23 +245,40 @@ export class AdminConsoleIntegrationsComponent implements OnInit, OnDestroy {
         this.isEventBasedIntegrationsEnabled = isEnabled;
       });
 
+    // Add the new event based items to the list
     if (this.isEventBasedIntegrationsEnabled) {
-      this.integrationsList.push({
-        name: "Crowdstrike",
+      const crowdstrikeIntegration: Integration = {
+        name: OrganizationIntegrationServiceType.CrowdStrike,
         linkURL: "",
         image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
         type: IntegrationType.EVENT,
         description: "crowdstrikeEventIntegrationDesc",
         isConnected: false,
         canSetupConnection: true,
-      });
+      };
+
+      this.integrationsList.push(crowdstrikeIntegration);
     }
+
+    // For all existing event based configurations loop through and assign the
+    // organizationIntegration for the correct services.
+    this.hecOrganizationIntegrationService.integrations$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((integrations) => {
+        integrations.map((integration) => {
+          const item = this.integrationsList.find((i) => i.name === integration.serviceType);
+          if (item) {
+            item.organizationIntegration = integration;
+          }
+        });
+      });
   }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
+  // use in the view
   get IntegrationType(): typeof IntegrationType {
     return IntegrationType;
   }

@@ -19,7 +19,6 @@ import { deepLinkGuard } from "../../auth/guards/deep-link/deep-link.guard";
 import { VaultModule } from "./collections/vault.module";
 import { organizationPermissionsGuard } from "./guards/org-permissions.guard";
 import { organizationRedirectGuard } from "./guards/org-redirect.guard";
-import { AdminConsoleIntegrationsComponent } from "./integrations/integrations.component";
 import { OrganizationLayoutComponent } from "./layouts/organization-layout.component";
 import { GroupsComponent } from "./manage/groups.component";
 
@@ -38,14 +37,6 @@ const routes: Routes = [
       {
         path: "vault",
         loadChildren: () => VaultModule,
-      },
-      {
-        path: "integrations",
-        canActivate: [organizationPermissionsGuard(canAccessIntegrations)],
-        component: AdminConsoleIntegrationsComponent,
-        data: {
-          titleId: "integrations",
-        },
       },
       {
         path: "settings",
@@ -101,10 +92,6 @@ function getOrganizationRoute(organization: Organization): string {
     return "settings";
   }
   return undefined;
-}
-
-function canAccessIntegrations(organization: Organization) {
-  return organization.canAccessIntegrations;
 }
 
 @NgModule({

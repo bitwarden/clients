@@ -22,7 +22,7 @@
       @if (showConnectedBadge()) {
         <span class="tw-ml-3">
           @if (isConnected) {
-            <span bitBadge variant="success">{{ "on" | i18n }}</span>
+            <span bitBadge variant="success">{{ "connected" | i18n }}</span>
           }
           @if (!isConnected) {
             <span bitBadge>{{ "off" | i18n }}</span>
@@ -34,7 +34,11 @@
 
     @if (canSetupConnection) {
       <button type="button" class="tw-mt-3" bitButton (click)="setupConnection()">
-        <span>{{ "connectIntegrationButtonDesc" | i18n: name }}</span>
+        @if (isUpdateAvailable) {
+          <span>{{ "updateIntegrationButtonDesc" | i18n: name }}</span>
+        } @else {
+          <span>{{ "connectIntegrationButtonDesc" | i18n: name }}</span>
+        }
       </button>
     }
 
@@ -44,6 +48,7 @@
         [href]="linkURL"
         rel="noopener noreferrer"
         target="_blank"
+        title="{{ linkURL }}"
       >
       </a>
     }

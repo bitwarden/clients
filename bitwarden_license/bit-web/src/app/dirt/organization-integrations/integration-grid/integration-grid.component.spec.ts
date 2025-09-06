@@ -5,22 +5,17 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationIntegrationApiService } from "@bitwarden/bit-common/dirt/integrations/services";
+import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
+import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
-// eslint-disable-next-line import/order
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-// FIXME: remove `src` and fix import
-
 import { ToastService } from "@bitwarden/components";
-// eslint-disable-next-line no-restricted-imports
-import { SharedModule } from "@bitwarden/components/src/shared";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { IntegrationCardComponent } from "../integration-card/integration-card.component";
-import { Integration } from "../models";
 
 import { IntegrationGridComponent } from "./integration-grid.component";
 
@@ -28,7 +23,7 @@ describe("IntegrationGridComponent", () => {
   let component: IntegrationGridComponent;
   let fixture: ComponentFixture<IntegrationGridComponent>;
   const mockActivatedRoute = mock<ActivatedRoute>();
-  const mockOrgIntegrationApiService = mock<OrganizationIntegrationApiService>();
+  const mockIntegrationService = mock<HecOrganizationIntegrationService>();
   const integrations: Integration[] = [
     {
       name: "Integration 1",
@@ -74,10 +69,7 @@ describe("IntegrationGridComponent", () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
-        {
-          provide: OrganizationIntegrationApiService,
-          useValue: mockOrgIntegrationApiService,
-        },
+        { provide: HecOrganizationIntegrationService, useValue: mockIntegrationService },
         {
           provide: ToastService,
           useValue: mock<ToastService>(),
