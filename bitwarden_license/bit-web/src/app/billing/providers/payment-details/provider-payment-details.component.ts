@@ -22,6 +22,8 @@ import { catchError } from "rxjs/operators";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SubscriberBillingClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -72,9 +74,10 @@ type View = {
 export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
   private viewState$ = new BehaviorSubject<View | null>(null);
 
-  private provider$ = this.activatedRoute.params.pipe(
-    switchMap(({ providerId }) => this.providerService.get$(providerId)),
-  );
+  private provider$ = combineLatest([
+    this.activatedRoute.params,
+    this.accountService.activeAccount$.pipe(getUserId),
+  ]).pipe(switchMap(([{ providerId }, userId]) => this.providerService.get$(providerId, userId)));
 
   private load$: Observable<View> = this.provider$.pipe(
     switchMap((provider) =>
@@ -138,6 +141,7 @@ export class ProviderPaymentDetailsComponent implements OnInit, OnDestroy {
     private providerWarningsService: ProviderWarningsService,
     private router: Router,
     private subscriberBillingClient: SubscriberBillingClient,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {

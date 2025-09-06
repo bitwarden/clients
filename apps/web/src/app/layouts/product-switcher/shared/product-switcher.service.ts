@@ -156,7 +156,8 @@ export class ProductSwitcherService {
           : orgs.find((o) => canAccessOrgAdmin(o));
 
       // TODO: This should be migrated to an Observable provided by the provider service and moved to the combineLatest above. See AC-2092.
-      const providers = await this.providerService.getAll();
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const providers = await this.providerService.getAll(userId);
 
       const providerPortalName =
         providers[0]?.providerType === ProviderType.BusinessUnit
