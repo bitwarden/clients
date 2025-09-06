@@ -21,6 +21,7 @@ export const VaultFilterLabel = {
   TypeFilter: "typeFilter",
   FolderFilter: "folderFilter",
   CollectionFilter: "collectionFilter",
+  ArchiveFilter: "archiveFilter",
   TrashFilter: "trashFilter",
 } as const;
 

@@ -139,6 +139,10 @@ export class VaultHeaderComponent {
       return this.i18nService.t("myVault");
     }
 
+    if (this.filter.type === "archive") {
+      return this.i18nService.t("archive");
+    }
+
     const activeOrganization = this.activeOrganization;
     if (activeOrganization) {
       return `${activeOrganization.name} ${this.i18nService.t("vault").toLowerCase()}`;
