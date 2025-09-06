@@ -7,30 +7,27 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
-import { SharedModule } from "../../../shared";
+import { SharedModule } from "../../../../shared";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
-
-export class vNextOrganizationDataOwnershipPolicy extends BasePolicy {
+export class vNextOrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "organizationDataOwnership";
   description = "organizationDataOwnershipDesc";
   type = PolicyType.OrganizationDataOwnership;
   component = vNextOrganizationDataOwnershipPolicyComponent;
   showDescription = false;
 
-  override display(organization: Organization, configService: ConfigService): Observable<boolean> {
+  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation);
   }
 }
 
 @Component({
-  selector: "vnext-policy-organization-data-ownership",
   templateUrl: "vnext-organization-data-ownership.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class vNextOrganizationDataOwnershipPolicyComponent
-  extends BasePolicyComponent
+  extends BasePolicyEditComponent
   implements OnInit
 {
   constructor(private dialogService: DialogService) {

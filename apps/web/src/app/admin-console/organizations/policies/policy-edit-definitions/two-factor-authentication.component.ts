@@ -2,9 +2,10 @@ import { Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { SharedModule } from "../../../../shared";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class TwoFactorAuthenticationPolicy extends BasePolicy {
+export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   name = "twoStepLoginPolicyTitle";
   description = "twoStepLoginPolicyDesc";
   type = PolicyType.TwoFactorAuthentication;
@@ -12,8 +13,7 @@ export class TwoFactorAuthenticationPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-two-factor-authentication",
   templateUrl: "two-factor-authentication.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
-export class TwoFactorAuthenticationPolicyComponent extends BasePolicyComponent {}
+export class TwoFactorAuthenticationPolicyComponent extends BasePolicyEditComponent {}

@@ -12,25 +12,25 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
+import { SharedModule } from "../../../../shared";
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 
-export class ResetPasswordPolicy extends BasePolicy {
+export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   name = "accountRecoveryPolicy";
   description = "accountRecoveryPolicyDesc";
   type = PolicyType.ResetPassword;
   component = ResetPasswordPolicyComponent;
 
-  display(organization: Organization, configService: ConfigService) {
+  display$(organization: Organization, configService: ConfigService) {
     return of(organization.useResetPassword);
   }
 }
 
 @Component({
-  selector: "policy-reset-password",
   templateUrl: "reset-password.component.html",
-  standalone: false,
+  imports: [SharedModule],
 })
-export class ResetPasswordPolicyComponent extends BasePolicyComponent implements OnInit {
+export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
   data = this.formBuilder.group({
     autoEnrollEnabled: false,
   });

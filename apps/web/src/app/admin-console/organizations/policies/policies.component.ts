@@ -16,22 +16,31 @@ import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
+import { safeProvider } from "@bitwarden/ui-common";
 
-import { PolicyListService } from "../../core/policy-list.service";
-import { BasePolicy } from "../policies";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 
-import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.component";
+import { BasePolicyEditDefinition } from "./base-policy-edit.component";
+import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
+import { PolicyListService } from "./policy-list.service";
+import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
-  selector: "app-org-policies",
   templateUrl: "policies.component.html",
-  standalone: false,
+  imports: [SharedModule, HeaderModule],
+  providers: [
+    safeProvider({
+      provide: PolicyListService,
+      deps: [POLICY_EDIT_REGISTER],
+    }),
+  ],
 })
 export class PoliciesComponent implements OnInit {
   loading = true;
   organizationId: string;
-  policies: BasePolicy[];
-  organization$: Observable<Organization>;
+  policies: readonly BasePolicyEditDefinition[];
+  protected organization$: Observable<Organization>;
 
   private orgPolicies: PolicyResponse[];
   protected policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
@@ -97,8 +106,8 @@ export class PoliciesComponent implements OnInit {
     this.loading = false;
   }
 
-  async edit(policy: BasePolicy) {
-    const dialogRef = PolicyEditComponent.open(this.dialogService, {
+  async edit(policy: BasePolicyEditDefinition) {
+    const dialogRef = PolicyEditDialogComponent.open(this.dialogService, {
       data: {
         policy: policy,
         organizationId: this.organizationId,
@@ -106,7 +115,7 @@ export class PoliciesComponent implements OnInit {
     });
 
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === PolicyEditDialogResult.Saved) {
+    if (result == "saved") {
       await this.load();
     }
   }

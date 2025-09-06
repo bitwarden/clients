@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -9,7 +7,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { Observable, map } from "rxjs";
+import { map, Observable, of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -24,36 +22,37 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { BasePolicy, BasePolicyComponent } from "../policies";
+import { SharedModule } from "../../../shared";
+
+import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
 
 export type PolicyEditDialogData = {
-  /** Returns policy abstracts. */
-  policy: BasePolicy;
-  /** Returns a unique organization id  */
+  /**
+   * The metadata containing information about how to display and edit the policy.
+   */
+  policy: BasePolicyEditDefinition;
+  /**
+   * The organization ID for the policy.
+   */
   organizationId: string;
 };
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum PolicyEditDialogResult {
-  Saved = "saved",
-}
+export type PolicyEditDialogResult = "saved";
+
 @Component({
-  selector: "app-policy-edit",
-  templateUrl: "policy-edit.component.html",
-  standalone: false,
+  templateUrl: "policy-edit-dialog.component.html",
+  imports: [SharedModule],
 })
-export class PolicyEditComponent implements AfterViewInit {
+export class PolicyEditDialogComponent implements AfterViewInit {
   @ViewChild("policyForm", { read: ViewContainerRef, static: true })
-  policyFormRef: ViewContainerRef;
+  policyFormRef: ViewContainerRef | undefined;
 
   policyType = PolicyType;
   loading = true;
   enabled = false;
-  saveDisabled$: Observable<boolean>;
-  policyComponent: BasePolicyComponent;
+  saveDisabled$: Observable<boolean> = of(false);
+  policyComponent: BasePolicyEditComponent | undefined;
 
-  private policyResponse: PolicyResponse;
   formGroup = this.formBuilder.group({
     enabled: [this.enabled],
   });
@@ -66,35 +65,43 @@ export class PolicyEditComponent implements AfterViewInit {
     private dialogRef: DialogRef<PolicyEditDialogResult>,
     private toastService: ToastService,
   ) {}
-  get policy(): BasePolicy {
+
+  get policy(): BasePolicyEditDefinition {
     return this.data.policy;
   }
 
+  /**
+   * Instantiates the child policy component and inserts it into the view.
+   */
   async ngAfterViewInit() {
-    await this.load();
+    const policyResponse = await this.load();
     this.loading = false;
 
-    this.policyComponent = this.policyFormRef.createComponent(this.data.policy.component)
-      .instance as BasePolicyComponent;
-    this.policyComponent.policy = this.data.policy;
-    this.policyComponent.policyResponse = this.policyResponse;
+    if (!this.policyFormRef) {
+      throw new Error("Template not initialized.");
+    }
 
-    this.saveDisabled$ = this.policyComponent.data.statusChanges.pipe(
-      map((status) => status !== "VALID" || !this.policyResponse.canToggleState),
-    );
+    this.policyComponent = this.policyFormRef.createComponent(this.data.policy.component).instance;
+    this.policyComponent.policy = this.data.policy;
+    this.policyComponent.policyResponse = policyResponse;
+
+    if (this.policyComponent.data) {
+      // If the policy has additional configuration, disable the save button if the form state is invalid
+      this.saveDisabled$ = this.policyComponent.data.statusChanges.pipe(
+        map((status) => status !== "VALID" || !policyResponse.canToggleState),
+      );
+    }
 
     this.cdr.detectChanges();
   }
 
   async load() {
     try {
-      this.policyResponse = await this.policyApiService.getPolicy(
-        this.data.organizationId,
-        this.data.policy.type,
-      );
-    } catch (e) {
+      return await this.policyApiService.getPolicy(this.data.organizationId, this.data.policy.type);
+    } catch (e: any) {
+      // No policy exists yet, instantiate an empty one
       if (e.statusCode === 404) {
-        this.policyResponse = new PolicyResponse({ Enabled: false });
+        return new PolicyResponse({ Enabled: false });
       } else {
         throw e;
       }
@@ -102,6 +109,10 @@ export class PolicyEditComponent implements AfterViewInit {
   }
 
   submit = async () => {
+    if (!this.policyComponent) {
+      throw new Error("PolicyComponent not initialized.");
+    }
+
     if ((await this.policyComponent.confirm()) == false) {
       this.dialogRef.close();
       return;
@@ -111,21 +122,20 @@ export class PolicyEditComponent implements AfterViewInit {
 
     try {
       request = await this.policyComponent.buildRequest();
-    } catch (e) {
-      this.toastService.showToast({ variant: "error", title: null, message: e.message });
+    } catch (e: any) {
+      this.toastService.showToast({ variant: "error", message: e.message });
       return;
     }
 
     await this.policyApiService.putPolicy(this.data.organizationId, this.data.policy.type, request);
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
     });
-    this.dialogRef.close(PolicyEditDialogResult.Saved);
+    this.dialogRef.close("saved");
   };
 
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
-    return dialogService.open<PolicyEditDialogResult>(PolicyEditComponent, config);
+    return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }
