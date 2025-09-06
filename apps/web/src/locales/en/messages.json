@@ -86,14 +86,14 @@
   "noAppsInOrgDescription": {
     "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
   },
-  "noCriticalAppsTitle": {
-    "message": "You haven't marked any applications as a Critical"
+  "noCriticalApplicationsTitle": {
+    "message": "You haven’t marked any applications as critical"
   },
-  "noCriticalAppsDescription": {
-    "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
+  "noCriticalApplicationsDescription": {
+    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
-  "markCriticalApps": {
-    "message": "Mark critical apps"
+  "markCriticalApplications": {
+    "message": "Select critical applications"
   },
   "markAppAsCritical": {
     "message": "Mark app as critical"
