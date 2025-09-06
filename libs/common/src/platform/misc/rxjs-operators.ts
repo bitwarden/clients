@@ -106,10 +106,3 @@ export function trackedMerge<T extends PropertyKey, E>(
     });
   };
 }
-
-/**
- * A type guard that returns true if the value is not nullish.
- * Used for filtering nullish values from observable streams.
- * @example someObservable$.pipe(filter(isNotNullish));
- */
-export const isNotNullish = <T>(val: T | null | undefined): val is T => val != null;
