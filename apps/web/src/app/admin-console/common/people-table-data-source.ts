@@ -13,7 +13,7 @@ const MaxCheckedCount = 500;
 /**
  * Returns true if the user matches the status, or where the status is `null`, if the user is active (not revoked).
  */
-function statusFilter(user: UserViewTypes, status: StatusType) {
+function statusFilter(user: UserViewTypes, status?: StatusType) {
   if (status == null) {
     return user.status != OrganizationUserStatusType.Revoked;
   }
@@ -35,7 +35,7 @@ function textFilter(user: UserViewTypes, text: string) {
   );
 }
 
-export function peopleFilter(searchText: string, status: StatusType) {
+export function peopleFilter(searchText: string, status?: StatusType) {
   return (user: UserViewTypes) => statusFilter(user, status) && textFilter(user, searchText);
 }
 

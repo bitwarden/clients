@@ -13,7 +13,7 @@ import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-p
 
 import { POLICIES } from "./policy-state";
 
-export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }) {
+export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }): Policy[] {
   return Object.values(policiesMap || {}).map((f) => new Policy(f));
 }
 
