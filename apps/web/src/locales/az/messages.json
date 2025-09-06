@@ -8935,20 +8935,25 @@
   "collectionManagement": {
     "message": "Kolleksiya idarəetməsi"
   },
-  "collectionManagementDesc": {
-    "message": "Təşkilat üçün kolleksiya davranışını idarə et"
+  "collectionManagementDescription": {
+    "message": "Təşkilat üçün kolleksiya davranışını konfiqurasiya et"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Kolleksiya yaradılmasını sahibləri və adminləri ilə məhdudlaşdır"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Sahiblərin və adminlərin bütün kolleksiyaları və elementləri Admin Konsolundan idarə etməsinə icazə ver"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Kolleksiya silinməsini sahibləri və adminləri ilə məhdudlaşdır"
+  "restrictCollectionCreationDescription": {
+    "message": "Kolleksiya yaradılmasını sahiblər və adminlərlə məhdudlaşdır"
   },
-  "limitItemDeletionDescription": {
-    "message": "Element silməni, \"Kolleksiyanı idarə et\" icazəsinə sahib üzvlərlə məhdudlaşdır"
+  "restrictCollectionDeletionDescription": {
+    "message": "Kolleksiya silməyi sahiblər və adminlərlə məhdudlaşdır"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Sahiblər və adminlər bütün kolleksiyaları və elementləri idarə edə bilər"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Element silməni bu üzvlərlə məhdudlaşdır ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "icazə",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Güncəllənən kolleksiya idarəetmə ayarı"
@@ -11157,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector domenini təsdiqlə"
   }
 }
 

@@ -1544,11 +1544,13 @@ export class CipherService implements CipherServiceAbstraction {
     return encryptedCiphers;
   }
 
+  /** @inheritdoc */
   async getDecryptedAttachmentBuffer(
     cipherId: CipherId,
     attachment: AttachmentView,
     response: Response,
     userId: UserId,
+    useLegacyDecryption?: boolean,
   ): Promise<Uint8Array> {
     const useSdkDecryption = await this.configService.getFeatureFlag(
       FeatureFlag.PM19941MigrateCipherDomainToSdk,
@@ -1558,7 +1560,7 @@ export class CipherService implements CipherServiceAbstraction {
       this.ciphers$(userId).pipe(map((ciphersData) => new Cipher(ciphersData[cipherId]))),
     );
 
-    if (useSdkDecryption) {
+    if (useSdkDecryption && !useLegacyDecryption) {
       const encryptedContent = await response.arrayBuffer();
       return this.cipherEncryptionService.decryptAttachmentContent(
         cipherDomain,
