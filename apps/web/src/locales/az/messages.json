@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Cəmi tətbiq"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Kritik tətbiq kimi işarəni götür"
+  "unmarkAsCritical": {
+    "message": "Kritik olaraq işarələməni götür"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritik tətbiq işarəsi uğurla götürüldü"
@@ -220,7 +220,7 @@
     "message": "Notlar"
   },
   "privateNote": {
-    "message": "Şəxsi not"
+    "message": "Özəl not"
   },
   "note": {
     "message": "Not"
@@ -235,7 +235,7 @@
     "message": "Giriş məlumatları"
   },
   "personalDetails": {
-    "message": "Şəxsi detallar"
+    "message": "Fərdi detallar"
   },
   "identification": {
     "message": "İdentifikasiya"
@@ -866,6 +866,15 @@
   },
   "copyLicenseNumber": {
     "message": "Lisenziya nömrəsini kopyala"
+  },
+  "copyPrivateKey": {
+    "message": "Private açarı kopyala"
+  },
+  "copyPublicKey": {
+    "message": "Public açarı kopyala"
+  },
+  "copyFingerprint": {
+    "message": "Barmaq izini kopyala"
   },
   "copyName": {
     "message": "Adı kopyala"
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Geri qaytarma kodu"
   },
+  "invalidRecoveryCode": {
+    "message": "Yararsız geri qaytarma kodu"
+  },
   "authenticatorAppTitle": {
     "message": "Kimlik doğrulayıcı tətbiqi"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Veb seyfdə istifadə olunan dili dəyişdirin."
   },
-  "enableFavicon": {
-    "message": "Veb sayt ikonlarını göstər"
-  },
-  "faviconDesc": {
-    "message": "Hər girişin yanında tanına bilən təsvir göstər."
+  "showIconsChangePasswordUrls": {
+    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
   },
   "default": {
     "message": "İlkin"
@@ -2630,7 +2639,7 @@
     "message": "Veri pozuntusu"
   },
   "breachDesc": {
-    "message": "Hesabların pozuntusu zamanı, şəxsi məlumatlar ifşa oluna bilər. 2FA-nı fəallaşdıraraq və ya daha güclü bir parol yaradaraq pozuntuya daxil olmuş hesabların güvənliyini artırın."
+    "message": "Hesabların pozuntusu zamanı, fərdi məlumatlar ifşa oluna bilər. 2FA-nı fəallaşdıraraq və ya daha güclü bir parol yaradaraq pozuntuya daxil olmuş hesabların güvənliyini artırın."
   },
   "breachCheckUsernameEmail": {
     "message": "İstifadə etdiyiniz istifadəçi adlarını və ya e-poçt ünvanlarını yoxlayın."
@@ -4631,13 +4640,13 @@
     "message": "Bu qutunu işarələyərək aşağıdakılarla razılaşırsınız:"
   },
   "acceptPoliciesRequired": {
-    "message": "Xidmət Şərtləri və Gizlilik Siyasəti qəbul edilməyib."
+    "message": "Xidmət Şərtləri və Məxfilik Siyasəti qəbul edilməyib."
   },
   "termsOfService": {
     "message": "Xidmət Şərtləri"
   },
   "privacyPolicy": {
-    "message": "Gizlilik Siyasəti"
+    "message": "Məxfilik Siyasəti"
   },
   "filters": {
     "message": "Filtrlər"
@@ -6418,7 +6427,7 @@
     "message": "Aktiv bir sponsorluğu ləğv etdiyiniz zaman, sponsorlu təşkilatınızın yenilənmə tarixindən sonra təşkilatınızda bir yer mövcud olacaq."
   },
   "sponsoredFamiliesEligible": {
-    "message": "Siz və ailəniz Ödənişsiz Bitwarden Ailələri üçün uyğunsunuz. İşdə olmadığınız vaxtlarda belə verilərinizi güvənli saxlamaq üçün özəl e-poçtunuzu istifadə edin."
+    "message": "Siz və ailəniz Ödənişsiz Bitwarden Ailələri üçün uyğunsunuz. İşdə olmadığınız vaxtlarda belə verilərinizi güvənli saxlamaq üçün fərdi e-poçtunuzu istifadə edin."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "İşdə olmadığınız vaxtlarda belə verilərinizi güvənli saxlamaq üçün Ailələr üçün nəzərdə tutulan Ödənişsiz Bitwarden planını bu gün istifadə edin."
@@ -6469,7 +6478,7 @@
     "message": "Hansı Ödənişsiz Ailələr təklifindən faydalanmaq istəyirsiniz?"
   },
   "sponsoredFamiliesEmail": {
-    "message": "\"Bitwarden Ailələri\"ni istifadə etmək üçün özəl e-poçtunuzu daxil edin"
+    "message": "\"Bitwarden Ailələri\"ni istifadə etmək üçün fərdi e-poçtunuzu daxil edin"
   },
   "sponsoredFamiliesLeaveCopy": {
     "message": "Bu təşkilatı tərk etsəniz və ya bu təşkilatdan çıxarılsanız, Ailələr planınızın istifadə müddəti faktura dövrünün sonunda başa çatacaq."
@@ -8926,20 +8935,25 @@
   "collectionManagement": {
     "message": "Kolleksiya idarəetməsi"
   },
-  "collectionManagementDesc": {
-    "message": "Təşkilat üçün kolleksiya davranışını idarə et"
+  "collectionManagementDescription": {
+    "message": "Təşkilat üçün kolleksiya davranışını konfiqurasiya et"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Kolleksiya yaradılmasını sahibləri və adminləri ilə məhdudlaşdır"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Sahiblərin və adminlərin bütün kolleksiyaları və elementləri Admin Konsolundan idarə etməsinə icazə ver"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Kolleksiya silinməsini sahibləri və adminləri ilə məhdudlaşdır"
+  "restrictCollectionCreationDescription": {
+    "message": "Kolleksiya yaradılmasını sahiblər və adminlərlə məhdudlaşdır"
   },
-  "limitItemDeletionDescription": {
-    "message": "Element silməni, \"Kolleksiyanı idarə et\" icazəsinə sahib üzvlərlə məhdudlaşdır"
+  "restrictCollectionDeletionDescription": {
+    "message": "Kolleksiya silməyi sahiblər və adminlərlə məhdudlaşdır"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Sahiblər və adminlər bütün kolleksiyaları və elementləri idarə edə bilər"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Element silməni bu üzvlərlə məhdudlaşdır ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "icazə",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Güncəllənən kolleksiya idarəetmə ayarı"
@@ -9993,7 +10007,7 @@
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "providerClientVaultPrivacyNotification": {
-    "message": "Bildiriş: Bu ayın sonu, client seyf gizliliyi yaxşılaşdırılacaq və provayder üzvləri artıq client seyf elementlərinə birbaşa erişə bilməyəcək. Suallar üçün",
+    "message": "Bildiriş: Bu ayın sonu, client seyf məxfiliyi yaxşılaşdırılacaq və provayder üzvləri artıq client seyf elementlərinə birbaşa erişə bilməyəcək. Suallar üçün",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
@@ -10982,6 +10996,12 @@
     "message": "Kredit əlavə etmək üçün faktura ünvanı tələb olunur.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Bu ayar barədə"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
+  },
   "billingAddress": {
     "message": "Faktura ünvanı"
   },
@@ -11142,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector domenini təsdiqlə"
   }
 }
 

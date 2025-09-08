@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-// This is currently tailored for chrome extension's api, if safari works
+// This is currently tailored for Chrome extension's api, if Safari works
 // differently where clicking a notification button produces a different
 // identifier we need to reconcile that here.
 export const ButtonLocation = Object.freeze({
@@ -35,6 +35,12 @@ export type SystemNotificationEvent = {
  * A service responsible for displaying operating system level server notifications.
  */
 export abstract class SystemNotificationsService {
+  /**
+   * Used to know if a given platform supports system notifications. This check should
+   * be used to guard any usage of the other members in this service.
+   */
+  abstract isSupported(): boolean;
+
   abstract notificationClicked$: Observable<SystemNotificationEvent>;
 
   /**
@@ -50,9 +56,4 @@ export abstract class SystemNotificationsService {
    * @param clearInfo Any info needed required to clear a notification.
    */
   abstract clear(clearInfo: SystemNotificationClearInfo): Promise<void>;
-
-  /**
-   * Used to know if a given platform supports server notifications.
-   */
-  abstract isSupported(): boolean;
 }

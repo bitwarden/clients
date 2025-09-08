@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Applicazioni totali"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Contrassegna l'applicazione come non critica"
+  "unmarkAsCritical": {
+    "message": "Contrassegna l'elemento come non critico"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Applicazione contrassegnata come non critica"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Copia numero patente"
   },
+  "copyPrivateKey": {
+    "message": "Copia chiave privata"
+  },
+  "copyPublicKey": {
+    "message": "Copia chiave pubblica"
+  },
+  "copyFingerprint": {
+    "message": "Copia frase impronta"
+  },
   "copyName": {
     "message": "Copia nome"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Codice di recupero"
   },
+  "invalidRecoveryCode": {
+    "message": "Codice di recupero non valido"
+  },
   "authenticatorAppTitle": {
     "message": "App di autenticazione"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Cambia la lingua utilizzata dalla cassaforte web."
   },
-  "enableFavicon": {
-    "message": "Mostra icone dei siti"
-  },
-  "faviconDesc": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login."
+  "showIconsChangePasswordUrls": {
+    "message": "Mostra le icone dei siti e recupera gli URL di cambio password"
   },
   "default": {
     "message": "Predefinito"
@@ -8926,20 +8935,25 @@
   "collectionManagement": {
     "message": "Gestione della raccolta"
   },
-  "collectionManagementDesc": {
-    "message": "Gestisci il comportamento delle raccolte per l'organizzazione"
+  "collectionManagementDescription": {
+    "message": "Configura il comportamento delle raccolte per l'organizzazione"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Consenti ai proprietari e agli amministratori di gestire tutti gli elementi e le raccolte dalla console di amministrazione"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Limita la creazione di raccolte ai proprietari e agli amministratori"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Limita l'eliminazione delle raccolte ai proprietari e agli amministratori"
   },
-  "limitItemDeletionDescription": {
-    "message": "Consenti l'eliminazione solo ai membri con i permessi di gestione raccolte"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Limita la cancellazione di elementi ai membri con il ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Proprietari e amministratori possono gestire tutte le raccolte e gli elementi"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permesso",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Impostazione di gestione della raccolta aggiornata"
@@ -10982,6 +10996,12 @@
     "message": "Indirizzo di fatturazione richiesto per aggiungere credito.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "Informazioni su questa opzione"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden userà gli URL memorizzati in ogni login per mostrare, se possibile, l'icona del sito Web e l'URL di modifica password per facilitare la modifica delle credenziali. Nessuna informazione è raccolta o archiviata per il funzionamento di questo servizio."
+  },
   "billingAddress": {
     "message": "Indirizzo di fatturazione"
   },
@@ -11142,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Conferma dominio Key Connector"
   }
 }
 

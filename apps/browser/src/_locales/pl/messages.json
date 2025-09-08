@@ -270,7 +270,7 @@
     "message": "Uzyskaj podpowiedź do hasła głównego"
   },
   "continue": {
-    "message": "Przejdź"
+    "message": "Kontynuuj"
   },
   "sendVerificationCode": {
     "message": "Wyślij kod weryfikacyjny na adres e-mail"
@@ -291,19 +291,19 @@
     "message": "Zmień hasło główne"
   },
   "continueToWebApp": {
-    "message": "Przejść do aplikacji internetowej?"
+    "message": "Kontynuować przejście do aplikacji internetowej?"
   },
   "continueToWebAppDesc": {
     "message": "Odkryj więcej funkcji konta Bitwarden w aplikacji internetowej."
   },
   "continueToHelpCenter": {
-    "message": "Przejść do centrum pomocy?"
+    "message": "Kontynuować przejście do centrum pomocy?"
   },
   "continueToHelpCenterDesc": {
     "message": "Dowiedz się więcej o tym, jak korzystać z centrum pomocy Bitwarden."
   },
   "continueToBrowserExtensionStore": {
-    "message": "Przejść do sklepu z rozszerzeniami przeglądarki?"
+    "message": "Kontynuować przejście do sklepu z rozszerzeniami przeglądarki?"
   },
   "continueToBrowserExtensionStoreDesc": {
     "message": "Pomóż innym sprawdzić, czy Bitwarden jest dla nich odpowiedni. Odwiedź sklep z rozszerzeniami przeglądarki i zostaw ocenę."
@@ -335,7 +335,7 @@
     "message": "Więcej od Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Przejść do bitwarden.com?"
+    "message": "Kontynuować przejście do bitwarden.com?"
   },
   "bitwardenForBusiness": {
     "message": "Bitwarden dla firm"
@@ -483,7 +483,7 @@
     "message": "Opcje"
   },
   "length": {
-    "message": "Długość"
+    "message": "Liczba znaków"
   },
   "include": {
     "message": "Uwzględnij",
@@ -555,6 +555,9 @@
   },
   "view": {
     "message": "Pokaż"
+  },
+  "viewLogin": {
+    "message": "Pokaż dane logowania"
   },
   "noItemsInList": {
     "message": "Brak elementów do wyświetlenia."
@@ -932,7 +935,7 @@
     "message": "Zwiększ bezpieczeństwo konta, konfigurując logowanie dwustopniowe w aplikacji internetowej Bitwarden."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Przejść do aplikacji internetowej?"
+    "message": "Kontynuować przejście do aplikacji internetowej?"
   },
   "editedFolder": {
     "message": "Folder został zapisany"
@@ -1760,14 +1763,8 @@
   "popupU2fCloseMessage": {
     "message": "Przeglądarka nie może przetworzyć żądań U2F. Czy chcesz otworzyć nowe okno, aby zalogować się za pomocą U2F?"
   },
-  "enableFavicon": {
-    "message": "Pokaż ikony stron internetowych"
-  },
-  "faviconDesc": {
-    "message": "Pokaż rozpoznawalną ikonę obok danych logowania."
-  },
-  "faviconDescAlt": {
-    "message": "Pokaż rozpoznawalną ikonę obok danych logowania. Dotyczy wszystkich zalogowanych kont."
+  "showIconsChangePasswordUrls": {
+    "message": "Pokaż ikony stron internetowych i pobierz adresy URL do zmiany hasła"
   },
   "enableBadgeCounter": {
     "message": "Pokaż licznik na ikonie"
@@ -4395,11 +4392,11 @@
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
-    "message": "Przejść do ustawień przeglądarki?",
+    "message": "Kontynuować przejście do ustawień przeglądarki?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
   },
   "confirmContinueToHelpCenter": {
-    "message": "Przejść do centrum pomocy?",
+    "message": "Kontynuować przejście do centrum pomocy?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
   },
   "confirmContinueToHelpCenterPasswordManagementContent": {
@@ -4986,7 +4983,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Zmień kolejność pola $LABEL$. Użyj klawiszy ze strzałkami, aby przenieść element w górę lub w dół.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5112,6 +5109,18 @@
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Pokaż liczbę sugestii autouzupełniania na ikonie rozszerzenia"
+  },
+  "accountAccessRequested": {
+    "message": "Poproszono o dostęp do konta"
+  },
+  "confirmAccessAttempt": {
+    "message": "Potwierdź próbę dostępu dla $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
   },
   "showQuickCopyActions": {
     "message": "Pokaż akcje szybkiego kopiowania w sejfie"
@@ -5440,6 +5449,12 @@
   "changeAtRiskPassword": {
     "message": "Zmień zagrożone hasło"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
+  },
+  "missingWebsite": {
+    "message": "Brak strony internetowej"
+  },
   "settingsVaultOptions": {
     "message": "Opcje sejfu"
   },
@@ -5563,6 +5578,12 @@
     "message": "Twórz silne i unikalne hasła, klikając przycisk Wygeneruj hasło, aby zapewnić bezpieczeństwo danych logowania.",
     "description": "Aria label for the body content of the generator nudge"
   },
+  "aboutThisSetting": {
+    "message": "O ustawieniu"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden użyje zapisanych adresów URL danych logowania, aby określić, która ikona lub adres URL zmiany hasła powinien zostać użyty w celu poprawy komfortu użytkowania. Usługa nie zapisuje żadnych danych."
+  },
   "noPermissionsViewPage": {
     "message": "Nie masz uprawnień do przeglądania tej strony. Zaloguj się na inne konto."
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Pokaż mniej"
   },
+  "next": {
+    "message": "Dalej"
+  },
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potwierdź domenę Key Connector"
   }
 }

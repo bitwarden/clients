@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Celkem aplikací"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Zrušit označení jako kritické aplikace"
+  "unmarkAsCritical": {
+    "message": "Zrušit označení jako kritické"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritická aplikace úspěšně odoznačena"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kopírovat číslo dokladu totožnosti"
   },
+  "copyPrivateKey": {
+    "message": "Kopírovat soukromý klíč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovat veřejný klíč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovat otisk prstu"
+  },
   "copyName": {
     "message": "Kopírovat název"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Kód pro obnovení"
   },
+  "invalidRecoveryCode": {
+    "message": "Neplatný kód pro obnovení"
+  },
   "authenticatorAppTitle": {
     "message": "Ověřovací aplikace"
   },
@@ -2102,11 +2114,8 @@
   "languageDesc": {
     "message": "Změní jazyk používaný ve webovém trezoru."
   },
-  "enableFavicon": {
-    "message": "Zobrazit ikony webových stránek"
-  },
-  "faviconDesc": {
-    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
+  "showIconsChangePasswordUrls": {
+    "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
   "default": {
     "message": "Výchozí"
@@ -8926,20 +8935,25 @@
   "collectionManagement": {
     "message": "Správa sbírky"
   },
-  "collectionManagementDesc": {
-    "message": "Spravuje chování sbírky pro organizaci"
+  "collectionManagementDescription": {
+    "message": "Nastaví chování sbírky pro organizaci"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Povolit vlastníkům a administrátorům spravovat všechny kolekce a položky z konzole administrace"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Omezí vytváření sbírky na vlastníky a správce"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Omezí mazání sbírky na vlastníky a správce"
+  "restrictCollectionDeletionDescription": {
+    "message": "Omezí vytváření sbírky na vlastníky a správce"
   },
-  "limitItemDeletionDescription": {
-    "message": "Omezit smazání položky na členy s oprávněním Spravovat sbírku"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Omezit smazání položek na členy s ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Vlastníci a správci mohou spravovat všechny sbírky a položky"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " oprávněním",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Aktualizované nastavení správy sbírky"
@@ -10982,6 +10996,12 @@
     "message": "Pro přidání kreditu je vyžadována fakturační adresa.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
+  "aboutThisSetting": {
+    "message": "O tomto nastavení"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
+  },
   "billingAddress": {
     "message": "Fakturační adresa"
   },
@@ -11142,6 +11162,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdit doménu Key Connectoru"
   }
 }
 

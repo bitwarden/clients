@@ -6,7 +6,7 @@ import { ActivatedRouteSnapshot, CanActivateFn, createUrlTreeFromSnapshot } from
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
-import { ProjectService } from "../project.service";
+import { ProjectService } from "../projects/project.service";
 
 /**
  * Redirects to projects list if the user doesn't have access to project.
@@ -17,7 +17,7 @@ export const projectAccessGuard: CanActivateFn = async (route: ActivatedRouteSna
   const i18nService = inject(I18nService);
 
   try {
-    const project = await projectService.getByProjectId(route.params.projectId);
+    const project = await projectService.getByProjectId(route.params.projectId, true);
     if (project) {
       return true;
     }
