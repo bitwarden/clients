@@ -2114,8 +2114,11 @@
   "languageDesc": {
     "message": "שנה את השפה של כספת הרשת."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "הצג סמלי אתרי אינטרנט ואחזר כתובות URL לשינוי סיסמה"
+  "enableFavicon": {
+    "message": "הצג סמלי אתר אינטרנט"
+  },
+  "faviconDesc": {
+    "message": "הצג תמונה מוכרת ליד כל כניסה."
   },
   "default": {
     "message": "ברירת מחדל"
@@ -8935,20 +8938,25 @@
   "collectionManagement": {
     "message": "ניהול אוספים"
   },
-  "collectionManagementDesc": {
-    "message": "נהל את התנהגות האוספים עבור הארגון"
+  "collectionManagementDescription": {
+    "message": "הגדר את התנהגות האוספים עבור הארגון"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "אפשר לבעלים ומנהלים לנהל את כל האוספים והפריטים ממסוף המנהל"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "הגבל יצירת אוספים לבעלים ומנהלים"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "הגבל מחיקת אוספים לבעלים ומנהלים"
   },
-  "limitItemDeletionDescription": {
-    "message": "הגבל מחיקת פריטים לחברים עם ההרשאות לניהול אוסף"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "בעלים ומנהלים יכולים לנהל את כל האוספים והפריטים"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "הגדרת ניהול אוספים עודכנה"
@@ -9019,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "שונתה הגדרת ניהול אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "הופעלה הגדרת הגבלת יצירת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "כובתה הגדרת הגבלת יצירת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "הופעלה הגדרת הגבלת מחיקת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "כובתה הגדרת הגבלת מחיקת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "הופעלה הגדרת הגבלת מחיקת פריטים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "כובתה הגדרת הגבלת מחיקת פריטים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "הופעלה הגדרת הרשה לבעלים ומנהלים לנהל את כל האוספים והפריטים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "כובתה הגדרת הרשה לבעלים ומנהלים לנהל את כל האוספים והפריטים $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10991,12 +11071,6 @@
     "message": "נדרשת כתובת לחיוב כדי להוסיף אשראי.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
-  "aboutThisSetting": {
-    "message": "אודות הגדרה זו"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden ישתמש בכתובות URI של כניסות שמורות כדי לזהות באיזה סמל או URL לשינוי סיסמה יש להשתמש על מנת לשפר את החוויה שלך. לא נאסף או נשמר מידע כלשהו כאשר אתה משתמש בשירות זה."
-  },
   "billingAddress": {
     "message": "כתובת לחיוב"
   },
@@ -11157,6 +11231,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "אשר דומיין של Key Connector"
   }
 }
 
