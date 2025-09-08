@@ -2576,8 +2576,8 @@ export default class AutofillService implements AutofillServiceInterface {
       options == null ||
       options.length === 0 ||
       value == null ||
-      value === "" ||
-      typeof value !== "string"
+      typeof value !== "string" ||
+      value.length < 1
     ) {
       return false;
     }
