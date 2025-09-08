@@ -8,6 +8,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
 
 import { LoginSuccessHandlerService } from "../../abstractions/login-success-handler.service";
 import { LoginEmailService } from "../login-email/login-email.service";
@@ -20,6 +21,7 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     private ssoLoginService: SsoLoginServiceAbstraction,
     private syncService: SyncService,
     private userAsymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
+    private logService: LogService,
   ) {}
   async run(userId: UserId): Promise<void> {
     await this.syncService.fullSync(true, { skipTokenRefresh: true });
@@ -40,6 +42,12 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
         this.policyService.policyAppliesToUser$(PolicyType.RequireSso, userId),
       );
       const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
+
+      if (!ssoLoginEmail) {
+        this.logService.error("SSO login email not found.");
+        return;
+      }
+
       if (ssoRequired) {
         await this.ssoLoginService.addToSsoRequiredCache(ssoLoginEmail);
       } else {

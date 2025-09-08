@@ -299,6 +299,12 @@ export class SsoComponent implements OnInit {
         error.message === "SSO is not yet enabled for this organization."
       ) {
         this.validationService.showError(error);
+
+        if (!this.email) {
+          this.logService.error("Email not found.");
+          return;
+        }
+
         await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(this.email);
         await this.router.navigate(["/login"], { queryParams: { email: this.email } });
       } else if (autoSubmit) {

@@ -1548,6 +1548,7 @@ const safeProviders: SafeProvider[] = [
       SsoLoginServiceAbstraction,
       SyncService,
       UserAsymmetricKeysRegenerationService,
+      LogService,
     ],
   }),
   safeProvider({

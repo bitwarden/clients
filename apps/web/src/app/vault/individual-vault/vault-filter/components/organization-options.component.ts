@@ -226,6 +226,12 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
 
   private async removeEmailFromSsoRequiredCacheIfPresent() {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+
+    if (!activeAccount) {
+      this.logService.error("Active account not found.");
+      return;
+    }
+
     await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(activeAccount.email);
   }
 
