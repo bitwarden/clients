@@ -2114,8 +2114,11 @@
   "languageDesc": {
     "message": "Thay đổi ngôn ngữ của kho trên web."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
   },
   "default": {
     "message": "Mặc định"
@@ -9031,6 +9034,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Xem hướng dẫn chi tiết trên trang trợ giúp của chúng tôi tại",
     "description": "This is followed a by a hyperlink to the help website."
@@ -10995,12 +11070,6 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Cần có địa chỉ thanh toán để thêm tín dụng.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
-  },
-  "aboutThisSetting": {
-    "message": "Về cài đặt này"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
   "billingAddress": {
     "message": "Địa chỉ thanh toán"

@@ -2,7 +2,17 @@
 // @ts-strict-ignore
 import "core-js/proposals/explicit-resource-management";
 
-import { filter, firstValueFrom, map, merge, Subject, switchMap, timeout } from "rxjs";
+import {
+  filter,
+  firstValueFrom,
+  from,
+  map,
+  merge,
+  Observable,
+  Subject,
+  switchMap,
+  timeout,
+} from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -42,6 +52,7 @@ import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-se
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -152,6 +163,7 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications/";
+import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
@@ -408,6 +420,7 @@ export default class MainBackground {
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
   vaultSettingsService: VaultSettingsServiceAbstraction;
+  pendingAuthRequestStateService: PendingAuthRequestsStateService;
   biometricStateService: BiometricStateService;
   biometricsService: BiometricsService;
   stateEventRunnerService: StateEventRunnerService;
@@ -1136,12 +1149,16 @@ export default class MainBackground {
       this.systemNotificationService = new UnsupportedSystemNotificationsService();
     }
 
+    this.pendingAuthRequestStateService = new PendingAuthRequestsStateService(this.stateProvider);
+
     this.authRequestAnsweringService = new AuthRequestAnsweringService(
       this.accountService,
       this.actionsService,
       this.authService,
       this.i18nService,
       this.masterPasswordService,
+      this.messagingService,
+      this.pendingAuthRequestStateService,
       this.platformUtilsService,
       this.systemNotificationService,
     );
@@ -1431,7 +1448,7 @@ export default class MainBackground {
     // Only the "true" background should run migrations
     await this.migrationRunner.run();
 
-    // This is here instead of in in the InitService b/c we don't plan for
+    // This is here instead of in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
     const accounts = await firstValueFrom(this.accountService.accounts$);
 
@@ -1810,18 +1827,41 @@ export default class MainBackground {
   /**
    * This function is for creating any subscriptions for the background service worker. We do this
    * here because it's important to run this during the evaluation period of the browser extension
-   * service worker.
+   * service worker. If it's not done this way we risk the service worker being closed before it's
+   * registered these system notification click events.
    */
   initNotificationSubscriptions() {
-    this.systemNotificationService.notificationClicked$
-      .pipe(
-        filter((n) => n.id.startsWith(AuthServerNotificationTags.AuthRequest + "_")),
-        map((n) => ({ event: n, authRequestId: n.id.split("_")[1] })),
-        switchMap(({ event }) =>
-          this.authRequestAnsweringService.handleAuthRequestNotificationClicked(event),
+    const handlers: Array<{
+      startsWith: string;
+      handler: (event: SystemNotificationEvent) => Promise<void>;
+    }> = [];
+
+    const register = (
+      startsWith: string,
+      handler: (event: SystemNotificationEvent) => Promise<void>,
+    ) => {
+      handlers.push({ startsWith, handler });
+    };
+
+    // ======= Register All System Notification Handlers Here =======
+    register(AuthServerNotificationTags.AuthRequest, (event) =>
+      this.authRequestAnsweringService.handleAuthRequestNotificationClicked(event),
+    );
+    // ======= End Register All System Notification Handlers =======
+
+    const streams: Observable<void>[] = handlers.map(({ startsWith, handler }) =>
+      this.systemNotificationService.notificationClicked$.pipe(
+        filter((event: SystemNotificationEvent): boolean => event.id.startsWith(startsWith + "_")),
+        switchMap(
+          (event: SystemNotificationEvent): Observable<void> =>
+            from(Promise.resolve(handler(event))),
         ),
-      )
-      .subscribe();
+      ),
+    );
+
+    if (streams.length > 0) {
+      merge(...streams).subscribe();
+    }
   }
 
   /**

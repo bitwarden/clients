@@ -4,6 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   BillingApiServiceAbstraction,
+  PaymentInformation,
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
@@ -11,12 +12,16 @@ import { OrganizationBillingService } from "@bitwarden/common/billing/services/o
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
+import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { OrgKey } from "../../types/key";
 import { PaymentMethodResponse } from "../models/response/payment-method.response";
 
@@ -30,6 +35,8 @@ describe("OrganizationBillingService", () => {
   let syncService: jest.Mocked<SyncService>;
 
   let sut: OrganizationBillingService;
+
+  const mockUserId = newGuid() as UserId;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -115,12 +122,12 @@ describe("OrganizationBillingService", () => {
       } as OrganizationResponse;
 
       organizationApiService.create.mockResolvedValue(organizationResponse);
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypyted-key"), {} as OrgKey]);
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypyted-key")]);
-      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypyted"));
+      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
+      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       //Act
-      const response = await sut.purchaseSubscription(subscriptionInformation);
+      const response = await sut.purchaseSubscription(subscriptionInformation, mockUserId);
 
       //Assert
       expect(organizationApiService.create).toHaveBeenCalledTimes(1);
@@ -141,10 +148,10 @@ describe("OrganizationBillingService", () => {
       organizationApiService.create.mockRejectedValue(new Error("Failed to create organization"));
       keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
-      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypyted"));
+      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       // Act & Assert
-      await expect(sut.purchaseSubscription(subscriptionInformation)).rejects.toThrow(
+      await expect(sut.purchaseSubscription(subscriptionInformation, mockUserId)).rejects.toThrow(
         "Failed to create organization",
       );
     });
@@ -163,7 +170,7 @@ describe("OrganizationBillingService", () => {
       keyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
 
       // Act & Assert
-      await expect(sut.purchaseSubscription(subscriptionInformation)).rejects.toThrow(
+      await expect(sut.purchaseSubscription(subscriptionInformation, mockUserId)).rejects.toThrow(
         "Key generation failed",
       );
     });
@@ -180,7 +187,7 @@ describe("OrganizationBillingService", () => {
       } as SubscriptionInformation;
 
       // Act & Assert
-      await expect(sut.purchaseSubscription(subscriptionInformation)).rejects.toThrow();
+      await expect(sut.purchaseSubscription(subscriptionInformation, mockUserId)).rejects.toThrow();
     });
   });
 
@@ -204,7 +211,10 @@ describe("OrganizationBillingService", () => {
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       //Act
-      const response = await sut.purchaseSubscriptionNoPaymentMethod(subscriptionInformation);
+      const response = await sut.purchaseSubscriptionNoPaymentMethod(
+        subscriptionInformation,
+        mockUserId,
+      );
 
       //Assert
       expect(organizationApiService.createWithoutPayment).toHaveBeenCalledTimes(1);
@@ -223,7 +233,7 @@ describe("OrganizationBillingService", () => {
       encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       await expect(
-        sut.purchaseSubscriptionNoPaymentMethod(subscriptionInformation),
+        sut.purchaseSubscriptionNoPaymentMethod(subscriptionInformation, mockUserId),
       ).rejects.toThrow("Creation failed");
     });
 
@@ -237,7 +247,7 @@ describe("OrganizationBillingService", () => {
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
 
       await expect(
-        sut.purchaseSubscriptionNoPaymentMethod(subscriptionInformation),
+        sut.purchaseSubscriptionNoPaymentMethod(subscriptionInformation, mockUserId),
       ).rejects.toThrow("Key generation failed");
     });
   });
@@ -256,12 +266,12 @@ describe("OrganizationBillingService", () => {
       } as OrganizationResponse;
 
       organizationApiService.create.mockResolvedValue(organizationResponse);
-      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypyted-key"), {} as OrgKey]);
-      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypyted-key")]);
-      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypyted"));
+      keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
+      keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
+      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
 
       //Act
-      const response = await sut.startFree(subscriptionInformation);
+      const response = await sut.startFree(subscriptionInformation, mockUserId);
 
       //Assert
       expect(organizationApiService.create).toHaveBeenCalledTimes(1);
@@ -277,7 +287,9 @@ describe("OrganizationBillingService", () => {
       keyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
 
-      await expect(sut.startFree(subscriptionInformation)).rejects.toThrow("Key generation failed");
+      await expect(sut.startFree(subscriptionInformation, mockUserId)).rejects.toThrow(
+        "Key generation failed",
+      );
     });
 
     it("given organization creation fails, then it throws an error", async () => {
@@ -290,11 +302,162 @@ describe("OrganizationBillingService", () => {
       organizationApiService.create.mockRejectedValue(new Error("Failed to create organization"));
       keyService.makeOrgKey.mockResolvedValue([new EncString("encrypted-key"), {} as OrgKey]);
       keyService.makeKeyPair.mockResolvedValue(["key", new EncString("encrypted-key")]);
-      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypyted"));
+      encryptService.encryptString.mockResolvedValue(new EncString("collection-encrypted"));
       // Act & Assert
-      await expect(sut.startFree(subscriptionInformation)).rejects.toThrow(
+      await expect(sut.startFree(subscriptionInformation, mockUserId)).rejects.toThrow(
         "Failed to create organization",
       );
+    });
+  });
+
+  describe("organization key creation methods", () => {
+    const organizationKeys = {
+      orgKey: new SymmetricCryptoKey(new Uint8Array(64)) as OrgKey,
+      publicKeyEncapsulatedOrgKey: new EncString("encryptedOrgKey"),
+      publicKey: "public-key",
+      encryptedPrivateKey: new EncString("encryptedPrivateKey"),
+    };
+    const encryptedCollectionName = new EncString("encryptedCollectionName");
+    const mockSubscription = {
+      organization: {
+        name: "Test Org",
+        businessName: "Test Business",
+        billingEmail: "test@example.com",
+        initiationPath: "Registration form",
+      },
+      plan: {
+        type: 0, // Free plan
+        passwordManagerSeats: 0,
+        subscribeToSecretsManager: false,
+        isFromSecretsManagerTrial: false,
+      },
+    } as SubscriptionInformation;
+    const mockResponse = { id: "org-id" } as OrganizationResponse;
+
+    const expectedRequestObject = {
+      name: "Test Org",
+      businessName: "Test Business",
+      billingEmail: "test@example.com",
+      initiationPath: "Registration form",
+      planType: 0,
+      key: organizationKeys.publicKeyEncapsulatedOrgKey.encryptedString,
+      keys: new OrganizationKeysRequest(
+        organizationKeys.publicKey,
+        organizationKeys.encryptedPrivateKey.encryptedString!,
+      ),
+      collectionName: encryptedCollectionName.encryptedString,
+    };
+
+    beforeEach(() => {
+      keyService.makeOrgKey.mockResolvedValue([
+        organizationKeys.publicKeyEncapsulatedOrgKey,
+        organizationKeys.orgKey,
+      ]);
+      keyService.makeKeyPair.mockResolvedValue([
+        organizationKeys.publicKey,
+        organizationKeys.encryptedPrivateKey,
+      ]);
+      encryptService.encryptString.mockResolvedValueOnce(encryptedCollectionName);
+      i18nService.t.mockReturnValue("Default Collection");
+
+      organizationApiService.create.mockResolvedValue(mockResponse);
+    });
+
+    describe("purchaseSubscription", () => {
+      it("sets the correct organization keys on the organization creation request", async () => {
+        const subscriptionWithPayment = {
+          ...mockSubscription,
+          payment: {
+            paymentMethod: ["test-token", PaymentMethodType.Card],
+            billing: {
+              postalCode: "12345",
+              country: "US",
+            },
+          } as PaymentInformation,
+        } as SubscriptionInformation;
+        const result = await sut.purchaseSubscription(subscriptionWithPayment, mockUserId);
+
+        expect(keyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
+        expect(encryptService.encryptString).toHaveBeenCalledWith(
+          "Default Collection",
+          organizationKeys.orgKey,
+        );
+        expect(organizationApiService.create).toHaveBeenCalledWith(
+          expect.objectContaining(expectedRequestObject),
+        );
+        expect(apiService.refreshIdentityToken).toHaveBeenCalled();
+        expect(syncService.fullSync).toHaveBeenCalledWith(true);
+        expect(result).toBe(mockResponse);
+      });
+    });
+
+    describe("purchaseSubscriptionNoPaymentMethod", () => {
+      it("sets the correct organization keys on the organization creation request", async () => {
+        organizationApiService.createWithoutPayment.mockResolvedValue(mockResponse);
+
+        const result = await sut.purchaseSubscriptionNoPaymentMethod(mockSubscription, mockUserId);
+
+        expect(keyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
+        expect(encryptService.encryptString).toHaveBeenCalledWith(
+          "Default Collection",
+          organizationKeys.orgKey,
+        );
+        expect(organizationApiService.createWithoutPayment).toHaveBeenCalledWith(
+          expect.objectContaining(expectedRequestObject),
+        );
+        expect(apiService.refreshIdentityToken).toHaveBeenCalled();
+        expect(syncService.fullSync).toHaveBeenCalledWith(true);
+        expect(result).toBe(mockResponse);
+      });
+    });
+
+    describe("startFree", () => {
+      it("sets the correct organization keys on the organization creation request", async () => {
+        const result = await sut.startFree(mockSubscription, mockUserId);
+
+        expect(keyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
+        expect(encryptService.encryptString).toHaveBeenCalledWith(
+          "Default Collection",
+          organizationKeys.orgKey,
+        );
+        expect(organizationApiService.create).toHaveBeenCalledWith(
+          expect.objectContaining(expectedRequestObject),
+        );
+        expect(apiService.refreshIdentityToken).toHaveBeenCalled();
+        expect(syncService.fullSync).toHaveBeenCalledWith(true);
+        expect(result).toBe(mockResponse);
+      });
+    });
+
+    describe("restartSubscription", () => {
+      it("sets the correct organization keys on the organization creation request", async () => {
+        const subscriptionWithPayment = {
+          ...mockSubscription,
+          payment: {
+            paymentMethod: ["test-token", PaymentMethodType.Card],
+            billing: {
+              postalCode: "12345",
+              country: "US",
+            },
+          } as PaymentInformation,
+        } as SubscriptionInformation;
+
+        await sut.restartSubscription("org-id", subscriptionWithPayment, mockUserId);
+
+        expect(keyService.makeOrgKey).toHaveBeenCalledWith(mockUserId);
+        expect(keyService.makeKeyPair).toHaveBeenCalledWith(organizationKeys.orgKey);
+        expect(encryptService.encryptString).toHaveBeenCalledWith(
+          "Default Collection",
+          organizationKeys.orgKey,
+        );
+        expect(billingApiService.restartSubscription).toHaveBeenCalledWith(
+          "org-id",
+          expect.objectContaining(expectedRequestObject),
+        );
+      });
     });
   });
 });

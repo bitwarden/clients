@@ -45,7 +45,7 @@
     "message": "无法恢复组织访问权限"
   },
   "allApplicationsWithCount": {
-    "message": "所有应用程序（$COUNT$）",
+    "message": "所有应用程序 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -57,7 +57,7 @@
     "message": "创建新的登录项目"
   },
   "criticalApplicationsWithCount": {
-    "message": "关键应用程序（$COUNT$）",
+    "message": "关键应用程序 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -66,7 +66,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "已通知的成员（$COUNT$）",
+    "message": "已通知的成员 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -883,7 +883,7 @@
     "message": "卡号"
   },
   "copyFieldCipherName": {
-    "message": "复制 $FIELD$、$CIPHERNAME$",
+    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -1331,7 +1331,7 @@
     "message": "必须再次输入主密码。"
   },
   "masterPasswordMinlength": {
-    "message": "主密码必须至少 $VALUE$ 个字符长度。",
+    "message": "主密码长度必须至少为 $VALUE$ 个字符。",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -2114,8 +2114,11 @@
   "languageDesc": {
     "message": "更改网页密码库的语言。"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "显示网站图标并检索更改密码的 URL"
+  "enableFavicon": {
+    "message": "显示网站图标"
+  },
+  "faviconDesc": {
+    "message": "在每个登录项目旁边显示一个可识别的图像。"
   },
   "default": {
     "message": "默认"
@@ -7326,7 +7329,7 @@
     "message": "输入的不是电子邮箱地址。"
   },
   "inputMinLength": {
-    "message": "输入长度不能低于 $COUNT$ 个字符。",
+    "message": "输入长度必须至少为 $COUNT$ 个字符。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9024,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "修改了集合管理设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "启用了限制集合创建设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "停用了限制集合创建设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "启用了限制集合删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "停用了限制集合删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "启用了限制项目删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "停用了限制项目删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "启用了允许所有者和管理员管理所有集合和项目设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "停用了允许所有者和管理员管理所有集合和项目设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10813,7 +10888,7 @@
     }
   },
   "userkeyRotationDisclaimerDescription": {
-    "message": "轮换加密密钥将需要您信任能够恢复您账户的所有组织的密钥，以及您已为其启用紧急访问的所有联系人的密钥。要继续操作，请确保您能够验证以下信息："
+    "message": "轮换加密密钥要求您信任可以恢复您账户的任何组织的密钥，以及您已为其启用紧急访问的任何联系人的密钥。要继续，请确保您可以验证以下信息："
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "未信任的加密密钥"
@@ -10996,12 +11071,6 @@
     "message": "添加信用额度需要计费地址。",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
-  "aboutThisSetting": {
-    "message": "关于此设置"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden 将使用已保存的登录 URI 来识别应使用哪个图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
-  },
   "billingAddress": {
     "message": "计费地址"
   },
@@ -11120,7 +11189,7 @@
     "message": "需要采取操作：您的付款详细信息缺少税务 ID 号码。如果未添加税务 ID，您的账单可能会包括额外的税款。"
   },
   "moreBreadcrumbs": {
-    "message": "进一步的指引",
+    "message": "更多导航项",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "addTaxId": {

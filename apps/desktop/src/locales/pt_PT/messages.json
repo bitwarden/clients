@@ -1305,8 +1305,11 @@
     "message": "Limpar automaticamente os valores copiados da sua área de transferência.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
+  "enableFavicon": {
+    "message": "Mostrar ícones do site"
+  },
+  "faviconDesc": {
+    "message": "Mostrar uma imagem reconhecível junto a cada credencial."
   },
   "enableMinToTray": {
     "message": "Minimizar para ícone de bandeja"
@@ -3930,12 +3933,6 @@
     "message": "Saiba mais sobre o agente SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
-  },
-  "aboutThisSetting": {
-    "message": "Acerca desta definição"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
   },
   "assignToCollections": {
     "message": "Atribuir às coleções"

@@ -1763,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Aquest navegador no pot processar sol·licituds U2F en aquesta finestra emergent. Voleu obrir l'emergent en una finestra nova per poder iniciar la sessió mitjançant U2F?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
+  },
+  "faviconDescAlt": {
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Mostra el comptador insígnia"
@@ -2299,7 +2305,7 @@
     "message": "El formulari està allotjat en un domini diferent de l'URI de l'inici de sessió guardat. Trieu D'acord per omplir -lo automàticament de totes maneres o Cancel·la per aturar-ho."
   },
   "autofillIframeWarningTip": {
-    "message": "Per evitar aquest avís en el futur, guardeu aquest URI, $HOSTNAME$, al vostre element d'inici de sessió de Bitwarden d'aquest lloc.",
+    "message": "Per evitar aquest avís en el futur, guardeu el lloc d'aquest URI, $HOSTNAME$, en els elements d'inici de sessió de Bitwarden.",
     "placeholders": {
       "hostname": {
         "content": "$1",
@@ -4475,7 +4481,7 @@
     "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
-    "message": "Save a login item for this site to autofill"
+    "message": "Guarda un inici de sessió d'aquest lloc web per omplir-lo automàticament"
   },
   "yourVaultIsEmpty": {
     "message": "La caixa forta està buida"
@@ -5577,12 +5583,6 @@
   "generatorNudgeBodyAria": {
     "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
     "description": "Aria label for the body content of the generator nudge"
-  },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."

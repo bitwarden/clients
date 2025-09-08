@@ -121,7 +121,6 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/build-desktop.yml @bitwarden/team-platform-dev
 .github/workflows/build-web-target.yml @bitwarden/team-platform-dev
 .github/workflows/build-web.yml @bitwarden/team-platform-dev
-.github/workflows/chromatic.yml @bitwarden/team-platform-dev
 .github/workflows/crowdin-pull.yml @bitwarden/team-platform-dev
 .github/workflows/enforce-labels.yml @bitwarden/team-platform-dev
 .github/workflows/lint.yml @bitwarden/team-platform-dev
@@ -156,6 +155,7 @@ apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-a
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
 
 ## UI Foundation ##
+.github/workflows/chromatic.yml @bitwarden/team-ui-foundation
 .storybook @bitwarden/team-ui-foundation
 libs/components @bitwarden/team-ui-foundation
 libs/assets @bitwarden/team-ui-foundation
@@ -164,7 +164,6 @@ apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation
 apps/browser/src/popup/components/extension-anon-layout-wrapper @bitwarden/team-ui-foundation
 apps/web/src/app/layouts @bitwarden/team-ui-foundation
-
 
 ## Key management team files ##
 apps/desktop/src/key-management @bitwarden/team-key-management-dev

@@ -1305,8 +1305,11 @@
     "message": "Automātiski noņemt starpliktuvē ievietotās vērtības.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
+  "enableFavicon": {
+    "message": "Rādīt tīmekļvietņu ikonas"
+  },
+  "faviconDesc": {
+    "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
   },
   "enableMinToTray": {
     "message": "Samazināt ikonjoslā"
@@ -3931,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "Par šo iestatījumu"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden izmantos saglabātos pieteikšanās vienuma URI, lai noteiktu, kuru ikonu vai paroles nomaiņas URL izmantot, lai uzlabotu pieredzi. Šī pakalpojuma izmantošanas laikā nekāda informācija netiek ievākta vai saglabāta."
-  },
   "assignToCollections": {
     "message": "Piešķirt krājumiem"
   },
@@ -4097,12 +4094,12 @@
     "message": "Apstiprināt"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "Iespējot automātiskās ievades saīsni"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Jāpārliecinās, ka pirms saīsnes izmantošanas kursors ir pareizajā laukā, lai izvairītos no datu ievadīšanas nepareizā vietā."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Labot saīsni"
   }
 }

@@ -2115,8 +2115,11 @@
   "languageDesc": {
     "message": "Change the language used by the web vault."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
   },
   "default": {
     "message": "Default"
@@ -10897,6 +10900,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
@@ -11072,12 +11081,6 @@
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
-  },
   "billingAddress": {
     "message": "Billing address"
   },
@@ -11243,4 +11246,3 @@
     "message": "Confirm Key Connector domain"
   }
 }
-
