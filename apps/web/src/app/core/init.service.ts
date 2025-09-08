@@ -12,7 +12,7 @@ import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vau
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
-import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
@@ -26,7 +26,7 @@ import { VersionService } from "../platform/version.service";
 export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
-    private notificationsService: NotificationsService,
+    private serverNotificationsService: ServerNotificationsService,
     private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
@@ -56,7 +56,7 @@ export class InitService {
         await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
       }
 
-      this.notificationsService.startListening();
+      this.serverNotificationsService.startListening();
       await this.vaultTimeoutService.init(true);
       await this.i18nService.init();
       (this.eventUploadService as EventUploadService).init(true);

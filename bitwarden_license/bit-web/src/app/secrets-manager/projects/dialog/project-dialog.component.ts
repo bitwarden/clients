@@ -59,7 +59,10 @@ export class ProjectDialogComponent implements OnInit {
 
   async loadData() {
     this.loading = true;
-    const project: ProjectView = await this.projectService.getByProjectId(this.data.projectId);
+    const project: ProjectView = await this.projectService.getByProjectId(
+      this.data.projectId,
+      true,
+    );
     this.loading = false;
     this.formGroup.setValue({ name: project.name });
   }

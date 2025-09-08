@@ -6,6 +6,7 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AdminConsoleLogo } from "@bitwarden/assets/svg";
 import {
   canAccessBillingTab,
   canAccessGroupsTab,
@@ -27,7 +28,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { BannerModule, IconModule, AdminConsoleLogo } from "@bitwarden/components";
+import { BannerModule, IconModule } from "@bitwarden/components";
 import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
@@ -67,9 +68,7 @@ export class OrganizationLayoutComponent implements OnInit {
   hideNewOrgButton$: Observable<boolean>;
   organizationIsUnmanaged$: Observable<boolean>;
 
-  protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
-  protected canShowPoliciesTab$: Observable<boolean>;
 
   protected paymentDetailsPageData$: Observable<{
     route: string;
@@ -93,9 +92,6 @@ export class OrganizationLayoutComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM12276_BreadcrumbEventLogs,
-    );
     document.body.classList.remove("layout_frontend");
 
     this.organization$ = this.route.params.pipe(
@@ -139,18 +135,6 @@ export class OrganizationLayoutComponent implements OnInit {
     );
 
     this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
-
-    this.canShowPoliciesTab$ = this.organization$.pipe(
-      switchMap((organization) =>
-        this.organizationBillingService
-          .isBreadcrumbingPoliciesEnabled$(organization)
-          .pipe(
-            map(
-              (isBreadcrumbingEnabled) => isBreadcrumbingEnabled || organization.canManagePolicies,
-            ),
-          ),
-      ),
-    );
 
     this.paymentDetailsPageData$ = this.configService
       .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)

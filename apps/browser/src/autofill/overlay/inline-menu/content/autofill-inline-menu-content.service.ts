@@ -33,7 +33,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private listElement?: HTMLElement;
   private htmlMutationObserver: MutationObserver;
   private bodyMutationObserver: MutationObserver;
-  private pageIsOpaque = true;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private containerElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
@@ -52,7 +51,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   };
 
   constructor() {
-    this.checkPageOpacity();
     this.setupMutationObserver();
   }
 
@@ -161,6 +159,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (!(await this.isInlineMenuButtonVisible())) {
       this.appendInlineMenuElementToDom(this.buttonElement);
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.Button, true);
+      this.buttonElement.showPopover();
     }
   }
 
@@ -176,6 +175,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (!(await this.isInlineMenuListVisible())) {
       this.appendInlineMenuElementToDom(this.listElement);
       this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.List, true);
+      this.listElement.showPopover();
     }
   }
 
@@ -221,6 +221,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private createButtonElement() {
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
+      this.buttonElement.setAttribute("popover", "manual");
       new AutofillInlineMenuButtonIframe(this.buttonElement);
 
       return;
@@ -237,6 +238,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       },
     );
     this.buttonElement = globalThis.document.createElement(customElementName);
+    this.buttonElement.setAttribute("popover", "manual");
   }
 
   /**
@@ -246,6 +248,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private createListElement() {
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
+      this.listElement.setAttribute("popover", "manual");
       new AutofillInlineMenuListIframe(this.listElement);
 
       return;
@@ -262,6 +265,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       },
     );
     this.listElement = globalThis.document.createElement(customElementName);
+    this.listElement.setAttribute("popover", "manual");
   }
 
   /**
@@ -295,6 +299,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     this.containerElementMutationObserver = new MutationObserver(
       this.handleContainerElementMutationObserverUpdate,
     );
+
+    this.observePageAttributes();
   };
 
   /**
@@ -302,9 +308,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * elements are not modified by the website.
    */
   private observeCustomElements() {
-    this.htmlMutationObserver?.observe(document.querySelector("html"), { attributes: true });
-    this.bodyMutationObserver?.observe(document.body, { attributes: true });
-
     if (this.buttonElement) {
       this.inlineMenuElementsMutationObserver?.observe(this.buttonElement, {
         attributes: true,
@@ -314,6 +317,25 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.listElement) {
       this.inlineMenuElementsMutationObserver?.observe(this.listElement, { attributes: true });
     }
+  }
+
+  /**
+   * Sets up mutation observers to verify that the page `html` and `body` attributes
+   * are not altered in a way that would impact safe display of the inline menu.
+   */
+  private observePageAttributes() {
+    if (document.documentElement) {
+      this.htmlMutationObserver?.observe(document.documentElement, { attributes: true });
+    }
+
+    if (document.body) {
+      this.bodyMutationObserver?.observe(document.body, { attributes: true });
+    }
+  }
+
+  private unobservePageAttributes() {
+    this.htmlMutationObserver?.disconnect();
+    this.bodyMutationObserver?.disconnect();
   }
 
   /**
@@ -405,19 +427,82 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     });
   };
 
-  private checkPageOpacity = () => {
-    this.pageIsOpaque = this.getPageIsOpaque();
+  private checkPageRisks = async () => {
+    const pageIsOpaque = await this.getPageIsOpaque();
 
-    if (!this.pageIsOpaque) {
+    const risksFound = !pageIsOpaque;
+
+    if (risksFound) {
       this.closeInlineMenu();
+    }
+
+    return risksFound;
+  };
+
+  /*
+   * Checks for known risks at the page level
+   */
+  private handlePageMutations = async (mutations: MutationRecord[]) => {
+    if (mutations.some(({ type }) => type === "attributes")) {
+      await this.checkPageRisks();
     }
   };
 
-  private handlePageMutations = (mutations: MutationRecord[]) => {
-    for (const mutation of mutations) {
-      if (mutation.type === "attributes") {
-        this.checkPageOpacity();
-      }
+  /**
+   * Returns the name of the generated container tags for usage internally to avoid
+   * unintentional targeting of the owned experience.
+   */
+  getOwnedTagNames = (): string[] => {
+    return [
+      ...(this.buttonElement?.tagName ? [this.buttonElement.tagName] : []),
+      ...(this.listElement?.tagName ? [this.listElement.tagName] : []),
+    ];
+  };
+
+  /**
+   * Queries and return elements (excluding those of the inline menu) that exist in the
+   * top-layer via popover or dialog
+   * @param {boolean} [includeCandidates=false] indicate whether top-layer candidate (which
+   * may or may not be active) should be included in the query
+   */
+  getUnownedTopLayerItems = (includeCandidates = false) => {
+    const inlineMenuTagExclusions = [
+      ...(this.buttonElement?.tagName ? [`:not(${this.buttonElement.tagName})`] : []),
+      ...(this.listElement?.tagName ? [`:not(${this.listElement.tagName})`] : []),
+      ":popover-open",
+    ].join("");
+    const selector = [
+      ":modal",
+      inlineMenuTagExclusions,
+      ...(includeCandidates ? ["[popover], dialog"] : []),
+    ].join(",");
+    const otherTopLayeritems = globalThis.document.querySelectorAll(selector);
+
+    return otherTopLayeritems;
+  };
+
+  refreshTopLayerPosition = () => {
+    const otherTopLayerItems = this.getUnownedTopLayerItems();
+
+    // No need to refresh if there are no other top-layer items
+    if (!otherTopLayerItems.length) {
+      return;
+    }
+
+    const buttonInDocument =
+      this.buttonElement &&
+      (globalThis.document.getElementsByTagName(this.buttonElement.tagName)[0] as HTMLElement);
+    const listInDocument =
+      this.listElement &&
+      (globalThis.document.getElementsByTagName(this.listElement.tagName)[0] as HTMLElement);
+    if (buttonInDocument) {
+      buttonInDocument.hidePopover();
+      buttonInDocument.showPopover();
+    }
+
+    if (listInDocument) {
+      listInDocument.hidePopover();
+      listInDocument.showPopover();
     }
   };
 
@@ -427,31 +512,35 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * of parents below the body. Assumes the target element will be a direct child of the page
    * `body` (enforced elsewhere).
    */
-  private getPageIsOpaque() {
+  private getPageIsOpaque = () => {
     // These are computed style values, so we don't need to worry about non-float values
     // for `opacity`, here
-    const htmlOpacity = globalThis.window.getComputedStyle(
-      globalThis.document.querySelector("html"),
-    ).opacity;
-    const bodyOpacity = globalThis.window.getComputedStyle(
-      globalThis.document.querySelector("body"),
-    ).opacity;
+    // @TODO for definitive checks, traverse up the node tree from the inline menu container;
+    // nodes can exist between `html` and `body`
+    const htmlElement = globalThis.document.querySelector("html");
+    const bodyElement = globalThis.document.querySelector("body");
+
+    if (!htmlElement || !bodyElement) {
+      return false;
+    }
+
+    const htmlOpacity = globalThis.window.getComputedStyle(htmlElement)?.opacity || "0";
+    const bodyOpacity = globalThis.window.getComputedStyle(bodyElement)?.opacity || "0";
 
     // Any value above this is considered "opaque" for our purposes
     const opacityThreshold = 0.6;
 
     return parseFloat(htmlOpacity) > opacityThreshold && parseFloat(bodyOpacity) > opacityThreshold;
-  }
+  };
 
   /**
    * Processes the mutation of the element that contains the inline menu. Will trigger when an
    * idle moment in the execution of the main thread is detected.
    */
   private processContainerElementMutation = async (containerElement: HTMLElement) => {
-    // If the computed opacity of the body and parent is not sufficiently opaque, tear
-    // down and prevent building the inline menu experience.
-    this.checkPageOpacity();
-    if (!this.pageIsOpaque) {
+    // If the page contains risks, tear down and prevent building the inline menu experience.
+    const pageRisksFound = await this.checkPageRisks();
+    if (pageRisksFound) {
       return;
     }
 
@@ -595,5 +684,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   destroy() {
     this.closeInlineMenu();
     this.clearPersistentLastChildOverrideTimeout();
+    this.unobservePageAttributes();
   }
 }

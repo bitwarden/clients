@@ -6,11 +6,11 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
 
 const SizeClasses: Record<SizeTypes, string[]> = {
-  xlarge: ["tw-h-24", "tw-w-24"],
-  large: ["tw-h-16", "tw-w-16"],
-  default: ["tw-h-10", "tw-w-10"],
-  small: ["tw-h-7", "tw-w-7"],
-  xsmall: ["tw-h-6", "tw-w-6"],
+  xlarge: ["tw-h-24", "tw-w-24", "tw-min-w-24"],
+  large: ["tw-h-16", "tw-w-16", "tw-min-w-16"],
+  default: ["tw-h-10", "tw-w-10", "tw-min-w-10"],
+  small: ["tw-h-7", "tw-w-7", "tw-min-w-7"],
+  xsmall: ["tw-h-6", "tw-w-6", "tw-min-w-6"],
 };
 
 /**
