@@ -922,6 +922,7 @@ dependencies = [
  "rsa",
  "russh-cryptovec",
  "scopeguard",
+ "secmem-proc",
  "security-framework",
  "security-framework-sys",
  "sha2",
@@ -2770,6 +2771,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustix-linux-procfs"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2fc84bf7e9aa16c4f2c758f27412dc9841341e16aa682d9c7ac308fe3ee12056"
+dependencies = [
+ "once_cell",
+ "rustix 1.0.7",
+]
+
+[[package]]
 name = "rustversion"
 version = "1.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2845,6 +2856,21 @@ dependencies = [
  "pkcs8",
  "subtle",
  "zeroize",
+]
+
+[[package]]
+name = "secmem-proc"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "473559b1d28f530c3a9b5f91a2866053e2b1c528a0e43dae83048139c99490c2"
+dependencies = [
+ "anyhow",
+ "cfg-if",
+ "libc",
+ "rustix 1.0.7",
+ "rustix-linux-procfs",
+ "thiserror 2.0.12",
+ "windows 0.61.1",
 ]
 
 [[package]]

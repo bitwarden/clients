@@ -7,6 +7,7 @@ import { AuthServerNotificationTags } from "@bitwarden/common/auth/enums/auth-se
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import {
@@ -17,6 +18,7 @@ import {
 import { UserId } from "@bitwarden/user-core";
 
 import { AuthRequestAnsweringService } from "./auth-request-answering.service";
+import { PendingAuthRequestsStateService } from "./pending-auth-requests.state";
 
 describe("AuthRequestAnsweringService", () => {
   let accountService: MockProxy<AccountService>;
@@ -24,6 +26,8 @@ describe("AuthRequestAnsweringService", () => {
   let authService: MockProxy<AuthService>;
   let i18nService: MockProxy<I18nService>;
   let masterPasswordService: any; // MasterPasswordServiceAbstraction has many members; we only use forceSetPasswordReason$
+  let messagingService: MockProxy<MessagingService>;
+  let pendingAuthRequestsState: MockProxy<PendingAuthRequestsStateService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let systemNotificationsService: MockProxy<SystemNotificationsService>;
 
@@ -37,6 +41,8 @@ describe("AuthRequestAnsweringService", () => {
     authService = mock<AuthService>();
     i18nService = mock<I18nService>();
     masterPasswordService = { forceSetPasswordReason$: jest.fn() };
+    messagingService = mock<MessagingService>();
+    pendingAuthRequestsState = mock<PendingAuthRequestsStateService>();
     platformUtilsService = mock<PlatformUtilsService>();
     systemNotificationsService = mock<SystemNotificationsService>();
 
@@ -66,6 +72,8 @@ describe("AuthRequestAnsweringService", () => {
       authService,
       i18nService,
       masterPasswordService,
+      messagingService,
+      pendingAuthRequestsState,
       platformUtilsService,
       systemNotificationsService,
     );

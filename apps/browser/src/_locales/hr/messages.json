@@ -556,6 +556,9 @@
   "view": {
     "message": "Prikaz"
   },
+  "viewLogin": {
+    "message": "Prikaži prijavu"
+  },
   "noItemsInList": {
     "message": "Nema stavki za prikaz."
   },
@@ -1760,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Ovaj preglednik ne može obraditi U2F zahtjeve u ovom iskočnom prozoru. Želiš li otvoriti ovaj iskočni prozor u novom prozoru za prijavu putem U2F?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Prikaži ikone mrežnih mjesta"
+  },
+  "faviconDesc": {
+    "message": "Prikaži prepoznatljivu sliku pored svake prijave."
+  },
+  "faviconDescAlt": {
+    "message": "Prikaži prepoznatljivu sliku pokraj svake prijave. Primjenjuje se na sve prijavljene račune."
   },
   "enableBadgeCounter": {
     "message": "Prikaži značku brojača"
@@ -4126,10 +4135,10 @@
     "message": "Odaberi zbirku"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u zbirku"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u mapu"
   },
   "importUnassignedItemsError": {
     "message": "Datoteka sadrži nedodijeljene stavke."
@@ -5108,10 +5117,10 @@
     "message": "Prikaži broj prijedloga auto-ispune na ikoni proširenja"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Zatražen je pristup računu"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Potvrdi pokušaj prijave za $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5446,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Promijeni rizičnu lozinku"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ova prijava je ugrožena i nedostaje joj web-stranica. Dodaj web-stranicu i promijeni lozinku za veću sigurnost."
+  },
+  "missingWebsite": {
+    "message": "Nedostaje web-stranica"
+  },
   "settingsVaultOptions": {
     "message": "Mogućnosti trezora"
   },
@@ -5569,12 +5584,6 @@
     "message": "Jednostavno stvori jake i sigurne lozinke odabirom tipke Generiraj lozinku kako bi tvoje prijave ostale sigurne.",
     "description": "Aria label for the body content of the generator nudge"
   },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
-  },
   "noPermissionsViewPage": {
     "message": "Nemaš dozvolu za pregled ove stranice. Pokušaj se prijaviti s drugim računom."
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Pokaži manje"
   },
+  "next": {
+    "message": "Sljedeće"
+  },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Više mrvica",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdi domenu kontektora ključa"
   }
 }

@@ -556,6 +556,9 @@
   "view": {
     "message": "Näytä"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Näytettäviä kohteita ei ole."
   },
@@ -1760,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Tämä selain ei voi käsitellä U2F-pyyntöjä tässä ponnahdusikkunassa. Haluatko avata näkymän uuteen ikkunaan vahvistaaksesi kirjautumisen U2F-suojausavaimella?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
+  },
+  "faviconDescAlt": {
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Näytä laskuri"
@@ -5446,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Vaihda vaarantunut salasana"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Holvin asetukset"
   },
@@ -5569,12 +5584,6 @@
     "message": "Luo helposti vahvoja ja uniikkeja salasanoja klikkaamalla Luo salasana -painiketta. Sen avuilla voit pitää kirjautumisesi turvallisina.",
     "description": "Aria label for the body content of the generator nudge"
   },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
-  },
   "noPermissionsViewPage": {
     "message": "Sinulla ei ole oikeuksia tähän sivuun. Yritä kirjautua sisään toisella tilillä."
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }
