@@ -1072,7 +1072,7 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isTotpField = (field: AutofillField): boolean => {
-    if (AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.ExcludedTotpFieldNames])) {
+    if (AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames])) {
       return false;
     }
 

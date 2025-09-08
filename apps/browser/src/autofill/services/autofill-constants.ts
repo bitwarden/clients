@@ -46,6 +46,8 @@ export class AutoFillConstants {
     "verification code",
   ];
 
+  static readonly RecoveryCodeFieldNames: string[] = ["backup", "recovery"];
+
   static readonly AmbiguousTotpFieldNames: string[] = ["code", "pin", "otc", "otp", "2fa", "mfa"];
 
   static readonly SearchFieldNames: string[] = ["search", "query", "find", "go"];
@@ -91,8 +93,6 @@ export class AutoFillConstants {
     "current-password",
     "new-password",
   ]);
-
-  static readonly ExcludedTotpFieldNames: string[] = ["backup", "recovery"];
 }
 
 export class CreditCardAutoFillConstants {

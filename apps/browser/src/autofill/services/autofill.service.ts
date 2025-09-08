@@ -949,7 +949,7 @@ export default class AutofillService implements AutofillServiceInterface {
             ...AutoFillConstants.AmbiguousTotpFieldNames,
           ]) ||
             field.autoCompleteType === "one-time-code") &&
-          !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.ExcludedTotpFieldNames]);
+          !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
         const isFillableUsernameField =
           !options.skipUsernameOnlyFill &&
@@ -2366,7 +2366,7 @@ export default class AutofillService implements AutofillServiceInterface {
           ...AutoFillConstants.TotpFieldNames,
           ...AutoFillConstants.AmbiguousTotpFieldNames,
         ]) &&
-        !AutofillService.fieldIsFuzzyMatch(f, [...AutoFillConstants.ExcludedTotpFieldNames])
+        !AutofillService.fieldIsFuzzyMatch(f, [...AutoFillConstants.RecoveryCodeFieldNames])
       ) {
         totpField = f;
 
