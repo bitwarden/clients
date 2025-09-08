@@ -1,0 +1,291 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs";
+import * as CartSummaryStories from "./cart-summary.component.stories";
+
+<Meta of={CartSummaryStories} />
+
+# Cart Summary
+
+A reusable UI component for displaying order summary information with consistent styling and
+behavior across Bitwarden applications.
+
+<Canvas of={CartSummaryStories.Default} />
+
+## Usage
+
+The cart summary component is designed to be used in checkout and subscription interfaces to display
+order details, prices, and totals.
+
+```ts
+import { CartSummaryComponent, LineItem } from "@bitwarden/pricing";
+```
+
+```html
+<billing-cart-summary
+  [passwordManager]="passwordManagerItem"
+  [additionalStorage]="additionalStorageItem"
+  [secretsManager]="secretsManagerItems"
+  [estimatedTax]="taxAmount"
+>
+</billing-cart-summary>
+```
+
+## API
+
+### Inputs
+
+| Input               | Type                                                                     | Description                                                     |
+| ------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| `passwordManager`   | `LineItem`                                                               | **Required.** The Password Manager product line item            |
+| `additionalStorage` | `LineItem \| undefined`                                                  | **Optional.** Additional storage line item, if applicable       |
+| `secretsManager`    | `{ seats: LineItem; additionalServiceAccounts?: LineItem } \| undefined` | **Optional.** Secrets Manager related line items, if applicable |
+| `estimatedTax`      | `number`                                                                 | **Required.** Estimated tax amount                              |
+
+### Events
+
+The cart summary component does not emit any events, but it does have internal behavior for
+collapsing and expanding the view.
+
+## Data Structure
+
+The component uses the following LineItem data structure:
+
+```typescript
+export type LineItem = {
+  quantity: number; // Number of items
+  name: string; // Display name of the item
+  cost: number; // Cost of each item
+  cadence: "month" | "year"; // Billing period
+};
+```
+
+## Flexibility
+
+The cart summary component provides flexibility through its structured input properties:
+
+```html
+<!-- Basic usage with only Password Manager -->
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 5,
+    name: 'Password Manager',
+    cost: 50.00,
+    cadence: 'month'
+  }"
+  [estimatedTax]="9.60"
+>
+</billing-cart-summary>
+
+<!-- With Additional Storage -->
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 5,
+    name: 'Password Manager',
+    cost: 50.00,
+    cadence: 'month'
+  }"
+  [additionalStorage]="{
+    quantity: 2,
+    name: 'Additional Storage (1GB)',
+    cost: 10.00,
+    cadence: 'month'
+  }"
+  [estimatedTax]="12.00"
+>
+</billing-cart-summary>
+```
+
+## Design
+
+The component follows the Bitwarden design system with:
+
+- **Collapsible Interface**: Toggles between compact and detailed views
+- **Clean Styling**: Uses Tailwind utility classes for consistent appearance
+- **Modern Angular**: Uses `@if` control flow with signal inputs
+- **Signal inputs**: Type-safe inputs using Angular's signal-based input API
+- **Typography**: Consistent text styling with appropriate font weights
+- **Layout**: Flexbox layout with clear section boundaries
+- **Interactivity**: Collapsible summary with intuitive toggle behavior
+- **Accessibility**: Semantic structure with proper button and icon usage
+
+## Examples
+
+### Yearly Cadence
+
+Show cart with yearly subscription:
+
+<Canvas of={CartSummaryStories.PasswordManagerYearlyCadence} />
+
+```html
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 5,
+    name: 'Password Manager Annual',
+    cost: 500.00,
+    cadence: 'year'
+  }"
+  [estimatedTax]="120.00"
+>
+</billing-cart-summary>
+```
+
+### With Additional Storage
+
+Show cart with password manager and additional storage:
+
+<Canvas of={CartSummaryStories.WithAdditionalStorage} />
+
+```html
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 5,
+    name: 'Password Manager',
+    cost: 50.00,
+    cadence: 'month'
+  }"
+  [additionalStorage]="{
+    quantity: 2,
+    name: 'Additional Storage (1GB)',
+    cost: 10.00,
+    cadence: 'month'
+  }"
+  [estimatedTax]="12.00"
+>
+</billing-cart-summary>
+```
+
+### With Secrets Manager
+
+Show cart with password manager and secrets manager seats only:
+
+<Canvas of={CartSummaryStories.SecretsManagerSeatsOnly} />
+
+```html
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 5,
+    name: 'Password Manager',
+    cost: 50.00,
+    cadence: 'month'
+  }"
+  [secretsManager]="{
+    seats: {
+      quantity: 3,
+      name: 'Secrets Manager Seats',
+      cost: 30.00,
+      cadence: 'month'
+    }
+  }"
+  [estimatedTax]="16.00"
+>
+</billing-cart-summary>
+```
+
+### With Secrets Manager and Additional Service Accounts
+
+Show cart with password manager, secrets manager seats, and additional service accounts:
+
+<Canvas of={CartSummaryStories.SecretsManagerSeatsAndServiceAccounts} />
+
+```html
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 5,
+    name: 'Password Manager',
+    cost: 50.00,
+    cadence: 'month'
+  }"
+  [secretsManager]="{
+    seats: {
+      quantity: 3,
+      name: 'Secrets Manager Seats',
+      cost: 30.00,
+      cadence: 'month'
+    },
+    additionalServiceAccounts: {
+      quantity: 2,
+      name: 'Additional Service Accounts',
+      cost: 6.00,
+      cadence: 'month'
+    }
+  }"
+  [estimatedTax]="16.00"
+>
+</billing-cart-summary>
+```
+
+### Complete Cart
+
+Show a complete cart with all available products:
+
+<Canvas of={CartSummaryStories.AllProducts} />
+
+```html
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 5,
+    name: 'Password Manager',
+    cost: 50.00,
+    cadence: 'month'
+  }"
+  [additionalStorage]="{
+    quantity: 2,
+    name: 'Additional Storage (1GB)',
+    cost: 10.00,
+    cadence: 'month'
+  }"
+  [secretsManager]="{
+    seats: {
+      quantity: 3,
+      name: 'Secrets Manager Seats',
+      cost: 30.00,
+      cadence: 'month'
+    },
+    additionalServiceAccounts: {
+      quantity: 2,
+      name: 'Additional Service Accounts',
+      cost: 6.00,
+      cadence: 'month'
+    }
+  }"
+  [estimatedTax]="19.20"
+>
+</billing-cart-summary>
+```
+
+## Features
+
+- **Collapsible Interface**: Users can toggle between a summary view showing only the total and a
+  detailed view showing all line items
+- **Line Item Grouping**: Organizes items by product category (Password Manager, Secrets Manager)
+- **Dynamic Calculations**: Automatically calculates and displays subtotals and totals
+- **Flexible Structure**: Accommodates different combinations of products and add-ons
+- **Consistent Formatting**: Maintains uniform display of prices, quantities, and cadence
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Use consistent naming and formatting for line items
+- Include clear quantity and unit pricing information
+- Ensure tax estimates are accurate and clearly labeled
+- Maintain consistent cadence formats across related items
+- Use the same cadence for all items within a single cart
+
+### ❌ Don't
+
+- Mix monthly and yearly cadences within the same cart
+- Omit required inputs (passwordManager, estimatedTax)
+- Modify the component's internal calculations
+- Use inconsistent formatting for monetary values
+- Override the default styles and layout
+
+## Accessibility
+
+The component includes:
+
+- Semantic HTML structure with proper headings
+- Button element for the collapsible toggle
+- Keyboard navigation support
+- Clear visual indication of expanded state
+- Descriptive labels and text
+- Sufficient color contrast for text elements
