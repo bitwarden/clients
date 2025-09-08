@@ -295,6 +295,7 @@ describe("ApiService", () => {
             json: () =>
               Promise.resolve({
                 access_token: `${expectedEffectiveUser}_new_access_token`,
+                token_type: "Bearer",
                 refresh_token: `${expectedEffectiveUser}_new_refresh_token`,
               }),
           } satisfies Partial<Response> as Response);

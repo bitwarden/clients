@@ -2114,8 +2114,11 @@
   "languageDesc": {
     "message": "Alterar o idioma utilizado pelo cofre web."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
+  "enableFavicon": {
+    "message": "Mostrar ícones do site"
+  },
+  "faviconDesc": {
+    "message": "Mostrar uma imagem reconhecível junto a cada credencial."
   },
   "default": {
     "message": "Predefinido"
@@ -8935,20 +8938,25 @@
   "collectionManagement": {
     "message": "Gestão de coleções"
   },
-  "collectionManagementDesc": {
-    "message": "Gerir o comportamento da coleção da organização"
+  "collectionManagementDescription": {
+    "message": "Configurar o comportamento da coleção da organização"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Limitar a criação de coleções aos proprietários e administradores"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Permitir aos proprietários e administradores gerir todas as coleções e itens a partir da consola de administração"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Limitar a eliminação de coleções aos proprietários e administradores"
+  "restrictCollectionCreationDescription": {
+    "message": "Restringir a criação de coleções aos proprietários e administradores"
   },
-  "limitItemDeletionDescription": {
-    "message": "Limitar a eliminação de itens aos membros com as permissões Gerir coleção"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restringir a eliminação de coleções aos proprietários e administradores"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Os proprietários e administradores podem gerir todas as coleções e itens"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restringir a eliminação de itens a membros com a permissão ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Definição de gestão de coleções atualizada"
@@ -9019,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Definição de gestão de coleções modificada $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Ativada a definição de criação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Desativada a definição de criação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Ativada a definição de eliminação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Desativada a definição de eliminação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Ativada a definição de eliminação de itens restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Desativada a definição de eliminação de itens restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Ativada a definição de permitir aos proprietários e administradores gerir todas as coleções e itens $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Desativada a definição de permitir aos proprietários e administradores gerir todas as coleções e itens $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10991,12 +11071,6 @@
     "message": "Endereço de faturação necessário para adicionar crédito.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
-  "aboutThisSetting": {
-    "message": "Acerca desta definição"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
-  },
   "billingAddress": {
     "message": "Endereço de faturação"
   },
@@ -11157,6 +11231,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirmar o domínio do Key Connector"
   }
 }
 

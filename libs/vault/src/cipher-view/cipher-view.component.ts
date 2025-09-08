@@ -139,6 +139,10 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     return !!this.cipher?.sshKey?.privateKey;
   }
 
+  get hasLoginUri() {
+    return this.cipher?.login?.hasUris;
+  }
+
   async loadCipherData() {
     if (!this.cipher) {
       return;
