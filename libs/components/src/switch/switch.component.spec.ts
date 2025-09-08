@@ -72,7 +72,7 @@ describe("SwitchComponent", () => {
   it("should update checked when selected input changes outside of a form", async () => {
     @Component({
       selector: "test-selected-host",
-      template: `<bit-switch [selected]="checked"></bit-switch>`,
+      template: `<bit-switch [selected]="checked"><bit-label>Element</bit-label></bit-switch>`,
       standalone: true,
       imports: [SwitchComponent],
     })
