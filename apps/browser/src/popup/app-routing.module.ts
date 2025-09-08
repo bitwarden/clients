@@ -74,7 +74,10 @@ import { IntroCarouselComponent } from "../vault/popup/components/vault-v2/intro
 import { PasswordHistoryV2Component } from "../vault/popup/components/vault-v2/vault-password-history-v2/vault-password-history-v2.component";
 import { VaultV2Component } from "../vault/popup/components/vault-v2/vault-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
-import { canAccessAtRiskPasswords } from "../vault/popup/guards/at-risk-passwords.guard";
+import {
+  canAccessAtRiskPasswords,
+  hasAtRiskPasswords,
+} from "../vault/popup/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
@@ -660,7 +663,7 @@ const routes: Routes = [
   {
     path: "at-risk-passwords",
     component: AtRiskPasswordsComponent,
-    canActivate: [authGuard, canAccessAtRiskPasswords],
+    canActivate: [authGuard, canAccessAtRiskPasswords, hasAtRiskPasswords],
   },
   {
     path: "account-switcher",

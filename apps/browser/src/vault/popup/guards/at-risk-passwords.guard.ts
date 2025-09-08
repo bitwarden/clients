@@ -1,10 +1,11 @@
 import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { combineLatest, map, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { TaskService } from "@bitwarden/common/vault/tasks";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ToastService } from "@bitwarden/components";
 
@@ -30,5 +31,42 @@ export const canAccessAtRiskPasswords: CanActivateFn = () => {
       }
       return true;
     }),
+  );
+};
+
+export const hasAtRiskPasswords: CanActivateFn = () => {
+  const accountService = inject(AccountService);
+  const taskService = inject(TaskService);
+  const cipherService = inject(CipherService);
+  const router = inject(Router);
+
+  return accountService.activeAccount$.pipe(
+    filterOutNullish(),
+    switchMap((user) =>
+      combineLatest([
+        taskService.pendingTasks$(user.id),
+        cipherService.cipherViews$(user.id).pipe(
+          filterOutNullish(),
+          map((ciphers) => Object.fromEntries(ciphers.map((c) => [c.id, c]))),
+        ),
+      ]).pipe(
+        map(([tasks, ciphers]) => {
+          const atRiskCiphers = tasks
+            .filter(
+              (t) =>
+                t.type === SecurityTaskType.UpdateAtRiskCredential &&
+                t.cipherId != null &&
+                ciphers[t.cipherId] != null &&
+                !ciphers[t.cipherId].isDeleted,
+            )
+            .map((t) => ciphers[t.cipherId!]);
+
+          if (atRiskCiphers.length === 0) {
+            return router.createUrlTree(["/tabs/vault"]);
+          }
+          return true;
+        }),
+      ),
+    ),
   );
 };
