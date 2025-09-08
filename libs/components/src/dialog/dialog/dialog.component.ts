@@ -8,12 +8,11 @@ import {
   viewChild,
   input,
   booleanAttribute,
-  AfterViewInit,
   ElementRef,
   DestroyRef,
-  signal,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, switchMap } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -44,14 +43,23 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
     CdkScrollable,
   ],
 })
-export class DialogComponent implements AfterViewInit {
+export class DialogComponent {
   private readonly destroyRef = inject(DestroyRef);
   private scrollableBody = viewChild.required(CdkScrollable);
   private scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
-  protected isScrollable = signal(false);
+  // protected isScrollable = signal(false);
+
+  private scrollableBody$ = toObservable(this.scrollableBody);
+  private scrollBottom$ = toObservable(this.scrollBottom);
+
+  protected isScrollable$ = combineLatest([this.scrollableBody$, this.scrollBottom$]).pipe(
+    switchMap(([body, bottom]) =>
+      hasScrollableContent$(body.getElementRef().nativeElement, bottom.nativeElement),
+    ),
+  );
 
   /** Background color */
   readonly background = input<"default" | "alt">("default");
@@ -112,16 +120,5 @@ export class DialogComponent implements AfterViewInit {
         return "md:tw-max-w-xl";
       }
     }
-  }
-
-  ngAfterViewInit() {
-    const scrollableEl = this.scrollableBody().getElementRef().nativeElement;
-    const sentinelEl = this.scrollBottom().nativeElement;
-
-    hasScrollableContent$(scrollableEl, sentinelEl)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((isScrollable) => {
-        this.isScrollable.set(isScrollable);
-      });
   }
 }
