@@ -51,6 +51,9 @@ export function canAccessOrgAdmin(org: Organization): boolean {
   );
 }
 
+/**
+ * @deprecated Please use the general `getById` custom rxjs operator instead.
+ */
 export function getOrganizationById(id: string) {
   return map<Organization[], Organization | undefined>((orgs) => orgs.find((o) => o.id === id));
 }

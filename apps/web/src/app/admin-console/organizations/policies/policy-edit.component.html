@@ -1,17 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog [loading]="loading" [title]="'editPolicy' | i18n" [subtitle]="policy.name | i18n">
-    <ng-container bitDialogTitle>
-      <button
-        bitBadge
-        class="!tw-align-middle"
-        (click)="upgradePlan()"
-        *ngIf="isBreadcrumbingEnabled$ | async"
-        type="button"
-        variant="primary"
-      >
-        {{ "planNameEnterprise" | i18n }}
-      </button>
-    </ng-container>
     <ng-container bitDialogContent>
       <div *ngIf="loading">
         <i
@@ -22,13 +10,14 @@
         <span class="tw-sr-only">{{ "loading" | i18n }}</span>
       </div>
       <div [hidden]="loading">
-        <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        @if (policy.showDescription) {
+          <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        }
         <ng-template #policyForm></ng-template>
       </div>
     </ng-container>
     <ng-container bitDialogFooter>
       <button
-        *ngIf="!(isBreadcrumbingEnabled$ | async); else breadcrumbing"
         bitButton
         buttonType="primary"
         [disabled]="saveDisabled$ | async"
@@ -37,11 +26,6 @@
       >
         {{ "save" | i18n }}
       </button>
-      <ng-template #breadcrumbing>
-        <button bitButton buttonType="primary" bitFormButton type="button" (click)="upgradePlan()">
-          {{ "upgrade" | i18n }}
-        </button>
-      </ng-template>
       <button bitButton buttonType="secondary" bitDialogClose type="button">
         {{ "cancel" | i18n }}
       </button>

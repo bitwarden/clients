@@ -18,6 +18,7 @@ export class NewCipherMenuComponent {
   canCreateCipher = input(false);
   canCreateFolder = input(false);
   canCreateCollection = input(false);
+  canCreateSshKey = input(false);
   folderAdded = output();
   collectionAdded = output();
   cipherAdded = output<CipherType>();
@@ -30,6 +31,9 @@ export class NewCipherMenuComponent {
   cipherMenuItems$ = this.restrictedItemTypesService.restricted$.pipe(
     map((restrictedTypes) => {
       return CIPHER_MENU_ITEMS.filter((item) => {
+        if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
+          return false;
+        }
         return !restrictedTypes.some((restrictedType) => restrictedType.cipherType === item.type);
       });
     }),

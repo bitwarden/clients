@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -9,16 +9,19 @@ import {
   CollectionWithIdRequest,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
 import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/request/import-organization-ciphers.request";
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SemanticLogger } from "@bitwarden/common/tools/log";
+import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
@@ -94,6 +97,7 @@ import {
   PasswordDepot17XmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
+import { ImporterMetadata, Importers, Loader } from "../metadata";
 import {
   featuredImportOptions,
   ImportOption,
@@ -103,11 +107,14 @@ import {
 import { ImportResult } from "../models/import-result";
 import { ImportApiServiceAbstraction } from "../services/import-api.service.abstraction";
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
+import { availableLoaders as availableLoaders } from "../util";
 
 export class ImportService implements ImportServiceAbstraction {
   featuredImportOptions = featuredImportOptions as readonly ImportOption[];
 
   regularImportOptions = regularImportOptions as readonly ImportOption[];
+
+  private logger: SemanticLogger;
 
   constructor(
     private cipherService: CipherService,
@@ -119,18 +126,46 @@ export class ImportService implements ImportServiceAbstraction {
     private encryptService: EncryptService,
     private pinService: PinServiceAbstraction,
     private accountService: AccountService,
-    private sdkService: SdkService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-  ) {}
+    private system: SystemServiceProvider,
+  ) {
+    this.logger = system.log({ type: "ImportService" });
+  }
 
   getImportOptions(): ImportOption[] {
     return this.featuredImportOptions.concat(this.regularImportOptions);
   }
 
+  metadata$(type$: Observable<ImportType>): Observable<ImporterMetadata> {
+    const browserEnabled$ = this.system.configService.getFeatureFlag$(
+      FeatureFlag.UseChromiumImporter,
+    );
+    const client = this.system.environment.getClientType();
+    const capabilities$ = combineLatest([type$, browserEnabled$]).pipe(
+      map(([type, enabled]) => {
+        let loaders = availableLoaders(type, client);
+        if (!enabled) {
+          loaders = loaders?.filter((loader) => loader !== Loader.chromium);
+        }
+
+        const capabilities: ImporterMetadata = { type, loaders };
+        if (type in Importers) {
+          capabilities.instructions = Importers[type].instructions;
+        }
+
+        this.logger.debug({ importType: type, capabilities }, "capabilities updated");
+
+        return capabilities;
+      }),
+    );
+
+    return capabilities$;
+  }
+
   async import(
     importer: Importer,
     fileContents: string,
-    organizationId: string = null,
+    organizationId: OrganizationId = null,
     selectedImportTarget: FolderView | CollectionView = null,
     canAccessImportExport: boolean,
   ): Promise<ImportResult> {
@@ -204,7 +239,7 @@ export class ImportService implements ImportServiceAbstraction {
   getImporter(
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
-    organizationId: string = null,
+    organizationId: OrganizationId = null,
   ): Importer {
     if (promptForPassword_callback == null) {
       return null;
@@ -259,6 +294,7 @@ export class ImportService implements ImportServiceAbstraction {
       case "chromecsv":
       case "operacsv":
       case "vivaldicsv":
+      case "bravecsv":
         return new ChromeCsvImporter();
       case "firefoxcsv":
         return new FirefoxCsvImporter();
@@ -393,7 +429,10 @@ export class ImportService implements ImportServiceAbstraction {
     return await this.importApiService.postImportCiphers(request);
   }
 
-  private async handleOrganizationalImport(importResult: ImportResult, organizationId: string) {
+  private async handleOrganizationalImport(
+    importResult: ImportResult,
+    organizationId: OrganizationId,
+  ) {
     const request = new ImportOrganizationCiphersRequest();
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -497,7 +536,7 @@ export class ImportService implements ImportServiceAbstraction {
       const collections: CollectionView[] = [...importResult.collections];
       importResult.collections = [importTarget as CollectionView];
       collections.map((x) => {
-        const f = new CollectionView();
+        const f = new CollectionView(x);
         f.name = `${importTarget.name}/${x.name}`;
         importResult.collections.push(f);
       });

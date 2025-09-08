@@ -2,6 +2,8 @@ import { Injectable, OnDestroy } from "@angular/core";
 import { ActivatedRoute, NavigationExtras } from "@angular/router";
 import { combineLatest, map, Observable, Subject, takeUntil } from "rxjs";
 
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+
 import {
   isRoutedVaultFilterItemType,
   RoutedVaultFilterModel,
@@ -31,10 +33,12 @@ export class RoutedVaultFilterService implements OnDestroy {
         const type = isRoutedVaultFilterItemType(unsafeType) ? unsafeType : undefined;
 
         return {
-          collectionId: queryParams.get("collectionId") ?? undefined,
+          collectionId: (queryParams.get("collectionId") as CollectionId) ?? undefined,
           folderId: queryParams.get("folderId") ?? undefined,
           organizationId:
-            params.get("organizationId") ?? queryParams.get("organizationId") ?? undefined,
+            (params.get("organizationId") as OrganizationId) ??
+            (queryParams.get("organizationId") as OrganizationId) ??
+            undefined,
           organizationIdParamType:
             params.get("organizationId") != undefined ? ("path" as const) : ("query" as const),
           type,

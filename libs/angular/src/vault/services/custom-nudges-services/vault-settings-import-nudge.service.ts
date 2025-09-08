@@ -5,7 +5,7 @@ import { combineLatest, Observable, of, switchMap } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
@@ -46,7 +46,7 @@ export class VaultSettingsImportNudgeService extends DefaultSingleNudgeService {
         const orgIds = new Set(orgs.map((org) => org.id));
         const canCreateCollections = orgs.some((org) => org.canCreateNewCollections);
         const hasManageCollections = collections.some(
-          (c) => c.manage && orgIds.has(c.organizationId!),
+          (c) => c.manage && orgIds.has(c.organizationId! as OrganizationId),
         );
 
         // When the user has dismissed the nudge or spotlight, return the nudge status directly

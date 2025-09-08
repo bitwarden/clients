@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   Directive,
   ElementRef,
@@ -45,6 +43,7 @@ export class BitInputDirective implements BitFormFieldControl {
       "tw-block",
       "tw-w-full",
       "tw-h-full",
+      "tw-px-1",
       "tw-text-main",
       "tw-placeholder-text-muted",
       "tw-bg-background",
@@ -62,7 +61,7 @@ export class BitInputDirective implements BitFormFieldControl {
 
   readonly id = input(`bit-input-${nextId++}`);
 
-  @HostBinding("attr.aria-describedby") ariaDescribedBy: string;
+  @HostBinding("attr.aria-describedby") ariaDescribedBy?: string;
 
   @HostBinding("attr.aria-invalid") get ariaInvalid() {
     return this.hasError ? true : undefined;
@@ -82,7 +81,7 @@ export class BitInputDirective implements BitFormFieldControl {
   set required(value: any) {
     this._required = value != null && value !== false;
   }
-  private _required: boolean;
+  private _required?: boolean;
 
   readonly hasPrefix = input(false);
   readonly hasSuffix = input(false);
@@ -100,19 +99,20 @@ export class BitInputDirective implements BitFormFieldControl {
 
   get hasError() {
     if (this.showErrorsWhenDisabled()) {
-      return (
+      return !!(
         (this.ngControl?.status === "INVALID" || this.ngControl?.status === "DISABLED") &&
         this.ngControl?.touched &&
         this.ngControl?.errors != null
       );
     } else {
-      return this.ngControl?.status === "INVALID" && this.ngControl?.touched;
+      return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
     }
   }
 
   get error(): [string, any] {
-    const key = Object.keys(this.ngControl.errors)[0];
-    return [key, this.ngControl.errors[key]];
+    const errors = this.ngControl.errors ?? {};
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
   }
 
   constructor(

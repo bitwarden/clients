@@ -33,6 +33,15 @@ export class BrowserApi {
   }
 
   /**
+   * Gets all open browser windows, including their tabs.
+   *
+   * @returns A promise that resolves to an array of browser windows.
+   */
+  static async getWindows(): Promise<chrome.windows.Window[]> {
+    return new Promise((resolve) => chrome.windows.getAll({ populate: true }, resolve));
+  }
+
+  /**
    * Gets the current window or the window with the given id.
    *
    * @param windowId - The id of the window to get. If not provided, the current window is returned.

@@ -44,7 +44,6 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -110,7 +109,6 @@ export class AutofillComponent implements OnInit {
   protected defaultBrowserAutofillDisabled: boolean = false;
   protected inlineMenuVisibility: InlineMenuVisibilitySetting =
     AutofillOverlayVisibility.OnFieldFocus;
-  protected blockBrowserInjectionsByDomainEnabled: boolean = false;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
   protected disablePasswordManagerURI: DisablePasswordManagerUri =
     DisablePasswordManagerUris.Unknown;
@@ -220,10 +218,6 @@ export class AutofillComponent implements OnInit {
 
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
-    );
-
-    this.blockBrowserInjectionsByDomainEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.BlockBrowserInjectionsByDomain,
     );
 
     this.showInlineMenuIdentities = await firstValueFrom(
@@ -584,5 +578,17 @@ export class AutofillComponent implements OnInit {
       hints.push(this.advancedOptionWarningMap[strategy]);
     }
     return hints;
+  }
+
+  /** Navigates the user from the Autofill Nudge to the proper destination based on their browser. */
+  async disableBrowserAutofillSettingsFromNudge(event: Event) {
+    // When we can programmatically disable the autofill setting, do that first
+    // otherwise open the appropriate URI for the browser
+    if (this.canOverrideBrowserAutofillSetting) {
+      this.defaultBrowserAutofillDisabled = true;
+      await this.updateDefaultBrowserAutofillDisabled();
+    } else {
+      await this.openURI(event, this.disablePasswordManagerURI);
+    }
   }
 }
