@@ -1305,8 +1305,11 @@
     "message": "Аутоматски обришите копиране вредности из привремене меморије.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Прикажи иконе веб локација и преузмите линкове промене лозинке"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Минимизирај као иконицу у системској траци"
@@ -3930,12 +3933,6 @@
     "message": "Сазнајте више о SSH агенту",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
-  },
-  "aboutThisSetting": {
-    "message": "О овом подешавању"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden ће користити сачуване URI-јеве за пријаву да би одредио коју икону или URL за промену лозинке треба користити како би побољшао ваше искуство. Никакви подаци нису сакупљени нити сачувани приликом коришћења ове услуге."
   },
   "assignToCollections": {
     "message": "Додели колекцијама"
