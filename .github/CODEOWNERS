@@ -6,8 +6,8 @@
 
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
-apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-dev
-apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-dev
+apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-desktop-dev
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
@@ -142,17 +142,18 @@ apps/browser/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/src/autofill @bitwarden/team-autofill-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
-apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-dev
-apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-dev
-apps/desktop/desktop_native/autotype @bitwarden/team-autofill-dev
-.github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
+# Autofill desktop files
+apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/autotype @bitwarden/team-autofill-desktop-dev
+.github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-desktop-dev
 # DuckDuckGo integration
-apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
-apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
-apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-dev
-.github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-dev
+apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-desktop-dev
+apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
+apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
+.github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-desktop-dev
 # SSH Agent
-apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
 
 ## UI Foundation ##
 .github/workflows/chromatic.yml @bitwarden/team-ui-foundation
