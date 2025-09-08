@@ -557,7 +557,7 @@
     "message": "Zobrazit"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Zobrazit přihlašovací údaje"
   },
   "noItemsInList": {
     "message": "Žádné položky k zobrazení."
@@ -1763,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Tento prohlížeč nemůže zpracovat požadavky U2F  ve vyskakovacím okně. Chcete otevřít toto vyskakovací okno v novém okně, abyste se mohli přihlásit pomocí U2F?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
+  "enableFavicon": {
+    "message": "Zobrazit ikony webových stránek"
+  },
+  "faviconDesc": {
+    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
+  },
+  "faviconDescAlt": {
+    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení. Platí pro všechny přihlášené účty."
   },
   "enableBadgeCounter": {
     "message": "Zobrazovat počet uložených přihlašovacích údajů na stránce"
@@ -5450,10 +5456,10 @@
     "message": "Změnit ohrožené heslo"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Chybějící webová stránka"
   },
   "settingsVaultOptions": {
     "message": "Volby trezoru"
@@ -5577,12 +5583,6 @@
   "generatorNudgeBodyAria": {
     "message": "Jednoduše vytvořte silná a unikátní hesla klepnutím na tlačítko Generovat heslo, které Vám pomůže udržet Vaše přihlašovací údaje v bezpečí.",
     "description": "Aria label for the body content of the generator nudge"
-  },
-  "aboutThisSetting": {
-    "message": "O tomto nastavení"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnění k zobrazení této stránky. Zkuste se přihlásit jiným účtem."

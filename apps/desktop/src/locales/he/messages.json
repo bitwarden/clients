@@ -1305,8 +1305,11 @@
     "message": "נקה אוטומטית ערכים שהועתקו ללוח ההעתקות (clipboard).",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "הצג סמלי אתרים ואחזר כתובות URL לשינוי סיסמה"
+  "enableFavicon": {
+    "message": "הצג סמלי אתר אינטרנט"
+  },
+  "faviconDesc": {
+    "message": "הצג תמונה מוכרת ליד כל כניסה."
   },
   "enableMinToTray": {
     "message": "מזער למגש המערכת"
@@ -3931,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "אודות הגדרה זו"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden ישתמש בכתובות URI של כניסות שמורות כדי לזהות באיזה סמל או URL לשינוי סיסמה יש להשתמש על מנת לשפר את החוויה שלך. לא נאסף או נשמר מידע כלשהו כאשר אתה משתמש בשירות זה."
-  },
   "assignToCollections": {
     "message": "הקצה לאוספים"
   },
@@ -4097,12 +4094,12 @@
     "message": "אשר"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "הפעל קיצור דרך להקלדה אוטומטית"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "וודא שאתה נמצא בשדה הנכון לפני השימוש בקיצור הדרך כדי להימנע ממילוי נתונים במקום הלא נכון."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "ערוך קיצור דרך"
   }
 }

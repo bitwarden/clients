@@ -199,6 +199,15 @@ export abstract class LoginStrategy {
       UserDecryptionOptions.fromResponse(tokenResponse),
     );
 
+    if (tokenResponse.userDecryptionOptions?.masterPasswordUnlock != null) {
+      const masterPasswordUnlockData =
+        tokenResponse.userDecryptionOptions.masterPasswordUnlock.toMasterPasswordUnlockData();
+      await this.masterPasswordService.setMasterPasswordUnlockData(
+        masterPasswordUnlockData,
+        userId,
+      );
+    }
+
     const vaultTimeoutAction = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
     );
