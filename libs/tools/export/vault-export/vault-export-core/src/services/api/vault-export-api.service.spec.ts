@@ -25,7 +25,7 @@ describe("VaultExportApiService", () => {
     expect(apiServiceMock.send).toHaveBeenCalledWith(
       "GET",
       `/organizations/${orgId}/export`,
-      null,
+      undefined,
       true,
       true,
     );
