@@ -3,7 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { DefaultVaultExportApiService } from "./vault-export-api.service";
+import { DefaultVaultExportApiService } from "./default-vault-export-api.service";
 import { VaultExportApiService } from "./vault-export-api.service.abstraction";
 
 describe("VaultExportApiService", () => {
