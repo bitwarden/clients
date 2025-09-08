@@ -1,14 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  ChangeDetectorRef,
-  Component,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  signal,
-  ViewChild,
-} from "@angular/core";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -269,12 +261,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     map((results) => results.filter((result) => result !== null && result.shownBanner)),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
-
-  protected emptyStateSignal = signal<{ title: string; description: string; icon: string }>({
-    title: "",
-    description: "",
-    icon: "",
-  });
 
   constructor(
     private syncService: SyncService,
