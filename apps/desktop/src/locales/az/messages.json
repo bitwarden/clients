@@ -1305,8 +1305,11 @@
     "message": "Kopyalanmış dəyərləri lövhədən avtomatik təmizlə.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Bildiriş sahəsi ikonuna kiçilt"
@@ -3588,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "Lütfən şirkət kimlik məlumatlarınızı istifadə edərək giriş etməyə davam edin."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Birbaşa brauzerdən daxilə köçür"
+  },
+  "browserProfile": {
+    "message": "Brauzer profili"
+  },
   "seeDetailedInstructions": {
     "message": "Kömək saytımızda detallı təlimatlara baxın",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3925,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "Bu ayar barədə"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
-  },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"
   },
@@ -4080,5 +4083,23 @@
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Növbəti"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector domenini təsdiqlə"
+  },
+  "confirm": {
+    "message": "Təsdiqlə"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Avto-yazma qısayolunu fəallaşdır"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Veriləri yanlış yerə doldurmamaq üçün qısayolu istifadə etməzdən əvvəl doğru xanada olduğunuza əmin olun."
+  },
+  "editShortcut": {
+    "message": "Qısayola düzəliş et"
   }
 }

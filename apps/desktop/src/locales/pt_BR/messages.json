@@ -1305,8 +1305,11 @@
     "message": "Limpar automaticamente os valores copiados da sua área de transferência.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Mostrar ícones do site e recuperar URLs de mudança de senha"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Minimizar para ícone da bandeja"
@@ -3588,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "Por favor, continue a iniciar a sessão usando as credenciais da sua empresa."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Veja instruções detalhadas no nosso site de ajuda em",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3925,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "Sobre esta configuração"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden usará URIs de login salvos para identificar qual ícone ou URL de mudança de senha deverá ser usado para melhorar sua experiência. Nenhuma informação é coletada ou salva quando você utiliza este serviço."
-  },
   "assignToCollections": {
     "message": "Atribuído a coleções"
   },
@@ -4080,5 +4083,23 @@
   "moreBreadcrumbs": {
     "message": "Mais trilhas",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

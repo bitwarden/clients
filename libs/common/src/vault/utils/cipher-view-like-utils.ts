@@ -89,6 +89,18 @@ export class CipherViewLikeUtils {
     return cipher.isDeleted;
   };
 
+  /**  @returns `true` when the cipher is not assigned to a collection, `false` otherwise. */
+  static isUnassigned = (cipher: CipherViewLike): boolean => {
+    if (this.isCipherListView(cipher)) {
+      return (
+        cipher.organizationId != null &&
+        (cipher.collectionIds == null || cipher.collectionIds.length === 0)
+      );
+    }
+
+    return cipher.isUnassigned;
+  };
+
   /** @returns `true` when the user can assign the cipher to a collection, `false` otherwise. */
   static canAssignToCollections = (cipher: CipherViewLike): boolean => {
     if (this.isCipherListView(cipher)) {

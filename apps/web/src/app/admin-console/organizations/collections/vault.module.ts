@@ -6,9 +6,10 @@ import { ViewComponent } from "../../../vault/individual-vault/view.component";
 import { CollectionDialogComponent } from "../shared/components/collection-dialog";
 
 import { CollectionNameBadgeComponent } from "./collection-badge";
+import { VaultComponent } from "./deprecated_vault.component";
 import { GroupBadgeModule } from "./group-badge/group-badge.module";
 import { VaultRoutingModule } from "./vault-routing.module";
-import { VaultComponent } from "./vault.component";
+import { vNextVaultComponent } from "./vault.component";
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import { VaultComponent } from "./vault.component";
     OrganizationBadgeModule,
     CollectionDialogComponent,
     VaultComponent,
+    vNextVaultComponent,
     ViewComponent,
   ],
 })
