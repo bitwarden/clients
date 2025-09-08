@@ -30,6 +30,9 @@ export class SecretsListComponent implements OnDestroy, OnInit {
   protected dataSource = new TableDataSource<SecretListView>();
 
   @Input()
+  disableVirtualScroll: boolean;
+
+  @Input()
   get secrets(): SecretListView[] {
     return this._secrets;
   }

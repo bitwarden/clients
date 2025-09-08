@@ -1305,8 +1305,11 @@
     "message": "Rensa automatiskt kopierade värden från urklipp.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Visa webbplatsikoner"
+  },
+  "faviconDesc": {
+    "message": "Visa en igenkännbar bild bredvid varje inloggning."
   },
   "enableMinToTray": {
     "message": "Minimera till systemfältsikon"
@@ -3588,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "Fortsätt att logga in med dina företagsuppgifter."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Importera direkt från webbläsaren"
+  },
+  "browserProfile": {
+    "message": "Webbläsarprofil"
+  },
   "seeDetailedInstructions": {
     "message": "Se detaljerade instruktioner på vår hjälpsida på",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3925,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
-  },
   "assignToCollections": {
     "message": "Tilldela till samlingar"
   },
@@ -4080,5 +4083,23 @@
   "moreBreadcrumbs": {
     "message": "Fler länkstigar",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Nästa"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Bekräfta Key Connector-domän"
+  },
+  "confirm": {
+    "message": "Bekräfta"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Aktivera genväg för automatisk inmatning"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Försäkra dig om att du befinner dig i rätt fält innan du använder genvägen för att undvika att fylla i data på fel ställe."
+  },
+  "editShortcut": {
+    "message": "Redigera genväg"
   }
 }

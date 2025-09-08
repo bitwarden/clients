@@ -244,22 +244,22 @@
     "message": "סוכן ה־SSH הוא שירות המיועד למפתחים שמאפשר לך לחתום בקשות SSH היישר מכספת ה־Bitwarden שלך."
   },
   "sshAgentPromptBehavior": {
-    "message": "בקשת אישור בעת שימוש בסוכן SSH"
+    "message": "בקש אישור בעת שימוש בסוכן SSH"
   },
   "sshAgentPromptBehaviorDesc": {
     "message": "בחר איך לטפל בבקשות אישור של סוכן SSH."
   },
   "sshAgentPromptBehaviorHelp": {
-    "message": "זכור בקשות אישור של SSH"
+    "message": "זכור אישורי SSH"
   },
   "sshAgentPromptBehaviorAlways": {
     "message": "תמיד"
   },
   "sshAgentPromptBehaviorNever": {
-    "message": "אף פעם"
+    "message": "לעולם לא"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
-    "message": "זכור עד שהכספת נעולה"
+    "message": "זכור עד לנעילת הכספת"
   },
   "premiumRequired": {
     "message": "נדרש חשבון פרימיום"
@@ -703,10 +703,10 @@
     "message": "הקובץ המצורף נשמר"
   },
   "addAttachment": {
-    "message": "צרף קובץ"
+    "message": "הוסף צרופה"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "גודל הקובץ המרבי הוא 500 מגהבייט"
+    "message": "גודל הקובץ המרבי הוא 500MB"
   },
   "file": {
     "message": "קובץ"
@@ -718,7 +718,7 @@
     "message": "גודל הקובץ המירבי הוא 500 מגה."
   },
   "legacyEncryptionUnsupported": {
-    "message": "הצפנה מהדור הקודם אינה נתמכת עוד. אנא צור קשר עם צוות התמיכה כדי לשחזר את חשבונך."
+    "message": "הצפנה מהדור הקודם אינה נתמכת עוד. נא ליצור קשר עם התמיכה כדי לשחזר את חשבונך."
   },
   "editedFolder": {
     "message": "תיקייה שנשמרה"
@@ -1305,8 +1305,11 @@
     "message": "נקה אוטומטית ערכים שהועתקו ללוח ההעתקות (clipboard).",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "הצג סמלי אתר אינטרנט"
+  },
+  "faviconDesc": {
+    "message": "הצג תמונה מוכרת ליד כל כניסה."
   },
   "enableMinToTray": {
     "message": "מזער למגש המערכת"
@@ -1746,10 +1749,10 @@
     "message": "מוגבל חשבון"
   },
   "restrictCardTypeImport": {
-    "message": "לא ניתן לייבא סוגי פריטי כרטיסים"
+    "message": "לא ניתן לייבא פריטים מסוג כרטיס"
   },
   "restrictCardTypeImportDesc": {
-    "message": "פוליסה שנקבעה על ידי ארגון אחד או יותר מונע ממך מלייבא כרטיסים לכספות שלך."
+    "message": "מדיניות שנקבעה על ידי ארגון אחד או יותר מונעת ממך מלייבא כרטיסים לכספות שלך."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"סיסמת קובץ\"  ו\"אשר סיסמת קובץ\" אינם תואמים."
@@ -2002,17 +2005,17 @@
     "message": "הפוך את האימות הדו־שלבי לחלק"
   },
   "totpHelper": {
-    "message": "Bitwarden יכול לאחסון ולמלא קודים של אימות דו־שלבי. העתק והדבק את המפתח לשדה זה."
+    "message": "Bitwarden יכול לאחסן ולמלא קודים של אימות דו־שלבי. העתק והדבק את המפתח לתוך שדה זה."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden יכול לאחסון ולמלא קודים של אימות דו־שלבי. בחר את סמל המצלמה כדי לצלם את הקוד QR המאמת של אתר זה, או העתק והדבק את המפתח לתוך שדה זה."
+    "message": "Bitwarden יכול לאחסן ולמלא קודים של אימות דו־שלבי. בחר את סמל המצלמה כדי לצלם את הקוד QR המאמת של אתר זה, או העתק והדבק את המפתח לתוך שדה זה."
   },
   "premium": {
     "message": "פרימיום",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "ארגונים חיניים לא יכולים להשתמש בקבצים מצורפים"
+    "message": "ארגונים חינמיים לא יכולים להשתמש בצרופות"
   },
   "singleFieldNeedsAttention": {
     "message": "שדה 1 צריך את תשומת לבך."
@@ -2190,7 +2193,7 @@
     "message": "בשל מדיניות ארגונית, אתה מוגבל מלשמור פריטים לכספת האישית שלך. שנה את אפשרות הבעלות לארגון ובחר מאוספים זמינים."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "הסיסמה החדשה שלך לא יכולה להיות זהה לסיסמה הנוכחית שלך."
+    "message": "הסיסמה החדשה שלך אינה יכולה להיות אותו הדבר כמו הסיסמה הנוכחית שלך."
   },
   "hintEqualsPassword": {
     "message": "רמז הסיסמה שלך לא יכול להיות אותו הדבר כמו הסיסמה שלך."
@@ -2419,13 +2422,13 @@
     "message": "הסיסמה הראשית שלך אינה עומדת באחת או יותר מפוליסות הארגון שלך. כדי לגשת לכספת, אתה מוכרח לעדכן את הסיסמה הראשית שלך עכשיו. בהמשך תנותק מההפעלה הנוכחית שלך, מה שידרוש ממך להיכנס חזרה. הפעלות פעילות במכשירים אחרים עלולות להישאר פעילות למשך עד שעה אחת."
   },
   "changePasswordWarning": {
-    "message": "לאחר שינוי סיסמא, תצטרך להתחבר באמצעות הסיסמא החדשה שלך. הפעלות פעילות במכשירים אחרים ינותקו תוך שעה."
+    "message": "לאחר שינוי הסיסמה שלך, תצטרך להיכנס עם הסיסמה החדשה שלך. הפעלות פעילות במכשירים אחרים ינותקו תוך שעה."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "יש לשנות את הסיסמא הראשית שלך כדי להשלים את שחזור החשבון."
+    "message": "יש לשנות את הסיסמה הראשית שלך כדי להשלים את שחזור החשבון."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "הסיסמא הראשית שלך לא עומדת בדרישות ארגון זה. שנה את הסיסמא הראשית שלך כדי להמשיך."
+    "message": "הסיסמה הראשית שלך לא עומדת בדרישות של ארגון זה. שנה את הסיסמה הראשית שלך כדי להמשיך."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "הארגון שלך השבית הצפנת מכשיר מהימן. נא להגדיר סיסמה ראשית כדי לגשת לכספת שלך."
@@ -2568,13 +2571,13 @@
     "message": "הסיסמה הראשית הוסרה"
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "סיסמא ראשית אינה נדרשת עוד עבור חברים בארגון הבא. אנא אשר את הדומיין שלהלן עם מנהל הארגון שלך."
+    "message": "סיסמה ראשית אינה נדרשת עוד עבור חברים בארגון הבא. נא לאשר את הדומיין שלהלן עם מנהל הארגון שלך."
   },
   "organizationName": {
     "message": "שם הארגון"
   },
   "keyConnectorDomain": {
-    "message": "הדומיין של Key Connector"
+    "message": "דומיין של Key Connector"
   },
   "leaveOrganization": {
     "message": "עזוב ארגון"
@@ -2637,7 +2640,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "רק פריטי הכספת האישיים, כולל קבצים מצורפים המשוייכים עם $EMAIL$ ייוצאו. פריטי כספת ארגוניים לא ייכללו",
+    "message": "רק פריטי הכספת האישית כולל צרופות המשויכים עם $EMAIL$ ייוצאו. פריטי כספת ארגונית לא יכללו",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2763,7 +2766,7 @@
     "message": "השתמש בסיסמה זו"
   },
   "useThisPassphrase": {
-    "message": "השתמש בביטוי סיסמא זה"
+    "message": "השתמש בביטוי סיסמה זה"
   },
   "useThisUsername": {
     "message": "השתמש בשם משתמש זה"
@@ -3050,7 +3053,7 @@
     "message": "דחית ניסיון כניסה ממכשיר אחר. אם זה היית אתה, נסה להיכנס עם המכשיר שוב."
   },
   "webApp": {
-    "message": "אפליקציית אינטרנט"
+    "message": "יישום רשת"
   },
   "mobile": {
     "message": "נייד",
@@ -3219,10 +3222,10 @@
     "message": "בקש אישור מנהל"
   },
   "unableToCompleteLogin": {
-    "message": "לא ניתן להשלים את ההתחברות"
+    "message": "לא ניתן להשלים את הכניסה"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "עליך להיכנס ממכשיר מהימן או לבקש ממנהל המערכת שלך להקצות לך סיסמא."
+    "message": "עליך להיכנס במכשיר מהימן או לבקש ממנהל המערכת שלך להקצות לך סיסמה."
   },
   "region": {
     "message": "אזור"
@@ -3265,28 +3268,28 @@
     "message": "מכשיר מהימן"
   },
   "trustOrganization": {
-    "message": "סמוך על הארגון"
+    "message": "תן אמון בארגון"
   },
   "trust": {
-    "message": "סמוך"
+    "message": "תן אמון"
   },
   "doNotTrust": {
-    "message": "אל תסמוך"
+    "message": "אל תתן אמון"
   },
   "organizationNotTrusted": {
-    "message": "הארגון אינו אמין"
+    "message": "הארגון אינו מהימן"
   },
   "emergencyAccessTrustWarning": {
-    "message": "למען אבטחת חשבונך, אשר רק אם הענקת גישה בשעת חירום למשתמש זה וטביעת האצבע שלהם תואמת עם מה שמוצג בחשבון שלהם"
+    "message": "למען אבטחת חשבונך, אשר רק אם הענקת גישת חירום למשתמש הזה וטביעת האצבע שלו תואמת את מה שמוצג בחשבון שלו"
   },
   "orgTrustWarning": {
-    "message": "למען אבטחת חשבונך, המשך רק אם אתה חבר בארגון זה, שחזור חשבונך מופעל, וטביעת האצבע המוצגת למטה תואמת לטביעת האצבע של הארגון."
+    "message": "למען אבטחת חשבונך, המשך רק אם אתה חבר של הארגון הזה, הפעלת שחזור חשבון, וטביעת האצבע המוצגת למטה תואמת את טביעת האצבע של הארגון."
   },
   "orgTrustWarning1": {
-    "message": "לארגון זה יש פוליסות ארגוניות שירשמו אותך לשחזור חשבון. ההרשמה תאפשר למנהלי הארגון לשנות את סיסמתך. המשך רק אם אתה מזהה ארגון זה וביטוי טביעת האצבע המוצג למטה תואם לטביעת האצבע של הארגון."
+    "message": "לארגון זה יש מדיניות ארגונית אשר תרשום אותך לשחזור חשבון. ההרשמה תאפשר למנהלי הארגון לשנות את הסיסמה שלך. המשך רק אם אתה מזהה את הארגון הזה וביטוי טביעת האצבע המוצג למטה תואם את טביעת האצבע של הארגון."
   },
   "trustUser": {
-    "message": "סמוך על המשתמש"
+    "message": "תן אמון במשתמש"
   },
   "inputRequired": {
     "message": "נדרש קלט."
@@ -3459,7 +3462,7 @@
     "message": "עקוב אחר השלבים למטה כדי לסיים להיכנס."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "עקוב אחרי השלבים למטה כדי לסיים את הכניסה באמצעות מפתח האבטחה שלך."
+    "message": "יש לעקוב אחר השלבים למטה כדי לסיים להיכנס באמצעות מפתח האבטחה שלך."
   },
   "launchDuo": {
     "message": "פתח את Duo בדפדפן"
@@ -3489,10 +3492,10 @@
     "message": "בחר אוסף"
   },
   "importTargetHintCollection": {
-    "message": "בחר באפשרות זו אם ברצונך להעביר את תוכן הקובץ המיובא לאוסף"
+    "message": "בחר אפשרות זו אם ברצונך שהתוכן של הקובץ המיובא יועבר לאוסף"
   },
   "importTargetHintFolder": {
-    "message": "בחר באפשרות זו אם ברצונך להעביר את תוכן הקובץ המיובא לתיקייה"
+    "message": "בחר אפשרות זו אם ברצונך שהתוכן של הקובץ המיובא יועבר לתיקייה"
   },
   "importUnassignedItemsError": {
     "message": "קובץ מכיל פריטים לא מוקצים."
@@ -3588,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "נא להמשיך להיכנס באמצעות אישורי החברה שלך."
   },
+  "importDirectlyFromBrowser": {
+    "message": "ייבא ישירות מדפדפן"
+  },
+  "browserProfile": {
+    "message": "פרופיל דפדפן"
+  },
   "seeDetailedInstructions": {
     "message": "ראה הוראות מפורטות באתר העזרה שלנו ב־",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3616,11 +3625,11 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"ביטוי רגולרי\" היא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורי כניסה.",
+    "message": "\"ביטוי רגולרי\" הוא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורים.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"מתחיל עם\" היא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורי כניסה.",
+    "message": "\"מתחיל עם\" היא אפשרות מתקדמת עם סיכון מוגבר לחשיפת אישורים.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -3831,7 +3840,7 @@
     "message": "שנה סיסמה בסיכון"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "אינך יכול להסיר אוספים עם הרשאות צפייה בלבד: $COLLECTIONS$",
+    "message": "אינך יכול להסיר אוספים עם הרשאות הצגה בלבד: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3863,17 +3872,17 @@
     "message": "צור סיסמאות במהירות"
   },
   "generatorNudgeBodyOne": {
-    "message": "צור סיסמאות חזקות וייחודיות בקלות על ידי לחיצה על",
+    "message": "צור בקלות סיסמאות חזקות וייחודיות על ידי לחיצה על",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "כדי לעזור לך לשמור על אבטחת הכניסות שלך.",
+    "message": "כדי לעזור לך לשמור את הכניסות שלך מאובטחות.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "צור סיסמאות חזקות וייחודיות בקלות על ידי לחיצה על כפתור \"צור סיסמא\" כדי לעזור לך לשמור על אבטחת הכניסות שלך.",
+    "message": "צור בקלות סיסמאות חזקות וייחודיות על ידי לחיצה על הלחצן 'צור סיסמה' כדי לעזור לך לשמור את הכניסות שלך מאובטחות.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
@@ -3890,33 +3899,33 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "כדי שהכניסה הזו תופיע כהצעת מילוי אוטומטי.",
+    "message": "כך שכניסה זו תופיע כהצעה למילוי אוטומטי.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "תשלום מקוון חלק"
+    "message": "תהליך תשלום מקוון חלק"
   },
   "newCardNudgeBody": {
-    "message": "עם כרטיסים, ניתן למלא טפסי תשלום באופן אוטומטי בצורה מאובטחת ומדויקת."
+    "message": "עם כרטיסים, ניתן למלא אוטומטית בקלות טפסי תשלום באופן מאובטח ומדויק."
   },
   "newIdentityNudgeTitle": {
-    "message": "יצירת חשבונות בקלות"
+    "message": "הפוך יצירת חשבונות לפשוטה"
   },
   "newIdentityNudgeBody": {
-    "message": "עם זהויות, ניתן למלא באופן אוטומטי ובמהירות טפסי הרשמה או יצירת קשר ארוכים."
+    "message": "עם זהויות, ניתן למלא אוטומטית במהירות טפסי הרשמה או יצירת קשר."
   },
   "newNoteNudgeTitle": {
     "message": "שמור על הנתונים הרגישים שלך בטוחים"
   },
   "newNoteNudgeBody": {
-    "message": "עם הערות, ניתן לאחסן בצורה מאובטחת נתונים רגישים כמו פרטי בנק או ביטוח."
+    "message": "עם הערות, ניתן לאחסן באופן מאובטח נתונים רגישים כמו פרטי בנקאות או ביטוח."
   },
   "newSshNudgeTitle": {
     "message": "גישת SSH ידידותית למפתחים"
   },
   "newSshNudgeBodyOne": {
-    "message": "אחסן את המפתחות שלך והתחבר לסוכן SSH בשביל אימות מהיר ומוצפן.",
+    "message": "אחסן את המפתחות שלך והתחבר באמצעות סוכן ה־SSH עבור אימות מהיר ומוצפן.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
@@ -3924,12 +3933,6 @@
     "message": "למד עוד על סוכן SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
-  },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
     "message": "הקצה לאוספים"
@@ -4078,7 +4081,25 @@
     "message": "Bitwarden לא מאמת את מקומות הקלט, נא לוודא שזה החלון והשדה הנכונים בטרם שימוש בקיצור הדרך."
   },
   "moreBreadcrumbs": {
-    "message": "עוד נתיבי ניווט",
+    "message": "עוד סימני דרך",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "הבא"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "אשר דומיין של Key Connector"
+  },
+  "confirm": {
+    "message": "אשר"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "הפעל קיצור דרך להקלדה אוטומטית"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "וודא שאתה נמצא בשדה הנכון לפני השימוש בקיצור הדרך כדי להימנע ממילוי נתונים במקום הלא נכון."
+  },
+  "editShortcut": {
+    "message": "ערוך קיצור דרך"
   }
 }

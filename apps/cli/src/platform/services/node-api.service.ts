@@ -4,6 +4,7 @@ import * as FormData from "form-data";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import * as fe from "node-fetch";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -28,6 +29,7 @@ export class NodeApiService extends ApiService {
     logService: LogService,
     logoutCallback: () => Promise<void>,
     vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    accountService: AccountService,
     customUserAgent: string = null,
   ) {
     super(
@@ -39,6 +41,7 @@ export class NodeApiService extends ApiService {
       logService,
       logoutCallback,
       vaultTimeoutSettingsService,
+      accountService,
       { createRequest: (url, request) => new Request(url, request) },
       customUserAgent,
     );

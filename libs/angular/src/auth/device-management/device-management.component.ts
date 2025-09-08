@@ -6,12 +6,15 @@ import { firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { AuthRequestApiServiceAbstraction } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import {
   DevicePendingAuthRequest,
   DeviceResponse,
 } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -66,14 +69,16 @@ export class DeviceManagementComponent implements OnInit {
   protected showHeaderInfo = false;
 
   constructor(
-    private authRequestApiService: AuthRequestApiServiceAbstraction,
-    private destroyRef: DestroyRef,
-    private deviceManagementComponentService: DeviceManagementComponentServiceAbstraction,
-    private devicesService: DevicesServiceAbstraction,
-    private dialogService: DialogService,
-    private i18nService: I18nService,
-    private messageListener: MessageListener,
-    private validationService: ValidationService,
+    private readonly accountService: AccountService,
+    private readonly authRequestApiService: AuthRequestApiServiceAbstraction,
+    private readonly destroyRef: DestroyRef,
+    private readonly deviceManagementComponentService: DeviceManagementComponentServiceAbstraction,
+    private readonly devicesService: DevicesServiceAbstraction,
+    private readonly dialogService: DialogService,
+    private readonly i18nService: I18nService,
+    private readonly messageListener: MessageListener,
+    private readonly pendingAuthRequestStateService: PendingAuthRequestsStateService,
+    private readonly validationService: ValidationService,
   ) {
     this.showHeaderInfo = this.deviceManagementComponentService.showHeaderInformation();
   }
@@ -248,6 +253,12 @@ export class DeviceManagementComponent implements OnInit {
       // Auth request was approved or denied, so clear the
       // pending auth request and re-sort the device array
       this.devices = clearAuthRequestAndResortDevices(this.devices, pendingAuthRequest);
+
+      // If a user ignores or doesn't see the auth request dialog, but comes to account settings
+      // to approve a device login attempt, clear out the state for that user.
+      await this.pendingAuthRequestStateService.clear(
+        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      );
     }
   }
 }
