@@ -89,12 +89,19 @@ export abstract class SsoLoginServiceAbstraction {
     userId: UserId | undefined,
   ) => Promise<void>;
 
-  // TODO-rr-bw: add jsdocs
+  /**
+   * A cache list of user emails for whom the `PolicyType.RequireSso` policy is applied (that is, a list
+   * of users who are required to authenticate via SSO only). The cache lives on the current device only.
+   */
   abstract ssoRequiredCache$: Observable<string[] | null>;
 
-  // TODO-rr-bw: add jsdocs
+  /**
+   * Add an email to the cached list of emails that must authenticate via SSO.
+   */
   abstract addToSsoRequiredCache: (email: string) => Promise<void>;
 
-  // TODO-rr-bw: add jsdocs
+  /**
+   * Remove an email from the cached list of emails that must authenticate via SSO.
+   */
   abstract removeFromSsoRequiredCacheIfPresent: (email: string) => Promise<void>;
 }
