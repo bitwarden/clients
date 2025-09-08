@@ -68,30 +68,14 @@
     </div>
     <div
       *ngIf="isEmpty && !performingInitialLoad"
-      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
+      class="tw-mt-40 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
     >
-      <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
-      <p>
-        {{
-          isSelectedOrgDisabled()
-            ? ("organizationIsDisabled" | i18n)
-            : filter?.type === "trash"
-              ? ("noItemsInTrash" | i18n)
-              : filter?.type === "favorites"
-                ? ("emptyFavorites" | i18n)
-                : ("noItemsInVault" | i18n)
-        }}
-      </p>
-      <p class="tw-text-muted tw-w-[400px] tw-text-center">
-        {{
-          isSelectedOrgDisabled()
-            ? ("organizationIsDisabledDesc" | i18n)
-            : filter?.type === "trash"
-              ? ("noItemsInTrashDesc" | i18n)
-              : filter?.type === "favorites"
-                ? ("emptyFavoritesDesc" | i18n)
-                : ("emptyVaultDescription" | i18n)
-        }}
+      <bit-icon [icon]="showEmptyState().icon" aria-hidden="true"></bit-icon>
+      <h4 bitTypography="h4">
+        {{ showEmptyState().title | i18n }}
+      </h4>
+      <p bitTypography="body2" class="tw-w-[300px] tw-text-center">
+        {{ showEmptyState().description | i18n }}
       </p>
       <button
         type="button"

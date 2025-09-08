@@ -1425,6 +1425,9 @@
   "noSearchResults": {
     "message": "No search results returned"
   },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
+  },
   "noPermissionToViewAllCollectionItems": {
     "message": "You do not have permission to view all items in this collection."
   },
@@ -4722,9 +4725,12 @@
     "description": "ex. Date this password was updated"
   },
   "organizationIsDisabled": {
+    "message": "Organization suspended"
+  },
+  "organizationIsSuspended": {
     "message": "Organization is suspended"
   },
-  "organizationIsDisabledDesc": {
+  "organizationIsSuspendedDesc": {
     "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
   },
   "secretsAccessSuspended": {

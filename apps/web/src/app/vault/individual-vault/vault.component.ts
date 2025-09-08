@@ -1,6 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+} from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -35,7 +43,15 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { Search } from "@bitwarden/assets/svg";
+import {
+  Search,
+  OrganizationIcon,
+  TrashIcon,
+  FavoritesIcon,
+  EmptyVaultIcon,
+  EmptySearchIcon,
+  Icon,
+} from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -166,6 +182,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   activeFilter: VaultFilter = new VaultFilter();
 
   protected noItemIcon = Search;
+  protected orgIcon = OrganizationIcon;
+  protected trashIcon = TrashIcon;
+  protected favoritesIcon = FavoritesIcon;
+  protected emptyVaultIcon = EmptyVaultIcon;
+  protected emptySearchResultIcon = EmptySearchIcon;
+
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -247,6 +269,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     map((results) => results.filter((result) => result !== null && result.shownBanner)),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
+
+  protected emptyStateSignal = signal<{ title: string; description: string; icon: string }>({
+    title: "",
+    description: "",
+    icon: "",
+  });
 
   constructor(
     private syncService: SyncService,
@@ -1315,6 +1343,49 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       (o) => o.id === this.activeFilter.selectedOrganizationNode?.node.id,
     );
     return !!selectedOrg && selectedOrg.enabled === false;
+  }
+
+  showEmptyState(): { title: string; description: string; icon: Icon } {
+    if (this.isSelectedOrgDisabled()) {
+      return {
+        title: "organizationIsSuspended",
+        description: "organizationIsSuspendedDesc",
+        icon: this.orgIcon,
+      };
+    }
+
+    let searchText = "";
+    this.currentSearchText$.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      searchText = value;
+    });
+    if (searchText) {
+      return {
+        title: "noSearchResults",
+        description: "clearFiltersOrTryAnother",
+        icon: this.emptySearchResultIcon,
+      };
+    }
+    const filterType = this.filter?.type;
+    switch (filterType) {
+      case "trash":
+        return {
+          title: "noItemsInTrash",
+          description: "noItemsInTrashDesc",
+          icon: this.trashIcon,
+        };
+      case "favorites":
+        return {
+          title: "emptyFavorites",
+          description: "emptyFavoritesDesc",
+          icon: this.favoritesIcon,
+        };
+    }
+
+    return {
+      title: "noItemsInVault",
+      description: "emptyVaultDescription",
+      icon: this.emptyVaultIcon,
+    };
   }
 
   private showMissingPermissionsError() {
