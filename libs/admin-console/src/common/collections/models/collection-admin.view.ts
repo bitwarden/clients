@@ -160,7 +160,7 @@ export class CollectionAdminView extends CollectionView {
     } catch (e) {
       // Note: This should be updated by the owning team with appropriate, domain specific behavior
       // eslint-disable-next-line no-console
-      console.log(
+      console.error(
         "[CollectionAdminView/fromCollectionResponse] Failed to decrypt the collection name",
         e,
       );

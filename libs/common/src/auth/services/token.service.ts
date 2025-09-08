@@ -322,8 +322,8 @@ export class TokenService implements TokenServiceAbstraction {
       return decryptedAccessToken;
     } catch (e) {
       // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
-      // eslint-disable-next-line no-console
-      console.error("[TokenService] Error decrypting access token", e);
+
+      this.logService.error("[TokenService] Error decrypting access token", e);
       throw e;
     }
   }

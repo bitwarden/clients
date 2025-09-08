@@ -28,6 +28,9 @@ export abstract class EncryptService {
 
   /**
    * Decrypts an EncString to a string
+   * @throws IMPORTANT: This throws if decryption fails. If decryption failures are expected to happen,
+   * the callsite should log where the failure occurred, and handle it by domain specifc logic (e.g. show a UI error).
+   *
    * @param encString - The EncString containing the encrypted string.
    * @param key - The key to decrypt the value with
    * @returns The decrypted string

@@ -182,7 +182,11 @@ export class EncString {
       this.decryptedValue = await encryptService.decryptString(this, key);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error("[EncString Generic Decrypt] failed to decrypt encstring", e);
+      console.error(
+        "[EncString Generic Decrypt] failed to decrypt encstring. Context: " +
+          (context ?? "No context"),
+        e,
+      );
       this.decryptedValue = DECRYPT_ERROR;
     }
     return this.decryptedValue;
