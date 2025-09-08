@@ -11,13 +11,15 @@ import {
   AfterViewInit,
   ElementRef,
   DestroyRef,
+  signal,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
 import { TypographyDirective } from "../../typography/typography.directive";
-import { hasScrollableContent } from "../../utils/";
+import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { fadeIn } from "../animations";
 import { DialogRef } from "../dialog.service";
@@ -49,7 +51,7 @@ export class DialogComponent implements AfterViewInit {
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
-  protected isScrollable = false;
+  protected isScrollable = signal(false);
 
   /** Background color */
   readonly background = input<"default" | "alt">("default");
@@ -116,11 +118,10 @@ export class DialogComponent implements AfterViewInit {
     const scrollableEl = this.scrollableBody().getElementRef().nativeElement;
     const sentinelEl = this.scrollBottom().nativeElement;
 
-    hasScrollableContent({
-      root: scrollableEl,
-      target: sentinelEl,
-      boundValue: (isScrollable: boolean) => (this.isScrollable = isScrollable),
-      options: { destroyRef: this.destroyRef },
-    });
+    hasScrollableContent$(scrollableEl, sentinelEl)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isScrollable) => {
+        this.isScrollable.set(isScrollable);
+      });
   }
 }

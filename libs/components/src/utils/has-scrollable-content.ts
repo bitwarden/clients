@@ -1,4 +1,3 @@
-import { DestroyRef, WritableSignal } from "@angular/core";
 import { Observable, merge, animationFrameScheduler } from "rxjs";
 import { auditTime, map, startWith, observeOn, distinctUntilChanged } from "rxjs/operators";
 
@@ -27,16 +26,14 @@ function resize$(...els: Element[]): Observable<void> {
   });
 }
 
-export interface HasScrollableContentOptions {
-  threshold?: number; // default: 1 (fully visible)
-  destroyRef?: DestroyRef; // optional auto-teardown
-}
-
-/** Emits whenever scroll/resize/layout might change visibility */
-const scrollableContentObservable$ = (
+/**
+ * Utility to determine if an element has scrollable content.
+ * Returns an Observable that emits whenever scroll/resize/layout might change visibility
+ */
+export const hasScrollableContent$ = (
   root: HTMLElement,
   target: HTMLElement,
-  threshold: HasScrollableContentOptions["threshold"] = 1,
+  threshold: number = 1,
 ): Observable<boolean> => {
   const intersectionObserver$ = intersection$(target, { root, threshold });
   const resizeObserver$ = resize$(root, target).pipe(map(() => null));
@@ -53,50 +50,4 @@ const scrollableContentObservable$ = (
     }),
     distinctUntilChanged(),
   );
-};
-
-type HasScrollableContentConfig = {
-  root: HTMLElement;
-  target: HTMLElement;
-  boundValue: BoundValue;
-  options?: {
-    threshold?: number; // default: 1 (fully visible)
-    destroyRef?: DestroyRef; // optional auto-teardown},
-  };
-};
-
-type BoundValue = ((v: boolean) => void) | WritableSignal<boolean>;
-
-/**
- *  Utility to determine if an element has scrollable content.
- *
- * NOTE: If not passing a destroyRef in the 'options' object, you must call the returned `unsubscribe` function to clean up the observers
- */
-export const hasScrollableContent = ({
-  root,
-  target,
-  boundValue,
-  options = {},
-}: HasScrollableContentConfig): { unsubscribe: () => void } => {
-  const { threshold = 1, destroyRef } = options;
-
-  const stream$ = scrollableContentObservable$(root, target, threshold);
-
-  const setBoundValue = (isScrollable: boolean) => {
-    if (typeof (boundValue as unknown as any)?.set === "function") {
-      // WritableSignal<boolean>
-      (boundValue as WritableSignal<boolean>).set(isScrollable);
-    } else {
-      (boundValue as (isScrollable: boolean) => void)(isScrollable);
-    }
-  };
-
-  const subscription = stream$.subscribe((isScrollable: boolean) => {
-    setBoundValue(isScrollable);
-  });
-
-  const unsubscribe = () => subscription.unsubscribe();
-  destroyRef?.onDestroy(unsubscribe);
-
-  return { unsubscribe };
 };
