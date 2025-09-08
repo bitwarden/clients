@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "附件已儲存"
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "檔案"
   },
@@ -1300,10 +1306,10 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "enableFavicon": {
-    "message": "顯示網站圖示"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "在每個登入資料旁顯示一個可辨識的圖片。"
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "最小化至系統匣圖示"
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "啟動應用程式時要求 Touch ID"
-  },
-  "requirePasswordOnStart": {
-    "message": "要求在啟動應用程式時輸入密碼或 PIN 碼"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "要求在啟動應用程式時輸入密碼"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "重啟後使用主密碼鎖定"
@@ -3491,15 +3491,11 @@
   "selectImportCollection": {
     "message": "選擇一個分類"
   },
-  "importTargetHint": {
-    "message": "如果您要將匯入檔案的內容移動到 $DESTINATION$，請選擇此選項",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "檔案包含未指派項目。"
@@ -3594,6 +3590,12 @@
   },
   "awaitingSSODesc": {
     "message": "請使用您的公司憑證繼續登入。"
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "請參閱我們說明網站上的詳細說明於",
@@ -4077,5 +4079,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

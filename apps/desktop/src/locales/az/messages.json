@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Qoşma saxlanıldı."
   },
+  "addAttachment": {
+    "message": "Qoşma əlavə et"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maksimal fayl həcmi 500 MB-dır"
+  },
   "file": {
     "message": "Fayl"
   },
@@ -1300,10 +1306,10 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "enableFavicon": {
-    "message": "Veb sayt ikonlarını göstər"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Hər girişin yanında tanına bilən bir təsvir göstər."
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Bildiriş sahəsi ikonuna kiçilt"
@@ -1840,12 +1846,6 @@
   "autoPromptTouchId": {
     "message": "Açılışda Touch ID-ni soruşun"
   },
-  "requirePasswordOnStart": {
-    "message": "Tətbiq başladılanda parolu və ya PIN-i tələb et"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Tətbiq başladılanda parolu tələb et"
-  },
   "lockWithMasterPassOnRestart1": {
     "message": "Yenidən başladılanda ana parol ilə kilidlə"
   },
@@ -1902,7 +1902,7 @@
     "message": "Xidmət Şərtləri"
   },
   "privacyPolicy": {
-    "message": "Gizlilik Siyasəti"
+    "message": "Məxfilik Siyasəti"
   },
   "unsavedChangesConfirmation": {
     "message": "Tərk etmək istədiyinizə əminsiniz? Əgər indi tərk etsəniz, hazırkı məlumatlarınız saxlanılmayacaq."
@@ -2109,7 +2109,7 @@
     "message": "Bu qutunu işarələyərək aşağıdakılarla razılaşırsınız:"
   },
   "acceptPoliciesRequired": {
-    "message": "Xidmət Şərtləri və Gizlilik Siyasəti qəbul edilməyib."
+    "message": "Xidmət Şərtləri və Məxfilik Siyasəti qəbul edilməyib."
   },
   "enableBrowserIntegration": {
     "message": "Brauzer inteqrasiyasını fəallaşdır"
@@ -2205,7 +2205,7 @@
     "message": "Bir təşkilat siyasəti, elementlərin fərdi seyfinizə köçürülməsini əngəllədi."
   },
   "personalDetails": {
-    "message": "Şəxsi detallar"
+    "message": "Fərdi detallar"
   },
   "identification": {
     "message": "İdentifikasiya"
@@ -2271,7 +2271,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
-    "message": "Bu \"Send\" ilə bağlı gizli qeydlər.",
+    "message": "Bu \"Send\" ilə bağlı özəl qeydlər.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendLink": {
@@ -3491,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Bir kolleksiya seçin"
   },
-  "importTargetHint": {
-    "message": "Daxilə köçürülən fayl məzmununun $DESTINATION$ yerinə daşınmasını istəyirsinizsə bu variantı seçin",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Daxilə köçürülən fayl məzmunlarının bir kolleksiyaya daşınmasını istəyirsinizsə bu variantı seçin"
+  },
+  "importTargetHintFolder": {
+    "message": "Daxilə köçürülən fayl məzmunlarının bir qovluğa daşınmasını istəyirsinizsə bu variantı seçin"
   },
   "importUnassignedItemsError": {
     "message": "Faylda təyin edilməmiş elementlər var."
@@ -3594,6 +3590,12 @@
   },
   "awaitingSSODesc": {
     "message": "Lütfən şirkət kimlik məlumatlarınızı istifadə edərək giriş etməyə davam edin."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Birbaşa brauzerdən daxilə köçür"
+  },
+  "browserProfile": {
+    "message": "Brauzer profili"
   },
   "seeDetailedInstructions": {
     "message": "Kömək saytımızda detallı təlimatlara baxın",
@@ -4077,5 +4079,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden, giriş yerlərini doğrulamır, qısayolu istifadə etməzdən əvvəl doğru pəncərədə və xanada olduğunuza əmin olun."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Növbəti"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector domenini təsdiqlə"
+  },
+  "confirm": {
+    "message": "Təsdiqlə"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Avto-yazma qısayolunu fəallaşdır"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Veriləri yanlış yerə doldurmamaq üçün qısayolu istifadə etməzdən əvvəl doğru xanada olduğunuza əmin olun."
+  },
+  "editShortcut": {
+    "message": "Qısayola düzəliş et"
   }
 }

@@ -1,11 +1,11 @@
 {
   "name": "@bitwarden/web-vault",
-  "version": "2025.8.0",
+  "version": "2025.9.0",
   "scripts": {
-    "build:oss": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
-    "build:bit": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-web/webpack.config.js",
-    "build:oss:watch": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack serve",
-    "build:bit:watch": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack serve -c ../../bitwarden_license/bit-web/webpack.config.js",
+    "build:oss": "webpack",
+    "build:bit": "webpack -c ../../bitwarden_license/bit-web/webpack.config.js",
+    "build:oss:watch": "webpack serve",
+    "build:bit:watch": "webpack serve -c ../../bitwarden_license/bit-web/webpack.config.js",
     "build:bit:dev": "cross-env ENV=development npm run build:bit",
     "build:bit:dev:analyze": "cross-env LOGGING=false webpack -c ../../bitwarden_license/bit-web/webpack.config.js --profile --json > stats.json && npx webpack-bundle-analyzer stats.json build/",
     "build:bit:dev:watch": "cross-env ENV=development NODE_OPTIONS=\"--max-old-space-size=8192\" npm run build:bit:watch",

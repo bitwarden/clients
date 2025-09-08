@@ -556,6 +556,9 @@
   "view": {
     "message": "Pogled"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Tukaj ni ničesar."
   },
@@ -4131,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -5117,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
@@ -5444,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5579,5 +5596,15 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

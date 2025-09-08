@@ -159,7 +159,6 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
         },
       });
   }
-
   submit = async () => {
     this.showErrorSummary = false;
 

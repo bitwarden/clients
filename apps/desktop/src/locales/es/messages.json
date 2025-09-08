@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "El adjunto se ha guardado."
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Archivo"
   },
@@ -1300,10 +1306,10 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "enableFavicon": {
-    "message": "Mostrar iconos del sitio web"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Mostrar una imagen reconocible junto a cada inicio de sesión."
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Minimizar a icono en la bandeja"
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Solicitar Touch ID al iniciar"
-  },
-  "requirePasswordOnStart": {
-    "message": "Solicitar contraseña o PIN al iniciar la aplicación"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Solicitar contraseña al iniciar la aplicación"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloquear con contraseña maestra al reiniciar"
@@ -3491,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Escoge una colección"
   },
-  "importTargetHint": {
-    "message": "Selecciona esta opción si quieres que el contenido del archivo importado se mueva a un $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "El archivo contiene elementos no asignados."
@@ -3594,6 +3590,12 @@
   },
   "awaitingSSODesc": {
     "message": "Por favor, continua para iniciar sesión usando las credenciales de tu empresa."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Consulte las instrucciones detalladas en nuestro sitio de ayuda en",
@@ -4077,5 +4079,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden no valida las ubicaciones de entrada, asegúrate de que estás en la ventana y en el capo correctos antes de usar el atajo."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

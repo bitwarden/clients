@@ -7,10 +7,6 @@ jest.mock("../utils", () => {
   return {
     ...actualUtils,
     sendExtensionMessage: jest.fn((command, options) => {
-      if (command === "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag") {
-        return Promise.resolve({ result: false });
-      }
-
       return chrome.runtime.sendMessage(Object.assign({ command }, options));
     }),
   };

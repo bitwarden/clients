@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "S'ha guardat el fitxer adjunt."
   },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
   "file": {
     "message": "Fitxer"
   },
@@ -1300,10 +1306,10 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "enableFavicon": {
-    "message": "Mostra les icones del lloc web"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Mostra una imatge reconeixible al costat de cada inici de sessió."
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Minimitza a icona en la safata"
@@ -1839,12 +1845,6 @@
   },
   "autoPromptTouchId": {
     "message": "Sol·liciteu Touch ID en iniciar"
-  },
-  "requirePasswordOnStart": {
-    "message": "Requereix contrasenya o PIN a l'inici de l'aplicació"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bloqueja amb la contrasenya mestra en reiniciar"
@@ -3491,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Selecciona una col·lecció"
   },
-  "importTargetHint": {
-    "message": "Seleccioneu aquesta opció si voleu que el contingut del fitxer importat es traslladi a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "El fitxer conté elements no assignats."
@@ -3594,6 +3590,12 @@
   },
   "awaitingSSODesc": {
     "message": "Continueu iniciant la sessió amb les credencials de la vostra empresa."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Consulteu les instruccions detallades al nostre lloc d'ajuda a",
@@ -4077,5 +4079,27 @@
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

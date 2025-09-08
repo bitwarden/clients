@@ -556,6 +556,9 @@
   "view": {
     "message": "Nézet"
   },
+  "viewLogin": {
+    "message": "Bejelentkezés megtekintése"
+  },
   "noItemsInList": {
     "message": "Nincsenek megjeleníthető tételek."
   },
@@ -1761,13 +1764,13 @@
     "message": "Ez a böngésző nem dolgozza fel az U2F kéréseket ebben a felbukkanó ablakban. Szeretnénk megnyitni a felbukkanó ablakot új böngészőablakban az U2F segítségével történő bejelentkezéshez?"
   },
   "enableFavicon": {
-    "message": "Webhely ikonok megjelenítése"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "Minden bejelentkezés mellett egy felismerhető kép megjelenítése. Minden bejelentkezett fiókra vonatkozik."
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Számláló jelvény megjelenítése"
@@ -4131,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Gyűjtemény kiválasztása"
   },
-  "importTargetHint": {
-    "message": "Válasszuk ezt a lehetőséget, ha azt akarjuk, hogy az importált fájl tartalma $DESTINATION$ helyre kerüljön",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
+  },
+  "importTargetHintFolder": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -5117,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Az automatikus bejelentkezési kitöltési javaslatok számának megjelenítése a bővítmény ikonján"
   },
+  "accountAccessRequested": {
+    "message": "Fiók hozzáférés kérés történt."
+  },
+  "confirmAccessAttempt": {
+    "message": "Bejelentkezési kísérlet megerősítése $EMAIL$ email címmel",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Gyors másolási műveletek megjelenítése a Széfen"
   },
@@ -5444,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Kockázatos jelszó megváltoztatása"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
+  },
+  "missingWebsite": {
+    "message": "Hiányzó webhely"
+  },
   "settingsVaultOptions": {
     "message": "Széf opciók"
   },
@@ -5579,5 +5596,15 @@
   },
   "showLess": {
     "message": "Kevesebb megjelenítése"
+  },
+  "next": {
+    "message": "Következő"
+  },
+  "moreBreadcrumbs": {
+    "message": "További morzsamenük",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "A Key Connector tartomány megerősítése"
   }
 }

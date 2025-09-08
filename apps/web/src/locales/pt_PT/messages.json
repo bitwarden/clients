@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Todas de aplicações"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Desmarcar como aplicação crítica"
+  "unmarkAsCritical": {
+    "message": "Desmarcar como crítica"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Aplicação crítica desmarcada com sucesso"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Copiar número da carta de condução"
   },
+  "copyPrivateKey": {
+    "message": "Copiar chave privada"
+  },
+  "copyPublicKey": {
+    "message": "Copiar chave pública"
+  },
+  "copyFingerprint": {
+    "message": "Copiar impressão digital"
+  },
   "copyName": {
     "message": "Copiar nome"
   },
@@ -1279,7 +1288,7 @@
     "message": "Dica da palavra-passe mestra"
   },
   "masterPassHintText": {
-    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ carateres.",
+    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ caracteres.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -1322,7 +1331,7 @@
     "message": "É necessário reescrever a palavra-passe mestra."
   },
   "masterPasswordMinlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ carateres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ caracteres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1506,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Código de recuperação"
+  },
+  "invalidRecoveryCode": {
+    "message": "Código de recuperação inválido"
   },
   "authenticatorAppTitle": {
     "message": "Aplicação de autenticação"
@@ -1703,15 +1715,15 @@
     "message": "Mínimo de números"
   },
   "minSpecial": {
-    "message": "Mínimo de carateres especiais",
+    "message": "Mínimo de caracteres especiais",
     "description": "Minimum special characters"
   },
   "ambiguous": {
-    "message": "Evitar carateres ambíguos",
+    "message": "Evitar caracteres ambíguos",
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Evitar carateres ambíguos",
+    "message": "Evitar caracteres ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "length": {
@@ -1733,7 +1745,7 @@
     "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Carateres especiais (!@#$%^&*)"
+    "message": "Caracteres especiais (!@#$%^&*)"
   },
   "numWords": {
     "message": "Número de palavras"
@@ -2050,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Selecionar uma coleção"
   },
-  "importTargetHint": {
-    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma coleção"
+  },
+  "importTargetHintFolder": {
+    "message": "Selecione esta opção se pretender que o conteúdo do ficheiro importado seja transferido para uma pasta"
   },
   "importUnassignedItemsError": {
     "message": "O ficheiro contém itens não atribuídos."
@@ -2451,9 +2459,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Ocorreu um problema ao ler a chave de segurança. Tente novamente."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Devido a limitações da plataforma, o WebAuthn não pode ser utilizado em todas as aplicações Bitwarden. Deve configurar outro fornecedor de verificação de dois passos para poder aceder à sua conta quando o WebAuthn não puder ser utilizado."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "O seu código Bitwarden de recuperação da verificação de dois passos"
   },
@@ -2823,6 +2828,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Mostrar resumo de preços"
+  },
+  "hidePricingSummary": {
+    "message": "Ocultar resumo de preços"
   },
   "summary": {
     "message": "Resumo"
@@ -4885,16 +4896,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais carateres em maiúsculas"
+    "message": "Contém um ou mais caracteres em maiúsculas"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais carateres em minúsculas"
+    "message": "Contém um ou mais caracteres em minúsculas"
   },
   "policyInEffectNumbers": {
     "message": "Contém um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes carateres especiais $CHARS$",
+    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -6806,7 +6817,7 @@
     "message": "obrigatório"
   },
   "charactersCurrentAndMaximum": {
-    "message": "$CURRENT$/$MAX$ máximo de carateres",
+    "message": "$CURRENT$/$MAX$ máximo de caracteres",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -6819,7 +6830,7 @@
     }
   },
   "characterMaximum": {
-    "message": "Máximo de $MAX$ carateres",
+    "message": "Máximo de $MAX$ caracteres",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -6958,7 +6969,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Utilize $RECOMMENDED$ carateres ou mais para gerar uma palavra-passe forte.",
+    "message": " Utilize $RECOMMENDED$ caracteres ou mais para gerar uma palavra-passe forte.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -7028,6 +7039,12 @@
   },
   "unknownCipher": {
     "message": "Item desconhecido, poderá ser necessário pedir autorização para aceder a este item."
+  },
+  "unknownSecret": {
+    "message": "Segredo desconhecido, poderá ser necessário pedir autorização para aceder a este segredo."
+  },
+  "unknownProject": {
+    "message": "Projeto desconhecido, poderá ser necessário pedir autorização para aceder a este projeto."
   },
   "cannotSponsorSelf": {
     "message": "Não é possível resgatar da conta ativa. Introduza um e-mail diferente."
@@ -7312,7 +7329,7 @@
     "message": "O campo não é um endereço de e-mail."
   },
   "inputMinLength": {
-    "message": "O campo deve ter pelo menos $COUNT$ carateres.",
+    "message": "O campo deve ter pelo menos $COUNT$ caracteres.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7321,7 +7338,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "O campo não pode exceder os $COUNT$ carateres de comprimento.",
+    "message": "O campo não pode exceder os $COUNT$ caracteres de comprimento.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7330,7 +7347,7 @@
     }
   },
   "inputForbiddenCharacters": {
-    "message": "Não são permitidos os seguintes carateres: $CHARACTERS$",
+    "message": "Não são permitidos os seguintes caracteres: $CHARACTERS$",
     "placeholders": {
       "characters": {
         "content": "$1",
@@ -7339,7 +7356,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ carateres.",
+    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -7348,7 +7365,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "O valor do campo não pode exceder os $MAX$ carateres.",
+    "message": "O valor do campo não pode exceder os $MAX$ caracteres.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -7480,11 +7497,11 @@
     "message": "Limpar tudo"
   },
   "toggleCharacterCount": {
-    "message": "Mostrar/ocultar contagem de carateres",
+    "message": "Mostrar/ocultar contagem de caracteres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "passwordCharacterCount": {
-    "message": "Contagem de carateres da palavra-passe",
+    "message": "Contagem de caracteres da palavra-passe",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "hide": {
@@ -8352,10 +8369,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Eliminou permanentemente um segredo com o identificador: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Restaurou um segredo com o identificador: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Criou um novo segredo com o identificador: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Acedeu a um projeto com o ID: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "ID do projeto eliminado: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "ID do segredo eliminado: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Editou um projeto com o identificador: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Eliminou um projeto com o identificador: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Criou um novo projeto com o identificador: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8461,7 +8550,7 @@
     "message": "Palavra-passe fraca identificada e encontrada numa violação de dados. Utilize uma palavra-passe forte e única para proteger a sua conta. Tem a certeza de que pretende utilizar esta palavra-passe?"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ carateres no mínimo",
+    "message": "$LENGTH$ caracteres no mínimo",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -8470,7 +8559,7 @@
     }
   },
   "masterPasswordMinimumlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $LENGTH$ carateres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $LENGTH$ caracteres.",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -8849,20 +8938,25 @@
   "collectionManagement": {
     "message": "Gestão de coleções"
   },
-  "collectionManagementDesc": {
-    "message": "Gerir o comportamento da coleção da organização"
+  "collectionManagementDescription": {
+    "message": "Configurar o comportamento da coleção da organização"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Limitar a criação de coleções aos proprietários e administradores"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Permitir aos proprietários e administradores gerir todas as coleções e itens a partir da consola de administração"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Limitar a eliminação de coleções aos proprietários e administradores"
+  "restrictCollectionCreationDescription": {
+    "message": "Restringir a criação de coleções aos proprietários e administradores"
   },
-  "limitItemDeletionDescription": {
-    "message": "Limitar a eliminação de itens aos membros com as permissões Gerir coleção"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restringir a eliminação de coleções aos proprietários e administradores"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Os proprietários e administradores podem gerir todas as coleções e itens"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restringir a eliminação de itens a membros com a permissão ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Definição de gestão de coleções atualizada"
@@ -8933,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Definição de gestão de coleções modificada $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Ativada a definição de criação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Desativada a definição de criação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Ativada a definição de eliminação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Desativada a definição de eliminação de coleções restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Ativada a definição de eliminação de itens restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Desativada a definição de eliminação de itens restrita $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Ativada a definição de permitir aos proprietários e administradores gerir todas as coleções e itens $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Desativada a definição de permitir aos proprietários e administradores gerir todas as coleções e itens $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10226,10 +10392,10 @@
     "description": "The text, 'API', is an acronym and should not be translated."
   },
   "showCharacterCount": {
-    "message": "Mostrar contagem de carateres"
+    "message": "Mostrar contagem de caracteres"
   },
   "hideCharacterCount": {
-    "message": "Ocultar contagem de carateres"
+    "message": "Ocultar contagem de caracteres"
   },
   "editAccess": {
     "message": "Editar acesso"
@@ -10250,7 +10416,7 @@
     "message": "Introduza o ID do HTML, o nome, a aria-label ou o placeholder do campo."
   },
   "uppercaseDescription": {
-    "message": "Incluir carateres em maiúsculas",
+    "message": "Incluir caracteres em maiúsculas",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -10258,7 +10424,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Incluir carateres em minúsculas",
+    "message": "Incluir caracteres em minúsculas",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -10274,7 +10440,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Incluir carateres especiais",
+    "message": "Incluir caracteres especiais",
     "description": "Full description for the password generator special characters checkbox"
   },
   "addAttachment": {
@@ -10499,7 +10665,7 @@
     "message": "Domínio reivindicado"
   },
   "organizationNameMaxLength": {
-    "message": "O nome da organização não pode exceder 50 carateres."
+    "message": "O nome da organização não pode exceder 50 caracteres."
   },
   "rotationCompletedTitle": {
     "message": "Rotação de chaves bem-sucedida"
@@ -10744,6 +10910,9 @@
   },
   "upgradeEventLogMessage": {
     "message": "Estes eventos são apenas exemplos e não refletem eventos reais na sua organização Bitwarden."
+  },
+  "viewEvents": {
+    "message": "Ver eventos"
   },
   "cannotCreateCollection": {
     "message": "As organizações gratuitas podem ter até 2 coleções. Atualize para um plano pago para adicionar mais coleções."
@@ -11012,5 +11181,59 @@
   },
   "showLess": {
     "message": "Mostrar menos"
+  },
+  "missingTaxId": {
+    "message": "NIF em falta"
+  },
+  "missingTaxIdWarning": {
+    "message": "Ação necessária: Está a faltar um NIF nos detalhes de pagamento. Se um número de identificação fiscal não for adicionado, as suas faturas podem incluir impostos adicionais."
+  },
+  "moreBreadcrumbs": {
+    "message": "Mais da navegação estrutural",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Adicionar um NIF"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Ação necessária: NIF em falta"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Se não for adicionado um NIF, as suas faturas podem incluir impostos adicionais."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Ação necessária: O seu NIF não foi verificado. Se o seu número de identificação fiscal não for verificado, as suas faturas podem incluir impostos adicionais."
+  },
+  "editTaxId": {
+    "message": "Edite o seu NIF"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "NIF não verificado"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Verifique o seu NIF para verificar se o formato está correto e se não existem erros de digitação."
+  },
+  "pendingVerification": {
+    "message": "Verificação pendente"
+  },
+  "checkInputFormat": {
+    "message": "Verifique se existem erros de digitação no formato de entrada."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Exemplo de formato de $CODE$: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirmar o domínio do Key Connector"
   }
 }
+

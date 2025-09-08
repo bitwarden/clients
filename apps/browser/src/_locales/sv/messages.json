@@ -556,6 +556,9 @@
   "view": {
     "message": "Visa"
   },
+  "viewLogin": {
+    "message": "Visa inloggning"
+  },
   "noItemsInList": {
     "message": "Det finns inga objekt att visa."
   },
@@ -1764,7 +1767,7 @@
     "message": "Visa webbplatsikoner"
   },
   "faviconDesc": {
-    "message": "Visa en identifierbar bild bredvid varje inloggning."
+    "message": "Visa en igenkännbar bild bredvid varje inloggning."
   },
   "faviconDescAlt": {
     "message": "Visa en igenkännbar bild bredvid varje inloggning. Gäller för alla inloggade konton."
@@ -4131,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Välj en samling"
   },
-  "importTargetHint": {
-    "message": "Välj det här alternativet om du vill att innehållet i den importerade filen ska flyttas till en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en samling"
+  },
+  "importTargetHintFolder": {
+    "message": "Välj detta alternativ om du vill att innehållet i den importerade filen ska flyttas till en mapp"
   },
   "importUnassignedItemsError": {
     "message": "Filen innehåller otilldelade objekt."
@@ -5117,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Visa antal autofyllförslag för inloggning på tilläggsikonen"
   },
+  "accountAccessRequested": {
+    "message": "Begäran om åtkomst till konto"
+  },
+  "confirmAccessAttempt": {
+    "message": "Bekräfta åtkomstförsök för $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Visa snabbkopieringsåtgärder på Vault"
   },
@@ -5444,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Ändra lösenord för riskgrupper"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Denna inloggning är utsatt för risk och saknar en webbplats. Lägg till en webbplats och ändra lösenordet för ökad säkerhet."
+  },
+  "missingWebsite": {
+    "message": "Saknar webbplats"
+  },
   "settingsVaultOptions": {
     "message": "Alternativ för valv"
   },
@@ -5579,5 +5596,15 @@
   },
   "showLess": {
     "message": "Visa mindre"
+  },
+  "next": {
+    "message": "Nästa"
+  },
+  "moreBreadcrumbs": {
+    "message": "Fler länkstigar",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Bekräfta Key Connector-domän"
   }
 }

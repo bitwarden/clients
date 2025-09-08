@@ -1,4 +1,4 @@
-import { map, Observable } from "rxjs";
+import { concat, defer, filter, map, merge, Observable, shareReplay, switchMap } from "rxjs";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -15,20 +15,74 @@ export interface RawBadgeState {
   icon: BadgeIcon;
 }
 
+export interface Tab {
+  tabId: number;
+  url: string;
+}
+
+function tabFromChromeTab(tab: chrome.tabs.Tab): Tab {
+  return {
+    tabId: tab.id!,
+    url: tab.url!,
+  };
+}
+
 export interface BadgeBrowserApi {
-  activeTab$: Observable<chrome.tabs.TabActiveInfo | undefined>;
+  activeTabsUpdated$: Observable<Tab[]>;
 
   setState(state: RawBadgeState, tabId?: number): Promise<void>;
   getTabs(): Promise<number[]>;
+  getActiveTabs(): Promise<Tab[]>;
 }
 
 export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
   private badgeAction = BrowserApi.getBrowserAction();
   private sidebarAction = BrowserApi.getSidebarAction(self);
 
-  activeTab$ = fromChromeEvent(chrome.tabs.onActivated).pipe(
-    map(([tabActiveInfo]) => tabActiveInfo),
+  private onTabActivated$ = fromChromeEvent(chrome.tabs.onActivated).pipe(
+    map(([activeInfo]) => activeInfo),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  activeTabsUpdated$ = concat(
+    defer(async () => await this.getActiveTabs()),
+    merge(
+      this.onTabActivated$.pipe(
+        switchMap(async (activeInfo) => {
+          const tab = await BrowserApi.getTab(activeInfo.tabId);
+
+          if (tab == undefined || tab.id == undefined || tab.url == undefined) {
+            return [];
+          }
+
+          return [tabFromChromeTab(tab)];
+        }),
+      ),
+      fromChromeEvent(chrome.tabs.onUpdated).pipe(
+        filter(
+          ([_, changeInfo]) =>
+            // Only emit if the url was updated
+            changeInfo.url != undefined,
+        ),
+        map(([_tabId, _changeInfo, tab]) => [tabFromChromeTab(tab)]),
+      ),
+      fromChromeEvent(chrome.webNavigation.onCommitted).pipe(
+        map(([details]) => {
+          const toReturn: Tab[] =
+            details.transitionType === "reload" ? [{ tabId: details.tabId, url: details.url }] : [];
+          return toReturn;
+        }),
+      ),
+      // NOTE: We're only sharing the active tab changes, not the full list of active tabs.
+      // This is so that any new subscriber will get the latest active tabs immediately, but
+      // doesn't re-subscribe to chrome events.
+    ).pipe(shareReplay({ bufferSize: 1, refCount: true })),
+  ).pipe(filter((tabs) => tabs.length > 0));
+
+  async getActiveTabs(): Promise<Tab[]> {
+    const tabs = await BrowserApi.getActiveTabs();
+    return tabs.filter((tab) => tab.id != undefined && tab.url != undefined).map(tabFromChromeTab);
+  }
 
   constructor(private platformUtilsService: PlatformUtilsService) {}
 

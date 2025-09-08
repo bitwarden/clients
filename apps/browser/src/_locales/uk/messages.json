@@ -556,6 +556,9 @@
   "view": {
     "message": "Переглянути"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Немає записів."
   },
@@ -1761,13 +1764,13 @@
     "message": "Цей браузер не може обробити U2F запити в цьому виринаючому вікні. Хочете відкрити його у новому вікні, щоб ви змогли увійти з використанням U2F?"
   },
   "enableFavicon": {
-    "message": "Показувати піктограми вебсайтів"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Показувати зображення біля кожного запису."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "Показувати зображення поруч з кожним записом. Застосовується для всіх облікових записів, до яких виконано вхід."
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Показувати лічильник"
@@ -4131,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Вибрати збірку"
   },
-  "importTargetHint": {
-    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до збірки"
+  },
+  "importTargetHintFolder": {
+    "message": "Оберіть цю опцію, якщо ви хочете, щоб вміст імпортованого файлу було збережено до теки"
   },
   "importUnassignedItemsError": {
     "message": "Файл містить непризначені записи."
@@ -5117,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Показувати кількість пропозицій автозаповнення на піктограмі розширення"
   },
+  "accountAccessRequested": {
+    "message": "Запитано доступ до облікового запису"
+  },
+  "confirmAccessAttempt": {
+    "message": "Підтвердити спробу доступу для $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Показати дії швидкого копіювання у сховищі"
   },
@@ -5444,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Параметри сховища"
   },
@@ -5579,5 +5596,15 @@
   },
   "showLess": {
     "message": "Згорнути"
+  },
+  "next": {
+    "message": "Далі"
+  },
+  "moreBreadcrumbs": {
+    "message": "Інші елементи",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

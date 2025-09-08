@@ -556,6 +556,9 @@
   "view": {
     "message": "Anzeigen"
   },
+  "viewLogin": {
+    "message": "Login ansehen"
+  },
   "noItemsInList": {
     "message": "Keine Einträge zum Anzeigen vorhanden."
   },
@@ -1764,10 +1767,10 @@
     "message": "Website-Symbole anzeigen"
   },
   "faviconDesc": {
-    "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen."
+    "message": "Ein wiedererkennbares Bild neben jedem Login anzeigen."
   },
   "faviconDescAlt": {
-    "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen. Gilt für alle angemeldeten Konten."
+    "message": "Ein wiedererkennbares Bild neben jedem Login anzeigen. Gilt für alle eingeloggten Konten."
   },
   "enableBadgeCounter": {
     "message": "Badge-Zähler anzeigen"
@@ -4131,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Sammlung auswählen"
   },
-  "importTargetHint": {
-    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine(n) $DESTINATION$ verschoben werden soll",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
+  },
+  "importTargetHintFolder": {
+    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -5117,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Anzahl der Auto-Ausfüllen-Vorschläge von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
   },
+  "accountAccessRequested": {
+    "message": "Kontozugriff angefordert"
+  },
+  "confirmAccessAttempt": {
+    "message": "Zugriffsversuch für $EMAIL$ bestätigen",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Schnellkopier-Aktionen im Tresor anzeigen"
   },
@@ -5444,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Dieser Login ist gefährdet und es fehlt eine Website. Fügen Sie eine Website hinzu und ändern Sie das Passwort, um die Sicherheit zu erhöhen."
+  },
+  "missingWebsite": {
+    "message": "Fehlende Webseite"
+  },
   "settingsVaultOptions": {
     "message": "Tresoroptionen"
   },
@@ -5579,5 +5596,15 @@
   },
   "showLess": {
     "message": "Weniger anzeigen"
+  },
+  "next": {
+    "message": "Weiter"
+  },
+  "moreBreadcrumbs": {
+    "message": "Mehr Breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Bestätige Key Connector Domäne"
   }
 }

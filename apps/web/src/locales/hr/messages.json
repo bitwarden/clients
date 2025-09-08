@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Ukupno aplikacija"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Odznači kao kritičnu aplikaciju"
+  "unmarkAsCritical": {
+    "message": "Odznači kao kritično"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Kritična aplikacija uspješno odznačena"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Kopiraj broj osobne"
   },
+  "copyPrivateKey": {
+    "message": "Kopiraj privatni ključ"
+  },
+  "copyPublicKey": {
+    "message": "Kopiraj javni ključ"
+  },
+  "copyFingerprint": {
+    "message": "Kopiraj otisak prsta"
+  },
   "copyName": {
     "message": "Kopiraj ime"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Kôd za oporavak"
   },
+  "invalidRecoveryCode": {
+    "message": "Neispravni kôd za oporavak"
+  },
   "authenticatorAppTitle": {
     "message": "Autentifikatorska aplikacija"
   },
@@ -2050,15 +2062,11 @@
   "selectImportCollection": {
     "message": "Odaberi zbirku"
   },
-  "importTargetHint": {
-    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš spremiti u $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u zbirku"
+  },
+  "importTargetHintFolder": {
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u mapu"
   },
   "importUnassignedItemsError": {
     "message": "Datoteka sadrži nedodijeljene stavke."
@@ -2451,9 +2459,6 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Došlo je do pogreške kod očitavanja sigurnosnog ključa. Pokušaj ponovno."
   },
-  "twoFactorWebAuthnWarning1": {
-    "message": "Zbog platformskih ograničenja, WebAuthn nije moguće koristiti sa svim Bitwarden aplikacijama. Uključi drugi način dvostruke autentifikacije za pristup računu kada se ne može koristiti WebAuthn."
-  },
   "twoFactorRecoveryYourCode": {
     "message": "Tvoj kôd za oporavak Bitwarden prijave dvostrukom autentifikacijom"
   },
@@ -2823,6 +2828,12 @@
         "example": "'month' or 'year'"
       }
     }
+  },
+  "showPricingSummary": {
+    "message": "Prikaži sažetak cijene"
+  },
+  "hidePricingSummary": {
+    "message": "Sakrij sažetak cijene"
   },
   "summary": {
     "message": "Sažetak"
@@ -7029,6 +7040,12 @@
   "unknownCipher": {
     "message": "Nepoznata stavka. Možda trebaš tražiti dozvolu za pristup ovoj stavci."
   },
+  "unknownSecret": {
+    "message": "Nepoznata tajna. Možda trebaš tražiti dozvolu za pristup ovoj tajni."
+  },
+  "unknownProject": {
+    "message": "Nepoznati projekt. Možda trebaš tražiti dozvolu za pristup ovom projektu."
+  },
   "cannotSponsorSelf": {
     "message": "Ne možeš iskorisiti za aktivi račun. Unesi drugu adresu e-pošte."
   },
@@ -8352,10 +8369,82 @@
       }
     }
   },
+  "permanentlyDeletedSecretWithId": {
+    "message": "Trajno izbrisana tajna s identifikatorom: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "restoredSecretWithId": {
+    "message": "Vraćena tajna s identifikatorom: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "createdSecretWithId": {
     "message": "Stvorena nova tajna s identifikatorom: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "accessedProjectWithId": {
+    "message": "Pristupljeno projektu s identifikatorom: $PROJECT_ID$.",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableProjectDeleted": {
+    "message": "Izbrisan projekt s identifikatorom: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "nameUnavailableSecretDeleted": {
+    "message": "Izbrisana tajna s identifkatorom: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedProjectWithId": {
+    "message": "Uređen projekt s identifikatorom: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedProjectWithId": {
+    "message": "Izbrisan projekt s identifkatorom: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdProjectWithId": {
+    "message": "Stvoren novi projekt s identifikatorom: $PROJECT_ID$",
+    "placeholders": {
+      "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
@@ -8849,20 +8938,25 @@
   "collectionManagement": {
     "message": "Upravljanje zbirkama"
   },
-  "collectionManagementDesc": {
-    "message": "Upravljaj ponašanjem zbirki za organizaciju"
+  "collectionManagementDescription": {
+    "message": "Postavi ponašanje zbirki za organizaciju"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Omogući kreiranje zbirki samo vlasnicima i adminima"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Omogući vlasnicima i administratorima upravljanje svim zbirkama i stavkama iz administratorske konzole"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Omogući brisanje zbirki samo vlasnicima i adminima"
+  "restrictCollectionCreationDescription": {
+    "message": "Ograniči stvaranje zbirki samo vlasnicima i adminima"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ograniči brisanje stavke samo članovima koji imaju dozvolu „Moguće upravljanje”"
+  "restrictCollectionDeletionDescription": {
+    "message": "Ograniči brisanje zbirki samo vlasnicima i adminima"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Vlasnici i admini mogu upravljati svim zbirkama i stavkama"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Ograniči brisanje stavki samo korisnicima s ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " pravima",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Ažurirane postavke upravljanja zbirkama"
@@ -8933,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Izmijenjena postavka upravljanja zbirkom $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Uključena postavka Zabrane stvaranja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Isključena postavka Zabrane stvaranja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Uključena postavka Zabrane brisanja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Isključena postavka Zabrane brisanja zbirki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Uključena postavka Zabrane brisanja stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Isključena postavka Zabrane brisanja stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Uključena postavka Odobrenje vlasnicima i adminima za upravljanje svim zbirkama i postavkama stavki $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Isključena postavka Odobrenje vlasnicima i adminima za upravljanje svim zbirkama i postavkama stavki $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10745,6 +10911,9 @@
   "upgradeEventLogMessage": {
     "message": "Ovi događaji su samo primjeri i ne odražavaju stvarne događaje unutar tvoje Bitwarden organizacije."
   },
+  "viewEvents": {
+    "message": "Pregled događaja"
+  },
   "cannotCreateCollection": {
     "message": "Besplatne organizacije mogu imati do 2 zbirke. Nadogradi na plaćeni plan za dodavanje više zbirki."
   },
@@ -11012,5 +11181,59 @@
   },
   "showLess": {
     "message": "Pokaži manje"
+  },
+  "missingTaxId": {
+    "message": "Nedostaje porezni broj"
+  },
+  "missingTaxIdWarning": {
+    "message": "Potrebna radnja: U podacima o plaćanju nedostaje porezni broj. Ako porezni broj nije dodan, tvoje fakture mogu sadržavati dodatni porez."
+  },
+  "moreBreadcrumbs": {
+    "message": "Više mrvica",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "addTaxId": {
+    "message": "Dodaj porezni broj"
+  },
+  "missingTaxIdCalloutTitle": {
+    "message": "Potrebna radnja: Nedostaje porezni broj"
+  },
+  "missingTaxIdCalloutDescription": {
+    "message": "Ako porezni broj nije dodan, tvoje fakture mogu sadržavati dodatni porez."
+  },
+  "unverifiedTaxIdWarning": {
+    "message": "Potrebna radnja: Tvoj porezni broj nije provjeren. Ako porezni broj ostane neprovjeren, tvoje fakture mogu sadržavati dodatni porez."
+  },
+  "editTaxId": {
+    "message": "Uredi porezni broj"
+  },
+  "unverifiedTaxIdCalloutTitle": {
+    "message": "Porezni broj nije provjeren"
+  },
+  "unverifiedTaxIdCalloutDescription": {
+    "message": "Provjeri da je unesen ispravan porezni broj."
+  },
+  "pendingVerification": {
+    "message": "Čeka se provjera"
+  },
+  "checkInputFormat": {
+    "message": "Potvrdi domenu kontektora ključa."
+  },
+  "exampleTaxIdFormat": {
+    "message": "Primjer $CODE$ oblika: $EXAMPLE$",
+    "placeholders": {
+      "code": {
+        "content": "$1",
+        "example": "ABN"
+      },
+      "example": {
+        "content": "$2",
+        "example": "92873837267"
+      }
+    }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdi domenu kontektora ključa"
   }
 }
+

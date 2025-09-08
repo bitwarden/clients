@@ -556,6 +556,9 @@
   "view": {
     "message": "Ver"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Non hai entradas que listar."
   },
@@ -1761,13 +1764,13 @@
     "message": "Este navegador non pode procesar peticións U2F nesta ventá emerxente. Queres convertila nunha ventá completa para poder continuar?"
   },
   "enableFavicon": {
-    "message": "Amosar iconas web"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Amosar unha imaxe recoñecible xunto a cada credencial."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "Amosar unha imaxe recoñecible xunto a cada credencial. Aplica a tódalas sesións iniciadas en Bitwarden."
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Amosar contador na icona"
@@ -4131,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Seleccionar unha colección"
   },
-  "importTargetHint": {
-    "message": "Selecciona esta opción se queres que o contido importado se mova a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "O arquivo contén entradas sen asignar."
@@ -5117,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Amosar o número de suxestións de credenciais na icona da extensión"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Amosar accións rápidas de copiado na caixa forte"
   },
@@ -5444,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Vault options"
   },
@@ -5579,5 +5596,15 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

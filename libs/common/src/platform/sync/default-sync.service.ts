@@ -38,6 +38,7 @@ import { DomainSettingsService } from "../../autofill/services/domain-settings.s
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -53,7 +54,6 @@ import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 import { LogService } from "../abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -87,7 +87,6 @@ export class DefaultSyncService extends CoreSyncService {
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
-    stateService: StateService,
     private providerService: ProviderService,
     folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
@@ -96,12 +95,12 @@ export class DefaultSyncService extends CoreSyncService {
     private avatarService: AvatarService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: UserId) => Promise<void>,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private tokenService: TokenService,
+    tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
   ) {
     super(
-      stateService,
+      tokenService,
       folderService,
       folderApiService,
       messageSender,
@@ -170,6 +169,7 @@ export class DefaultSyncService extends CoreSyncService {
 
       const response = await this.inFlightApiCalls.sync;
 
+      await this.syncUserDecryption(response.profile.id, response.userDecryption);
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
@@ -391,5 +391,22 @@ export class DefaultSyncService extends CoreSyncService {
       });
     }
     return await this.policyService.replace(policies, userId);
+  }
+
+  private async syncUserDecryption(
+    userId: UserId,
+    userDecryption: UserDecryptionResponse | undefined,
+  ) {
+    if (userDecryption == null) {
+      return;
+    }
+    if (userDecryption.masterPasswordUnlock != null) {
+      const masterPasswordUnlockData =
+        userDecryption.masterPasswordUnlock.toMasterPasswordUnlockData();
+      await this.masterPasswordService.setMasterPasswordUnlockData(
+        masterPasswordUnlockData,
+        userId,
+      );
+    }
   }
 }

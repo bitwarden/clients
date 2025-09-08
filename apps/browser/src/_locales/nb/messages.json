@@ -556,6 +556,9 @@
   "view": {
     "message": "Vis"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Det er ingen elementer å vise."
   },
@@ -1761,10 +1764,10 @@
     "message": "Denne nettleseren kan ikke behandle U2F-forespørsler i dette popup-vinduet. Vil du åpne denne popupen i et nytt vindu, slik at du kan logge deg på med U2F?"
   },
   "enableFavicon": {
-    "message": "Vis nettsideikoner"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Vis et gjenkjennelig bilde ved siden av hver innlogging."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
     "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
@@ -4131,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Velg en samling"
   },
-  "importTargetHint": {
-    "message": "Velg dette alternativet hvis du vil flytte den importerte filens innhold til en $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Filen inneholder utildelte elementer."
@@ -5117,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Vis antall auto-utfyllingsforslag for pålogging på utvidelsesikonet"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Vis hurtigkopieringshandlinger i hvelvet"
   },
@@ -5444,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Hvelvinnstillinger"
   },
@@ -5579,5 +5596,15 @@
   },
   "showLess": {
     "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

@@ -20,7 +20,13 @@ import { BitPasswordInputToggleDirective } from "./password-input-toggle.directi
       <bit-form-field>
         <bit-label>Password</bit-label>
         <input bitInput type="password" />
-        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        <button
+          type="button"
+          label="Toggle password visibility"
+          bitIconButton
+          bitSuffix
+          bitPasswordInputToggle
+        ></button>
       </bit-form-field>
     </form>
   `,
@@ -55,7 +61,7 @@ describe("PasswordInputToggle", () => {
     button = buttonEl.componentInstance;
     const formFieldEl = fixture.debugElement.query(By.directive(BitFormFieldComponent));
     const formField: BitFormFieldComponent = formFieldEl.componentInstance;
-    input = formField.input;
+    input = formField.input();
   });
 
   describe("initial state", () => {

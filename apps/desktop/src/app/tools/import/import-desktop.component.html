@@ -5,6 +5,8 @@
       (formLoading)="this.loading = $event"
       (formDisabled)="this.disabled = $event"
       (onSuccessfulImport)="this.onSuccessfulImport($event)"
+      [onImportFromBrowser]="this.onImportFromBrowser"
+      [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
     ></tools-import>
   </ng-container>
   <ng-container bitDialogFooter>
