@@ -1305,8 +1305,11 @@
     "message": "Kopyalanmış dəyərləri lövhədən avtomatik təmizlə.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Bildiriş sahəsi ikonuna kiçilt"
@@ -3589,10 +3592,10 @@
     "message": "Lütfən şirkət kimlik məlumatlarınızı istifadə edərək giriş etməyə davam edin."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Birbaşa brauzerdən daxilə köçür"
   },
   "browserProfile": {
-    "message": "Browser Profile"
+    "message": "Brauzer profili"
   },
   "seeDetailedInstructions": {
     "message": "Kömək saytımızda detallı təlimatlara baxın",
@@ -3931,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "Bu ayar barədə"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
-  },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"
   },
@@ -4097,12 +4094,12 @@
     "message": "Təsdiqlə"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "Avto-yazma qısayolunu fəallaşdır"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Veriləri yanlış yerə doldurmamaq üçün qısayolu istifadə etməzdən əvvəl doğru xanada olduğunuza əmin olun."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Qısayola düzəliş et"
   }
 }
