@@ -290,10 +290,18 @@ export class SsoComponent implements OnInit {
     this.identifier = this.identifierFormControl.value ?? "";
     await this.ssoLoginService.setOrganizationSsoIdentifier(this.identifier);
     this.ssoComponentService.setDocumentCookies?.();
+
     try {
       await this.submitSso();
     } catch (error) {
-      if (autoSubmit) {
+      if (
+        error instanceof ErrorResponse &&
+        error.message === "SSO is not yet enabled for this organization."
+      ) {
+        this.validationService.showError(error);
+        await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(this.email);
+        await this.router.navigate(["/login"], { queryParams: { email: this.email } });
+      } else if (autoSubmit) {
         await this.router.navigate(["/login"]);
       } else {
         this.validationService.showError(error);
