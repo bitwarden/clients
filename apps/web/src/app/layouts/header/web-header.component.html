@@ -2,7 +2,7 @@
   *ngIf="routeData$ | async as routeData"
   class="-tw-mt-6 -tw-mx-8 tw-mb-3 tw-flex tw-flex-col tw-py-6 tw-px-8"
   [ngClass]="{
-    'tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-bg-background-alt tw-pb-0':
+    'tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100 tw-bg-background-alt tw-pb-0':
       tabsContainer.childElementCount !== 0,
   }"
 >
@@ -30,7 +30,7 @@
           <button
             type="button"
             [bitMenuTriggerFor]="accountMenu"
-            class="tw-border-0 tw-bg-transparent tw-p-0"
+            class="tw-border-0 tw-bg-transparent tw-p-0 tw-shrink-0"
           >
             <dynamic-avatar [id]="account.id" [text]="account | userName"></dynamic-avatar>
           </button>

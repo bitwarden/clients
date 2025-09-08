@@ -324,7 +324,7 @@
     "message": "Tháng 12"
   },
   "ex": {
-    "message": "Ví dụ:",
+    "message": "ví dụ.",
     "description": "Short abbreviation for 'example'."
   },
   "title": {
@@ -701,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Đã lưu tệp đính kèm"
+  },
+  "addAttachment": {
+    "message": "Thêm tệp đính kèm"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Kích thước tối đa của tập tin là 500MB"
   },
   "file": {
     "message": "Tệp"
@@ -1225,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Đăng nhập hai bước"
   },
+  "vaultTimeoutHeader": {
+    "message": "Thời gian mở kho"
+  },
   "vaultTimeout": {
     "message": "Đóng kho sau"
   },
   "vaultTimeout1": {
     "message": "Quá hạn"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Hành động sau khi đóng kho"
   },
   "vaultTimeoutDesc": {
     "message": "Chọn thời điểm đóng kho của bạn và thực hiện hành động đã được chọn."
@@ -1293,11 +1305,8 @@
     "message": "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Hiện biểu tượng trang web"
-  },
-  "faviconDesc": {
-    "message": "Hiện logo trang web bên cạnh mỗi đăng nhập."
+  "showIconsChangePasswordUrls": {
+    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "enableMinToTray": {
     "message": "Thu nhỏ vào khay hệ thống"
@@ -1384,7 +1393,7 @@
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
-    "message": "Kiểm tra cập nhật mới"
+    "message": "Kiểm tra cập nhật…"
   },
   "version": {
     "message": "Phiên bản $VERSION_NUM$",
@@ -1833,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Yêu cầu xác minh Touch ID khi mở ứng dụng"
-  },
-  "requirePasswordOnStart": {
-    "message": "Yêu cầu mật khẩu hoặc mã PIN khi mở ứng dụng"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Yêu cầu mật khẩu khi khởi động ứng dụng"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Khóa bằng mật khẩu chính khi khởi động lại"
@@ -2511,6 +2514,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Thời gian mở kho vượt quá giới hạn do tổ chức của bạn đặt ra."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Các yêu cầu chính sách của doanh nghiệp đã được áp dụng cho các tùy chọn thời gian mở kho của bạn"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Tổ chức của bạn đã đặt thời gian mở kho tối đa là $HOURS$ giờ và $MINUTES$ phút.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Thời gian mở kho đã vượt quá giới hạn do tổ chức của bạn đặt ra: Tối đa $HOURS$ giờ và $MINUTES$ phút",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Đã chấp nhận lời mời"
   },
@@ -2992,9 +3024,6 @@
     "message": "Bật/tắt hiển thị số ký tự",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Bạn đang cố gắng truy cập tài khoản của mình?"
-  },
   "accessAttemptBy": {
     "message": "Cố gắng truy cập bởi $EMAIL$",
     "placeholders": {
@@ -3003,6 +3032,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Đã phê duyệt yêu cầu đăng nhập cho $EMAIL$ trên $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu đó là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
+  },
+  "webApp": {
+    "message": "Ứng dụng web"
+  },
+  "mobile": {
+    "message": "Di động",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Tiện ích mở rộng",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Máy tính",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "Giao diện dòng lệnh (CLI)"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Máy chủ"
+  },
+  "loginRequest": {
+    "message": "Yêu cầu đăng nhập"
   },
   "deviceType": {
     "message": "Loại thiết bị"
@@ -3018,22 +3091,6 @@
   },
   "denyAccess": {
     "message": "Từ chối truy cập"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Đã xác nhận đăng nhập cho $EMAIL$ trên $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Bạn đã từ chối một lần đăng nhập từ thiết bị khác. Nếu thực sự là bạn, hãy thử đăng nhập lại bằng thiết bị đó."
   },
   "justNow": {
     "message": "Vừa xong"
@@ -3431,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Chọn bộ sưu tập"
   },
-  "importTargetHint": {
-    "message": "Chọn tùy chọn này nếu bạn muốn nội dung của tệp đã nhập được di chuyển đến $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một bộ sưu tập"
+  },
+  "importTargetHintFolder": {
+    "message": "Chọn tùy chọn này nếu bạn muốn nội dung tệp đã nhập được chuyển vào một thư mục"
   },
   "importUnassignedItemsError": {
     "message": "Tập tin chứa các mục không xác định."
@@ -3534,6 +3587,12 @@
   },
   "awaitingSSODesc": {
     "message": "Vui lòng tiếp tục đăng nhập bằng thông tin đăng nhập của công ty bạn."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Xem hướng dẫn chi tiết trên trang trợ giúp của chúng tôi tại",
@@ -3709,7 +3768,7 @@
     "message": "Tải lên"
   },
   "authorize": {
-    "message": "Uỷ quyền"
+    "message": "Ủy quyền"
   },
   "deny": {
     "message": "Từ chối"
@@ -3872,6 +3931,12 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "aboutThisSetting": {
+    "message": "Về cài đặt này"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
+  },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
   },
@@ -4006,10 +4071,38 @@
       }
     }
   },
+  "showMore": {
+    "message": "Xem thêm"
+  },
+  "showLess": {
+    "message": "Thu gọn"
+  },
   "enableAutotype": {
     "message": "Bật tính năng Tự động nhập liệu"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden không kiểm tra vị trí nhập liệu, hãy đảm bảo bạn đang ở trong đúng cửa sổ và trường nhập liệu trước khi dùng phím tắt."
+  },
+  "moreBreadcrumbs": {
+    "message": "Thêm mục điều hướng",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

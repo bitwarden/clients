@@ -13,8 +13,9 @@ import {
 } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
+import { makeEncString } from "../../../spec";
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
@@ -29,6 +30,11 @@ import { DomainSettingsService } from "../../autofill/services/domain-settings.s
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "../../key-management/master-password/types/master-password.types";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -36,7 +42,6 @@ import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
 import { LogService } from "../abstractions/log.service";
-import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -57,7 +62,6 @@ describe("DefaultSyncService", () => {
   let sendService: MockProxy<InternalSendService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
-  let stateService: MockProxy<StateService>;
   let providerService: MockProxy<ProviderService>;
   let folderApiService: MockProxy<FolderApiServiceAbstraction>;
   let organizationService: MockProxy<InternalOrganizationServiceAbstraction>;
@@ -86,7 +90,7 @@ describe("DefaultSyncService", () => {
     sendService = mock();
     logService = mock();
     keyConnectorService = mock();
-    stateService = mock();
+    keyConnectorService.convertAccountRequired$ = of(false);
     providerService = mock();
     folderApiService = mock();
     organizationService = mock();
@@ -113,7 +117,6 @@ describe("DefaultSyncService", () => {
       sendService,
       logService,
       keyConnectorService,
-      stateService,
       providerService,
       folderApiService,
       organizationService,
@@ -238,6 +241,56 @@ describe("DefaultSyncService", () => {
 
         expect(sut["inFlightApiCalls"].refreshToken).toBeNull();
         expect(sut["inFlightApiCalls"].sync).toBeNull();
+      });
+    });
+
+    describe("syncUserDecryption", () => {
+      const salt = "test@example.com";
+      const kdf = new PBKDF2KdfConfig(600_000);
+      const encryptedUserKey = makeEncString("testUserKey");
+
+      it("should set master password unlock when present in user decryption", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+          },
+          UserDecryption: {
+            MasterPasswordUnlock: {
+              Salt: salt,
+              Kdf: {
+                KdfType: kdf.kdfType,
+                Iterations: kdf.iterations,
+              },
+              MasterKeyEncryptedUserKey: encryptedUserKey.encryptedString,
+            },
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+          new MasterPasswordUnlockData(
+            salt as MasterPasswordSalt,
+            kdf,
+            encryptedUserKey as MasterKeyWrappedUserKey,
+          ),
+          user1,
+        );
+      });
+
+      it("should not set master password unlock when not present in user decryption", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+          },
+          UserDecryption: {},
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true, true);
+
+        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).not.toHaveBeenCalled();
       });
     });
   });

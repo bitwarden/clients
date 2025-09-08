@@ -144,7 +144,7 @@ Använd Bitwarden för att säkra din personalstyrka och dela känslig informati
 Fler anledningar att välja Bitwarden:
 
 Kryptering i världsklass
-Lösenord skyddas med avancerad end-to-end-kryptering (AES-256 bit, salted hashtag och PBKDF2 SHA-256) så att dina data förblir säkra och privata.
+Lösenord skyddas med avancerad end-to-end-kryptering (AES-256 bit, salted hashing och PBKDF2 SHA-256) så att dina data förblir säkra och privata.
 
 revisioner från tredje part
 Bitwarden genomför regelbundet omfattande tredjeparts säkerhetsrevisioner med välkända säkerhetsföretag. Dessa årliga revisioner inkluderar källkodsbedömningar och penetrationstestning över Bitwardens IP-adresser, servrar och webbapplikationer.

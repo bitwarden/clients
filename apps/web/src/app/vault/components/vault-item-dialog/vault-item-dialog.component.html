@@ -16,9 +16,15 @@
       [submitBtn]="submitBtn"
       (formReady)="onFormReady()"
       (cipherSaved)="onCipherSaved($event)"
+      (formStatusChange$)="formStatusChanged($event)"
     >
       <bit-item slot="attachment-button">
-        <button bit-item-content type="button" (click)="openAttachmentsDialog()">
+        <button
+          [disabled]="attachmentsButtonDisabled"
+          bit-item-content
+          type="button"
+          (click)="openAttachmentsDialog()"
+        >
           <p class="tw-m-0">
             {{ "attachments" | i18n }}
             <span
@@ -71,7 +77,7 @@
         bitIconButton="bwi-trash"
         type="button"
         buttonType="danger"
-        [appA11yTitle]="'delete' | i18n"
+        [label]="'delete' | i18n"
         [bitAction]="delete"
         [disabled]="!canDelete"
         data-testid="delete-cipher-btn"

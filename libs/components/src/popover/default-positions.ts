@@ -1,6 +1,6 @@
 import { ConnectedPosition } from "@angular/cdk/overlay";
 
-const ORIGIN_OFFSET_PX = 6;
+const ORIGIN_OFFSET_PX = 14;
 const OVERLAY_OFFSET_PX = 24;
 
 export type PositionIdentifier =

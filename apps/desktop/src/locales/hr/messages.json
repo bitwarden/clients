@@ -702,6 +702,12 @@
   "attachmentSaved": {
     "message": "Privitak spremljen"
   },
+  "addAttachment": {
+    "message": "Dodaj privitak"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Najveća veličina datoteke je 500 MB"
+  },
   "file": {
     "message": "Datoteka"
   },
@@ -1225,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Prijava dvostrukom autentifikacijom"
   },
+  "vaultTimeoutHeader": {
+    "message": "Istek trezora"
+  },
   "vaultTimeout": {
     "message": "Istek trezora"
   },
   "vaultTimeout1": {
     "message": "Vrijeme isteka"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Radnja nakon isteka"
   },
   "vaultTimeoutDesc": {
     "message": "Odaberi kada će isteći trezor i koja će se radnja izvršiti."
@@ -1293,11 +1305,8 @@
     "message": "Automatski očisti kopirane vrijednosti iz međuspremnika.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "enableFavicon": {
-    "message": "Prikaži ikone mrežnih mjesta"
-  },
-  "faviconDesc": {
-    "message": "Prikaži prepoznatljivu sliku pored svake prijave."
+  "showIconsChangePasswordUrls": {
+    "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
   },
   "enableMinToTray": {
     "message": "Minimiziraj u područje obavijesti"
@@ -1833,12 +1842,6 @@
   },
   "autoPromptTouchId": {
     "message": "Zahtijevaj Touch ID pri pokretanju"
-  },
-  "requirePasswordOnStart": {
-    "message": "Zahtijevaj lozinku ili PIN pri pokretanju"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Zahtijevaj lozinku pri pokretanju"
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Zaključaj glavnom lozinkom kod svakog pokretanja"
@@ -2511,6 +2514,35 @@
   "vaultTimeoutTooLarge": {
     "message": "Vrijeme isteka premašuje ograničenje koju je postavila tvoja organizacija."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Pravila tvrtke primijenjena su na vrijeme isteka"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je $HOURS$:$MINUTES$ h.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Tvoja organizacija je zadano postavila kraće vrijeme isteka. Najviše: $HOURS$:$MINUTES$",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "inviteAccepted": {
     "message": "Pozivnica prihvaćena"
   },
@@ -2992,9 +3024,6 @@
     "message": "Prikaži/Sakrij broj znakova",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Pokušavaš li pristupiti svom računu?"
-  },
   "accessAttemptBy": {
     "message": "$EMAIL$ pokušava pristupiti",
     "placeholders": {
@@ -3003,6 +3032,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
+  },
+  "webApp": {
+    "message": "Web aplikacija"
+  },
+  "mobile": {
+    "message": "Mobitel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Proširenje",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Poslužitelj"
+  },
+  "loginRequest": {
+    "message": "Zahtjev za prijavu"
   },
   "deviceType": {
     "message": "Vrsta uređaja"
@@ -3018,22 +3091,6 @@
   },
   "denyAccess": {
     "message": "Odbij pristup"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
   "justNow": {
     "message": "Upravo"
@@ -3431,15 +3488,11 @@
   "selectImportCollection": {
     "message": "Odaberi zbirku"
   },
-  "importTargetHint": {
-    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš spremiti u $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u zbirku"
+  },
+  "importTargetHintFolder": {
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš premjestiti u mapu"
   },
   "importUnassignedItemsError": {
     "message": "Datoteka sadrži nedodijeljene stavke."
@@ -3534,6 +3587,12 @@
   },
   "awaitingSSODesc": {
     "message": "Prijavi se koristeći pristupne podatke svoje tvrtke."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Uvezi direktno iz preglednika"
+  },
+  "browserProfile": {
+    "message": "Profil preglednika"
   },
   "seeDetailedInstructions": {
     "message": "Detaljne upute za pomoć pronađi na našoj stranici za pomoć na",
@@ -3872,6 +3931,12 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "aboutThisSetting": {
+    "message": "O ovoj postavci"
+  },
+  "permitCipherDetailsDescription": {
+    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
+  },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
   },
@@ -4006,10 +4071,38 @@
       }
     }
   },
+  "showMore": {
+    "message": "Prikaži više"
+  },
+  "showLess": {
+    "message": "Pokaži manje"
+  },
   "enableAutotype": {
     "message": "Omogući automatski unos"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden ne provjerava lokacije unosa, prije korištenja prečaca provjeri da si u pravom prozoru i polju."
+  },
+  "moreBreadcrumbs": {
+    "message": "Više mrvica",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Sljedeće"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdi domenu kontektora ključa"
+  },
+  "confirm": {
+    "message": "Potvrdi"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }
