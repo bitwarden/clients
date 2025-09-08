@@ -10,7 +10,7 @@ import { devFlagEnabled, devFlagValue } from "@bitwarden/common/platform/misc/fl
 import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling/task-scheduler.service";
 
-import { BrowserApi } from "../../platform/browser/browser-api";
+import { BrowserApi } from "../../../platform/browser/browser-api";
 
 import {
   CaughtPhishingDomain,
