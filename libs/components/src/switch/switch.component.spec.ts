@@ -74,7 +74,7 @@ describe("SwitchComponent", () => {
       selector: "test-selected-host",
       template: `<bit-switch [selected]="checked"><bit-label>Element</bit-label></bit-switch>`,
       standalone: true,
-      imports: [SwitchComponent],
+      imports: [SwitchComponent, BitLabel],
     })
     class TestSelectedHostComponent {
       checked = false;
