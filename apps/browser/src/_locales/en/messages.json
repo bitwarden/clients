@@ -5518,6 +5518,9 @@
   "phishingPageContinue": {
     "message": "Continue"
   },
+  "phishingPageLearnWhy": {
+    "message": "Why are you seeing this?"
+  },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
   },
