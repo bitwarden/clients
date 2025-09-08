@@ -1,120 +1,148 @@
+@let organization = organization$ | async;
+@let selectedCollection = selectedCollection$ | async;
+@let filter = filter$ | async;
+@let refreshing = refreshingSubject$ | async;
+@let loading = loading$ | async;
+
 @if (organization) {
-  <app-organization-free-trial-warning
-    [organization]="organization"
-    (clicked)="navigateToPaymentMethod()"
-  >
-  </app-organization-free-trial-warning>
-  <app-organization-reseller-renewal-warning [organization]="organization">
-  </app-organization-reseller-renewal-warning>
-}
-<app-org-vault-header
-  [filter]="filter"
-  [loading]="refreshing"
-  [organization]="organization"
-  [collection]="selectedCollection"
-  [searchText]="currentSearchText$ | async"
-  (onAddCipher)="addCipher($event)"
-  (onAddCollection)="addCollection()"
-  (onEditCollection)="editCollection(selectedCollection.node, $event.tab, $event.readonly)"
-  (onDeleteCollection)="deleteCollection(selectedCollection.node)"
-  (searchTextChanged)="filterSearchText($event)"
-></app-org-vault-header>
-
-<div class="tw-flex tw-flex-row">
-  <div class="tw-w-1/4 tw-mr-5" *ngIf="!hideVaultFilters">
-    <app-organization-vault-filter
+  @if (!refreshing) {
+    <app-organization-free-trial-warning
       [organization]="organization"
-      [activeFilter]="activeFilter"
-      [searchText]="currentSearchText$ | async"
-      (searchTextChanged)="filterSearchText($event)"
-    ></app-organization-vault-filter>
-  </div>
-  <div [class]="hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4'">
-    <bit-toggle-group
-      *ngIf="showAddAccessToggle && activeFilter.selectedCollectionNode"
-      [selected]="addAccessStatus$ | async"
-      (selectedChange)="addAccessToggle($event)"
-      [attr.aria-label]="'addAccessFilter' | i18n"
+      (clicked)="navigateToPaymentMethod()"
     >
-      <bit-toggle [value]="0">
-        {{ "all" | i18n }}
-      </bit-toggle>
+    </app-organization-free-trial-warning>
+    <app-organization-reseller-renewal-warning [organization]="organization">
+    </app-organization-reseller-renewal-warning>
+  }
 
-      <bit-toggle [value]="1">
-        {{ "addAccess" | i18n }}
-      </bit-toggle>
-    </bit-toggle-group>
-    <bit-callout type="warning" *ngIf="activeFilter.isDeleted">
-      {{ trashCleanupWarning }}
-    </bit-callout>
-    <app-vault-items
-      #vaultItems
-      [ciphers]="ciphers"
-      [collections]="collections"
-      [allCollections]="allCollections"
-      [allOrganizations]="organization ? [organization] : []"
-      [allGroups]="allGroups"
-      [disabled]="loading"
-      [showOwner]="false"
-      [showPermissionsColumn]="true"
-      [showCollections]="filter.type !== undefined"
-      [showGroups]="
-        organization?.useGroups &&
-        ((filter.type === undefined && filter.collectionId === undefined) ||
-          filter.collectionId !== undefined)
-      "
-      [showPremiumFeatures]="organization?.useTotp"
-      [showBulkMove]="false"
-      [showBulkTrashOptions]="filter.type === 'trash'"
-      [useEvents]="organization?.canAccessEventLogs"
-      [showAdminActions]="true"
-      (onEvent)="onVaultItemsEvent($event)"
-      [showBulkEditCollectionAccess]="true"
-      [showBulkAddToCollections]="true"
-      [viewingOrgVault]="true"
-      [addAccessStatus]="addAccessStatus$ | async"
-      [addAccessToggle]="showAddAccessToggle"
-      [activeCollection]="selectedCollection?.node"
-    >
-    </app-vault-items>
-    <ng-container *ngIf="!performingInitialLoad && isEmpty">
-      <bit-no-items *ngIf="!showCollectionAccessRestricted">
-        <span slot="title" class="tw-mt-4 tw-block">{{ "noItemsInList" | i18n }}</span>
-        <button
-          slot="button"
-          bitButton
-          (click)="addCipher()"
-          buttonType="primary"
-          type="button"
-          *ngIf="
-            filter.type !== 'trash' &&
-            filter.collectionId !== Unassigned &&
-            selectedCollection?.node?.canEditItems(organization)
-          "
+  @if (filter) {
+    <app-org-vault-header
+      [filter]="filter"
+      [loading]="refreshing"
+      [organization]="organization"
+      [collection]="selectedCollection"
+      [searchText]="currentSearchText$ | async"
+      (onAddCipher)="addCipher($event)"
+      (onAddCollection)="addCollection()"
+      (onEditCollection)="editCollection(selectedCollection?.node, $event.tab, $event.readonly)"
+      (onDeleteCollection)="deleteCollection(selectedCollection?.node)"
+      (searchTextChanged)="filterSearchText($event)"
+    ></app-org-vault-header>
+  }
+
+  <div class="tw-flex tw-flex-row">
+    @let hideVaultFilters = hideVaultFilter$ | async;
+    @if (!hideVaultFilters) {
+      <div class="tw-w-1/4 tw-mr-5">
+        <app-organization-vault-filter
+          [organization]="organization"
+          [activeFilter]="activeFilter"
+          [searchText]="currentSearchText$ | async"
+          (searchTextChanged)="filterSearchText($event)"
+        ></app-organization-vault-filter>
+      </div>
+    }
+
+    <div [class]="hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4'">
+      @if (showAddAccessToggle && activeFilter.selectedCollectionNode) {
+        <bit-toggle-group
+          [selected]="addAccessStatus$ | async"
+          (selectedChange)="addAccessToggle($event)"
+          [attr.aria-label]="'addAccessFilter' | i18n"
         >
-          <i aria-hidden="true" class="bwi bwi-plus"></i> {{ "newItem" | i18n }}
-        </button>
-      </bit-no-items>
-      <collection-access-restricted
-        *ngIf="showCollectionAccessRestricted"
-        [canEditCollection]="selectedCollection?.node?.canEdit(organization)"
-        [canViewCollectionInfo]="selectedCollection?.node?.canViewCollectionInfo(organization)"
-        (viewCollectionClicked)="
-          editCollection(selectedCollection.node, $event.tab, $event.readonly)
-        "
-      >
-      </collection-access-restricted>
-    </ng-container>
-    <div
-      class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
-      *ngIf="performingInitialLoad"
-    >
-      <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
-      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+          <bit-toggle [value]="0">
+            {{ "all" | i18n }}
+          </bit-toggle>
+
+          <bit-toggle [value]="1">
+            {{ "addAccess" | i18n }}
+          </bit-toggle>
+        </bit-toggle-group>
+      }
+
+      @if (activeFilter.isDeleted) {
+        <bit-callout type="warning">
+          {{ trashCleanupWarning }}
+        </bit-callout>
+      }
+
+      @if (filter) {
+        <app-vault-items
+          #vaultItems
+          [ciphers]="ciphers$ | async"
+          [collections]="collections$ | async"
+          [allCollections]="allCollections$ | async"
+          [allOrganizations]="organization ? [organization] : []"
+          [allGroups]="allGroups$ | async"
+          [disabled]="loading"
+          [showOwner]="false"
+          [showPermissionsColumn]="true"
+          [showCollections]="filter.type !== undefined"
+          [showGroups]="
+            organization?.useGroups &&
+            ((filter.type === undefined && filter.collectionId === undefined) ||
+              filter.collectionId !== undefined)
+          "
+          [showPremiumFeatures]="organization?.useTotp"
+          [showBulkMove]="false"
+          [showBulkTrashOptions]="filter.type === 'trash'"
+          [useEvents]="organization?.canAccessEventLogs"
+          [showAdminActions]="true"
+          (onEvent)="onVaultItemsEvent($event)"
+          [showBulkEditCollectionAccess]="true"
+          [showBulkAddToCollections]="true"
+          [viewingOrgVault]="true"
+          [addAccessStatus]="addAccessStatus$ | async"
+          [addAccessToggle]="showAddAccessToggle"
+          [activeCollection]="selectedCollection?.node"
+        >
+        </app-vault-items>
+      }
+
+      @let showCollectionAccessRestricted = showCollectionAccessRestricted$ | async;
+      @if (!refreshing && (isEmpty$ | async)) {
+        @if (!showCollectionAccessRestricted) {
+          <bit-no-items>
+            <span slot="title" class="tw-mt-4 tw-block">{{ "noItemsInList" | i18n }}</span>
+
+            @if (
+              filter &&
+              filter.type !== "trash" &&
+              filter.collectionId !== Unassigned &&
+              selectedCollection?.node?.canEditItems(organization)
+            ) {
+              <button
+                slot="button"
+                bitButton
+                (click)="addCipher()"
+                buttonType="primary"
+                type="button"
+              >
+                <i aria-hidden="true" class="bwi bwi-plus"></i> {{ "newItem" | i18n }}
+              </button>
+            }
+          </bit-no-items>
+        } @else {
+          <collection-access-restricted
+            [canEditCollection]="selectedCollection?.node?.canEdit(organization)"
+            [canViewCollectionInfo]="selectedCollection?.node?.canViewCollectionInfo(organization)"
+            (viewCollectionClicked)="
+              editCollection(selectedCollection?.node, $event.tab, $event.readonly)
+            "
+          >
+          </collection-access-restricted>
+        }
+      }
+      @if (refreshing) {
+        <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start">
+          <i
+            class="bwi bwi-spinner bwi-spin tw-text-muted"
+            title="{{ 'loading' | i18n }}"
+            aria-hidden="true"
+          ></i>
+          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+        </div>
+      }
     </div>
   </div>
-</div>
+}

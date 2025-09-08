@@ -105,7 +105,8 @@ import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstract
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
-import { AuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/auth-request-answering.service";
+import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
+import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
@@ -943,17 +944,14 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: PendingAuthRequestsStateService,
+    useClass: PendingAuthRequestsStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
     provide: AuthRequestAnsweringServiceAbstraction,
-    useClass: AuthRequestAnsweringService,
-    deps: [
-      AccountServiceAbstraction,
-      ActionsService,
-      AuthServiceAbstraction,
-      I18nServiceAbstraction,
-      MasterPasswordServiceAbstraction,
-      PlatformUtilsServiceAbstraction,
-      SystemNotificationsService,
-    ],
+    useClass: NoopAuthRequestAnsweringService,
+    deps: [],
   }),
   safeProvider({
     provide: ServerNotificationsService,
@@ -1332,7 +1330,6 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       OrganizationApiServiceAbstraction,
       SyncService,
-      ConfigService,
     ],
   }),
   safeProvider({
@@ -1500,6 +1497,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       KeyService,
       StateProvider,
+      ConfigService,
     ],
   }),
   safeProvider({
