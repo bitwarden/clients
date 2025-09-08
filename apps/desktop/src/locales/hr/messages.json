@@ -1305,8 +1305,11 @@
     "message": "Automatski očisti kopirane vrijednosti iz međuspremnika.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Prikaži ikonu web mjesta i dohvati URL za promjenu lozinke"
+  "enableFavicon": {
+    "message": "Prikaži ikone mrežnih mjesta"
+  },
+  "faviconDesc": {
+    "message": "Prikaži prepoznatljivu sliku pored svake prijave."
   },
   "enableMinToTray": {
     "message": "Minimiziraj u područje obavijesti"
@@ -3931,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "O ovoj postavci"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden će koristiti spremljene URI-je za prijavu kako bi identificirao ikonu ili URL za promjenu lozinke koji treba koristiti za poboljšanje tvojeg iskustva. Nikakvi podaci se ne prikupljaju, niti spremaju kada koristiš ovu uslugu."
-  },
   "assignToCollections": {
     "message": "Dodijeli zbirkama"
   },
@@ -4097,12 +4094,12 @@
     "message": "Potvrdi"
   },
   "enableAutotypeTransitionKey": {
-    "message": "Enable autotype shortcut"
+    "message": "Omogući prečac za automatsko tipkanje"
   },
   "enableAutotypeDescriptionTransitionKey": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Prije korištenja prečaca provjeri nalaziš li se u ispravnom polju kako se podaci ne bi unijeli na pogrešno mjesto."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Uredi prečac"
   }
 }
