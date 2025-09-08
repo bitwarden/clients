@@ -13,6 +13,18 @@
   <button
     type="button"
     bitButton
+    buttonType="secondary"
+    [bitAction]="exportMembers"
+    [disabled]="!firstLoaded"
+    *ngIf="showUserManagementControls$ | async"
+  >
+    <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
+    {{ "export" | i18n }}
+  </button>
+
+  <button
+    type="button"
+    bitButton
     buttonType="primary"
     (click)="invite()"
     [disabled]="!firstLoaded"

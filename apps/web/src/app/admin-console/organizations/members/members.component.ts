@@ -3,6 +3,7 @@
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
+import * as papa from "papaparse";
 import {
   combineLatest,
   concatMap,
@@ -50,6 +51,7 @@ import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -57,6 +59,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { ExportHelper } from "@bitwarden/vault-export-core";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
@@ -87,6 +90,30 @@ import {
 import { isFixedSeatPlan } from "./components/member-dialog/validators/org-seat-limit-reached.validator";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 import { OrganizationUserService } from "./services/organization-user/organization-user.service";
+
+// Export data structure for members
+type MemberExportItem = {
+  name: string;
+  email: string;
+  status: string;
+  type: string;
+  twoFactorEnabled: string;
+  accessSecretsManager: string;
+  managedByOrganization: string;
+  accountRecoveryEnabled: string;
+};
+
+// Headers for the export
+const memberExportHeaders: { [key in keyof MemberExportItem]: string } = {
+  name: "Name",
+  email: "Email",
+  status: "Status",
+  type: "Role",
+  twoFactorEnabled: "Two-Step Login",
+  accessSecretsManager: "Secrets Manager Access",
+  managedByOrganization: "Enterprise Managed (SCIM/Directory)",
+  accountRecoveryEnabled: "Account Recovery",
+};
 
 class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
   protected statusType = OrganizationUserStatusType;
@@ -147,6 +174,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private configService: ConfigService,
     private organizationUserService: OrganizationUserService,
     private organizationWarningsService: OrganizationWarningsService,
+    private fileDownloadService: FileDownloadService,
   ) {
     super(
       apiService,
@@ -960,5 +988,72 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     await this.router.navigate(["organizations", `${this.organization?.id}`, "billing", route], {
       state: { launchPaymentModalAutomatically: true },
     });
+  }
+
+  exportMembers = async (): Promise<void> => {
+    const members = this.dataSource.data;
+
+    const exportData: MemberExportItem[] = members.map((member) => ({
+      name: member.name || "",
+      email: member.email || "",
+      status: this.getStatusDisplayName(member.status),
+      type: this.getTypeDisplayName(member.type),
+      twoFactorEnabled: member.twoFactorEnabled ? "On" : "Off",
+      accessSecretsManager: member.accessSecretsManager ? "Yes" : "No",
+      managedByOrganization: member.managedByOrganization ? "Yes" : "No",
+      accountRecoveryEnabled: member.resetPasswordEnrolled ? "Yes" : "No",
+    }));
+
+    // Convert data to CSV format
+    const mappedData = exportData.map((item) => {
+      const mappedItem: { [key: string]: string } = {};
+      for (const key in item) {
+        if (memberExportHeaders[key as keyof MemberExportItem]) {
+          mappedItem[memberExportHeaders[key as keyof MemberExportItem]] = String(
+            item[key as keyof MemberExportItem],
+          );
+        } else {
+          mappedItem[key] = String(item[key as keyof MemberExportItem]);
+        }
+      }
+      return mappedItem;
+    });
+    const csvData = papa.unparse(mappedData);
+
+    this.fileDownloadService.download({
+      fileName: ExportHelper.getFileName("members"),
+      blobData: csvData,
+      blobOptions: { type: "text/plain" },
+    });
+  };
+
+  private getStatusDisplayName(status: OrganizationUserStatusType): string {
+    switch (status) {
+      case OrganizationUserStatusType.Invited:
+        return this.i18nService.t("invited");
+      case OrganizationUserStatusType.Accepted:
+        return this.i18nService.t("needsConfirmation");
+      case OrganizationUserStatusType.Confirmed:
+        return this.i18nService.t("confirmed");
+      case OrganizationUserStatusType.Revoked:
+        return this.i18nService.t("revoked");
+      default:
+        return this.i18nService.t("unknown");
+    }
+  }
+
+  private getTypeDisplayName(type: OrganizationUserType): string {
+    switch (type) {
+      case OrganizationUserType.Owner:
+        return this.i18nService.t("owner");
+      case OrganizationUserType.Admin:
+        return this.i18nService.t("admin");
+      case OrganizationUserType.User:
+        return this.i18nService.t("user");
+      case OrganizationUserType.Custom:
+        return this.i18nService.t("custom");
+      default:
+        return this.i18nService.t("unknown");
+    }
   }
 }
