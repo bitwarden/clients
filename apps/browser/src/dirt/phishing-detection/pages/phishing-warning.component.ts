@@ -16,7 +16,7 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 
-import { PhishingDetectionService } from "../background/phishing-detection.service";
+import { PhishingDetectionService } from "../services/phishing-detection.service";
 
 @Component({
   standalone: true,
