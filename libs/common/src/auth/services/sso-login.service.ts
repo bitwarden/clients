@@ -143,35 +143,13 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
 
   async addToSsoRequiredCache(email: string): Promise<void> {
     await this.ssoRequiredCacheState.update(
-      (cache) => {
-        if (cache == null) {
-          // If the cache is non-existent, initialize the cache with its first email
-          return [email];
-        } else {
-          // If a cache already exists, append the email to the end
-          return [...cache, email];
-        }
-      },
+      (cache) => (cache == null ? [email] : [...cache, email]),
       {
-        // Only update if the new cache would be different from the previous cache
-        shouldUpdate: (previousCache) => {
-          // A non-existent cache must be updated
-          if (previousCache == null) {
+        shouldUpdate: (cache) => {
+          if (cache == null) {
             return true;
           }
-
-          // An empty cache must be updated
-          if (previousCache.length === 0) {
-            return true;
-          }
-
-          // A previousCache that already includes the email should not be updated
-          const cacheIncludesEmail = previousCache.some((email) => previousCache.includes(email));
-          if (cacheIncludesEmail) {
-            return false;
-          }
-
-          return true;
+          return !cache.includes(email);
         },
       },
     );
@@ -179,42 +157,13 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
 
   async removeFromSsoRequiredCacheIfPresent(email: string): Promise<void> {
     await this.ssoRequiredCacheState.update(
-      (previousCache) => {
-        if (previousCache == null) {
-          return previousCache;
-        }
-
-        const index = previousCache.indexOf(email);
-
-        if (index >= 0) {
-          previousCache.splice(index, 1);
-          return previousCache;
-        }
-
-        return previousCache;
-      },
+      (cache) => cache?.filter((cachedEmail) => cachedEmail !== email) ?? cache,
       {
-        // Only update if the new cache would be different from the previous cache
-        shouldUpdate: (previousCache) => {
-          {
-            // A non-existent cache does not need to be updated
-            if (previousCache == null) {
-              return false;
-            }
-
-            // An empty cache does not need to be updated
-            if (previousCache.length === 0) {
-              return false;
-            }
-
-            // A previousCache that includes the email must be updated
-            const cacheIncludesEmail = previousCache.some((email) => previousCache.includes(email));
-            if (cacheIncludesEmail) {
-              return true;
-            }
-
-            return true;
+        shouldUpdate: (cache) => {
+          if (cache == null) {
+            return false;
           }
+          return cache.includes(email);
         },
       },
     );
