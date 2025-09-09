@@ -5,7 +5,7 @@
 
 <div class="tw-size-full">
   <div class="tw-flex tw-items-center tw-gap-1 tw-pb-4">
-    <h2 bitTypography="h4">
+    <h2 bitTypography="h4" id="purchase-summary-heading">
       {{ "Total" | i18n }}: {{ total() | currency: "USD" : "symbol" }} USD
       <span bitTypography="body2">/ {{ passwordManager.cadence | i18n }}</span>
     </h2>
@@ -16,13 +16,13 @@
       [bitIconButton]="isExpanded() ? 'bwi-angle-up' : 'bwi-angle-down'"
       [label]="isExpanded() ? 'Collapse purchase details' : 'Expand purchase details'"
       [attr.aria-expanded]="isExpanded()"
-      [attr.aria-controls]="'cart-summary-details'"
+      [attr.aria-controls]="'purchase-summary-details'"
       bitTypography="body1"
     ></button>
   </div>
 
   @if (isExpanded()) {
-    <div id="cart-summary-details" class="tw-pb-2">
+    <div id="purchase-summary-details" class="tw-pb-2">
       <!-- Password Manager Section -->
       <div class="tw-border-b tw-border-secondary-100 tw-pb-2">
         <div class="tw-flex tw-justify-between tw-mb-1">
