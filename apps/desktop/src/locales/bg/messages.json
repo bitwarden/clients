@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Търсене в трезора"
   },
+  "resetSearch": {
+    "message": "Нулиране на търсенето"
+  },
   "addItem": {
     "message": "Добавяне на елемент"
   },
@@ -572,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Код за потвърждаване (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Копиране на $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Дължина"
   },
@@ -684,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Прикаченият файл е запазен."
+  },
+  "addAttachment": {
+    "message": "Добавяне на прикачен файл"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Максималният размер на файла е 500 MB"
   },
   "file": {
     "message": "Файл"
@@ -1208,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Двустепенно удостоверяване"
   },
+  "vaultTimeoutHeader": {
+    "message": "Време за достъп до трезора"
+  },
   "vaultTimeout": {
     "message": "Време за достъп"
   },
   "vaultTimeout1": {
     "message": "Време за достъп"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Действие при изтичането на времето за достъп"
   },
   "vaultTimeoutDesc": {
     "message": "Изберете колко да е времето за достъп и какво ще е действието след това."
@@ -1424,6 +1453,9 @@
   "copySecurityCode": {
     "message": "Копиране на кода за сигурност",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "номер на карта"
   },
   "premiumMembership": {
     "message": "Платен абонамент"
@@ -1796,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Отключване с Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Допълнителни настройки на Windows Hello"
-  },
   "unlockWithPolkit": {
     "message": "Отключване чрез системно удостоверяване"
   },
@@ -1814,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "отключете трезора си"
   },
-  "autoPromptWindowsHello": {
-    "message": "Питане за Windows Hello при пускане"
-  },
-  "autoPromptPolkit": {
-    "message": "Питане за системно удостоверяване при стартиране"
-  },
   "autoPromptTouchId": {
     "message": "Питане за Touch ID при пускане"
-  },
-  "requirePasswordOnStart": {
-    "message": "Изискване на парола или ПИН при стартиране на приложението"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Изискване на парола при стартиране на приложението"
-  },
-  "recommendedForSecurity": {
-    "message": "Препоръчително от гледна точка на сигурността."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Заключване с главната парола при повторно пускане"
@@ -2407,6 +2421,15 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Вашата главна парола не отговаря на една или повече политики на организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час."
   },
+  "changePasswordWarning": {
+    "message": "След като промените паролата си, ще трябва да се впишете отново с новата си парола. Сесиите на други устройства също ще бъдат прекратени в рамките на един час."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Променете главната си парола, за да завършите възстановяването на акаунта."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Главната парола не отговаря на изискванията на тази организация. Променете главната си парола, за да продължите."
+  },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Вашата организация е деактивирала шифроването чрез доверени устройства. Задайте главна парола, за да получите достъп до трезора си."
   },
@@ -2493,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Изискванията на политиката за големи компании бяха приложени към настройките на времето за достъп"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Настройките на организацията Ви са задали максималното разрешено време за достъп до трезора на $HOURS$ час(а) и $MINUTES$ минута/и.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Времето за достъп превишава ограничението, зададено от Вашата организация: максимум $HOURS$ час(а) и $MINUTES$ минута/и",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Поканата е приета"
@@ -2975,9 +3027,6 @@
     "message": "Превключване на броя знаци",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Опитвате ли се да получите достъп до акаунта си?"
-  },
   "accessAttemptBy": {
     "message": "Опит за достъп от $EMAIL$",
     "placeholders": {
@@ -2986,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Заявката за вписване за $EMAIL$ на $DEVICE$ е одобрена",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Вие отказахте опит за вписване от друго устройство. Ако това сте били Вие, опитайте да се впишете от устройството отново."
+  },
+  "webApp": {
+    "message": "Приложение по уеб"
+  },
+  "mobile": {
+    "message": "Мобилно приложение",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Добавка за браузър",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Работен плот",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Сървър"
+  },
+  "loginRequest": {
+    "message": "Заявка за вписване"
   },
   "deviceType": {
     "message": "Вид устройство"
@@ -3001,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Отказване на достъпа"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Вписването за $EMAIL$ на $DEVICE$ е одобрено",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Вие отказахте опит за вписване от друго устройство. Ако това наистина сте били Вие, опитайте да се впишете от устройството отново."
   },
   "justNow": {
     "message": "Току-що"
@@ -3143,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
+  },
+  "unableToCompleteLogin": {
+    "message": "Вписването не може да бъде завършено"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Трябва да се впишете на доверено устройство или да помолите администратора си да Ви зададе парола."
   },
   "region": {
     "message": "Регион"
@@ -3408,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Изберете колекция"
   },
-  "importTargetHint": {
-    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в колекция"
+  },
+  "importTargetHintFolder": {
+    "message": "Изберете тази опция, ако искате съдържанието на внесения файл да бъде преместено в папка"
   },
   "importUnassignedItemsError": {
     "message": "Файлът съдържа невъзложени елементи."
@@ -3512,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "Моля, продължете вписването с данните за удостоверяване на Вашата компания."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Внасяне директно от браузъра"
+  },
+  "browserProfile": {
+    "message": "Профил на браузъра"
+  },
   "seeDetailedInstructions": {
     "message": "Може да намерите подробни инструкции в помощния ни уеб сайт на адрес",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3550,6 +3635,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Повече относно разпознаването на съвпадения",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Разширени настройки",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Внимание",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Успех"
@@ -3974,5 +4067,39 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Показване на повече"
+  },
+  "showLess": {
+    "message": "Показване на по-малко"
+  },
+  "enableAutotype": {
+    "message": "Включване на автоматичното въвеждане"
+  },
+  "enableAutotypeDescription": {
+    "message": "Битуорден не проверява местата за въвеждане, така че се уверете, че сте в правилния прозорец, преди да ползвате клавишната комбинация."
+  },
+  "moreBreadcrumbs": {
+    "message": "Още елементи в пътечката",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Следващо"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потвърждаване на домейна на конектора за ключове"
+  },
+  "confirm": {
+    "message": "Потвърждаване"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Включване на клавишната комбинация за автоматично попълване"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Уверете се, че сет в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
+  },
+  "editShortcut": {
+    "message": "Редактиране на комбинацията"
   }
 }

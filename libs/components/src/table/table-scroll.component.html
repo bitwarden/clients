@@ -1,6 +1,6 @@
 <cdk-virtual-scroll-viewport
   bitScrollLayout
-  [itemSize]="rowSize"
+  [itemSize]="rowSize()"
   [ngStyle]="{ paddingBottom: headerHeight + 'px' }"
 >
   <table [ngClass]="tableClass">
@@ -12,8 +12,10 @@
       </tr>
     </thead>
     <tbody>
-      <tr *cdkVirtualFor="let r of rows$; trackBy: trackBy; templateCacheSize: 0" bitRow>
-        <ng-container *ngTemplateOutlet="rowDef.template; context: { $implicit: r }"></ng-container>
+      <tr *cdkVirtualFor="let r of rows$; trackBy: trackBy(); templateCacheSize: 0" bitRow>
+        <ng-container
+          *ngTemplateOutlet="rowDef().template; context: { $implicit: r }"
+        ></ng-container>
       </tr>
     </tbody>
   </table>

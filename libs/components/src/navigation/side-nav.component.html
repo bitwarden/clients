@@ -10,7 +10,7 @@
     class="tw-fixed md:tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-screen tw-flex-col tw-overscroll-none tw-overflow-auto tw-bg-background-alt3 tw-outline-none"
     [ngClass]="{ 'tw-w-60': data.open }"
     [ngStyle]="
-      variant === 'secondary' && {
+      variant() === 'secondary' && {
         '--color-text-alt2': 'var(--color-text-main)',
         '--color-background-alt3': 'var(--color-secondary-100)',
         '--color-background-alt4': 'var(--color-secondary-300)',
@@ -34,10 +34,10 @@
           type="button"
           class="tw-mx-auto tw-block tw-max-w-fit"
           [bitIconButton]="data.open ? 'bwi-angle-left' : 'bwi-angle-right'"
-          buttonType="light"
+          buttonType="nav-contrast"
           size="small"
           (click)="sideNavService.toggle()"
-          [attr.aria-label]="'toggleSideNavigation' | i18n"
+          [label]="'toggleSideNavigation' | i18n"
           [attr.aria-expanded]="data.open"
           aria-controls="bit-side-nav"
         ></button>

@@ -547,11 +547,17 @@
   "searchVault": {
     "message": "جستجوی گاوصندوق"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "ویرایش"
   },
   "view": {
     "message": "مشاهده"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "هیچ موردی برای نمایش وجود ندارد."
@@ -1173,6 +1179,12 @@
     "message": "اوه نه! نتوانستیم این را ذخیره کنیم. لطفاً جزئیات را به‌صورت دستی وارد کنید.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
   "enableChangedPasswordNotification": {
     "message": "درخواست برای به‌روزرسانی ورود به سیستم موجود"
   },
@@ -1752,13 +1764,13 @@
     "message": "این مرورگر نمی‌تواند درخواستهای U2F را در این پنجره پاپ آپ پردازش کند. آیا می‌خواهید این پنجره را در یک پنجره جدید باز کنید تا بتوانید با استفاده از U2F وارد شوید؟"
   },
   "enableFavicon": {
-    "message": "نمایش نمادهای وب‌سایت"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "یک تصویر قابل تشخیص در کنار هر ورود نشان دهید."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "نمایش تصویر قابل تشخیص کنار هر ورود به سیستم. برای تمام حساب‌های کاربری وارد شده اعمال می‌شود."
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "نمایش شمارنده نشان"
@@ -1822,6 +1834,9 @@
   },
   "securityCode": {
     "message": "کد امنیتی"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "ex": {
     "message": "مثال."
@@ -1923,7 +1938,7 @@
     "message": "کلید SSH"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "یادداشت"
   },
   "newItemHeader": {
     "message": "$TYPE$ جدید",
@@ -2157,7 +2172,7 @@
     "message": "کد پین خود را برای باز کردن Bitwarden تنظیم کنید. اگر به طور کامل از برنامه خارج شوید، تنظیمات پین شما از بین می‌رود."
   },
   "setPinCode": {
-    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
+    "message": "شما می‌توانید از این کد پین برای باز کردن قفل Bitwarden استفاده کنید. در صورتی که کامل از برنامه خارج شوید، کد پین شما مجدداً تنظیم خواهد شد."
   },
   "pinRequired": {
     "message": "کد پین الزامیست."
@@ -2488,10 +2503,10 @@
     "message": "یک سیاست سازمانی، درون ریزی موارد به گاوصندوق فردی شما را مسدود کرده است."
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "نمی‌توان انواع مورد کارت را درون ریزی کرد"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "یک سیاست تعیین شده توسط یک یا چند سازمان، مانع از درون ریزی کارت‌ها به گاوصندوق‌های شما شده است."
   },
   "domainsTitle": {
     "message": "دامنه‌ها",
@@ -2525,7 +2540,7 @@
     "message": "تغییر"
   },
   "changePassword": {
-    "message": "Change password",
+    "message": "تغییر رمز عبور",
     "description": "Change password button for browser at risk notification on login."
   },
   "changeButtonTitle": {
@@ -2538,7 +2553,7 @@
     }
   },
   "atRiskPassword": {
-    "message": "At-risk password"
+    "message": "کلمه عبور در معرض خطر"
   },
   "atRiskPasswords": {
     "message": "کلمات عبور در معرض خطر"
@@ -2575,7 +2590,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "message": "کلمه عبور شما برای این سایت در معرض خطر است. $ORGANIZATION$ درخواست کرده است که آن را تغییر دهید.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2585,7 +2600,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "message": "$ORGANIZATION$ از شما می‌خواهد این کلمه عبور را تغییر دهید چون در معرض خطر است. برای تغییر کلمه عبور به تنظیمات حساب کاربری خود مراجعه کنید.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2920,7 +2935,7 @@
     "message": "برای استفاده از این ویژگی باید ایمیل خود را تأیید کنید. می‌توانید ایمیل خود را در گاوصندوق وب تأیید کنید."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "کلمه عبور اصلی با موفقیت تنظیم شد"
   },
   "updatedMasterPassword": {
     "message": "کلمه عبور اصلی به‌روزرسانی شد"
@@ -3454,6 +3469,31 @@
   "logInRequestSent": {
     "message": "درخواست ارسال شد"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "کلمه عبور اصلی افشا شده"
   },
@@ -3547,6 +3587,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "این دستگاه را به خاطر بسپار تا ورودهای بعدی بدون مشکل انجام شود"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "تأیید دستگاه لازم است. یک روش تأیید انتخاب کنید:"
   },
@@ -3567,6 +3695,12 @@
   },
   "requestAdminApproval": {
     "message": "درخواست تأیید مدیر"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "شناسه سازمان SSO مورد نیاز است."
@@ -4000,15 +4134,11 @@
   "selectImportCollection": {
     "message": "انتخاب یک مجموعه"
   },
-  "importTargetHint": {
-    "message": "اگر می‌خواهید محتوای پرونده درون ریزی شده به $DESTINATION$ منتقل شود، این گزینه را انتخاب کنید",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "پرونده حاوی موارد اختصاص نیافته است."
@@ -4248,23 +4378,23 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "تشخیص تطابق نشانی اینترنتی روشی است که Bitwarden برای شناسایی پیشنهادهای پر کردن خودکار استفاده می‌کند.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"عبارت منظم\" یک گزینه پیشرفته است که خطر افشای اطلاعات ورود را افزایش می‌دهد.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"شروع با\" یک گزینه پیشرفته است که خطر افشای اطلاعات ورود را افزایش می‌دهد.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "اطلاعات بیشتر درباره‌ی تشخیص تطابق",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "تنظیمات پیشرفته",
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
@@ -4450,17 +4580,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "کپی $FIELD$، $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4986,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "نمایش تعداد پیشنهادهای پر کردن خودکار ورود در نماد افزونه"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "نمایش عملیات کپی سریع در گاوصندوق"
   },
@@ -5095,7 +5237,7 @@
     "message": "بازکردن قفل کد پین تنظیم شد"
   },
   "unlockWithBiometricSet": {
-    "message": "Unlock with biometrics set"
+    "message": "باز کردن قفل با بیومتریک تنظیم شد"
   },
   "authenticating": {
     "message": "در حال احراز هویت"
@@ -5313,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "تغییر کلمه عبور در معرض خطر"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "گزینه‌های گاوصندوق"
   },
@@ -5440,7 +5588,23 @@
     "message": "شما اجازه دسترسی به این صفحه را ندارید. لطفاً با حساب کاربری دیگری وارد شوید."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "WebAssembly در مرورگر شما پشتیبانی نمی‌شود یا فعال نیست. برای استفاده از برنامه Bitwarden، فعال بودن WebAssembly الزامی است.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -60,6 +60,7 @@ export class SshKeySectionComponent implements OnInit {
   });
 
   showImport = false;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
@@ -94,6 +95,16 @@ export class SshKeySectionComponent implements OnInit {
     if (this.platformUtilsService.getClientType() !== ClientType.Web) {
       this.showImport = true;
     }
+
+    // Disable the form if the cipher form container is enabled
+    // to prevent user interaction
+    this.cipherFormContainer.formStatusChange$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => {
+        if (status === "enabled") {
+          this.sshKeyForm.disable();
+        }
+      });
   }
 
   /** Set form initial form values from the current cipher */

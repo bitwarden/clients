@@ -547,11 +547,17 @@
   "searchVault": {
     "message": "Kluis doorzoeken"
   },
+  "resetSearch": {
+    "message": "Zoekopdracht resetten"
+  },
   "edit": {
     "message": "Bewerken"
   },
   "view": {
     "message": "Weergeven"
+  },
+  "viewLogin": {
+    "message": "Login bekijken"
   },
   "noItemsInList": {
     "message": "Er zijn geen items om weer te geven."
@@ -1019,7 +1025,7 @@
     "message": "Opslaan in kluisopties"
   },
   "addLoginNotificationDesc": {
-    "message": "\"Melding bij nieuwe login\" vraagt automatisch om nieuwe sites in de kluis op te slaan wanneer je ergens voor de eerste keer inlogt."
+    "message": "Vraag om een item toe te voegen als deze niet in je kluis is gevonden."
   },
   "addLoginNotificationDescAlt": {
     "message": "Vraag om een item toe te voegen als het niet is gevonden is je kluis. Dit geld voor alle ingelogde accounts."
@@ -1172,6 +1178,12 @@
   "saveFailureDetails": {
     "message": "Oh nee! We konden dit niet opslaan. Probeer de gegevens handmatig in te voeren.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "Na het wijzigen van je wachtwoord moet je inloggen met je nieuwe wachtwoord. Actieve sessies op andere apparaten worden binnen één uur uitgelogd."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Wijzig je hoofdwachtwoord om je account te herstellen."
   },
   "enableChangedPasswordNotification": {
     "message": "Vraag om bijwerken bestaande login"
@@ -1822,6 +1834,9 @@
   },
   "securityCode": {
     "message": "Beveiligingscode"
+  },
+  "cardNumber": {
+    "message": "kaartnummer"
   },
   "ex": {
     "message": "bijv."
@@ -3061,13 +3076,13 @@
     "message": "Geen unieke id gevonden."
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie."
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Organisatienaam"
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "Key Connector domein"
   },
   "leaveOrganization": {
     "message": "Organisatie verlaten"
@@ -3454,6 +3469,31 @@
   "logInRequestSent": {
     "message": "Verzoek verzonden"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
+  },
+  "device": {
+    "message": "Apparaat"
+  },
+  "loginStatus": {
+    "message": "Loginstatus"
+  },
+  "masterPasswordChanged": {
+    "message": "Hoofdwachtwoord gewijzigd"
+  },
   "exposedMasterPassword": {
     "message": "Gelekt hoofdwachtwoord"
   },
@@ -3547,6 +3587,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Onthoud dit apparaat om in het vervolg naadloos in te loggen"
   },
+  "manageDevices": {
+    "message": "Apparaten beheren"
+  },
+  "currentSession": {
+    "message": "Huidige sessie"
+  },
+  "mobile": {
+    "message": "Mobiel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensie",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Webkluis"
+  },
+  "webApp": {
+    "message": "Web-app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Verzoek in behandeling"
+  },
+  "firstLogin": {
+    "message": "Eerst inloggen"
+  },
+  "trusted": {
+    "message": "Vertrouwd"
+  },
+  "needsApproval": {
+    "message": "Heeft goedkeuring nodig"
+  },
+  "devices": {
+    "message": "Apparaten"
+  },
+  "accessAttemptBy": {
+    "message": "Inlogpoging door $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Toegang bevestigen"
+  },
+  "denyAccess": {
+    "message": "Toegang weigeren"
+  },
+  "time": {
+    "message": "Tijd"
+  },
+  "deviceType": {
+    "message": "Apparaattype"
+  },
+  "loginRequest": {
+    "message": "Log-inverzoek"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Dit verzoek is niet langer geldig."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Inlogverzoek is al verlopen."
+  },
+  "justNow": {
+    "message": "Zojuist"
+  },
+  "requestedXMinutesAgo": {
+    "message": "$MINUTES$ minuten geleden aangevraagd",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Apparaattoestemming vereist. Kies een goedkeuringsoptie hieronder:"
   },
@@ -3567,6 +3695,12 @@
   },
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Kan login niet voltooien"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Je moet inloggen op een vertrouwd apparaat of je beheerder vragen om je een wachtwoord toe te wijzen."
   },
   "ssoIdentifierRequired": {
     "message": "Organisatie SSO-identificatie vereist."
@@ -4000,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Collectie selecteren"
   },
-  "importTargetHint": {
-    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud wilt verplaatsen naar een $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
+  },
+  "importTargetHintFolder": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."
@@ -4450,17 +4580,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "$FIELD$, $VALUE$ kopiëren",
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopiëren",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4622,7 +4752,7 @@
     "message": "Download op Google Play"
   },
   "downloadOnTheAppStore": {
-    "message": "Download on the App Store"
+    "message": "Te downloaden in de App Store"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Weet je zeker dat je deze bijlage definitief wilt verwijderen?"
@@ -4986,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Aantal login automatisch invullen suggesties op het extensie-pictogram weergeven"
   },
+  "accountAccessRequested": {
+    "message": "Accounttoegang aangevraagd"
+  },
+  "confirmAccessAttempt": {
+    "message": "Inlogpoging voor $EMAIL$ bevestigen",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Toon snelle kopieeracties in de kluis"
   },
@@ -5313,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "settingsVaultOptions": {
     "message": "Kluis-instellingen"
   },
@@ -5442,5 +5590,21 @@
   "wasmNotSupported": {
     "message": "WebAssembly wordt niet ondersteund in je browser of is niet ingeschakeld. WebAssembly is vereist om de Bitwarden-app te gebruiken.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Meer weergeven"
+  },
+  "showLess": {
+    "message": "Minder weergeven"
+  },
+  "next": {
+    "message": "Volgende"
+  },
+  "moreBreadcrumbs": {
+    "message": "Meer broodkruimels",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
   }
 }

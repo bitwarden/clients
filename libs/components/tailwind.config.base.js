@@ -10,6 +10,7 @@ module.exports = {
   prefix: "tw-",
   content: [
     "./src/**/*.{html,ts}",
+    "../../libs/assets/src/**/*.{html,ts}",
     "../../libs/components/src/**/*.{html,ts}",
     "../../libs/key-management-ui/src/**/*.{html,ts}",
     "../../libs/auth/src/**/*.{html,ts}",
@@ -74,7 +75,6 @@ module.exports = {
         contrast: rgba("--color-text-contrast"),
         alt2: rgba("--color-text-alt2"),
         code: rgba("--color-text-code"),
-        headers: rgba("--color-text-headers"),
       },
       background: {
         DEFAULT: rgba("--color-background"),
@@ -101,7 +101,6 @@ module.exports = {
       main: rgba("--color-text-main"),
       muted: rgba("--color-text-muted"),
       contrast: rgba("--color-text-contrast"),
-      headers: rgba("--color-text-headers"),
       alt2: rgba("--color-text-alt2"),
       code: rgba("--color-text-code"),
       black: colors.black,
@@ -138,6 +137,11 @@ module.exports = {
         600: rgba("--color-notification-600"),
       },
     },
+    fontFamily: {
+      sans: "var(--font-sans)",
+      serif: "var(--font-serif)",
+      mono: "var(--font-mono)",
+    },
     ringOffsetColor: ({ theme }) => ({
       DEFAULT: theme("colors.background"),
       ...theme("colors"),
@@ -155,6 +159,7 @@ module.exports = {
         "90vw": "90vw",
       }),
       fontSize: {
+        xs: [".8125rem", "1rem"],
         "3xl": ["1.75rem", "2rem"],
       },
     },

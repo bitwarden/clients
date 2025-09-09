@@ -41,11 +41,6 @@ const common = {
         },
         type: "asset/resource",
       },
-      {
-        test: /argon2(-simd)?\.wasm$/,
-        loader: "base64-loader",
-        type: "javascript/auto",
-      },
     ],
   },
   plugins: [],
@@ -110,7 +105,7 @@ const renderer = {
         test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
         exclude: /loading.svg/,
         generator: {
-          filename: "fonts/[name][ext]",
+          filename: "fonts/[name].[contenthash][ext]",
         },
         type: "asset/resource",
       },
@@ -154,13 +149,7 @@ const renderer = {
         test: /[\/\\]@angular[\/\\].+\.js$/,
         parser: { system: true },
       },
-      {
-        test: /argon2(-simd)?\.wasm$/,
-        loader: "base64-loader",
-        type: "javascript/auto",
-      },
     ],
-    noParse: /argon2(-simd)?\.wasm$/,
   },
   experiments: {
     asyncWebAssembly: true,
@@ -187,6 +176,9 @@ const renderer = {
     new MiniCssExtractPlugin({
       filename: "[name].[contenthash].css",
       chunkFilename: "[id].[contenthash].css",
+    }),
+    new webpack.DefinePlugin({
+      BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
     }),
     new webpack.EnvironmentPlugin({
       ENV: ENV,

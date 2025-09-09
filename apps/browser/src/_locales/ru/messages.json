@@ -547,11 +547,17 @@
   "searchVault": {
     "message": "Поиск в хранилище"
   },
+  "resetSearch": {
+    "message": "Сбросить поиск"
+  },
   "edit": {
     "message": "Изменить"
   },
   "view": {
     "message": "Просмотр"
+  },
+  "viewLogin": {
+    "message": "Просмотр логина"
   },
   "noItemsInList": {
     "message": "Нет элементов для отображения."
@@ -1172,6 +1178,12 @@
   "saveFailureDetails": {
     "message": "О нет! Мы не смогли сохранить это. Попробуйте ввести данные вручную.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "После смены пароля потребуется авторизоваться с новым паролем. Активные сессии на других устройствах будут завершены в течение одного часа."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Измените мастер-пароль, чтобы завершить восстановление аккаунта."
   },
   "enableChangedPasswordNotification": {
     "message": "Спрашивать при обновлении существующего логина"
@@ -1822,6 +1834,9 @@
   },
   "securityCode": {
     "message": "Код безопасности"
+  },
+  "cardNumber": {
+    "message": "номер карты"
   },
   "ex": {
     "message": "напр."
@@ -3454,6 +3469,31 @@
   "logInRequestSent": {
     "message": "Запрос отправлен"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Запрос входа для $EMAIL$ на $DEVICE$ одобрен",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Вы отклонили попытку авторизации с другого устройства. Если это были вы, попробуйте авторизоваться с этого устройства еще раз."
+  },
+  "device": {
+    "message": "Устройство"
+  },
+  "loginStatus": {
+    "message": "Статус авторизации"
+  },
+  "masterPasswordChanged": {
+    "message": "Мастер-пароль сохранен"
+  },
   "exposedMasterPassword": {
     "message": "Мастер-пароль скомпрометирован"
   },
@@ -3547,6 +3587,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Запомнить это устройство, чтобы в будущем авторизовываться быстрее"
   },
+  "manageDevices": {
+    "message": "Управление устройствами"
+  },
+  "currentSession": {
+    "message": "Текущая сессия"
+  },
+  "mobile": {
+    "message": "Мобильный",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Расширение",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Компьютер",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Веб-хранилище"
+  },
+  "webApp": {
+    "message": "Веб-приложение"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Запрос в ожидании"
+  },
+  "firstLogin": {
+    "message": "Первый вход"
+  },
+  "trusted": {
+    "message": "Доверенный"
+  },
+  "needsApproval": {
+    "message": "Требуется одобрение"
+  },
+  "devices": {
+    "message": "Устройства"
+  },
+  "accessAttemptBy": {
+    "message": "Попытка доступа $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Подтвердить доступ"
+  },
+  "denyAccess": {
+    "message": "Отказать в доступе"
+  },
+  "time": {
+    "message": "Время"
+  },
+  "deviceType": {
+    "message": "Тип устройства"
+  },
+  "loginRequest": {
+    "message": "Запрос на вход"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Этот запрос больше не действителен."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Запрос на вход истек."
+  },
+  "justNow": {
+    "message": "Только что"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Запрошено $MINUTES$ минут назад",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Требуется одобрение устройства. Выберите вариант ниже:"
   },
@@ -3567,6 +3695,12 @@
   },
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Не удалось завершить вход"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Вам необходимо авторизоваться с доверенного устройства или попросить вашего администратора назначить вам пароль."
   },
   "ssoIdentifierRequired": {
     "message": "Требуется идентификатор SSO организации."
@@ -3648,7 +3782,7 @@
     "message": "В целях обеспечения безопасности вашего аккаунта продолжайте только в том случае, если вы являетесь членом этой организации, у вас включено восстановление аккаунта, а отображаемый ниже отпечаток совпадает с отпечатком организации."
   },
   "orgTrustWarning1": {
-    "message": "В этой организации действует политика, которая позволит вам участвовать в восстановлении аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте, только если вы знаете эту организацию и фраза отпечатков, показанная ниже, совпадает с отпечатками организации."
+    "message": "Эта организация имеет корпоративную политику, которая зарегистрирует вас в системе восстановления аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте только в том случае, если вы узнаете эту организацию и фраза отпечатка, отображаемая ниже, соответствует отпечатку организации."
   },
   "trustUser": {
     "message": "Доверенный пользователь"
@@ -4000,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Выберите коллекцию"
   },
-  "importTargetHint": {
-    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в коллекцию"
+  },
+  "importTargetHintFolder": {
+    "message": "Выберите эту опцию, если хотите, чтобы содержимое импортированного файла было перемещено в папку"
   },
   "importUnassignedItemsError": {
     "message": "Файл содержит неназначенные элементы."
@@ -4450,17 +4580,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Скопировать $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Копировать $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4986,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Показывать количество вариантов автозаполнения логина на значке расширения"
   },
+  "accountAccessRequested": {
+    "message": "Запрошен доступ к аккаунту"
+  },
+  "confirmAccessAttempt": {
+    "message": "Подтвердить попытку доступа $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Показать быстрые действия копирования в хранилище"
   },
@@ -5095,7 +5237,7 @@
     "message": "Установить PIN--код разблокировки"
   },
   "unlockWithBiometricSet": {
-    "message": "Разблокировать с помощью биометрии"
+    "message": "Разблокировка с помощью биометрии настроена"
   },
   "authenticating": {
     "message": "Аутентификация"
@@ -5313,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Настройки хранилища"
   },
@@ -5442,5 +5590,21 @@
   "wasmNotSupported": {
     "message": "WebAssembly не поддерживается вашим браузером или не включен. WebAssembly необходим для использования приложения Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Больше"
+  },
+  "showLess": {
+    "message": "Меньше"
+  },
+  "next": {
+    "message": "Далее"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
   }
 }

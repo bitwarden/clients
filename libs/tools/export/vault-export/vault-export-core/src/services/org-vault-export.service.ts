@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as papa from "papaparse";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import {
   CollectionService,
@@ -10,12 +10,12 @@ import {
   CollectionDetailsResponse,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -143,10 +143,14 @@ export class OrganizationVaultExportService
         if (exportData != null) {
           if (exportData.collections != null && exportData.collections.length > 0) {
             exportData.collections.forEach((c) => {
-              const collection = new Collection(new CollectionData(c as CollectionDetailsResponse));
+              const collection = Collection.fromCollectionData(
+                new CollectionData(c as CollectionDetailsResponse),
+              );
               exportPromises.push(
                 firstValueFrom(this.keyService.activeUserOrgKeys$)
-                  .then((keys) => collection.decrypt(keys[organizationId as OrganizationId]))
+                  .then((keys) =>
+                    collection.decrypt(keys[organizationId as OrganizationId], this.encryptService),
+                  )
                   .then((decCol) => {
                     decCollections.push(decCol);
                   }),
@@ -191,7 +195,9 @@ export class OrganizationVaultExportService
       this.apiService.getCollections(organizationId).then((c) => {
         if (c != null && c.data != null && c.data.length > 0) {
           c.data.forEach((r) => {
-            const collection = new Collection(new CollectionData(r as CollectionDetailsResponse));
+            const collection = Collection.fromCollectionData(
+              new CollectionData(r as CollectionDetailsResponse),
+            );
             collections.push(collection);
           });
         }
@@ -225,14 +231,7 @@ export class OrganizationVaultExportService
   ): Promise<string> {
     let decCiphers: CipherView[] = [];
     let allDecCiphers: CipherView[] = [];
-    let decCollections: CollectionView[] = [];
     const promises = [];
-
-    promises.push(
-      this.collectionService.getAllDecrypted().then(async (collections) => {
-        decCollections = collections.filter((c) => c.organizationId == organizationId && c.manage);
-      }),
-    );
 
     promises.push(
       this.cipherService.getAllDecrypted(activeUserId).then((ciphers) => {
@@ -240,6 +239,16 @@ export class OrganizationVaultExportService
       }),
     );
     await Promise.all(promises);
+
+    const decCollections: CollectionView[] = await firstValueFrom(
+      this.collectionService
+        .decryptedCollections$(activeUserId)
+        .pipe(
+          map((collections) =>
+            collections.filter((c) => c.organizationId == organizationId && c.manage),
+          ),
+        ),
+    );
 
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
@@ -263,14 +272,7 @@ export class OrganizationVaultExportService
   ): Promise<string> {
     let encCiphers: Cipher[] = [];
     let allCiphers: Cipher[] = [];
-    let encCollections: Collection[] = [];
     const promises = [];
-
-    promises.push(
-      this.collectionService.getAll().then((collections) => {
-        encCollections = collections.filter((c) => c.organizationId == organizationId && c.manage);
-      }),
-    );
 
     promises.push(
       this.cipherService.getAll(activeUserId).then((ciphers) => {
@@ -279,6 +281,15 @@ export class OrganizationVaultExportService
     );
 
     await Promise.all(promises);
+
+    const encCollections: Collection[] = await firstValueFrom(
+      this.collectionService.encryptedCollections$(activeUserId).pipe(
+        map((collections) => collections ?? []),
+        map((collections) =>
+          collections.filter((c) => c.organizationId == organizationId && c.manage),
+        ),
+      ),
+    );
 
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 

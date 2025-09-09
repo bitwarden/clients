@@ -547,11 +547,17 @@
   "searchVault": {
     "message": "Pesquisar no Cofre"
   },
+  "resetSearch": {
+    "message": "Reset search"
+  },
   "edit": {
     "message": "Editar"
   },
   "view": {
     "message": "Ver"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "Não há itens para listar."
@@ -1034,7 +1040,7 @@
     "message": "Exibir itens de cartão em páginas com abas para simplificar o preenchimento automático"
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Sempre mostrar identidades como sugestões de preenchimento automático na Tela do Cofre"
+    "message": "Sempre mostrar identidades como sugestões de preenchimento automático na tela do Cofre"
   },
   "showIdentitiesCurrentTab": {
     "message": "Exibir Identidades na Aba Atual"
@@ -1172,6 +1178,12 @@
   "saveFailureDetails": {
     "message": "Ops! Não foi possível salvar isso. Tente digitar os detalhes manualmente.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
   },
   "enableChangedPasswordNotification": {
     "message": "Pedir para atualizar os dados de login existentes"
@@ -1752,13 +1764,13 @@
     "message": "Este navegador não pode processar requisições U2F nesta janela popup. Você quer abrir este popup em uma nova janela para que você possa entrar usando U2F?"
   },
   "enableFavicon": {
-    "message": "Mostrar ícones do site"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Mostrar uma imagem reconhecível ao lado de cada login."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "Mostre uma imagem reconhecível ao lado de cada login. Aplica-se a todas as contas conectadas."
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Mostrar contador de insígnia"
@@ -1822,6 +1834,9 @@
   },
   "securityCode": {
     "message": "Código de Segurança"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "ex": {
     "message": "ex."
@@ -1923,7 +1938,7 @@
     "message": "Chave SSH"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Nota"
   },
   "newItemHeader": {
     "message": "Nova $TYPE$",
@@ -3454,6 +3469,31 @@
   "logInRequestSent": {
     "message": "Pedido enviado"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "Senha mestra comprometida"
   },
@@ -3547,6 +3587,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Lembrar deste dispositivo para permanecer conectado"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Aprovação do dispositivo necessária. Selecione uma opção de aprovação abaixo:"
   },
@@ -3567,6 +3695,12 @@
   },
   "requestAdminApproval": {
     "message": "Solicitar aprovação do administrador"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Identificador SSO da organização é necessário."
@@ -3654,11 +3788,11 @@
     "message": "Trust user"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Envie informações confidenciais com segurança",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Compartilhe arquivos e dados de forma segura com qualquer pessoa, em qualquer plataforma. Suas informações permanecerão criptografadas de ponta a ponta enquanto limitam a exposição.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4000,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Selecione uma coleção"
   },
-  "importTargetHint": {
-    "message": "Selecione esta opção se você quer o conteúdo do arquivo importado movido para $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "Arquivo contém itens não atribuídos."
@@ -4450,17 +4580,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copiar $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4598,25 +4728,25 @@
     }
   },
   "downloadBitwarden": {
-    "message": "Download Bitwarden"
+    "message": "Baixar o Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "Baixar o Bitwarden em todos os dispositivos"
   },
   "getTheMobileApp": {
-    "message": "Get the mobile app"
+    "message": "Baixar o aplicativo para dispositivos móveis"
   },
   "getTheMobileAppDesc": {
-    "message": "Access your passwords on the go with the Bitwarden mobile app."
+    "message": "Acesse as suas senhas em qualquer lugar com o aplicativo móvel Bitwarden."
   },
   "getTheDesktopApp": {
-    "message": "Get the desktop app"
+    "message": "Obter o aplicativo para desktop"
   },
   "getTheDesktopAppDesc": {
-    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+    "message": "Acesse o seu cofre sem um navegador e, em seguida, configure o desbloqueio com dados biométricos para facilitar o desbloqueio tanto no aplicativo desktop quanto na extensão do navegador."
   },
   "downloadFromBitwardenNow": {
-    "message": "Download from bitwarden.com now"
+    "message": "Baixar em bitwarden.com agora"
   },
   "getItOnGooglePlay": {
     "message": "Get it on Google Play"
@@ -4986,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Mostrar o número de sugestões de preenchimento automático de login no ícone da extensão"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Mostrar a opção de cópia rápida no Cofre"
   },
@@ -5313,8 +5455,14 @@
   "changeAtRiskPassword": {
     "message": "Alterar senhas vulneráveis"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "Opções do cofre"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
@@ -5442,5 +5590,21 @@
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

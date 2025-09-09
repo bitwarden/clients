@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Kluis doorzoeken"
   },
+  "resetSearch": {
+    "message": "Zoekopdracht resetten"
+  },
   "addItem": {
     "message": "Item toevoegen"
   },
@@ -572,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Verificatiecode kopiëren (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopiëren",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Lengte"
   },
@@ -684,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "Bijlage opgeslagen"
+  },
+  "addAttachment": {
+    "message": "Bijlage toevoegen"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximale bestandsgrootte is 500 MB"
   },
   "file": {
     "message": "Bestand"
@@ -1208,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Tweestapsaanmelding"
   },
+  "vaultTimeoutHeader": {
+    "message": "Time-out van de kluis"
+  },
   "vaultTimeout": {
     "message": "Time-out van de kluis"
   },
   "vaultTimeout1": {
     "message": "Time-out"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Time-out actie"
   },
   "vaultTimeoutDesc": {
     "message": "Stel de time-out van de kluis en de bijbehorende actie in."
@@ -1424,6 +1453,9 @@
   "copySecurityCode": {
     "message": "Beveiligingscode kopiëren",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kaartnummer"
   },
   "premiumMembership": {
     "message": "Premium-abonnement"
@@ -1796,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Ontgrendelen met Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Extra Windows Hello-instellingen"
-  },
   "unlockWithPolkit": {
     "message": "Ontgrendel met systeemauthenticatie"
   },
@@ -1814,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "ontgrendel je kluis"
   },
-  "autoPromptWindowsHello": {
-    "message": "Vraag om Windows Hello bij opstarten"
-  },
-  "autoPromptPolkit": {
-    "message": "Vraag naar systeemverificatie bij het opstarten"
-  },
   "autoPromptTouchId": {
     "message": "Vraag om Touch ID bij opstarten"
-  },
-  "requirePasswordOnStart": {
-    "message": "Wachtwoord of pincode vereisen bij starten van de app"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Wachtwoord vereisen bij starten van de app"
-  },
-  "recommendedForSecurity": {
-    "message": "Aanbevolen voor veiligheid."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Bij herstart vergrendelen met hoofdwachtwoord"
@@ -2407,6 +2421,15 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
   },
+  "changePasswordWarning": {
+    "message": "Na het wijzigen van je wachtwoord moet je inloggen met je nieuwe wachtwoord. Actieve sessies op andere apparaten worden binnen één uur uitgelogd."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Wijzig je hoofdwachtwoord om je account te herstellen."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Je hoofdwachtwoord voldoet niet aan de eisen van deze organisatie. Wijzig je hoofdwachtwoord om door te gaan."
+  },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Je organisatie heeft het versleutelen van vertrouwde apparaten uitgeschakeld. Stel een hoofdwachtwoord in om toegang te krijgen tot je kluis."
   },
@@ -2493,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane kluis time-out is $HOURS$ uur en $MINUTES$ minuten.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Time-out overschrijdt de beperking van je organisatie: $HOURS$ uur en $MINUTES$ minu(u) t(en) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Uitnodiging geaccepteerd"
@@ -2975,9 +3027,6 @@
     "message": "Tekentelling in-/uitschakelen",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Probeer je toegang te krijgen tot je account?"
-  },
   "accessAttemptBy": {
     "message": "Inlogpoging door $EMAIL$",
     "placeholders": {
@@ -2986,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Inloggen voor $EMAIL$ goedgekeurd op $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
+  },
+  "webApp": {
+    "message": "Web-app"
+  },
+  "mobile": {
+    "message": "Mobiel",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extensie",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Log-inverzoek"
   },
   "deviceType": {
     "message": "Apparaattype"
@@ -3001,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Toegang weigeren"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Inloggen voor $EMAIL$ bevestigd op $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Je hebt een inlogpoging vanaf een ander apparaat geweigerd. Als je dit toch echt zelf was, probeer dan opnieuw in te loggen met het apparaat."
   },
   "justNow": {
     "message": "Zojuist"
@@ -3143,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Kan login niet voltooien"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Je moet inloggen op een vertrouwd apparaat of je beheerder vragen om je een wachtwoord toe te wijzen."
   },
   "region": {
     "message": "Regio"
@@ -3408,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Collectie selecteren"
   },
-  "importTargetHint": {
-    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud wilt verplaatsen naar een $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een collectie wilt verplaatsen"
+  },
+  "importTargetHintFolder": {
+    "message": "Kies deze optie als je de geïmporteerde bestandsinhoud naar een map wilt verplaatsen"
   },
   "importUnassignedItemsError": {
     "message": "Bestand bevat niet-toegewezen items."
@@ -3512,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "Ga door met inloggen met de inloggegevens van je bedrijf."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Zie gedetailleerde instructies op onze helpsite op",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3550,6 +3635,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Lees meer over overeenkomstdetectie",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Geavanceerde opties",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Waarschuwing",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Succes"
@@ -3974,5 +4067,39 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Meer weergeven"
+  },
+  "showLess": {
+    "message": "Minder weergeven"
+  },
+  "enableAutotype": {
+    "message": "Autotypen inschakelen"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden valideert de invoerlocaties niet, zorg ervoor dat je je in het juiste venster en veld bevindt voordat je de snelkoppeling gebruikt."
+  },
+  "moreBreadcrumbs": {
+    "message": "Meer broodkruimels",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Volgende"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
+  },
+  "confirm": {
+    "message": "Bevestigen"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Snelkoppeling autotype inschakelen"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Zorg ervoor dat je je in het juiste veld bevindt voordat je de snelkoppeling gebruikt om te voorkomen dat je de gegevens op de verkeerde plaats invult."
+  },
+  "editShortcut": {
+    "message": "Snelkoppeling bewerken"
   }
 }

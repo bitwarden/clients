@@ -3,11 +3,20 @@
 import { mock } from "jest-mock-extended";
 import { ReplaySubject, Observable } from "rxjs";
 
+// FIXME: Update this file to be type safe and remove this and next line
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/key-management";
+
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
+import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "../types/master-password.types";
 
 export class FakeMasterPasswordService implements InternalMasterPasswordServiceAbstraction {
   mock = mock<InternalMasterPasswordServiceAbstraction>();
@@ -22,6 +31,10 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
   constructor(initialMasterKey?: MasterKey, initialMasterKeyHash?: string) {
     this.masterKeySubject.next(initialMasterKey);
     this.masterKeyHashSubject.next(initialMasterKeyHash);
+  }
+
+  saltForUser$(userId: UserId): Observable<MasterPasswordSalt> {
+    return this.mock.saltForUser$(userId);
   }
 
   masterKey$(userId: UserId): Observable<MasterKey> {
@@ -70,5 +83,36 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     userKey?: EncString,
   ): Promise<UserKey> {
     return this.mock.decryptUserKeyWithMasterKey(masterKey, userId, userKey);
+  }
+
+  makeMasterPasswordAuthenticationData(
+    password: string,
+    kdf: KdfConfig,
+    salt: MasterPasswordSalt,
+  ): Promise<MasterPasswordAuthenticationData> {
+    return this.mock.makeMasterPasswordAuthenticationData(password, kdf, salt);
+  }
+
+  makeMasterPasswordUnlockData(
+    password: string,
+    kdf: KdfConfig,
+    salt: MasterPasswordSalt,
+    userKey: UserKey,
+  ): Promise<MasterPasswordUnlockData> {
+    return this.mock.makeMasterPasswordUnlockData(password, kdf, salt, userKey);
+  }
+
+  unwrapUserKeyFromMasterPasswordUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+  ): Promise<UserKey> {
+    return this.mock.unwrapUserKeyFromMasterPasswordUnlockData(password, masterPasswordUnlockData);
+  }
+
+  setMasterPasswordUnlockData(
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    return this.mock.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
   }
 }

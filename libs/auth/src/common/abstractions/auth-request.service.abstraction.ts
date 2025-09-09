@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
@@ -10,20 +8,20 @@ import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 
 export abstract class AuthRequestServiceAbstraction {
   /** Emits an auth request id when an auth request has been approved. */
-  authRequestPushNotification$: Observable<string>;
+  abstract authRequestPushNotification$: Observable<string>;
 
   /**
    * Emits when a login has been approved by an admin. This emission is specifically for the
    * purpose of notifying the consuming component to display a toast informing the user.
    */
-  adminLoginApproved$: Observable<void>;
+  abstract adminLoginApproved$: Observable<void>;
 
   /**
    * Returns an admin auth request for the given user if it exists.
    * @param userId The user id.
    * @throws If `userId` is not provided.
    */
-  abstract getAdminAuthRequest: (userId: UserId) => Promise<AdminAuthRequestStorable | null>;
+  abstract getAdminAuthRequest(userId: UserId): Promise<AdminAuthRequestStorable | null>;
   /**
    * Sets an admin auth request for the given user.
    * Note: use {@link clearAdminAuthRequest} to clear the request.
@@ -31,22 +29,28 @@ export abstract class AuthRequestServiceAbstraction {
    * @param userId The user id.
    * @throws If `authRequest` or `userId` is not provided.
    */
-  abstract setAdminAuthRequest: (
+  abstract setAdminAuthRequest(
     authRequest: AdminAuthRequestStorable,
     userId: UserId,
-  ) => Promise<void>;
+  ): Promise<void>;
   /**
    * Clears an admin auth request for the given user.
    * @param userId The user id.
    * @throws If `userId` is not provided.
    */
-  abstract clearAdminAuthRequest: (userId: UserId) => Promise<void>;
+  abstract clearAdminAuthRequest(userId: UserId): Promise<void>;
   /**
    * Gets a list of standard pending auth requests for the user.
    * @returns An observable of an array of auth request.
    * The array will be empty if there are no pending auth requests.
    */
   abstract getPendingAuthRequests$(): Observable<Array<AuthRequestResponse>>;
+  /**
+   * Get the most recent AuthRequest for the logged in user
+   * @returns An observable of an auth request. If there are no auth requests
+   * the result will be null.
+   */
+  abstract getLatestPendingAuthRequest$(): Observable<AuthRequestResponse> | null;
   /**
    * Approve or deny an auth request.
    * @param approve True to approve, false to deny.
@@ -55,42 +59,42 @@ export abstract class AuthRequestServiceAbstraction {
    * approval was successful.
    * @throws If the auth request is missing an id or key.
    */
-  abstract approveOrDenyAuthRequest: (
+  abstract approveOrDenyAuthRequest(
     approve: boolean,
     authRequest: AuthRequestResponse,
-  ) => Promise<AuthRequestResponse>;
+  ): Promise<AuthRequestResponse>;
   /**
    * Sets the `UserKey` from an auth request. Auth request must have a `UserKey`.
    * @param authReqResponse The auth request.
    * @param authReqPrivateKey The private key corresponding to the public key sent in the auth request.
    * @param userId The ID of the user for whose account we will set the key.
    */
-  abstract setUserKeyAfterDecryptingSharedUserKey: (
+  abstract setUserKeyAfterDecryptingSharedUserKey(
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: ArrayBuffer,
     userId: UserId,
-  ) => Promise<void>;
+  ): Promise<void>;
   /**
    * Sets the `MasterKey` and `MasterKeyHash` from an auth request. Auth request must have a `MasterKey` and `MasterKeyHash`.
    * @param authReqResponse The auth request.
    * @param authReqPrivateKey The private key corresponding to the public key sent in the auth request.
    * @param userId The ID of the user for whose account we will set the keys.
    */
-  abstract setKeysAfterDecryptingSharedMasterKeyAndHash: (
+  abstract setKeysAfterDecryptingSharedMasterKeyAndHash(
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: ArrayBuffer,
     userId: UserId,
-  ) => Promise<void>;
+  ): Promise<void>;
   /**
    * Decrypts a `UserKey` from a public key encrypted `UserKey`.
    * @param pubKeyEncryptedUserKey The public key encrypted `UserKey`.
    * @param privateKey The private key corresponding to the public key used to encrypt the `UserKey`.
    * @returns The decrypted `UserKey`.
    */
-  abstract decryptPubKeyEncryptedUserKey: (
+  abstract decryptPubKeyEncryptedUserKey(
     pubKeyEncryptedUserKey: string,
     privateKey: ArrayBuffer,
-  ) => Promise<UserKey>;
+  ): Promise<UserKey>;
   /**
    * Decrypts a `MasterKey` and `MasterKeyHash` from a public key encrypted `MasterKey` and `MasterKeyHash`.
    * @param pubKeyEncryptedMasterKey The public key encrypted `MasterKey`.
@@ -98,18 +102,18 @@ export abstract class AuthRequestServiceAbstraction {
    * @param privateKey The private key corresponding to the public key used to encrypt the `MasterKey` and `MasterKeyHash`.
    * @returns The decrypted `MasterKey` and `MasterKeyHash`.
    */
-  abstract decryptPubKeyEncryptedMasterKeyAndHash: (
+  abstract decryptPubKeyEncryptedMasterKeyAndHash(
     pubKeyEncryptedMasterKey: string,
     pubKeyEncryptedMasterKeyHash: string,
     privateKey: ArrayBuffer,
-  ) => Promise<{ masterKey: MasterKey; masterKeyHash: string }>;
+  ): Promise<{ masterKey: MasterKey; masterKeyHash: string }>;
 
   /**
-   * Handles incoming auth request push notifications.
+   * Handles incoming auth request push server notifications.
    * @param notification push notification.
-   * @remark We should only be receiving approved push notifications to prevent enumeration.
+   * @remark We should only be receiving approved push server notifications to prevent enumeration.
    */
-  abstract sendAuthRequestPushNotification: (notification: AuthRequestPushNotification) => void;
+  abstract sendAuthRequestPushNotification(notification: AuthRequestPushNotification): void;
 
   /**
    * Creates a dash-delimited fingerprint for use in confirming the `AuthRequest` between the requesting and approving device.

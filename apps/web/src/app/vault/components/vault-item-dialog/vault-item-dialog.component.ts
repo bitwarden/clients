@@ -28,6 +28,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   DIALOG_DATA,
   DialogRef,
@@ -91,7 +92,7 @@ export interface VaultItemDialogParams {
   /**
    * Function to restore a cipher from the trash.
    */
-  restore?: (c: CipherView) => Promise<boolean>;
+  restore?: (c: CipherViewLike) => Promise<boolean>;
 }
 
 export const VaultItemDialogResult = {
@@ -272,6 +273,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected canDelete = false;
 
+  protected attachmentsButtonDisabled = false;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -338,6 +341,10 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     if (this._cipherModified) {
       this.dialogRef.close(VaultItemDialogResult.Saved);
     }
+  }
+
+  formStatusChanged(status: "disabled" | "enabled") {
+    this.attachmentsButtonDisabled = status === "disabled";
   }
 
   /**

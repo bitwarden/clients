@@ -547,11 +547,17 @@
   "searchVault": {
     "message": "搜尋密碼庫"
   },
+  "resetSearch": {
+    "message": "重設搜尋"
+  },
   "edit": {
     "message": "編輯"
   },
   "view": {
     "message": "檢視"
+  },
+  "viewLogin": {
+    "message": "View login"
   },
   "noItemsInList": {
     "message": "沒有可列出的項目。"
@@ -656,7 +662,7 @@
     "message": "您的瀏覽器不支援剪貼簿簡單複製，請手動複製。"
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "驗證您的身份"
   },
   "weDontRecognizeThisDevice": {
     "message": "我們無法識別此裝置。請輸入已傳送到您電子郵件的驗證碼以驗證您的身分。"
@@ -911,7 +917,7 @@
     "message": "否"
   },
   "location": {
-    "message": "Location"
+    "message": "位置"
   },
   "unexpectedError": {
     "message": "發生了未預期的錯誤。"
@@ -1093,11 +1099,11 @@
     }
   },
   "notificationLoginSaveConfirmation": {
-    "message": "saved to Bitwarden.",
+    "message": "已儲存至 Bitwarden。",
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
-    "message": "updated in Bitwarden.",
+    "message": "已更新至 Bitwarden。",
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
@@ -1117,7 +1123,7 @@
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Update login",
+    "message": "更新登入資料",
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
@@ -1125,7 +1131,7 @@
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
-    "message": "Save login",
+    "message": "儲存登入資料",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
@@ -1172,6 +1178,12 @@
   "saveFailureDetails": {
     "message": "Oh no! We couldn't save this. Try entering the details manually.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
   },
   "enableChangedPasswordNotification": {
     "message": "詢問更新現有的登入資料"
@@ -1477,11 +1489,11 @@
     "message": "Don't ask again on this device for 30 days"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "選擇其他方式",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "使用您的復原碼"
   },
   "insertU2f": {
     "message": "將您的安全鑰匙插入電腦的 USB 連接埠，然後觸摸其按鈕（如有的話）。"
@@ -1615,7 +1627,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Turn off autofill"
+    "message": "停用自動填入"
   },
   "showInlineMenuLabel": {
     "message": "在表單欄位上顯示自動填入選單"
@@ -1752,13 +1764,13 @@
     "message": "此瀏覽器不能在彈出式視窗中處理 U2F 要求。是否在新視窗開啟此對話方塊，以便您能夠使用 U2F 登入？"
   },
   "enableFavicon": {
-    "message": "顯示網站圖示"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "在每個登入資料旁顯示一個可辨識的圖片。"
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "在每次登入時旁邊顯示可識別的圖片。適用於所有已登入的帳號。"
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "顯示圖示計數器"
@@ -1822,6 +1834,9 @@
   },
   "securityCode": {
     "message": "安全代碼"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "ex": {
     "message": "例如"
@@ -2225,7 +2240,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "密碼庫自訂"
   },
   "vaultTimeoutAction": {
     "message": "密碼庫逾時動作"
@@ -2522,7 +2537,7 @@
     "message": "您可以於設定中進行更改"
   },
   "change": {
-    "message": "Change"
+    "message": "變更"
   },
   "changePassword": {
     "message": "Change password",
@@ -3454,6 +3469,31 @@
   "logInRequestSent": {
     "message": "已傳送請求"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "device": {
+    "message": "Device"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "已洩露的主密碼"
   },
@@ -3547,6 +3587,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "記住此裝置來讓未來的登入體驗更簡易"
   },
+  "manageDevices": {
+    "message": "Manage devices"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "time": {
+    "message": "Time"
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "loginRequest": {
+    "message": "Login request"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "裝置需要取得核准。請在下面選擇一個核准選項："
   },
@@ -3567,6 +3695,12 @@
   },
   "requestAdminApproval": {
     "message": "要求管理員核准"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "需要組織 SSO 識別碼。"
@@ -4000,15 +4134,11 @@
   "selectImportCollection": {
     "message": "選擇一個分類"
   },
-  "importTargetHint": {
-    "message": "如果您要將匯入檔案的內容移動到 $DESTINATION$，請選擇此選項",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "檔案包含未指派項目。"
@@ -4105,7 +4235,7 @@
     "message": "密碼金鑰項目"
   },
   "overwritePasskey": {
-    "message": "覆寫密碼金鑰嗎？"
+    "message": "要覆寫密碼金鑰嗎？"
   },
   "overwritePasskeyAlert": {
     "message": "該項目已包含密碼金鑰。您確定要覆寫目前的密碼金鑰嗎？"
@@ -4450,17 +4580,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Copy $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4598,10 +4728,10 @@
     }
   },
   "downloadBitwarden": {
-    "message": "Download Bitwarden"
+    "message": "下載 Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "在所有裝置中下載 Bitwarden"
   },
   "getTheMobileApp": {
     "message": "Get the mobile app"
@@ -4616,13 +4746,13 @@
     "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
   },
   "downloadFromBitwardenNow": {
-    "message": "Download from bitwarden.com now"
+    "message": "立即從 bitwarden.com 下載"
   },
   "getItOnGooglePlay": {
     "message": "Get it on Google Play"
   },
   "downloadOnTheAppStore": {
-    "message": "Download on the App Store"
+    "message": "從 App Store 下載"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "您確定要永久刪除此附檔嗎？"
@@ -4986,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "在擴充套件圖示上顯示自動填入建議的數量"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "在密碼庫中顯示快速複製"
   },
@@ -5029,7 +5171,7 @@
     "message": "以及更多內容"
   },
   "fileSavedToDevice": {
-    "message": "檔案已儲存到裝置。在您的裝置上管理下載檔案。"
+    "message": "檔案已儲存至裝置。在您的裝置中管理下載的檔案。"
   },
   "showCharacterCount": {
     "message": "顯示字元數"
@@ -5313,8 +5455,14 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "密碼庫選項"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
@@ -5442,5 +5590,21 @@
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

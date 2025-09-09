@@ -9,7 +9,7 @@
     "message": "Sve spremljene lozinke"
   },
   "favorites": {
-    "message": "Omiljene stavke"
+    "message": "Omiljeno"
   },
   "types": {
     "message": "Vrste"
@@ -24,13 +24,13 @@
     "message": "Identitet"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Napomena"
   },
   "typeSecureNote": {
     "message": "Sigurna bilješka"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH ključ"
   },
   "folders": {
     "message": "Folderi"
@@ -40,6 +40,9 @@
   },
   "searchVault": {
     "message": "Pretraživanje trezora"
+  },
+  "resetSearch": {
+    "message": "Reset search"
   },
   "addItem": {
     "message": "Dodaj stavku"
@@ -214,7 +217,7 @@
     "message": "The password you entered is incorrect."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Uvoz"
   },
   "confirmSshKeyPassword": {
     "message": "Confirm password"
@@ -340,7 +343,7 @@
     "message": "Mx"
   },
   "dr": {
-    "message": "dr."
+    "message": "dr"
   },
   "expirationMonth": {
     "message": "Mjesec isteka"
@@ -400,7 +403,7 @@
     "message": "Izbriši"
   },
   "favorite": {
-    "message": "Omiljene stavke"
+    "message": "Omiljeno"
   },
   "edit": {
     "message": "Uredi"
@@ -572,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Kopira Verifikacioni kod (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Dužina"
   },
@@ -683,13 +700,19 @@
     "message": "Da li ste sigurni da želite obrisati priloženu datoteku?"
   },
   "attachmentSaved": {
-    "message": "Priložena datoteka je spremljena."
+    "message": "Priložena datoteka je spremljena"
+  },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
   },
   "file": {
     "message": "Datoteka"
   },
   "selectFile": {
-    "message": "Odaberite datoteku."
+    "message": "Odaberite datoteku"
   },
   "maxFileSize": {
     "message": "Maksimalna veličina datoteke je 500 MB."
@@ -980,7 +1003,7 @@
     "message": "Koristi bilo koji WebAuthn omogućeni sigurnosni ključ za pristup svojem računu."
   },
   "emailTitle": {
-    "message": "E-Mail "
+    "message": "E-Mail"
   },
   "emailDescV2": {
     "message": "Enter a code sent to your email."
@@ -1044,7 +1067,7 @@
     "message": "URL adresa servera ikona"
   },
   "environmentSaved": {
-    "message": "URL adrese okruženja su spremljene."
+    "message": "URL adrese okruženja su spremljene"
   },
   "ok": {
     "message": "Uredu"
@@ -1119,7 +1142,7 @@
     "message": "Kontaktirajte nas"
   },
   "helpAndFeedback": {
-    "message": "Help and feedback"
+    "message": "Pomoć i povratne informacije"
   },
   "getHelp": {
     "message": "Potraži pomoć"
@@ -1208,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Prijava u dva koraka"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "vaultTimeout": {
     "message": "Vremensko ograničenje trezora"
   },
   "vaultTimeout1": {
     "message": "Timeout"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Odaberi kada će za koliko vremena će isteći aktivnost trezora i biti izvršena odabrana radnja."
@@ -1367,7 +1396,7 @@
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
-    "message": "Provjeri ima li ažuriranja"
+    "message": "Provjeri ima li ažuriranja…"
   },
   "version": {
     "message": "Verzija $VERSION_NUM$",
@@ -1424,6 +1453,9 @@
   "copySecurityCode": {
     "message": "Kopirajte sigurnosni kod",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "card number"
   },
   "premiumMembership": {
     "message": "Premium članstvo"
@@ -1489,7 +1521,7 @@
     "message": "Historija uređivanja lozinke"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Povijest stvaranja"
   },
   "clearGeneratorHistoryTitle": {
     "message": "Clear generator history"
@@ -1796,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Otključaj koristeći Windows Hello"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Additional Windows Hello settings"
-  },
   "unlockWithPolkit": {
     "message": "Unlock with system authentication"
   },
@@ -1814,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "otključaj trezor"
   },
-  "autoPromptWindowsHello": {
-    "message": "Ask for Windows Hello on app start"
-  },
-  "autoPromptPolkit": {
-    "message": "Ask for system authentication on launch"
-  },
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"
-  },
-  "requirePasswordOnStart": {
-    "message": "Require password or PIN on app start"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
-  },
-  "recommendedForSecurity": {
-    "message": "Recommended for security."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
@@ -1875,7 +1889,7 @@
     "message": "You've upgraded to Premium."
   },
   "restore": {
-    "message": "Restore"
+    "message": "Vrati"
   },
   "premiumManageAlertAppStore": {
     "message": "You can manage your subscription from the App Store. Do you want to visit the App Store now?"
@@ -1923,7 +1937,7 @@
     "description": "Noun: a special folder to hold deleted items"
   },
   "searchTrash": {
-    "message": "Search trash"
+    "message": "Pretraživanje smeća"
   },
   "permanentlyDeleteItem": {
     "message": "Permanently delete item"
@@ -2194,7 +2208,7 @@
     "message": "Personal details"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identifikacija"
   },
   "contactInfo": {
     "message": "Contact information"
@@ -2369,7 +2383,7 @@
     "message": "Awaiting security key interaction..."
   },
   "hideEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "Sakrij moju adresu e-pošte od primatelja."
   },
   "sendOptionsPolicyInEffect": {
     "message": "One or more organization policies are affecting your Send options."
@@ -2406,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
@@ -2447,7 +2470,7 @@
     "message": "Resend code"
   },
   "hours": {
-    "message": "Hours"
+    "message": "Sati"
   },
   "minutes": {
     "message": "Minutes"
@@ -2493,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "Invitation accepted"
@@ -2612,7 +2664,7 @@
     "message": "Locked"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Vaš sef je zaključan"
   },
   "unlocked": {
     "message": "Unlocked"
@@ -2735,10 +2787,10 @@
     "message": "All vaults"
   },
   "searchOrganization": {
-    "message": "Search organization"
+    "message": "Pretraživanje organizacija"
   },
   "searchMyVault": {
-    "message": "Search my vault"
+    "message": "Pretraživanje sefa"
   },
   "forwardedEmail": {
     "message": "Forwarded email alias"
@@ -2881,7 +2933,7 @@
     }
   },
   "hostname": {
-    "message": "Hostname",
+    "message": "Naziv domaćina",
     "description": "Part of a URL."
   },
   "apiAccessToken": {
@@ -2969,14 +3021,11 @@
     "message": "View all login options"
   },
   "resendNotification": {
-    "message": "Resend notification"
+    "message": "Ponovo pošalji obavijest"
   },
   "toggleCharacterCount": {
     "message": "Toggle character count",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
-  },
-  "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -2986,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
+  "webApp": {
+    "message": "Web app"
+  },
+  "mobile": {
+    "message": "Mobile",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Extension",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Server"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "deviceType": {
     "message": "Device Type"
@@ -3001,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Deny access"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
   "justNow": {
     "message": "Just now"
@@ -3067,7 +3144,7 @@
     "message": "No email?"
   },
   "goBack": {
-    "message": "Go back"
+    "message": "Natrag"
   },
   "toEditYourEmailAddress": {
     "message": "to edit your email address."
@@ -3091,7 +3168,7 @@
     "message": "Logged in!"
   },
   "important": {
-    "message": "Important:"
+    "message": "Važno:"
   },
   "accessing": {
     "message": "Accessing"
@@ -3143,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "Request admin approval"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "region": {
     "message": "Region"
@@ -3215,7 +3298,7 @@
     "message": "required"
   },
   "search": {
-    "message": "Search"
+    "message": "Traži"
   },
   "inputMinLength": {
     "message": "Input must be at least $COUNT$ characters long.",
@@ -3282,7 +3365,7 @@
     }
   },
   "selectPlaceholder": {
-    "message": "-- Select --"
+    "message": "Odaberi"
   },
   "multiSelectPlaceholder": {
     "message": "-- Type to filter --"
@@ -3312,7 +3395,7 @@
     "message": "Toggle side navigation"
   },
   "skipToContent": {
-    "message": "Skip to content"
+    "message": "Prijeđi na sadržaj"
   },
   "typePasskey": {
     "message": "Passkey"
@@ -3327,11 +3410,11 @@
     "message": "Alias domain"
   },
   "importData": {
-    "message": "Import data",
+    "message": "Uvoz podataka",
     "description": "Used for the desktop menu item and the header of the import dialog"
   },
   "importError": {
-    "message": "Import error"
+    "message": "Greška pri uvozu"
   },
   "importErrorDesc": {
     "message": "There was a problem with the data you tried to import. Please resolve the errors listed below in your source file and try again."
@@ -3408,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Select a collection"
   },
-  "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Select this option if you want the imported file contents moved to a collection"
+  },
+  "importTargetHintFolder": {
+    "message": "Select this option if you want the imported file contents moved to a folder"
   },
   "importUnassignedItemsError": {
     "message": "File contains unassigned items."
@@ -3512,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "Please continue to log in using your company credentials."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3520,7 +3605,7 @@
     "message": "Import directly from LastPass"
   },
   "importFromCSV": {
-    "message": "Import from CSV"
+    "message": "Uvoz iz CSV datoteke"
   },
   "lastPassTryAgainCheckEmail": {
     "message": "Try again or look for an email from LastPass to verify it's you."
@@ -3550,6 +3635,14 @@
   "uriMatchWarningDialogLink": {
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Warning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Success"
@@ -3974,5 +4067,39 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+  },
+  "moreBreadcrumbs": {
+    "message": "More breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

@@ -168,6 +168,13 @@ export interface PasswordHealthReportApplicationsRequest {
   url: string;
 }
 
+export interface EncryptedDataModel {
+  organizationId: OrganizationId;
+  encryptedData: string;
+  encryptionKey: string;
+  date: Date;
+}
+
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DrawerType {

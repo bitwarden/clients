@@ -20,7 +20,7 @@
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "36.4.0",
+  "electronVersion": "36.8.1",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -223,6 +223,7 @@
       "sl",
       "sr-cyrl",
       "sv",
+      "ta",
       "te",
       "th",
       "tr",
@@ -240,7 +241,8 @@
     "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "rpm": {
-    "artifactName": "${productName}-${version}-${arch}.${ext}"
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "fpm": ["--rpm-rpmbuild-define", "_build_id_links none"]
   },
   "freebsd": {
     "artifactName": "${productName}-${version}-${arch}.${ext}"
@@ -262,7 +264,8 @@
       },
       "u2f-devices"
     ],
-    "stagePackages": ["default"]
+    "stagePackages": ["default"],
+    "allowNativeWayland": true
   },
   "protocols": [
     {

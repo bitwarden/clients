@@ -4,8 +4,9 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, debounceTime, map, switchMap } from "rxjs";
+import { combineLatest, debounceTime, firstValueFrom, map, switchMap } from "rxjs";
 
+import { Security } from "@bitwarden/assets/svg";
 import {
   CriticalAppsService,
   RiskInsightsDataService,
@@ -16,18 +17,13 @@ import {
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTaskType } from "@bitwarden/common/vault/tasks";
-import {
-  Icons,
-  NoItemsModule,
-  SearchModule,
-  TableDataSource,
-  ToastService,
-} from "@bitwarden/components";
+import { NoItemsModule, SearchModule, TableDataSource, ToastService } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -62,22 +58,19 @@ export class CriticalApplicationsComponent implements OnInit {
   protected loading = false;
   protected organizationId: OrganizationId;
   protected applicationSummary = {} as ApplicationHealthReportSummary;
-  noItemsIcon = Icons.Security;
-  isNotificationsFeatureEnabled: boolean = false;
+  noItemsIcon = Security;
   enableRequestPasswordChange = false;
 
   async ngOnInit() {
-    this.isNotificationsFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.EnableRiskInsightsNotifications,
-    );
-
     this.organizationId = this.activatedRoute.snapshot.paramMap.get(
       "organizationId",
     ) as OrganizationId;
-
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId, userId);
+    // this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId);
     combineLatest([
       this.dataService.applications$,
-      this.criticalAppsService.getAppsListForOrg(this.organizationId),
+      this.criticalAppsService.getAppsListForOrg(this.organizationId as OrganizationId),
     ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -119,7 +112,7 @@ export class CriticalApplicationsComponent implements OnInit {
     );
   };
 
-  unmarkAsCriticalApp = async (hostname: string) => {
+  unmarkAsCritical = async (hostname: string) => {
     try {
       await this.criticalAppsService.dropCriticalApp(
         this.organizationId as OrganizationId,
@@ -135,9 +128,8 @@ export class CriticalApplicationsComponent implements OnInit {
     }
 
     this.toastService.showToast({
-      message: this.i18nService.t("criticalApplicationSuccessfullyUnmarked"),
+      message: this.i18nService.t("criticalApplicationUnmarkedSuccessfully"),
       variant: "success",
-      title: this.i18nService.t("success"),
     });
     this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };
@@ -181,6 +173,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected i18nService: I18nService,
     private configService: ConfigService,
     private adminTaskService: DefaultAdminTaskService,
+    private accountService: AccountService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())

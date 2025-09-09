@@ -129,10 +129,21 @@ export class LoginUriView implements View {
     return view;
   }
 
+  /** Converts a LoginUriView object to an SDK LoginUriView object. */
+  toSdkLoginUriView(): SdkLoginUriView {
+    return {
+      uri: this.uri ?? undefined,
+      match: this.match ?? undefined,
+      uriChecksum: undefined, // SDK handles uri checksum generation internally
+    };
+  }
+
   matchesUri(
     targetUri: string,
     equivalentDomains: Set<string>,
     defaultUriMatch: UriMatchStrategySetting = null,
+    /** When present, will override the match strategy for the cipher if it is `Never` with `Domain` */
+    overrideNeverMatchStrategy?: true,
   ): boolean {
     if (!this.uri || !targetUri) {
       return false;
@@ -140,6 +151,12 @@ export class LoginUriView implements View {
 
     let matchType = this.match ?? defaultUriMatch;
     matchType ??= UriMatchStrategy.Domain;
+
+    // Override the match strategy with `Domain` when it is `Never` and `overrideNeverMatchStrategy` is true.
+    // This is useful in scenarios when the cipher should be matched to rely other information other than autofill.
+    if (overrideNeverMatchStrategy && matchType === UriMatchStrategy.Never) {
+      matchType = UriMatchStrategy.Domain;
+    }
 
     const targetDomain = Utils.getDomain(targetUri);
     const matchDomains = equivalentDomains.add(targetDomain);

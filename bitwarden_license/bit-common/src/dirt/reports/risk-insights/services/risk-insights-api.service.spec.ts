@@ -4,13 +4,13 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { SaveRiskInsightsReportRequest } from "../models/password-health";
+import { EncryptedDataModel, SaveRiskInsightsReportRequest } from "../models/password-health";
 
 import { RiskInsightsApiService } from "./risk-insights-api.service";
 
 describe("RiskInsightsApiService", () => {
   let service: RiskInsightsApiService;
-  const apiService = mock<ApiService>();
+  const mockApiService = mock<ApiService>();
 
   const orgId = "org1" as OrganizationId;
 
@@ -37,7 +37,7 @@ describe("RiskInsightsApiService", () => {
   };
 
   beforeEach(() => {
-    service = new RiskInsightsApiService(apiService);
+    service = new RiskInsightsApiService(mockApiService);
   });
 
   it("should be created", () => {
@@ -45,11 +45,11 @@ describe("RiskInsightsApiService", () => {
   });
 
   it("should call apiService.send with correct parameters for saveRiskInsightsReport", (done) => {
-    apiService.send.mockReturnValue(Promise.resolve(saveRiskInsightsReportResponse));
+    mockApiService.send.mockReturnValue(Promise.resolve(saveRiskInsightsReportResponse));
 
     service.saveRiskInsightsReport(saveRiskInsightsReportRequest).subscribe((result) => {
       expect(result).toEqual(saveRiskInsightsReportResponse);
-      expect(apiService.send).toHaveBeenCalledWith(
+      expect(mockApiService.send).toHaveBeenCalledWith(
         "POST",
         `/reports/organization-reports`,
         saveRiskInsightsReportRequest.data,
@@ -61,11 +61,11 @@ describe("RiskInsightsApiService", () => {
   });
 
   it("should call apiService.send with correct parameters and return the response for saveRiskInsightsReport ", (done) => {
-    apiService.send.mockReturnValue(Promise.resolve(saveRiskInsightsReportResponse));
+    mockApiService.send.mockReturnValue(Promise.resolve(saveRiskInsightsReportResponse));
 
     service.saveRiskInsightsReport(saveRiskInsightsReportRequest).subscribe((result) => {
       expect(result).toEqual(saveRiskInsightsReportResponse);
-      expect(apiService.send).toHaveBeenCalledWith(
+      expect(mockApiService.send).toHaveBeenCalledWith(
         "POST",
         `/reports/organization-reports`,
         saveRiskInsightsReportRequest.data,
@@ -76,16 +76,73 @@ describe("RiskInsightsApiService", () => {
     });
   });
 
+  it("should call apiService.send with correct parameters and return an Observable", (done) => {
+    const orgId = "org123";
+    const minDate = new Date("2024-01-01");
+    const maxDate = new Date("2024-01-31");
+    const mockResponse: EncryptedDataModel[] = [{ encryptedData: "abc" } as EncryptedDataModel];
+
+    mockApiService.send.mockResolvedValueOnce(mockResponse);
+
+    service.getRiskInsightsSummary(orgId, minDate, maxDate).subscribe((result) => {
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "GET",
+        `organization-report-summary/org123?from=2024-01-01&to=2024-01-31`,
+        null,
+        true,
+        true,
+      );
+      expect(result).toEqual(mockResponse);
+      done();
+    });
+  });
+
+  it("should call apiService.send with correct parameters and return an Observable", (done) => {
+    const data: EncryptedDataModel = { encryptedData: "xyz" } as EncryptedDataModel;
+
+    mockApiService.send.mockResolvedValueOnce(undefined);
+
+    service.saveRiskInsightsSummary(data).subscribe((result) => {
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        "organization-report-summary",
+        data,
+        true,
+        true,
+      );
+      expect(result).toBeUndefined();
+      done();
+    });
+  });
+
+  it("should call apiService.send with correct parameters and return an Observable", (done) => {
+    const data: EncryptedDataModel = { encryptedData: "xyz" } as EncryptedDataModel;
+
+    mockApiService.send.mockResolvedValueOnce(undefined);
+
+    service.updateRiskInsightsSummary(data).subscribe((result) => {
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "organization-report-summary",
+        data,
+        true,
+        true,
+      );
+      expect(result).toBeUndefined();
+      done();
+    });
+  });
+
   it("should propagate errors from apiService.send for saveRiskInsightsReport - 1", (done) => {
     const error = { statusCode: 500, message: "Internal Server Error" };
-    apiService.send.mockReturnValue(Promise.reject(error));
+    mockApiService.send.mockReturnValue(Promise.reject(error));
 
     service.saveRiskInsightsReport(saveRiskInsightsReportRequest).subscribe({
       next: () => {
         fail("Expected error to be thrown");
       },
       error: () => {
-        expect(apiService.send).toHaveBeenCalledWith(
+        expect(mockApiService.send).toHaveBeenCalledWith(
           "POST",
           `/reports/organization-reports`,
           saveRiskInsightsReportRequest.data,
@@ -102,14 +159,14 @@ describe("RiskInsightsApiService", () => {
 
   it("should propagate network errors from apiService.send for saveRiskInsightsReport - 2", (done) => {
     const error = new Error("Network error");
-    apiService.send.mockReturnValue(Promise.reject(error));
+    mockApiService.send.mockReturnValue(Promise.reject(error));
 
     service.saveRiskInsightsReport(saveRiskInsightsReportRequest).subscribe({
       next: () => {
         fail("Expected error to be thrown");
       },
       error: () => {
-        expect(apiService.send).toHaveBeenCalledWith(
+        expect(mockApiService.send).toHaveBeenCalledWith(
           "POST",
           `/reports/organization-reports`,
           saveRiskInsightsReportRequest.data,
@@ -125,11 +182,11 @@ describe("RiskInsightsApiService", () => {
   });
 
   it("should call apiService.send with correct parameters and return the response for getRiskInsightsReport ", (done) => {
-    apiService.send.mockReturnValue(Promise.resolve(getRiskInsightsReportResponse));
+    mockApiService.send.mockReturnValue(Promise.resolve(getRiskInsightsReportResponse));
 
     service.getRiskInsightsReport(orgId).subscribe((result) => {
       expect(result).toEqual(getRiskInsightsReportResponse);
-      expect(apiService.send).toHaveBeenCalledWith(
+      expect(mockApiService.send).toHaveBeenCalledWith(
         "GET",
         `/reports/organization-reports/latest/${orgId.toString()}`,
         null,
@@ -142,7 +199,7 @@ describe("RiskInsightsApiService", () => {
 
   it("should return null if apiService.send rejects with 404 error for getRiskInsightsReport", (done) => {
     const error = { statusCode: 404 };
-    apiService.send.mockReturnValue(Promise.reject(error));
+    mockApiService.send.mockReturnValue(Promise.reject(error));
 
     service.getRiskInsightsReport(orgId).subscribe((result) => {
       expect(result).toBeNull();
@@ -152,7 +209,7 @@ describe("RiskInsightsApiService", () => {
 
   it("should throw error if apiService.send rejects with non-404 error for getRiskInsightsReport", (done) => {
     const error = { statusCode: 500, message: "Server error" };
-    apiService.send.mockReturnValue(Promise.reject(error));
+    mockApiService.send.mockReturnValue(Promise.reject(error));
 
     service.getRiskInsightsReport(orgId).subscribe({
       next: () => {
@@ -160,7 +217,7 @@ describe("RiskInsightsApiService", () => {
         fail("Expected error to be thrown");
       },
       error: () => {
-        expect(apiService.send).toHaveBeenCalledWith(
+        expect(mockApiService.send).toHaveBeenCalledWith(
           "GET",
           `/reports/organization-reports/latest/${orgId.toString()}`,
           null,

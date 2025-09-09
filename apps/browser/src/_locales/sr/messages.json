@@ -547,11 +547,17 @@
   "searchVault": {
     "message": "Претражи сеф"
   },
+  "resetSearch": {
+    "message": "Ресетовати претрагу"
+  },
   "edit": {
     "message": "Уреди"
   },
   "view": {
     "message": "Приказ"
+  },
+  "viewLogin": {
+    "message": "Преглед пријаве"
   },
   "noItemsInList": {
     "message": "Нема ставке у листи."
@@ -1173,6 +1179,12 @@
     "message": "Ох не! Нисмо могли да то сачувамо. Покушајте да ручно унесете детаље.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Након промене лозинке, мораћете да се пријавите са новом лозинком. Активне сесије на другим уређајима биће одјављене у року од једног сата."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Промените главну лозинку да бисте завршили опоравак налога."
+  },
   "enableChangedPasswordNotification": {
     "message": "Питај за ажурирање постојеће пријаве"
   },
@@ -1606,7 +1618,7 @@
     "message": "Искључите подешавања ауто-пуњења прегледача, тако да се не сукобљавај са Bitwarden."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "Угасити ауто-пуњење $BROWSER$-а",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1615,7 +1627,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Turn off autofill"
+    "message": "Угасити ауто-пуњење"
   },
   "showInlineMenuLabel": {
     "message": "Прикажи предлоге за ауто-попуњавање у пољима обрасца"
@@ -1752,13 +1764,13 @@
     "message": "Овај прегледач не може да обрађује U2F захтеве у овом искачућем прозору. Да ли желите да отворите овај искачући прозор у новом прозору како бисте могли да се пријавите користећи U2F?"
   },
   "enableFavicon": {
-    "message": "Прикажи иконе сајтова"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Прикажи препознатљиву слику поред сваке ставке за пријаву."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "Приказује препознатљиву слику поред сваке пријаве. Важи за све пријављене налоге."
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Прикажи бедж са бројачем"
@@ -1822,6 +1834,9 @@
   },
   "securityCode": {
     "message": "Сигурносни код"
+  },
+  "cardNumber": {
+    "message": "број картице"
   },
   "ex": {
     "message": "нпр."
@@ -2920,7 +2935,7 @@
     "message": "Морате да потврдите е-пошту да бисте користили ову функцију. Можете да потврдите е-пошту у веб сефу."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Главна лозинка успешно постављена"
   },
   "updatedMasterPassword": {
     "message": "Главна лозинка ажурирана"
@@ -3454,6 +3469,31 @@
   "logInRequestSent": {
     "message": "Захтев је послат"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Захтев за пријаву одобрен за $EMAIL$ на $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Одбили сте покушај пријаве са другог уређаја. Ако сте то били ви, покушајте поново да се пријавите помоћу уређаја."
+  },
+  "device": {
+    "message": "Уређај"
+  },
+  "loginStatus": {
+    "message": "Статус пријаве"
+  },
+  "masterPasswordChanged": {
+    "message": "Главна лозинка сачувана"
+  },
   "exposedMasterPassword": {
     "message": "Изложена главна лозинка"
   },
@@ -3547,6 +3587,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Запамтити овај уређај да би будуће пријаве биле беспрекорне"
   },
+  "manageDevices": {
+    "message": "Управљање уређајима"
+  },
+  "currentSession": {
+    "message": "Тренутна сесија"
+  },
+  "mobile": {
+    "message": "Мобилни",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Додатак",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Десктоп",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Интернет Сеф"
+  },
+  "webApp": {
+    "message": "Веб апликација"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Захтев је на чекању"
+  },
+  "firstLogin": {
+    "message": "Прва пријава"
+  },
+  "trusted": {
+    "message": "Поуздан"
+  },
+  "needsApproval": {
+    "message": "Потребно је одобрење"
+  },
+  "devices": {
+    "message": "Уређаји"
+  },
+  "accessAttemptBy": {
+    "message": "Покушај приступа са $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Потврди приступ"
+  },
+  "denyAccess": {
+    "message": "Одбиј приступ"
+  },
+  "time": {
+    "message": "Време"
+  },
+  "deviceType": {
+    "message": "Тип уређаја"
+  },
+  "loginRequest": {
+    "message": "Захтев за пријаву"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Овај захтев више није важећи."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Захтев за пријаву је већ истекао."
+  },
+  "justNow": {
+    "message": "Управо сада"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Затражено пре $MINUTES$ минута",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Потребно је одобрење уређаја. Изаберите опцију одобрења испод:"
   },
@@ -3567,6 +3695,12 @@
   },
   "requestAdminApproval": {
     "message": "Затражити одобрење администратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Није могуће завршити пријаву"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Потребно је да се пријавите на поузданом уређају или да замолите администратора да вам додели лозинку."
   },
   "ssoIdentifierRequired": {
     "message": "Потребан је SSO идентификатор организације."
@@ -3648,7 +3782,7 @@
     "message": "За сигурност вашег рачуна, наставите само ако сте члан ове организације, омогућили опоравак рачуна и отисак који се приказује испод одговара прстима организације."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "Ова организација има политику за предузећа која ће вас уписати у опоравак налога. Упис ће омогућити администраторима организације да промене вашу лозинку. Наставите само ако препознајете ову организацију и ако се фраза отиска приказана испод поклапа са отиском организације."
   },
   "trustUser": {
     "message": "Повери кориснику"
@@ -4000,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Изабери колекцију"
   },
-  "importTargetHint": {
-    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке премести у $DESTINATION$",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у колекцију"
+  },
+  "importTargetHintFolder": {
+    "message": "Изаберите ову опцију ако желите да се садржај увезене датотеке пребацио у фасцикли"
   },
   "importUnassignedItemsError": {
     "message": "Датотека садржи недодељене ставке."
@@ -4248,23 +4378,23 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Детекција подударања URI-ја је начин на који Bitwarden идентификује предлоге за ауто-попуњавање.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "„Регуларни израз“ је напредна опција са повећаним ризиком од откривања акредитива.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "„Почни са“ је напредна опција са повећаним ризиком од откривања акредитива.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Више о откривању подударања",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Напредне опције",
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
@@ -4450,17 +4580,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "Копирај $FIELD$, $VALUE$",
+  "copyFieldCipherName": {
+    "message": "Копирај $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4986,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Прикажи број предлога за ауто-попуњавање пријаве на икони додатка"
   },
+  "accountAccessRequested": {
+    "message": "Приступ рачуна је затражен"
+  },
+  "confirmAccessAttempt": {
+    "message": "Потврдити приступ за $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Приказати брзе радње копирања у Сефу"
   },
@@ -5313,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Променити ризичну лозинку"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Ова пријава је ризична и недостаје веб локација. Додајте веб страницу и промените лозинку за јачу сигурност."
+  },
+  "missingWebsite": {
+    "message": "Недостаје веб страница"
+  },
   "settingsVaultOptions": {
     "message": "Опције сефа"
   },
@@ -5389,7 +5537,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Лако онлајн плачање"
   },
   "newCardNudgeBody": {
     "message": "Са картицама, лако и сигурносно попуните формуларе за плаћање."
@@ -5442,5 +5590,21 @@
   "wasmNotSupported": {
     "message": "WebAssembly није подржано или није уапљено на вашем прегледачу. WebAssembly је потребно да би се користила апликација Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Прикажи више"
+  },
+  "showLess": {
+    "message": "Прикажи мање"
+  },
+  "next": {
+    "message": "Следеће"
+  },
+  "moreBreadcrumbs": {
+    "message": "Више мрвица",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потврдите домен конектора кључа"
   }
 }

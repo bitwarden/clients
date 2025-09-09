@@ -110,6 +110,7 @@ pub mod biometrics {
     /// If the iv is provided, it will be used as the challenge. Otherwise a random challenge will be generated.
     ///
     /// `format!("<key_base64>|<iv_base64>")`
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn derive_key_material(iv: Option<String>) -> napi::Result<OsDerivedKey> {
         Biometric::derive_key_material(iv.as_deref())
@@ -150,11 +151,13 @@ pub mod biometrics {
 
 #[napi]
 pub mod clipboards {
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn read() -> napi::Result<String> {
         desktop_core::clipboard::read().map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn write(text: String, password: bool) -> napi::Result<()> {
         desktop_core::clipboard::write(&text, password)
@@ -201,6 +204,7 @@ pub mod sshagent {
         pub namespace: Option<String>,
     }
 
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn serve(
         callback: ThreadsafeFunction<SshUIRequest, CalleeHandled>,
@@ -262,9 +266,7 @@ pub mod sshagent {
         match desktop_core::ssh_agent::BitwardenDesktopAgent::start_server(
             auth_request_tx,
             Arc::new(Mutex::new(auth_response_rx)),
-        )
-        .await
-        {
+        ) {
             Ok(state) => Ok(SshAgentState { state }),
             Err(e) => Err(napi::Error::from_reason(e.to_string())),
         }
@@ -319,19 +321,24 @@ pub mod sshagent {
 
 #[napi]
 pub mod processisolations {
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn disable_coredumps() -> napi::Result<()> {
         desktop_core::process_isolation::disable_coredumps()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn is_core_dumping_disabled() -> napi::Result<bool> {
         desktop_core::process_isolation::is_core_dumping_disabled()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
-    pub async fn disable_memory_access() -> napi::Result<()> {
-        desktop_core::process_isolation::disable_memory_access()
+    pub async fn isolate_process() -> napi::Result<()> {
+        desktop_core::process_isolation::isolate_process()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
@@ -367,12 +374,14 @@ pub mod powermonitors {
 
 #[napi]
 pub mod windows_registry {
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn create_key(key: String, subkey: String, value: String) -> napi::Result<()> {
         crate::registry::create_key(&key, &subkey, &value)
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
+    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
     #[napi]
     pub async fn delete_key(key: String, subkey: String) -> napi::Result<()> {
         crate::registry::delete_key(&key, &subkey)
@@ -432,6 +441,7 @@ pub mod ipc {
         ///
         /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
         /// @param callback This function will be called whenever a message is received from a client.
+        #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
             name: String,
@@ -609,12 +619,15 @@ pub mod autofill {
         server: desktop_core::ipc::server::Server,
     }
 
+    // FIXME: Remove unwraps! They panic and terminate the whole application.
+    #[allow(clippy::unwrap_used)]
     #[napi]
     impl IpcServer {
         /// Create and start the IPC server without blocking.
         ///
         /// @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
         /// @param callback This function will be called whenever a message is received from a client.
+        #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
         pub async fn listen(
             name: String,
@@ -799,25 +812,6 @@ pub mod autofill {
 }
 
 #[napi]
-pub mod crypto {
-    use napi::bindgen_prelude::Buffer;
-
-    #[napi]
-    pub async fn argon2(
-        secret: Buffer,
-        salt: Buffer,
-        iterations: u32,
-        memory: u32,
-        parallelism: u32,
-    ) -> napi::Result<Buffer> {
-        desktop_core::crypto::argon2(&secret, &salt, iterations, memory, parallelism)
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
-            .map(|v| v.to_vec())
-            .map(Buffer::from)
-    }
-}
-
-#[napi]
 pub mod passkey_authenticator {
     #[napi]
     pub fn register() -> napi::Result<()> {
@@ -882,5 +876,114 @@ pub mod logging {
         }
 
         fn flush(&self) {}
+    }
+}
+
+#[napi]
+pub mod chromium_importer {
+    use bitwarden_chromium_importer::chromium::LoginImportResult as _LoginImportResult;
+    use bitwarden_chromium_importer::chromium::ProfileInfo as _ProfileInfo;
+
+    #[napi(object)]
+    pub struct ProfileInfo {
+        pub id: String,
+        pub name: String,
+    }
+
+    #[napi(object)]
+    pub struct Login {
+        pub url: String,
+        pub username: String,
+        pub password: String,
+        pub note: String,
+    }
+
+    #[napi(object)]
+    pub struct LoginImportFailure {
+        pub url: String,
+        pub username: String,
+        pub error: String,
+    }
+
+    #[napi(object)]
+    pub struct LoginImportResult {
+        pub login: Option<Login>,
+        pub failure: Option<LoginImportFailure>,
+    }
+
+    impl From<_LoginImportResult> for LoginImportResult {
+        fn from(l: _LoginImportResult) -> Self {
+            match l {
+                _LoginImportResult::Success(l) => LoginImportResult {
+                    login: Some(Login {
+                        url: l.url,
+                        username: l.username,
+                        password: l.password,
+                        note: l.note,
+                    }),
+                    failure: None,
+                },
+                _LoginImportResult::Failure(l) => LoginImportResult {
+                    login: None,
+                    failure: Some(LoginImportFailure {
+                        url: l.url,
+                        username: l.username,
+                        error: l.error,
+                    }),
+                },
+            }
+        }
+    }
+
+    impl From<_ProfileInfo> for ProfileInfo {
+        fn from(p: _ProfileInfo) -> Self {
+            ProfileInfo {
+                id: p.folder,
+                name: p.name,
+            }
+        }
+    }
+
+    #[napi]
+    pub fn get_installed_browsers() -> napi::Result<Vec<String>> {
+        bitwarden_chromium_importer::chromium::get_installed_browsers()
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
+        bitwarden_chromium_importer::chromium::get_available_profiles(&browser)
+            .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn import_logins(
+        browser: String,
+        profile_id: String,
+    ) -> napi::Result<Vec<LoginImportResult>> {
+        bitwarden_chromium_importer::chromium::import_logins(&browser, &profile_id)
+            .await
+            .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
+pub mod autotype {
+    #[napi]
+    pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
+        autotype::get_foreground_window_title().map_err(|_| {
+            napi::Error::from_reason(
+                "Autotype Error: failed to get foreground window title".to_string(),
+            )
+        })
+    }
+
+    #[napi]
+    pub fn type_input(input: Vec<u16>) -> napi::Result<(), napi::Status> {
+        autotype::type_input(input).map_err(|_| {
+            napi::Error::from_reason("Autotype Error: failed to type input".to_string())
+        })
     }
 }

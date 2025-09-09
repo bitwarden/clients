@@ -1,13 +1,6 @@
-import {
-  Input,
-  HostBinding,
-  Directive,
-  inject,
-  ElementRef,
-  input,
-  booleanAttribute,
-} from "@angular/core";
+import { input, HostBinding, Directive, inject, ElementRef, booleanAttribute } from "@angular/core";
 
+import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
 
 export type LinkType = "primary" | "secondary" | "contrast" | "light";
@@ -77,8 +70,7 @@ const commonStyles = [
 
 @Directive()
 abstract class LinkDirective {
-  @Input()
-  linkType: LinkType = "primary";
+  readonly linkType = input<LinkType>("primary");
 }
 
 /**
@@ -96,12 +88,13 @@ export class AnchorLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.125rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? []);
+      .concat(linkStyles[this.linkType()] ?? []);
   }
 }
 
 @Directive({
   selector: "button[bitLink]",
+  hostDirectives: [AriaDisableDirective],
 })
 export class ButtonLinkDirective extends LinkDirective {
   private el = inject(ElementRef<HTMLButtonElement>);
@@ -111,12 +104,11 @@ export class ButtonLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? []);
+      .concat(linkStyles[this.linkType()] ?? []);
   }
 
   constructor() {
     super();
-
     ariaDisableElement(this.el.nativeElement, this.disabled);
   }
 }

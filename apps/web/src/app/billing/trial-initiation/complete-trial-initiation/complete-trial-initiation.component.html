@@ -12,6 +12,7 @@
     <auth-input-password
       [flow]="inputPasswordFlow"
       [email]="email"
+      [loading]="submitting"
       [masterPasswordPolicyOptions]="enforcedPolicyOptions"
       (onPasswordFormSubmit)="handlePasswordSubmit($event)"
       [primaryButtonText]="{ key: 'createAccount' }"
@@ -23,6 +24,7 @@
         <auth-input-password
           [flow]="inputPasswordFlow"
           [email]="email"
+          [loading]="submitting"
           [masterPasswordPolicyOptions]="enforcedPolicyOptions"
           (onPasswordFormSubmit)="handlePasswordSubmit($event)"
           [primaryButtonText]="{ key: 'createAccount' }"
@@ -35,7 +37,7 @@
           bitButton
           buttonType="primary"
           [disabled]="orgInfoFormGroup.controls.name.invalid"
-          [loading]="loading && (trialPaymentOptional$ | async)"
+          [loading]="loading && (trialPaymentOptional$ | async)!"
           (click)="orgNameEntrySubmit()"
         >
           {{
@@ -53,8 +55,8 @@
         <app-trial-billing-step
           *ngIf="stepper.selectedIndex === 2"
           [organizationInfo]="{
-            name: orgInfoFormGroup.value.name,
-            email: orgInfoFormGroup.value.billingEmail,
+            name: orgInfoFormGroup.value.name!,
+            email: orgInfoFormGroup.value.billingEmail!,
             type: trialOrganizationType,
           }"
           [subscriptionProduct]="

@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, HostBinding, Input, Optional, Self } from "@angular/core";
+import { booleanAttribute, Component, HostBinding, input, Optional, Self } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
@@ -9,6 +7,9 @@ import { BitFormControlAbstraction } from "../form-control";
   selector: "input[type=checkbox][bitCheckbox]",
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: CheckboxComponent }],
+  host: {
+    "[disabled]": "disabled",
+  },
 })
 export class CheckboxComponent implements BitFormControlAbstraction {
   @HostBinding("class")
@@ -23,6 +24,9 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-align-sub",
     "tw-flex-none", // Flexbox fix for bit-form-control
     "!tw-p-1",
+    // Give checkbox explicit height and width to fix iOS rendering bug
+    "tw-h-[calc(1.12rem_+_theme(spacing.2))]",
+    "tw-w-[calc(1.12rem_+_theme(spacing.2))]",
     "after:tw-inset-1",
     // negative margin to negate the positioning added by the padding
     "!-tw-mt-1",
@@ -104,33 +108,25 @@ export class CheckboxComponent implements BitFormControlAbstraction {
   protected indeterminateImage =
     `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 13 13"%3E%3Cpath stroke="%23fff" stroke-width="2" d="M2.5 6.5h8"/%3E%3C/svg%3E%0A')`;
 
-  @HostBinding()
-  @Input()
-  get disabled() {
-    return this._disabled ?? this.ngControl?.disabled ?? false;
-  }
-  set disabled(value: any) {
-    this._disabled = value != null && value !== false;
-  }
-  private _disabled: boolean;
+  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  @Input()
+  // TODO migrate to computed signal when Angular adds signal support to reactive forms
+  // https://bitwarden.atlassian.net/browse/CL-819
+  get disabled() {
+    return this.disabledInput() || this.ngControl?.disabled || false;
+  }
+
   get required() {
-    return (
-      this._required ?? this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false
-    );
+    return this.ngControl?.control?.hasValidator(Validators.requiredTrue) ?? false;
   }
-  set required(value: any) {
-    this._required = value != null && value !== false;
-  }
-  private _required: boolean;
 
   get hasError() {
-    return this.ngControl?.status === "INVALID" && this.ngControl?.touched;
+    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
   }
 
   get error(): [string, any] {
-    const key = Object.keys(this.ngControl.errors)[0];
-    return [key, this.ngControl.errors[key]];
+    const errors = this.ngControl?.errors ?? {};
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
   }
 }

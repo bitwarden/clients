@@ -5,10 +5,9 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { Subject, filter, switchMap, takeUntil, tap } from "rxjs";
 
+import { ExtensionBitwardenLogo, Icon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
-  Icon,
-  Icons,
   IconModule,
   Translation,
   AnonLayoutComponent,
@@ -63,7 +62,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hideCardWrapper: boolean = false;
 
   protected theme: string;
-  protected logo = Icons.ExtensionBitwardenLogo;
+  protected logo = ExtensionBitwardenLogo;
 
   constructor(
     private router: Router,
@@ -223,6 +222,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.showLogo = null;
     this.maxWidth = null;
     this.hideFooter = null;
+    this.hideIcon = null;
     this.hideCardWrapper = null;
   }
 

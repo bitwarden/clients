@@ -5,20 +5,19 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { Cipher } from "../models/domain/cipher";
+import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { CipherLike } from "../types/cipher-like";
+import { CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 export type RestrictedCipherType = {
   cipherType: CipherType;
   allowViewOrgIds: string[];
 };
-
-type CipherLike = Cipher | CipherView;
 
 export class RestrictedItemTypesService {
   /**
@@ -34,39 +33,43 @@ export class RestrictedItemTypesService {
           return of([]);
         }
         return this.accountService.activeAccount$.pipe(
-          getUserId,
-          switchMap((userId) =>
-            combineLatest([
+          getOptionalUserId,
+          switchMap((userId) => {
+            if (userId == null) {
+              return of([]); // No user logged in, no restrictions
+            }
+            return combineLatest([
               this.organizationService.organizations$(userId),
               this.policyService.policiesByType$(PolicyType.RestrictedItemTypes, userId),
-            ]),
-          ),
-          map(([orgs, enabledPolicies]) => {
-            // Helper to extract restricted types, defaulting to [Card]
-            const restrictedTypes = (p: (typeof enabledPolicies)[number]) =>
-              (p.data as CipherType[]) ?? [CipherType.Card];
+            ]).pipe(
+              map(([orgs, enabledPolicies]) => {
+                // Helper to extract restricted types, defaulting to [Card]
+                const restrictedTypes = (p: (typeof enabledPolicies)[number]) =>
+                  (p.data as CipherType[]) ?? [CipherType.Card];
 
-            // Union across all enabled policies
-            const allRestrictedTypes = Array.from(
-              new Set(enabledPolicies.flatMap(restrictedTypes)),
+                // Union across all enabled policies
+                const allRestrictedTypes = Array.from(
+                  new Set(enabledPolicies.flatMap(restrictedTypes)),
+                );
+
+                return allRestrictedTypes.map((cipherType) => {
+                  // Determine which orgs allow viewing this type
+                  const allowViewOrgIds = orgs
+                    .filter((org) => {
+                      const orgPolicy = enabledPolicies.find((p) => p.organizationId === org.id);
+                      // no policy for this org => allows everything
+                      if (!orgPolicy) {
+                        return true;
+                      }
+                      // if this type not in their restricted list => they allow it
+                      return !restrictedTypes(orgPolicy).includes(cipherType);
+                    })
+                    .map((org) => org.id);
+
+                  return { cipherType, allowViewOrgIds };
+                });
+              }),
             );
-
-            return allRestrictedTypes.map((cipherType) => {
-              // Determine which orgs allow viewing this type
-              const allowViewOrgIds = orgs
-                .filter((org) => {
-                  const orgPolicy = enabledPolicies.find((p) => p.organizationId === org.id);
-                  // no policy for this org => allows everything
-                  if (!orgPolicy) {
-                    return true;
-                  }
-                  // if this type not in their restricted list => they allow it
-                  return !restrictedTypes(orgPolicy).includes(cipherType);
-                })
-                .map((org) => org.id);
-
-              return { cipherType, allowViewOrgIds };
-            });
           }),
         );
       }),
@@ -94,7 +97,9 @@ export class RestrictedItemTypesService {
    * - Otherwise → restricted
    */
   isCipherRestricted(cipher: CipherLike, restrictedTypes: RestrictedCipherType[]): boolean {
-    const restriction = restrictedTypes.find((r) => r.cipherType === cipher.type);
+    const restriction = restrictedTypes.find(
+      (r) => r.cipherType === CipherViewLikeUtils.getType(cipher),
+    );
 
     // If cipher type is not restricted by any organization, allow it
     if (!restriction) {
@@ -104,7 +109,7 @@ export class RestrictedItemTypesService {
     // If cipher belongs to an organization
     if (cipher.organizationId) {
       // Check if this organization allows viewing this cipher type
-      return !restriction.allowViewOrgIds.includes(cipher.organizationId);
+      return !restriction.allowViewOrgIds.includes(uuidAsString(cipher.organizationId));
     }
 
     // Cipher is restricted by at least one organization, restrict it

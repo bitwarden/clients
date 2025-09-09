@@ -5,7 +5,6 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -13,6 +12,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeoutSettingsService,
   VaultTimeoutService,
@@ -24,7 +24,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -79,7 +78,6 @@ describe("AccountSecurityComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: PolicyService, useValue: policyService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
-        { provide: StateService, useValue: mock<StateService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
         { provide: VaultTimeoutService, useValue: mock<VaultTimeoutService>() },

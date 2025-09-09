@@ -1,21 +1,32 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, HostBinding, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
+import {
+  Component,
+  HostBinding,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  input,
+  model,
+} from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import {
+  AnonLayoutBitwardenShield,
+  BackgroundLeftIllustration,
+  BackgroundRightIllustration,
+  BitwardenLogo,
+  Icon,
+} from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { IconModule, Icon } from "../icon";
-import { BitwardenLogo } from "../icon/icons";
-import { BitwardenShield } from "../icon/logos";
+import { IconModule } from "../icon";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
-export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl";
+export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 @Component({
   selector: "auth-anon-layout",
@@ -29,32 +40,36 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     return ["tw-h-full"];
   }
 
-  @Input() title: string;
-  @Input() subtitle: string;
-  @Input() icon: Icon;
-  @Input() showReadonlyHostname: boolean;
-  @Input() hideLogo: boolean = false;
-  @Input() hideFooter: boolean = false;
-  @Input() hideIcon: boolean = false;
-  @Input() hideCardWrapper: boolean = false;
+  readonly leftIllustration = BackgroundLeftIllustration;
+  readonly rightIllustration = BackgroundRightIllustration;
+
+  readonly title = input<string>();
+  readonly subtitle = input<string>();
+  readonly icon = model<Icon>();
+  readonly showReadonlyHostname = input<boolean>(false);
+  readonly hideLogo = input<boolean>(false);
+  readonly hideFooter = input<boolean>(false);
+  readonly hideIcon = input<boolean>(false);
+  readonly hideCardWrapper = input<boolean>(false);
 
   /**
    * Max width of the anon layout title, subtitle, and content areas.
    *
    * @default 'md'
    */
-  @Input() maxWidth: AnonLayoutMaxWidth = "md";
+  readonly maxWidth = model<AnonLayoutMaxWidth>("md");
 
   protected logo = BitwardenLogo;
   protected year: string;
   protected clientType: ClientType;
-  protected hostname: string;
-  protected version: string;
+  protected hostname?: string;
+  protected version?: string;
 
   protected hideYearAndVersion = false;
 
   get maxWidthClass(): string {
-    switch (this.maxWidth) {
+    const maxWidth = this.maxWidth();
+    switch (maxWidth) {
       case "md":
         return "tw-max-w-md";
       case "lg":
@@ -65,6 +80,8 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
         return "tw-max-w-2xl";
       case "3xl":
         return "tw-max-w-3xl";
+      case "4xl":
+        return "tw-max-w-4xl";
     }
   }
 
@@ -78,19 +95,19 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   }
 
   async ngOnInit() {
-    this.maxWidth = this.maxWidth ?? "md";
+    this.maxWidth.set(this.maxWidth() ?? "md");
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
 
     // If there is no icon input, then use the default icon
-    if (this.icon == null) {
-      this.icon = BitwardenShield;
+    if (this.icon() == null) {
+      this.icon.set(AnonLayoutBitwardenShield);
     }
   }
 
   async ngOnChanges(changes: SimpleChanges) {
     if (changes.maxWidth) {
-      this.maxWidth = changes.maxWidth.currentValue ?? "md";
+      this.maxWidth.set(changes.maxWidth.currentValue ?? "md");
     }
   }
 }

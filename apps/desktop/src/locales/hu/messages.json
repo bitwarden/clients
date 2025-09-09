@@ -41,6 +41,9 @@
   "searchVault": {
     "message": "Keresés a széfben"
   },
+  "resetSearch": {
+    "message": "Keresés visszaállítása"
+  },
   "addItem": {
     "message": "Elem hozzáadása"
   },
@@ -572,6 +575,20 @@
   "copyVerificationCodeTotp": {
     "message": "Ellenőrző kód másolása (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ másolása",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Hossz"
   },
@@ -684,6 +701,12 @@
   },
   "attachmentSaved": {
     "message": "A melléklet mentésre került."
+  },
+  "addAttachment": {
+    "message": "Melléklet hozzáadása"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "A maximális fájlméret 500 MB."
   },
   "file": {
     "message": "Fájl"
@@ -1208,11 +1231,17 @@
   "twoStepLogin": {
     "message": "Kétlépcsős bejelentkezés"
   },
+  "vaultTimeoutHeader": {
+    "message": "Széf időkifutás"
+  },
   "vaultTimeout": {
     "message": "Széf időkifutás"
   },
   "vaultTimeout1": {
     "message": "Időkifutás"
+  },
+  "vaultTimeoutAction1": {
+    "message": "Időkifutási művelet"
   },
   "vaultTimeoutDesc": {
     "message": "Válasszuk ki, hogy a széfnél mikor legyen időkifutás és a kiválasztott művelet végrehajtása."
@@ -1277,10 +1306,10 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "enableFavicon": {
-    "message": "Webhely ikonok megjelenítése"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Kicsinyítés tálcaikonná"
@@ -1424,6 +1453,9 @@
   "copySecurityCode": {
     "message": "Biztonsági kód másolása",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "kártya szám"
   },
   "premiumMembership": {
     "message": "Prémium tagság"
@@ -1796,9 +1828,6 @@
   "unlockWithWindowsHello": {
     "message": "Feloldás Windows Hello segítségével"
   },
-  "additionalWindowsHelloSettings": {
-    "message": "Kiegészítő Windows Hello beállítások"
-  },
   "unlockWithPolkit": {
     "message": "Feloldás rendszer hitelesítéssel"
   },
@@ -1814,23 +1843,8 @@
   "touchIdConsentMessage": {
     "message": "Bitwarden feloldás"
   },
-  "autoPromptWindowsHello": {
-    "message": "Windows Hello kérése indításkor"
-  },
-  "autoPromptPolkit": {
-    "message": "Rendszer hiteletesítés bekérése indításkor"
-  },
   "autoPromptTouchId": {
     "message": "Érintés AZ kérése indításkor"
-  },
-  "requirePasswordOnStart": {
-    "message": "Jelszó vagy PIN kód szükséges az alkalmazás indításakor"
-  },
-  "requirePasswordWithoutPinOnStart": {
-    "message": "Jelszó szükséges az alkalmazás indításakor"
-  },
-  "recommendedForSecurity": {
-    "message": "Biztonsági szempontból ajánlott."
   },
   "lockWithMasterPassOnRestart1": {
     "message": "Lezárás mesterjelszóval újraindításkor"
@@ -2393,7 +2407,7 @@
     "message": "Ez a művelet védett. A folytatásért ismételten meg kell adni a mesterjelszőt az személyazonosság ellenőrzéséhez."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "A mesterjelszó sikeresen beállításra került."
   },
   "updatedMasterPassword": {
     "message": "A mesterjelszó frisstésre került."
@@ -2406,6 +2420,15 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak."
+  },
+  "changePasswordWarning": {
+    "message": "A jelszó megváltoztatása után be kell jelentkezni az új jelszóval. Az aktív munkamenetek más eszközökön egy órán belül kijelentkeznek."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Módosítsuk a mesterjelszót a fiók helyreállításának befejezéséhez."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "A mesterjelszó nem felel meg a szervezet követelményeinek. Módosítsuk a mesterjelszót a folytatáshoz."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "A szervezete letiltotta a megbízható eszközök titkosítását. Állítsunk be egy mesterjelszót a széf eléréséhez."
@@ -2493,6 +2516,35 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "A széf időkorlátja túllépi a szervezet által beállított korlátozást."
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "A vállalkozáspolitikai követelményeket alkalmazra kerültek az időkifutási opciókra.."
+  },
+  "vaultTimeoutPolicyInEffect": {
+    "message": "A szervezeti szabályzata $HOURS$ órára és $MINUTES$ percre állította be a maximálisan megengedett széf időkifutást.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Az időkifutás meghaladja a szervezet által beállított korlátozást: $HOURS$ óra és $MINUTES$ perc maximum.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
   },
   "inviteAccepted": {
     "message": "A meghívás elfogadásra került."
@@ -2975,9 +3027,6 @@
     "message": "Karakterszámláló váltás",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingToAccessYourAccount": {
-    "message": "A fiókhoz próbálunk hozzáférni?"
-  },
   "accessAttemptBy": {
     "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
     "placeholders": {
@@ -2986,6 +3035,50 @@
         "example": "name@example.com"
       }
     }
+  },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "A bejelentkezési kérelem jóváhagyásra került: $EMAIL$ - $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
+  },
+  "webApp": {
+    "message": "Webalkalmazás"
+  },
+  "mobile": {
+    "message": "Mobil",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Kiterjesztés",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Asztali",
+    "description": "Desktop app"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "server": {
+    "message": "Szerver"
+  },
+  "loginRequest": {
+    "message": "Bejelentkezés kérés"
   },
   "deviceType": {
     "message": "Eszköz típus"
@@ -3001,22 +3094,6 @@
   },
   "denyAccess": {
     "message": "Hozzáférés megtagadása"
-  },
-  "logInConfirmedForEmailOnDevice": {
-    "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      },
-      "device": {
-        "content": "$2",
-        "example": "iOS"
-      }
-    }
-  },
-  "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
   "justNow": {
     "message": "Éppen most"
@@ -3143,6 +3220,12 @@
   },
   "requestAdminApproval": {
     "message": "Adminisztrátori jóváhagyás kérés"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nem lehet befejezni a bejelentkezést."
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Be kell jelentkezni egy megbízható eszközön vagy meg kell kérni az adminisztrátort, hogy rendeljen hozzá egy jelszót."
   },
   "region": {
     "message": "Régió"
@@ -3408,15 +3491,11 @@
   "selectImportCollection": {
     "message": "Gyűjtemény kiválasztása"
   },
-  "importTargetHint": {
-    "message": "Válasszuk ezt a lehetőséget, ha azt akarjuk, hogy az importált fájl tartalma $DESTINATION$ helyre kerüljön",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy gyűjteménybe kerüljön."
+  },
+  "importTargetHintFolder": {
+    "message": "Válasszuk ezt az opciót, ha azt akarjuk, hogy az importált fájl tartalma egy mappába kerüljön."
   },
   "importUnassignedItemsError": {
     "message": "A fájl hozzá nem rendelt elemeket tartalmaz."
@@ -3512,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "Folytassuk a bejelentkezést a cég hitelesítő adataival."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Importálás közvetlenül a bővítményből"
+  },
+  "browserProfile": {
+    "message": "Böngésző profil"
+  },
   "seeDetailedInstructions": {
     "message": "Tekintsük meg a részletes utasításokat a súgó oldalon:",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3536,20 +3621,28 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Az URI egyezés észlelése az, ahogyan a Bitwarden azonosítja az automatikus kitöltési javaslatokat.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "A \"normál kifejezés“ egy fejlett opció, amely a hitelesítő adatok növekvő kiszivárgásának kockázatával.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "A \"Kezdés\" egy fejlett opció, amely a hitelesítő adatok kiszivárgásának növekvő kockázatával.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Bővebben az egyezés felismerésről",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Haladó opciók",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Figyelmeztetés",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Sikeres"
@@ -3974,5 +4067,39 @@
         }
       }
     }
+  },
+  "showMore": {
+    "message": "Több megjelenítése"
+  },
+  "showLess": {
+    "message": "Kevesebb megjelenítése"
+  },
+  "enableAutotype": {
+    "message": "Autotípus engedélyezése"
+  },
+  "enableAutotypeDescription": {
+    "message": "A Bitwarden nem érvényesíti a beviteli helyeket, győződjünk meg róla, hogy a megfelelő ablakban és mezőben vagyunk, mielőtt a parancsikont használnánk."
+  },
+  "moreBreadcrumbs": {
+    "message": "További morzsamenük",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Következő"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "A Key Connector tartomány megerősítése"
+  },
+  "confirm": {
+    "message": "Megerősítés"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Automatikus típusú parancsikon engedélyezése"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Győződjünk meg arról, hogy a megfelelő mezőben vagyunk, mielőtt a parancsikont használnánk, hogy elkerüljük az adatok rossz helyre történő kitöltését."
+  },
+  "editShortcut": {
+    "message": "Parancsikon szerkesztése"
   }
 }

@@ -1,9 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, shareReplay } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   Unassigned,
@@ -12,19 +10,20 @@ import {
 } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   BreadcrumbsModule,
   DialogService,
   MenuModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
+import { NewCipherMenuComponent } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -46,6 +45,7 @@ import {
     HeaderModule,
     PipesModule,
     JslibModule,
+    NewCipherMenuComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -54,30 +54,15 @@ export class VaultHeaderComponent {
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected CipherType = CipherType;
-  protected allCipherMenuItems = [
-    { type: CipherType.Login, icon: "bwi-globe", labelKey: "typeLogin" },
-    { type: CipherType.Card, icon: "bwi-credit-card", labelKey: "typeCard" },
-    { type: CipherType.Identity, icon: "bwi-id-card", labelKey: "typeIdentity" },
-    { type: CipherType.SecureNote, icon: "bwi-sticky-note", labelKey: "note" },
-    { type: CipherType.SshKey, icon: "bwi-key", labelKey: "typeSshKey" },
-  ];
-  protected cipherMenuItems$ = this.restrictedItemTypesService.restricted$.pipe(
-    map((restrictedTypes) => {
-      return this.allCipherMenuItems.filter((item) => {
-        return !restrictedTypes.some((restrictedType) => restrictedType.cipherType === item.type);
-      });
-    }),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
 
   /**
    * Boolean to determine the loading state of the header.
    * Shows a loading spinner if set to true
    */
-  @Input() loading: boolean;
+  @Input() loading: boolean = true;
 
   /** Current active filter */
-  @Input() filter: RoutedVaultFilterModel;
+  @Input() filter: RoutedVaultFilterModel | undefined;
 
   /** All organizations that can be shown */
   @Input() organizations: Organization[] = [];
@@ -86,7 +71,7 @@ export class VaultHeaderComponent {
   @Input() collection?: TreeNode<CollectionView>;
 
   /** Whether 'Collection' option is shown in the 'New' dropdown */
-  @Input() canCreateCollections: boolean;
+  @Input() canCreateCollections: boolean = false;
 
   /** Emits an event when the new item button is clicked in the header */
   @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
@@ -109,7 +94,7 @@ export class VaultHeaderComponent {
     private dialogService: DialogService,
     private router: Router,
     private configService: ConfigService,
-    private restrictedItemTypesService: RestrictedItemTypesService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -121,7 +106,7 @@ export class VaultHeaderComponent {
       return this.collection.node.organizationId;
     }
 
-    if (this.filter.organizationId !== undefined) {
+    if (this.filter?.organizationId !== undefined) {
       return this.filter.organizationId;
     }
 
@@ -134,10 +119,14 @@ export class VaultHeaderComponent {
   }
 
   protected get showBreadcrumbs() {
-    return this.filter.collectionId !== undefined && this.filter.collectionId !== All;
+    return this.filter?.collectionId !== undefined && this.filter.collectionId !== All;
   }
 
   protected get title() {
+    if (this.filter === undefined) {
+      return "";
+    }
+
     if (this.filter.collectionId === Unassigned) {
       return this.i18nService.t("unassigned");
     }
@@ -159,7 +148,7 @@ export class VaultHeaderComponent {
   }
 
   protected get icon() {
-    return this.filter.collectionId && this.filter.collectionId !== All
+    return this.filter?.collectionId && this.filter.collectionId !== All
       ? "bwi-collection-shared"
       : "";
   }
@@ -228,21 +217,22 @@ export class VaultHeaderComponent {
   }
 
   async addCollection(): Promise<void> {
-    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    const organization = this.organizations?.find(
+      (org) => org.productTierType === ProductTierType.Free,
     );
 
-    if (isBreadcrumbEventLogsEnabled) {
-      const organization = this.organizations?.find(
-        (org) => org.productTierType === ProductTierType.Free,
+    if (this.organizations?.length == 1 && !!organization) {
+      const collections = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.collectionAdminService.collectionAdminViews$(organization.id, userId),
+          ),
+        ),
       );
-
-      if (this.organizations?.length == 1 && !!organization) {
-        const collections = await this.collectionAdminService.getAll(organization.id);
-        if (collections.length === organization.maxCollections) {
-          await this.showFreeOrgUpgradeDialog(organization);
-          return;
-        }
+      if (collections.length === organization.maxCollections) {
+        await this.showFreeOrgUpgradeDialog(organization);
+        return;
       }
     }
 

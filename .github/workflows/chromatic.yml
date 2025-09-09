@@ -11,10 +11,14 @@ on:
     branches:
       - "main"
 
+permissions: {}
+
 jobs:
   check-run:
     name: Check PR run
     uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+    permissions:
+      contents: read
 
   chromatic:
     name: Chromatic
@@ -23,6 +27,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      id-token: write
 
     steps:
       - name: Check out repo
@@ -30,13 +35,13 @@ jobs:
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           fetch-depth: 0
-        
+
       - name: Get changed files
         id: get-changed-files-for-chromatic
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         with:
           filters: |
-            storyFiles: 
+            storyFiles:
               - "apps/!(cli)/**"
               - "bitwarden_license/bit-web/src/app/**"
               - "libs/!(eslint)/**"
@@ -74,14 +79,34 @@ jobs:
         if: steps.get-changed-files-for-chromatic.outputs.storyFiles == 'true'
         run: npm run build-storybook:ci
 
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "CHROMATIC-PROJECT-TOKEN"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Publish to Chromatic
         uses: chromaui/action@e8cc4c31775280b175a3c440076c00d19a9014d7 # v11.28.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN }}
           storybookBuildDir: ./storybook-static
           exitOnceUploaded: true
           onlyChanged: true
-          externals: "[\"libs/components/**/*.scss\", \"libs/components/**/*.css\", \"libs/components/tailwind.config*.js\"]"
+          externals: |
+            libs/components/**/*.scss
+            libs/components/**/*.css
+            libs/components/tailwind.config*.js
           # Rather than use an `if` check on the whole publish step, we need to tell Chromatic to skip so that any Chromatic-spawned actions are properly skipped
           skip: ${{ steps.get-changed-files-for-chromatic.outputs.storyFiles == 'false' }}

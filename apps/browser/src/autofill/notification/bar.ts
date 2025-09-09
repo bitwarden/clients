@@ -12,7 +12,7 @@ import { NotificationConfirmationContainer } from "../content/components/notific
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
 import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
-import { buildSvgDomElement, matchAllowedColorSchemes } from "../utils";
+import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
 import {
@@ -200,7 +200,7 @@ export function getNotificationTestId(
     [NotificationTypes.Unlock]: "unlock-notification-bar",
     [NotificationTypes.Add]: "save-notification-bar",
     [NotificationTypes.Change]: "update-notification-bar",
-    [NotificationTypes.AtRiskPassword]: "at-risk-password-notification-bar",
+    [NotificationTypes.AtRiskPassword]: "at-risk-notification-bar",
   }[notificationType];
 }
 
@@ -237,15 +237,6 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   } = notificationBarIframeInitData;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
-
-  // https://drafts.csswg.org/css-color-adjust-1/#preferred
-  // Prevents preferred color scheme from forcing an opaque background in the iframe
-  const colorScheme = new URLSearchParams(window.location.search).get("colorScheme") || "";
-  const allowedColorScheme = matchAllowedColorSchemes(colorScheme);
-  const meta = document.createElement("meta");
-  meta.setAttribute("name", "color-scheme");
-  meta.setAttribute("content", allowedColorScheme);
-  document.getElementsByTagName("head")[0].appendChild(meta);
 
   if (useComponentBar) {
     const resolvedType = resolveNotificationType(notificationBarIframeInitData);
@@ -296,6 +287,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
           type: notificationBarIframeInitData.type as NotificationType,
           theme: resolvedTheme,
           i18n,
+          notificationTestId,
           params: initData.params,
           handleCloseNotification,
         }),

@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, computed, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -34,24 +32,28 @@ let nextId = 0;
   templateUrl: "callout.component.html",
   imports: [SharedModule, TypographyModule],
 })
-export class CalloutComponent implements OnInit {
-  @Input() type: CalloutTypes = "info";
-  @Input() icon: string;
-  @Input() title: string;
-  @Input() useAlertRole = false;
-  protected titleId = `bit-callout-title-${nextId++}`;
+export class CalloutComponent {
+  readonly type = input<CalloutTypes>("info");
+  readonly icon = input<string>();
+  readonly title = input<string>();
+  readonly useAlertRole = input(false);
+  readonly iconComputed = computed(() => this.icon() ?? defaultIcon[this.type()]);
+  readonly titleComputed = computed(() => {
+    const title = this.title();
+    const type = this.type();
+    if (title == null && defaultI18n[type] != null) {
+      return this.i18nService.t(defaultI18n[type]);
+    }
+
+    return title;
+  });
+
+  protected readonly titleId = `bit-callout-title-${nextId++}`;
 
   constructor(private i18nService: I18nService) {}
 
-  ngOnInit() {
-    this.icon ??= defaultIcon[this.type];
-    if (this.title == null && defaultI18n[this.type] != null) {
-      this.title = this.i18nService.t(defaultI18n[this.type]);
-    }
-  }
-
-  get calloutClass() {
-    switch (this.type) {
+  protected readonly calloutClass = computed(() => {
+    switch (this.type()) {
       case "danger":
         return "tw-bg-danger-100";
       case "info":
@@ -61,5 +63,5 @@ export class CalloutComponent implements OnInit {
       case "warning":
         return "tw-bg-warning-100";
     }
-  }
+  });
 }

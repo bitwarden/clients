@@ -4,11 +4,12 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { debounceTime, fromEvent } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { DarkImageSourceDirective } from "@bitwarden/vault";
 
 @Component({
   selector: "vault-add-extension-videos",
   templateUrl: "./add-extension-videos.component.html",
-  imports: [CommonModule, JslibModule],
+  imports: [CommonModule, JslibModule, DarkImageSourceDirective],
 })
 export class AddExtensionVideosComponent {
   @ViewChildren("video", { read: ElementRef }) protected videoElements!: QueryList<
@@ -16,6 +17,11 @@ export class AddExtensionVideosComponent {
   >;
 
   private document = inject(DOCUMENT);
+
+  /** CSS variable name tied to the video overlay */
+  private cssOverlayVariable = "--overlay-opacity";
+  /** CSS variable name tied to the video border */
+  private cssBorderVariable = "--border-opacity";
 
   /** Current viewport size */
   protected variant: "mobile" | "desktop" = "desktop";
@@ -25,6 +31,15 @@ export class AddExtensionVideosComponent {
 
   /** True when the user prefers reduced motion */
   protected prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /** CSS classes for the video container, pulled into the class only for readability. */
+  protected videoContainerClass = [
+    "tw-absolute tw-left-0 tw-top-0 tw-w-[15rem] tw-opacity-0 md:tw-opacity-100 md:tw-relative lg:tw-w-[17rem] tw-max-w-full tw-aspect-[0.807]",
+    `[--overlay-opacity:0.7] after:tw-absolute after:tw-top-0 after:tw-left-0 after:tw-size-full after:tw-bg-primary-100 after:tw-content-[''] after:tw-rounded-lg after:tw-opacity-[--overlay-opacity]`,
+    `[--border-opacity:0] before:tw-absolute before:tw-top-0 before:tw-left-0 before:tw-w-full before:tw-h-2 before:tw-bg-primary-600 before:tw-content-[''] before:tw-rounded-t-lg before:tw-opacity-[--border-opacity]`,
+    "after:tw-transition-opacity after:tw-duration-400 after:tw-ease-linear",
+    "before:tw-transition-opacity before:tw-duration-400 before:tw-ease-linear",
+  ].join(" ");
 
   /** Returns true when all videos are loaded */
   get allVideosLoaded(): boolean {
@@ -97,12 +112,14 @@ export class AddExtensionVideosComponent {
     const video = this.videoElements.toArray()[index].nativeElement;
     video.onended = () => {
       void this.startVideoSequence(index + 1);
+      void this.addPausedStyles(video);
     };
 
     this.mobileTransitionIn(index);
 
-    // Set muted via JavaScript, browsers are respecting autoplay consistently over just the  HTML attribute
+    // Browsers are not respecting autoplay consistently with just the HTML attribute, set via JavaScript as well.
     video.muted = true;
+    this.addPlayingStyles(video);
     await video.play();
   }
 
@@ -142,5 +159,37 @@ export class AddExtensionVideosComponent {
   private showElement(element: HTMLElement, transition = false): void {
     element.style.transition = transition ? "opacity 0.5s linear" : "";
     element.style.opacity = "1";
+  }
+
+  /**
+   * Add styles to the video that is moving to the paused/completed state.
+   * Fade in the overlay and fade out the border.
+   */
+  private addPausedStyles(video: HTMLVideoElement): void {
+    const parentElement = video.parentElement;
+    if (!parentElement) {
+      return;
+    }
+
+    // The border opacity transitions from 1 to 0 based on the percent complete.
+    parentElement.style.setProperty(this.cssBorderVariable, "0");
+    // The opacity transitions from 0 to 0.7 based on the percent complete.
+    parentElement.style.setProperty(this.cssOverlayVariable, "0.7");
+  }
+
+  /**
+   * Add styles to the video that is moving to the playing state.
+   * Fade out the overlay and fade in the border.
+   */
+  private addPlayingStyles(video: HTMLVideoElement): void {
+    const parentElement = video.parentElement;
+    if (!parentElement) {
+      return;
+    }
+
+    // The border opacity transitions from 0 to 1 based on the percent complete.
+    parentElement.style.setProperty(this.cssBorderVariable, "1");
+    // The opacity transitions from 0.7 to 0 based on the percent complete.
+    parentElement.style.setProperty(this.cssOverlayVariable, "0");
   }
 }

@@ -2,8 +2,11 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
+import { BehaviorSubject } from "rxjs";
 
+import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 
 import { AddExtensionVideosComponent } from "./add-extension-videos.component";
 
@@ -21,7 +24,14 @@ describe("AddExtensionVideosComponent", () => {
   HTMLMediaElement.prototype.play = play;
 
   beforeEach(async () => {
-    window.matchMedia = jest.fn().mockReturnValue(false);
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: false,
+        addListener() {},
+        removeListener() {},
+      })),
+    });
     play.mockClear();
 
     await TestBed.configureTestingModule({
@@ -29,6 +39,8 @@ describe("AddExtensionVideosComponent", () => {
       providers: [
         provideNoopAnimations(),
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: SYSTEM_THEME_OBSERVABLE, useValue: new BehaviorSubject("system") },
+        { provide: ThemeStateService, useValue: { selectedTheme$: new BehaviorSubject("system") } },
       ],
     }).compileComponents();
 
@@ -126,45 +138,34 @@ describe("AddExtensionVideosComponent", () => {
       thirdVideo = component["videoElements"].get(2)!.nativeElement;
     });
 
-    it("starts the video sequence when all videos are loaded", fakeAsync(() => {
-      tick();
-
+    it("starts the video sequence when all videos are loaded", () => {
       expect(firstVideo.play).toHaveBeenCalled();
-    }));
+    });
 
-    it("plays videos in sequence", fakeAsync(() => {
-      tick(); // let first video play
-
+    it("plays videos in sequence", () => {
       play.mockClear();
       firstVideo.onended!(new Event("ended")); // trigger next video
-
-      tick();
 
       expect(secondVideo.play).toHaveBeenCalledTimes(1);
 
       play.mockClear();
       secondVideo.onended!(new Event("ended")); // trigger next video
 
-      tick();
-
       expect(thirdVideo.play).toHaveBeenCalledTimes(1);
-    }));
+    });
 
-    it("doesn't play videos again when the user prefers no motion", fakeAsync(() => {
+    it("doesn't play videos again when the user prefers no motion", () => {
       component["prefersReducedMotion"] = true;
 
-      tick();
       firstVideo.onended!(new Event("ended"));
-      tick();
+
       secondVideo.onended!(new Event("ended"));
-      tick();
 
       play.mockClear();
 
       thirdVideo.onended!(new Event("ended")); // trigger first video again
 
-      tick();
       expect(play).toHaveBeenCalledTimes(0);
-    }));
+    });
   });
 });

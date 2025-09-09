@@ -547,11 +547,17 @@
   "searchVault": {
     "message": "Tresor durchsuchen"
   },
+  "resetSearch": {
+    "message": "Suche zurücksetzen"
+  },
   "edit": {
     "message": "Bearbeiten"
   },
   "view": {
     "message": "Anzeigen"
+  },
+  "viewLogin": {
+    "message": "Login ansehen"
   },
   "noItemsInList": {
     "message": "Keine Einträge zum Anzeigen vorhanden."
@@ -1173,6 +1179,12 @@
     "message": "Oh nein! Das konnten wir nicht speichern. Versuch, die Details manuell einzugeben.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Nachdem du dein Passwort geändert hast, musst du dich mit deinem neuen Passwort anmelden. Aktive Sitzungen auf anderen Geräten werden innerhalb einer Stunde abgemeldet."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Ändere dein Master-Passwort, um die Kontowiederherstellung abzuschließen."
+  },
   "enableChangedPasswordNotification": {
     "message": "Nach dem Aktualisieren bestehender Zugangsdaten fragen"
   },
@@ -1755,10 +1767,10 @@
     "message": "Website-Symbole anzeigen"
   },
   "faviconDesc": {
-    "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen."
+    "message": "Ein wiedererkennbares Bild neben jedem Login anzeigen."
   },
   "faviconDescAlt": {
-    "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen. Gilt für alle angemeldeten Konten."
+    "message": "Ein wiedererkennbares Bild neben jedem Login anzeigen. Gilt für alle eingeloggten Konten."
   },
   "enableBadgeCounter": {
     "message": "Badge-Zähler anzeigen"
@@ -1822,6 +1834,9 @@
   },
   "securityCode": {
     "message": "Sicherheitscode"
+  },
+  "cardNumber": {
+    "message": "Kartennummer"
   },
   "ex": {
     "message": "Bsp."
@@ -2920,7 +2935,7 @@
     "message": "Du musst deine E-Mail Adresse verifizieren, um diese Funktion nutzen zu können. Du kannst deine E-Mail im Web-Tresor verifizieren."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master-Passwort erfolgreich eingerichtet"
+    "message": "Master-Passwort erfolgreich festgelegt"
   },
   "updatedMasterPassword": {
     "message": "Master-Passwort aktualisiert"
@@ -3454,6 +3469,31 @@
   "logInRequestSent": {
     "message": "Anfrage gesendet"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Anmeldeanfrage für $EMAIL$ auf $DEVICE$ genehmigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+  },
+  "device": {
+    "message": "Gerät"
+  },
+  "loginStatus": {
+    "message": "Anmeldestatus"
+  },
+  "masterPasswordChanged": {
+    "message": "Master-Passwort gespeichert"
+  },
   "exposedMasterPassword": {
     "message": "Kompromittiertes Master-Passwort"
   },
@@ -3547,6 +3587,94 @@
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Dieses Gerät merken, um zukünftige Anmeldungen reibungslos zu gestalten"
   },
+  "manageDevices": {
+    "message": "Geräte verwalten"
+  },
+  "currentSession": {
+    "message": "Aktuelle Sitzung"
+  },
+  "mobile": {
+    "message": "Mobile App",
+    "description": "Mobile app"
+  },
+  "extension": {
+    "message": "Erweiterung",
+    "description": "Browser extension/addon"
+  },
+  "desktop": {
+    "message": "Desktop",
+    "description": "Desktop app"
+  },
+  "webVault": {
+    "message": "Web-Tresor"
+  },
+  "webApp": {
+    "message": "Web-App"
+  },
+  "cli": {
+    "message": "CLI"
+  },
+  "sdk": {
+    "message": "SDK",
+    "description": "Software Development Kit"
+  },
+  "requestPending": {
+    "message": "Anfrage ausstehend"
+  },
+  "firstLogin": {
+    "message": "Erste Anmeldung"
+  },
+  "trusted": {
+    "message": "Vertrauenswürdig"
+  },
+  "needsApproval": {
+    "message": "Benötigt Genehmigung"
+  },
+  "devices": {
+    "message": "Geräte"
+  },
+  "accessAttemptBy": {
+    "message": "Zugriffsversuch von $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Zugriff bestätigen"
+  },
+  "denyAccess": {
+    "message": "Zugriff ablehnen"
+  },
+  "time": {
+    "message": "Zeit"
+  },
+  "deviceType": {
+    "message": "Gerätetyp"
+  },
+  "loginRequest": {
+    "message": "Anmeldungsanfrage"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Diese Anfrage ist nicht mehr gültig."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Anmeldeanfrage ist bereits abgelaufen."
+  },
+  "justNow": {
+    "message": "Gerade eben"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Vor $MINUTES$ Minuten angefordert",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "deviceApprovalRequired": {
     "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
   },
@@ -3567,6 +3695,12 @@
   },
   "requestAdminApproval": {
     "message": "Admin-Genehmigung anfragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Anmeldung kann nicht abgeschlossen werden"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Du musst dich auf einem vertrauenswürdigen Gerät anmelden oder deinem Administrator bitten, dir ein Passwort zuzuweisen."
   },
   "ssoIdentifierRequired": {
     "message": "SSO-Kennung der Organisation erforderlich."
@@ -4000,15 +4134,11 @@
   "selectImportCollection": {
     "message": "Sammlung auswählen"
   },
-  "importTargetHint": {
-    "message": "Wähle diese Option, wenn der importierte Dateiinhalt in eine(n) $DESTINATION$ verschoben werden soll",
-    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
-    "placeholders": {
-      "destination": {
-        "content": "$1",
-        "example": "folder or collection"
-      }
-    }
+  "importTargetHintCollection": {
+    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in eine Sammlung verschoben werden soll"
+  },
+  "importTargetHintFolder": {
+    "message": "Wählen Sie diese Option, wenn der importierte Dateiinhalt in einen Ordner verschoben werden soll"
   },
   "importUnassignedItemsError": {
     "message": "Die Datei enthält nicht zugewiesene Einträge."
@@ -4248,23 +4378,23 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Die URI-Übereinstimmungserkennung ist die Methode, mit der Bitwarden Auto-Ausfüllen-Vorschläge erkennt.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Regulärer Ausdruck\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Beginnt mit\" ist eine erweiterte Option mit erhöhtem Risiko der Kompromittierung von Zugangsdaten.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Mehr über die Übereinstimmungs-Erkennung",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Erweiterte Optionen",
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
@@ -4450,17 +4580,17 @@
       }
     }
   },
-  "copyFieldValue": {
-    "message": "$FIELD$, $VALUE$ kopieren",
+  "copyFieldCipherName": {
+    "message": "$FIELD$, $CIPHERNAME$ kopieren",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
         "content": "$1",
         "example": "Username"
       },
-      "value": {
+      "ciphername": {
         "content": "$2",
-        "example": "Foo"
+        "example": "Login Item"
       }
     }
   },
@@ -4986,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Anzahl der Auto-Ausfüllen-Vorschläge von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
   },
+  "accountAccessRequested": {
+    "message": "Kontozugriff angefordert"
+  },
+  "confirmAccessAttempt": {
+    "message": "Zugriffsversuch für $EMAIL$ bestätigen",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Schnellkopier-Aktionen im Tresor anzeigen"
   },
@@ -5313,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Dieser Login ist gefährdet und es fehlt eine Website. Fügen Sie eine Website hinzu und ändern Sie das Passwort, um die Sicherheit zu erhöhen."
+  },
+  "missingWebsite": {
+    "message": "Fehlende Webseite"
+  },
   "settingsVaultOptions": {
     "message": "Tresoroptionen"
   },
@@ -5442,5 +5590,21 @@
   "wasmNotSupported": {
     "message": "WebAssembly wird von deinem Browser nicht unterstützt oder ist nicht aktiviert. WebAssembly wird benötigt, um die Bitwarden-App nutzen zu können.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "showMore": {
+    "message": "Mehr anzeigen"
+  },
+  "showLess": {
+    "message": "Weniger anzeigen"
+  },
+  "next": {
+    "message": "Weiter"
+  },
+  "moreBreadcrumbs": {
+    "message": "Mehr Breadcrumbs",
+    "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Bestätige Key Connector Domäne"
   }
 }

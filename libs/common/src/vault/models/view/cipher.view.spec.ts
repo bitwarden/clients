@@ -1,3 +1,7 @@
+import { Jsonify } from "type-fest";
+
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { CipherPermissionsApi } from "@bitwarden/common/vault/models/api/cipher-permissions.api";
 import {
   CipherView as SdkCipherView,
   CipherType as SdkCipherType,
@@ -10,6 +14,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { mockFromJson, mockFromSdk } from "../../../../spec";
+import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { CipherRepromptType } from "../../enums";
 import { CipherType } from "../../enums/cipher-type";
 
@@ -85,6 +90,25 @@ describe("CipherView", () => {
 
       expect(actual).toMatchObject(expected);
     });
+
+    it("handle both string and object inputs for the cipher key", () => {
+      const cipherKeyString = "cipherKeyString";
+      const cipherKeyObject = new EncString("cipherKeyObject");
+
+      // Test with string input
+      let actual = CipherView.fromJSON({
+        key: cipherKeyString,
+      });
+      expect(actual.key).toBeInstanceOf(EncString);
+      expect(actual.key?.toJSON()).toBe(cipherKeyString);
+
+      // Test with object input (which can happen when cipher view is stored in an InMemory state provider)
+      actual = CipherView.fromJSON({
+        key: cipherKeyObject,
+      } as Jsonify<CipherView>);
+      expect(actual.key).toBeInstanceOf(EncString);
+      expect(actual.key?.toJSON()).toBe(cipherKeyObject.toJSON());
+    });
   });
 
   describe("fromSdkCipherView", () => {
@@ -100,10 +124,10 @@ describe("CipherView", () => {
       jest.spyOn(FieldView, "fromSdkFieldView").mockImplementation(mockFromSdk);
 
       sdkCipherView = {
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
-        collectionIds: ["collectionId"],
+        id: "id" as any,
+        organizationId: "orgId" as any,
+        folderId: "folderId" as any,
+        collectionIds: ["collectionId" as any],
         key: undefined,
         name: "name",
         notes: undefined,
@@ -196,11 +220,80 @@ describe("CipherView", () => {
             __fromSdk: true,
           },
         ],
-        passwordHistory: null,
+        passwordHistory: [],
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         revisionDate: new Date("2022-01-02T12:00:00.000Z"),
         deletedDate: null,
       });
+    });
+  });
+
+  describe("toSdkCipherView", () => {
+    it("maps properties correctly", () => {
+      const cipherView = new CipherView();
+      cipherView.id = "0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602";
+      cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c";
+      cipherView.folderId = "41b22db4-8e2a-4ed2-b568-f1186c72922f";
+      cipherView.collectionIds = ["b0473506-3c3c-4260-a734-dfaaf833ab6f"];
+      cipherView.key = new EncString("some-key");
+      cipherView.name = "name";
+      cipherView.notes = "notes";
+      cipherView.type = CipherType.Login;
+      cipherView.favorite = true;
+      cipherView.edit = true;
+      cipherView.viewPassword = false;
+      cipherView.reprompt = CipherRepromptType.None;
+      cipherView.organizationUseTotp = false;
+      cipherView.localData = {
+        lastLaunched: new Date("2022-01-01T12:00:00.000Z").getTime(),
+        lastUsedDate: new Date("2022-01-02T12:00:00.000Z").getTime(),
+      };
+      cipherView.permissions = new CipherPermissionsApi();
+      cipherView.permissions.restore = true;
+      cipherView.permissions.delete = true;
+      cipherView.attachments = [];
+      cipherView.fields = [];
+      cipherView.passwordHistory = [];
+      cipherView.login = new LoginView();
+      cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
+      cipherView.creationDate = new Date("2022-01-02T12:00:00.000Z");
+
+      const sdkCipherView = cipherView.toSdkCipherView();
+
+      expect(sdkCipherView).toMatchObject({
+        id: asUuid("0a54d80c-14aa-4ef8-8c3a-7ea99ce5b602"),
+        organizationId: asUuid("000f2a6e-da5e-4726-87ed-1c5c77322c3c"),
+        folderId: asUuid("41b22db4-8e2a-4ed2-b568-f1186c72922f"),
+        collectionIds: [asUuid("b0473506-3c3c-4260-a734-dfaaf833ab6f")],
+        key: "some-key" as any,
+        name: "name",
+        notes: "notes",
+        type: SdkCipherType.Login,
+        favorite: true,
+        edit: true,
+        viewPassword: false,
+        reprompt: SdkCipherRepromptType.None,
+        organizationUseTotp: false,
+        localData: {
+          lastLaunched: "2022-01-01T12:00:00.000Z",
+          lastUsedDate: "2022-01-02T12:00:00.000Z",
+        },
+        permissions: {
+          restore: true,
+          delete: true,
+        },
+        deletedDate: undefined,
+        creationDate: "2022-01-02T12:00:00.000Z",
+        revisionDate: "2022-01-02T12:00:00.000Z",
+        attachments: [],
+        passwordHistory: [],
+        login: undefined,
+        identity: undefined,
+        card: undefined,
+        secureNote: undefined,
+        sshKey: undefined,
+        fields: [],
+      } as SdkCipherView);
     });
   });
 });
