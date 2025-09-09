@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import * as inquirer from "@inquirer/prompts";
 import { OptionValues } from "commander";
-import * as inquirer from "inquirer";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -117,14 +117,10 @@ export class ExportCommand {
     if (typeof password === "string") {
       return password;
     } else if (password) {
-      const answer: inquirer.Answers = await inquirer.createPromptModule({
-        output: process.stderr,
-      })({
-        type: "password",
-        name: "password",
+      return await inquirer.password({
         message: "Export file password:",
+        mask: true,
       });
-      return answer.password as string;
     }
     return null;
   }
