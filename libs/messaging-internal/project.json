@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/messaging-internal",
         "main": "libs/messaging-internal/src/index.ts",
         "tsConfig": "libs/messaging-internal/tsconfig.lib.json",
-        "assets": ["libs/messaging-internal/*.md"]
+        "assets": ["libs/messaging-internal/*.md"],
+        "rootDir": "libs/messaging-internal/src"
       }
     },
     "lint": {
