@@ -3,7 +3,7 @@
     "message": "Toutes les applications"
   },
   "appLogoLabel": {
-    "message": "Logo de Bitwarden"
+    "message": "Logo Bitwarden"
   },
   "criticalApplications": {
     "message": "Applications critiques"
@@ -2114,8 +2114,11 @@
   "languageDesc": {
     "message": "Changez la langue utilisée par le coffre web."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Affiche les icônes du site web et récupère les URL de changement de mot de passe"
+  "enableFavicon": {
+    "message": "Afficher les icônes des sites web"
+  },
+  "faviconDesc": {
+    "message": "Affiche une image reconnaissable à côté de chaque identifiant."
   },
   "default": {
     "message": "Par défaut"
@@ -9031,6 +9034,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "Restreindre la création du paramètre $ID$ de collection activé.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Restreindre la création du paramètre $ID$ de collection désactivé.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Restreindre la suppression du paramètre $ID$ de collection activé.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Restreindre la suppression du paramètre $ID$ de collection désactivé.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Restreindre la suppression du paramètre $ID$ de l'élément activé.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Restreindre la suppression du paramètre $ID$ de l'élément désactivé.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "L'activation Autorise les propriétaires et les administrateurs la gestion du paramètre $ID$ de toutes les collections et éléments.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "La désactivation Autorise les propriétaires et les administrateurs la gestion du paramètre $ID$ de toutes les collections et éléments.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Consultez les instructions détaillées sur notre site d'aide à",
     "description": "This is followed a by a hyperlink to the help website."
@@ -10995,12 +11070,6 @@
   "billingAddressRequiredToAddCredit": {
     "message": "L'adresse de facturation est requise pour ajouter du crédit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
-  },
-  "aboutThisSetting": {
-    "message": "À propos de ce paramètre"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden utilisera les URIs de connexion enregistrées pour identifier quelle icône ou URL de changement de mot de passe doit être utilisée pour améliorer votre expérience. Aucune information n'est recueillie ou enregistrée lorsque vous utilisez ce service."
   },
   "billingAddress": {
     "message": "Adresse de facturation"
