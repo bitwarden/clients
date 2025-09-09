@@ -2,6 +2,7 @@ import { CurrencyPipe } from "@angular/common";
 import { Component, computed, input, signal } from "@angular/core";
 
 import { TypographyModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 export type LineItem = {
   quantity: number;
@@ -18,15 +19,13 @@ export type LineItem = {
 @Component({
   selector: "billing-cart-summary",
   templateUrl: "./cart-summary.component.html",
-  imports: [TypographyModule, CurrencyPipe],
+  imports: [TypographyModule, CurrencyPipe, I18nPipe],
 })
 export class CartSummaryComponent {
   // Required inputs
   passwordManager = input.required<LineItem>();
-  additionalStorage = input<LineItem | undefined>(undefined);
-  secretsManager = input<{ seats: LineItem; additionalServiceAccounts?: LineItem } | undefined>(
-    undefined,
-  );
+  additionalStorage = input<LineItem>();
+  secretsManager = input<{ seats: LineItem; additionalServiceAccounts?: LineItem }>();
   estimatedTax = input.required<number>();
 
   // UI state
@@ -36,8 +35,7 @@ export class CartSummaryComponent {
    * Calculates total for password manager line item
    */
   readonly passwordManagerTotal = computed<number>(() => {
-    const pm = this.passwordManager();
-    return pm ? pm.quantity * pm.cost : 0;
+    return this.passwordManager().quantity * this.passwordManager().cost;
   });
 
   /**
@@ -59,7 +57,7 @@ export class CartSummaryComponent {
   /**
    * Calculates total for secrets manager service accounts if present
    */
-  readonly secretsManagerServiceAccountsTotal = computed<number>(() => {
+  readonly additionalServiceAccountsTotal = computed<number>(() => {
     const sm = this.secretsManager();
     return sm?.additionalServiceAccounts
       ? sm.additionalServiceAccounts.quantity * sm.additionalServiceAccounts.cost
@@ -87,7 +85,7 @@ export class CartSummaryComponent {
       this.passwordManagerTotal() +
       this.additionalStorageTotal() +
       this.secretsManagerSeatsTotal() +
-      this.secretsManagerServiceAccountsTotal() +
+      this.additionalServiceAccountsTotal() +
       this.estimatedTax()
     );
   }

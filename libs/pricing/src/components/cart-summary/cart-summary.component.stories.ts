@@ -1,10 +1,25 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { TypographyModule } from "@bitwarden/components";
 
 import { CartSummaryComponent } from "./cart-summary.component";
 
 export default {
   title: "Billing/Cart Summary",
   component: CartSummaryComponent,
+  decorators: [
+    moduleMetadata({
+      imports: [TypographyModule],
+      // Return the same value for all keys for simplicity
+      providers: [
+        {
+          provide: I18nService,
+          useValue: { t: (key: string) => key },
+        },
+      ],
+    }),
+  ],
   args: {
     passwordManager: {
       quantity: 5,
