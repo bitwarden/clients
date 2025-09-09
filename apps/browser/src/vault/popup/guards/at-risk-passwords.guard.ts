@@ -51,17 +51,15 @@ export const hasAtRiskPasswords: CanActivateFn = () => {
         ),
       ]).pipe(
         map(([tasks, ciphers]) => {
-          const atRiskCiphers = tasks
-            .filter(
-              (t) =>
-                t.type === SecurityTaskType.UpdateAtRiskCredential &&
-                t.cipherId != null &&
-                ciphers[t.cipherId] != null &&
-                !ciphers[t.cipherId].isDeleted,
-            )
-            .map((t) => ciphers[t.cipherId!]);
+          const hasAtRiskCiphers = tasks.some(
+            (t) =>
+              t.type === SecurityTaskType.UpdateAtRiskCredential &&
+              t.cipherId != null &&
+              ciphers[t.cipherId] != null &&
+              !ciphers[t.cipherId].isDeleted,
+          );
 
-          if (atRiskCiphers.length === 0) {
+          if (!hasAtRiskCiphers) {
             return router.createUrlTree(["/tabs/vault"]);
           }
           return true;
