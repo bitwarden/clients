@@ -97,7 +97,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Auth */
   [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
-  [FeatureFlag.PM22110_DisableAlternateLoginMethods]: true,
+  [FeatureFlag.PM22110_DisableAlternateLoginMethods]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
