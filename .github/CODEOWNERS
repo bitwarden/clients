@@ -141,7 +141,7 @@ nx.json @bitwarden/team-platform-dev
 apps/browser/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/src/autofill @bitwarden/team-autofill-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
-apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
+apps/desktop/macos/autofill-extension @bitwarden/team-autofill-desktop-dev
 .github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
 # Autofill desktop files
 apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-desktop-dev
