@@ -556,6 +556,9 @@
   "view": {
     "message": "Zobrazit"
   },
+  "viewLogin": {
+    "message": "Zobrazit přihlašovací údaje"
+  },
   "noItemsInList": {
     "message": "Žádné položky k zobrazení."
   },
@@ -5113,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Zobrazit počet návrhů automatického vyplňování přihlášení na ikoně rozšíření"
   },
+  "accountAccessRequested": {
+    "message": "Požadován přístup k účtu"
+  },
+  "confirmAccessAttempt": {
+    "message": "Potvrďte pokus o přístup z $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Zobrazit akce rychlé kopie v trezoru"
   },
@@ -5440,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Změnit ohrožené heslo"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Tyto přihlašovací údaje jsou ohrožené a chybí jim webová stránka. Přidejte webovou stránku a změňte heslo pro větší bezpečnost."
+  },
+  "missingWebsite": {
+    "message": "Chybějící webová stránka"
+  },
   "settingsVaultOptions": {
     "message": "Volby trezoru"
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Zobrazit méně"
   },
+  "next": {
+    "message": "Další"
+  },
   "moreBreadcrumbs": {
     "message": "Více...",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdit doménu Key Connectoru"
   }
 }

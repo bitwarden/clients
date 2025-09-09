@@ -341,10 +341,10 @@
     "message": "Bitwarden 商业版"
   },
   "bitwardenAuthenticator": {
-    "message": "Bitwarden 验证器"
+    "message": "Bitwarden Authenticator"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "您可以使用 Bitwarden 验证器存储验证器密钥，并为两步验证流程生成 TOTP 代码。访问 bitwarden.com 网站了解更多信息。"
+    "message": "Bitwarden Authenticator 允许您存储验证器密钥以及为两步验证流程生成 TOTP 代码。访问 bitwarden.com 网站了解更多信息"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden 机密管理器"
@@ -555,6 +555,9 @@
   },
   "view": {
     "message": "查看"
+  },
+  "viewLogin": {
+    "message": "查看登录"
   },
   "noItemsInList": {
     "message": "没有可列出的项目。"
@@ -1532,7 +1535,7 @@
     "message": "验证器 App"
   },
   "authenticatorAppDescV2": {
-    "message": "输入验证器 App（例如 Bitwarden 验证器）生成的代码。",
+    "message": "输入验证器 App（例如 Bitwarden Authenticator）生成的代码。",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -1833,7 +1836,7 @@
     "message": "安全码"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "卡号"
   },
   "ex": {
     "message": "例如"
@@ -3019,7 +3022,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "超时时间超出了您组织设置的此限制：最多 $HOURS$ 小时 $MINUTES$ 分钟",
+    "message": "超时时间超出了您组织设置的限制：最多 $HOURS$ 小时 $MINUTES$ 分钟",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3467,7 +3470,7 @@
     "message": "请求已发送"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "已批准 $EMAIL$ 在 $DEVICE$ 上的登录请求",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3558,7 +3561,7 @@
     "message": "自动填充键盘快捷键"
   },
   "autofillLoginShortcutNotSet": {
-    "message": "未设置自动填充登录快捷键。请在浏览器设置中更改它。"
+    "message": "自动填充登录快捷键未设置。请在浏览器设置中更改它。"
   },
   "autofillLoginShortcutText": {
     "message": "自动填充登录快捷键是 $COMMAND$。请在浏览器设置中管理所有快捷键。",
@@ -3585,13 +3588,13 @@
     "message": "记住此设备以便将来无缝登录"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "管理设备"
   },
   "currentSession": {
     "message": "当前会话"
   },
   "mobile": {
-    "message": "移动端",
+    "message": "移动",
     "description": "Mobile app"
   },
   "extension": {
@@ -3599,7 +3602,7 @@
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "桌面端",
+    "message": "桌面",
     "description": "Desktop app"
   },
   "webVault": {
@@ -3619,19 +3622,19 @@
     "message": "请求待处理"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "首次登录"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "已信任"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "需要批准"
   },
   "devices": {
-    "message": "Devices"
+    "message": "设备"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "$EMAIL$ 的访问尝试",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3640,19 +3643,19 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "确认访问"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "拒绝访问"
   },
   "time": {
-    "message": "Time"
+    "message": "时间"
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "设备类型"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "登录请求"
   },
   "thisRequestIsNoLongerValid": {
     "message": "此请求已失效。"
@@ -3661,7 +3664,7 @@
     "message": "登录请求已过期。"
   },
   "justNow": {
-    "message": "Just now"
+    "message": "刚刚"
   },
   "requestedXMinutesAgo": {
     "message": "请求于 $MINUTES$ 分钟前",
@@ -3697,7 +3700,7 @@
     "message": "无法完成登录"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "您需要在某个受信任的设备上登录，或要求管理员为您分配一个密码。"
   },
   "ssoIdentifierRequired": {
     "message": "必须填写组织 SSO 标识符。"
@@ -3802,7 +3805,7 @@
     "message": "搜索"
   },
   "inputMinLength": {
-    "message": "输入长度不能低于 $COUNT$ 个字符。",
+    "message": "输入长度必须至少为 $COUNT$ 个字符。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4375,15 +4378,15 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "Bitwarden 根据 URI 匹配检测来识别自动填充建议。",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「正则表达方式」是一种高级选项，会增加暴露凭据的风险。",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "「开始于」是一种高级选项，会增加暴露凭据的风险。",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -4578,7 +4581,7 @@
     }
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -5113,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "在扩展图标上显示自动填充建议的登录数量"
   },
+  "accountAccessRequested": {
+    "message": "已请求账户访问权限"
+  },
+  "confirmAccessAttempt": {
+    "message": "确认 $EMAIL$ 的访问尝试",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "在密码库上显示快速复制操作"
   },
@@ -5440,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "此登录存在风险且缺少网站。请添加一个网站并更改密码以增强安全性。"
+  },
+  "missingWebsite": {
+    "message": "缺少网站"
+  },
   "settingsVaultOptions": {
     "message": "密码库选项"
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "显示更少"
   },
+  "next": {
+    "message": "下一步"
+  },
   "moreBreadcrumbs": {
-    "message": "进一步的指引",
+    "message": "更多导航项",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "确认 Key Connector 域名"
   }
 }

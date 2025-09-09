@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Общо приложения"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Премахване на приложението от важните"
+  "unmarkAsCritical": {
+    "message": "Премахване от важните"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Приложението е премахнато от важните"
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Копиране на номера на свидетелството"
   },
+  "copyPrivateKey": {
+    "message": "Копиране на частния ключ"
+  },
+  "copyPublicKey": {
+    "message": "Копиране на публичния ключ"
+  },
+  "copyFingerprint": {
+    "message": "Копиране на отпечатъка"
+  },
   "copyName": {
     "message": "Копиране на името"
   },
@@ -1506,6 +1515,9 @@
   },
   "recoveryCodeTitle": {
     "message": "Код за възстановяване"
+  },
+  "invalidRecoveryCode": {
+    "message": "Грешен код за възстановяване"
   },
   "authenticatorAppTitle": {
     "message": "Приложение за удостоверяване"
@@ -8926,20 +8938,25 @@
   "collectionManagement": {
     "message": "Управление на колекциите"
   },
-  "collectionManagementDesc": {
-    "message": "Управление на поведението на колекциите за организацията"
+  "collectionManagementDescription": {
+    "message": "Настройване на поведението на колекциите за организацията"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Разрешаване на собствениците и администраторите да управляват всички колекции и елементи от административната конзола"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Ограничаване на създаването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Ограничаване на изтриването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
-  "limitItemDeletionDescription": {
-    "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощия за управление на колекции"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощието ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Собствениците и администраторите могат да управляват всички колекции и елементи"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": "",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Настройката за управление на колекции е променена"
@@ -9010,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Настройката за управление на колекции е променена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Настройката за ограничаване на създаването на колекции е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Настройката за ограничаване на създаването на колекции е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Настройката за ограничаване на изтриване на колекции е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Настройката за ограничаване на изтриване на колекции е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Настройката за ограничаване на изтриване на елементи е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Настройката за ограничаване на изтриване на елементи е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Настройката за разрешаване на собствениците и администраторите да управляват всички колекции и елементи е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Настройката за разрешаване на собствениците и администраторите да управляват всички колекции и елементи е изключена: $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11142,6 +11231,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потвърждаване на домейна на конектора за ключове"
   }
 }
 

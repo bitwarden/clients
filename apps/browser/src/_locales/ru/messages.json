@@ -556,6 +556,9 @@
   "view": {
     "message": "Просмотр"
   },
+  "viewLogin": {
+    "message": "Просмотр логина"
+  },
   "noItemsInList": {
     "message": "Нет элементов для отображения."
   },
@@ -5113,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Показывать количество вариантов автозаполнения логина на значке расширения"
   },
+  "accountAccessRequested": {
+    "message": "Запрошен доступ к аккаунту"
+  },
+  "confirmAccessAttempt": {
+    "message": "Подтвердить попытку доступа $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Показать быстрые действия копирования в хранилище"
   },
@@ -5440,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Настройки хранилища"
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Меньше"
   },
+  "next": {
+    "message": "Далее"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
   }
 }

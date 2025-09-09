@@ -556,6 +556,9 @@
   "view": {
     "message": "Skatīt"
   },
+  "viewLogin": {
+    "message": "Apskatīt pieteikšanās vienumu"
+  },
   "noItemsInList": {
     "message": "Nav vienumu, ko parādīt."
   },
@@ -5113,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Paplašinājuma ikonā rādīt pieteikšanās automātiskās aizpildes ieteikumu skaitu"
   },
+  "accountAccessRequested": {
+    "message": "Pieprasīta piekļuve kontam"
+  },
+  "confirmAccessAttempt": {
+    "message": "Apstiprināt $EMAIL$ piekļuves mēģinājumu",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Glabātavā rādīt ātrās kopēšanas darbības"
   },
@@ -5440,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Šis pieteikšanās vienums ir pakļauts riskam, un tam nav norādīta tīmekļvietne. Lielākai drošībai jāpievieno tīmekļvietne un jānomaina parole."
+  },
+  "missingWebsite": {
+    "message": "Nav norādīta tīmekļvietne"
+  },
   "settingsVaultOptions": {
     "message": "Glabātavas iespējas"
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Rādīt mazāk"
   },
+  "next": {
+    "message": "Nākamais"
+  },
   "moreBreadcrumbs": {
     "message": "Vairāk norāžu",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Apstiprināt Key Connector domēnu"
   }
 }

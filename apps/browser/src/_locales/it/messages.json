@@ -556,6 +556,9 @@
   "view": {
     "message": "Visualizza"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "Non ci sono elementi da mostrare."
   },
@@ -1761,13 +1764,13 @@
     "message": "Questo browser non può elaborare richieste U2F in questo pop-up. Aprire questo pop-up in una nuova finestra per accedere usando U2F?"
   },
   "enableFavicon": {
-    "message": "Mostra icone dei siti"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login."
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "Mostra un piccolo logo riconoscibile accanto a ogni login. Si applica a tutti gli account connessi."
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Mostra badge contatore"
@@ -5113,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Mostra il numero di suggerimenti di riempimento automatico sull'icona dell'estensione"
   },
+  "accountAccessRequested": {
+    "message": "Accesso all'account richiesto"
+  },
+  "confirmAccessAttempt": {
+    "message": "Conferma il tentativo di accesso per $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Mostra azioni di copia rapida nella Cassaforte"
   },
@@ -5440,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Cambia parola d'accesso a rischio"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Opzioni cassaforte"
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Mostra di meno"
   },
+  "next": {
+    "message": "Avanti"
+  },
   "moreBreadcrumbs": {
     "message": "Ulteriori segmenti",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Conferma dominio Key Connector"
   }
 }

@@ -15,8 +15,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
-import { ProjectView } from "../../models/view/project.view";
-import { ProjectService } from "../project.service";
+import { ProjectView } from "../models/view/project.view";
+import { ProjectService } from "../projects/project.service";
 
 import { projectAccessGuard } from "./project-access.guard";
 

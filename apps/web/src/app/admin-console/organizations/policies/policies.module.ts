@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 
-import { LooseComponentsModule, SharedModule } from "../../../shared";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 
 import { DisableSendPolicyComponent } from "./disable-send.component";
 import { MasterPasswordPolicyComponent } from "./master-password.component";
@@ -17,7 +18,7 @@ import { SingleOrgPolicyComponent } from "./single-org.component";
 import { TwoFactorAuthenticationPolicyComponent } from "./two-factor-authentication.component";
 
 @NgModule({
-  imports: [SharedModule, LooseComponentsModule],
+  imports: [SharedModule, HeaderModule],
   declarations: [
     DisableSendPolicyComponent,
     MasterPasswordPolicyComponent,

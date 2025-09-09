@@ -556,6 +556,9 @@
   "view": {
     "message": "Weergeven"
   },
+  "viewLogin": {
+    "message": "Login bekijken"
+  },
   "noItemsInList": {
     "message": "Er zijn geen items om weer te geven."
   },
@@ -5113,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "Aantal login automatisch invullen suggesties op het extensie-pictogram weergeven"
   },
+  "accountAccessRequested": {
+    "message": "Accounttoegang aangevraagd"
+  },
+  "confirmAccessAttempt": {
+    "message": "Inlogpoging voor $EMAIL$ bevestigen",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "Toon snelle kopieeracties in de kluis"
   },
@@ -5440,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "settingsVaultOptions": {
     "message": "Kluis-instellingen"
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Minder weergeven"
   },
+  "next": {
+    "message": "Volgende"
+  },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
   }
 }

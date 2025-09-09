@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Összes alkalmazás"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Ktritkus alkalmazás jelölés eltávolítása"
+  "unmarkAsCritical": {
+    "message": "Ktritkus jelölés eltávolítása"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "A ktritkus alkalmazás jelölés eltávolítása sikeres volt."
@@ -867,6 +867,15 @@
   "copyLicenseNumber": {
     "message": "Vezetői engedély szám másolása"
   },
+  "copyPrivateKey": {
+    "message": "Személyes kulcs másolása"
+  },
+  "copyPublicKey": {
+    "message": "Nyilvános kulcs másolása"
+  },
+  "copyFingerprint": {
+    "message": "Ujjlenyomat másolása"
+  },
   "copyName": {
     "message": "Név másolása"
   },
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Helyreállító kód"
   },
+  "invalidRecoveryCode": {
+    "message": "Érvénytelen a helyreállító kód."
+  },
   "authenticatorAppTitle": {
     "message": "Hitelesítő alkalmazás"
   },
@@ -2103,10 +2115,10 @@
     "message": "A webes széf nyelvének megváltoztatása."
   },
   "enableFavicon": {
-    "message": "Webhely ikonok megjelenítése"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
+    "message": "Show a recognizable image next to each login."
   },
   "default": {
     "message": "Alapértelmezett"
@@ -8926,20 +8938,25 @@
   "collectionManagement": {
     "message": "Gyűjtemény kezelés"
   },
-  "collectionManagementDesc": {
-    "message": "Gyűjtési viselkedést kezelhet a szervezetnek"
+  "collectionManagementDescription": {
+    "message": "Gyűjtési viselkedés konfuguráció a szervezet részére."
   },
-  "limitCollectionCreationDesc": {
-    "message": "A gyűjtemény létrehozásának korlátozása tulajdonosokra és adminisztrátorokra"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Lehetővé teszi a tulajdonosok és adminisztrátorok számára, hogy kezeljék az összes gyűjteményt és elemet az Adminisztrációs konzolból."
   },
-  "limitCollectionDeletionDesc": {
-    "message": "A gyűjtemény törlésének korlátozása tulajdonosokra és adminisztrátorokra"
+  "restrictCollectionCreationDescription": {
+    "message": "A gyűjtemény létrehozásának korlátozása tulajdonosokra és adminisztrátorokra."
   },
-  "limitItemDeletionDescription": {
-    "message": "Az elemek törlésének korlátozása a Gyűjtemény kezelése jogosultsággal rendelkező tagokra"
+  "restrictCollectionDeletionDescription": {
+    "message": "A gyűjtemény törlésének korlátozása tulajdonosokra és adminisztrátorokra."
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Owners and admins can manage all collections and items"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Az elem törlésének korlátozása: ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " jogosultság",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Frissített gyűjteménykezelési beállítás"
@@ -9010,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Módosított gyűjteménykezelési beállítás: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11142,6 +11231,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "A Key Connector tartomány megerősítése"
   }
 }
 

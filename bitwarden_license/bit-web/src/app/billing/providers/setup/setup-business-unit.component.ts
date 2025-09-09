@@ -80,8 +80,9 @@ export class SetupBusinessUnitComponent extends BaseAcceptComponent {
       map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
     );
 
+    const userId = await firstValueFrom(activeUserId$);
     const [{ encryptedString: encryptedProviderKey }, providerKey] =
-      await this.keyService.makeOrgKey<ProviderKey>();
+      await this.keyService.makeOrgKey<ProviderKey>(userId);
 
     const organizationKey = await firstValueFrom(organizationKey$);
 
@@ -91,8 +92,6 @@ export class SetupBusinessUnitComponent extends BaseAcceptComponent {
     if (!encryptedProviderKey || !encryptedOrganizationKey) {
       return await fail();
     }
-
-    const userId = await firstValueFrom(activeUserId$);
 
     const request = {
       userId,

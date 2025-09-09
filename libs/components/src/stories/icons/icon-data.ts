@@ -46,6 +46,10 @@ const bitwardenObjects = [
     usage: "card item type",
   },
   {
+    id: "bwi-dashboard",
+    usage: "access-intelligence dashboard view",
+  },
+  {
     id: "bwi-family",
     usage: "family vault or organization",
   },

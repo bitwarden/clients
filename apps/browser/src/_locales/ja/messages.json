@@ -556,6 +556,9 @@
   "view": {
     "message": "表示"
   },
+  "viewLogin": {
+    "message": "View login"
+  },
   "noItemsInList": {
     "message": "表示するアイテムがありません"
   },
@@ -1761,13 +1764,13 @@
     "message": "このブラウザーでは U2F 要求をポップアップウインドウでは実行できません。U2F でログインできるよう、新しいウインドウで開き直しますか？"
   },
   "enableFavicon": {
-    "message": "ウェブサイトのアイコンを表示"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "ログイン情報の隣にアイコン画像を表示します"
+    "message": "Show a recognizable image next to each login."
   },
   "faviconDescAlt": {
-    "message": "各ログインの横に認識可能な画像を表示します。すべてのログイン済みアカウントに適用されます。"
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "バッジカウンターを表示"
@@ -5113,6 +5116,18 @@
   "showNumberOfAutofillSuggestions": {
     "message": "拡張機能アイコンにログイン自動入力の候補の数を表示する"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "showQuickCopyActions": {
     "message": "保管庫にクイックコピー操作を表示する"
   },
@@ -5440,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "保管庫オプション"
   },
@@ -5576,8 +5597,14 @@
   "showLess": {
     "message": "Show less"
   },
+  "next": {
+    "message": "Next"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }

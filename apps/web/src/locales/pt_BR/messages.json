@@ -6,7 +6,7 @@
     "message": "Bitwarden logo"
   },
   "criticalApplications": {
-    "message": "Aplicações críticas"
+    "message": "Aplicativos críticos"
   },
   "noCriticalAppsAtRisk": {
     "message": "Nenhum aplicativo crítico em risco"
@@ -21,7 +21,7 @@
     "message": "Risco de senha"
   },
   "reviewAtRiskPasswords": {
-    "message": "Revise as senhas de risco (fracas, expostas ou reutilizadas) em todos os aplicativos. Selecione suas aplicações mais críticas para priorizar ações de segurança para seus usuários resolverem senhas de risco."
+    "message": "Revise as senhas de risco (fracas, expostas ou reutilizadas) em todos os aplicativos. Selecione seus aplicativos mais críticos para priorizar ações de segurança para seus usuários resolverem senhas de risco."
   },
   "dataLastUpdated": {
     "message": "Dados atualizados pela última vez: $DATE$",
@@ -57,7 +57,7 @@
     "message": "Criar item de \"login\""
   },
   "criticalApplicationsWithCount": {
-    "message": "Aplicações críticas ($COUNT$)",
+    "message": "Aplicativos críticos ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -99,7 +99,7 @@
     "message": "Marcar aplicativo como crítico"
   },
   "applicationsMarkedAsCriticalSuccess": {
-    "message": "Applications marked as critical"
+    "message": "Aplicações marcadas como críticas"
   },
   "application": {
     "message": "Aplicativo"
@@ -147,7 +147,7 @@
     "message": "Esses aplicativos têm senhas fracas, expostas ou reutilizadas."
   },
   "atRiskApplicationsDescriptionNone": {
-    "message": "These are no applications with weak, exposed, or reused passwords."
+    "message": "Não há aplicativos com senhas fracas, expostas ou reutilizadas."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "Esses membros estão logando no $APPNAME$ com senhas fracas, expostas ou reutilizadas.",
@@ -159,7 +159,7 @@
     }
   },
   "atRiskMembersDescriptionWithAppNone": {
-    "message": "There are no at risk members for $APPNAME$.",
+    "message": "Não há membros em risco para $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -176,8 +176,8 @@
   "totalApplications": {
     "message": "Todos os aplicativos"
   },
-  "unmarkAsCriticalApp": {
-    "message": "Desmarcar como aplicativo crítico"
+  "unmarkAsCritical": {
+    "message": "Desmarcar como crítico"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Aplicação crítica desmarcada com sucesso"
@@ -569,7 +569,7 @@
     "message": "Cancelar"
   },
   "later": {
-    "message": "Later"
+    "message": "Depois"
   },
   "canceled": {
     "message": "Cancelado"
@@ -630,7 +630,7 @@
     "message": "Buscar grupos"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Redefinir busca"
   },
   "allItems": {
     "message": "Todos os Itens"
@@ -654,7 +654,7 @@
     "message": "Nota Segura"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Nota"
   },
   "typeSshKey": {
     "message": "Chave SSH"
@@ -867,14 +867,23 @@
   "copyLicenseNumber": {
     "message": "Copiar número da CNH"
   },
+  "copyPrivateKey": {
+    "message": "Copiar chave privada"
+  },
+  "copyPublicKey": {
+    "message": "Copiar chave pública"
+  },
+  "copyFingerprint": {
+    "message": "Copiar impressão digital"
+  },
   "copyName": {
     "message": "Copiar nome"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "número do cartão"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Copiar $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -891,7 +900,7 @@
     "message": "Eu"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Meus itens"
   },
   "myVault": {
     "message": "Meu Cofre"
@@ -1507,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Código de recuperação"
   },
+  "invalidRecoveryCode": {
+    "message": "Chave de recuperação inválida"
+  },
   "authenticatorAppTitle": {
     "message": "Aplicativo de autenticação"
   },
@@ -2103,10 +2115,10 @@
     "message": "Altere o idioma usado pelo cofre web."
   },
   "enableFavicon": {
-    "message": "Mostrar ícones do site"
+    "message": "Show website icons"
   },
   "faviconDesc": {
-    "message": "Mostrar uma imagem reconhecível ao lado de cada login."
+    "message": "Show a recognizable image next to each login."
   },
   "default": {
     "message": "Padrão"
@@ -8926,20 +8938,25 @@
   "collectionManagement": {
     "message": "Gerenciamento da coleção"
   },
-  "collectionManagementDesc": {
-    "message": "Gerenciar o comportamento da coleção para a organização"
+  "collectionManagementDescription": {
+    "message": "Configure the collection behavior for the organization"
   },
-  "limitCollectionCreationDesc": {
-    "message": "Limitar criação de coleção e exclusão a proprietários e administradores"
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Limitar exclusão de coleção a proprietários e administradores"
+  "restrictCollectionCreationDescription": {
+    "message": "Restrict collection creation to owners and admins"
   },
-  "limitItemDeletionDescription": {
-    "message": "Limitar exclusão de itens a membros com as permissões de gerenciar coleção"
+  "restrictCollectionDeletionDescription": {
+    "message": "Restrict collection deletion to owners and admins"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Proprietários e administradores podem gerenciar todas as coleções e itens"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
+  },
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Configuração da gestão de coleção atualizada"
@@ -9010,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Definição de gerenciamento da coleção $ID$ modificada.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11142,6 +11231,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
   }
 }
 
