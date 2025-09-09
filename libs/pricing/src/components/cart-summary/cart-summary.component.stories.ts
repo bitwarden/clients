@@ -8,6 +8,7 @@ import { CartSummaryComponent } from "./cart-summary.component";
 export default {
   title: "Billing/Cart Summary",
   component: CartSummaryComponent,
+  description: "A summary of the items in the cart, including pricing details.",
   decorators: [
     moduleMetadata({
       imports: [TypographyModule, IconButtonModule],
@@ -28,6 +29,12 @@ export default {
       cadence: "month",
     },
     estimatedTax: 9.6,
+  },
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/nuFrzHsgEoEk2Sm8fWOGuS/Premium-Upgrade-flows--pricing-increase-?node-id=877-23653&t=OpDXkupIsvfbh4jT-4",
+    },
   },
 } as Meta<CartSummaryComponent>;
 
