@@ -2,10 +2,10 @@
 // @ts-strict-ignore
 import { Opaque } from "type-fest";
 
-import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
+import { EncString } from "@bitwarden/sdk-internal";
 
 /**
  * All applications report summary. The total members,
@@ -138,8 +138,8 @@ export type AppAtRiskMembersDialogParams = {
  */
 export interface EncryptedDataWithKey {
   organizationId: OrganizationId;
-  encryptedData: EncryptedString;
-  encryptionKey: EncryptedString;
+  encryptedData: EncString;
+  encryptionKey: EncString;
 }
 
 /**
@@ -208,8 +208,8 @@ export interface GetRiskInsightsReportResponse {
   id: string;
   organizationId: OrganizationId;
   date: string;
-  reportData: EncryptedString;
-  reportKey: EncryptedString;
+  reportData: EncString;
+  reportKey: EncString;
 }
 
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;

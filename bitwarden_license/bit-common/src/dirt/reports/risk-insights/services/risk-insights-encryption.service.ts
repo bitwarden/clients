@@ -1,9 +1,9 @@
 import { firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
