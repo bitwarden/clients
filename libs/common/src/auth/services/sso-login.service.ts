@@ -190,6 +190,8 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
           previousCache.splice(index, 1);
           return previousCache;
         }
+
+        return previousCache;
       },
       {
         // Only update if the new cache would be different from the previous cache
