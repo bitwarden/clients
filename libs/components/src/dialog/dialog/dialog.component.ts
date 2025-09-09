@@ -50,7 +50,6 @@ export class DialogComponent {
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
-  // protected isScrollable = signal(false);
 
   private scrollableBody$ = toObservable(this.scrollableBody);
   private scrollBottom$ = toObservable(this.scrollBottom);
