@@ -319,6 +319,14 @@ export class TokenService implements TokenServiceAbstraction {
       accessTokenKey,
     );
 
+    // We throw the error here to handle logging out the user in the try catch block of getAccessToken
+    // The catch block mentions "If an error occurs during decryption" - which is the case here.
+    if (!decryptedAccessToken) {
+      throw new Error(
+        "decryptAccessToken: Access token decryption failed. Access token key might be expired or invalid.",
+      );
+    }
+
     return decryptedAccessToken;
   }
 
