@@ -556,6 +556,9 @@
   "view": {
     "message": "Weergeven"
   },
+  "viewLogin": {
+    "message": "Login bekijken"
+  },
   "noItemsInList": {
     "message": "Er zijn geen items om weer te geven."
   },
@@ -1760,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Deze browser kan U2F-verzoeken niet verwerken in dit popupvenster. Wilt je deze pop-up openen in een nieuw venster zodat je kunt inloggen met U2F?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Pictogrammen van de website weergeven URL's voor wachtwoordwijzigingen ophalen"
+  "enableFavicon": {
+    "message": "Websitepictogrammen weergeven"
+  },
+  "faviconDesc": {
+    "message": "Een herkenbare afbeelding naast iedere login weergeven."
+  },
+  "faviconDescAlt": {
+    "message": "Toon een herkenbare afbeelding naast elke login. Geldt voor alle ingelogde accounts."
   },
   "enableBadgeCounter": {
     "message": "Teller weergeven"
@@ -5446,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
+  },
+  "missingWebsite": {
+    "message": "Ontbrekende website"
+  },
   "settingsVaultOptions": {
     "message": "Kluis-instellingen"
   },
@@ -5569,12 +5584,6 @@
     "message": "Maak eenvoudig sterke en unieke wachtwoorden door op de knop Wachtwoord genereren te klikken om je logins veilig te houden.",
     "description": "Aria label for the body content of the generator nudge"
   },
-  "aboutThisSetting": {
-    "message": "Over deze instelling"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
-  },
   "noPermissionsViewPage": {
     "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Minder weergeven"
   },
+  "next": {
+    "message": "Volgende"
+  },
   "moreBreadcrumbs": {
     "message": "Meer broodkruimels",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector-domein bevestigen"
   }
 }

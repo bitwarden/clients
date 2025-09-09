@@ -556,6 +556,9 @@
   "view": {
     "message": "Zobraziť"
   },
+  "viewLogin": {
+    "message": "Zobraziť prihlásenie"
+  },
   "noItemsInList": {
     "message": "Neexistujú žiadne položky na zobrazenie."
   },
@@ -1760,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Tento prehliadač nedokáže spracovať U2F požiadavku v popup okne. Chcete ho otvoriť v novom okne aby ste sa mohli prihlásiť pomocou U2F?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
+  "enableFavicon": {
+    "message": "Zobraziť favikony stránok"
+  },
+  "faviconDesc": {
+    "message": "Pri každom prihlásení zobrazí rozpoznateľný obrázok."
+  },
+  "faviconDescAlt": {
+    "message": "Vedľa každého účtu zobraziť rozpoznateľný obrázok. Použije sa na všetky prihlásené účty."
   },
   "enableBadgeCounter": {
     "message": "Zobraziť počítadlo na ikone"
@@ -5446,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Zmeniť rizikové heslá"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Toto prihlásenie je v ohrození a chýba mu webová stránka. Pridajte webovú stránku a zmeňte heslo na silnejšie zabezpečenie."
+  },
+  "missingWebsite": {
+    "message": "Chýbajúca webová stránka"
+  },
   "settingsVaultOptions": {
     "message": "Možnosti trezoru"
   },
@@ -5569,12 +5584,6 @@
     "message": "Jednoducho vytvorte silné a jedinečné heslá kliknutím na tlačidlo Generovať heslo, aby ste zabezpečili prihlasovacie údaje.",
     "description": "Aria label for the body content of the generator nudge"
   },
-  "aboutThisSetting": {
-    "message": "O tomto nastavení"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
-  },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnenie na zobrazenie tejto stránky. Skúste sa prihlásiť pomocou iného účtu."
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Zobraziť menej"
   },
+  "next": {
+    "message": "Ďalej"
+  },
   "moreBreadcrumbs": {
     "message": "Viac",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdiť doménu Key Connectora"
   }
 }

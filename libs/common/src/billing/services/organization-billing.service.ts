@@ -1,13 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Observable, of, switchMap } from "rxjs";
-
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -27,7 +23,7 @@ import {
   PlanInformation,
   SubscriptionInformation,
 } from "../abstractions";
-import { PlanType, ProductTierType } from "../enums";
+import { PlanType } from "../enums";
 import { OrganizationNoPaymentMethodCreateRequest } from "../models/request/organization-no-payment-method-create-request";
 import { PaymentSourceResponse } from "../models/response/payment-source.response";
 
@@ -47,18 +43,20 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiService,
     private syncService: SyncService,
-    private configService: ConfigService,
   ) {}
 
   async getPaymentSource(organizationId: string): Promise<PaymentSourceResponse> {
     const paymentMethod = await this.billingApiService.getOrganizationPaymentMethod(organizationId);
-    return paymentMethod.paymentSource;
+    return paymentMethod?.paymentSource;
   }
 
-  async purchaseSubscription(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
+  async purchaseSubscription(
+    subscription: SubscriptionInformation,
+    activeUserId: UserId,
+  ): Promise<OrganizationResponse> {
     const request = new OrganizationCreateRequest();
 
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(activeUserId);
 
     this.setOrganizationKeys(request, organizationKeys);
 
@@ -79,10 +77,11 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
 
   async purchaseSubscriptionNoPaymentMethod(
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<OrganizationResponse> {
     const request = new OrganizationNoPaymentMethodCreateRequest();
 
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(activeUserId);
 
     this.setOrganizationKeys(request, organizationKeys);
 
@@ -99,10 +98,13 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     return response;
   }
 
-  async startFree(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
+  async startFree(
+    subscription: SubscriptionInformation,
+    activeUserId: UserId,
+  ): Promise<OrganizationResponse> {
     const request = new OrganizationCreateRequest();
 
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(activeUserId);
 
     this.setOrganizationKeys(request, organizationKeys);
 
@@ -119,8 +121,8 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     return response;
   }
 
-  private async makeOrganizationKeys(): Promise<OrganizationKeys> {
-    const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>();
+  private async makeOrganizationKeys(activeUserId: UserId): Promise<OrganizationKeys> {
+    const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(key);
     const encryptedCollectionName = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
@@ -220,38 +222,14 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   async restartSubscription(
     organizationId: string,
     subscription: SubscriptionInformation,
+    activeUserId: UserId,
   ): Promise<void> {
     const request = new OrganizationCreateRequest();
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(activeUserId);
     this.setOrganizationKeys(request, organizationKeys);
     this.setOrganizationInformation(request, subscription.organization);
     this.setPlanInformation(request, subscription.plan);
     this.setPaymentInformation(request, subscription.payment);
     await this.billingApiService.restartSubscription(organizationId, request);
-  }
-
-  isBreadcrumbingPoliciesEnabled$(organization: Organization): Observable<boolean> {
-    if (organization === null || organization === undefined) {
-      return of(false);
-    }
-
-    return this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs).pipe(
-      switchMap((featureFlagEnabled) => {
-        if (!featureFlagEnabled) {
-          return of(false);
-        }
-
-        if (organization.isProviderUser || !organization.canEditSubscription) {
-          return of(false);
-        }
-
-        const supportedProducts = [ProductTierType.Teams, ProductTierType.TeamsStarter];
-        const isSupportedProduct = supportedProducts.some(
-          (product) => product === organization.productTierType,
-        );
-
-        return of(isSupportedProduct);
-      }),
-    );
   }
 }
