@@ -68,8 +68,9 @@
       <div #scrollBottom></div>
     </div>
   </div>
+  @let isScrollable = isScrollable$ | async;
   @let showFooterBorder =
-    (!bodyHasScrolledFrom().top && isScrollable$) || bodyHasScrolledFrom().bottom;
+    (!bodyHasScrolledFrom().top && isScrollable) || bodyHasScrolledFrom().bottom;
   <footer
     class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-bg-background tw-py-5 tw-ps-6 tw-pe-4"
     [ngClass]="{
