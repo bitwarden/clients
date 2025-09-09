@@ -125,6 +125,7 @@ import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
+import { CollectionPermission } from "../shared/components/access-selector";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
@@ -879,6 +880,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
             event.item as CollectionAdminView,
             CollectionDialogTabType.Access,
             event.readonly,
+            event.initialPermission,
           );
           break;
         case "bulkEditCollectionAccess":
@@ -1372,6 +1374,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
     c: CollectionAdminView,
     tab: CollectionDialogTabType,
     readonly: boolean,
+    initialPermission?: CollectionPermission,
   ): Promise<void> {
     const organization = await firstValueFrom(this.organization$);
     const dialog = openCollectionDialog(this.dialogService, {
@@ -1383,6 +1386,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
         isAddAccessCollection: c.unmanaged,
         limitNestedCollections: !organization.canEditAnyCollection,
         isAdminConsoleActive: true,
+        initialPermission,
       },
     });
 
@@ -1458,7 +1462,7 @@ export class vNextVaultComponent implements OnInit, OnDestroy {
         ciphers: items,
         organizationId: organization.id,
         availableCollections,
-        activeCollection: this.activeFilter.selectedCollectionNode.node,
+        activeCollection: this.activeFilter?.selectedCollectionNode?.node,
         isSingleCipherAdmin:
           items.length === 1 && (organization.canEditAllCiphers || items[0].isUnassigned),
       },

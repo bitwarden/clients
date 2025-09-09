@@ -82,7 +82,7 @@ export declare namespace sshagent {
 export declare namespace processisolations {
   export function disableCoredumps(): Promise<void>
   export function isCoreDumpingDisabled(): Promise<boolean>
-  export function disableMemoryAccess(): Promise<void>
+  export function isolateProcess(): Promise<void>
 }
 export declare namespace powermonitors {
   export function onLock(callback: (err: Error | null, ) => any): Promise<void>
