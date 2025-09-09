@@ -69,16 +69,16 @@ export class vNextOrganizationDataOwnershipPolicyComponent
       throw new Error("Policy was not found");
     }
 
-    const policyRequest: PolicyRequest = {
-      type: this.policy.type,
-      enabled: this.enabled.value,
-      data: this.buildRequestData(),
-    };
+    const defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
 
     const request: VNextPolicyRequest = {
-      policy: policyRequest,
+      policy: {
+        type: this.policy.type,
+        enabled: this.enabled.value,
+        data: this.buildRequestData(),
+      },
       metadata: {
-        defaultUserCollectionName: await this.getEncryptedDefaultUserCollectionName(orgKey),
+        defaultUserCollectionName,
       },
     };
 
@@ -88,6 +88,11 @@ export class vNextOrganizationDataOwnershipPolicyComponent
   private async getEncryptedDefaultUserCollectionName(orgKey: OrgKey): Promise<EncString> {
     const defaultCollectionName = this.i18nService.t("myItems");
     const encrypted = await this.encryptService.encryptString(defaultCollectionName, orgKey);
+
+    if (!encrypted.encryptedString) {
+      throw new Error("Encryption error");
+    }
+
     return encrypted.encryptedString;
   }
 }
