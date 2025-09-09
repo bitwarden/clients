@@ -556,6 +556,9 @@
   "view": {
     "message": "Bax"
   },
+  "viewLogin": {
+    "message": "Girişə bax"
+  },
   "noItemsInList": {
     "message": "Sadalanacaq heç bir element yoxdur."
   },
@@ -1760,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Bu brauzer bu açılan pəncərədə U2F tələblərini emal edə bilmir. U2F istifadə edərək giriş etmək üçün bu açılan pəncərəni yeni bir pəncərədə açmaq istəyirsiniz?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
+  },
+  "faviconDescAlt": {
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Nişan sayğacını göstər"
@@ -2377,13 +2386,13 @@
     "message": "Bu qutunu işarələyərək aşağıdakılarla razılaşırsınız:"
   },
   "acceptPoliciesRequired": {
-    "message": "Xidmət Şərtləri və Gizlilik Siyasəti qəbul edilməyib."
+    "message": "Xidmət Şərtləri və Məxfilik Siyasəti qəbul edilməyib."
   },
   "termsOfService": {
     "message": "Xidmət Şərtləri"
   },
   "privacyPolicy": {
-    "message": "Gizlilik Siyasəti"
+    "message": "Məxfilik Siyasəti"
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Yeni parolunuz hazırkı parolunuzla eyni ola bilməz."
@@ -2485,7 +2494,7 @@
     "message": "Bu əməliyyat yan çubuqda icra edilə bilməz. Lütfən açılan pəncərədə yenidən sınayın."
   },
   "personalOwnershipSubmitError": {
-    "message": "Müəssisə Siyasətinə görə, elementləri şəxsi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
+    "message": "Müəssisə Siyasətinə görə, elementləri fərdi seyfinizdə saxlamağınız məhdudlaşdırılıb. Sahiblik seçimini təşkilat olaraq dəyişdirin və mövcud kolleksiyalar arasından seçim edin."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Bir təşkilat siyasəti, sahiblik seçimlərinizə təsir edir."
@@ -4429,7 +4438,7 @@
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "privacyPermissionAdditionNotGrantedDescription": {
-    "message": "Bitwarden-i ilkin parol meneceri olaraq ayarlamaq üçün ona brauzer gizlilik icazələrini verməlisiniz.",
+    "message": "Bitwarden-i ilkin parol meneceri olaraq ayarlamaq üçün ona brauzer məxfilik icazələrini verməlisiniz.",
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
@@ -4773,7 +4782,7 @@
     }
   },
   "personalDetails": {
-    "message": "Şəxsi detallar"
+    "message": "Fərdi detallar"
   },
   "identification": {
     "message": "İdentifikasiya"
@@ -5108,10 +5117,10 @@
     "message": "Uzantı ikonunda giriş üçün avto-doldurma təklif sayını göstər"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Hesab erişimi tələb olundu"
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "$EMAIL$ üçün erişim cəhdini təsdiqlə",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5446,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Bu giriş risk altındadır və bir veb sayt əskikdir. Daha güclü təhlükəsizlik üçün bir veb sayt əlavə edin və parolu dəyişdirin."
+  },
+  "missingWebsite": {
+    "message": "Əskik veb sayt"
+  },
   "settingsVaultOptions": {
     "message": "Seyf seçimləri"
   },
@@ -5569,12 +5584,6 @@
     "message": "Girişlərinizi güvənli şəkildə saxlamağınıza kömək etməsi üçün Parol yarat düyməsinə klikləyərək güclü və unikal parolları asanlıqla yaradın.",
     "description": "Aria label for the body content of the generator nudge"
   },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
-  },
   "noPermissionsViewPage": {
     "message": "Bu səhifəyə baxmaq icazəniz yoxdur. Fərqli hesabla giriş etməyə çalışın."
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Daha az göstər"
   },
+  "next": {
+    "message": "Növbəti"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Key Connector domenini təsdiqlə"
   }
 }

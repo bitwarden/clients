@@ -1305,8 +1305,11 @@
     "message": "Automatycznie wyczyść skopiowaną wartość ze schowka.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Minimalizuj do zasobnika systemowego"
@@ -2124,10 +2127,10 @@
     "message": "Połączenie z przeglądarką nie jest obsługiwane"
   },
   "browserIntegrationErrorTitle": {
-    "message": "Błąd podczas włączania integracji z przeglądarką"
+    "message": "Błąd podczas włączania połączenia z przeglądarką"
   },
   "browserIntegrationErrorDesc": {
-    "message": "Wystąpił błąd podczas włączania integracji z przeglądarką."
+    "message": "Wystąpił błąd podczas włączania połączenia z przeglądarką."
   },
   "browserIntegrationMasOnlyDesc": {
     "message": "Połączenie z przeglądarką jest obsługiwane tylko z wersją aplikacji ze sklepu Mac App Store."
@@ -2988,7 +2991,7 @@
     "message": "Powiadomienie zostało wysłane na urządzenie"
   },
   "notificationSentDevicePart1": {
-    "message": "Odblokuj Bitwarden na swoim urządzeniu lub w"
+    "message": "Odblokuj Bitwarden na swoim urządzeniu lub w "
   },
   "notificationSentDeviceAnchor": {
     "message": "aplikacji internetowej"
@@ -3588,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "Kontynuuj logowanie przy użyciu danych firmowych."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
+  },
   "seeDetailedInstructions": {
     "message": "Zobacz szczegółowe instrukcje na naszej stronie pomocy pod adresem",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3925,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
-  },
   "assignToCollections": {
     "message": "Przypisz do kolekcji"
   },
@@ -4080,5 +4083,23 @@
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

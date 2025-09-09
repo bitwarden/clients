@@ -1305,8 +1305,11 @@
     "message": "Автоматично изчистване на буфера след поставяне на стойността.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
+  "enableFavicon": {
+    "message": "Показване на иконките на уеб сайтовете"
+  },
+  "faviconDesc": {
+    "message": "Показване на разпознаваемо изображение до всеки запис."
   },
   "enableMinToTray": {
     "message": "Смаляване в областта за уведомяване"
@@ -3588,6 +3591,12 @@
   "awaitingSSODesc": {
     "message": "Моля, продължете вписването с данните за удостоверяване на Вашата компания."
   },
+  "importDirectlyFromBrowser": {
+    "message": "Внасяне директно от браузъра"
+  },
+  "browserProfile": {
+    "message": "Профил на браузъра"
+  },
   "seeDetailedInstructions": {
     "message": "Може да намерите подробни инструкции в помощния ни уеб сайт на адрес",
     "description": "This is followed a by a hyperlink to the help website."
@@ -3925,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "Относно тази настройка"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
-  },
   "assignToCollections": {
     "message": "Свързване с колекции"
   },
@@ -4080,5 +4083,23 @@
   "moreBreadcrumbs": {
     "message": "Още елементи в пътечката",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Следващо"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Потвърждаване на домейна на конектора за ключове"
+  },
+  "confirm": {
+    "message": "Потвърждаване"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Включване на клавишната комбинация за автоматично попълване"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Уверете се, че сет в правилното поле, преди да използвате комбинацията, за да избегнете попълването на данните на грешното място."
+  },
+  "editShortcut": {
+    "message": "Редактиране на комбинацията"
   }
 }

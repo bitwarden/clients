@@ -17,6 +17,7 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -50,14 +51,15 @@ import {
   SelectModule,
   ToastService,
   TypographyModule,
+  BadgeComponent,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
-import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { PremiumComponent } from "../../billing/app/accounts/premium.component";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -67,6 +69,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   templateUrl: "settings.component.html",
   standalone: true,
   imports: [
+    BadgeComponent,
     CheckboxModule,
     CommonModule,
     FormFieldModule,
@@ -82,7 +85,6 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SelectModule,
     TypographyModule,
     VaultTimeoutInputComponent,
-    PermitCipherDetailsPopoverComponent,
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
@@ -130,6 +132,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   pinEnabled$: Observable<boolean> = of(true);
 
+  hasPremium: boolean = false;
+
   form = this.formBuilder.group({
     // Security
     vaultTimeout: [null as VaultTimeout | null],
@@ -158,7 +162,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
-    enableAutotype: false,
+    enableAutotype: this.formBuilder.control<boolean>({
+      value: false,
+      disabled: true,
+    }),
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -193,6 +200,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private changeDetectorRef: ChangeDetectorRef,
     private toastService: ToastService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
@@ -268,10 +276,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // Autotype is for Windows initially
     const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
-    const windowsDesktopAutotypeFeatureFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.WindowsDesktopAutotype,
-    );
-    this.showEnableAutotype = isWindows && windowsDesktopAutotypeFeatureFlag;
+    if (isWindows) {
+      this.configService
+        .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((enabled) => {
+          this.showEnableAutotype = enabled;
+        });
+    }
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
@@ -377,7 +389,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
-      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabled$),
+      enableAutotype: await firstValueFrom(this.desktopAutotypeService.resolvedAutotypeEnabled$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -401,6 +413,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .subscribe((action) => {
         this.form.controls.vaultTimeoutAction.setValue(action, { emitEvent: false });
       });
+
+    if (isWindows) {
+      this.billingAccountProfileStateService
+        .hasPremiumFromAnySource$(activeAccount.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((hasPremium) => {
+          this.hasPremium = hasPremium;
+
+          if (this.hasPremium) {
+            this.form.controls.enableAutotype.enable();
+          }
+        });
+    }
 
     // Form events
     this.form.controls.vaultTimeout.valueChanges
@@ -863,6 +888,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.form.controls.allowScreenshots.setValue(true, { emitEvent: false });
       }
     }
+  }
+
+  async openPremiumDialog() {
+    await this.dialogService.open(PremiumComponent);
   }
 
   async saveEnableAutotype() {
