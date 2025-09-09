@@ -47,6 +47,8 @@ describe("DefaultLoginSuccessHandlerService", () => {
       userAsymmetricKeysRegenerationService,
       logService,
     );
+
+    syncService.fullSync.mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -54,6 +56,14 @@ describe("DefaultLoginSuccessHandlerService", () => {
   });
 
   describe("run", () => {
+    it("should call required services on successful login", async () => {
+      await service.run(userId);
+
+      expect(syncService.fullSync).toHaveBeenCalledWith(true, { skipTokenRefresh: true });
+      expect(userAsymmetricKeysRegenerationService.regenerateIfNeeded).toHaveBeenCalledWith(userId);
+      expect(loginEmailService.clearLoginEmail).toHaveBeenCalled();
+    });
+
     describe("when PM22110_DisableAlternateLoginMethods flag is disabled", () => {
       beforeEach(() => {
         configService.getFeatureFlag.mockResolvedValue(false);
