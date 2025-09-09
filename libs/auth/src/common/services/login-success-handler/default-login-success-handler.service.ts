@@ -33,6 +33,13 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     );
 
     if (disableAlternateLoginMethodsFlagEnabled) {
+      const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
+
+      if (!ssoLoginEmail) {
+        this.logService.error("SSO login email not found.");
+        return;
+      }
+
       /**
        * If this user is required to authenticate via SSO, add their email to a cache list.
        * We'll use this cache list to display ONLY the "Use single sign-on" button to the
@@ -41,12 +48,6 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
       const ssoRequired = await firstValueFrom(
         this.policyService.policyAppliesToUser$(PolicyType.RequireSso, userId),
       );
-      const ssoLoginEmail = await this.ssoLoginService.getSsoEmail();
-
-      if (!ssoLoginEmail) {
-        this.logService.error("SSO login email not found.");
-        return;
-      }
 
       if (ssoRequired) {
         await this.ssoLoginService.addToSsoRequiredCache(ssoLoginEmail);
