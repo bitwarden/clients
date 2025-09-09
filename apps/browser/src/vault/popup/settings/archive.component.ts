@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -59,6 +59,11 @@ export class ArchiveComponent {
 
   protected archivedCiphers$ = this.cipherArchiveService.archivedCiphers$;
 
+  protected loading$ = this.archivedCiphers$.pipe(
+    map(() => false),
+    startWith(true),
+  );
+
   async view(cipher: CipherView) {
     if (!(await this.cipherArchiveService.canInteract(cipher))) {
       return;
@@ -80,7 +85,7 @@ export class ArchiveComponent {
   }
 
   async delete(cipher: CipherView) {
-    if (!(await this.cipherArchiveService.canInteract(cipher, true))) {
+    if (!(await this.cipherArchiveService.canInteract(cipher))) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({

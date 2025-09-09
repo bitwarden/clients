@@ -135,7 +135,7 @@ export class VaultPopupItemsService {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-  private userHasArchive$ = this.activeUserId$.pipe(
+  private userCanArchive$ = this.activeUserId$.pipe(
     switchMap((userId) => {
       return this.cipherArchiveService.userCanArchive$(userId);
     }),
@@ -143,7 +143,7 @@ export class VaultPopupItemsService {
 
   private _activeCipherList$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([this.organizations$, this.decryptedCollections$, this.userHasArchive$]).pipe(
+      combineLatest([this.organizations$, this.decryptedCollections$, this.userCanArchive$]).pipe(
         map(([organizations, collections, canArchive]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));

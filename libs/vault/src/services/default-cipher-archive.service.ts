@@ -82,7 +82,7 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
    * This is separated from userCanArchive because a user that loses premium status, but has archived items,
    * should still be able to access their archive vault. The items will be read-only, and can be restored.
    */
-  showArchiveVault$(userId: UserId): Observable<boolean> {
+  showArchiveVault$(): Observable<boolean> {
     return combineLatest([
       this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
       this.archivedCiphers$,
@@ -139,10 +139,9 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
    * Check if the user is able to interact with the cipher
    * (password re-prompt / decryption failure checks).
    * @param cipher
-   * @param ignoreDecryptionFailure - If true, the decryption failure check will be ignored.
    * @private
    */
-  async canInteract(cipher: CipherView, ignoreDecryptionFailure = false) {
+  async canInteract(cipher: CipherView) {
     if (cipher.decryptionFailure) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
         cipherIds: [cipher.id as CipherId],

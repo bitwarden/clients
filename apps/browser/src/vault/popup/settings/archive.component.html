@@ -1,4 +1,4 @@
-<popup-page>
+<popup-page [loading]="loading$ | async">
   <popup-header slot="header" [pageTitle]="'archive' | i18n" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
@@ -38,8 +38,7 @@
                   bitIconButton="bwi-ellipsis-v"
                   size="small"
                   label="{{ 'options' | i18n }}"
-                  [attr.aria-label]="'moreOptionsLabel' | i18n: cipher.name"
-                  [title]="'moreOptionsTitle' | i18n: cipher.name"
+                  [appA11yTitle]="'moreOptionsTitle' | i18n: cipher.name"
                   [bitMenuTriggerFor]="moreOptions"
                 ></button>
                 <bit-menu #moreOptions>

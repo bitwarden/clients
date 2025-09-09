@@ -248,7 +248,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
-  private userHasArchive$ = this.accountService.activeAccount$.pipe(
+  private userCanArchive$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => {
       return this.cipherArchiveService.userCanArchive$(userId);
@@ -389,7 +389,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       allowedCiphers$,
       filter$,
       this.currentSearchText$,
-      this.userHasArchive$,
+      this.userCanArchive$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText, archiveEnabled]) => {

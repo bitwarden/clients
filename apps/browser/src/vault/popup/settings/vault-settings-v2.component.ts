@@ -73,9 +73,7 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
     const userArchiveStatus = await firstValueFrom(
       this.cipherArchiveService.userCanArchive$(userId),
     );
-    const showArchiveFilter = await firstValueFrom(
-      this.cipherArchiveService.showArchiveVault$(userId),
-    );
+    const showArchiveFilter = await firstValueFrom(this.cipherArchiveService.showArchiveVault$());
     this.userCanArchive.set(userArchiveStatus);
     this.showArchiveFilter.set(showArchiveFilter);
   }
