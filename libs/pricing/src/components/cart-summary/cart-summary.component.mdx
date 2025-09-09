@@ -10,6 +10,27 @@ behavior across Bitwarden applications.
 
 <Canvas of={CartSummaryStories.Default} />
 
+## Table of Contents
+
+- [Usage](#usage)
+- [API](#api)
+  - [Inputs](#inputs)
+  - [Events](#events)
+- [Data Structure](#data-structure)
+- [Flexibility](#flexibility)
+- [Design](#design)
+- [Examples](#examples)
+  - [Yearly Cadence](#yearly-cadence)
+  - [With Additional Storage](#with-additional-storage)
+  - [With Secrets Manager](#with-secrets-manager)
+  - [With Secrets Manager and Additional Service Accounts](#with-secrets-manager-and-additional-service-accounts)
+  - [All Products](#all-products)
+  - [Premium Plan](#premium-plan)
+  - [Family Plan](#family-plan)
+- [Features](#features)
+- [Do's and Don'ts](#dos-and-donts)
+- [Accessibility](#accessibility)
+
 ## Usage
 
 The cart summary component is designed to be used in checkout and subscription interfaces to display
@@ -67,7 +88,7 @@ The cart summary component provides flexibility through its structured input pro
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Password Manager',
+    name: 'Members',
     cost: 50.00,
     cadence: 'month'
   }"
@@ -79,13 +100,13 @@ The cart summary component provides flexibility through its structured input pro
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Password Manager',
+    name: 'Members',
     cost: 50.00,
     cadence: 'month'
   }"
   [additionalStorage]="{
     quantity: 2,
-    name: 'Additional Storage (1GB)',
+    name: 'Additional storage GB',
     cost: 10.00,
     cadence: 'month'
   }"
@@ -100,12 +121,12 @@ The component follows the Bitwarden design system with:
 
 - **Collapsible Interface**: Toggles between compact and detailed views
 - **Clean Styling**: Uses Tailwind utility classes for consistent appearance
-- **Modern Angular**: Uses `@if` control flow with signal inputs
+- **Modern Angular**: Uses `@if` control flow and `@let` with signal inputs
 - **Signal inputs**: Type-safe inputs using Angular's signal-based input API
-- **Typography**: Consistent text styling with appropriate font weights
+- **Typography**: Consistent text styling using the typography module
 - **Layout**: Flexbox layout with clear section boundaries
 - **Interactivity**: Collapsible summary with intuitive toggle behavior
-- **Accessibility**: Semantic structure with proper button and icon usage
+- **Accessibility**: Semantic structure with proper button and icon usage using IconButtonModule
 
 ## Examples
 
@@ -119,7 +140,7 @@ Show cart with yearly subscription:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Password Manager Annual',
+    name: 'Members',
     cost: 500.00,
     cadence: 'year'
   }"
@@ -138,13 +159,13 @@ Show cart with password manager and additional storage:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Password Manager',
+    name: 'Members',
     cost: 50.00,
     cadence: 'month'
   }"
   [additionalStorage]="{
     quantity: 2,
-    name: 'Additional Storage (1GB)',
+    name: 'Additional storage GB',
     cost: 10.00,
     cadence: 'month'
   }"
@@ -163,14 +184,14 @@ Show cart with password manager and secrets manager seats only:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Password Manager',
+    name: 'Members',
     cost: 50.00,
     cadence: 'month'
   }"
   [secretsManager]="{
     seats: {
       quantity: 3,
-      name: 'Secrets Manager Seats',
+      name: 'Members',
       cost: 30.00,
       cadence: 'month'
     }
@@ -190,20 +211,20 @@ Show cart with password manager, secrets manager seats, and additional service a
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Password Manager',
+    name: 'Members',
     cost: 50.00,
     cadence: 'month'
   }"
   [secretsManager]="{
     seats: {
       quantity: 3,
-      name: 'Secrets Manager Seats',
+      name: 'Members',
       cost: 30.00,
       cadence: 'month'
     },
     additionalServiceAccounts: {
       quantity: 2,
-      name: 'Additional Service Accounts',
+      name: 'Additional machine accounts',
       cost: 6.00,
       cadence: 'month'
     }
@@ -213,9 +234,9 @@ Show cart with password manager, secrets manager seats, and additional service a
 </billing-cart-summary>
 ```
 
-### Complete Cart
+### All Products
 
-Show a complete cart with all available products:
+Show a cart with all available products:
 
 <Canvas of={CartSummaryStories.AllProducts} />
 
@@ -223,26 +244,26 @@ Show a complete cart with all available products:
 <billing-cart-summary
   [passwordManager]="{
     quantity: 5,
-    name: 'Password Manager',
+    name: 'Members',
     cost: 50.00,
     cadence: 'month'
   }"
   [additionalStorage]="{
     quantity: 2,
-    name: 'Additional Storage (1GB)',
+    name: 'Additional storage GB',
     cost: 10.00,
     cadence: 'month'
   }"
   [secretsManager]="{
     seats: {
       quantity: 3,
-      name: 'Secrets Manager Seats',
+      name: 'Members',
       cost: 30.00,
       cadence: 'month'
     },
     additionalServiceAccounts: {
       quantity: 2,
-      name: 'Additional Service Accounts',
+      name: 'Additional machine accounts',
       cost: 6.00,
       cadence: 'month'
     }
@@ -252,14 +273,49 @@ Show a complete cart with all available products:
 </billing-cart-summary>
 ```
 
+### Premium Plan
+Show cart with premium plan:
+<Canvas of={CartSummaryStories.PremiumPlan} />
+```html
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 1,
+    name: 'Premium membership',
+    cost: 10.00,
+    cadence: 'month'
+  }"
+  [estimatedTax]="2.71"
+>
+</billing-cart-summary>
+```
+
+### Families Plan
+
+Show cart with families plan:
+
+<Canvas of={CartSummaryStories.FamiliesPlan} />
+```html
+<billing-cart-summary
+  [passwordManager]="{
+    quantity: 1,
+    name: 'Families membership',
+    cost: 40.00,
+    cadence: 'month'
+  }"
+  [estimatedTax]="4.67"
+>
+</billing-cart-summary>
+```
+
 ## Features
 
 - **Collapsible Interface**: Users can toggle between a summary view showing only the total and a
   detailed view showing all line items
 - **Line Item Grouping**: Organizes items by product category (Password Manager, Secrets Manager)
-- **Dynamic Calculations**: Automatically calculates and displays subtotals and totals
+- **Dynamic Calculations**: Automatically calculates and displays subtotals and totals using Angular signals and computed values
 - **Flexible Structure**: Accommodates different combinations of products and add-ons
 - **Consistent Formatting**: Maintains uniform display of prices, quantities, and cadence
+- **Modern Angular Patterns**: Uses `@let` to efficiently store and reuse signal values in the template
 
 ## Do's and Don'ts
 
