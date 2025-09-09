@@ -557,7 +557,7 @@
     "message": "Weergeven"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Login bekijken"
   },
   "noItemsInList": {
     "message": "Er zijn geen items om weer te geven."
@@ -1763,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Deze browser kan U2F-verzoeken niet verwerken in dit popupvenster. Wilt je deze pop-up openen in een nieuw venster zodat je kunt inloggen met U2F?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Pictogrammen van de website weergeven URL's voor wachtwoordwijzigingen ophalen"
+  "enableFavicon": {
+    "message": "Websitepictogrammen weergeven"
+  },
+  "faviconDesc": {
+    "message": "Een herkenbare afbeelding naast iedere login weergeven."
+  },
+  "faviconDescAlt": {
+    "message": "Toon een herkenbare afbeelding naast elke login. Geldt voor alle ingelogde accounts."
   },
   "enableBadgeCounter": {
     "message": "Teller weergeven"
@@ -5450,10 +5456,10 @@
     "message": "Risicovol wachtwoord wijzigen"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Deze login is in gevaar en mist een website. Voeg een website toe en verander het wachtwoord voor een sterkere beveiliging."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Ontbrekende website"
   },
   "settingsVaultOptions": {
     "message": "Kluis-instellingen"
@@ -5577,12 +5583,6 @@
   "generatorNudgeBodyAria": {
     "message": "Maak eenvoudig sterke en unieke wachtwoorden door op de knop Wachtwoord genereren te klikken om je logins veilig te houden.",
     "description": "Aria label for the body content of the generator nudge"
-  },
-  "aboutThisSetting": {
-    "message": "Over deze instelling"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
   },
   "noPermissionsViewPage": {
     "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."

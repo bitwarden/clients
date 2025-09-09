@@ -557,7 +557,7 @@
     "message": "Nézet"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Bejelentkezés megtekintése"
   },
   "noItemsInList": {
     "message": "Nincsenek megjeleníthető tételek."
@@ -1763,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Ez a böngésző nem dolgozza fel az U2F kéréseket ebben a felbukkanó ablakban. Szeretnénk megnyitni a felbukkanó ablakot új böngészőablakban az U2F segítségével történő bejelentkezéshez?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
+  },
+  "faviconDescAlt": {
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Számláló jelvény megjelenítése"
@@ -5450,10 +5456,10 @@
     "message": "Kockázatos jelszó megváltoztatása"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Ez a bejelentkezés veszélyben van és hiányzik egy webhely. Adjunk hozzá egy webhelyet és módosítsuk a jelszót az erősebb biztonság érdekében."
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Hiányzó webhely"
   },
   "settingsVaultOptions": {
     "message": "Széf opciók"
@@ -5577,12 +5583,6 @@
   "generatorNudgeBodyAria": {
     "message": "Könnyedén hozhatunk létre erős és egyedi jelszavakat a Jelszó generálása gombra kattintva, amely segít megőrizni a bejelentkezések biztonságát.",
     "description": "Aria label for the body content of the generator nudge"
-  },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
     "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."
