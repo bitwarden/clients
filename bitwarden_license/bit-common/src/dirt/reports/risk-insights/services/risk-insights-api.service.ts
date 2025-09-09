@@ -1,7 +1,7 @@
 import { from, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationId } from "@bitwarden/sdk-internal";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   EncryptedDataModel,
