@@ -126,7 +126,6 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
 
   protected itemType = AccessItemType;
   protected permissionList: Permission[];
-  protected initialPermission = CollectionPermission.View;
 
   /**
    * When disabled, the access selector will make the assumption that a readonly state is desired.
@@ -207,6 +206,12 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
    * Hide the multi-select so that new items cannot be added
    */
   @Input() hideMultiSelect = false;
+
+  /**
+   * The initial permission that will be selected in the dialog, defaults to View.
+   */
+  @Input()
+  protected initialPermission: CollectionPermission = CollectionPermission.View;
 
   constructor(
     private readonly formBuilder: FormBuilder,

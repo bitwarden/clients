@@ -556,6 +556,9 @@
   "view": {
     "message": "Просмотр"
   },
+  "viewLogin": {
+    "message": "Просмотр логина"
+  },
   "noItemsInList": {
     "message": "Нет элементов для отображения."
   },
@@ -1760,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Этот браузер не может обрабатывать запросы U2F в этом всплывающем окне. Вы хотите открыть это всплывающее окно в новом окне, чтобы иметь возможность войти в систему, используя U2F?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Показывать значки сайтов и извлекать URL изменения пароля"
+  "enableFavicon": {
+    "message": "Показать значки сайтов"
+  },
+  "faviconDesc": {
+    "message": "Отображать узнаваемое изображение рядом с каждым логином."
+  },
+  "faviconDescAlt": {
+    "message": "Показывать узнаваемое изображение рядом с каждым логином. Применяется ко всем авторизованным аккаунтам."
   },
   "enableBadgeCounter": {
     "message": "Показать счетчик на значке"
@@ -5446,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+  },
+  "missingWebsite": {
+    "message": "Missing website"
+  },
   "settingsVaultOptions": {
     "message": "Настройки хранилища"
   },
@@ -5569,12 +5584,6 @@
     "message": "Легко создавайте надежные и уникальные пароли, нажатием на кнопку 'Сгенерировать пароль', чтобы обеспечить безопасность ваших логинов.",
     "description": "Aria label for the body content of the generator nudge"
   },
-  "aboutThisSetting": {
-    "message": "Об этой настройке"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
-  },
   "noPermissionsViewPage": {
     "message": "У вас нет прав для просмотра этой страницы. Попробуйте авторизоваться под другим аккаунтом."
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Меньше"
   },
+  "next": {
+    "message": "Далее"
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Подтвердите домен соединителя ключей"
   }
 }

@@ -9,19 +9,11 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { map, Observable, switchMap, firstValueFrom } from "rxjs";
+import { Observable, map, firstValueFrom } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -49,7 +41,6 @@ export type PolicyEditDialogData = {
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum PolicyEditDialogResult {
   Saved = "saved",
-  UpgradePlan = "upgrade-plan",
 }
 @Component({
   selector: "app-policy-edit",
@@ -70,24 +61,17 @@ export class PolicyEditComponent implements AfterViewInit {
   formGroup = this.formBuilder.group({
     enabled: [this.enabled],
   });
-  protected organization$: Observable<Organization>;
-  protected isBreadcrumbingEnabled$: Observable<boolean>;
-
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
-    private accountService: AccountService,
     private policyApiService: PolicyApiServiceAbstraction,
-    private organizationService: OrganizationService,
     private i18nService: I18nService,
     private cdr: ChangeDetectorRef,
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef<PolicyEditDialogResult>,
     private toastService: ToastService,
-    private organizationBillingService: OrganizationBillingServiceAbstraction,
     private configService: ConfigService,
     private keyService: KeyService,
   ) {}
-
   get policy(): BasePolicy {
     return this.data.policy;
   }
@@ -121,16 +105,6 @@ export class PolicyEditComponent implements AfterViewInit {
         throw e;
       }
     }
-    this.organization$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.organizationService.organizations$(userId)),
-      getOrganizationById(this.data.organizationId),
-    );
-    this.isBreadcrumbingEnabled$ = this.organization$.pipe(
-      switchMap((organization) =>
-        this.organizationBillingService.isBreadcrumbingPoliciesEnabled$(organization),
-      ),
-    );
   }
 
   submit = async () => {
@@ -202,8 +176,4 @@ export class PolicyEditComponent implements AfterViewInit {
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditComponent, config);
   };
-
-  protected upgradePlan(): void {
-    this.dialogRef.close(PolicyEditDialogResult.UpgradePlan);
-  }
 }

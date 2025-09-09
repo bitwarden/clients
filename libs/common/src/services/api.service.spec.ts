@@ -14,6 +14,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "../key-management/vault-timeout";
+import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { ErrorResponse } from "../models/response/error.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
@@ -295,6 +296,7 @@ describe("ApiService", () => {
             json: () =>
               Promise.resolve({
                 access_token: `${expectedEffectiveUser}_new_access_token`,
+                token_type: "Bearer",
                 refresh_token: `${expectedEffectiveUser}_new_refresh_token`,
               }),
           } satisfies Partial<Response> as Response);
@@ -410,4 +412,26 @@ describe("ApiService", () => {
       ).rejects.toMatchObject(error);
     },
   );
+
+  describe("getHibpBreach", () => {
+    it("should properly URL encode username with special characters", async () => {
+      const mockResponse = [{ name: "test" }];
+      const username = "connect#bwpm@simplelogin.co";
+
+      jest.spyOn(sut, "send").mockResolvedValue(mockResponse);
+
+      const result = await sut.getHibpBreach(username);
+
+      expect(sut.send).toHaveBeenCalledWith(
+        "GET",
+        "/hibp/breach?username=" + encodeURIComponent(username),
+        null,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(Array);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(BreachAccountResponse);
+    });
+  });
 });
