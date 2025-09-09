@@ -32,7 +32,6 @@
             formId="cipherForm"
             [config]="config"
             (cipherSaved)="savedCipher($event)"
-            [beforeSubmit]="onSubmit"
             [submitBtn]="footer?.submitBtn"
             (formStatusChange$)="formStatusChanged($event)"
           >
