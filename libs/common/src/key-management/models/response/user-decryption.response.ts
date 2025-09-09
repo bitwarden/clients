@@ -8,7 +8,7 @@ export class UserDecryptionResponse extends BaseResponse {
     super(response);
 
     const masterPasswordUnlock = this.getResponseProperty("MasterPasswordUnlock");
-    if (masterPasswordUnlock != null || typeof masterPasswordUnlock === "object") {
+    if (masterPasswordUnlock != null && typeof masterPasswordUnlock === "object") {
       this.masterPasswordUnlock = new MasterPasswordUnlockResponse(masterPasswordUnlock);
     }
   }

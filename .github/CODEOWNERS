@@ -6,8 +6,8 @@
 
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
-apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-dev
-apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-dev
+apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-desktop-dev
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
@@ -122,7 +122,6 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/build-desktop.yml @bitwarden/team-platform-dev
 .github/workflows/build-web-target.yml @bitwarden/team-platform-dev
 .github/workflows/build-web.yml @bitwarden/team-platform-dev
-.github/workflows/chromatic.yml @bitwarden/team-platform-dev
 .github/workflows/crowdin-pull.yml @bitwarden/team-platform-dev
 .github/workflows/enforce-labels.yml @bitwarden/team-platform-dev
 .github/workflows/lint.yml @bitwarden/team-platform-dev
@@ -144,19 +143,21 @@ apps/browser/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/src/autofill @bitwarden/team-autofill-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
-apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-dev
-apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-dev
-apps/desktop/desktop_native/autotype @bitwarden/team-autofill-dev
 .github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
+# Autofill desktop files
+apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-desktop-dev
+apps/desktop/desktop_native/autotype @bitwarden/team-autofill-desktop-dev
 # DuckDuckGo integration
-apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
-apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
-apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-dev
-.github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-dev
+apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-desktop-dev
+apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
+apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
+.github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-desktop-dev
 # SSH Agent
-apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
 
 ## UI Foundation ##
+.github/workflows/chromatic.yml @bitwarden/team-ui-foundation
 .storybook @bitwarden/team-ui-foundation
 libs/components @bitwarden/team-ui-foundation
 libs/assets @bitwarden/team-ui-foundation
@@ -165,7 +166,6 @@ apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation
 apps/browser/src/popup/components/extension-anon-layout-wrapper @bitwarden/team-ui-foundation
 apps/web/src/app/layouts @bitwarden/team-ui-foundation
-
 
 ## Key management team files ##
 apps/desktop/src/key-management @bitwarden/team-key-management-dev

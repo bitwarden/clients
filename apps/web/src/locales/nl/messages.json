@@ -2114,8 +2114,11 @@
   "languageDesc": {
     "message": "De taal van de webkluis aanpassen."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Pictogrammen van de website weergeven URL's voor wachtwoordwijzigingen ophalen"
+  "enableFavicon": {
+    "message": "Websitepictogrammen weergeven"
+  },
+  "faviconDesc": {
+    "message": "Een herkenbare afbeelding naast iedere login weergeven."
   },
   "default": {
     "message": "Standaard"
@@ -8556,7 +8559,7 @@
     }
   },
   "masterPasswordMinimumlength": {
-    "message": "Hoofdwachtwoord moet minstens $LENGTH$ karakters lang zijn.",
+    "message": "Hoofdwachtwoord moet minstens $LENGTH$ tekens lang zijn.",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -9024,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Gewijzigde collectiebeheerinstelling $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Instelling Collecties aanmaken beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Instelling Collecties aanmaken beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Instelling Collecties verwijderen beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Instelling Collecties verwijderen beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Instelling Items verwijderen beperken $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Instelling Items verwijderen beperken $ID$ uitgeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Instelling Eigenaren en beheerders beheren alle collecties en items toestaan $ID$ ingeschakeld.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Instelling Eigenaren en beheerders beheren alle collecties en items toestaan $ID$ uitgeschakeld.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10995,12 +11070,6 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Factuuradres vereist voor het toevoegen van krediet.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
-  },
-  "aboutThisSetting": {
-    "message": "Over deze instelling"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
   },
   "billingAddress": {
     "message": "Factuuradres"
