@@ -915,7 +915,8 @@ export default class AutofillService implements AutofillServiceInterface {
             ...AutoFillConstants.TotpFieldNames,
             ...AutoFillConstants.AmbiguousTotpFieldNames,
           ]) ||
-            field.autoCompleteType === "one-time-code");
+            field.autoCompleteType === "one-time-code") &&
+          !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
         const isFillableUsernameField =
           !options.skipUsernameOnlyFill &&
@@ -2324,11 +2325,15 @@ export default class AutofillService implements AutofillServiceInterface {
         (canBeReadOnly || !f.readonly) &&
         (withoutForm || f.form === passwordField.form) &&
         (canBeHidden || f.viewable) &&
-        (f.type === "text" || f.type === "number") &&
+        (f.type === "text" ||
+          f.type === "number" ||
+          // sites will commonly use tel in order to get the digit pad against semantic recommendations
+          f.type === "tel") &&
         AutofillService.fieldIsFuzzyMatch(f, [
           ...AutoFillConstants.TotpFieldNames,
           ...AutoFillConstants.AmbiguousTotpFieldNames,
-        ])
+        ]) &&
+        !AutofillService.fieldIsFuzzyMatch(f, [...AutoFillConstants.RecoveryCodeFieldNames])
       ) {
         totpField = f;
 
@@ -2518,7 +2523,7 @@ export default class AutofillService implements AutofillServiceInterface {
       if (!AutofillService.hasValue(value)) {
         continue;
       }
-      if (this.fuzzyMatch(names, value)) {
+      if (AutofillService.fuzzyMatch(names, value)) {
         return showMatch ? [true, { attr, value }] : true;
       }
     }
@@ -2534,7 +2539,13 @@ export default class AutofillService implements AutofillServiceInterface {
    * @private
    */
   private static fuzzyMatch(options: string[], value: string): boolean {
-    if (options == null || options.length === 0 || value == null || value === "") {
+    if (
+      options == null ||
+      options.length === 0 ||
+      value == null ||
+      typeof value !== "string" ||
+      value.length < 1
+    ) {
       return false;
     }
 
