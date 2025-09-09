@@ -63,6 +63,12 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.NotificationStatus:
         this.payload = new EndUserNotificationResponse(payload);
         break;
+      case NotificationType.OrganizationBankAccountVerified:
+        this.payload = new OrganizationBankAccountVerifiedPushNotification(payload);
+        break;
+      case NotificationType.ProviderBankAccountVerified:
+        this.payload = new ProviderBankAccountVerifiedPushNotification(payload);
+        break;
       default:
         break;
     }
@@ -156,5 +162,25 @@ export class OrganizationCollectionSettingChangedPushNotification extends BaseRe
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
     this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
+  }
+}
+
+export class OrganizationBankAccountVerifiedPushNotification extends BaseResponse {
+  organizationId: string;
+
+  constructor(response: any) {
+    super(response);
+    this.organizationId = this.getResponseProperty("OrganizationId");
+  }
+}
+
+export class ProviderBankAccountVerifiedPushNotification extends BaseResponse {
+  providerId: string;
+  adminId: string;
+
+  constructor(response: any) {
+    super(response);
+    this.providerId = this.getResponseProperty("ProviderId");
+    this.adminId = this.getResponseProperty("AdminId");
   }
 }
