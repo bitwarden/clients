@@ -31,7 +31,7 @@ export class SpinnerComponent {
   @Input({ transform: booleanAttribute }) sr = true;
 
   @HostBinding("class") get classList() {
-    return ["tw-inline-block", "tw-overflow-hidden"]
+    return ["tw-inline-block", "tw-overflow-hidden", "tw-flex", "tw-items-center"]
       .concat(this.sizeClass)
       .concat([this.noColor ? null : "tw-text-primary-600"]);
   }
