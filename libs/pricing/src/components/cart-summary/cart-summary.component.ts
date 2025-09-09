@@ -1,7 +1,7 @@
 import { CurrencyPipe } from "@angular/common";
 import { Component, computed, input, signal } from "@angular/core";
 
-import { TypographyModule } from "@bitwarden/components";
+import { TypographyModule, IconButtonModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 export type LineItem = {
@@ -19,7 +19,7 @@ export type LineItem = {
 @Component({
   selector: "billing-cart-summary",
   templateUrl: "./cart-summary.component.html",
-  imports: [TypographyModule, CurrencyPipe, I18nPipe],
+  imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe],
 })
 export class CartSummaryComponent {
   // Required inputs
