@@ -2114,8 +2114,11 @@
   "languageDesc": {
     "message": "Смяна на езика на интерфейса. Ще трябва да пуснете програмата повторно."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
+  "enableFavicon": {
+    "message": "Показване на иконките на уеб сайтовете"
+  },
+  "faviconDesc": {
+    "message": "Показване на разпознаваемо изображение до всеки запис."
   },
   "default": {
     "message": "Стандартно"
@@ -9031,6 +9034,78 @@
       }
     }
   },
+  "limitCollectionCreationEnabled": {
+    "message": "Настройката за ограничаване на създаването на колекции е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Настройката за ограничаване на създаването на колекции е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Настройката за ограничаване на изтриване на колекции е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Настройката за ограничаване на изтриване на колекции е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Настройката за ограничаване на изтриване на елементи е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Настройката за ограничаване на изтриване на елементи е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Настройката за разрешаване на собствениците и администраторите да управляват всички колекции и елементи е включена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Настройката за разрешаване на собствениците и администраторите да управляват всички колекции и елементи е изключена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Може да намерите подробни инструкции в помощния ни уеб сайт на адрес",
     "description": "This is followed a by a hyperlink to the help website."
@@ -10995,12 +11070,6 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Адресът за таксуване е задължителен за добавянето на средства.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
-  },
-  "aboutThisSetting": {
-    "message": "Относно тази настройка"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
   },
   "billingAddress": {
     "message": "Адрес за фактуриране"

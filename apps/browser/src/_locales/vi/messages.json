@@ -1763,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Trình duyệt này không thể xử lý các yêu cầu U2F trong cửa sổ popup này. Bạn có muốn mở popup này trong cửa sổ mới để bạn có thể đăng nhập thông qua U2F?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
+  },
+  "faviconDescAlt": {
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Hiển thị biểu tượng bộ đếm"
@@ -5577,12 +5583,6 @@
   "generatorNudgeBodyAria": {
     "message": "Dễ dàng tạo mật khẩu mạnh và duy nhất bằng cách nhấp vào Trình tạo mật khẩu để giúp bạn bảo vệ tài khoản đăng nhập của mình.",
     "description": "Aria label for the body content of the generator nudge"
-  },
-  "aboutThisSetting": {
-    "message": "Về cài đặt này"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."
