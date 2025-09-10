@@ -16,10 +16,10 @@
     [routerLink]="buildRouterLink(sendType.File)"
     [queryParams]="buildQueryParams(sendType.File)"
   >
-    <i class="bwi bwi-file" slot="start" aria-hidden="true"></i>
-    {{ "sendTypeFile" | i18n }}
-    <button type="button" slot="end" *ngIf="hasNoPremium" bitBadge variant="success">
-      {{ "premium" | i18n }}
-    </button>
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <i class="bwi bwi-file" slot="start" aria-hidden="true"></i>
+      {{ "sendTypeFile" | i18n }}
+      <app-premium-badge></app-premium-badge>
+    </div>
   </a>
 </bit-menu>

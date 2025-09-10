@@ -9,13 +9,17 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { Observable, map } from "rxjs";
+import { Observable, map, firstValueFrom, switchMap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -23,8 +27,10 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { BasePolicy, BasePolicyComponent } from "../policies";
+import { vNextOrganizationDataOwnershipPolicyComponent } from "../policies/vnext-organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /** Returns policy abstracts. */
@@ -59,12 +65,15 @@ export class PolicyEditComponent implements AfterViewInit {
   });
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
+    private accountService: AccountService,
     private policyApiService: PolicyApiServiceAbstraction,
     private i18nService: I18nService,
     private cdr: ChangeDetectorRef,
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef<PolicyEditDialogResult>,
     private toastService: ToastService,
+    private configService: ConfigService,
+    private keyService: KeyService,
   ) {}
   get policy(): BasePolicy {
     return this.data.policy;
@@ -107,24 +116,70 @@ export class PolicyEditComponent implements AfterViewInit {
       return;
     }
 
-    let request: PolicyRequest;
-
     try {
-      request = await this.policyComponent.buildRequest();
-    } catch (e) {
-      this.toastService.showToast({ variant: "error", title: null, message: e.message });
-      return;
-    }
+      if (
+        this.policyComponent instanceof vNextOrganizationDataOwnershipPolicyComponent &&
+        (await this.isVNextEnabled())
+      ) {
+        await this.handleVNextSubmission(this.policyComponent);
+      } else {
+        await this.handleStandardSubmission();
+      }
 
-    await this.policyApiService.putPolicy(this.data.organizationId, this.data.policy.type, request);
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
-    });
-    this.dialogRef.close(PolicyEditDialogResult.Saved);
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
+      });
+      this.dialogRef.close(PolicyEditDialogResult.Saved);
+    } catch (error) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: error.message,
+      });
+    }
   };
 
+  private async isVNextEnabled(): Promise<boolean> {
+    const isVNextFeatureEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
+    );
+
+    return isVNextFeatureEnabled;
+  }
+
+  private async handleStandardSubmission(): Promise<void> {
+    const request = await this.policyComponent.buildRequest();
+    await this.policyApiService.putPolicy(this.data.organizationId, this.data.policy.type, request);
+  }
+
+  private async handleVNextSubmission(
+    policyComponent: vNextOrganizationDataOwnershipPolicyComponent,
+  ): Promise<void> {
+    const orgKey = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.keyService.orgKeys$(userId)),
+        map(
+          (orgKeys: { [key: OrganizationId]: any }) =>
+            orgKeys[this.data.organizationId as OrganizationId] ?? null,
+        ),
+      ),
+    );
+
+    if (orgKey == null) {
+      throw new Error("No encryption key for this organization.");
+    }
+
+    const vNextRequest = await policyComponent.buildVNextRequest(orgKey);
+
+    await this.policyApiService.putPolicyVNext(
+      this.data.organizationId,
+      this.data.policy.type,
+      vNextRequest,
+    );
+  }
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditComponent, config);
   };
