@@ -121,6 +121,8 @@ export class SsoComponent implements OnInit, OnDestroy {
   spMetadataUrl: string;
   spAcsUrl: string;
 
+  showClientSecret = false;
+
   protected openIdForm = this.formBuilder.group<ControlsOf<SsoConfigView["openId"]>>(
     {
       authority: new FormControl("", Validators.required),

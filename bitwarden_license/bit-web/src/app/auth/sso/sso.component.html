@@ -209,7 +209,14 @@
 
         <bit-form-field>
           <bit-label>{{ "clientSecret" | i18n }}</bit-label>
-          <input bitInput type="text" formControlName="clientSecret" appInputStripSpaces />
+          <input bitInput type="password" formControlName="clientSecret" appInputStripSpaces />
+          <button
+            type="button"
+            bitIconButton
+            bitSuffix
+            bitPasswordInputToggle
+            [(toggled)]="showClientSecret"
+          ></button>
         </bit-form-field>
 
         <bit-form-field>
