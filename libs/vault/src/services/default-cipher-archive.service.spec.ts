@@ -140,16 +140,15 @@ describe("DefaultCipherArchiveService", () => {
 
     beforeEach(() => {
       mockApiService.send.mockResolvedValue(mockResponse);
-      mockCipherService.updateEncryptedCipherState.mockImplementation((updateFn) => {
-        const mockCiphers = {
+      mockCipherService.ciphers$.mockReturnValue(
+        of({
           [cipherId]: {
             id: cipherId,
             revisionDate: "2024-01-15T10:00:00.000Z",
-          },
-        };
-        updateFn(mockCiphers);
-        return Promise.resolve();
-      });
+          } as any,
+        }),
+      );
+      mockCipherService.replace.mockResolvedValue(undefined);
     });
 
     it("should archive single cipher", async () => {
@@ -162,8 +161,14 @@ describe("DefaultCipherArchiveService", () => {
         true,
         true,
       );
-      expect(mockCipherService.updateEncryptedCipherState).toHaveBeenCalledWith(
-        expect.any(Function),
+      expect(mockCipherService.ciphers$).toHaveBeenCalledWith(userId);
+      expect(mockCipherService.replace).toHaveBeenCalledWith(
+        expect.objectContaining({
+          [cipherId]: expect.objectContaining({
+            archivedDate: "2024-01-15T10:30:00.000Z",
+            revisionDate: "2024-01-15T10:31:00.000Z",
+          }),
+        }),
         userId,
       );
     });
@@ -197,17 +202,16 @@ describe("DefaultCipherArchiveService", () => {
 
     beforeEach(() => {
       mockApiService.send.mockResolvedValue(mockResponse);
-      mockCipherService.updateEncryptedCipherState.mockImplementation((updateFn) => {
-        const mockCiphers = {
+      mockCipherService.ciphers$.mockReturnValue(
+        of({
           [cipherId]: {
             id: cipherId,
             archivedDate: "2024-01-15T10:30:00.000Z",
             revisionDate: "2024-01-15T10:00:00.000Z",
-          },
-        };
-        updateFn(mockCiphers);
-        return Promise.resolve();
-      });
+          } as any,
+        }),
+      );
+      mockCipherService.replace.mockResolvedValue(undefined);
     });
 
     it("should unarchive single cipher", async () => {
@@ -220,8 +224,13 @@ describe("DefaultCipherArchiveService", () => {
         true,
         true,
       );
-      expect(mockCipherService.updateEncryptedCipherState).toHaveBeenCalledWith(
-        expect.any(Function),
+      expect(mockCipherService.ciphers$).toHaveBeenCalledWith(userId);
+      expect(mockCipherService.replace).toHaveBeenCalledWith(
+        expect.objectContaining({
+          [cipherId]: expect.objectContaining({
+            revisionDate: "2024-01-15T10:31:00.000Z",
+          }),
+        }),
         userId,
       );
     });

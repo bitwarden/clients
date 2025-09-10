@@ -1,4 +1,12 @@
-import { filter, map, Observable, shareReplay, switchMap, combineLatest } from "rxjs";
+import {
+  filter,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+  combineLatest,
+  firstValueFrom,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -100,19 +108,20 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     const r = await this.apiService.send("PUT", "/ciphers/archive", request, true, true);
     const response = new ListResponse(r, CipherResponse);
 
-    await this.cipherService.updateEncryptedCipherState((ciphers) => {
-      for (const cipher of response.data) {
-        const localCipher = ciphers[cipher.id as CipherId];
+    const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
 
-        if (localCipher == null) {
-          continue;
-        }
+    for (const cipher of response.data) {
+      const localCipher = currentCiphers[cipher.id as CipherId];
 
-        localCipher.archivedDate = cipher.archivedDate;
-        localCipher.revisionDate = cipher.revisionDate;
+      if (localCipher == null) {
+        continue;
       }
-      return ciphers;
-    }, userId);
+
+      localCipher.archivedDate = cipher.archivedDate;
+      localCipher.revisionDate = cipher.revisionDate;
+    }
+
+    await this.cipherService.replace(currentCiphers, userId);
   }
 
   async unarchiveWithServer(ids: CipherId | CipherId[], userId: UserId): Promise<void> {
@@ -120,19 +129,20 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     const r = await this.apiService.send("PUT", "/ciphers/unarchive", request, true, true);
     const response = new ListResponse(r, CipherResponse);
 
-    await this.cipherService.updateEncryptedCipherState((ciphers) => {
-      for (const cipher of response.data) {
-        const localCipher = ciphers[cipher.id as CipherId];
+    const currentCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
 
-        if (localCipher == null) {
-          continue;
-        }
+    for (const cipher of response.data) {
+      const localCipher = currentCiphers[cipher.id as CipherId];
 
-        localCipher.archivedDate = cipher.archivedDate;
-        localCipher.revisionDate = cipher.revisionDate;
+      if (localCipher == null) {
+        continue;
       }
-      return ciphers;
-    }, userId);
+
+      localCipher.archivedDate = cipher.archivedDate;
+      localCipher.revisionDate = cipher.revisionDate;
+    }
+
+    await this.cipherService.replace(currentCiphers, userId);
   }
 
   /**

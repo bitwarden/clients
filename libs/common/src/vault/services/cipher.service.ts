@@ -1173,7 +1173,7 @@ export class CipherService implements CipherServiceAbstraction {
    * @param update update callback for encrypted cipher data
    * @returns
    */
-  async updateEncryptedCipherState(
+  private async updateEncryptedCipherState(
     update: (current: Record<CipherId, CipherData>) => Record<CipherId, CipherData>,
     userId: UserId = null,
   ): Promise<Record<CipherId, CipherData>> {
