@@ -4,16 +4,12 @@
       #submitBtn
       form="cipherForm"
       type="submit"
-      *ngIf="action !== 'view'"
+      [hidden]="action === 'view'"
+      bitButton
       class="primary"
       appA11yTitle="{{ 'save' | i18n }}"
     >
-      <span [hidden]="isSubmitting">{{ "save" | i18n }}</span>
-      <i
-        class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
-        [hidden]="!isSubmitting"
-        aria-hidden="true"
-      ></i>
+      {{ "save" | i18n }}
     </button>
     <button
       type="button"
