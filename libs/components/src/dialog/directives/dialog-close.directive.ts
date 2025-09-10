@@ -1,13 +1,16 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { Directive, HostBinding, HostListener, Optional, input } from "@angular/core";
 
-@Directive({
-  selector: "[bitDialogClose]",
-})
+import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
+
+@Directive({ selector: "[bitDialogClose]" })
 export class DialogCloseDirective {
   readonly dialogResult = input<any>(undefined, { alias: "bitDialogClose" });
 
-  constructor(@Optional() public dialogRef: DialogRef) {}
+  constructor(
+    @Optional() private dialogRef: DialogRef<any>,
+    @Optional() private modalRef: ModalRef,
+  ) {}
 
   @HostBinding("attr.disabled")
   get disableClose() {
@@ -19,7 +22,14 @@ export class DialogCloseDirective {
     if (this.disableClose) {
       return;
     }
-
-    this.dialogRef.close(this.dialogResult());
+    const result = this.dialogResult?.();
+    if (this.dialogRef) {
+      this.dialogRef.close(result);
+      return;
+    }
+    if (this.modalRef) {
+      this.modalRef.close?.(result);
+      return;
+    }
   }
 }
