@@ -172,6 +172,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
 
   private hasAccessToken$(userId: UserId) {
     return this.configService.getFeatureFlag$(FeatureFlag.PushNotificationsWhenLocked).pipe(
+      distinctUntilChanged(),
       switchMap((featureFlagEnabled) => {
         if (featureFlagEnabled) {
           return this.authService.authStatusFor$(userId).pipe(
@@ -297,6 +298,17 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
       case NotificationType.SyncOrganizationCollectionSettingChanged:
         await this.syncService.fullSync(true);
         break;
+      case NotificationType.OrganizationBankAccountVerified:
+        this.messagingService.send("organizationBankAccountVerified", {
+          organizationId: notification.payload.organizationId,
+        });
+        break;
+      case NotificationType.ProviderBankAccountVerified:
+        this.messagingService.send("providerBankAccountVerified", {
+          providerId: notification.payload.providerId,
+          adminId: notification.payload.adminId,
+        });
+        break;
       default:
         break;
     }
@@ -305,11 +317,23 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
   startListening() {
     return this.notifications$
       .pipe(
-        mergeMap(async ([notification, userId]) => this.processNotification(notification, userId)),
+        mergeMap(async ([notification, userId]) => {
+          try {
+            await this.processNotification(notification, userId);
+          } catch (err: unknown) {
+            this.logService.error(
+              `Problem processing notification of type ${notification.type}`,
+              err,
+            );
+          }
+        }),
       )
       .subscribe({
-        error: (e: unknown) =>
-          this.logService.warning("Error in server notifications$ observable", e),
+        error: (err: unknown) =>
+          this.logService.error(
+            "Fatal error in server notifications$ observable, notifications won't be recieved anymore.",
+            err,
+          ),
       });
   }
 

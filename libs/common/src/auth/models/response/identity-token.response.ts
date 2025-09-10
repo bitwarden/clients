@@ -12,8 +12,8 @@ import { UserDecryptionOptionsResponse } from "./user-decryption-options/user-de
 
 export class IdentityTokenResponse extends BaseResponse {
   accessToken: string;
-  expiresIn: number;
-  refreshToken: string;
+  expiresIn?: number;
+  refreshToken?: string;
   tokenType: string;
 
   resetMasterPassword: boolean;
@@ -26,14 +26,30 @@ export class IdentityTokenResponse extends BaseResponse {
   apiUseKeyConnector: boolean;
   keyConnectorUrl: string;
 
-  userDecryptionOptions: UserDecryptionOptionsResponse;
+  userDecryptionOptions?: UserDecryptionOptionsResponse;
 
-  constructor(response: any) {
+  constructor(response: unknown) {
     super(response);
-    this.accessToken = response.access_token;
-    this.expiresIn = response.expires_in;
-    this.refreshToken = response.refresh_token;
-    this.tokenType = response.token_type;
+
+    const accessToken = this.getResponseProperty("access_token");
+    if (accessToken == null || typeof accessToken !== "string") {
+      throw new Error("Identity response does not contain a valid access token");
+    }
+    const tokenType = this.getResponseProperty("token_type");
+    if (tokenType == null || typeof tokenType !== "string") {
+      throw new Error("Identity response does not contain a valid token type");
+    }
+    this.accessToken = accessToken;
+    this.tokenType = tokenType;
+
+    const expiresIn = this.getResponseProperty("expires_in");
+    if (expiresIn != null && typeof expiresIn === "number") {
+      this.expiresIn = expiresIn;
+    }
+    const refreshToken = this.getResponseProperty("refresh_token");
+    if (refreshToken != null && typeof refreshToken === "string") {
+      this.refreshToken = refreshToken;
+    }
 
     this.resetMasterPassword = this.getResponseProperty("ResetMasterPassword");
     this.privateKey = this.getResponseProperty("PrivateKey");
@@ -57,10 +73,9 @@ export class IdentityTokenResponse extends BaseResponse {
       this.getResponseProperty("MasterPasswordPolicy"),
     );
 
-    if (response.UserDecryptionOptions) {
-      this.userDecryptionOptions = new UserDecryptionOptionsResponse(
-        this.getResponseProperty("UserDecryptionOptions"),
-      );
+    const userDecryptionOptions = this.getResponseProperty("UserDecryptionOptions");
+    if (userDecryptionOptions != null && typeof userDecryptionOptions === "object") {
+      this.userDecryptionOptions = new UserDecryptionOptionsResponse(userDecryptionOptions);
     }
   }
 

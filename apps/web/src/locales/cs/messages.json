@@ -2114,8 +2114,11 @@
   "languageDesc": {
     "message": "Změní jazyk používaný ve webovém trezoru."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
+  "enableFavicon": {
+    "message": "Zobrazit ikony webových stránek"
+  },
+  "faviconDesc": {
+    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
   },
   "default": {
     "message": "Výchozí"
@@ -8935,20 +8938,25 @@
   "collectionManagement": {
     "message": "Správa sbírky"
   },
-  "collectionManagementDesc": {
-    "message": "Spravuje chování sbírky pro organizaci"
+  "collectionManagementDescription": {
+    "message": "Nastaví chování sbírky pro organizaci"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Povolit vlastníkům a administrátorům spravovat všechny sbírky a položky z konzole administrace"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Omezí vytváření sbírky na vlastníky a správce"
   },
-  "limitCollectionDeletionDesc": {
-    "message": "Omezí mazání sbírky na vlastníky a správce"
+  "restrictCollectionDeletionDescription": {
+    "message": "Omezí vytváření sbírky na vlastníky a správce"
   },
-  "limitItemDeletionDescription": {
-    "message": "Omezit smazání položky na členy s oprávněním Spravovat sbírku"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Omezit smazání položek na členy s ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Vlastníci a správci mohou spravovat všechny sbírky a položky"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " oprávněním",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Aktualizované nastavení správy sbírky"
@@ -9019,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Upraveno nastavení správy sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Zapnuto nastavení omezení vytváření sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Vypnuto nastavení omezení vytváření sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Zapnuto nastavení omezení mazání sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Vypnuto nastavení omezení mazání sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Zapnuto nastavení omezení mazání položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Vypnuto nastavení omezení mazání položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Zapnuto nastavení povolení vlastníkům a administrátorům spravovat všechny sbírky a položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Vypnuto nastavení povolení vlastníkům a administrátorům spravovat všechny sbírky a položky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9892,7 +9972,7 @@
     "message": "Ujistěte se, že členové mají přístup k správným údajům a jejich účty jsou bezpečné. Použijte tuto zprávu k získání CSV přístupu členů a konfigurací účtu."
   },
   "memberAccessReportPageDesc": {
-    "message": "Audit přístupu členů organizace ke skupinám, sbírkám a položkám kolekcí. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke sbírkám a konfiguracích účtů."
+    "message": "Audit přístupu členů organizace ke skupinám, sbírkám a položkám sbírek. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke sbírkám a konfiguracích účtů."
   },
   "memberAccessReportNoCollection": {
     "message": "(Žádná sbírka)"
@@ -10991,12 +11071,6 @@
     "message": "Pro přidání kreditu je vyžadována fakturační adresa.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
-  "aboutThisSetting": {
-    "message": "O tomto nastavení"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
-  },
   "billingAddress": {
     "message": "Fakturační adresa"
   },
@@ -11157,6 +11231,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdit doménu Key Connectoru"
   }
 }
 

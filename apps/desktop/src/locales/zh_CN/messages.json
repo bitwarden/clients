@@ -576,7 +576,7 @@
     "message": "复制验证码 (TOTP)"
   },
   "copyFieldCipherName": {
-    "message": "复制 $FIELD$、$CIPHERNAME$",
+    "message": "复制 $CIPHERNAME$ 的 $FIELD$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -970,7 +970,7 @@
     "message": "验证器 App"
   },
   "authenticatorAppDescV2": {
-    "message": "输入验证器 App（例如 Bitwarden 验证器）生成的代码。",
+    "message": "输入验证器 App（例如 Bitwarden Authenticator）生成的代码。",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -1305,8 +1305,11 @@
     "message": "自动清除复制到剪贴板的值。",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "显示网站图标并检索更改密码的 URL"
+  "enableFavicon": {
+    "message": "显示网站图标"
+  },
+  "faviconDesc": {
+    "message": "在每个登录项目旁边显示一个可识别的图像。"
   },
   "enableMinToTray": {
     "message": "最小化到托盘图标"
@@ -3047,7 +3050,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请再次使用该设备登录。"
+    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
   },
   "webApp": {
     "message": "网页 App"
@@ -3123,7 +3126,7 @@
     "message": "已请求登录"
   },
   "accountAccessRequested": {
-    "message": "已请求账户访问"
+    "message": "已请求账户访问权限"
   },
   "creatingAccountOn": {
     "message": "创建账户至"
@@ -3298,7 +3301,7 @@
     "message": "搜索"
   },
   "inputMinLength": {
-    "message": "输入长度不能低于 $COUNT$ 个字符。",
+    "message": "输入长度必须至少为 $COUNT$ 个字符。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3377,7 +3380,7 @@
     "message": "清除全部"
   },
   "plusNMore": {
-    "message": "+ $QUANTITY$ more",
+    "message": "另外 $QUANTITY$ 个",
     "placeholders": {
       "quantity": {
         "content": "$1",
@@ -3587,6 +3590,12 @@
   },
   "awaitingSSODesc": {
     "message": "请使用您的公司凭据继续登录。"
+  },
+  "importDirectlyFromBrowser": {
+    "message": "直接从浏览器导入"
+  },
+  "browserProfile": {
+    "message": "浏览器配置文件"
   },
   "seeDetailedInstructions": {
     "message": "请参阅我们的帮助网站上的详细说明：",
@@ -3925,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "关于此设置"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden 将使用保存的登录 URI 来识别应使用哪个图标或更改密码 URL 来改善您的体验。 使用此服务时没有收集或保存任何信息。"
-  },
   "assignToCollections": {
     "message": "分配到集合"
   },
@@ -4078,7 +4081,25 @@
     "message": "Bitwarden 不会验证输入位置，在使用快捷键之前，请确保您位于正确的窗口和字段中。"
   },
   "moreBreadcrumbs": {
-    "message": "进一步的指引",
+    "message": "更多导航项",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "下一步"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "确认 Key Connector 域名"
+  },
+  "confirm": {
+    "message": "确认"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "启用自动输入快捷键"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "在使用快捷键之前，请确保您位于正确的字段中，以避免将数据填入错误的地方。"
+  },
+  "editShortcut": {
+    "message": "编辑快捷键"
   }
 }

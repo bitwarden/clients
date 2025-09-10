@@ -3,7 +3,7 @@ const { merge } = require("webpack-merge");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const configurator = require("./config/config");
-const { EnvironmentPlugin } = require("webpack");
+const { EnvironmentPlugin, DefinePlugin } = require("webpack");
 
 const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
 
@@ -21,7 +21,11 @@ const common = {
       },
     ],
   },
-  plugins: [],
+  plugins: [
+    new DefinePlugin({
+      BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+    }),
+  ],
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
     plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
