@@ -35,9 +35,14 @@ describe("UserDecryptionResponse", () => {
     );
   });
 
-  it("should create response when masterPasswordUnlock is not provided", () => {
-    const userDecryptionResponse = new UserDecryptionResponse({});
+  it.each([null, undefined, "should be object type"])(
+    "should create response when masterPasswordUnlock is %s",
+    (masterPasswordUnlock) => {
+      const userDecryptionResponse = new UserDecryptionResponse({
+        MasterPasswordUnlock: masterPasswordUnlock,
+      });
 
-    expect(userDecryptionResponse.masterPasswordUnlock).toBeUndefined();
-  });
+      expect(userDecryptionResponse.masterPasswordUnlock).toBeUndefined();
+    },
+  );
 });

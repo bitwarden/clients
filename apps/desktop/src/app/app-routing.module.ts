@@ -12,6 +12,7 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
+import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import {
   DevicesIcon,
   RegistrationLockAltIcon,
@@ -290,6 +291,14 @@ const routes: Routes = [
             key: "verifyYourIdentity",
           },
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
+      {
+        path: "set-initial-password",
+        canActivate: [authGuard],
+        component: SetInitialPasswordComponent,
+        data: {
+          maxWidth: "lg",
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "change-password",
