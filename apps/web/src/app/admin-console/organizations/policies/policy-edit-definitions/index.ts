@@ -9,4 +9,7 @@ export { RestrictedItemTypesPolicy } from "./restricted-item-types.component";
 export { SendOptionsPolicy } from "./send-options.component";
 export { SingleOrgPolicy } from "./single-org.component";
 export { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.component";
-export { vNextOrganizationDataOwnershipPolicy } from "./vnext-organization-data-ownership.component";
+export {
+  vNextOrganizationDataOwnershipPolicy,
+  vNextOrganizationDataOwnershipPolicyComponent,
+} from "./vnext-organization-data-ownership.component";
