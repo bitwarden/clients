@@ -3,11 +3,13 @@ import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { delay, of } from "rxjs";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
+import { I18nMockService } from "../utils";
 
 import { AsyncActionsModule } from "./async-actions.module";
 import { BitActionDirective } from "./bit-action.directive";
@@ -102,6 +104,14 @@ export default {
           useValue: {
             error: action("LogService.error"),
           } as Partial<LogService>,
+        },
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
         },
       ],
     }),

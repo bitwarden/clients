@@ -14,6 +14,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
+import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { fadeIn } from "../animations";
@@ -37,6 +38,7 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
     I18nPipe,
     CdkTrapFocus,
     CdkScrollable,
+    SpinnerComponent,
   ],
 })
 export class DialogComponent implements AfterViewInit {

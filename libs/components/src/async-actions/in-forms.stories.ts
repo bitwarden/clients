@@ -148,6 +148,7 @@ export default {
               required: "required",
               inputRequired: "Input is required.",
               inputEmail: "Input is not an email-address.",
+              loading: "Loading",
             });
           },
         },
