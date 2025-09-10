@@ -208,7 +208,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       // Only perform initial update and setup a subscription if there is actually a populated ssoRequiredCache
       if (ssoRequiredCache != null && ssoRequiredCache.length > 0) {
         // If the pre-filled/remembered email field value exists in the cache, set to true
-        if (this.emailFormControl.value && ssoRequiredCache.includes(this.emailFormControl.value)) {
+        if (
+          this.emailFormControl.value &&
+          ssoRequiredCache.includes(this.emailFormControl.value.toLowerCase())
+        ) {
           this.ssoRequired = true;
         }
 
@@ -219,7 +222,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           .subscribe(() => {
             if (
               this.emailFormControl.value &&
-              ssoRequiredCache.includes(this.emailFormControl.value)
+              ssoRequiredCache.includes(this.emailFormControl.value.toLowerCase())
             ) {
               this.ssoRequired = true;
             } else {

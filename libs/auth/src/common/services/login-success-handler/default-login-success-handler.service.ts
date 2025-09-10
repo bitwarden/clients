@@ -50,7 +50,7 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
       );
 
       if (ssoRequired) {
-        await this.ssoLoginService.addToSsoRequiredCache(ssoLoginEmail);
+        await this.ssoLoginService.addToSsoRequiredCache(ssoLoginEmail.toLowerCase());
       } else {
         /**
          * If user is not required to authenticate via SSO, remove email from the cache
@@ -58,7 +58,7 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
          * required to authenticate via SSO at some point in the past, but now their org
          * no longer requires SSO authenticaiton.
          */
-        await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(ssoLoginEmail);
+        await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(ssoLoginEmail.toLowerCase());
       }
     }
   }
