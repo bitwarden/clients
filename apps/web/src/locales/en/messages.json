@@ -1417,7 +1417,7 @@
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   }, 
   "emptyFavorites": {
-    "message": "You haven’t favorited any items"
+    "message": "You haven't favorited any items"
   },
   "emptyFavoritesDesc": {
     "message": "Add frequently used items to favorites for quick access."

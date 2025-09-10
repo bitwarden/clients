@@ -261,6 +261,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     map((results) => results.filter((result) => result !== null && result.shownBanner)),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
+  emptyState$: Observable<{ title: string; description: string; icon: Icon }>;
 
   constructor(
     private syncService: SyncService,
@@ -585,6 +586,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
+
+    this.emptyState$ = this.showEmptyState();
   }
 
   ngOnDestroy() {
@@ -1325,53 +1328,51 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   isSelectedOrgDisabled(): boolean {
-    const selectedOrg = this.allOrganizations?.find(
-      (o) => o.id === this.activeFilter.selectedOrganizationNode?.node.id,
+    return !!this.allOrganizations?.find(
+      (o) => o.id === this.activeFilter.selectedOrganizationNode?.node.id && o.enabled === false,
     );
-    return !!selectedOrg && selectedOrg.enabled === false;
   }
+  showEmptyState(): Observable<{ title: string; description: string; icon: Icon }> {
+    return combineLatest([this.currentSearchText$]).pipe(
+      map(([searchText]) => {
+        if (this.isSelectedOrgDisabled()) {
+          return {
+            title: "organizationIsSuspended",
+            description: "organizationIsSuspendedDesc",
+            icon: this.orgIcon,
+          };
+        }
 
-  showEmptyState(): { title: string; description: string; icon: Icon } {
-    if (this.isSelectedOrgDisabled()) {
-      return {
-        title: "organizationIsSuspended",
-        description: "organizationIsSuspendedDesc",
-        icon: this.orgIcon,
-      };
-    }
+        if (searchText) {
+          return {
+            title: "noSearchResults",
+            description: "clearFiltersOrTryAnother",
+            icon: this.emptySearchResultIcon,
+          };
+        }
 
-    let searchText = "";
-    this.currentSearchText$.pipe(takeUntil(this.destroy$)).subscribe((value) => {
-      searchText = value;
-    });
-    if (searchText) {
-      return {
-        title: "noSearchResults",
-        description: "clearFiltersOrTryAnother",
-        icon: this.emptySearchResultIcon,
-      };
-    }
-    const filterType = this.filter?.type;
-    switch (filterType) {
-      case "trash":
-        return {
-          title: "noItemsInTrash",
-          description: "noItemsInTrashDesc",
-          icon: this.trashIcon,
-        };
-      case "favorites":
-        return {
-          title: "emptyFavorites",
-          description: "emptyFavoritesDesc",
-          icon: this.favoritesIcon,
-        };
-    }
-
-    return {
-      title: "noItemsInVault",
-      description: "emptyVaultDescription",
-      icon: this.emptyVaultIcon,
-    };
+        switch (this.filter?.type) {
+          case "trash":
+            return {
+              title: "noItemsInTrash",
+              description: "noItemsInTrashDesc",
+              icon: this.trashIcon,
+            };
+          case "favorites":
+            return {
+              title: "emptyFavorites",
+              description: "emptyFavoritesDesc",
+              icon: this.favoritesIcon,
+            };
+          default:
+            return {
+              title: "noItemsInVault",
+              description: "emptyVaultDescription",
+              icon: this.emptyVaultIcon,
+            };
+        }
+      }),
+    );
   }
 
   private showMissingPermissionsError() {

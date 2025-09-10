@@ -70,12 +70,12 @@
       *ngIf="isEmpty && !performingInitialLoad"
       class="tw-mt-40 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
     >
-      <bit-icon [icon]="showEmptyState().icon" aria-hidden="true"></bit-icon>
+      <bit-icon [icon]="(emptyState$ | async)?.icon" aria-hidden="true"></bit-icon>
       <h4 bitTypography="h4">
-        {{ showEmptyState().title | i18n }}
+        {{ (emptyState$ | async)?.title | i18n }}
       </h4>
       <p bitTypography="body2" class="tw-w-[300px] tw-text-center">
-        {{ showEmptyState().description | i18n }}
+        {{ (emptyState$ | async)?.description | i18n }}
       </p>
       <button
         type="button"
