@@ -35,7 +35,7 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
     singleActionKey: AuthPopoutType.unlockExtension,
     senderWindowId: senderTab.windowId,
   });
-  await BrowserApi.tabSendMessageData(senderTab, "blurFieldOnPopoutOpen", {});
+  await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", {});
 }
 
 /**

@@ -1965,7 +1965,7 @@ describe("AutofillOverlayContentService", () => {
     describe("messages that trigger a blur of the most recently focused field", () => {
       const messages = [
         "blurMostRecentlyFocusedField",
-        "blurFieldOnPopoutOpen",
+        "bgUnlockPopoutOpened",
         "bgVaultItemRepromptPopoutOpened",
       ];
 

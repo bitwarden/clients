@@ -107,7 +107,7 @@ function handleWindowMessageEvent(event: MessageEvent) {
  * Commands to forward from this script to the extension background.
  */
 const forwardCommands = new Set([
-  "blurFieldOnPopoutOpen",
+  "bgUnlockPopoutOpened",
   "addToLockedVaultPendingNotifications",
   "unlockCompleted",
   "addedCipher",
