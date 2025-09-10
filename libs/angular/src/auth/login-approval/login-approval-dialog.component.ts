@@ -136,31 +136,21 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   };
 
   private async retrieveAuthRequestAndRespond(approve: boolean) {
-    try {
-      this.authRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
-
-      if (
-        this.authRequestResponse.requestApproved ||
-        this.authRequestResponse.responseDate != null
-      ) {
-        this.toastService.showToast({
-          variant: "info",
-          message: this.i18nService.t("thisRequestIsNoLongerValid"),
-        });
-      } else {
-        const loginResponse = await this.authRequestService.approveOrDenyAuthRequest(
-          approve,
-          this.authRequestResponse,
-        );
-        this.showResultToast(loginResponse);
-      }
-
-      this.dialogRef.close(approve);
-    } catch (e) {
-      this.logService.error(e);
-      this.validationService.showError(e);
-      this.dialogRef.close(); // close but don't signify approval or denial
+    this.authRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
+    if (this.authRequestResponse.requestApproved || this.authRequestResponse.responseDate != null) {
+      this.toastService.showToast({
+        variant: "info",
+        message: this.i18nService.t("thisRequestIsNoLongerValid"),
+      });
+    } else {
+      const loginResponse = await this.authRequestService.approveOrDenyAuthRequest(
+        approve,
+        this.authRequestResponse,
+      );
+      this.showResultToast(loginResponse);
     }
+
+    this.dialogRef.close(approve);
   }
 
   showResultToast(loginResponse: AuthRequestResponse) {
