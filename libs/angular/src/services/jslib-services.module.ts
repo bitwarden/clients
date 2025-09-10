@@ -1620,7 +1620,6 @@ const safeProviders: SafeProvider[] = [
       PasswordRepromptService,
       BillingAccountProfileStateService,
       ConfigService,
-      AccountService,
     ],
   }),
 ];

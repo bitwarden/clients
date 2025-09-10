@@ -2,7 +2,6 @@ import { mock } from "jest-mock-extended";
 import { of, firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -29,7 +28,6 @@ describe("DefaultCipherArchiveService", () => {
   let mockPasswordRepromptService: jest.Mocked<PasswordRepromptService>;
   let mockBillingAccountProfileStateService: jest.Mocked<BillingAccountProfileStateService>;
   let mockConfigService: jest.Mocked<ConfigService>;
-  let mockAccountService: jest.Mocked<AccountService>;
 
   const userId = "user-id" as UserId;
   const cipherId = "123" as CipherId;
@@ -41,10 +39,6 @@ describe("DefaultCipherArchiveService", () => {
     mockPasswordRepromptService = mock<PasswordRepromptService>();
     mockBillingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     mockConfigService = mock<ConfigService>();
-    mockAccountService = mock<AccountService>();
-
-    // Setup default account service behavior
-    mockAccountService.activeAccount$ = of({ id: userId } as Account);
 
     service = new DefaultCipherArchiveService(
       mockCipherService,
@@ -53,7 +47,6 @@ describe("DefaultCipherArchiveService", () => {
       mockPasswordRepromptService,
       mockBillingAccountProfileStateService,
       mockConfigService,
-      mockAccountService,
     );
   });
 
@@ -79,7 +72,7 @@ describe("DefaultCipherArchiveService", () => {
 
       mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
 
-      const result = await firstValueFrom(service.archivedCiphers$);
+      const result = await firstValueFrom(service.archivedCiphers$(userId));
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toEqual("1");
@@ -95,7 +88,7 @@ describe("DefaultCipherArchiveService", () => {
 
       mockCipherService.cipherListViews$.mockReturnValue(of(mockCiphers));
 
-      const result = await firstValueFrom(service.archivedCiphers$);
+      const result = await firstValueFrom(service.archivedCiphers$(userId));
 
       expect(result).toHaveLength(0);
     });

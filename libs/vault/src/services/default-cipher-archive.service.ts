@@ -1,15 +1,6 @@
-import {
-  filter,
-  map,
-  Observable,
-  shareReplay,
-  switchMap,
-  combineLatest,
-  firstValueFrom,
-} from "rxjs";
+import { filter, map, Observable, shareReplay, combineLatest, firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -41,31 +32,21 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
     private passwordRepromptService: PasswordRepromptService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private configService: ConfigService,
-    private accountService: AccountService,
   ) {}
-
-  private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(
-    map((a) => a?.id),
-    filter((userId): userId is UserId => userId != null),
-    shareReplay({ refCount: true, bufferSize: 1 }),
-  );
-
   /**
    * Observable that contains the list of ciphers that have been archived.
    */
-  archivedCiphers$: Observable<CipherViewLike[]> = this.userId$.pipe(
-    switchMap((userId) =>
-      this.cipherService.cipherListViews$(userId).pipe(
-        filter((cipher) => cipher != null),
-        map((ciphers) =>
-          ciphers.filter(
-            (cipher) =>
-              CipherViewLikeUtils.isArchived(cipher) && !CipherViewLikeUtils.isDeleted(cipher),
-          ),
+  archivedCiphers$(userId: UserId): Observable<CipherViewLike[]> {
+    return this.cipherService.cipherListViews$(userId).pipe(
+      filter((cipher) => cipher != null),
+      map((ciphers) =>
+        ciphers.filter(
+          (cipher) =>
+            CipherViewLikeUtils.isArchived(cipher) && !CipherViewLikeUtils.isDeleted(cipher),
         ),
       ),
-    ),
-  );
+    );
+  }
 
   /**
    * User can archive items if:
@@ -90,10 +71,10 @@ export class DefaultCipherArchiveService implements CipherArchiveService {
    * This is separated from userCanArchive because a user that loses premium status, but has archived items,
    * should still be able to access their archive vault. The items will be read-only, and can be restored.
    */
-  showArchiveVault$(): Observable<boolean> {
+  showArchiveVault$(userId: UserId): Observable<boolean> {
     return combineLatest([
       this.configService.getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive),
-      this.archivedCiphers$,
+      this.archivedCiphers$(userId),
     ]).pipe(
       map(
         ([archiveFlagEnabled, hasArchivedItems]) =>

@@ -1,14 +1,14 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, map, startWith } from "rxjs";
+import { firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -57,7 +57,11 @@ export class ArchiveComponent {
   private i18nService = inject(I18nService);
   private cipherArchiveService = inject(CipherArchiveService);
 
-  protected archivedCiphers$ = this.cipherArchiveService.archivedCiphers$;
+  private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+
+  protected archivedCiphers$ = this.userId$.pipe(
+    switchMap((userId) => this.cipherArchiveService.archivedCiphers$(userId)),
+  );
 
   protected loading$ = this.archivedCiphers$.pipe(
     map(() => false),
