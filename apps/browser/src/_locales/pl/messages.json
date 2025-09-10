@@ -556,6 +556,9 @@
   "view": {
     "message": "Pokaż"
   },
+  "viewLogin": {
+    "message": "Pokaż dane logowania"
+  },
   "noItemsInList": {
     "message": "Brak elementów do wyświetlenia."
   },
@@ -1760,8 +1763,14 @@
   "popupU2fCloseMessage": {
     "message": "Przeglądarka nie może przetworzyć żądań U2F. Czy chcesz otworzyć nowe okno, aby zalogować się za pomocą U2F?"
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Pokaż ikony stron internetowych i pobierz adresy URL do zmiany hasła"
+  "enableFavicon": {
+    "message": "Pokaż ikony stron internetowych"
+  },
+  "faviconDesc": {
+    "message": "Pokaż rozpoznawalną ikonę obok danych logowania."
+  },
+  "faviconDescAlt": {
+    "message": "Pokaż rozpoznawalną ikonę obok danych logowania. Dotyczy wszystkich zalogowanych kont."
   },
   "enableBadgeCounter": {
     "message": "Pokaż licznik na ikonie"
@@ -5446,6 +5455,12 @@
   "changeAtRiskPassword": {
     "message": "Zmień zagrożone hasło"
   },
+  "changeAtRiskPasswordAndAddWebsite": {
+    "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
+  },
+  "missingWebsite": {
+    "message": "Brak strony internetowej"
+  },
   "settingsVaultOptions": {
     "message": "Opcje sejfu"
   },
@@ -5569,12 +5584,6 @@
     "message": "Twórz silne i unikalne hasła, klikając przycisk Wygeneruj hasło, aby zapewnić bezpieczeństwo danych logowania.",
     "description": "Aria label for the body content of the generator nudge"
   },
-  "aboutThisSetting": {
-    "message": "O ustawieniu"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden użyje zapisanych adresów URL danych logowania, aby określić, która ikona lub adres URL zmiany hasła powinien zostać użyty w celu poprawy komfortu użytkowania. Usługa nie zapisuje żadnych danych."
-  },
   "noPermissionsViewPage": {
     "message": "Nie masz uprawnień do przeglądania tej strony. Zaloguj się na inne konto."
   },
@@ -5588,8 +5597,14 @@
   "showLess": {
     "message": "Pokaż mniej"
   },
+  "next": {
+    "message": "Dalej"
+  },
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potwierdź domenę Key Connector"
   }
 }

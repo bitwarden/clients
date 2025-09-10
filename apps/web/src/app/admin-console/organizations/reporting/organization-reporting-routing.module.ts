@@ -1,13 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { inject, NgModule } from "@angular/core";
-import { CanMatchFn, RouterModule, Routes } from "@angular/router";
-import { map } from "rxjs";
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessReportingTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 // eslint-disable-next-line no-restricted-imports
 import { ExposedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/exposed-passwords-report.component";
@@ -25,11 +22,6 @@ import { organizationRedirectGuard } from "../guards/org-redirect.guard";
 import { EventsComponent } from "../manage/events.component";
 
 import { ReportsHomeComponent } from "./reports-home.component";
-
-const breadcrumbEventLogsPermission$: CanMatchFn = () =>
-  inject(ConfigService)
-    .getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs)
-    .pipe(map((breadcrumbEventLogs) => breadcrumbEventLogs === true));
 
 const routes: Routes = [
   {
@@ -92,24 +84,10 @@ const routes: Routes = [
           },
         ],
       },
-      // Event routing is temporarily duplicated
       {
         path: "events",
         component: EventsComponent,
-        canMatch: [breadcrumbEventLogsPermission$], // if this matches, the flag is ON
-        canActivate: [
-          organizationPermissionsGuard(
-            (org) => (org.canAccessEventLogs && org.useEvents) || org.isOwner,
-          ),
-        ],
-        data: {
-          titleId: "eventLogs",
-        },
-      },
-      {
-        path: "events",
-        component: EventsComponent,
-        canActivate: [organizationPermissionsGuard((org) => org.canAccessEventLogs)],
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessEventLogs || org.isOwner)],
         data: {
           titleId: "eventLogs",
         },

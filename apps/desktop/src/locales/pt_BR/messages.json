@@ -703,10 +703,10 @@
     "message": "O anexo foi salvo."
   },
   "addAttachment": {
-    "message": "Add attachment"
+    "message": "Adicionar anexo"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "Maximum file size is 500 MB"
+    "message": "Tamanho máximo do arquivo é 500 MB"
   },
   "file": {
     "message": "Arquivo"
@@ -1232,7 +1232,7 @@
     "message": "Autenticação em duas etapas"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "Tempo limite do cofre"
   },
   "vaultTimeout": {
     "message": "Tempo Limite do Cofre"
@@ -1241,7 +1241,7 @@
     "message": "Tempo esgotado"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Tempo limite de ação"
   },
   "vaultTimeoutDesc": {
     "message": "Escolha quando o tempo limite do seu cofre irá se esgotar e execute a ação selecionada."
@@ -1305,8 +1305,11 @@
     "message": "Limpar automaticamente os valores copiados da sua área de transferência.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
   },
   "enableMinToTray": {
     "message": "Minimizar para ícone da bandeja"
@@ -2515,10 +2518,10 @@
     "message": "O tempo limite do seu cofre excede as restrições definidas por sua organização."
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
+    "message": "Requisitos de políticas corporativas foram adicionadas as suas opções de tempo limite"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "As políticas da sua organização definiram o seu tempo limite máximo permitido no cofre para $HOURS$ hora(s) e $MINUTES$ minuto(s).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2531,7 +2534,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "O tempo limite excede a restrição definida pela sua organização: máximo de $HOURS$ hora(s) e $MINUTES$ minuto(s)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3034,7 +3037,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Solicitação de ‘login’ aprovada para $EMAIL$ em $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3047,21 +3050,21 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Você negou uma tentativa de 'login' por outro dispositivo. Se foi você, tente logar com outro dispositivo novamente."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Aplicativo da Web"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Móvel",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Extensão",
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Computador",
     "description": "Desktop app"
   },
   "cli": {
@@ -3072,10 +3075,10 @@
     "description": "Software Development Kit"
   },
   "server": {
-    "message": "Server"
+    "message": "Servidor"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Solicitação de 'Login'"
   },
   "deviceType": {
     "message": "Tipo de dispositivo"
@@ -3489,10 +3492,10 @@
     "message": "Selecione uma coleção"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Selecione esta opção caso queira importar os conteúdos de arquivos movidos para a coleção"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Selecione esta opção caso queira importar os conteúdos de arquivos movidos para a pasta"
   },
   "importUnassignedItemsError": {
     "message": "Arquivo contém itens não atribuídos."
@@ -3587,6 +3590,12 @@
   },
   "awaitingSSODesc": {
     "message": "Por favor, continue a iniciar a sessão usando as credenciais da sua empresa."
+  },
+  "importDirectlyFromBrowser": {
+    "message": "Import directly from browser"
+  },
+  "browserProfile": {
+    "message": "Browser Profile"
   },
   "seeDetailedInstructions": {
     "message": "Veja instruções detalhadas no nosso site de ajuda em",
@@ -3925,12 +3934,6 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
-  },
   "assignToCollections": {
     "message": "Atribuído a coleções"
   },
@@ -4066,10 +4069,10 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Mostrar mais"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Mostrar menos"
   },
   "enableAutotype": {
     "message": "Habilitar Autotype"
@@ -4078,7 +4081,25 @@
     "message": "Bitwarden não valida localizações de entrada, tenha certeza de estar na janela e campo corretos antes de utilizar o atalho."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Mais trilhas",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
+  },
+  "next": {
+    "message": "Next"
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Confirm Key Connector domain"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "enableAutotypeTransitionKey": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescriptionTransitionKey": {
+    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+  },
+  "editShortcut": {
+    "message": "Edit shortcut"
   }
 }

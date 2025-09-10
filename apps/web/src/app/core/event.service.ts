@@ -390,6 +390,68 @@ export class EventService {
           this.getShortId(ev.organizationId),
         );
         break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationEnabled:
+        msg = this.i18nService.t("limitCollectionCreationEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionCreationEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationDisabled:
+        msg = this.i18nService.t("limitCollectionCreationDisabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionCreationDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionEnabled:
+        msg = this.i18nService.t("limitCollectionDeletionEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionDeletionEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionDisabled:
+        msg = this.i18nService.t("limitCollectionDeletionDisabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitCollectionDeletionDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitItemDeletionEnabled:
+        msg = this.i18nService.t("limitItemDeletionEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitItemDeletionEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitItemDeletionDisabled:
+        msg = this.i18nService.t("limitItemDeletionDisabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitItemDeletionDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsEnabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsEnabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsDisabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsDisabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllCollectionItemsDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
 
       // Policies
       case EventType.Policy_Updated: {

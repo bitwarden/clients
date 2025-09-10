@@ -177,7 +177,7 @@
     "message": "Všetkých aplikácii"
   },
   "unmarkAsCritical": {
-    "message": "Unmark as critical"
+    "message": "Zrušiť označenie za kritické"
   },
   "criticalApplicationSuccessfullyUnmarked": {
     "message": "Označenie aplikácie za kritickú úspešne zrušené"
@@ -868,13 +868,13 @@
     "message": "Kopírovať číslo licencie"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopírovať súkromný kľúč"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopírovať verejný kľúč"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopírovať odtlačok"
   },
   "copyName": {
     "message": "Kopírovať meno"
@@ -1516,6 +1516,9 @@
   "recoveryCodeTitle": {
     "message": "Záchranný kód"
   },
+  "invalidRecoveryCode": {
+    "message": "Neplatný kód na obnovenie"
+  },
   "authenticatorAppTitle": {
     "message": "Overovacia aplikácia"
   },
@@ -2111,8 +2114,11 @@
   "languageDesc": {
     "message": "Zmeňte východzí jazyk pre webový trezor."
   },
-  "showIconsChangePasswordUrls": {
-    "message": "Show website icons and retrieve change password URLs"
+  "enableFavicon": {
+    "message": "Show website icons"
+  },
+  "faviconDesc": {
+    "message": "Show a recognizable image next to each login."
   },
   "default": {
     "message": "Predvolené"
@@ -8932,20 +8938,25 @@
   "collectionManagement": {
     "message": "Správa zbierky"
   },
-  "collectionManagementDesc": {
-    "message": "Spravovať správanie zbierky pre organizáciu"
+  "collectionManagementDescription": {
+    "message": "Nastaviť správanie zbierky pre organizáciu"
   },
-  "limitCollectionCreationDesc": {
+  "allowAdminAccessToAllCollectionItemsDescription": {
+    "message": "Povoliť majiteľom a správcom spravovať všetky zbierky prostredníctvom správcovskej konzoly"
+  },
+  "restrictCollectionCreationDescription": {
     "message": "Obmedziť vytváranie zbierky len pre vlastníkov a administrátorov"
   },
-  "limitCollectionDeletionDesc": {
+  "restrictCollectionDeletionDescription": {
     "message": "Obmedziť vymazávanie zbierky len pre vlastníkov a administrátorov"
   },
-  "limitItemDeletionDescription": {
-    "message": "Obmedziť vymazávanie položiek na členov s oprávnením na správu zbierky"
+  "restrictItemDeletionDescriptionStart": {
+    "message": "Restrict item deletion to members with the ",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
-  "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Vlastníci a správcovia môžu spravovať všetky zbierky a položky"
+  "restrictItemDeletionDescriptionEnd": {
+    "message": " permission",
+    "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
     "message": "Aktualizované nastavenia zbierky"
@@ -9016,6 +9027,78 @@
   },
   "modifiedCollectionManagement": {
     "message": "Modified collection management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationEnabled": {
+    "message": "Turned on Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionCreationDisabled": {
+    "message": "Turned off Restrict collection creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionEnabled": {
+    "message": "Turned on Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitCollectionDeletionDisabled": {
+    "message": "Turned off Restrict collection deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionEnabled": {
+    "message": "Turned on Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitItemDeletionDisabled": {
+    "message": "Turned off Restrict item deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all collections and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllCollectionItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all collections and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10988,12 +11071,6 @@
     "message": "Na pridanie kreditu je potrebná fakturačná adresa.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
-  "aboutThisSetting": {
-    "message": "About this setting"
-  },
-  "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
-  },
   "billingAddress": {
     "message": "Fakturačná adresa"
   },
@@ -11154,6 +11231,9 @@
         "example": "92873837267"
       }
     }
+  },
+  "confirmKeyConnectorDomain": {
+    "message": "Potvrdiť doménu Key Connectora"
   }
 }
 
