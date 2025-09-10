@@ -35,7 +35,15 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { Search } from "@bitwarden/assets/svg";
+import {
+  Search,
+  OrganizationIcon,
+  TrashIcon,
+  FavoritesIcon,
+  EmptyVaultIcon,
+  EmptySearchIcon,
+  Icon,
+} from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -166,6 +174,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   activeFilter: VaultFilter = new VaultFilter();
 
   protected noItemIcon = Search;
+  protected orgIcon = OrganizationIcon;
+  protected trashIcon = TrashIcon;
+  protected favoritesIcon = FavoritesIcon;
+  protected emptyVaultIcon = EmptyVaultIcon;
+  protected emptySearchResultIcon = EmptySearchIcon;
+
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
@@ -247,6 +261,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     map((results) => results.filter((result) => result !== null && result.shownBanner)),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
+  emptyState$: Observable<{ title: string; description: string; icon: Icon }>;
 
   constructor(
     private syncService: SyncService,
@@ -571,6 +586,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.changeDetectorRef.markForCheck();
         },
       );
+
+    this.emptyState$ = this.showEmptyState();
   }
 
   ngOnDestroy() {
@@ -1308,6 +1325,54 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       queryParamsHandling: "merge",
       replaceUrl: true,
     });
+  }
+
+  isSelectedOrgDisabled(): boolean {
+    return !!this.allOrganizations?.find(
+      (o) => o.id === this.activeFilter.selectedOrganizationNode?.node.id && o.enabled === false,
+    );
+  }
+  showEmptyState(): Observable<{ title: string; description: string; icon: Icon }> {
+    return combineLatest([this.currentSearchText$]).pipe(
+      map(([searchText]) => {
+        if (this.isSelectedOrgDisabled()) {
+          return {
+            title: "organizationIsSuspended",
+            description: "organizationIsSuspendedDesc",
+            icon: this.orgIcon,
+          };
+        }
+
+        if (searchText) {
+          return {
+            title: "noSearchResults",
+            description: "clearFiltersOrTryAnother",
+            icon: this.emptySearchResultIcon,
+          };
+        }
+
+        switch (this.filter?.type) {
+          case "trash":
+            return {
+              title: "noItemsInTrash",
+              description: "noItemsInTrashDesc",
+              icon: this.trashIcon,
+            };
+          case "favorites":
+            return {
+              title: "emptyFavorites",
+              description: "emptyFavoritesDesc",
+              icon: this.favoritesIcon,
+            };
+          default:
+            return {
+              title: "noItemsInVault",
+              description: "emptyVaultDescription",
+              icon: this.emptyVaultIcon,
+            };
+        }
+      }),
+    );
   }
 
   private showMissingPermissionsError() {
