@@ -17,7 +17,6 @@ import { RiskInsightsApiService } from "./risk-insights-api.service";
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
-
 describe("RiskInsightsReportService", () => {
   let service: RiskInsightsReportService;
   const pwdStrengthService = mock<PasswordStrengthServiceAbstraction>();

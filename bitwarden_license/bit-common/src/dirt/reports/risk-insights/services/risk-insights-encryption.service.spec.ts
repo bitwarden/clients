@@ -12,7 +12,6 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 
-
 describe("RiskInsightsEncryptionService", () => {
   let service: RiskInsightsEncryptionService;
   const mockKeyService = mock<KeyService>();
